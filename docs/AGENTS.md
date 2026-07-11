@@ -539,6 +539,12 @@ Scripture Memo is a mobile-first game experience, not a conventional dashboard-s
 - Desktop layouts should expand the game experience without turning it into a conventional SaaS dashboard.
 - Animation, audio, color, and celebration must never compromise accessibility, reduced-motion preferences, readability, or devotional tone.
 
+### 9.4B Tailwind Canonical Syntax
+
+Always use the current canonical utility syntax supported by the installed Tailwind CSS version. Do not introduce legacy aliases merely because they still compile. Treat canonicalization diagnostics from the Tailwind editor tooling as issues to fix before considering a task complete.
+
+For Tailwind CSS 4, use utilities such as `bg-linear-to-r`, `bg-linear-to-b`, and `bg-linear-to-br` instead of the legacy `bg-gradient-to-*` aliases. When syntax guidance may have changed, verify it against the installed Tailwind version or current official Tailwind documentation before implementation.
+
 ### 9.5 Confetti
 
 Trigger the `<ConfettiCelebration>` component when a user successfully completes any game mode (all answers correct on Check). Confetti fires after the completion action response is received, not before.

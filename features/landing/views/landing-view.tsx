@@ -132,7 +132,7 @@ export function LandingView(): React.ReactNode {
                 />
                 <h1 className="text-balance font-heading text-4xl font-black tracking-[-0.04em] sm:text-6xl lg:text-7xl">
                   Carry the Word.
-                  <span className="block bg-gradient-to-r from-amber-500 via-orange-500 to-violet-600 bg-clip-text text-transparent">
+                  <span className="block bg-linear-to-r from-amber-500 via-orange-500 to-violet-600 bg-clip-text text-transparent">
                     One journey at a time.
                   </span>
                 </h1>
@@ -172,7 +172,7 @@ export function LandingView(): React.ReactNode {
               </div>
 
               <div className="relative mx-auto w-full max-w-md" aria-label="Journey preview">
-                <div className="absolute -inset-5 -z-10 rounded-[2.5rem] bg-gradient-to-br from-amber-400/20 via-primary/10 to-violet-500/20 blur-2xl" />
+                <div className="absolute -inset-5 -z-10 rounded-[2.5rem] bg-linear-to-br from-amber-400/20 via-primary/10 to-violet-500/20 blur-2xl" />
                 <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-card/90 p-5 shadow-2xl ring-1 ring-foreground/10 backdrop-blur">
                   <div className="flex items-center justify-between">
                     <div>
@@ -188,7 +188,7 @@ export function LandingView(): React.ReactNode {
                   </div>
 
                   <div className="relative mt-8 space-y-7 px-3 pb-3">
-                    <div className="absolute bottom-8 left-[2.15rem] top-5 w-1 rounded-full bg-gradient-to-b from-amber-300 via-orange-400 to-muted" />
+                    <div className="absolute bottom-8 left-[2.15rem] top-5 w-1 rounded-full bg-linear-to-b from-amber-300 via-orange-400 to-muted" />
                     {[1, 2, 3, 4].map((waypoint) => {
                       const active = waypoint <= 2;
 
@@ -198,7 +198,7 @@ export function LandingView(): React.ReactNode {
                             className={cn(
                               "relative z-10 grid size-14 shrink-0 place-items-center rounded-2xl border-4 border-card font-heading text-lg font-black shadow-md",
                               active
-                                ? "bg-gradient-to-br from-amber-300 to-orange-500 text-zinc-950"
+                                ? "bg-linear-to-br from-amber-300 to-orange-500 text-zinc-950"
                                 : "bg-muted text-muted-foreground",
                             )}
                           >
