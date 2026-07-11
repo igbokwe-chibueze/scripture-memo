@@ -13,8 +13,8 @@ import {
 import { Button } from "@/components/ui/button";
 
 export type ConfirmationDialogProps = {
-  /** Control that opens the dialog; omitted when a parent controls `open`. */
-  trigger?: React.ReactNode;
+  /** Single interactive element that opens the dialog; omitted in controlled mode. */
+  trigger?: React.ReactElement;
   /** Describes the decision in a concise dialog heading. */
   title: string;
   /** Explains consequences before the user commits to the action. */
@@ -55,7 +55,7 @@ export function ConfirmationDialog({
 }: ConfirmationDialogProps): React.ReactNode {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      {trigger && <DialogTrigger render={trigger as React.ReactElement} />}
+      {trigger && <DialogTrigger render={trigger} />}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>

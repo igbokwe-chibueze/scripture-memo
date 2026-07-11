@@ -1,9 +1,1 @@
-import React from 'react'
-
-const page = () => {
-  return (
-    <div>page</div>
-  )
-}
-
-export default page
+export { metadata, LandingView as default } from "@/features/landing/views/landing-view";
