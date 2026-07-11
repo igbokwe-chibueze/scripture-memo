@@ -520,6 +520,19 @@ All game modes must support touch on mobile devices:
 
 Use `@dnd-kit/core` — it natively handles both mouse and touch events.
 
+### 9.4A Mobile Game Visual Direction — Non-Negotiable
+
+Scripture Memo is a mobile-first game experience, not a conventional dashboard-style web application. Every component, page, and view must feel intentionally designed for a polished mobile game while preserving the calm, devotional identity of the product.
+
+- Design for a 375px mobile viewport first, then enhance the layout for tablets and desktops.
+- Use clear visual hierarchy, immersive full-screen compositions, tactile controls, progression maps, reward feedback, game-state indicators, and satisfying transitions where appropriate.
+- Buttons and interactive targets must feel touch-friendly and game-like, with a minimum usable target size of 44×44 CSS pixels.
+- Gameplay screens must prioritize the active challenge and minimize dashboard chrome, dense tables, and administrative visual patterns.
+- Progress, streaks, Glow Points, flames, Journey Stages, cooldowns, badges, and completion states must receive strong visual treatment rather than appearing as plain text fields.
+- Shared components must support the visual language of a mobile game; do not accept generic shadcn defaults as the finished product design.
+- Desktop layouts should expand the game experience without turning it into a conventional SaaS dashboard.
+- Animation, audio, color, and celebration must never compromise accessibility, reduced-motion preferences, readability, or devotional tone.
+
 ### 9.5 Confetti
 
 Trigger the `<ConfettiCelebration>` component when a user successfully completes any game mode (all answers correct on Check). Confetti fires after the completion action response is received, not before.
@@ -532,6 +545,32 @@ Audio files live in `public/audio/`. Use `useAudioFeedback()` hook, which:
 3. Fails silently if the file doesn't exist — never throws.
 
 Required audio files: `pick.mp3`, `drop.mp3`, `error.mp3`, `correct.mp3`, `day-complete.mp3`, `waypoint-complete.mp3`, `badge-unlock.mp3`.
+
+### 9.7 SEO and Metadata — Mandatory
+
+SEO must be implemented extensively using the APIs and file conventions documented by the installed Next.js version. Do not manually add metadata elements to `<head>` when the Next.js Metadata API supports the requirement.
+
+Every relevant public page or route segment must provide accurate, unique metadata, including:
+
+- A descriptive title using the application title template.
+- A useful meta description written for the page's actual content and search intent.
+- A canonical URL and appropriate metadata base.
+- Open Graph and Twitter card metadata with meaningful titles, descriptions, images, and alternative text.
+- Robots directives appropriate to the route's visibility.
+- Structured data (JSON-LD) where it accurately describes public content and follows the applicable schema.
+
+The application foundation must also include and maintain, where relevant:
+
+- `robots.ts` and `sitemap.ts` containing only indexable public URLs.
+- App icons, Apple touch icons, favicon, web app manifest, Open Graph images, and Twitter images.
+- Semantic HTML, one clear page heading, descriptive link text, image alternative text, and crawlable public navigation.
+- Stable, human-readable URLs and redirects when public URLs change.
+
+Authentication pages, account pages, settings, private notes, gameplay sessions, user-specific progress, admin routes, and other private or personalized screens must use `noindex` and must never be added to the sitemap. SEO must never expose private user data or weaken authentication boundaries.
+
+Metadata belongs with the feature that owns the page. To preserve thin route files, a feature view may export its `metadata` or `generateMetadata`, and the corresponding `app/` file should re-export the default view and metadata in a single export statement whenever the installed Next.js version permits it. Dynamic metadata must be generated server-side from validated, authorized, minimal data.
+
+SEO completion is part of each relevant page's definition of done, not a final cleanup task.
 
 ---
 
