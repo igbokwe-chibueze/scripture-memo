@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "auth:generate": "auth generate --config ./lib/auth/auth.ts",
     "lint": "eslint"
