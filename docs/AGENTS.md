@@ -43,6 +43,12 @@ Do not silently guess, fill in missing requirements, or choose between materiall
 
 Questions are not required when the answer is already explicit in the project documents, the user's current instruction, or the authoritative documentation bundled with the installed dependency. Agents must inspect those sources before concluding that clarification is necessary.
 
+### 1A.1A Verify Current Documentation Before Implementation
+
+Before implementing any framework, library, tool, API, integration, configuration, or procedural workflow, consult its authoritative current documentation whenever the technique, API, convention, or recommendation may have changed. Prefer documentation bundled with the installed package when available; otherwise use the official maintainer documentation. For technical decisions, do not rely on memory, outdated examples, tutorials, or third-party summaries when a primary source is available.
+
+The installed dependency version and its matching documentation take precedence over older project-document examples. When current authoritative guidance conflicts with a project document, stop, explain the conflict to the project owner, obtain approval for the replacement, and update the project document so future work follows the resolved technique.
+
 ### 1A.2 Every Script Must Be Extensively Commented
 
 Every script created, proposed, or provided for this project must contain well-detailed and extensive comments. This includes application scripts, command-line utilities, seed scripts, migration helpers, maintenance scripts, automation, configuration scripts with executable behavior, and code snippets intended to be copied and run.
