@@ -41,11 +41,9 @@ const buttonVariants = cva(
 )
 
 /**
- * Renders the shared shadcn button primitive with consistent visual variants.
- *
- * Base UI supplies accessible interaction behavior while the variant map owns
- * presentation. Passing className through cn() allows feature code to extend a
- * button without duplicating the shared focus, disabled, and icon behavior.
+ * Shared button primitive generated from the current shadcn Base UI registry.
+ * Button forwards accessible Base UI button props and accepts className plus the
+ * visual variant and size options declared in buttonVariants.
  */
 function Button({
   className,

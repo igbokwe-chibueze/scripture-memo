@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 
 /**
  * Provides a consistent recovery destination when no route matches a request.
@@ -19,7 +19,14 @@ export function GlobalNotFound(): React.ReactNode {
         <p className="text-muted-foreground">
           The page you requested does not exist or may have moved.
         </p>
-        <Button render={<Link href="/" />}>Return home</Button>
+        {/*
+          WHY: This action navigates to another URL, so it must retain native
+          anchor semantics. Base UI explicitly recommends styling links directly
+          instead of rendering an anchor through its behavior-oriented Button.
+        */}
+        <Link href="/" className={buttonVariants({ className: "min-h-11" })}>
+          Return home
+        </Link>
       </section>
     </main>
   );

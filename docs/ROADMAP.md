@@ -106,7 +106,9 @@ Confirm the following before proceeding:
 ### Tasks
 
 1. Install required shadcn/ui components:
-   - button, input, textarea, card, tabs, badge, dialog, dropdown-menu, switch, skeleton, sheet, form, select, sonner, progress, scroll-area, separator, tooltip, popover, avatar
+   - button, input, textarea, card, tabs, badge, dialog, dropdown-menu, switch, skeleton, sheet, field, select, sonner, progress, scroll-area, separator, tooltip, popover, avatar
+
+   `field` is the current shadcn form-composition primitive and replaces the legacy empty `form` registry entry. Compose it with React Hook Form's `Controller` and Zod validation as documented by the current shadcn form guidance.
 2. Create shared components in `components/shared/`:
    ```
    app-shell.tsx         ← navigation wrapper for authenticated pages
