@@ -765,7 +765,44 @@ Features must be self-contained. When cross-feature data access is needed:
 
 ---
 
-## 16. AI Work Process
+## 16. Project Continuity Log
+
+`docs/codex-history/PROJECT-LOG.md` is the project's concise continuity backup
+and current-status summary. It supplements normal Codex conversation history; it
+does not replace it.
+
+At the beginning of a development session:
+
+1. Use the available Codex conversation history for detailed conversational
+   context and reasoning.
+2. Read `docs/codex-history/PROJECT-LOG.md` to confirm the latest completed work,
+   current task, decisions, blockers, and exact next step.
+3. Verify both against the current codebase, Git state, this root `AGENTS.md`,
+   `docs/ROADMAP.md`, and `docs/PRODUCT-OVERVIEW.md`.
+
+The current repository state is the final authority. This root `AGENTS.md`
+governs implementation rules, while the current product and roadmap documents
+govern product scope and sequence. If chat history or `PROJECT-LOG.md` disagrees
+with those sources, follow the authoritative repository sources and correct the
+log. Never rely on chat history alone.
+
+Update `PROJECT-LOG.md`:
+
+- After completing a roadmap task.
+- After an important architectural or product decision.
+- Whenever the current task or exact next task changes.
+- When important files are created or significantly modified.
+- When a blocker or unresolved question is encountered or resolved.
+- Before ending a development session in which project state changed.
+
+Keep the log concise and factual. Record outcomes, decisions, verification,
+blockers, and continuation points; do not copy full conversations into it. Add a
+dated session update for each meaningful work period and update the current-state
+sections in place so a future session can orient itself quickly.
+
+---
+
+## 17. AI Work Process
 
 When implementing any task, follow this sequence without skipping steps:
 
@@ -785,11 +822,12 @@ When implementing any task, follow this sequence without skipping steps:
 
 ---
 
-## 17. Pre-Task Checklist
+## 18. Pre-Task Checklist
 
 Before starting any implementation task, confirm:
 
 - [ ] I have read the relevant section of `docs/PRODUCT-OVERVIEW.md` for this feature.
+- [ ] I have checked `docs/codex-history/PROJECT-LOG.md` against the current repository state.
 - [ ] I know which feature folder this work belongs in.
 - [ ] I know which route file will re-export this view (one line only).
 - [ ] I will not write any Prisma queries outside of a repository file.
@@ -803,7 +841,7 @@ Before starting any implementation task, confirm:
 
 ---
 
-## 18. Final Review Checklist
+## 19. Final Review Checklist
 
 Before declaring any task complete, verify all of the following:
 
@@ -821,10 +859,11 @@ Before declaring any task complete, verify all of the following:
 - [ ] Journey Stage rules (hint/time) are enforced server-side.
 - [ ] Important logic is commented with explanations of why, not just what.
 - [ ] TypeScript passes with `tsc --noEmit`.
+- [ ] `docs/codex-history/PROJECT-LOG.md` reflects any material state change from this task.
 
 ---
 
-## 19. Forbidden Patterns
+## 20. Forbidden Patterns
 
 The following are architectural violations. Never do any of these:
 
