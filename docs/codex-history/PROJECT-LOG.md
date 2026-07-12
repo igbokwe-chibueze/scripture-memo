@@ -213,6 +213,9 @@ Management.
 - Upgraded the study-note field from a plain textarea to a Markdown editor with
   mobile-friendly controls, keyboard shortcuts, write/preview modes, and safe
   React rendering. Markdown remains in the existing `studyNote` text column.
+- Fixed an intermittent post-create verse-list failure by removing an unnecessary
+  read-only Prisma transaction. Independent list queries now use the normal
+  connection-pool queue, and failures receive sanitized contextual server logs.
 
 ### 2026-07-12 — Phase 6 profile and settings implemented
 

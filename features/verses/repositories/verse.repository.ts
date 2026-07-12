@@ -38,7 +38,12 @@ export const verseRepository = {
       ...(filters.tag ? { tags: { some: { tag: { slug: filters.tag } } } } : {}),
     };
 
-    const [items, total, books, tags] = await prisma.$transaction([
+    // WHY: These independent reads do not require an atomic snapshot. Keeping
+    // them outside a database transaction avoids the transaction-acquisition
+    // timeout that can occur when the list is loaded immediately after a write.
+    // Promise.all retains parallel list performance while each query uses the
+    // normal driver-pool queue rather than reserving a transaction connection.
+    const [items, total, books, tags] = await Promise.all([
       prisma.verse.findMany({
         where,
         include: verseInclude,
