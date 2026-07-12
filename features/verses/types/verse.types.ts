@@ -22,3 +22,30 @@ export type VerseListFilters = {
   active?: boolean;
   sort?: "book-asc" | "book-desc";
 };
+
+export type VerseImportRowStatus = "ready" | "duplicate" | "invalid";
+
+export type VerseImportPreviewRow = {
+  rowNumber: number;
+  reference: string;
+  status: VerseImportRowStatus;
+  messages: string[];
+};
+
+export type VerseImportPreview = {
+  rows: VerseImportPreviewRow[];
+  readyCount: number;
+  duplicateCount: number;
+  invalidCount: number;
+};
+
+export type VerseImportResult = {
+  importedCount: number;
+  duplicateCount: number;
+  invalidCount: number;
+};
+
+export type ParsedVerseImportRow = {
+  rowNumber: number;
+  data: VerseWriteData;
+};

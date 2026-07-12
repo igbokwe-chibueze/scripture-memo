@@ -339,6 +339,10 @@ Confirm the following before proceeding:
 5. Build `VersesListView` using the shared data table component. Sortable by book; filterable by active status and tags.
 6. Add Sonner toasts on create, update, publish, archive.
 7. Add loading, empty, and error states.
+8. Add CSV bulk import with a downloadable template, strict server validation,
+   preview, duplicate skipping, transactional writes, and an audit log entry.
+9. Make reference/book search update dynamically with a 300ms debounce and apply
+   book, tag, status, and sort selections immediately while preserving URL state.
 
 ### Acceptance Criteria
 
@@ -346,6 +350,10 @@ Confirm the following before proceeding:
 - `normalizedText` is generated server-side and stored for each translation.
 - Non-admin users receive an error if they attempt to call these actions.
 - All Prisma queries are in `verse.repository.ts` only.
+- CSV imports never overwrite an existing reference and report duplicate or
+  invalid rows before confirmation.
+- Verse search updates while the administrator types without submitting the
+  complete filter form.
 
 ---
 

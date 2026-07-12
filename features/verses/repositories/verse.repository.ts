@@ -3,7 +3,11 @@ import type { TranslationCode } from "@/lib/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import { normalizeVerseText } from "@/features/verses/lib/normalize-verse-text";
 import { slugifyTag } from "@/features/verses/lib/normalize-tags";
-import type { VerseListFilters, VerseWriteData } from "@/features/verses/types/verse.types";
+import type {
+  ParsedVerseImportRow,
+  VerseListFilters,
+  VerseWriteData,
+} from "@/features/verses/types/verse.types";
 
 const verseInclude = {
   translations: { orderBy: { translation: "asc" as const } },
@@ -66,6 +70,11 @@ export const verseRepository = {
     return prisma.verse.findUnique({ where: { id }, include: verseInclude });
   },
 
+  async findAllReferences(): Promise<string[]> {
+    const verses = await prisma.verse.findMany({ select: { reference: true } });
+    return verses.map((verse) => verse.reference);
+  },
+
   async create(data: VerseWriteData, createdById: string) {
     return prisma.verse.create({
       data: {
@@ -89,6 +98,67 @@ export const verseRepository = {
       },
       include: verseInclude,
     });
+  },
+
+  async importMany(
+    rows: ParsedVerseImportRow[],
+    actorId: string,
+    ipAddress: string | null,
+    skippedDuplicateCount: number,
+    skippedInvalidCount: number,
+  ): Promise<number> {
+    if (rows.length === 0) return 0;
+
+    // WHY: Verse creation and its audit record must succeed or fail together.
+    // Each nested create also persists translations, normalized text, and tags,
+    // so a partial curriculum import can never be presented as successful.
+    return prisma.$transaction(
+      async (transaction) => {
+        for (const row of rows) {
+          await transaction.verse.create({
+            data: {
+              reference: row.data.reference,
+              book: row.data.book,
+              chapter: row.data.chapter,
+              verseStart: row.data.verseStart,
+              verseEnd: row.data.verseEnd,
+              reflection: row.data.reflection,
+              studyNote: row.data.studyNote,
+              isActive: row.data.isActive,
+              createdById: actorId,
+              tags: { create: tagCreates(row.data.tags) },
+              translations: {
+                create: Object.entries(row.data.translations).map(([translation, text]) => ({
+                  translation: translation as TranslationCode,
+                  text,
+                  normalizedText: normalizeVerseText(text),
+                })),
+              },
+            },
+          });
+        }
+
+        await transaction.auditLog.create({
+          data: {
+            actorId,
+            action: "BULK_IMPORT_VERSES",
+            entityType: "Verse",
+            ipAddress,
+            metadata: {
+              importedCount: rows.length,
+              skippedDuplicateCount,
+              skippedInvalidCount,
+            },
+          },
+        });
+
+        return rows.length;
+      },
+      {
+        maxWait: 10_000,
+        timeout: 60_000,
+      },
+    );
   },
 
   async update(id: string, data: VerseWriteData) {

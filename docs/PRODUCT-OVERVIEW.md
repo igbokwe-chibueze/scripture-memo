@@ -325,6 +325,16 @@ Translations are stored in a separate normalized table so additional translation
 
 **Important:** The `normalizedText` field is never shown to the user. It is used exclusively for server-side answer validation to allow case-insensitive, punctuation-tolerant comparisons.
 
+### 6.3 Administrative CSV Import
+
+Administrators can populate the verse library in batches of up to 100 rows using
+the downloadable CSV template. The import requires the base verse fields and all
+three MVP translations, applies the same validation and normalization as manual
+creation, and displays a row-by-row preview before confirmation. Existing
+references and repeated references within the file are skipped and reported;
+bulk import never overwrites an existing verse. Accepted rows and the associated
+admin audit record are written in one database transaction.
+
 ### 6.3 Translation Fallback
 
 If a verse does not have the user's preferred translation, the system falls back to the default platform translation (configurable by Super Admin, defaulting to NIV).

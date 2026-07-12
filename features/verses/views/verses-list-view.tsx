@@ -8,6 +8,8 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { ResponsiveContainer } from "@/components/shared/responsive-container";
 import { VerseStatusAction } from "@/features/verses/components/verse-status-action";
+import { VerseImportDialog } from "@/features/verses/components/verse-import-dialog";
+import { VerseFilters } from "@/features/verses/components/verse-filters";
 import { getVersesListData } from "@/features/verses/lib/get-verses-list-data";
 import { verseListFiltersSchema } from "@/features/verses/schemas/verse.schema";
 
@@ -81,28 +83,24 @@ export async function VersesListView({ searchParams }: { searchParams: SearchPar
           eyebrow="Administration"
           title="Scripture library"
           description="Create, translate, publish, and archive curriculum verses."
-          action={<Link href="/admin/verses/new" className={buttonVariants({ size: "lg" })}><PlusIcon /> Add verse</Link>}
+          action={(
+            <div className="flex flex-wrap gap-2">
+              <VerseImportDialog />
+              <Link href="/admin/verses/new" className={buttonVariants({ size: "lg" })}><PlusIcon /> Add verse</Link>
+            </div>
+          )}
         />
 
-        <form method="get" action="/admin/verses" className="grid gap-3 rounded-2xl border bg-card p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-7">
-          <input name="search" defaultValue={filters.search} placeholder="Search reference or book" className="min-h-11 rounded-lg border bg-background px-3 lg:col-span-2" />
-          <select name="book" defaultValue={filters.book ?? ""} className="min-h-11 rounded-lg border bg-background px-3">
-            <option value="">All books</option>
-            {result.books.map((book) => <option key={book} value={book}>{book}</option>)}
-          </select>
-          <select name="tag" defaultValue={filters.tag ?? ""} className="min-h-11 rounded-lg border bg-background px-3">
-            <option value="">All tags</option>
-            {result.tags.map((tag) => <option key={tag.slug} value={tag.slug}>{tag.name}</option>)}
-          </select>
-          <select name="active" defaultValue={filters.active} className="min-h-11 rounded-lg border bg-background px-3">
-            <option value="all">All statuses</option><option value="active">Published</option><option value="archived">Archived</option>
-          </select>
-          <select name="sort" defaultValue={filters.sort} className="min-h-11 rounded-lg border bg-background px-3">
-            <option value="book-asc">Book A–Z</option>
-            <option value="book-desc">Book Z–A</option>
-          </select>
-          <button className={buttonVariants({ size: "lg" })}>Apply filters</button>
-        </form>
+        <VerseFilters
+          key={`${filters.search ?? ""}:${filters.book ?? ""}:${filters.tag ?? ""}:${filters.active}:${filters.sort}`}
+          defaultSearch={filters.search ?? ""}
+          defaultBook={filters.book ?? ""}
+          defaultTag={filters.tag ?? ""}
+          defaultActive={filters.active}
+          defaultSort={filters.sort}
+          books={result.books}
+          tags={result.tags}
+        />
 
         <DataTable
           data={result.items}
