@@ -36,8 +36,10 @@ export function TranslationSelectionForm(): React.ReactNode {
             return;
           }
           toast.success(result.message);
-          router.push(result.data?.redirectTo ?? "/game");
-          router.refresh();
+          // WHY: A single replace avoids overlapping a route navigation with an
+          // immediate refresh. The previous push-plus-refresh pair could leave
+          // React's transition pending even after the database save completed.
+          router.replace(result.data?.redirectTo ?? "/game");
         });
       }}
       className="space-y-6"

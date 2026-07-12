@@ -25,10 +25,20 @@ export async function selectTranslationAction(
     return { success: false, message: "Authentication required." };
   }
 
-  await authRepository.selectTranslation(
-    session.user.id,
-    parsed.data.translation as TranslationCode,
-  );
+  try {
+    await authRepository.selectTranslation(
+      session.user.id,
+      parsed.data.translation as TranslationCode,
+    );
+  } catch {
+    // WHY: A handled result always settles the client transition and produces
+    // visible feedback instead of leaving the submit button pending when the
+    // database is temporarily unavailable.
+    return {
+      success: false,
+      message: "Unable to save your Bible translation. Please try again.",
+    };
+  }
 
   return {
     success: true,

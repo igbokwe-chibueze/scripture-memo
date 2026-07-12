@@ -46,9 +46,16 @@ export const authRepository = {
     userId: string,
     translation: TranslationCode,
   ): Promise<void> {
-    await prisma.userSettings.update({
+    await prisma.userSettings.upsert({
       where: { userId },
-      data: {
+      update: {
+        preferredTranslation: translation,
+        hasSelectedTranslation: true,
+      },
+      // WHY: Older or partially onboarded identities may not yet have settings.
+      // Upsert repairs that state without forcing the user to register again.
+      create: {
+        userId,
         preferredTranslation: translation,
         hasSelectedTranslation: true,
       },

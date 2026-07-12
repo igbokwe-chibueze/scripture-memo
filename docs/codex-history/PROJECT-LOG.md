@@ -30,8 +30,7 @@ Master) control long-term verse difficulty. Glow Points are the only currency.
 
 - Branch: `main`.
 - `main` matches `origin/main` at commit `4701a3b` as of this update.
-- Phases 0–4 are complete. Phase 5 implementation is complete and awaits the
-  project owner's credential-flow acceptance test.
+- Phases 0–5 are complete and accepted.
 - The public landing page and internal UI-foundation preview are implemented.
 - Better Auth's server/client foundation and auth route exist, but the complete
   Phase 5 authentication experience has not been implemented.
@@ -45,9 +44,8 @@ Master) control long-term verse difficulty. Glow Points are the only currency.
 
 Phase 4 — Core Libraries is complete.
 
-Phase 5 — Authentication is implemented. Automated validation and anonymous
-route smoke tests pass; final manual registration, login, translation persistence,
-logout, and admin-role acceptance testing remains.
+Phase 5 — Authentication is complete. The next roadmap phase is **Phase 6 — User
+Profile and Settings**.
 
 ## Completed Work
 
@@ -96,16 +94,14 @@ logout, and admin-role acceptance testing remains.
 
 ## Current Task
 
-Phase 5 — Authentication has been implemented and verified at build and routing
-level. The changes are uncommitted and awaiting project-owner review and manual
-credential-flow testing in VS Code/browser.
+Phase 5 — Authentication has been implemented, manually accepted by the project
+owner, and verified through the final automated acceptance suite.
 
 ## Exact Next Task
 
-Run the Phase 5 manual acceptance flow: register a new user, select a translation,
-log out, log back in, confirm `/game` loads, confirm anonymous `/game` redirects
-to `/login`, and verify a regular user cannot enter `/admin`. After acceptance
-and commit, proceed to Phase 6 — User Profile and Settings.
+Review and commit the Phase 5 follow-up changes, then begin **Phase 6, Task 1**:
+create the `features/users/` and `features/settings/` files required by the first
+profile/settings implementation task without creating speculative empty folders.
 
 ## Important Decisions
 
@@ -178,7 +174,7 @@ and commit, proceed to Phase 6 — User Profile and Settings.
 
 ## Outstanding Tasks
 
-- Manually accept and commit the Phase 5 authentication changes.
+- Review and commit the remaining Phase 5 follow-up changes.
 - Select an email delivery provider before implementing verification or password
   reset.
 - Phases 6–32 remain pending in roadmap order.
@@ -186,7 +182,7 @@ and commit, proceed to Phase 6 — User Profile and Settings.
 
 ## Blockers and Unresolved Questions
 
-- Manual credential-flow and role testing remains before Phase 5 is accepted.
+- No blocker prevents Phase 6 from starting after the current changes are reviewed.
 - No email delivery provider has been selected, so verification and password
   reset are intentionally not implemented.
 - The recovered transcript contains historical references to the deleted
@@ -194,6 +190,14 @@ and commit, proceed to Phase 6 — User Profile and Settings.
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-12 — Phase 5 accepted
+
+- The project owner confirmed the manual authentication flow works correctly.
+- Final verification passed: Prisma format/validate/generate, TypeScript, ESLint,
+  diff validation, production build, five-rule password-schema behavior, public
+  auth rendering, and anonymous redirects for game, translation, and admin paths.
+- Phase 5 is complete; Phase 6 — User Profile and Settings is next.
 
 ### 2026-07-12 — Phase 5 authentication implemented
 
@@ -218,6 +222,10 @@ and commit, proceed to Phase 6 — User Profile and Settings.
 - Strengthened registration passwords by replacing the general letter rule with
   separate lowercase and uppercase requirements. The live checker now uses five
   requirements and reserves Strong for passwords satisfying all five.
+- Diagnosed translation onboarding that saved successfully but remained on the
+  pending screen. Removed overlapping client push/refresh navigation, added a
+  safe action failure result, and made settings persistence self-healing with an
+  upsert for partially onboarded accounts.
 
 ### 2026-07-12 — Phase 4 completed
 
