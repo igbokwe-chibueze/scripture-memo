@@ -623,6 +623,11 @@ Glow Points are the sole reward currency of Scripture Memo. There is no separate
 | Day 2 — Glow | 1.5 × base |
 | Day 3 — Radiance | 2 × base |
 
+The default base reward is **100 Glow Points** until a Super Admin override is
+configured. New users start with a balance of **0 Glow Points**; the base reward
+is an earning rate, not a starting balance. The default free hint allowance is
+**5 hints** per user.
+
 ### 12.3 Reward Rules
 
 - Points are awarded server-side only. The client never sends a point amount.
