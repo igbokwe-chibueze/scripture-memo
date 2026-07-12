@@ -103,8 +103,10 @@ owner, begin **Phase 4, Task 1**:
 > union, then satisfy the roadmap requirement that it be used by a safe
 > placeholder Server Action without prematurely implementing a product feature.
 
-Before implementation, clarify what placeholder action should own that usage if
-the current repository and Phase 4 documentation do not make the ownership clear.
+The required placeholder Server Action will be owned by
+`features/auth/actions/`, as approved by the project owner. Its behavior and name
+must remain narrowly scoped to demonstrating the shared action-result contract
+without prematurely implementing the full Phase 5 authentication flow.
 
 ## Important Decisions
 
@@ -116,6 +118,9 @@ the current repository and Phase 4 documentation do not make the ownership clear
 - Agents must not rely on chat history alone.
 - Changes should remain uncommitted for review in VS Code Source Control unless
   the project owner explicitly asks Codex to commit or push.
+- The Phase 4 placeholder Server Action using `ActionResult` belongs to the auth
+  feature because authentication is the next feature that will consume the
+  shared contract.
 - No `src/` directory; application code uses root-based, feature-owned folders.
 - Route pages are one-line feature-view re-exports.
 - Prisma access is repository-only, except singleton definition and Better Auth
@@ -160,9 +165,9 @@ the current repository and Phase 4 documentation do not make the ownership clear
 ## Blockers and Unresolved Questions
 
 - No blocker prevents continuity-system completion.
-- Before Phase 4 Task 1, determine the correct feature ownership and behavior of
-  the roadmap's required placeholder action; do not invent a business action
-  solely to demonstrate the `ActionResult` type without owner approval.
+- No unresolved ownership question remains for Phase 4 Task 1. The auth feature
+  will own the required placeholder action. Its exact behavior should stay
+  intentionally minimal until Phase 4 begins.
 - The recovered transcript contains historical references to the deleted
   `docs/AGENTS.md`. They are intentionally preserved because the file is an
   archive of what occurred, not a live instruction source.
@@ -178,6 +183,13 @@ the current repository and Phase 4 documentation do not make the ownership clear
 - Confirmed normal conversation history remains part of future context recovery.
 - Confirmed the repository is authoritative when any source disagrees.
 - No application code changed; changes were intentionally left uncommitted.
+
+### 2026-07-12 — Phase 4 action ownership approved
+
+- The project owner approved `features/auth/actions/` as the owner of Phase 4's
+  placeholder Server Action using the shared `ActionResult` type.
+- Phase 4 implementation has not started and awaits an explicit instruction to
+  proceed.
 
 ### 2026-07-12 — Phase 3 completed
 
