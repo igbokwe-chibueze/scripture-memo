@@ -184,10 +184,15 @@ Confirm the following before proceeding:
    - Badge, UserBadgeProgress
    - Fellowship, FellowshipMember
    - ShopItem, UserShopPurchase
+   - UserVerseNote, UserFavoriteVerse
    - AuditLog
    - Auth provider tables (sessions, accounts, verification tokens)
+   - User account-suspension fields and a `GameSession` Vault-replay marker
 5. Add a **unique constraint** on `(userId, waypointId, dayLevel)` in `UserDayProgress` to prevent duplicate day completion records at the database level.
-6. Add indexes for: user progress queries `(userId, waypointId)`, leaderboard queries `(totalGlowPoints DESC)`, streak queries `(currentStreak DESC)`.
+6. Add indexes for: user progress queries `(userId, waypointId)`, leaderboard
+   queries on `totalWaypointsCompleted DESC` and `totalGlowPoints DESC`, streak
+   queries on `currentStreak DESC`, and the country/fellowship keys used to
+   filter leaderboard scopes.
 7. Run `prisma format`, then `prisma migrate dev --name init`.
 
 ### Acceptance Criteria

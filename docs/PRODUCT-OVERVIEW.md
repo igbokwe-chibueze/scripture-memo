@@ -1085,8 +1085,14 @@ enum RewardEventType {
 - `FellowshipMember`
 - `ShopItem`
 - `UserShopPurchase`
+- `UserVerseNote` (one private Sanctuary note per user and verse)
+- `UserFavoriteVerse` (explicit user-to-verse favorite relation)
 - `AuditLog`
 - Auth tables required by the chosen auth provider (sessions, accounts, verification tokens)
+
+`User` also stores account-suspension state. `GameSession` distinguishes normal
+waypoint sessions from Vault replays so replay attempts can never advance the
+campaign or award Glow Points.
 
 ### 17.3 Critical Database Rules
 
@@ -1095,7 +1101,11 @@ enum RewardEventType {
 - Use **database transactions** when: completing a game mode, completing a day, awarding Glow Points, unlocking the next waypoint, purchasing shop items, joining/leaving fellowships.
 - Store `normalizedText` in `VerseTranslation` for server-side answer validation.
 - Keep translation records separate from the base verse record for extensibility.
-- Add indexes on: `(userId, waypointNumber)` for progress queries, `(userId, glowPoints)` for leaderboard queries, `(userId, currentStreak)` for streak leaderboard.
+- Add indexes on relational progress keys such as `(userId, waypointId)`.
+- Add descending indexes on the actual leaderboard sort fields:
+  `UserProfile.totalWaypointsCompleted`, `UserProfile.totalGlowPoints`, and
+  `UserStreak.currentStreak`. Country and fellowship filters use supporting
+  indexes on their filter keys.
 
 ---
 

@@ -144,6 +144,11 @@ hooks/use-anything.ts
 
 Server Actions must call repositories. They must never call Prisma directly.
 
+The only infrastructure exception is auth-provider initialization in
+`lib/auth/auth.ts`: Better Auth's Prisma adapter requires the singleton client
+itself. This exception permits adapter configuration only; application queries
+and business data access still belong exclusively in feature repositories.
+
 ### 2.5 Server Actions Over API Routes
 
 Use Server Actions for all mutations. API routes are permitted only for:

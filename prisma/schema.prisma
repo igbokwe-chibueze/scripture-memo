@@ -1,7 +1,8 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
+// Scripture Memo's relational source of truth.
+//
+// The schema keeps authentication-provider tables alongside product tables so
+// Prisma can enforce every ownership relation and transaction boundary. Product
+// services must still access these models through feature repositories.
 
 generator client {
   provider = "prisma-client"
@@ -12,25 +13,528 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id            String    @id
-  name          String
-  email         String
-  emailVerified Boolean   @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  sessions      Session[]
-  accounts      Account[]
+enum UserRole {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
 
-  @@unique([email])
+enum TranslationCode {
+  NIV
+  ESV
+  KJV
+}
+
+enum WaypointStatus {
+  LOCKED
+  UNLOCKED
+  IN_PROGRESS
+  COOLDOWN
+  COMPLETED
+}
+
+enum JourneyStage {
+  LEARN
+  RECALL
+  STRENGTHEN
+  MASTER
+}
+
+enum DayLevel {
+  GLIMMER
+  GLOW
+  RADIANCE
+}
+
+enum GameMode {
+  DRAG_DROP
+  PUZZLE
+  SWAP
+  CUE
+  FILL
+}
+
+enum CompletionStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum BadgeCategory {
+  LEARNING
+  STREAK
+  MASTERY
+  INDEPENDENCE
+  SPEED
+  EXPLORATION
+}
+
+enum BadgeRarity {
+  COMMON
+  UNCOMMON
+  RARE
+  EPIC
+  LEGENDARY
+}
+
+enum RewardEventType {
+  DAY_COMPLETE
+  BADGE_UNLOCK
+  MANUAL_ADMIN_AWARD
+}
+
+// Better Auth owns identity and credential lifecycle fields on this table.
+// Product state is kept in one-to-one profile/settings/streak records, while
+// authorization and suspension fields remain here for efficient server checks.
+model User {
+  id             String    @id
+  name           String
+  email          String    @unique
+  emailVerified  Boolean   @default(false)
+  image          String?
+  role           UserRole  @default(USER)
+  suspendedAt    DateTime?
+  suspendReason  String?
+  suspendedUntil DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  sessions              Session[]
+  accounts              Account[]
+  profile               UserProfile?
+  settings              UserSettings?
+  waypointProgress      UserWaypointProgress[]
+  dayProgress           UserDayProgress[]
+  gameSessions          GameSession[]
+  gameModeAttempts      GameModeAttempt[]
+  hintUsages            HintUsage[]
+  rewardLedgerEntries   RewardLedger[]
+  streak                UserStreak?
+  badgeProgress         UserBadgeProgress[]
+  fellowshipMemberships FellowshipMember[]
+  fellowshipsCreated    Fellowship[]           @relation("FellowshipCreator")
+  shopPurchases         UserShopPurchase[]
+  verseNotes            UserVerseNote[]
+  favoriteVerses        UserFavoriteVerse[]
+  versesCreated         Verse[]                @relation("VerseCreator")
+  badgesCreated         Badge[]                @relation("BadgeCreator")
+  shopItemsCreated      ShopItem[]             @relation("ShopItemCreator")
+  auditLogs             AuditLog[]             @relation("AuditActor")
+
+  @@index([role])
+  @@index([suspendedAt])
   @@map("user")
 }
 
+model UserProfile {
+  id                      String   @id @default(cuid())
+  userId                  String   @unique
+  displayName             String
+  countryCode             String?
+  totalGlowPoints         Int      @default(0)
+  totalWaypointsCompleted Int      @default(0)
+  totalHintsUsed          Int      @default(0)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+  user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([totalWaypointsCompleted(sort: Desc), totalGlowPoints(sort: Desc)])
+  @@index([totalGlowPoints(sort: Desc)])
+  @@index([countryCode, totalWaypointsCompleted(sort: Desc), totalGlowPoints(sort: Desc)])
+}
+
+model UserSettings {
+  id                     String          @id @default(cuid())
+  userId                 String          @unique
+  preferredTranslation   TranslationCode @default(NIV)
+  hasSelectedTranslation Boolean         @default(false)
+  audioEnabled           Boolean         @default(true)
+  reducedMotion          Boolean         @default(false)
+  theme                  String          @default("system")
+  createdAt              DateTime        @default(now())
+  updatedAt              DateTime        @updatedAt
+  user                   User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Verse {
+  id             String              @id @default(cuid())
+  reference      String              @unique
+  book           String
+  chapter        Int
+  verseStart     Int
+  verseEnd       Int?
+  reflection     String?
+  studyNote      String?
+  isActive       Boolean             @default(false)
+  createdById    String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  createdBy      User?               @relation("VerseCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  translations   VerseTranslation[]
+  tags           VerseTag[]
+  packs          PackVerse[]
+  waypoints      Waypoint[]
+  replaySessions GameSession[]
+  notes          UserVerseNote[]
+  favorites      UserFavoriteVerse[]
+
+  @@index([book, chapter, verseStart])
+  @@index([isActive])
+}
+
+model VerseTranslation {
+  id             String          @id @default(cuid())
+  verseId        String
+  translation    TranslationCode
+  text           String
+  normalizedText String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  verse          Verse           @relation(fields: [verseId], references: [id], onDelete: Cascade)
+
+  @@unique([verseId, translation])
+  @@index([translation])
+}
+
+model Tag {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  slug      String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  verses    VerseTag[]
+}
+
+model VerseTag {
+  verseId   String
+  tagId     String
+  createdAt DateTime @default(now())
+  verse     Verse    @relation(fields: [verseId], references: [id], onDelete: Cascade)
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([verseId, tagId])
+  @@index([tagId])
+}
+
+model Pack {
+  id          String      @id @default(cuid())
+  name        String
+  slug        String      @unique
+  description String?
+  isActive    Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  verses      PackVerse[]
+
+  @@index([isActive])
+}
+
+model PackVerse {
+  packId    String
+  verseId   String
+  position  Int
+  createdAt DateTime @default(now())
+  pack      Pack     @relation(fields: [packId], references: [id], onDelete: Cascade)
+  verse     Verse    @relation(fields: [verseId], references: [id], onDelete: Restrict)
+
+  @@id([packId, verseId])
+  @@unique([packId, position])
+  @@index([verseId])
+}
+
+model Waypoint {
+  id           String                 @id @default(cuid())
+  number       Int                    @unique
+  verseId      String?
+  journeyStage JourneyStage
+  isActive     Boolean                @default(false)
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+  verse        Verse?                 @relation(fields: [verseId], references: [id], onDelete: Restrict)
+  userProgress UserWaypointProgress[]
+  dayProgress  UserDayProgress[]
+  gameSessions GameSession[]
+
+  @@index([verseId, journeyStage])
+  @@index([isActive, number])
+}
+
+model UserWaypointProgress {
+  id          String         @id @default(cuid())
+  userId      String
+  waypointId  String
+  status      WaypointStatus @default(LOCKED)
+  unlockedAt  DateTime?
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  waypoint    Waypoint       @relation(fields: [waypointId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, waypointId])
+  @@index([userId, status])
+  @@index([waypointId])
+}
+
+model UserDayProgress {
+  id                String           @id @default(cuid())
+  userId            String
+  waypointId        String
+  dayLevel          DayLevel
+  status            CompletionStatus @default(NOT_STARTED)
+  unlocksAt         DateTime?
+  startedAt         DateTime?
+  completedAt       DateTime?
+  glowPointsAwarded Int              @default(0)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  waypoint          Waypoint         @relation(fields: [waypointId], references: [id], onDelete: Restrict)
+  gameSessions      GameSession[]
+
+  // This is the database-level defense against duplicate day rewards.
+  @@unique([userId, waypointId, dayLevel])
+  @@index([userId, waypointId])
+  @@index([userId, status, unlocksAt])
+  @@index([waypointId])
+}
+
+model GameSession {
+  id            String            @id @default(cuid())
+  userId        String
+  waypointId    String?
+  verseId       String
+  dayProgressId String?
+  dayLevel      DayLevel?
+  status        CompletionStatus  @default(IN_PROGRESS)
+  isVaultReplay Boolean           @default(false)
+  startedAt     DateTime          @default(now())
+  completedAt   DateTime?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  waypoint      Waypoint?         @relation(fields: [waypointId], references: [id], onDelete: Restrict)
+  verse         Verse             @relation(fields: [verseId], references: [id], onDelete: Restrict)
+  dayProgress   UserDayProgress?  @relation(fields: [dayProgressId], references: [id], onDelete: Restrict)
+  attempts      GameModeAttempt[]
+  hintUsages    HintUsage[]
+
+  @@index([userId, status])
+  @@index([userId, isVaultReplay, createdAt(sort: Desc)])
+  @@index([waypointId, dayLevel])
+  @@index([dayProgressId])
+}
+
+model GameModeAttempt {
+  id            String           @id @default(cuid())
+  gameSessionId String
+  userId        String
+  gameMode      GameMode
+  attemptNumber Int              @default(1)
+  status        CompletionStatus @default(IN_PROGRESS)
+  score         Int?
+  durationMs    Int?
+  startedAt     DateTime         @default(now())
+  completedAt   DateTime?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  gameSession   GameSession      @relation(fields: [gameSessionId], references: [id], onDelete: Cascade)
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([gameSessionId, gameMode, attemptNumber])
+  @@index([userId, gameMode, status])
+}
+
+model HintUsage {
+  id            String      @id @default(cuid())
+  userId        String
+  gameSessionId String
+  gameMode      GameMode
+  createdAt     DateTime    @default(now())
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gameSession   GameSession @relation(fields: [gameSessionId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([gameSessionId, gameMode])
+}
+
+// Ledger rows deliberately have no updatedAt field. Application repositories
+// expose inserts and reads only; corrections are represented by compensating rows.
+model RewardLedger {
+  id             String          @id @default(cuid())
+  userId         String
+  amount         Int
+  eventType      RewardEventType
+  reason         String
+  idempotencyKey String          @unique
+  createdAt      DateTime        @default(now())
+  user           User            @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([eventType, createdAt])
+}
+
+model UserStreak {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  currentStreak Int       @default(0)
+  bestStreak    Int       @default(0)
+  lastActiveAt  DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([currentStreak(sort: Desc)])
+}
+
+model Badge {
+  id           String              @id @default(cuid())
+  name         String              @unique
+  slug         String              @unique
+  description  String
+  icon         String?
+  category     BadgeCategory
+  rarity       BadgeRarity
+  targetValue  Int
+  rewardAmount Int                 @default(0)
+  isHidden     Boolean             @default(false)
+  isActive     Boolean             @default(true)
+  createdById  String?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  createdBy    User?               @relation("BadgeCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  userProgress UserBadgeProgress[]
+
+  @@index([category, isActive])
+}
+
+model UserBadgeProgress {
+  id         String           @id @default(cuid())
+  userId     String
+  badgeId    String
+  progress   Int              @default(0)
+  status     CompletionStatus @default(NOT_STARTED)
+  unlockedAt DateTime?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge      Badge            @relation(fields: [badgeId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, badgeId])
+  @@index([userId, status])
+  @@index([badgeId, status])
+}
+
+model Fellowship {
+  id          String             @id @default(cuid())
+  name        String
+  slug        String             @unique
+  description String?
+  isPublic    Boolean            @default(true)
+  inviteCode  String             @unique
+  createdById String
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  createdBy   User               @relation("FellowshipCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  members     FellowshipMember[]
+
+  @@index([isPublic, name])
+  @@index([createdById])
+}
+
+model FellowshipMember {
+  id           String     @id @default(cuid())
+  fellowshipId String
+  userId       String
+  joinedAt     DateTime   @default(now())
+  fellowship   Fellowship @relation(fields: [fellowshipId], references: [id], onDelete: Cascade)
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([fellowshipId, userId])
+  @@index([userId, fellowshipId])
+  @@index([fellowshipId, joinedAt])
+}
+
+model ShopItem {
+  id          String             @id @default(cuid())
+  name        String
+  slug        String             @unique
+  description String
+  itemType    String
+  cost        Int
+  isActive    Boolean            @default(true)
+  createdById String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  createdBy   User?              @relation("ShopItemCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  purchases   UserShopPurchase[]
+
+  @@index([isActive, itemType])
+}
+
+model UserShopPurchase {
+  id             String   @id @default(cuid())
+  userId         String
+  shopItemId     String
+  quantity       Int      @default(1)
+  unitCost       Int
+  totalCost      Int
+  idempotencyKey String   @unique
+  purchasedAt    DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  shopItem       ShopItem @relation(fields: [shopItemId], references: [id], onDelete: Restrict)
+
+  @@index([userId, purchasedAt(sort: Desc)])
+  @@index([shopItemId])
+}
+
+model UserVerseNote {
+  id        String   @id @default(cuid())
+  userId    String
+  verseId   String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verse     Verse    @relation(fields: [verseId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, verseId])
+  @@index([verseId])
+}
+
+model UserFavoriteVerse {
+  userId    String
+  verseId   String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verse     Verse    @relation(fields: [verseId], references: [id], onDelete: Restrict)
+
+  @@id([userId, verseId])
+  @@index([verseId])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  action     String
+  entityType String
+  entityId   String?
+  metadata   Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+  actor      User?    @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([actorId, createdAt(sort: Desc)])
+  @@index([entityType, entityId, createdAt(sort: Desc)])
+  @@index([action, createdAt])
+}
+
+// These four models must remain compatible with Better Auth's generated schema.
 model Session {
   id        String   @id
   expiresAt DateTime
-  token     String
+  token     String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   ipAddress String?
@@ -38,7 +542,6 @@ model Session {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([token])
   @@index([userId])
   @@map("session")
 }
