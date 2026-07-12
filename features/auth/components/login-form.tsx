@@ -11,6 +11,7 @@ import { FormError } from "@/components/shared/form-error";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { loginAction } from "@/features/auth/actions/login.action";
 import { PENDING_REGISTRATION_EMAIL_KEY } from "@/features/auth/constants/auth-storage";
+import { PasswordInput } from "@/features/auth/components/password-input";
 import {
   loginSchema,
   type LoginInput,
@@ -79,9 +80,8 @@ export function LoginForm(): React.ReactNode {
         </Field>
         <Field data-invalid={Boolean(form.formState.errors.password)}>
           <FieldLabel htmlFor="login-password">Password</FieldLabel>
-          <Input
+          <PasswordInput
             id="login-password"
-            type="password"
             autoComplete="current-password"
             aria-invalid={Boolean(form.formState.errors.password)}
             {...form.register("password")}
