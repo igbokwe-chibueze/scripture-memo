@@ -30,7 +30,8 @@ Master) control long-term verse difficulty. Glow Points are the only currency.
 
 - Branch: `main`.
 - `main` matches `origin/main` at commit `4701a3b` as of this update.
-- Phases 0–4 of the roadmap are complete.
+- Phases 0–4 are complete. Phase 5 implementation is complete and awaits the
+  project owner's credential-flow acceptance test.
 - The public landing page and internal UI-foundation preview are implemented.
 - Better Auth's server/client foundation and auth route exist, but the complete
   Phase 5 authentication experience has not been implemented.
@@ -44,10 +45,9 @@ Master) control long-term verse difficulty. Glow Points are the only currency.
 
 Phase 4 — Core Libraries is complete.
 
-The next roadmap phase is **Phase 5 — Authentication**. Better Auth's backend
-foundation already exists, but Phase 5's feature-owned actions, schemas, UI,
-route protection, authorization integration, and translation-selection flow have
-not been implemented.
+Phase 5 — Authentication is implemented. Automated validation and anonymous
+route smoke tests pass; final manual registration, login, translation persistence,
+logout, and admin-role acceptance testing remains.
 
 ## Completed Work
 
@@ -96,19 +96,16 @@ not been implemented.
 
 ## Current Task
 
-Phase 4 — Core Libraries has been implemented and verified. The changes are
-uncommitted and awaiting project-owner review in VS Code Source Control.
+Phase 5 — Authentication has been implemented and verified at build and routing
+level. The changes are uncommitted and awaiting project-owner review and manual
+credential-flow testing in VS Code/browser.
 
 ## Exact Next Task
 
-After the project owner reviews and commits Phase 4, begin **Phase 5, Task 1**:
-
-> Create the `features/auth/` structure required for authentication, reusing the
-> existing `features/auth/actions/` folder and preserving the current Better Auth
-> configuration.
-
-Before changing auth behavior, verify the installed Better Auth and Next.js 16
-documentation and audit the current database/session integration.
+Run the Phase 5 manual acceptance flow: register a new user, select a translation,
+log out, log back in, confirm `/game` loads, confirm anonymous `/game` redirects
+to `/login`, and verify a regular user cannot enter `/admin`. After acceptance
+and commit, proceed to Phase 6 — User Profile and Settings.
 
 ## Important Decisions
 
@@ -128,6 +125,12 @@ documentation and audit the current database/session integration.
   with 0 Glow Points.
 - The Phase 4 rate limiter is process-local. Production authentication requires
   a distributed provider shared by every application instance.
+- Better Auth's public API uses its database-backed rate limiter. Server Action
+  calls use the application limiter because Better Auth excludes internal
+  `auth.api` calls from its own request limiter.
+- Email verification and password reset are deferred until an email delivery
+  provider is selected; neither is required by the Phase 5 roadmap acceptance
+  criteria.
 - No `src/` directory; application code uses root-based, feature-owned folders.
 - Route pages are one-line feature-view re-exports.
 - Prisma access is repository-only, except singleton definition and Better Auth
@@ -166,26 +169,46 @@ documentation and audit the current database/session integration.
   `lib/constants.ts`: Phase 4 core libraries.
 - `docs/PRODUCT-OVERVIEW.md`: records the five-hint default, 100-point base
   reward, and zero starting balance.
+- `features/auth/`: registration, login, logout, translation onboarding, forms,
+  repositories, schemas, and views.
+- `lib/auth/session.ts`: authoritative server session helpers.
+- `proxy.ts`: protected-route and admin navigation guards.
+- `prisma/migrations/20260712032838_add_auth_rate_limit/migration.sql`:
+  Better Auth database-backed rate-limit storage.
 
 ## Outstanding Tasks
 
-- Review and commit the Phase 4 changes.
-- Phase 5: complete authentication UI, actions, authorization, Proxy, and initial
-  translation selection.
+- Manually accept and commit the Phase 5 authentication changes.
+- Select an email delivery provider before implementing verification or password
+  reset.
 - Phases 6–32 remain pending in roadmap order.
 - `.env.example` remains absent and is required by the security checklist.
 
 ## Blockers and Unresolved Questions
 
-- No blocker prevents Phase 4 completion.
-- The process-local rate limiter cannot enforce a global limit across multiple
-  production instances. Select and configure a distributed provider during
-  Phase 5 before authentication is considered production-ready.
+- Manual credential-flow and role testing remains before Phase 5 is accepted.
+- No email delivery provider has been selected, so verification and password
+  reset are intentionally not implemented.
 - The recovered transcript contains historical references to the deleted
   `docs/AGENTS.md`. They are intentionally preserved because the file is an
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-12 — Phase 5 authentication implemented
+
+- Added validated register/login/logout actions, onboarding repository writes,
+  responsive forms, translation selection, session helpers, and protected routes.
+- Added full-session Proxy guards for protected and admin routes.
+- Added and applied Better Auth's database-backed rate-limit migration.
+- Verified Prisma, TypeScript, ESLint, production build, public auth rendering,
+  and anonymous protected-route redirects.
+- Left manual credential and admin-role acceptance testing to the project owner;
+  no test user was inserted into the configured database.
+- Improved login-to-registration continuity: the entered login email is carried
+  once through tab-scoped `sessionStorage`, then removed after prefilling the
+  registration form. Passwords are never persisted and emails are not placed in
+  URLs or server logs.
 
 ### 2026-07-12 — Phase 4 completed
 
