@@ -577,3 +577,15 @@ model Verification {
   @@index([identifier])
   @@map("verification")
 }
+
+// Better Auth uses this database-backed counter for requests made directly to
+// its public API route. Server Actions add a separate application-level guard
+// because Better Auth intentionally excludes internal auth.api calls.
+model RateLimit {
+  id          String @id @default(cuid())
+  key         String @unique
+  count       Int
+  lastRequest BigInt
+
+  @@map("rateLimit")
+}
