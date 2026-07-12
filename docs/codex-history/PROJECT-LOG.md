@@ -30,7 +30,7 @@ Master) control long-term verse difficulty. Glow Points are the only currency.
 
 - Branch: `main`.
 - `main` matches `origin/main` at commit `4701a3b` as of this update.
-- Phases 0–3 of the roadmap are complete.
+- Phases 0–4 of the roadmap are complete.
 - The public landing page and internal UI-foundation preview are implemented.
 - Better Auth's server/client foundation and auth route exist, but the complete
   Phase 5 authentication experience has not been implemented.
@@ -42,11 +42,12 @@ Master) control long-term verse difficulty. Glow Points are the only currency.
 
 ## Current Roadmap Position
 
-Phase 3 — Database and Prisma Setup is complete.
+Phase 4 — Core Libraries is complete.
 
-The next roadmap phase is **Phase 4 — Core Libraries**. Work on Phase 4 has not
-started, except that `lib/utils.ts` already contains the shared `cn()` utility
-from the project foundation.
+The next roadmap phase is **Phase 5 — Authentication**. Better Auth's backend
+foundation already exists, but Phase 5's feature-owned actions, schemas, UI,
+route protection, authorization integration, and translation-selection flow have
+not been implemented.
 
 ## Completed Work
 
@@ -82,31 +83,32 @@ from the project foundation.
 - Prisma format, validation, client generation, TypeScript, ESLint, generated
   migration inspection, and production build passed.
 
+### Phase 4 — Core Libraries
+
+- Added the generic `ActionResult` discriminated union and an auth-owned action
+  demonstrating the contract without implementing Phase 5 early.
+- Added UTC-safe date helpers, permission guards, secret-redacting server logs,
+  a process-local fixed-window rate limiter, and gameplay constants.
+- Set the free hint allowance to 5 and base reward to 100 while retaining a zero
+  starting Glow Points balance for new users.
+- TypeScript, ESLint, diff validation, direct date and permission checks, Prisma
+  generation, and the production build passed.
+
 ## Current Task
 
-Implement and establish the project continuity system:
-
-- Maintain this `PROJECT-LOG.md` as a concise backup status summary.
-- Keep root `AGENTS.md` as the single instruction authority.
-- Require future sessions to use available conversation history and this log
-  together, then verify both against the repository.
-
-This task is complete when the user has reviewed and accepted the uncommitted
-documentation changes.
+Phase 4 — Core Libraries has been implemented and verified. The changes are
+uncommitted and awaiting project-owner review in VS Code Source Control.
 
 ## Exact Next Task
 
-After the continuity documentation is reviewed and committed by the project
-owner, begin **Phase 4, Task 1**:
+After the project owner reviews and commits Phase 4, begin **Phase 5, Task 1**:
 
-> Create `types/api.ts` with the standard generic `ActionResult` discriminated
-> union, then satisfy the roadmap requirement that it be used by a safe
-> placeholder Server Action without prematurely implementing a product feature.
+> Create the `features/auth/` structure required for authentication, reusing the
+> existing `features/auth/actions/` folder and preserving the current Better Auth
+> configuration.
 
-The required placeholder Server Action will be owned by
-`features/auth/actions/`, as approved by the project owner. Its behavior and name
-must remain narrowly scoped to demonstrating the shared action-result contract
-without prematurely implementing the full Phase 5 authentication flow.
+Before changing auth behavior, verify the installed Better Auth and Next.js 16
+documentation and audit the current database/session integration.
 
 ## Important Decisions
 
@@ -121,6 +123,11 @@ without prematurely implementing the full Phase 5 authentication flow.
 - The Phase 4 placeholder Server Action using `ActionResult` belongs to the auth
   feature because authentication is the next feature that will consume the
   shared contract.
+- `DEFAULT_HINT_ALLOWANCE = 5`.
+- `BASE_GLOW_POINTS = 100` controls the Glimmer earning rate. New users start
+  with 0 Glow Points.
+- The Phase 4 rate limiter is process-local. Production authentication requires
+  a distributed provider shared by every application instance.
 - No `src/` directory; application code uses root-based, feature-owned folders.
 - Route pages are one-line feature-view re-exports.
 - Prisma access is repository-only, except singleton definition and Better Auth
@@ -152,11 +159,17 @@ without prematurely implementing the full Phase 5 authentication flow.
   Tailwind gradient syntax.
 - `docs/codex-history/CODEX_SESSION_2026-07-11_RECOVERED.md`: recovered historical
   transcript retained as an archive, not as an authoritative status source.
+- `types/api.ts`: standard Server Action result contract.
+- `features/auth/actions/get-auth-foundation-status.action.ts`: temporary
+  auth-owned contract example.
+- `lib/dates.ts`, `lib/permissions.ts`, `lib/logger.ts`, `lib/rate-limit.ts`, and
+  `lib/constants.ts`: Phase 4 core libraries.
+- `docs/PRODUCT-OVERVIEW.md`: records the five-hint default, 100-point base
+  reward, and zero starting balance.
 
 ## Outstanding Tasks
 
-- Review and commit the continuity documentation changes.
-- Phase 4: core libraries and typed action result pattern.
+- Review and commit the Phase 4 changes.
 - Phase 5: complete authentication UI, actions, authorization, Proxy, and initial
   translation selection.
 - Phases 6–32 remain pending in roadmap order.
@@ -164,15 +177,25 @@ without prematurely implementing the full Phase 5 authentication flow.
 
 ## Blockers and Unresolved Questions
 
-- No blocker prevents continuity-system completion.
-- No unresolved ownership question remains for Phase 4 Task 1. The auth feature
-  will own the required placeholder action. Its exact behavior should stay
-  intentionally minimal until Phase 4 begins.
+- No blocker prevents Phase 4 completion.
+- The process-local rate limiter cannot enforce a global limit across multiple
+  production instances. Select and configure a distributed provider during
+  Phase 5 before authentication is considered production-ready.
 - The recovered transcript contains historical references to the deleted
   `docs/AGENTS.md`. They are intentionally preserved because the file is an
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-12 — Phase 4 completed
+
+- Implemented all Phase 4 core-library tasks and the approved auth-owned action
+  contract example.
+- Set the free hint allowance to 5 and base reward to 100 while retaining a zero
+  starting balance for new users.
+- Verified TypeScript, ESLint, diff checks, date arithmetic, permission failures,
+  Prisma generation, and the production build.
+- Left all changes uncommitted for project-owner review.
 
 ### 2026-07-12 — Continuity system established
 
