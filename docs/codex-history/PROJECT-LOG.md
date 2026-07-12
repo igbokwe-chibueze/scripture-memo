@@ -209,12 +209,15 @@ and commit, proceed to Phase 6 — User Profile and Settings.
   once through tab-scoped `sessionStorage`, then removed after prefilling the
   registration form. Passwords are never persisted and emails are not placed in
   URLs or server logs.
-- Added an accessible password visibility toggle and live four-rule strength
+- Added an accessible password visibility toggle and live password-strength
   checker to registration. Added only the approved special-character validation
   rule while preserving the existing length, letter, and number requirements.
 - Refined password-field polish after visual review: visibility controls are
   anchored to the input midpoint, and the Good strength state uses a dedicated
   lime treatment that remains distinct in dark mode.
+- Strengthened registration passwords by replacing the general letter rule with
+  separate lowercase and uppercase requirements. The live checker now uses five
+  requirements and reserves Strong for passwords satisfying all five.
 
 ### 2026-07-12 — Phase 4 completed
 

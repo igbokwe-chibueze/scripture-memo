@@ -8,15 +8,23 @@ import { cn } from "@/lib/utils";
 type PasswordInputProps = Omit<React.ComponentProps<typeof Input>, "type"> & {
   /** Current field value used only for immediate strength feedback. */
   value?: string;
-  /** Shows the four-rule strength experience for the new-password field. */
+  /** Shows the five-rule strength experience for the new-password field. */
   showStrength?: boolean;
 };
 
-const strengthLabels = ["Very Weak", "Weak", "Fair", "Good", "Strong"] as const;
+const strengthLabels = [
+  "Very Weak",
+  "Weak",
+  "Fair",
+  "Good",
+  "Good",
+  "Strong",
+] as const;
 const strengthColors = [
   "bg-destructive",
   "bg-destructive",
   "bg-amber-500",
+  "bg-lime-500 dark:bg-lime-400",
   "bg-lime-500 dark:bg-lime-400",
   "bg-emerald-500",
 ] as const;
@@ -24,6 +32,7 @@ const strengthTextColors = [
   "text-destructive",
   "text-destructive",
   "text-amber-700 dark:text-amber-300",
+  "text-lime-700 dark:text-lime-300",
   "text-lime-700 dark:text-lime-300",
   "text-emerald-700 dark:text-emerald-300",
 ] as const;
@@ -43,7 +52,8 @@ export function PasswordInput({
   const [isVisible, setIsVisible] = useState(false);
   const requirements = [
     { label: "At least 8 characters", satisfied: value.length >= 8 },
-    { label: "At least 1 letter", satisfied: /[A-Za-z]/.test(value) },
+    { label: "At least 1 lowercase letter", satisfied: /[a-z]/.test(value) },
+    { label: "At least 1 uppercase letter", satisfied: /[A-Z]/.test(value) },
     { label: "At least 1 number", satisfied: /[0-9]/.test(value) },
     {
       label: "At least 1 special character",
@@ -93,9 +103,9 @@ export function PasswordInput({
             role="progressbar"
             aria-label={`Password strength: ${strengthLabel}`}
             aria-valuemin={0}
-            aria-valuemax={4}
+            aria-valuemax={5}
             aria-valuenow={score}
-            className="grid grid-cols-4 gap-1.5"
+            className="grid grid-cols-5 gap-1.5"
           >
             {requirements.map((requirement, index) => (
               <span
