@@ -44,8 +44,8 @@ Master) control long-term verse difficulty. Glow Points are the only currency.
 
 Phase 4 — Core Libraries is complete.
 
-Phase 5 — Authentication is complete. The next roadmap phase is **Phase 6 — User
-Profile and Settings**.
+Phase 5 — Authentication is complete. Phase 6 — User Profile and Settings is
+implemented and awaiting the project owner's manual persistence acceptance test.
 
 ## Completed Work
 
@@ -99,9 +99,9 @@ owner, and verified through the final automated acceptance suite.
 
 ## Exact Next Task
 
-Review and commit the Phase 5 follow-up changes, then begin **Phase 6, Task 1**:
-create the `features/users/` and `features/settings/` files required by the first
-profile/settings implementation task without creating speculative empty folders.
+Open `/settings`, change every preference, save, reload, and confirm display
+name, country, translation, audio, reduced motion, and theme persist. After the
+manual acceptance test and commit, proceed to Phase 7 — Admin Verse Management.
 
 ## Important Decisions
 
@@ -159,12 +159,15 @@ profile/settings implementation task without creating speculative empty folders.
 - `docs/codex-history/CODEX_SESSION_2026-07-11_RECOVERED.md`: recovered historical
   transcript retained as an archive, not as an authoritative status source.
 - `types/api.ts`: standard Server Action result contract.
-- `features/auth/actions/get-auth-foundation-status.action.ts`: temporary
-  auth-owned contract example.
+- The temporary auth foundation action was removed after real auth actions adopted
+  the shared `ActionResult` contract.
 - `lib/dates.ts`, `lib/permissions.ts`, `lib/logger.ts`, `lib/rate-limit.ts`, and
   `lib/constants.ts`: Phase 4 core libraries.
 - `docs/PRODUCT-OVERVIEW.md`: records the five-hint default, 100-point base
   reward, and zero starting balance.
+- `features/users/` and `features/settings/`: Phase 6 profile reads, preference
+  persistence, settings UI, and authenticated preference synchronization.
+- `app/(protected)/settings/page.tsx`: one-line protected settings route.
 - `features/auth/`: registration, login, logout, translation onboarding, forms,
   repositories, schemas, and views.
 - `lib/auth/session.ts`: authoritative server session helpers.
@@ -174,15 +177,16 @@ profile/settings implementation task without creating speculative empty folders.
 
 ## Outstanding Tasks
 
-- Review and commit the remaining Phase 5 follow-up changes.
+- Manually verify and commit the Phase 6 profile/settings changes.
 - Select an email delivery provider before implementing verification or password
   reset.
-- Phases 6–32 remain pending in roadmap order.
+- Phases 7–32 remain pending in roadmap order.
 - `.env.example` remains absent and is required by the security checklist.
 
 ## Blockers and Unresolved Questions
 
-- No blocker prevents Phase 6 from starting after the current changes are reviewed.
+- No implementation blocker exists; Phase 6 awaits authenticated manual
+  persistence acceptance before Phase 7 begins.
 - No email delivery provider has been selected, so verification and password
   reset are intentionally not implemented.
 - The recovered transcript contains historical references to the deleted
@@ -190,6 +194,23 @@ profile/settings implementation task without creating speculative empty folders.
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-12 — Phase 6 profile and settings implemented
+
+- Added protected profile/settings repositories, validation, action, form, view,
+  and one-line route.
+- Added ISO country selection, public-safe journey statistics, Bible translation,
+  audio, reduced-motion, and theme preferences.
+- Profile identity and preferences update atomically using the server session ID;
+  no client-provided user ID is accepted.
+- Added a protected-layout preference synchronizer so saved theme, motion, and
+  audio state reapply across authenticated navigation and later sessions.
+- TypeScript, ESLint, diff validation, production build, repository-boundary
+  audit, thin-route audit, and anonymous `/settings` redirect passed.
+- Manual authenticated persistence testing remains before Phase 6 is accepted.
+- Fixed post-login continuation: Proxy-provided internal destinations such as
+  `/settings` are now preserved through login, validated against the protected
+  route allowlist to prevent open redirects, and resumed after authentication.
 
 ### 2026-07-12 — Phase 5 accepted
 

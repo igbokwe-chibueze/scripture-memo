@@ -17,13 +17,15 @@ import {
   type LoginInput,
 } from "@/features/auth/schemas/login.schema";
 
+export type LoginFormProps = { nextPath?: string };
+
 /** Collects credentials and surfaces validated Server Action results. */
-export function LoginForm(): React.ReactNode {
+export function LoginForm({ nextPath }: LoginFormProps): React.ReactNode {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: { email: "", password: "", nextPath },
   });
   const emailField = form.register("email");
 
@@ -45,8 +47,7 @@ export function LoginForm(): React.ReactNode {
 
       toast.success(result.message);
       sessionStorage.removeItem(PENDING_REGISTRATION_EMAIL_KEY);
-      router.push(result.data?.redirectTo ?? "/game");
-      router.refresh();
+      router.replace(result.data?.redirectTo ?? "/game");
     });
   }
 

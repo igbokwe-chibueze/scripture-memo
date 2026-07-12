@@ -1,5 +1,17 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+
+/* User-selected reduced motion is applied immediately after settings save. The
+   media query remains the fallback for visitors whose operating system requests
+   the same behavior before application preferences are available. */
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  scroll-behavior: auto !important;
+  transition-duration: 0.01ms !important;
+}
 @import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));

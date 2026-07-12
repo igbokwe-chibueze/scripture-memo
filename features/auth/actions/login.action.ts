@@ -6,6 +6,7 @@ import { rateLimit } from "@/lib/rate-limit";
 import type { ActionResult } from "@/types/api";
 import { authRepository } from "@/features/auth/repositories/auth.repository";
 import { loginSchema } from "@/features/auth/schemas/login.schema";
+import { getSafePostLoginPath } from "@/features/auth/lib/get-safe-post-login-path";
 
 type LoginResult = { redirectTo: string };
 
@@ -37,7 +38,10 @@ export async function loginAction(input: unknown): Promise<ActionResult<LoginRes
 
   try {
     const result = await auth.api.signInEmail({
-      body: parsed.data,
+      body: {
+        email: parsed.data.email,
+        password: parsed.data.password,
+      },
       headers: requestHeaders,
     });
 
@@ -49,7 +53,11 @@ export async function loginAction(input: unknown): Promise<ActionResult<LoginRes
       success: true,
       message: "Welcome back!",
       data: {
-        redirectTo: hasSelectedTranslation ? "/game" : "/select-translation",
+        // WHY: Translation onboarding always takes precedence. Returning users
+        // resume only a validated internal destination from the login URL.
+        redirectTo: hasSelectedTranslation
+          ? getSafePostLoginPath(parsed.data.nextPath)
+          : "/select-translation",
       },
     };
   } catch {

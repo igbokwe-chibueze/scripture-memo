@@ -10,8 +10,14 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-/** Public login view that redirects an existing session to the game home. */
-export async function LoginView(): Promise<React.ReactNode> {
+export type LoginViewProps = {
+  searchParams: Promise<{ next?: string | string[] }>;
+};
+
+/** Public login view that preserves a protected destination for authentication. */
+export async function LoginView({ searchParams }: LoginViewProps): Promise<React.ReactNode> {
+  const next = (await searchParams).next;
+  const nextPath = typeof next === "string" ? next : undefined;
   if (await getServerSession()) redirect("/game");
   return (
     <AuthCard
@@ -21,7 +27,7 @@ export async function LoginView(): Promise<React.ReactNode> {
       alternateLabel="Create an account"
       alternateHref="/register"
     >
-      <LoginForm />
+      <LoginForm nextPath={nextPath} />
     </AuthCard>
   );
 }
