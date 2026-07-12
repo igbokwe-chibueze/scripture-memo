@@ -44,8 +44,8 @@ Master) control long-term verse difficulty. Glow Points are the only currency.
 
 Phase 4 — Core Libraries is complete.
 
-Phase 5 — Authentication is complete. Phase 6 — User Profile and Settings is
-implemented and awaiting the project owner's manual persistence acceptance test.
+Phases 0–6 are complete and accepted. Phase 7 — Admin Verse Management is
+implemented and awaiting manual ADMIN acceptance testing.
 
 ## Completed Work
 
@@ -99,9 +99,10 @@ owner, and verified through the final automated acceptance suite.
 
 ## Exact Next Task
 
-Open `/settings`, change every preference, save, reload, and confirm display
-name, country, translation, audio, reduced motion, and theme persist. After the
-manual acceptance test and commit, proceed to Phase 7 — Admin Verse Management.
+Choose an initial administrator bootstrap method, then test `/admin/verses` by
+creating a verse with NIV/ESV/KJV text, editing it, filtering/sorting the list,
+and archiving/publishing it. After acceptance, proceed to Phase 8 — Admin Pack
+Management.
 
 ## Important Decisions
 
@@ -174,6 +175,9 @@ manual acceptance test and commit, proceed to Phase 7 — Admin Verse Management
 - `proxy.ts`: protected-route and admin navigation guards.
 - `prisma/migrations/20260712032838_add_auth_rate_limit/migration.sql`:
   Better Auth database-backed rate-limit storage.
+- `features/verses/components/markdown-editor.tsx`: accessible Markdown study-note
+  editor with formatting controls, undo/redo, character count, and a safe preview
+  that ignores embedded HTML.
 
 ## Outstanding Tasks
 
@@ -194,6 +198,21 @@ manual acceptance test and commit, proceed to Phase 7 — Admin Verse Management
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-12 — Phase 7 admin verse management implemented
+
+- Added ADMIN-protected verse repositories, schemas, actions, normalization,
+  create/edit forms, list table, filters, pagination, and publish/archive flow.
+- All three MVP translations are required and `normalizedText` is generated only
+  in the repository from trusted server input.
+- Tags use normalized join records and Unicode-safe stable slugs.
+- TypeScript, ESLint, diff validation, production build, thin-route checks, and
+  repository-only Prisma architecture pass.
+- Manual acceptance requires an ADMIN account; initial administrator bootstrap
+  remains a project-owner decision.
+- Upgraded the study-note field from a plain textarea to a Markdown editor with
+  mobile-friendly controls, keyboard shortcuts, write/preview modes, and safe
+  React rendering. Markdown remains in the existing `studyNote` text column.
 
 ### 2026-07-12 — Phase 6 profile and settings implemented
 

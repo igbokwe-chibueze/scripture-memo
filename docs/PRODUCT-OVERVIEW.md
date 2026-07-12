@@ -304,7 +304,7 @@ A verse is the core content unit of the entire platform.
 | `verseStart` | Starting verse number |
 | `verseEnd` | Ending verse number (supports ranges) |
 | `reflection` | Short devotional thought for the Sanctuary |
-| `studyNote` | Deeper teaching insight |
+| `studyNote` | Deeper teaching insight stored as Markdown; embedded HTML is not supported |
 | `tags` | Array of category tags, e.g., `["love", "salvation"]` |
 | `isActive` | Whether the verse is published and available |
 | `createdBy` | Admin user ID |
