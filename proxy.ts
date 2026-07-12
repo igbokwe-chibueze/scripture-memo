@@ -3,12 +3,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth/auth";
 import { isAdmin } from "@/lib/permissions";
 import type { UserRole } from "@/lib/generated/prisma/enums";
-
-const AUTHENTICATED_PATHS = [
-  "/game", "/map", "/waypoints", "/vault", "/sanctuary",
-  "/oil-shop", "/fellowships", "/leaderboard", "/settings",
-  "/select-translation", "/admin",
-] as const;
+import { PROTECTED_PATH_PREFIXES } from "@/features/auth/constants/protected-paths";
 
 /**
  * Performs optimistic navigation redirects using a validated Better Auth session.
@@ -17,7 +12,7 @@ const AUTHENTICATED_PATHS = [
  */
 export async function proxy(request: NextRequest): Promise<NextResponse> {
   const pathname = request.nextUrl.pathname;
-  const isProtected = AUTHENTICATED_PATHS.some(
+  const isProtected = PROTECTED_PATH_PREFIXES.some(
     (path) => pathname === path || pathname.startsWith(`${path}/`),
   );
 
