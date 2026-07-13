@@ -432,6 +432,22 @@ The Journey Stage (LEARN, RECALL, STRENGTHEN, MASTER) is stored on the `Waypoint
 
 The same verse may appear at multiple waypoints with different Journey Stages. This is expected behavior, not an error.
 
+### 8.2A Permanent Curriculum History
+
+- A hidden waypoint with no learner-linked records may be reassigned and reordered.
+- A published waypoint with no learner-linked records must be hidden before its
+  verse or Journey Stage can change.
+- Once any `UserWaypointProgress`, `UserDayProgress`, or waypoint-linked
+  `GameSession` exists, the waypoint number, assignment, Journey Stage, and
+  publication state are permanent. There is no routine admin override.
+- A verse referenced by a published waypoint cannot be archived.
+- Once learner history exists for any waypoint using a verse, that verse's
+  canonical location, translations, reflection, study note, tags, and status are
+  permanent so historical sessions remain reproducible.
+- Curriculum mutations that validate ordering or availability must use the
+  repository-owned PostgreSQL advisory locks documented by the waypoint and
+  verse repositories. Client-side disabled controls are never the authority.
+
 ### 8.3 Three-Day Challenge Rules
 
 ```

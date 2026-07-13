@@ -9,7 +9,7 @@ export type WaypointMove = {
 
 export type AssignWaypointResult =
   | { status: "assigned" }
-  | { status: "verse-unavailable" | "waypoint-missing" }
+  | { status: "verse-unavailable" | "waypoint-missing" | "published-locked" | "progress-locked" }
   | { status: "duplicate-stage"; existingNumber: number }
   | { status: "stage-order"; conflictingNumber: number; conflictingStage: JourneyStage };
 
@@ -17,7 +17,7 @@ export type PublishWaypointResult =
   | { status: "published" }
   | { status: "unavailable" | "earlier-hidden" | "stage-prerequisite" };
 
-export type HideWaypointResult = "hidden" | "later-published";
+export type HideWaypointResult = "hidden" | "later-published" | "progress-locked";
 
 export type ReorderWaypointResult =
   | { status: "reordered"; moves: WaypointMove[] }

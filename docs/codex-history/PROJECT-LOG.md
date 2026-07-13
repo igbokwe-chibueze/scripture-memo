@@ -29,9 +29,9 @@ long-term verse difficulty. Glow Points are the only currency.
 
 ## Current Project State
 
-- Branch: `admin-pack-management`.
-- Current HEAD at this update: `c4ae06b`.
-- Phases 0–8 are complete and manually accepted, including bulk CSV import,
+- Branch: `admin-waypoint-management`.
+- Current HEAD at this update: `92c33fd`.
+- Phases 0–9 are complete and manually accepted, including bulk CSV import,
   dynamic verse-list search, and admin pack management.
 - The public landing page and internal UI-foundation preview are implemented.
 - Better Auth registration, login, logout, onboarding, and protected-route flows
@@ -40,15 +40,15 @@ long-term verse difficulty. Glow Points are the only currency.
   applied successfully during Phase 3.
 - Root `AGENTS.md` is the single authoritative agent instruction file;
   `docs/AGENTS.md` was removed.
-- Phase 8 changes remain uncommitted for project-owner review in VS Code Source
-  Control.
-- Phase 9 waypoint management is implemented and remains uncommitted pending
-  manual ADMIN acceptance.
+- Phase 9 waypoint management and its curriculum-history hardening are
+  implemented. The current hardening changes remain uncommitted for
+  project-owner review in VS Code Source Control.
 
 ## Current Roadmap Position
 
-Phase 8 — Admin Pack Management is complete and manually accepted. Phase 9 —
-Admin Waypoint Management is implemented and awaiting manual ADMIN acceptance.
+Phase 9 — Admin Waypoint Management is complete and manually accepted. Its
+post-acceptance lifecycle, dependency, concurrency, and regression-test
+hardening is implemented. Phase 10 — Progression Engine is next.
 
 ## Completed Work
 
@@ -97,13 +97,14 @@ Admin Waypoint Management is implemented and awaiting manual ADMIN acceptance.
 
 ## Current Task
 
-Manually verify Phase 9 — Admin Waypoint Management.
+Complete automated and project-owner verification of the Phase 9 curriculum
+history hardening.
 
 ## Exact Next Task
 
-Apply and verify the Phase 9 invariant migration, then manually test append,
-statistics, assignment uniqueness, stage ordering, continuous visibility,
-progress-aware reordering, pending indicators, movement feedback, and audit logs.
+Provide an isolated empty PostgreSQL database through `TEST_DATABASE_URL`, run
+`npm run test:integration`, then begin Phase 10 — Progression Engine using lazy
+progress records and transactional next-published-waypoint unlocking.
 
 ## Important Decisions
 
@@ -133,8 +134,18 @@ progress-aware reordering, pending indicators, movement feedback, and audit logs
   append individual waypoints to one continuous historical sequence without
   year grouping.
 - Published waypoints form a continuous prefix. Per verse, Learn, Recall, and
-  Strengthen are unique and ordered; Master may repeat. Published waypoints with
-  learner progress are position-locked.
+  Strengthen are unique and ordered; Master may repeat.
+- Published but unstarted waypoint assignments must be hidden before editing.
+  Any learner-linked history permanently locks waypoint ordering, assignment,
+  Journey Stage, and visibility; there is no routine override.
+- Published waypoint dependencies prevent verse archival. Once learner history
+  exists for a verse's waypoint, the verse content is immutable so historical
+  gameplay remains reproducible.
+- Curriculum topology writes use one shared transaction-scoped PostgreSQL
+  advisory lock. Assignment, publication, archival, and content edits also use
+  stable per-verse locks so validation cannot race a conflicting mutation.
+- Phase 10 creates progress lazily, unlocks the next actually published waypoint
+  by database query, and commits completion plus unlocking atomically.
 - The Phase 4 placeholder Server Action using `ActionResult` belongs to the auth
   feature because authentication is the next feature that will consume the
   shared contract.
@@ -202,17 +213,21 @@ progress-aware reordering, pending indicators, movement feedback, and audit logs
 
 ## Outstanding Tasks
 
-- Review and commit the accepted Phase 8 pack-management changes.
+- Review and commit the Phase 9 curriculum-history hardening changes.
 - Select an email delivery provider before implementing verification or password
   reset.
-- Phases 9–32 remain pending in roadmap order.
+- Phases 10–32 remain pending in roadmap order.
+- Configure an isolated migrated PostgreSQL database through
+  `TEST_DATABASE_URL` and run the destructive integration suite before Phase 10.
 - `.env.example` remains absent and is required by the security checklist.
 - Before upgrading to `pg` 9, update the configured database SSL mode explicitly
   to `verify-full` to preserve the current certificate-verification behavior.
 
 ## Blockers and Unresolved Questions
 
-- No implementation blocker exists.
+- No implementation blocker exists. Full database-backed integration execution
+  awaits a separately configured empty test database; the suite refuses to use
+  the current application database.
 - No email delivery provider has been selected, so verification and password
   reset are intentionally not implemented.
 - The recovered transcript contains historical references to the deleted
@@ -220,6 +235,36 @@ progress-aware reordering, pending indicators, movement feedback, and audit logs
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-13 — Direct waypoint positioning added
+
+- Added a per-row **Move to position** dialog for efficient long-distance
+  waypoint reordering while retaining arrow controls for small adjustments.
+- Direct moves validate whole-number bounds, progressed-waypoint immutability,
+  the continuous published prefix, and per-verse Journey Stage order before
+  updating local state.
+- Successful moves report the requested destination and affected-position count,
+  appear in the existing movement preview, and remain pending until **Save
+  order** is selected.
+- Strict TypeScript, ESLint, diff validation, and the production build passed.
+
+### 2026-07-13 — Phase 9 curriculum-history hardening implemented
+
+- Made published waypoint assignments editable only after hiding an unstarted
+  waypoint and made every waypoint with learner-linked records immutable.
+- Blocked verse archival while a published waypoint depends on it and froze
+  verse content once learner history exists.
+- Serialized curriculum topology and verse dependency mutations with shared
+  PostgreSQL advisory locks and expanded assignment audit metadata to include
+  previous and new state.
+- Added an isolated PostgreSQL integration suite guarded by `TEST_DATABASE_URL`
+  and a test-database-name check; the suite is skipped safely until a separate
+  migrated test database is configured.
+- Added the direct `server-only` dependency needed by standalone repository test
+  execution without weakening the Next.js server boundary.
+- Updated root instructions, product behavior, Phase 9 acceptance, and Phase 10
+  progression constraints. Prisma validation, TypeScript, ESLint, diff checks,
+  thin-route validation, and the production build passed.
 
 ### 2026-07-13 — Phase 9 assignment modal regression corrected
 

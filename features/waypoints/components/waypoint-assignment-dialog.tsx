@@ -34,6 +34,7 @@ export type WaypointAssignmentDialogProps = {
   initialJourneyStage: JourneyStage;
   publishedVerses: { id: string; reference: string; book: string }[];
   disabled?: boolean;
+  disabledReason?: string;
 };
 
 /** Edits the inseparable verse and Journey Stage assignment for one slot. */
@@ -44,6 +45,7 @@ export function WaypointAssignmentDialog({
   initialJourneyStage,
   publishedVerses,
   disabled = false,
+  disabledReason,
 }: WaypointAssignmentDialogProps): React.ReactNode {
   const [open, setOpen] = useState(false);
   const [verseId, setVerseId] = useState(initialVerseId);
@@ -88,6 +90,7 @@ export function WaypointAssignmentDialog({
         render={
           <Button type="button" variant="outline" className="min-h-11" disabled={disabled} />
         }
+        title={disabled ? disabledReason : undefined}
       >
         <Pencil aria-hidden="true" /> {initialVerseId ? "Edit" : "Assign"}
       </DialogTrigger>

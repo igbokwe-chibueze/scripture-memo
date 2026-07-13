@@ -7,7 +7,10 @@ import { isAdmin } from "@/lib/permissions";
 import { getRequestIp } from "@/lib/request-ip";
 import type { UserRole } from "@/lib/generated/prisma/enums";
 import type { ActionResult } from "@/types/api";
-import { verseRepository } from "@/features/verses/repositories/verse.repository";
+import {
+  VerseCurriculumConflictError,
+  verseRepository,
+} from "@/features/verses/repositories/verse.repository";
 import { verseFormSchema } from "@/features/verses/schemas/verse.schema";
 import { toVerseWriteData } from "@/features/verses/lib/to-verse-write-data";
 
@@ -32,7 +35,19 @@ export async function updateVerseAction(input: unknown): Promise<ActionResult> {
     revalidatePath("/admin/verses");
     revalidatePath(`/admin/verses/${parsed.data.id}/edit`);
     return { success: true, message: "Verse updated." };
-  } catch {
+  } catch (error) {
+    if (error instanceof VerseCurriculumConflictError) {
+      if (error.code === "LEARNER_HISTORY_LOCK") {
+        return {
+          success: false,
+          message: `Learner history at waypoint${error.waypointNumbers.length === 1 ? "" : "s"} ${error.waypointNumbers.join(", ")} makes this verse content permanent.`,
+        };
+      }
+      return {
+        success: false,
+        message: `Hide the published waypoint${error.waypointNumbers.length === 1 ? "" : "s"} using this verse first: ${error.waypointNumbers.join(", ")}.`,
+      };
+    }
     return { success: false, message: "Unable to update verse." };
   }
 }

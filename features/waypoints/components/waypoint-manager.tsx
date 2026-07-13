@@ -11,6 +11,10 @@ import { cn } from "@/lib/utils";
 import { createWaypointAction } from "@/features/waypoints/actions/create-waypoint.action";
 import { reorderWaypointsAction } from "@/features/waypoints/actions/reorder-waypoints.action";
 import { WaypointAssignmentDialog } from "@/features/waypoints/components/waypoint-assignment-dialog";
+import {
+  WaypointPositionDialog,
+  type ProposedWaypointMoveResult,
+} from "@/features/waypoints/components/waypoint-position-dialog";
 import { WaypointStatusAction } from "@/features/waypoints/components/waypoint-status-action";
 import type { JourneyStage } from "@/lib/generated/prisma/enums";
 
@@ -40,6 +44,13 @@ const stageClasses: Record<JourneyStage, string> = {
   RECALL: "border-violet-500/30 bg-violet-500/10 text-violet-700 dark:text-violet-300",
   STRENGTHEN: "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300",
   MASTER: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+};
+
+const stageRank: Record<JourneyStage, number> = {
+  LEARN: 0,
+  RECALL: 1,
+  STRENGTHEN: 2,
+  MASTER: 3,
 };
 
 type StatisticCardProps = {
@@ -83,15 +94,54 @@ export function WaypointManager({ initialWaypoints, publishedVerses }: WaypointM
     return waypoint._count.userProgress > 0 || waypoint._count.dayProgress > 0 || waypoint._count.gameSessions > 0;
   }
 
-  function moveWaypoint(from: number, to: number): void {
-    if (to < 0 || to >= waypoints.length || from === to || isReordering) return;
-    setWaypoints((current) => {
-      const next = [...current];
-      const [moved] = next.splice(from, 1);
-      if (!moved) return current;
-      next.splice(to, 0, moved);
-      return next.map((waypoint, index) => ({ ...waypoint, number: index + 1 }));
-    });
+  function getProposedOrderError(proposed: ManagedWaypoint[]): string | null {
+    const shiftedHistoricalWaypoint = proposed.find((waypoint, index) =>
+      hasProgress(waypoint) && initialNumberById.get(waypoint.id) !== index + 1,
+    );
+    if (shiftedHistoricalWaypoint) {
+      return `Waypoint ${initialNumberById.get(shiftedHistoricalWaypoint.id) ?? shiftedHistoricalWaypoint.number} has learner history and cannot change position.`;
+    }
+
+    let hiddenSeen = false;
+    for (const waypoint of proposed) {
+      if (!waypoint.isActive) hiddenSeen = true;
+      else if (hiddenSeen) return "A hidden waypoint cannot be placed before a published waypoint.";
+    }
+
+    const lastStageByVerse = new Map<string, JourneyStage>();
+    for (const waypoint of proposed) {
+      if (!waypoint.verse) continue;
+      const previousStage = lastStageByVerse.get(waypoint.verse.id);
+      if (previousStage && stageRank[previousStage] > stageRank[waypoint.journeyStage]) {
+        return `${waypoint.verse.reference} cannot move backwards through its Journey Stages.`;
+      }
+      lastStageByVerse.set(waypoint.verse.id, waypoint.journeyStage);
+    }
+    return null;
+  }
+
+  function proposeWaypointMove(from: number, to: number): ProposedWaypointMoveResult {
+    if (isReordering || to < 0 || to >= waypoints.length || from < 0 || from >= waypoints.length) {
+      return { success: false, message: "That waypoint move is no longer available." };
+    }
+    if (from === to) return { success: true, affectedCount: 0 };
+
+    const proposed = [...waypoints];
+    const [moved] = proposed.splice(from, 1);
+    if (!moved) return { success: false, message: "That waypoint no longer exists." };
+    proposed.splice(to, 0, moved);
+    const numberedProposal = proposed.map((waypoint, index) => ({ ...waypoint, number: index + 1 }));
+    const error = getProposedOrderError(numberedProposal);
+    if (error) return { success: false, message: error };
+
+    const affectedCount = numberedProposal.filter((waypoint, index) => waypoints[index]?.id !== waypoint.id).length;
+    setWaypoints(numberedProposal);
+    return { success: true, affectedCount };
+  }
+
+  function moveWaypointOneStep(from: number, to: number): void {
+    const result = proposeWaypointMove(from, to);
+    if (!result.success) toast.error(result.message, { duration: Infinity });
   }
 
   function saveOrder(): void {
@@ -173,14 +223,17 @@ export function WaypointManager({ initialWaypoints, publishedVerses }: WaypointM
             {waypoints.map((waypoint, index) => {
               const previous = waypoints[index - 1];
               const next = waypoints[index + 1];
-              const movementLocked = waypoint.isActive && hasProgress(waypoint);
+              const learnerHistoryLocked = hasProgress(waypoint);
+              const movementLocked = learnerHistoryLocked;
               const moveUpBlocked = index === 0 || movementLocked || Boolean(previous && (hasProgress(previous) || (!waypoint.isActive && previous.isActive)));
               const moveDownBlocked = index === waypoints.length - 1 || movementLocked || Boolean(next && (hasProgress(next) || (waypoint.isActive && !next.isActive)));
               const isNextHidden = !waypoint.isActive && (index === 0 || Boolean(previous?.isActive));
               const isLastPublished = waypoint.isActive && !waypoints.slice(index + 1).some((candidate) => candidate.isActive);
               const canPublish = Boolean(waypoint.verse?.isActive) && isNextHidden;
-              const statusChangeAllowed = waypoint.isActive ? isLastPublished : isNextHidden;
-              const disabledReason = waypoint.isActive
+              const statusChangeAllowed = !learnerHistoryLocked && (waypoint.isActive ? isLastPublished : isNextHidden);
+              const disabledReason = learnerHistoryLocked
+                ? "Learner history makes this waypoint permanent."
+                : waypoint.isActive
                 ? "Hide later published waypoints first."
                 : !waypoint.verse
                   ? "Assign a published verse first."
@@ -194,8 +247,17 @@ export function WaypointManager({ initialWaypoints, publishedVerses }: WaypointM
                       <span className="flex size-9 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">{index + 1}</span>
                       {originalNumber !== index + 1 && <span className="text-xs text-amber-700 dark:text-amber-300"><span className="sr-only">Previously waypoint </span>{originalNumber} → {index + 1}</span>}
                       <div className="flex gap-1">
-                        <Button type="button" variant="ghost" size="icon-lg" disabled={isReordering || moveUpBlocked} aria-label={`Move waypoint ${index + 1} up`} onClick={() => moveWaypoint(index, index - 1)}><ArrowUp aria-hidden="true" /></Button>
-                        <Button type="button" variant="ghost" size="icon-lg" disabled={isReordering || moveDownBlocked} aria-label={`Move waypoint ${index + 1} down`} onClick={() => moveWaypoint(index, index + 1)}><ArrowDown aria-hidden="true" /></Button>
+                        <Button type="button" variant="ghost" size="icon-lg" disabled={isReordering || moveUpBlocked} aria-label={`Move waypoint ${index + 1} up`} onClick={() => moveWaypointOneStep(index, index - 1)}><ArrowUp aria-hidden="true" /></Button>
+                        <Button type="button" variant="ghost" size="icon-lg" disabled={isReordering || moveDownBlocked} aria-label={`Move waypoint ${index + 1} down`} onClick={() => moveWaypointOneStep(index, index + 1)}><ArrowDown aria-hidden="true" /></Button>
+                        <WaypointPositionDialog
+                          waypointNumber={index + 1}
+                          totalWaypoints={waypoints.length}
+                          disabled={isReordering || learnerHistoryLocked || waypoints.length < 2}
+                          disabledReason={learnerHistoryLocked
+                            ? "Learner history makes this waypoint permanent."
+                            : "This waypoint cannot be moved."}
+                          onMove={(destination) => proposeWaypointMove(index, destination - 1)}
+                        />
                       </div>
                     </div>
                   </td>
@@ -206,7 +268,19 @@ export function WaypointManager({ initialWaypoints, publishedVerses }: WaypointM
                   <td className="px-4 py-3 align-middle"><Badge variant={waypoint.isActive ? "default" : "outline"}>{waypoint.isActive ? "Published" : "Hidden"}</Badge></td>
                   <td className="px-4 py-3 align-middle">
                     <div className="flex justify-end gap-2">
-                      <WaypointAssignmentDialog waypointId={waypoint.id} waypointNumber={index + 1} initialVerseId={waypoint.verse?.id ?? ""} initialJourneyStage={waypoint.journeyStage} publishedVerses={publishedVerses} disabled={hasUnsavedOrder || isReordering || isCreating} />
+                      <WaypointAssignmentDialog
+                        waypointId={waypoint.id}
+                        waypointNumber={index + 1}
+                        initialVerseId={waypoint.verse?.id ?? ""}
+                        initialJourneyStage={waypoint.journeyStage}
+                        publishedVerses={publishedVerses}
+                        disabled={hasUnsavedOrder || isReordering || isCreating || waypoint.isActive || learnerHistoryLocked}
+                        disabledReason={learnerHistoryLocked
+                          ? "Learner history makes this assignment permanent."
+                          : waypoint.isActive
+                            ? "Hide this unstarted waypoint before editing its assignment."
+                            : undefined}
+                      />
                       <WaypointStatusAction id={waypoint.id} number={index + 1} isActive={waypoint.isActive} canPublish={canPublish} statusChangeAllowed={statusChangeAllowed} disabledReason={disabledReason} disabled={hasUnsavedOrder || isReordering || isCreating} />
                     </div>
                   </td>

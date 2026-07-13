@@ -30,7 +30,7 @@ export async function reorderWaypointsAction(input: unknown): Promise<ActionResu
     if (result.status === "stale") return { success: false, message: "Waypoint slots changed. Refresh and try again." };
     if (result.status === "published-gap") return { success: false, message: "A hidden waypoint cannot be placed before a published waypoint." };
     if (result.status === "stage-order") return { success: false, message: "A later Journey Stage cannot be moved before an earlier stage of the same verse." };
-    if (result.status === "progress-locked") return { success: false, message: "A published waypoint with learner progress cannot be moved." };
+    if (result.status === "progress-locked") return { success: false, message: "A waypoint with learner history cannot be moved." };
     if (result.status !== "reordered") return { success: false, message: "Unable to verify waypoint order." };
     revalidatePath("/admin/waypoints");
     const moved = result.moves.length;

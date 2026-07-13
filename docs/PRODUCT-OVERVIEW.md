@@ -408,6 +408,23 @@ while a later published waypoint exists. Hidden future waypoints may be
 reordered, but a published waypoint becomes position-locked as soon as learner
 progress references it.
 
+Administrators can use arrow controls for small one-position adjustments or a
+**Move to position** control for long jumps. Direct moves update the proposed
+order only, show the affected positions, and still require an explicit save.
+Both interaction paths enforce the same published-prefix, Journey Stage, and
+learner-history restrictions before the server performs its authoritative
+validation.
+
+Waypoint and verse history becomes permanent at the first learner-linked record.
+A hidden waypoint with no history remains freely editable. A published but
+unstarted waypoint must be hidden before its verse or Journey Stage can change.
+Once any waypoint progress, day progress, or waypoint-linked game session exists,
+the waypoint cannot be reassigned, hidden, or reordered. Its verse content also
+becomes immutable so a learner's historical challenge cannot silently change.
+Published waypoint dependencies prevent verse archival. No routine administrator
+override exists in the initial system; any future exceptional correction workflow
+requires a separately approved, reason-bearing, fully audited design.
+
 ### 7.3 Waypoint Progression Rules
 
 - Waypoint 1 is the only waypoint unlocked for new users by default.

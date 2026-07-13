@@ -7,7 +7,10 @@ import { isAdmin } from "@/lib/permissions";
 import { getRequestIp } from "@/lib/request-ip";
 import type { UserRole } from "@/lib/generated/prisma/enums";
 import type { ActionResult } from "@/types/api";
-import { verseRepository } from "@/features/verses/repositories/verse.repository";
+import {
+  VerseCurriculumConflictError,
+  verseRepository,
+} from "@/features/verses/repositories/verse.repository";
 import { verseIdSchema } from "@/features/verses/schemas/verse.schema";
 
 /** Archives a verse without deleting content or user-linked history. */
@@ -26,7 +29,13 @@ export async function archiveVerseAction(input: unknown): Promise<ActionResult> 
     );
     revalidatePath("/admin/verses");
     return { success: true, message: "Verse archived." };
-  } catch {
+  } catch (error) {
+    if (error instanceof VerseCurriculumConflictError && error.code === "PUBLISHED_WAYPOINT_DEPENDENCY") {
+      return {
+        success: false,
+        message: `Hide the published waypoint${error.waypointNumbers.length === 1 ? "" : "s"} using this verse first: ${error.waypointNumbers.join(", ")}.`,
+      };
+    }
     return { success: false, message: "Unable to archive verse." };
   }
 }

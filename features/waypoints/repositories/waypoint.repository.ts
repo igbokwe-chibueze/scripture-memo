@@ -16,6 +16,39 @@ const waypointInclude = {
 
 const auditTransactionOptions = { maxWait: 10_000, timeout: 60_000 } as const;
 
+const waypointProgressCountSelect = {
+  userProgress: true,
+  dayProgress: true,
+  gameSessions: true,
+} satisfies Prisma.WaypointCountOutputTypeSelect;
+
+type WaypointProgressCounts = {
+  userProgress: number;
+  dayProgress: number;
+  gameSessions: number;
+};
+
+/** Learner-linked records make a waypoint part of permanent curriculum history. */
+function hasLearnerHistory(counts: WaypointProgressCounts): boolean {
+  return counts.userProgress > 0 || counts.dayProgress > 0 || counts.gameSessions > 0;
+}
+
+/** Serializes topology changes that could otherwise validate against stale ordering. */
+async function lockCurriculum(transaction: Prisma.TransactionClient): Promise<void> {
+  await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('scripture-memo-curriculum'))`;
+}
+
+/** Locks each affected verse in stable order so assignment and archival cannot race. */
+async function lockVerses(
+  transaction: Prisma.TransactionClient,
+  verseIds: Array<string | null>,
+): Promise<void> {
+  const uniqueIds = [...new Set(verseIds.filter((id): id is string => Boolean(id)))].sort();
+  for (const verseId of uniqueIds) {
+    await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('scripture-memo-verse'), hashtext(${verseId}))`;
+  }
+}
+
 const stageRank: Record<JourneyStage, number> = {
   LEARN: 0,
   RECALL: 1,
@@ -59,9 +92,9 @@ export const waypointRepository = {
   async create(actorId: string, ipAddress: string | null) {
     return prisma.$transaction(async (transaction) => {
       // WHY: Concurrent administrators could otherwise read the same maximum
-      // number. This transaction-scoped PostgreSQL lock serializes only waypoint
-      // appends and guarantees every new record receives the next final number.
-      await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('scripture-memo-waypoint-append'))`;
+      // number. The shared curriculum lock also prevents an append from racing a
+      // reorder that validated the complete current ID set.
+      await lockCurriculum(transaction);
       const maximum = await transaction.waypoint.aggregate({ _max: { number: true } });
       const waypoint = await transaction.waypoint.create({
         data: { number: (maximum._max.number ?? 0) + 1, journeyStage: "LEARN", isActive: false },
@@ -88,15 +121,30 @@ export const waypointRepository = {
     ipAddress: string | null,
   ): Promise<AssignWaypointResult> {
     return prisma.$transaction(async (transaction) => {
-      const [waypoint, verse, appearances] = await Promise.all([
-        transaction.waypoint.findUnique({ where: { id: waypointId }, select: { id: true, number: true } }),
+      await lockCurriculum(transaction);
+      const waypoint = await transaction.waypoint.findUnique({
+        where: { id: waypointId },
+        select: {
+          id: true,
+          number: true,
+          verseId: true,
+          journeyStage: true,
+          isActive: true,
+          _count: { select: waypointProgressCountSelect },
+        },
+      });
+      if (!waypoint) return { status: "waypoint-missing" };
+
+      await lockVerses(transaction, [waypoint.verseId, verseId]);
+      const [verse, appearances] = await Promise.all([
         transaction.verse.findFirst({ where: { id: verseId, isActive: true }, select: { id: true, reference: true } }),
         transaction.waypoint.findMany({
           where: { verseId, id: { not: waypointId } },
           select: { number: true, journeyStage: true },
         }),
       ]);
-      if (!waypoint) return { status: "waypoint-missing" };
+      if (hasLearnerHistory(waypoint._count)) return { status: "progress-locked" };
+      if (waypoint.isActive) return { status: "published-locked" };
       if (!verse) return { status: "verse-unavailable" };
 
       if (journeyStage !== "MASTER") {
@@ -128,7 +176,14 @@ export const waypointRepository = {
           entityType: "Waypoint",
           entityId: waypointId,
           ipAddress,
-          metadata: { number: waypoint.number, verseId, reference: verse.reference, journeyStage: updated.journeyStage },
+          metadata: {
+            number: waypoint.number,
+            previousVerseId: waypoint.verseId,
+            previousJourneyStage: waypoint.journeyStage,
+            newVerseId: verseId,
+            newReference: verse.reference,
+            newJourneyStage: updated.journeyStage,
+          },
         },
       });
       return { status: "assigned" };
@@ -141,6 +196,7 @@ export const waypointRepository = {
     ipAddress: string | null,
   ): Promise<ReorderWaypointResult> {
     return prisma.$transaction(async (transaction) => {
+      await lockCurriculum(transaction);
       const current = await transaction.waypoint.findMany({
         select: {
           id: true,
@@ -149,7 +205,7 @@ export const waypointRepository = {
           journeyStage: true,
           isActive: true,
           verse: { select: { reference: true } },
-          _count: { select: { userProgress: true, dayProgress: true, gameSessions: true } },
+          _count: { select: waypointProgressCountSelect },
         },
       });
       const currentById = new Map(current.map((waypoint) => [waypoint.id, waypoint]));
@@ -181,8 +237,7 @@ export const waypointRepository = {
       for (const waypoint of proposed) {
         const previous = currentById.get(waypoint.id)!;
         if (previous.number === waypoint.number) continue;
-        const hasProgress = previous._count.userProgress > 0 || previous._count.dayProgress > 0 || previous._count.gameSessions > 0;
-        if (previous.isActive && hasProgress) return { status: "progress-locked" };
+        if (hasLearnerHistory(previous._count)) return { status: "progress-locked" };
         safeMoves.push({
           id: waypoint.id,
           reference: waypoint.verse?.reference ?? null,
@@ -223,11 +278,17 @@ export const waypointRepository = {
 
   async publish(id: string, actorId: string, ipAddress: string | null): Promise<PublishWaypointResult> {
     return prisma.$transaction(async (transaction) => {
+      await lockCurriculum(transaction);
       const waypoint = await transaction.waypoint.findUnique({
         where: { id },
         include: { verse: { select: { id: true, reference: true, isActive: true } } },
       });
       if (!waypoint?.verse?.isActive) return { status: "unavailable" };
+      await lockVerses(transaction, [waypoint.verse.id]);
+      const verseStillPublished = await transaction.verse.count({
+        where: { id: waypoint.verse.id, isActive: true },
+      });
+      if (verseStillPublished === 0) return { status: "unavailable" };
 
       const earlierHidden = await transaction.waypoint.count({
         where: { number: { lt: waypoint.number }, isActive: false },
@@ -267,7 +328,12 @@ export const waypointRepository = {
 
   async hide(id: string, actorId: string, ipAddress: string | null): Promise<HideWaypointResult> {
     return prisma.$transaction(async (transaction) => {
-      const waypoint = await transaction.waypoint.findUniqueOrThrow({ where: { id } });
+      await lockCurriculum(transaction);
+      const waypoint = await transaction.waypoint.findUniqueOrThrow({
+        where: { id },
+        include: { _count: { select: waypointProgressCountSelect } },
+      });
+      if (hasLearnerHistory(waypoint._count)) return "progress-locked";
       const laterPublished = await transaction.waypoint.count({
         where: { number: { gt: waypoint.number }, isActive: true },
       });

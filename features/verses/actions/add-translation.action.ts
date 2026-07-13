@@ -6,7 +6,10 @@ import { auth } from "@/lib/auth/auth";
 import { isAdmin } from "@/lib/permissions";
 import type { TranslationCode, UserRole } from "@/lib/generated/prisma/enums";
 import type { ActionResult } from "@/types/api";
-import { verseRepository } from "@/features/verses/repositories/verse.repository";
+import {
+  VerseCurriculumConflictError,
+  verseRepository,
+} from "@/features/verses/repositories/verse.repository";
 import { upsertTranslationSchema } from "@/features/verses/schemas/verse.schema";
 
 /** Adds a missing translation while always generating normalization server-side. */
@@ -20,7 +23,10 @@ export async function addTranslationAction(input: unknown): Promise<ActionResult
     await verseRepository.upsertTranslation(parsed.data.verseId, parsed.data.translation as TranslationCode, parsed.data.text);
     revalidatePath(`/admin/verses/${parsed.data.verseId}/edit`);
     return { success: true, message: "Translation added." };
-  } catch {
+  } catch (error) {
+    if (error instanceof VerseCurriculumConflictError) {
+      return { success: false, message: "Learner history makes this verse content permanent." };
+    }
     return { success: false, message: "Unable to add translation." };
   }
 }

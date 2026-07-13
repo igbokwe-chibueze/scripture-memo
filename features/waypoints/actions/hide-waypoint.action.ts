@@ -25,6 +25,9 @@ export async function hideWaypointAction(input: unknown): Promise<ActionResult> 
     if (result === "later-published") {
       return { success: false, message: "Hide later published waypoints first so the learner journey remains continuous." };
     }
+    if (result === "progress-locked") {
+      return { success: false, message: "A waypoint with learner history cannot be hidden." };
+    }
     revalidatePath("/admin/waypoints");
     return { success: true, message: "Waypoint hidden." };
   } catch {

@@ -406,8 +406,8 @@ Confirm the following before proceeding:
 
 ## Phase 9 — Admin Waypoint Management
 
-**Status:** Implemented — automated verification passed; manual ADMIN acceptance
-pending.
+**Status:** Complete — automated verification and manual ADMIN acceptance passed;
+curriculum-history hardening implemented.
 
 **Goal:** Create and safely manage an expanding sequential waypoint curriculum.
 
@@ -434,9 +434,21 @@ pending.
 10. Enforce a continuous published prefix followed by hidden drafts.
 11. Enforce per-verse Journey Stage order and uniqueness for Learn, Recall, and
     Strengthen; Master may repeat.
-12. Lock the position of a published waypoint after learner progress exists.
+12. Lock the position, assignment, Journey Stage, and publication state of a
+    waypoint after learner history exists.
 13. Show pending feedback for visibility changes and human-readable movement
     details before and after reordering.
+14. Make published assignments editable only after an unstarted waypoint is
+    hidden, and make every waypoint with learner history fully immutable.
+15. Prevent a verse used by a published waypoint from being archived and freeze
+    verse content after learner history exists.
+16. Serialize curriculum topology and verse-dependency mutations with
+    transaction-scoped PostgreSQL advisory locks.
+17. Maintain a destructive database-backed invariant suite that requires an
+    explicitly separate, empty test database.
+18. Provide both one-step arrow controls and a validated **Move to position**
+    control for long-distance reordering. Direct moves update the proposed order
+    and retain the explicit save step.
 
 ### Acceptance Criteria
 
@@ -450,6 +462,12 @@ pending.
   published waypoint.
 - The same verse cannot repeat Learn, Recall, or Strengthen, while Master may
   repeat.
+- A published but unstarted waypoint must be hidden before reassignment.
+- A waypoint with learner history cannot be reassigned, hidden, or reordered.
+- A published waypoint's verse cannot be archived, and progressed verse content
+  cannot be edited.
+- Admin can move an editable waypoint directly to a valid destination without
+  repeated arrow clicks, preview every shifted position, and save explicitly.
 
 ---
 
@@ -463,11 +481,13 @@ pending.
 2. Create `progression.repository.ts`:
    - `getUserWaypointProgress(userId, waypointId)`
    - `getUserDayProgress(userId, waypointId, dayLevel)`
-   - `initializeFirstWaypoint(userId)` — called on first login after registration
+   - `initializeFirstWaypoint(userId)` — lazily creates only the first available
+     published waypoint progress record on first login after registration
    - `markDayComplete(userId, waypointId, dayLevel, completedAt)` — uses a transaction
    - `setNextDayUnlock(userId, waypointId, dayLevel, unlockedAt)` — sets the unlock timestamp for the following day
    - `markWaypointComplete(userId, waypointId)`
-   - `unlockNextWaypoint(userId, currentWaypointNumber)`
+   - `unlockNextWaypoint(userId, currentWaypointNumber)` — queries the next
+     currently published waypoint from the database rather than assuming `N+1`
 3. Create `features/progression/lib/progression-utils.ts`:
    ```ts
    // Returns whether a day is currently playable for a given user.
@@ -482,6 +502,14 @@ pending.
    ```
 4. Add comments throughout explaining server-side authority over cooldown decisions.
 5. Unique constraint verification: confirm that attempting to insert a duplicate `(userId, waypointId, dayLevel)` record throws a database error (which the action catches and handles gracefully).
+6. Recheck that the waypoint and its verse are still published when gameplay
+   starts; never unlock a hidden waypoint or one backed by an archived verse.
+7. Commit Day 3 completion, waypoint completion, and creation of the next
+   waypoint progress record in one transaction. If no later published waypoint
+   exists, treat the learner as caught up with the currently available
+   curriculum rather than as an error.
+8. Create progress records lazily as waypoints unlock. Do not pre-create a locked
+   record for every current or future waypoint.
 
 ### Acceptance Criteria
 
