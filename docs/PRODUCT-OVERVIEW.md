@@ -6,7 +6,10 @@
 
 ## 1. Product Summary
 
-Scripture Memo is a full-stack, interactive scripture memorization web application. It guides users through a structured learning journey using a **Waypoint System** of 220 sequential waypoints. Each waypoint represents one scripture memory unit — normally one verse or verse range.
+Scripture Memo is a full-stack, interactive scripture memorization web
+application. It guides users through a structured learning journey using an
+expanding **Waypoint System** bootstrapped with 220 sequential records. Each
+waypoint represents one scripture memory unit—normally one verse or verse range.
 
 The platform is built on four scientifically grounded memorization principles:
 
@@ -18,7 +21,7 @@ The platform is built on four scientifically grounded memorization principles:
 The application combines two layered progression systems that work together:
 
 - **The Three-Day Challenge System** — how a user completes a single waypoint (Glimmer → Glow → Radiance).
-- **The Journey Stage System** — how a verse progresses across multiple waypoints over the full 220-waypoint journey (Learn → Recall → Strengthen → Master).
+- **The Journey Stage System** — how a verse progresses across multiple waypoints over the expanding journey (Learn → Recall → Strengthen → Master).
 
 These two systems are independent but complementary. A user always plays the full three-day challenge at each waypoint. The Journey Stage tells them which appearance of that verse they are currently working on.
 
@@ -365,7 +368,12 @@ If a verse does not have the user's preferred translation, the system falls back
 
 ### 7.1 What Is a Waypoint?
 
-A waypoint is a sequential learning checkpoint in the user's journey. The initial curriculum contains **220 waypoints**, numbered 1–220. Each waypoint is assigned one verse (which may be a verse that appears at other waypoints in a different Journey Stage).
+A waypoint is a sequential learning checkpoint in the user's journey. The
+bootstrap curriculum contains **220 waypoints**, but 220 is not a permanent
+maximum. Administrators append new waypoints as the curriculum grows. Numbers
+remain one continuous sequence without year or cycle grouping. Each waypoint is
+assigned one verse, which may appear at other waypoints in a different Journey
+Stage.
 
 **Important:** Verses intentionally repeat across multiple waypoints. The same verse may appear at waypoints 1, 18, 67, and 154 — each time in a progressively more difficult Journey Stage. This is by design, not an error.
 
@@ -374,10 +382,48 @@ A waypoint is a sequential learning checkpoint in the user's journey. The initia
 | Field | Description |
 |---|---|
 | `id` | Unique identifier |
-| `number` | Sequential position, 1–220 |
+| `number` | Positive sequential position within the complete curriculum |
 | `verseId` | The verse assigned to this waypoint |
 | `journeyStage` | The stage of this verse appearance: `LEARN`, `RECALL`, `STRENGTHEN`, or `MASTER` |
 | `isActive` | Whether the waypoint is published |
+
+The first 220 waypoint records are seeded as hidden, unassigned placeholders. Because
+the database requires a Journey Stage before a verse is assigned, new
+placeholders use `LEARN` provisionally. That provisional value has no gameplay
+effect while the waypoint is hidden. Assignment requires the administrator to
+explicitly choose the intended Journey Stage, and a waypoint cannot be
+published until it has a currently published verse.
+
+Additional waypoints are created individually by administrators and always
+append after the current final waypoint. They use the same hidden, unassigned,
+provisional-`LEARN` defaults. The curriculum has no year grouping and historical
+waypoints are never renumbered merely because new content is appended.
+
+The administrative waypoint screen summarizes total, assigned, unassigned,
+published, and hidden records so curriculum readiness is visible at a glance.
+
+Published waypoints must form one continuous prefix followed by hidden drafts.
+An administrator cannot publish across an earlier hidden gap or hide a waypoint
+while a later published waypoint exists. Hidden future waypoints may be
+reordered, but a published waypoint becomes position-locked as soon as learner
+progress references it.
+
+Administrators can use arrow controls for small one-position adjustments or a
+**Move to position** control for long jumps. Direct moves update the proposed
+order only, show the affected positions, and still require an explicit save.
+Both interaction paths enforce the same published-prefix, Journey Stage, and
+learner-history restrictions before the server performs its authoritative
+validation.
+
+Waypoint and verse history becomes permanent at the first learner-linked record.
+A hidden waypoint with no history remains freely editable. A published but
+unstarted waypoint must be hidden before its verse or Journey Stage can change.
+Once any waypoint progress, day progress, or waypoint-linked game session exists,
+the waypoint cannot be reassigned, hidden, or reordered. Its verse content also
+becomes immutable so a learner's historical challenge cannot silently change.
+Published waypoint dependencies prevent verse archival. No routine administrator
+override exists in the initial system; any future exceptional correction workflow
+requires a separately approved, reason-bearing, fully audited design.
 
 ### 7.3 Waypoint Progression Rules
 
@@ -402,7 +448,9 @@ A waypoint is a sequential learning checkpoint in the user's journey. The initia
 
 ## 8. The Journey Stage System
 
-The Journey Stage System is a macro-level progression layer that tracks each verse's repeated appearances across the full 220-waypoint journey. It is separate from and independent of the Three-Day Challenge System.
+The Journey Stage System is a macro-level progression layer that tracks each
+verse's repeated appearances across the expanding waypoint journey. It is
+separate from and independent of the Three-Day Challenge System.
 
 ### 8.1 Journey Stages
 
@@ -427,6 +475,12 @@ Each verse progresses through four stages across separate waypoints. Example usi
 At each of these waypoints, the user still completes the full Three-Day Challenge (Glimmer → Glow → Radiance). The Journey Stage affects the availability of hints and the presence of a time limit — not the challenge structure itself.
 
 If a verse needs to appear more than four times (additional `MASTER` stage appearances), this is supported and may be added by admins.
+
+A verse may have at most one `LEARN`, one `RECALL`, and one `STRENGTHEN`
+appearance. `MASTER` may repeat. For each verse, waypoint order must never move
+backwards through the stage sequence: Learn → Recall → Strengthen → Master.
+Publishing a non-Learn appearance also requires its immediately preceding stage
+to be published at an earlier waypoint.
 
 ### 8.3 Journey Stage Effects on Gameplay
 
@@ -884,9 +938,10 @@ The landing page after login. Shows:
 
 ### 15.2 Game Map (🗺️)
 
-Visual grid of all 220 waypoints.
+Visual grid of all current waypoints.
 
-- Waypoints rendered in scrollable groups of 10 — not all 220 at once.
+- Waypoints rendered in scrollable groups of 10—not the entire expanding
+  curriculum at once.
 - Each waypoint node shows: number, Journey Stage badge, status (locked/unlocked/in-progress/complete), flame count.
 - Clicking a locked waypoint shows a Sonner toast explaining how to unlock it.
 - Clicking an unlocked or in-progress waypoint navigates to its Day Selection screen.
@@ -1339,7 +1394,7 @@ if (isUnlocked) { ... }
 - Admin pack management
 - Admin waypoint management with Journey Stage assignment
 - Admin badge management
-- 220-waypoint game map
+- Expandable game map initialized with the 220 bootstrap waypoints
 - Journey Stage display on all relevant screens
 - Day Selection screen with cooldown countdown
 - All five game modes (Drag & Drop, Puzzle, Swap, Cue, Fill)

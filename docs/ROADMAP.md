@@ -406,9 +406,10 @@ Confirm the following before proceeding:
 
 ## Phase 9 — Admin Waypoint Management
 
-**Status:** Next.
+**Status:** Complete — automated verification and manual ADMIN acceptance passed;
+curriculum-history hardening implemented.
 
-**Goal:** Create and manage the 220-waypoint curriculum structure.
+**Goal:** Create and safely manage an expanding sequential waypoint curriculum.
 
 ### Tasks
 
@@ -424,12 +425,49 @@ Confirm the following before proceeding:
 4. Build admin waypoint management view: table of 220 slots, each showing: number, assigned verse reference, Journey Stage badge, active status, and assign/edit button.
 5. **The `journeyStage` field is required when assigning a verse to a waypoint.** The admin must specify whether this appearance is Learn, Recall, Strengthen, or Master.
 6. Add seed placeholders for all 220 waypoints in `prisma/seed.ts`.
+7. Seed placeholders as hidden and unassigned with provisional `LEARN` stage.
+   Assignment must explicitly set the intended Journey Stage, and publishing
+   requires an assigned, currently published verse.
+8. Allow ADMIN users to append individual hidden, unassigned waypoints after the
+   current final waypoint; 220 is the bootstrap count, not a maximum.
+9. Display total, assigned, unassigned, published, and hidden waypoint counts.
+10. Enforce a continuous published prefix followed by hidden drafts.
+11. Enforce per-verse Journey Stage order and uniqueness for Learn, Recall, and
+    Strengthen; Master may repeat.
+12. Lock the position, assignment, Journey Stage, and publication state of a
+    waypoint after learner history exists.
+13. Show pending feedback for visibility changes and human-readable movement
+    details before and after reordering.
+14. Make published assignments editable only after an unstarted waypoint is
+    hidden, and make every waypoint with learner history fully immutable.
+15. Prevent a verse used by a published waypoint from being archived and freeze
+    verse content after learner history exists.
+16. Serialize curriculum topology and verse-dependency mutations with
+    transaction-scoped PostgreSQL advisory locks.
+17. Maintain a destructive database-backed invariant suite that requires an
+    explicitly separate, empty test database.
+18. Provide both one-step arrow controls and a validated **Move to position**
+    control for long-distance reordering. Direct moves update the proposed order
+    and retain the explicit save step.
 
 ### Acceptance Criteria
 
 - Admin can assign a verse and a Journey Stage to any waypoint.
 - Two different waypoints can have the same verse assigned with different Journey Stages.
 - Waypoints 1–220 exist after seeding.
+- Empty placeholders remain hidden and cannot be published.
+- Admin can append a waypoint and it receives the next sequential number.
+- Published waypoints cannot contain a hidden gap.
+- Reordering cannot invert Journey Stages for the same verse or move a progressed
+  published waypoint.
+- The same verse cannot repeat Learn, Recall, or Strengthen, while Master may
+  repeat.
+- A published but unstarted waypoint must be hidden before reassignment.
+- A waypoint with learner history cannot be reassigned, hidden, or reordered.
+- A published waypoint's verse cannot be archived, and progressed verse content
+  cannot be edited.
+- Admin can move an editable waypoint directly to a valid destination without
+  repeated arrow clicks, preview every shifted position, and save explicitly.
 
 ---
 
@@ -443,11 +481,13 @@ Confirm the following before proceeding:
 2. Create `progression.repository.ts`:
    - `getUserWaypointProgress(userId, waypointId)`
    - `getUserDayProgress(userId, waypointId, dayLevel)`
-   - `initializeFirstWaypoint(userId)` — called on first login after registration
+   - `initializeFirstWaypoint(userId)` — lazily creates only the first available
+     published waypoint progress record on first login after registration
    - `markDayComplete(userId, waypointId, dayLevel, completedAt)` — uses a transaction
    - `setNextDayUnlock(userId, waypointId, dayLevel, unlockedAt)` — sets the unlock timestamp for the following day
    - `markWaypointComplete(userId, waypointId)`
-   - `unlockNextWaypoint(userId, currentWaypointNumber)`
+   - `unlockNextWaypoint(userId, currentWaypointNumber)` — queries the next
+     currently published waypoint from the database rather than assuming `N+1`
 3. Create `features/progression/lib/progression-utils.ts`:
    ```ts
    // Returns whether a day is currently playable for a given user.
@@ -462,6 +502,14 @@ Confirm the following before proceeding:
    ```
 4. Add comments throughout explaining server-side authority over cooldown decisions.
 5. Unique constraint verification: confirm that attempting to insert a duplicate `(userId, waypointId, dayLevel)` record throws a database error (which the action catches and handles gracefully).
+6. Recheck that the waypoint and its verse are still published when gameplay
+   starts; never unlock a hidden waypoint or one backed by an archived verse.
+7. Commit Day 3 completion, waypoint completion, and creation of the next
+   waypoint progress record in one transaction. If no later published waypoint
+   exists, treat the learner as caught up with the currently available
+   curriculum rather than as an error.
+8. Create progress records lazily as waypoints unlock. Do not pre-create a locked
+   record for every current or future waypoint.
 
 ### Acceptance Criteria
 
@@ -475,7 +523,7 @@ Confirm the following before proceeding:
 
 ## Phase 11 — Game Map
 
-**Goal:** Build the visual representation of all 220 waypoints.
+**Goal:** Build the visual representation of the complete expanding waypoint curriculum.
 
 ### Tasks
 
@@ -492,7 +540,8 @@ Confirm the following before proceeding:
 
 ### Acceptance Criteria
 
-- Map displays all 220 waypoints grouped correctly.
+- Map displays every current waypoint in groups of 10 and accommodates appended
+  waypoints without a fixed maximum.
 - Journey Stage badges are visible on each waypoint node.
 - Waypoint status accurately reflects actual database progress.
 - Locked waypoints are unclickable and show a toast explaining how to unlock.
@@ -994,7 +1043,7 @@ Confirm the following before proceeding:
    - 2 test regular users
    - 10 verses with all three translations (NIV, ESV, KJV) and normalized text
    - 2 packs using those verses
-   - 220 waypoint records:
+   - Initial 220 waypoint records:
      - Waypoints 1–10 assigned to real verses with Journey Stage set
      - Demonstrate verse repetition: assign one verse at waypoints 1 and 5 with Learn and Recall stages respectively
      - Waypoints 11–220 created as placeholders (no verse assigned, inactive)

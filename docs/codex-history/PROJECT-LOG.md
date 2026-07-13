@@ -21,16 +21,17 @@ Scripture Memo is a full-stack, mobile-first scripture memorization web
 application built with Next.js 16.2.10, strict TypeScript, Prisma 7, PostgreSQL,
 Better Auth, Tailwind CSS 4, shadcn/ui, React Hook Form, Zod, and Sonner.
 
-Players progress through 220 sequential waypoints. Every waypoint combines a
-Three-Day Challenge (Glimmer, Glow, Radiance) with five ordered game modes (Drag
-& Drop, Puzzle, Swap, Cue, Fill). Journey Stages (Learn, Recall, Strengthen,
-Master) control long-term verse difficulty. Glow Points are the only currency.
+Players progress through an expanding sequential waypoint curriculum
+bootstrapped with 220 records. Every waypoint combines a Three-Day Challenge
+(Glimmer, Glow, Radiance) with five ordered game modes (Drag & Drop, Puzzle,
+Swap, Cue, Fill). Journey Stages (Learn, Recall, Strengthen, Master) control
+long-term verse difficulty. Glow Points are the only currency.
 
 ## Current Project State
 
-- Branch: `admin-pack-management`.
-- Current HEAD at this update: `c4ae06b`.
-- Phases 0–8 are complete and manually accepted, including bulk CSV import,
+- Branch: `admin-waypoint-management`.
+- Current HEAD at this update: `92c33fd`.
+- Phases 0–9 are complete and manually accepted, including bulk CSV import,
   dynamic verse-list search, and admin pack management.
 - The public landing page and internal UI-foundation preview are implemented.
 - Better Auth registration, login, logout, onboarding, and protected-route flows
@@ -39,13 +40,15 @@ Master) control long-term verse difficulty. Glow Points are the only currency.
   applied successfully during Phase 3.
 - Root `AGENTS.md` is the single authoritative agent instruction file;
   `docs/AGENTS.md` was removed.
-- Phase 8 changes remain uncommitted for project-owner review in VS Code Source
-  Control.
+- Phase 9 waypoint management and its curriculum-history hardening are
+  implemented. The current hardening changes remain uncommitted for
+  project-owner review in VS Code Source Control.
 
 ## Current Roadmap Position
 
-Phase 8 — Admin Pack Management is complete and manually accepted. Phase 9 —
-Admin Waypoint Management is next.
+Phase 9 — Admin Waypoint Management is complete and manually accepted. Its
+post-acceptance lifecycle, dependency, concurrency, and regression-test
+hardening is implemented. Phase 10 — Progression Engine is next.
 
 ## Completed Work
 
@@ -94,13 +97,14 @@ Admin Waypoint Management is next.
 
 ## Current Task
 
-Begin Phase 9 — Admin Waypoint Management.
+Complete automated and project-owner verification of the Phase 9 curriculum
+history hardening.
 
 ## Exact Next Task
 
-Inspect the existing Waypoint schema and seed workflow, then implement the Phase
-9 waypoint repository and ADMIN-authorized management actions before building
-the 220-slot management interface.
+Provide an isolated empty PostgreSQL database through `TEST_DATABASE_URL`, run
+`npm run test:integration`, then begin Phase 10 — Progression Engine using lazy
+progress records and transactional next-published-waypoint unlocking.
 
 ## Important Decisions
 
@@ -123,6 +127,25 @@ the 220-slot management interface.
   and automatically hide when their final verse is removed.
 - Pack ordering uses one-based `PackVerse.position` values and supports pointer,
   touch, keyboard, and explicit arrow-button reordering.
+- All 220 waypoint placeholders start hidden and unassigned with provisional
+  `LEARN` stage. Assignment requires an explicit stage, and publishing requires
+  an assigned, currently published verse.
+- The initial 220 waypoints are a bootstrap count, not a maximum. Administrators
+  append individual waypoints to one continuous historical sequence without
+  year grouping.
+- Published waypoints form a continuous prefix. Per verse, Learn, Recall, and
+  Strengthen are unique and ordered; Master may repeat.
+- Published but unstarted waypoint assignments must be hidden before editing.
+  Any learner-linked history permanently locks waypoint ordering, assignment,
+  Journey Stage, and visibility; there is no routine override.
+- Published waypoint dependencies prevent verse archival. Once learner history
+  exists for a verse's waypoint, the verse content is immutable so historical
+  gameplay remains reproducible.
+- Curriculum topology writes use one shared transaction-scoped PostgreSQL
+  advisory lock. Assignment, publication, archival, and content edits also use
+  stable per-verse locks so validation cannot race a conflicting mutation.
+- Phase 10 creates progress lazily, unlocks the next actually published waypoint
+  by database query, and commits completion plus unlocking atomically.
 - The Phase 4 placeholder Server Action using `ActionResult` belongs to the auth
   feature because authentication is the next feature that will consume the
   shared contract.
@@ -190,15 +213,21 @@ the 220-slot management interface.
 
 ## Outstanding Tasks
 
-- Review and commit the accepted Phase 8 pack-management changes.
+- Review and commit the Phase 9 curriculum-history hardening changes.
 - Select an email delivery provider before implementing verification or password
   reset.
-- Phases 9–32 remain pending in roadmap order.
+- Phases 10–32 remain pending in roadmap order.
+- Configure an isolated migrated PostgreSQL database through
+  `TEST_DATABASE_URL` and run the destructive integration suite before Phase 10.
 - `.env.example` remains absent and is required by the security checklist.
+- Before upgrading to `pg` 9, update the configured database SSL mode explicitly
+  to `verify-full` to preserve the current certificate-verification behavior.
 
 ## Blockers and Unresolved Questions
 
-- No implementation blocker exists.
+- No implementation blocker exists. Full database-backed integration execution
+  awaits a separately configured empty test database; the suite refuses to use
+  the current application database.
 - No email delivery provider has been selected, so verification and password
   reset are intentionally not implemented.
 - The recovered transcript contains historical references to the deleted
@@ -206,6 +235,72 @@ the 220-slot management interface.
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-13 — Direct waypoint positioning added
+
+- Added a per-row **Move to position** dialog for efficient long-distance
+  waypoint reordering while retaining arrow controls for small adjustments.
+- Direct moves validate whole-number bounds, progressed-waypoint immutability,
+  the continuous published prefix, and per-verse Journey Stage order before
+  updating local state.
+- Successful moves report the requested destination and affected-position count,
+  appear in the existing movement preview, and remain pending until **Save
+  order** is selected.
+- Strict TypeScript, ESLint, diff validation, and the production build passed.
+
+### 2026-07-13 — Phase 9 curriculum-history hardening implemented
+
+- Made published waypoint assignments editable only after hiding an unstarted
+  waypoint and made every waypoint with learner-linked records immutable.
+- Blocked verse archival while a published waypoint depends on it and froze
+  verse content once learner history exists.
+- Serialized curriculum topology and verse dependency mutations with shared
+  PostgreSQL advisory locks and expanded assignment audit metadata to include
+  previous and new state.
+- Added an isolated PostgreSQL integration suite guarded by `TEST_DATABASE_URL`
+  and a test-database-name check; the suite is skipped safely until a separate
+  migrated test database is configured.
+- Added the direct `server-only` dependency needed by standalone repository test
+  execution without weakening the Next.js server boundary.
+- Updated root instructions, product behavior, Phase 9 acceptance, and Phase 10
+  progression constraints. Prisma validation, TypeScript, ESLint, diff checks,
+  thin-route validation, and the production build passed.
+
+### 2026-07-13 — Phase 9 assignment modal regression corrected
+
+- Added the missing assigned-waypoint statistic alongside total, unassigned,
+  published, and hidden counts.
+- Reset assignment-dialog verse and stage state from persisted props on open,
+  close, cancellation, successful save, and rejected save so a failed attempt
+  cannot appear as the current assignment when the modal is reopened.
+- TypeScript, ESLint, `git diff --check`, and the production build passed after
+  the regression correction.
+
+### 2026-07-13 — Phase 9 scalability and curriculum invariants revised
+
+- Replaced the fixed 220 limit with ADMIN append-at-end behavior while retaining
+  the idempotent 220-record bootstrap seed.
+- Added waypoint statistics, continuous publish/hide rules, per-verse stage
+  uniqueness and ordering, progress-aware reorder locks, pending visibility
+  feedback, detailed movement previews, and aligned assignment-dialog actions.
+- Added a PostgreSQL partial unique index migration so Learn, Recall, and
+  Strengthen cannot duplicate for a verse while Master remains repeatable.
+- Applied the invariant migration successfully. TypeScript, ESLint, Prisma
+  validation, `git diff --check`, architecture checks, and the production build
+  all passed; revised Phase 9 manual acceptance remains.
+
+### 2026-07-13 — Phase 9 waypoint management implemented
+
+- Approved the hidden, unassigned placeholder lifecycle with provisional
+  `LEARN` stage and documented its lack of gameplay effect before publication.
+- Added the Phase 9 repository, validated ADMIN actions, atomic audit records,
+  fixed-slot ordering, searchable verse assignment, explicit Journey Stage
+  selection, visibility controls, admin route, and Prisma 7 seed workflow.
+- Added `tsx` as a development dependency for the documented TypeScript seed.
+- Seeded all 220 placeholders successfully; a repeat run inserted zero and
+  preserved all 220, confirming idempotency.
+- TypeScript, ESLint, `git diff --check`, architecture checks, and the production
+  Next.js build passed. Manual ADMIN acceptance remains.
 
 ### 2026-07-13 — Phase 8 manually accepted
 

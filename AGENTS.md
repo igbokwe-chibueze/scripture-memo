@@ -39,7 +39,13 @@ all differ from your training data. Read the relevant guide in
 | Drag and Drop | @dnd-kit/core |
 
 **What this app does:**
-Scripture Memo helps users memorize Bible verses through 220 sequential waypoints. Each waypoint is assigned one verse and a Journey Stage. Users complete a Three-Day Challenge (Glimmer → Glow → Radiance) at every waypoint using five game modes per day (Drag & Drop → Puzzle → Swap → Cue → Fill). The app rewards learning with Glow Points (the only currency), streaks, and a Badge System.
+Scripture Memo helps users memorize Bible verses through an expanding sequential
+waypoint curriculum bootstrapped with 220 records. Administrators append new
+waypoints to the same continuous history. Each waypoint is assigned one verse
+and a Journey Stage. Users complete a Three-Day Challenge (Glimmer → Glow →
+Radiance) at every waypoint using five game modes per day (Drag & Drop → Puzzle
+→ Swap → Cue → Fill). The app rewards learning with Glow Points (the only
+currency), streaks, and a Badge System.
 
 **Before writing any code:** Read `docs/PRODUCT-OVERVIEW.md` for the full product specification.
 Read `docs/ROADMAP.md` for implementation order and `docs/SECURITY-AUDIT.md` for
@@ -425,6 +431,22 @@ The Journey Stage (LEARN, RECALL, STRENGTHEN, MASTER) is stored on the `Waypoint
 **These rules are enforced server-side.** The `useHintAction` must check the waypoint's Journey Stage and reject the request if the stage is STRENGTHEN or MASTER — regardless of what the client sends.
 
 The same verse may appear at multiple waypoints with different Journey Stages. This is expected behavior, not an error.
+
+### 8.2A Permanent Curriculum History
+
+- A hidden waypoint with no learner-linked records may be reassigned and reordered.
+- A published waypoint with no learner-linked records must be hidden before its
+  verse or Journey Stage can change.
+- Once any `UserWaypointProgress`, `UserDayProgress`, or waypoint-linked
+  `GameSession` exists, the waypoint number, assignment, Journey Stage, and
+  publication state are permanent. There is no routine admin override.
+- A verse referenced by a published waypoint cannot be archived.
+- Once learner history exists for any waypoint using a verse, that verse's
+  canonical location, translations, reflection, study note, tags, and status are
+  permanent so historical sessions remain reproducible.
+- Curriculum mutations that validate ordering or availability must use the
+  repository-owned PostgreSQL advisory locks documented by the waypoint and
+  verse repositories. Client-side disabled controls are never the authority.
 
 ### 8.3 Three-Day Challenge Rules
 

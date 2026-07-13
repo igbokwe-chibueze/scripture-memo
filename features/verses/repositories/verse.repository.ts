@@ -30,6 +30,61 @@ const shortAuditTransactionOptions = {
   timeout: 10_000,
 } as const;
 
+export type VerseCurriculumConflictCode =
+  | "PUBLISHED_WAYPOINT_DEPENDENCY"
+  | "LEARNER_HISTORY_LOCK";
+
+/** Carries a safe, structured curriculum conflict from the repository to an action. */
+export class VerseCurriculumConflictError extends Error {
+  readonly code: VerseCurriculumConflictCode;
+  readonly waypointNumbers: number[];
+
+  constructor(code: VerseCurriculumConflictCode, waypointNumbers: number[]) {
+    super(code);
+    this.name = "VerseCurriculumConflictError";
+    this.code = code;
+    this.waypointNumbers = waypointNumbers;
+  }
+}
+
+/** Prevents verse assignment, archival, and content edits from validating concurrently. */
+async function lockVerse(transaction: Prisma.TransactionClient, verseId: string): Promise<void> {
+  await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('scripture-memo-verse'), hashtext(${verseId}))`;
+}
+
+/** Finds historical waypoint references whose learner data must remain reproducible. */
+async function findProgressedWaypointNumbers(
+  transaction: Prisma.TransactionClient,
+  verseId: string,
+): Promise<number[]> {
+  const waypoints = await transaction.waypoint.findMany({
+    where: {
+      verseId,
+      OR: [
+        { userProgress: { some: {} } },
+        { dayProgress: { some: {} } },
+        { gameSessions: { some: {} } },
+      ],
+    },
+    select: { number: true },
+    orderBy: { number: "asc" },
+  });
+  return waypoints.map(({ number }) => number);
+}
+
+/** Finds live curriculum entries that would be broken by archiving the verse. */
+async function findPublishedWaypointNumbers(
+  transaction: Prisma.TransactionClient,
+  verseId: string,
+): Promise<number[]> {
+  const waypoints = await transaction.waypoint.findMany({
+    where: { verseId, isActive: true },
+    select: { number: true },
+    orderBy: { number: "asc" },
+  });
+  return waypoints.map(({ number }) => number);
+}
+
 function tagCreates(tags: string[]): Prisma.VerseTagCreateWithoutVerseInput[] {
   return tags.map((name) => ({
     tag: {
@@ -84,6 +139,16 @@ async function setVerseActiveStatus(
   // Reading the prior value inside the same transaction makes the audit metadata
   // accurate even when an administrator repeats an already-applied action.
   await prisma.$transaction(async (transaction) => {
+    await lockVerse(transaction, id);
+    if (!isActive) {
+      const publishedWaypointNumbers = await findPublishedWaypointNumbers(transaction, id);
+      if (publishedWaypointNumbers.length > 0) {
+        throw new VerseCurriculumConflictError(
+          "PUBLISHED_WAYPOINT_DEPENDENCY",
+          publishedWaypointNumbers,
+        );
+      }
+    }
     const previous = await transaction.verse.findUniqueOrThrow({
       where: { id },
       select: { id: true, reference: true, isActive: true },
@@ -286,11 +351,30 @@ export const verseRepository = {
     ipAddress: string | null,
   ) {
     return prisma.$transaction(async (transaction) => {
+      await lockVerse(transaction, id);
       const previous = await transaction.verse.findUniqueOrThrow({
         where: { id },
         include: verseAuditSnapshotInclude,
       });
       const changedFields = getChangedFields(previous, data);
+      if (changedFields.length > 0) {
+        const progressedWaypointNumbers = await findProgressedWaypointNumbers(transaction, id);
+        if (progressedWaypointNumbers.length > 0) {
+          throw new VerseCurriculumConflictError(
+            "LEARNER_HISTORY_LOCK",
+            progressedWaypointNumbers,
+          );
+        }
+      }
+      if (!data.isActive) {
+        const publishedWaypointNumbers = await findPublishedWaypointNumbers(transaction, id);
+        if (publishedWaypointNumbers.length > 0) {
+          throw new VerseCurriculumConflictError(
+            "PUBLISHED_WAYPOINT_DEPENDENCY",
+            publishedWaypointNumbers,
+          );
+        }
+      }
       const verse = await transaction.verse.update({
         where: { id },
         data: {
@@ -341,10 +425,20 @@ export const verseRepository = {
   },
 
   async upsertTranslation(verseId: string, translation: TranslationCode, text: string): Promise<void> {
-    await prisma.verseTranslation.upsert({
-      where: { verseId_translation: { verseId, translation } },
-      update: { text, normalizedText: normalizeVerseText(text) },
-      create: { verseId, translation, text, normalizedText: normalizeVerseText(text) },
-    });
+    await prisma.$transaction(async (transaction) => {
+      await lockVerse(transaction, verseId);
+      const progressedWaypointNumbers = await findProgressedWaypointNumbers(transaction, verseId);
+      if (progressedWaypointNumbers.length > 0) {
+        throw new VerseCurriculumConflictError(
+          "LEARNER_HISTORY_LOCK",
+          progressedWaypointNumbers,
+        );
+      }
+      await transaction.verseTranslation.upsert({
+        where: { verseId_translation: { verseId, translation } },
+        update: { text, normalizedText: normalizeVerseText(text) },
+        create: { verseId, translation, text, normalizedText: normalizeVerseText(text) },
+      });
+    }, shortAuditTransactionOptions);
   },
 } as const;
