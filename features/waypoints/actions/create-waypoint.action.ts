@@ -29,6 +29,6 @@ export async function createWaypointAction(input: unknown): Promise<ActionResult
       data: { id: waypoint.id, number: waypoint.number },
     };
   } catch {
-    return { success: false, message: "Unable to add the next waypoint." };
+    return { success: false, message: "Unable to add the next waypoint.", errorCode: "WP-009" };
   }
 }

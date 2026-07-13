@@ -125,6 +125,21 @@ Rules:
 
 Use Server Actions for all mutations. API routes are allowed only when a third-party service requires them (webhooks, OAuth callbacks, upload providers).
 
+### 3.6 Operational Error Reference
+
+Complex operational failures across the entire application use stable
+feature-prefixed codes such as `WP-006` or `VRS-002`. Sonner displays a concise
+user-safe message and the code, while the ADMIN-only `/admin/error-reference`
+page provides searchable explanations, common causes, examples, and
+troubleshooting steps. Its permanent navigation entry belongs on the future
+admin front page rather than inside any individual feature screen.
+
+The structured catalogue in `lib/errors/error-catalog.ts` is the single source
+for both typed action codes and the reference page. Codes identify conditions,
+not individual incidents. Routine form validation remains inline and uncoded.
+Neither action responses nor reference entries may expose stack traces, raw
+database errors, secrets, private user information, or sensitive internal IDs.
+
 ---
 
 ## 4. Full Project Folder Structure

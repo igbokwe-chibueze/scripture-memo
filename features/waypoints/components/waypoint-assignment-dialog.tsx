@@ -17,6 +17,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { SearchableSelect } from "@/components/shared/searchable-select";
+import { showActionError } from "@/lib/errors/show-action-error";
 import { assignVerseToWaypointAction } from "@/features/waypoints/actions/assign-verse-to-waypoint.action";
 import type { JourneyStage } from "@/lib/generated/prisma/enums";
 
@@ -79,7 +80,7 @@ export function WaypointAssignmentDialog({
         setOpen(false);
       } else {
         resetToPersistedAssignment();
-        toast.error(result.message, { duration: Infinity });
+        showActionError(result);
       }
     });
   }

@@ -284,7 +284,12 @@ Use this type for all Server Action responses:
 // types/api.ts
 export type ActionResult<T = undefined> =
   | { success: true; message: string; data?: T }
-  | { success: false; message: string; fieldErrors?: Record<string, string[]> }
+  | {
+      success: false
+      message: string
+      errorCode?: AppErrorCode
+      fieldErrors?: Record<string, string[]>
+    }
 ```
 
 Usage in a Server Action:
@@ -547,6 +552,26 @@ Toast persistence:
 - All other toasts: auto-dismiss after 4 seconds.
 
 Every Server Action result should be surfaced to the user through a Sonner toast fired from the UI component that called the action.
+
+### 9.2A Operational Error Codes
+
+- Use codes for complex operational, invariant, persistence, integration, and
+  security-safe conflict errors. Ordinary field validation remains uncoded.
+- `lib/errors/error-catalog.ts` is the single source of truth for stable codes,
+  short user messages, explanations, causes, examples, and solutions.
+- The catalogue and `/admin/error-reference` cover the entire application, not
+  one feature. Its permanent navigation entry belongs on the admin front page
+  when that page is implemented.
+- A code identifies one condition across occurrences. Never reuse a retired code
+  for a different meaning. An occurrence/correlation ID, when added, is separate.
+- Failed `ActionResult` values may include a typed `errorCode`. Components must
+  use `showActionError()` so Sonner presents the short message and code
+  consistently without displaying the full manual entry.
+- Detailed reference content must be safe for authorized browser delivery. Never
+  include stack traces, raw Prisma or SQL errors, credentials, internal IDs,
+  private user data, or security-sensitive implementation details.
+- The searchable `/admin/error-reference` route is ADMIN-only, `noindex`, and
+  generated from the same catalogue used by the action contract.
 
 ### 9.3 Reusable Components — Always Check First
 

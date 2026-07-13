@@ -27,11 +27,11 @@ export async function reorderWaypointsAction(input: unknown): Promise<ActionResu
       session.user.id,
       getRequestIp(requestHeaders),
     );
-    if (result.status === "stale") return { success: false, message: "Waypoint slots changed. Refresh and try again." };
-    if (result.status === "published-gap") return { success: false, message: "A hidden waypoint cannot be placed before a published waypoint." };
-    if (result.status === "stage-order") return { success: false, message: "A later Journey Stage cannot be moved before an earlier stage of the same verse." };
-    if (result.status === "progress-locked") return { success: false, message: "A waypoint with learner history cannot be moved." };
-    if (result.status !== "reordered") return { success: false, message: "Unable to verify waypoint order." };
+    if (result.status === "stale") return { success: false, message: "Waypoint slots changed. Refresh and try again.", errorCode: "WP-008" };
+    if (result.status === "published-gap") return { success: false, message: "A hidden waypoint cannot be placed before a published waypoint.", errorCode: "WP-006" };
+    if (result.status === "stage-order") return { success: false, message: "A later Journey Stage cannot be moved before an earlier stage of the same verse.", errorCode: "WP-005" };
+    if (result.status === "progress-locked") return { success: false, message: "A waypoint with learner history cannot be moved.", errorCode: "WP-001" };
+    if (result.status !== "reordered") return { success: false, message: "Unable to verify waypoint order.", errorCode: "WP-009" };
     revalidatePath("/admin/waypoints");
     const moved = result.moves.length;
     return {
@@ -40,6 +40,6 @@ export async function reorderWaypointsAction(input: unknown): Promise<ActionResu
       data: { moves: result.moves },
     };
   } catch {
-    return { success: false, message: "Unable to save waypoint order." };
+    return { success: false, message: "Unable to save waypoint order.", errorCode: "WP-009" };
   }
 }

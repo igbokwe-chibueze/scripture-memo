@@ -28,20 +28,20 @@ export async function assignVerseToWaypointAction(input: unknown): Promise<Actio
       session.user.id,
       getRequestIp(requestHeaders),
     );
-    if (result.status === "waypoint-missing") return { success: false, message: "Waypoint no longer exists." };
-    if (result.status === "progress-locked") return { success: false, message: "A waypoint with learner history cannot be reassigned." };
-    if (result.status === "published-locked") return { success: false, message: "Hide this unstarted waypoint before changing its assignment." };
-    if (result.status === "verse-unavailable") return { success: false, message: "That verse is no longer published." };
+    if (result.status === "waypoint-missing") return { success: false, message: "Waypoint no longer exists.", errorCode: "WP-010" };
+    if (result.status === "progress-locked") return { success: false, message: "A waypoint with learner history cannot be reassigned.", errorCode: "WP-001" };
+    if (result.status === "published-locked") return { success: false, message: "Hide this unstarted waypoint before changing its assignment.", errorCode: "WP-002" };
+    if (result.status === "verse-unavailable") return { success: false, message: "That verse is no longer published.", errorCode: "WP-003" };
     if (result.status === "duplicate-stage") {
-      return { success: false, message: `This verse already has that Journey Stage at waypoint ${result.existingNumber}.` };
+      return { success: false, message: `This verse already has that Journey Stage at waypoint ${result.existingNumber}.`, errorCode: "WP-004" };
     }
     if (result.status === "stage-order") {
       const stage = result.conflictingStage.toLowerCase();
-      return { success: false, message: `Journey Stage order conflicts with the ${stage} appearance at waypoint ${result.conflictingNumber}.` };
+      return { success: false, message: `Journey Stage order conflicts with the ${stage} appearance at waypoint ${result.conflictingNumber}.`, errorCode: "WP-005" };
     }
     revalidatePath("/admin/waypoints");
     return { success: true, message: "Waypoint assignment saved." };
   } catch {
-    return { success: false, message: "Unable to save the waypoint assignment." };
+    return { success: false, message: "Unable to save the waypoint assignment.", errorCode: "WP-009" };
   }
 }

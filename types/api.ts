@@ -10,5 +10,7 @@ export type ActionResult<T = undefined> =
   | {
       success: false;
       message: string;
+      errorCode?: AppErrorCode;
       fieldErrors?: Record<string, string[]>;
     };
+import type { AppErrorCode } from "@/lib/errors/error-catalog";

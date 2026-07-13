@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { ArchiveIcon, UploadIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ConfirmationDialog } from "@/components/shared/confirmation-dialog";
+import { showActionError } from "@/lib/errors/show-action-error";
 import { archiveVerseAction } from "@/features/verses/actions/archive-verse.action";
 import { publishVerseAction } from "@/features/verses/actions/publish-verse.action";
 
@@ -31,7 +32,7 @@ export function VerseStatusAction({ id, isActive }: { id: string; isActive: bool
           if (result.success) {
             toast.success(result.message);
           } else {
-            toast.error(result.message, { duration: Infinity });
+            showActionError(result);
           }
         });
       }}

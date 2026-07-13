@@ -250,10 +250,11 @@ The server and database are the only sources of truth for all security-sensitive
 | 14.1 | Client components never contain secrets or sensitive configuration | 🔴 Critical | ☐ Pending | All client code is visible in browser dev tools |
 | 14.2 | Client state is never trusted for authorization decisions | 🔴 Critical | ☐ Pending | Server validates everything independently |
 | 14.3 | Form submit buttons are disabled during submission to prevent double-submit | 🟡 Medium | ☐ Pending | UX and abuse reduction |
-| 14.4 | Sonner toast messages never expose stack traces, raw Prisma errors, or internal IDs | 🟡 Medium | ☐ Pending | User-facing error messages must be safe and generic |
+| 14.4 | Sonner toast messages never expose stack traces, raw Prisma errors, secrets, private data, or internal IDs | 🟡 Medium | ☐ Pending | Complex failures show a safe message and stable catalogue code only |
 | 14.5 | Error boundaries render safe, generic messages — no internal stack traces | 🟡 Medium | ☐ Pending | `error.tsx` must not render raw error objects |
 | 14.6 | `prefers-reduced-motion` preference is respected — animations disabled when set | 🟢 Low | ☐ Pending | Accessibility requirement |
 | 14.7 | Security headers are configured in `next.config.ts` | 🟡 Medium | ☐ Pending | X-Frame-Options, X-Content-Type-Options, Referrer-Policy, CSP |
+| 14.8 | Error-reference entries are safe for browser delivery and the reference route verifies ADMIN authorization server-side | 🟡 Medium | ☐ Pending | Codes describe conditions; detailed private diagnostics remain server-only |
 
 Recommended security headers configuration:
 ```ts

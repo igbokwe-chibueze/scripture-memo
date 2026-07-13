@@ -471,6 +471,40 @@ curriculum-history hardening implemented.
 
 ---
 
+## Phase 9A — Operational Error Code Foundation
+
+**Status:** Implemented — automated verification passed; manual ADMIN acceptance
+pending.
+
+**Goal:** Keep runtime feedback concise while giving administrators a safe,
+searchable troubleshooting manual.
+
+### Tasks
+
+1. Extend failed `ActionResult` responses with an optional typed error code.
+2. Create one structured, version-controlled error catalogue.
+3. Add a shared Sonner helper that displays the short message and code.
+4. Create an ADMIN-authorized, `noindex` `/admin/error-reference` page searchable
+   by code, feature, message, cause, example, and solution.
+5. Add initial stable codes for waypoint and verse operational conflicts.
+6. Keep field-validation errors uncoded and keep sensitive diagnostic data out of
+   browser-visible messages and reference entries.
+7. Add fast catalogue tests for code uniqueness, formatting, and documentation
+   completeness.
+8. Treat the catalogue as application-wide. Add its permanent navigation entry
+   to the admin front page when that page is implemented, not to an individual
+   feature's administration screen.
+
+### Acceptance Criteria
+
+- A coded failure shows a concise Sonner message and its code.
+- Searching the reference page by an exact code returns its complete safe guide.
+- Anonymous and non-admin navigation cannot render the reference page.
+- Duplicate or malformed catalogue codes fail automated tests.
+- Existing uncoded validation messages continue to work normally.
+
+---
+
 ## Phase 10 — Progression Engine
 
 **Goal:** Implement the server-side logic that controls all user progression, cooldowns, and unlocks.

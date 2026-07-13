@@ -23,14 +23,14 @@ export async function hideWaypointAction(input: unknown): Promise<ActionResult> 
   try {
     const result = await waypointRepository.hide(parsed.data.id, session.user.id, getRequestIp(requestHeaders));
     if (result === "later-published") {
-      return { success: false, message: "Hide later published waypoints first so the learner journey remains continuous." };
+      return { success: false, message: "Hide later published waypoints first so the learner journey remains continuous.", errorCode: "WP-006" };
     }
     if (result === "progress-locked") {
-      return { success: false, message: "A waypoint with learner history cannot be hidden." };
+      return { success: false, message: "A waypoint with learner history cannot be hidden.", errorCode: "WP-001" };
     }
     revalidatePath("/admin/waypoints");
     return { success: true, message: "Waypoint hidden." };
   } catch {
-    return { success: false, message: "Unable to hide waypoint." };
+    return { success: false, message: "Unable to hide waypoint.", errorCode: "WP-009" };
   }
 }

@@ -34,8 +34,9 @@ export async function archiveVerseAction(input: unknown): Promise<ActionResult> 
       return {
         success: false,
         message: `Hide the published waypoint${error.waypointNumbers.length === 1 ? "" : "s"} using this verse first: ${error.waypointNumbers.join(", ")}.`,
+        errorCode: "VRS-001",
       };
     }
-    return { success: false, message: "Unable to archive verse." };
+    return { success: false, message: "Unable to archive verse.", errorCode: "VRS-003" };
   }
 }
