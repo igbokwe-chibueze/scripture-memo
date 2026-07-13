@@ -21,8 +21,10 @@ export async function publishWaypointAction(input: unknown): Promise<ActionResul
   if (!isAdmin(session.user.role as UserRole | undefined)) return { success: false, message: "Administrator access is required." };
 
   try {
-    const published = await waypointRepository.publish(parsed.data.id, session.user.id, getRequestIp(requestHeaders));
-    if (!published) return { success: false, message: "Assign a published verse before publishing this waypoint." };
+    const result = await waypointRepository.publish(parsed.data.id, session.user.id, getRequestIp(requestHeaders));
+    if (result.status === "unavailable") return { success: false, message: "Assign a published verse before publishing this waypoint." };
+    if (result.status === "earlier-hidden") return { success: false, message: "Publish every earlier waypoint first so the learner journey remains continuous." };
+    if (result.status === "stage-prerequisite") return { success: false, message: "Publish the preceding Journey Stage for this verse at an earlier waypoint first." };
     revalidatePath("/admin/waypoints");
     return { success: true, message: "Waypoint published." };
   } catch {

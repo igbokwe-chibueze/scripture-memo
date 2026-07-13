@@ -8,12 +8,12 @@ import { isAdmin } from "@/lib/permissions";
 import { getRequestIp } from "@/lib/request-ip";
 import type { ActionResult } from "@/types/api";
 import { waypointRepository } from "@/features/waypoints/repositories/waypoint.repository";
-import { waypointIdSchema } from "@/features/waypoints/schemas/waypoint.schema";
+import { createWaypointSchema } from "@/features/waypoints/schemas/waypoint.schema";
 
-/** Hides one waypoint while preserving its verse and Journey Stage assignment. */
-export async function hideWaypointAction(input: unknown): Promise<ActionResult> {
-  const parsed = waypointIdSchema.safeParse(input);
-  if (!parsed.success) return { success: false, message: "Invalid waypoint." };
+/** Appends one hidden, unassigned waypoint using only server-derived defaults. */
+export async function createWaypointAction(input: unknown): Promise<ActionResult<{ id: string; number: number }>> {
+  const parsed = createWaypointSchema.safeParse(input);
+  if (!parsed.success) return { success: false, message: "Invalid waypoint request." };
 
   const requestHeaders = await headers();
   const session = await auth.api.getSession({ headers: requestHeaders });
@@ -21,13 +21,14 @@ export async function hideWaypointAction(input: unknown): Promise<ActionResult> 
   if (!isAdmin(session.user.role as UserRole | undefined)) return { success: false, message: "Administrator access is required." };
 
   try {
-    const result = await waypointRepository.hide(parsed.data.id, session.user.id, getRequestIp(requestHeaders));
-    if (result === "later-published") {
-      return { success: false, message: "Hide later published waypoints first so the learner journey remains continuous." };
-    }
+    const waypoint = await waypointRepository.create(session.user.id, getRequestIp(requestHeaders));
     revalidatePath("/admin/waypoints");
-    return { success: true, message: "Waypoint hidden." };
+    return {
+      success: true,
+      message: `Waypoint ${waypoint.number} added as a hidden draft.`,
+      data: { id: waypoint.id, number: waypoint.number },
+    };
   } catch {
-    return { success: false, message: "Unable to hide waypoint." };
+    return { success: false, message: "Unable to add the next waypoint." };
   }
 }

@@ -1,12 +1,14 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { ArrowDown, ArrowUp, Save } from "lucide-react";
+import { ArrowDown, ArrowUp, Eye, EyeOff, FileQuestion, MapPinned, Plus, Save } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { cn } from "@/lib/utils";
+import { createWaypointAction } from "@/features/waypoints/actions/create-waypoint.action";
 import { reorderWaypointsAction } from "@/features/waypoints/actions/reorder-waypoints.action";
 import { WaypointAssignmentDialog } from "@/features/waypoints/components/waypoint-assignment-dialog";
 import { WaypointStatusAction } from "@/features/waypoints/components/waypoint-status-action";
@@ -18,6 +20,7 @@ export type ManagedWaypoint = {
   journeyStage: JourneyStage;
   isActive: boolean;
   verse: { id: string; reference: string; book: string; isActive: boolean } | null;
+  _count: { userProgress: number; dayProgress: number; gameSessions: number };
 };
 
 export type WaypointManagerProps = {
@@ -39,16 +42,48 @@ const stageClasses: Record<JourneyStage, string> = {
   MASTER: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
 };
 
-/** Manages all fixed curriculum slots with staged, explicitly saved ordering. */
+type StatisticCardProps = {
+  label: string;
+  value: number;
+  icon: React.ReactNode;
+};
+
+/** Compact administrative curriculum statistic. */
+function StatisticCard({ label, value, icon }: StatisticCardProps): React.ReactNode {
+  return (
+    <Card size="sm">
+      <CardContent className="flex items-center gap-3">
+        <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">{icon}</span>
+        <div><p className="text-2xl font-bold tabular-nums">{value}</p><p className="text-xs text-muted-foreground">{label}</p></div>
+      </CardContent>
+    </Card>
+  );
+}
+
+/** Manages an append-only curriculum with validated, explicitly saved ordering. */
 export function WaypointManager({ initialWaypoints, publishedVerses }: WaypointManagerProps): React.ReactNode {
   const [waypoints, setWaypoints] = useState(initialWaypoints);
-  const [isPending, startTransition] = useTransition();
+  const [isReordering, startReorderTransition] = useTransition();
+  const [isCreating, startCreateTransition] = useTransition();
   const initialOrder = useMemo(() => initialWaypoints.map(({ id }) => id).join("|"), [initialWaypoints]);
+  const initialNumberById = useMemo(() => new Map(initialWaypoints.map(({ id, number }) => [id, number])), [initialWaypoints]);
   const currentOrder = waypoints.map(({ id }) => id).join("|");
   const hasUnsavedOrder = initialOrder !== currentOrder;
+  const publishedCount = waypoints.filter(({ isActive }) => isActive).length;
+  const hiddenCount = waypoints.length - publishedCount;
+  const unassignedCount = waypoints.filter(({ verse }) => !verse).length;
+  const proposedMoves = waypoints.flatMap((waypoint, index) => {
+    const from = initialNumberById.get(waypoint.id) ?? index + 1;
+    const to = index + 1;
+    return from === to ? [] : [{ id: waypoint.id, reference: waypoint.verse?.reference ?? "Unassigned waypoint", from, to }];
+  });
+
+  function hasProgress(waypoint: ManagedWaypoint): boolean {
+    return waypoint._count.userProgress > 0 || waypoint._count.dayProgress > 0 || waypoint._count.gameSessions > 0;
+  }
 
   function moveWaypoint(from: number, to: number): void {
-    if (to < 0 || to >= waypoints.length || from === to || isPending) return;
+    if (to < 0 || to >= waypoints.length || from === to || isReordering) return;
     setWaypoints((current) => {
       const next = [...current];
       const [moved] = next.splice(from, 1);
@@ -59,39 +94,73 @@ export function WaypointManager({ initialWaypoints, publishedVerses }: WaypointM
   }
 
   function saveOrder(): void {
-    startTransition(async () => {
+    startReorderTransition(async () => {
       const result = await reorderWaypointsAction({ orderedWaypointIds: waypoints.map(({ id }) => id) });
-      if (result.success) toast.success(result.message);
-      else {
+      if (result.success) {
+        const firstMove = result.data?.moves[0];
+        toast.success(result.message, {
+          description: firstMove
+            ? `${firstMove.reference ?? "Unassigned waypoint"}: ${firstMove.from} → ${firstMove.to}${(result.data?.moves.length ?? 0) > 1 ? `, plus ${(result.data?.moves.length ?? 1) - 1} more.` : "."}`
+            : undefined,
+        });
+      } else {
         setWaypoints(initialWaypoints);
         toast.error(result.message, { duration: Infinity });
       }
     });
   }
 
+  function addWaypoint(): void {
+    startCreateTransition(async () => {
+      const result = await createWaypointAction({});
+      if (result.success) toast.success(result.message);
+      else toast.error(result.message, { duration: Infinity });
+    });
+  }
+
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-3 rounded-xl border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-5">
+      <section className="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="Waypoint statistics">
+        <StatisticCard label="Total waypoints" value={waypoints.length} icon={<MapPinned aria-hidden="true" />} />
+        <StatisticCard label="Published" value={publishedCount} icon={<Eye aria-hidden="true" />} />
+        <StatisticCard label="Hidden" value={hiddenCount} icon={<EyeOff aria-hidden="true" />} />
+        <StatisticCard label="Unassigned" value={unassignedCount} icon={<FileQuestion aria-hidden="true" />} />
+      </section>
+
+      <div className="flex flex-col gap-3 rounded-xl border bg-card p-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <p className="font-semibold">{waypoints.length} curriculum slots</p>
+          <p className="font-semibold">Curriculum order</p>
           <p className="text-sm text-muted-foreground">
-            {hasUnsavedOrder ? "Save the new order before editing assignments or visibility." : "Move controls change curriculum order; assignments travel with their waypoint."}
+            {hasUnsavedOrder ? `${proposedMoves.length} positions will change. Save before editing assignments or visibility.` : "New waypoints append to the end as hidden, unassigned drafts."}
           </p>
         </div>
-        <div className="flex gap-2">
-          {hasUnsavedOrder && <Button type="button" variant="outline" className="min-h-11" disabled={isPending} onClick={() => setWaypoints(initialWaypoints)}>Discard</Button>}
-          <LoadingButton type="button" isPending={isPending} pendingLabel="Saving order" disabled={!hasUnsavedOrder} onClick={saveOrder}>
+        <div className="flex flex-wrap gap-2">
+          <LoadingButton type="button" variant="outline" isPending={isCreating} pendingLabel="Adding waypoint" disabled={hasUnsavedOrder || isReordering} onClick={addWaypoint}>
+            <Plus aria-hidden="true" /> Add waypoint
+          </LoadingButton>
+          {hasUnsavedOrder && <Button type="button" variant="outline" className="min-h-11" disabled={isReordering} onClick={() => setWaypoints(initialWaypoints)}>Discard</Button>}
+          <LoadingButton type="button" isPending={isReordering} pendingLabel="Saving order" disabled={!hasUnsavedOrder || isCreating} onClick={saveOrder}>
             <Save aria-hidden="true" /> Save order
           </LoadingButton>
         </div>
       </div>
 
+      {hasUnsavedOrder && (
+        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4" aria-live="polite">
+          <p className="font-semibold text-amber-800 dark:text-amber-200">Proposed movement</p>
+          <ul className="mt-2 space-y-1 text-sm text-amber-900/80 dark:text-amber-100/80">
+            {proposedMoves.slice(0, 5).map((move) => <li key={move.id}>{move.reference}: waypoint {move.from} → {move.to}</li>)}
+            {proposedMoves.length > 5 && <li>Plus {proposedMoves.length - 5} more position changes.</li>}
+          </ul>
+        </div>
+      )}
+
       <div className="overflow-x-auto rounded-2xl border border-border/70 bg-card shadow-sm">
         <table className="w-full min-w-4xl border-collapse text-sm">
-          <caption className="sr-only">All 220 administrative waypoint slots</caption>
+          <caption className="sr-only">All administrative waypoint records</caption>
           <thead className="bg-muted/60 text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
-              <th scope="col" className="h-11 px-4 text-left font-semibold">Slot</th>
+              <th scope="col" className="h-11 px-4 text-left font-semibold">Waypoint</th>
               <th scope="col" className="h-11 px-4 text-left font-semibold">Assigned verse</th>
               <th scope="col" className="h-11 px-4 text-left font-semibold">Journey Stage</th>
               <th scope="col" className="h-11 px-4 text-left font-semibold">Status</th>
@@ -100,15 +169,31 @@ export function WaypointManager({ initialWaypoints, publishedVerses }: WaypointM
           </thead>
           <tbody className="divide-y divide-border/70">
             {waypoints.map((waypoint, index) => {
-              const canPublish = Boolean(waypoint.verse?.isActive);
+              const previous = waypoints[index - 1];
+              const next = waypoints[index + 1];
+              const movementLocked = waypoint.isActive && hasProgress(waypoint);
+              const moveUpBlocked = index === 0 || movementLocked || Boolean(previous && (hasProgress(previous) || (!waypoint.isActive && previous.isActive)));
+              const moveDownBlocked = index === waypoints.length - 1 || movementLocked || Boolean(next && (hasProgress(next) || (waypoint.isActive && !next.isActive)));
+              const isNextHidden = !waypoint.isActive && (index === 0 || Boolean(previous?.isActive));
+              const isLastPublished = waypoint.isActive && !waypoints.slice(index + 1).some((candidate) => candidate.isActive);
+              const canPublish = Boolean(waypoint.verse?.isActive) && isNextHidden;
+              const statusChangeAllowed = waypoint.isActive ? isLastPublished : isNextHidden;
+              const disabledReason = waypoint.isActive
+                ? "Hide later published waypoints first."
+                : !waypoint.verse
+                  ? "Assign a published verse first."
+                  : "Publish every earlier waypoint first.";
+              const originalNumber = initialNumberById.get(waypoint.id) ?? index + 1;
+
               return (
-                <tr key={waypoint.id} className={cn("transition-colors hover:bg-muted/35", hasUnsavedOrder && "bg-amber-500/5")}>
+                <tr key={waypoint.id} className={cn("transition-colors hover:bg-muted/35", originalNumber !== index + 1 && "bg-amber-500/5")}>
                   <td className="px-4 py-3 align-middle">
                     <div className="flex items-center gap-2">
                       <span className="flex size-9 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">{index + 1}</span>
+                      {originalNumber !== index + 1 && <span className="text-xs text-amber-700 dark:text-amber-300"><span className="sr-only">Previously waypoint </span>{originalNumber} → {index + 1}</span>}
                       <div className="flex gap-1">
-                        <Button type="button" variant="ghost" size="icon-lg" disabled={isPending || index === 0} aria-label={`Move waypoint ${index + 1} up`} onClick={() => moveWaypoint(index, index - 1)}><ArrowUp aria-hidden="true" /></Button>
-                        <Button type="button" variant="ghost" size="icon-lg" disabled={isPending || index === waypoints.length - 1} aria-label={`Move waypoint ${index + 1} down`} onClick={() => moveWaypoint(index, index + 1)}><ArrowDown aria-hidden="true" /></Button>
+                        <Button type="button" variant="ghost" size="icon-lg" disabled={isReordering || moveUpBlocked} aria-label={`Move waypoint ${index + 1} up`} onClick={() => moveWaypoint(index, index - 1)}><ArrowUp aria-hidden="true" /></Button>
+                        <Button type="button" variant="ghost" size="icon-lg" disabled={isReordering || moveDownBlocked} aria-label={`Move waypoint ${index + 1} down`} onClick={() => moveWaypoint(index, index + 1)}><ArrowDown aria-hidden="true" /></Button>
                       </div>
                     </div>
                   </td>
@@ -119,15 +204,8 @@ export function WaypointManager({ initialWaypoints, publishedVerses }: WaypointM
                   <td className="px-4 py-3 align-middle"><Badge variant={waypoint.isActive ? "default" : "outline"}>{waypoint.isActive ? "Published" : "Hidden"}</Badge></td>
                   <td className="px-4 py-3 align-middle">
                     <div className="flex justify-end gap-2">
-                      <WaypointAssignmentDialog
-                        waypointId={waypoint.id}
-                        waypointNumber={index + 1}
-                        initialVerseId={waypoint.verse?.id ?? ""}
-                        initialJourneyStage={waypoint.journeyStage}
-                        publishedVerses={publishedVerses}
-                        disabled={hasUnsavedOrder || isPending}
-                      />
-                      <WaypointStatusAction id={waypoint.id} number={index + 1} isActive={waypoint.isActive} canPublish={canPublish} disabled={hasUnsavedOrder || isPending} />
+                      <WaypointAssignmentDialog waypointId={waypoint.id} waypointNumber={index + 1} initialVerseId={waypoint.verse?.id ?? ""} initialJourneyStage={waypoint.journeyStage} publishedVerses={publishedVerses} disabled={hasUnsavedOrder || isReordering || isCreating} />
+                      <WaypointStatusAction id={waypoint.id} number={index + 1} isActive={waypoint.isActive} canPublish={canPublish} statusChangeAllowed={statusChangeAllowed} disabledReason={disabledReason} disabled={hasUnsavedOrder || isReordering || isCreating} />
                     </div>
                   </td>
                 </tr>

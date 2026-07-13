@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-/** ADMIN-only composition for the fixed 220-waypoint curriculum. */
+/** ADMIN-only composition for the append-only waypoint curriculum. */
 export async function WaypointsManagementView(): Promise<React.ReactNode> {
   const { waypoints, publishedVerses } = await getWaypointsManagementData();
   const managerKey = waypoints.map(({ id, number, verseId, journeyStage, isActive }) => `${id}:${number}:${verseId}:${journeyStage}:${isActive}`).join("|");
@@ -21,10 +21,10 @@ export async function WaypointsManagementView(): Promise<React.ReactNode> {
         <PageHeader
           eyebrow="Administration"
           title="Waypoint curriculum"
-          description="Assign published Scripture, define each appearance's Journey Stage, control visibility, and maintain the 220-slot learning order."
+          description="Append curriculum waypoints, assign published Scripture, define each appearance's Journey Stage, and maintain a safe learning order."
         />
         {waypoints.length === 0 ? (
-          <EmptyState title="No waypoint slots" description="Run the documented Prisma seed to create the 220 hidden curriculum placeholders." />
+          <EmptyState title="No waypoints" description="Run the documented initial seed or append the first hidden curriculum waypoint." />
         ) : (
           <WaypointManager key={managerKey} initialWaypoints={waypoints} publishedVerses={publishedVerses} />
         )}

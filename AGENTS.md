@@ -39,7 +39,13 @@ all differ from your training data. Read the relevant guide in
 | Drag and Drop | @dnd-kit/core |
 
 **What this app does:**
-Scripture Memo helps users memorize Bible verses through 220 sequential waypoints. Each waypoint is assigned one verse and a Journey Stage. Users complete a Three-Day Challenge (Glimmer → Glow → Radiance) at every waypoint using five game modes per day (Drag & Drop → Puzzle → Swap → Cue → Fill). The app rewards learning with Glow Points (the only currency), streaks, and a Badge System.
+Scripture Memo helps users memorize Bible verses through an expanding sequential
+waypoint curriculum bootstrapped with 220 records. Administrators append new
+waypoints to the same continuous history. Each waypoint is assigned one verse
+and a Journey Stage. Users complete a Three-Day Challenge (Glimmer → Glow →
+Radiance) at every waypoint using five game modes per day (Drag & Drop → Puzzle
+→ Swap → Cue → Fill). The app rewards learning with Glow Points (the only
+currency), streaks, and a Badge System.
 
 **Before writing any code:** Read `docs/PRODUCT-OVERVIEW.md` for the full product specification.
 Read `docs/ROADMAP.md` for implementation order and `docs/SECURITY-AUDIT.md` for

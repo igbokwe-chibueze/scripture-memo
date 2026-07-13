@@ -409,7 +409,7 @@ Confirm the following before proceeding:
 **Status:** Implemented — automated verification passed; manual ADMIN acceptance
 pending.
 
-**Goal:** Create and manage the 220-waypoint curriculum structure.
+**Goal:** Create and safely manage an expanding sequential waypoint curriculum.
 
 ### Tasks
 
@@ -428,6 +428,15 @@ pending.
 7. Seed placeholders as hidden and unassigned with provisional `LEARN` stage.
    Assignment must explicitly set the intended Journey Stage, and publishing
    requires an assigned, currently published verse.
+8. Allow ADMIN users to append individual hidden, unassigned waypoints after the
+   current final waypoint; 220 is the bootstrap count, not a maximum.
+9. Display total, published, hidden, and unassigned waypoint counts.
+10. Enforce a continuous published prefix followed by hidden drafts.
+11. Enforce per-verse Journey Stage order and uniqueness for Learn, Recall, and
+    Strengthen; Master may repeat.
+12. Lock the position of a published waypoint after learner progress exists.
+13. Show pending feedback for visibility changes and human-readable movement
+    details before and after reordering.
 
 ### Acceptance Criteria
 
@@ -435,6 +444,12 @@ pending.
 - Two different waypoints can have the same verse assigned with different Journey Stages.
 - Waypoints 1–220 exist after seeding.
 - Empty placeholders remain hidden and cannot be published.
+- Admin can append a waypoint and it receives the next sequential number.
+- Published waypoints cannot contain a hidden gap.
+- Reordering cannot invert Journey Stages for the same verse or move a progressed
+  published waypoint.
+- The same verse cannot repeat Learn, Recall, or Strengthen, while Master may
+  repeat.
 
 ---
 
@@ -480,7 +495,7 @@ pending.
 
 ## Phase 11 — Game Map
 
-**Goal:** Build the visual representation of all 220 waypoints.
+**Goal:** Build the visual representation of the complete expanding waypoint curriculum.
 
 ### Tasks
 
@@ -497,7 +512,8 @@ pending.
 
 ### Acceptance Criteria
 
-- Map displays all 220 waypoints grouped correctly.
+- Map displays every current waypoint in groups of 10 and accommodates appended
+  waypoints without a fixed maximum.
 - Journey Stage badges are visible on each waypoint node.
 - Waypoint status accurately reflects actual database progress.
 - Locked waypoints are unclickable and show a toast explaining how to unlock.
@@ -999,7 +1015,7 @@ pending.
    - 2 test regular users
    - 10 verses with all three translations (NIV, ESV, KJV) and normalized text
    - 2 packs using those verses
-   - 220 waypoint records:
+   - Initial 220 waypoint records:
      - Waypoints 1–10 assigned to real verses with Journey Stage set
      - Demonstrate verse repetition: assign one verse at waypoints 1 and 5 with Learn and Recall stages respectively
      - Waypoints 11–220 created as placeholders (no verse assigned, inactive)

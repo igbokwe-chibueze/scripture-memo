@@ -5,6 +5,7 @@ import { EyeOff, Send } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ConfirmationDialog } from "@/components/shared/confirmation-dialog";
+import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { hideWaypointAction } from "@/features/waypoints/actions/hide-waypoint.action";
 import { publishWaypointAction } from "@/features/waypoints/actions/publish-waypoint.action";
 
@@ -13,13 +14,24 @@ export type WaypointStatusActionProps = {
   number: number;
   isActive: boolean;
   canPublish: boolean;
+  statusChangeAllowed?: boolean;
+  disabledReason?: string;
   disabled?: boolean;
 };
 
 /** Confirmation-gated visibility control for a curriculum waypoint. */
-export function WaypointStatusAction({ id, number, isActive, canPublish, disabled = false }: WaypointStatusActionProps): React.ReactNode {
+export function WaypointStatusAction({
+  id,
+  number,
+  isActive,
+  canPublish,
+  statusChangeAllowed = true,
+  disabledReason,
+  disabled = false,
+}: WaypointStatusActionProps): React.ReactNode {
   const [isPending, startTransition] = useTransition();
-  const unavailable = disabled || isPending || (!isActive && !canPublish);
+  const unavailable = disabled || isPending || !statusChangeAllowed || (!isActive && !canPublish);
+  const pendingLabel = isActive ? "Hiding waypoint" : "Publishing waypoint";
 
   return (
     <ConfirmationDialog
@@ -31,9 +43,16 @@ export function WaypointStatusAction({ id, number, isActive, canPublish, disable
       destructive={isActive}
       isConfirmDisabled={unavailable}
       trigger={
-        <Button type="button" variant={isActive ? "outline" : "default"} className="min-h-11" disabled={unavailable}>
-          {isActive ? <EyeOff aria-hidden="true" /> : <Send aria-hidden="true" />}
-          {isActive ? "Hide" : "Publish"}
+        <Button
+          type="button"
+          variant={isActive ? "outline" : "default"}
+          className="min-h-11"
+          disabled={unavailable}
+          aria-busy={isPending}
+          title={unavailable && !isPending ? disabledReason : undefined}
+        >
+          {isPending ? <LoadingSpinner size="sm" label={pendingLabel} /> : isActive ? <EyeOff aria-hidden="true" /> : <Send aria-hidden="true" />}
+          {isPending ? (isActive ? "Hiding…" : "Publishing…") : isActive ? "Hide" : "Publish"}
         </Button>
       }
       onConfirm={() => startTransition(async () => {

@@ -21,10 +21,11 @@ Scripture Memo is a full-stack, mobile-first scripture memorization web
 application built with Next.js 16.2.10, strict TypeScript, Prisma 7, PostgreSQL,
 Better Auth, Tailwind CSS 4, shadcn/ui, React Hook Form, Zod, and Sonner.
 
-Players progress through 220 sequential waypoints. Every waypoint combines a
-Three-Day Challenge (Glimmer, Glow, Radiance) with five ordered game modes (Drag
-& Drop, Puzzle, Swap, Cue, Fill). Journey Stages (Learn, Recall, Strengthen,
-Master) control long-term verse difficulty. Glow Points are the only currency.
+Players progress through an expanding sequential waypoint curriculum
+bootstrapped with 220 records. Every waypoint combines a Three-Day Challenge
+(Glimmer, Glow, Radiance) with five ordered game modes (Drag & Drop, Puzzle,
+Swap, Cue, Fill). Journey Stages (Learn, Recall, Strengthen, Master) control
+long-term verse difficulty. Glow Points are the only currency.
 
 ## Current Project State
 
@@ -100,9 +101,9 @@ Manually verify Phase 9 — Admin Waypoint Management.
 
 ## Exact Next Task
 
-Verify the 220-slot admin screen, assign one published verse to multiple
-waypoints with different Journey Stages, reorder slots, publish/hide an assigned
-waypoint, confirm empty slots cannot publish, and inspect the audit records.
+Apply and verify the Phase 9 invariant migration, then manually test append,
+statistics, assignment uniqueness, stage ordering, continuous visibility,
+progress-aware reordering, pending indicators, movement feedback, and audit logs.
 
 ## Important Decisions
 
@@ -128,6 +129,12 @@ waypoint, confirm empty slots cannot publish, and inspect the audit records.
 - All 220 waypoint placeholders start hidden and unassigned with provisional
   `LEARN` stage. Assignment requires an explicit stage, and publishing requires
   an assigned, currently published verse.
+- The initial 220 waypoints are a bootstrap count, not a maximum. Administrators
+  append individual waypoints to one continuous historical sequence without
+  year grouping.
+- Published waypoints form a continuous prefix. Per verse, Learn, Recall, and
+  Strengthen are unique and ordered; Master may repeat. Published waypoints with
+  learner progress are position-locked.
 - The Phase 4 placeholder Server Action using `ActionResult` belongs to the auth
   feature because authentication is the next feature that will consume the
   shared contract.
@@ -213,6 +220,19 @@ waypoint, confirm empty slots cannot publish, and inspect the audit records.
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-13 — Phase 9 scalability and curriculum invariants revised
+
+- Replaced the fixed 220 limit with ADMIN append-at-end behavior while retaining
+  the idempotent 220-record bootstrap seed.
+- Added waypoint statistics, continuous publish/hide rules, per-verse stage
+  uniqueness and ordering, progress-aware reorder locks, pending visibility
+  feedback, detailed movement previews, and aligned assignment-dialog actions.
+- Added a PostgreSQL partial unique index migration so Learn, Recall, and
+  Strengthen cannot duplicate for a verse while Master remains repeatable.
+- Applied the invariant migration successfully. TypeScript, ESLint, Prisma
+  validation, `git diff --check`, architecture checks, and the production build
+  all passed; revised Phase 9 manual acceptance remains.
 
 ### 2026-07-13 — Phase 9 waypoint management implemented
 

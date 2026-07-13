@@ -28,8 +28,15 @@ export async function assignVerseToWaypointAction(input: unknown): Promise<Actio
       session.user.id,
       getRequestIp(requestHeaders),
     );
-    if (result === "waypoint-missing") return { success: false, message: "Waypoint no longer exists." };
-    if (result === "verse-unavailable") return { success: false, message: "That verse is no longer published." };
+    if (result.status === "waypoint-missing") return { success: false, message: "Waypoint no longer exists." };
+    if (result.status === "verse-unavailable") return { success: false, message: "That verse is no longer published." };
+    if (result.status === "duplicate-stage") {
+      return { success: false, message: `This verse already has that Journey Stage at waypoint ${result.existingNumber}.` };
+    }
+    if (result.status === "stage-order") {
+      const stage = result.conflictingStage.toLowerCase();
+      return { success: false, message: `Journey Stage order conflicts with the ${stage} appearance at waypoint ${result.conflictingNumber}.` };
+    }
     revalidatePath("/admin/waypoints");
     return { success: true, message: "Waypoint assignment saved." };
   } catch {

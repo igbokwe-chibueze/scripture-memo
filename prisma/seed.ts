@@ -5,8 +5,9 @@
  * 7 does not run seeds automatically during migrate commands. The script needs
  * DATABASE_URL and the generated Prisma client produced by `prisma generate`.
  *
- * This initial seed creates the fixed 220 curriculum slots required by the
- * product. It is intentionally idempotent: existing waypoint numbers are never
+ * This bootstrap seed creates the initial 220 curriculum slots. The curriculum
+ * has no permanent maximum; administrators append later waypoints through the
+ * application. The seed is intentionally idempotent: existing numbers are never
  * updated, so rerunning it cannot overwrite verse assignments, Journey Stages,
  * publication state, or learner-related records. Missing placeholders start
  * hidden and unassigned with provisional LEARN stage; that stage has no gameplay
@@ -26,7 +27,7 @@ import type { WaypointSeedData } from "@/features/waypoints/types/waypoint.types
 
 const WAYPOINT_COUNT = 220;
 
-/** Builds all canonical slot numbers without storing mutable curriculum in JSON. */
+/** Builds the initial slot numbers without storing mutable curriculum in JSON. */
 function buildWaypointPlaceholders(): WaypointSeedData[] {
   return Array.from({ length: WAYPOINT_COUNT }, (_, index) => ({
     number: index + 1,

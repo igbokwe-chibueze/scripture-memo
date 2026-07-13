@@ -243,6 +243,8 @@ model PackVerse {
 }
 
 model Waypoint {
+  /// Learn, Recall, and Strengthen are unique per assigned verse through the
+  /// partial PostgreSQL index added by migration; Master may repeat.
   id           String                 @id @default(cuid())
   number       Int                    @unique
   verseId      String?

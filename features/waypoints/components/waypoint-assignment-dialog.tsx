@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -104,7 +105,10 @@ export function WaypointAssignmentDialog({
             </Select>
           </div>
         </div>
-        <DialogFooter showCloseButton>
+        <DialogFooter>
+          <DialogClose render={<Button type="button" variant="outline" className="min-h-11" disabled={isPending} />}>
+            Close
+          </DialogClose>
           <LoadingButton type="button" isPending={isPending} pendingLabel="Saving assignment" disabled={!verseId} onClick={saveAssignment}>
             Save assignment
           </LoadingButton>
