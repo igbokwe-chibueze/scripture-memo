@@ -94,12 +94,12 @@ Pack Management follows after manual enhancement acceptance.
 
 ## Current Task
 
-Complete the polished Scripture reference card and long-list search pattern.
+Complete Phase 7 audit hardening from pull-request review feedback.
 
 ## Exact Next Task
 
-Verify the redesigned reference card and searchable Bible-book/country selectors.
-After acceptance, begin Phase 8 — Admin Pack Management.
+Verify create, update, publish, and archive audit records, then begin Phase 8 —
+Admin Pack Management.
 
 ## Important Decisions
 
@@ -115,6 +115,9 @@ After acceptance, begin Phase 8 — Admin Pack Management.
   update existing verses. Imports are limited to 100 rows and 1 MB per file.
 - Long predefined dropdowns use searchable comboboxes; short lists such as
   status, sort, theme, and translation remain simple selects.
+- Every manual verse mutation and bulk import writes an actor-linked `AuditLog`
+  record in the same transaction. Update metadata contains changed field names,
+  never translation text, reflections, or study-note content.
 - The Phase 4 placeholder Server Action using `ActionResult` belongs to the auth
   feature because authentication is the next feature that will consume the
   shared contract.
@@ -199,6 +202,17 @@ After acceptance, begin Phase 8 — Admin Pack Management.
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-13 — Phase 7 audit hardening
+
+- Accepted PR review feedback that publish/archive availability changes lacked
+  accountability records and applied the correction consistently to create,
+  update, publish, and archive.
+- Added stable audit action identifiers and centralized bounded request-IP
+  extraction for server-derived audit context.
+- Verse writes and their audit records now commit or roll back together.
+- Update audits record changed field names only; status audits record prior and
+  new availability without duplicating authored content.
 
 ### 2026-07-13 — Reference card and searchable long lists
 

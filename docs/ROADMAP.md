@@ -347,6 +347,8 @@ Confirm the following before proceeding:
    book, tag, status, and sort selections immediately while preserving URL state.
 10. Use searchable comboboxes for long predefined lists such as Bible books and
     countries; retain simple selects for short option sets.
+11. Record create, update, publish, archive, and bulk-import administrator actions
+    in `AuditLog`; each mutation and audit entry must share a transaction.
 
 ### Acceptance Criteria
 
@@ -360,6 +362,8 @@ Confirm the following before proceeding:
   invalid rows before confirmation.
 - Verse search updates while the administrator types without submitting the
   complete filter form.
+- Manual verse mutations and bulk imports produce actor-linked audit records
+  without copying translation, reflection, or study-note content into metadata.
 
 ---
 

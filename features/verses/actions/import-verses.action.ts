@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth/auth";
 import type { UserRole } from "@/lib/generated/prisma/enums";
 import { logger } from "@/lib/logger";
 import { isAdmin } from "@/lib/permissions";
+import { getRequestIp } from "@/lib/request-ip";
 import type { ActionResult } from "@/types/api";
 import {
   prepareVerseImport,
@@ -14,12 +15,6 @@ import {
 import { verseRepository } from "@/features/verses/repositories/verse.repository";
 import { importVersesInputSchema } from "@/features/verses/schemas/import-verses.schema";
 import type { VerseImportResult } from "@/features/verses/types/verse.types";
-
-function getRequestIp(requestHeaders: Headers): string | null {
-  const forwarded = requestHeaders.get("x-forwarded-for")?.split(",")[0]?.trim();
-  const address = forwarded || requestHeaders.get("x-real-ip")?.trim();
-  return address ? address.slice(0, 64) : null;
-}
 
 /** Revalidates and atomically imports every ready CSV row for an administrator. */
 export async function importVersesAction(
