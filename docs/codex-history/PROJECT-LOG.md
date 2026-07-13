@@ -243,6 +243,16 @@ Phase 11 — Game Map against the lazy progression repository.
 
 ## Dated Session Updates
 
+### 2026-07-13 — Phase 10 curriculum-lock race corrected
+
+- Accepted PR review feedback that first-waypoint initialization and the next
+  waypoint unlock could race administrator curriculum mutations.
+- Progression now acquires the same transaction-scoped curriculum advisory lock
+  used by waypoint administration and holds it across availability selection and
+  learner-progress creation.
+- Extended isolated database coverage to exercise initialization and next-unlock
+  behavior while an administrator transaction holds and mutates under that lock.
+
 ### 2026-07-13 — Phase 10 progression engine implemented
 
 - Added lazy first-playable-waypoint initialization and idempotent registration

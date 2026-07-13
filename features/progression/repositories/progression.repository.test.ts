@@ -9,6 +9,7 @@
  */
 import assert from "node:assert/strict";
 import test from "node:test";
+import type { Prisma } from "@/lib/generated/prisma/client";
 
 const testDatabaseUrl = process.env.TEST_DATABASE_URL;
 
@@ -38,14 +39,23 @@ test(
 
     const runId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
     const userId = `progression-test-user-${runId}`;
+    const raceUserId = `progression-race-user-${runId}`;
+    const userIds = [userId, raceUserId];
     const verseIds: string[] = [];
     const waypointIds: string[] = [];
-    await prisma.user.create({
-      data: {
-        id: userId,
-        name: "Progression Integration User",
-        email: `progression-${runId}@example.test`,
-      },
+    await prisma.user.createMany({
+      data: [
+        {
+          id: userId,
+          name: "Progression Integration User",
+          email: `progression-${runId}@example.test`,
+        },
+        {
+          id: raceUserId,
+          name: "Progression Race User",
+          email: `progression-race-${runId}@example.test`,
+        },
+      ],
     });
 
     try {
@@ -63,6 +73,64 @@ test(
         return verse.id;
       };
 
+      /** Waits until the competing progression transaction is blocked on the lock. */
+      const waitForAdvisoryLockWaiter = async (): Promise<void> => {
+        for (let attempt = 0; attempt < 100; attempt += 1) {
+          const [row] = await prisma.$queryRaw<Array<{ waiting: bigint }>>`
+            SELECT COUNT(*)::bigint AS waiting
+            FROM pg_locks
+            WHERE locktype = 'advisory' AND granted = false
+          `;
+          if (Number(row?.waiting ?? 0) > 0) return;
+          await new Promise<void>((resolve) => setTimeout(resolve, 10));
+        }
+        assert.fail("Progression did not wait for the held curriculum lock.");
+      };
+
+      /**
+       * Runs progression while an administrator-style transaction owns the
+       * shared curriculum lock, then commits a mutation before progression may
+       * re-check availability. This deterministically reproduces the reviewed
+       * race instead of depending on arbitrary timing delays.
+       */
+      const runAfterLockedCurriculumMutation = async <T>(
+        operation: () => Promise<T>,
+        mutation: (transaction: Prisma.TransactionClient) => Promise<void>,
+      ): Promise<T> => {
+        let announceLockHeld: (() => void) | undefined;
+        const lockHeld = new Promise<void>((resolve) => {
+          announceLockHeld = resolve;
+        });
+        let allowMutation: (() => void) | undefined;
+        const mutationAllowed = new Promise<void>((resolve) => {
+          allowMutation = resolve;
+        });
+
+        const adminMutation = prisma.$transaction(async (transaction) => {
+          await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('scripture-memo-curriculum'))`;
+          announceLockHeld?.();
+          await mutationAllowed;
+          await mutation(transaction);
+        });
+        await lockHeld;
+        const progressionOperation = operation();
+
+        let waitFailure: unknown;
+        try {
+          await waitForAdvisoryLockWaiter();
+        } catch (error: unknown) {
+          waitFailure = error;
+        } finally {
+          allowMutation?.();
+        }
+        await adminMutation;
+        if (waitFailure) {
+          await progressionOperation.catch(() => undefined);
+          throw waitFailure;
+        }
+        return progressionOperation;
+      };
+
       const firstVerseId = await createVerse(`Progression ${runId} First`, 1);
       const nextVerseId = await createVerse(`Progression ${runId} Next`, 3);
       const firstWaypoint = await prisma.waypoint.create({
@@ -71,9 +139,29 @@ test(
       const nextWaypoint = await prisma.waypoint.create({
         // WHY: The gap proves progression queries the next published row rather
         // than manufacturing waypoint number N+1.
-        data: { number: 3, verseId: nextVerseId, journeyStage: "LEARN", isActive: true },
+        data: { number: 3, verseId: nextVerseId, journeyStage: "LEARN", isActive: false },
       });
       waypointIds.push(firstWaypoint.id, nextWaypoint.id);
+
+      const unavailableInitialization = await runAfterLockedCurriculumMutation(
+        () => progressionRepository.initializeFirstWaypoint(raceUserId),
+        async (transaction) => {
+          await transaction.waypoint.update({
+            where: { id: firstWaypoint.id },
+            data: { isActive: false },
+          });
+        },
+      );
+      assert.deepEqual(unavailableInitialization, { status: "curriculum-unavailable" });
+      assert.equal(
+        await prisma.userWaypointProgress.count({ where: { userId: raceUserId } }),
+        0,
+        "Initialization must not attach history to curriculum hidden under the shared lock.",
+      );
+      await prisma.waypoint.update({
+        where: { id: firstWaypoint.id },
+        data: { isActive: true },
+      });
 
       const initialized = await progressionRepository.initializeFirstWaypoint(userId);
       assert.deepEqual(initialized, {
@@ -84,6 +172,32 @@ test(
       assert.equal(await prisma.userWaypointProgress.count({ where: { userId } }), 1);
       assert.deepEqual(await progressionRepository.initializeFirstWaypoint(userId), initialized);
       assert.equal(await prisma.userWaypointProgress.count({ where: { userId } }), 1);
+
+      await prisma.waypoint.update({
+        where: { id: nextWaypoint.id },
+        data: { isActive: true },
+      });
+      const unavailableNextWaypoint = await runAfterLockedCurriculumMutation(
+        () => progressionRepository.unlockNextWaypoint(raceUserId, firstWaypoint.number),
+        async (transaction) => {
+          await transaction.waypoint.update({
+            where: { id: nextWaypoint.id },
+            data: { isActive: false },
+          });
+        },
+      );
+      assert.equal(unavailableNextWaypoint, null);
+      assert.equal(
+        await prisma.userWaypointProgress.count({
+          where: { userId: raceUserId, waypointId: nextWaypoint.id },
+        }),
+        0,
+        "Next unlock must re-check availability after the admin mutation commits.",
+      );
+      await prisma.waypoint.update({
+        where: { id: nextWaypoint.id },
+        data: { isActive: true },
+      });
 
       const day1CompletedAt = new Date("2026-07-01T08:00:00.000Z");
       await progressionRepository.prepareDayForGameplay(
@@ -168,11 +282,11 @@ test(
         1,
       );
     } finally {
-      await prisma.userDayProgress.deleteMany({ where: { userId } });
-      await prisma.userWaypointProgress.deleteMany({ where: { userId } });
+      await prisma.userDayProgress.deleteMany({ where: { userId: { in: userIds } } });
+      await prisma.userWaypointProgress.deleteMany({ where: { userId: { in: userIds } } });
       await prisma.waypoint.deleteMany({ where: { id: { in: waypointIds } } });
       await prisma.verse.deleteMany({ where: { id: { in: verseIds } } });
-      await prisma.user.deleteMany({ where: { id: userId } });
+      await prisma.user.deleteMany({ where: { id: { in: userIds } } });
       await prisma.$disconnect();
     }
   },

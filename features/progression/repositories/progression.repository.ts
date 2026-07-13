@@ -33,6 +33,15 @@ export class ProgressionConflictError extends Error {
   }
 }
 
+/** Coordinates learner-history creation with administrator curriculum mutations. */
+async function lockCurriculum(transaction: Prisma.TransactionClient): Promise<void> {
+  // WHY: Waypoint administration uses this exact transaction-scoped lock before
+  // validating learner history. Progression must share it while selecting and
+  // unlocking curriculum, or an admin could hide, reassign, or reorder the same
+  // waypoint between the availability read and progress-record creation.
+  await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('scripture-memo-curriculum'))`;
+}
+
 /** Serializes transitions for one learner and waypoint against repeat requests. */
 async function lockProgression(
   transaction: Prisma.TransactionClient,
@@ -104,6 +113,7 @@ async function unlockNextWaypointInTransaction(
   currentWaypointNumber: number,
   unlockedAt: Date,
 ): Promise<{ id: string; number: number } | null> {
+  await lockCurriculum(transaction);
   const nextWaypoint = await findAvailableWaypoint(transaction, {
     number: { gt: currentWaypointNumber },
   });
@@ -169,6 +179,10 @@ export const progressionRepository = {
         };
       }
 
+      // WHY: The lock remains held through selection and progress creation, so
+      // waypoint administration must either commit before this availability
+      // query or wait until learner history is permanently attached.
+      await lockCurriculum(transaction);
       const firstWaypoint = await findAvailableWaypoint(transaction, {});
       if (!firstWaypoint) return { status: "curriculum-unavailable" };
 
