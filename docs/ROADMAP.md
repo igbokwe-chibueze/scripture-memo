@@ -509,6 +509,14 @@ searchable troubleshooting manual.
 
 **Goal:** Implement the server-side logic that controls all user progression, cooldowns, and unlocks.
 
+**Implementation status (2026-07-13):** Complete. Unit and catalogue tests,
+strict TypeScript, lint, architecture checks, and the production build pass. The
+isolated PostgreSQL integration suite is included and skips safely until
+`TEST_DATABASE_URL` points to an empty migrated test database. Progression
+initialization and next-waypoint unlocking share the curriculum transaction lock
+with administrator mutations, preventing availability checks from racing a
+hide, reassignment, publication, append, or reorder.
+
 ### Tasks
 
 1. Create `features/progression/` with full folder structure.
@@ -547,7 +555,8 @@ searchable troubleshooting manual.
 
 ### Acceptance Criteria
 
-- New users have Waypoint 1 in UNLOCKED status on first login.
+- New users have the first currently published, playable waypoint (normally
+  Waypoint 1) in UNLOCKED status on first login.
 - Day 2 is not playable until 24 hours after Day 1 completion (server enforced).
 - Day 3 is not playable until 24 hours after Day 2 completion (server enforced).
 - Completing Day 3 automatically unlocks Waypoint N+1.

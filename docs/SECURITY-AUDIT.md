@@ -106,14 +106,14 @@ The server and database are the only sources of truth for all security-sensitive
 
 | # | Check | Risk | Status | Notes |
 |---|---|---|---|---|
-| 5.1 | Waypoint unlock status is always computed server-side | 🔴 Critical | ☐ Pending | Client cannot decide which waypoints are unlocked |
-| 5.2 | Day unlock status is always computed server-side from stored timestamps | 🔴 Critical | ☐ Pending | Prevents cooldown bypass |
-| 5.3 | Day 2 unlock requires Day 1 to be marked complete in the database | 🔴 Critical | ☐ Pending | Progression rule enforced at server level |
-| 5.4 | Day 3 unlock requires Day 2 to be marked complete in the database | 🔴 Critical | ☐ Pending | Progression rule enforced at server level |
-| 5.5 | 24-hour cooldown is calculated from the stored `completedAt` timestamp — never from client time | 🔴 Critical | ☐ Pending | Client countdown timers are display-only |
+| 5.1 | Waypoint unlock status is always computed server-side | 🔴 Critical | ✅ Implemented | Lazy initialization and next-waypoint selection run in the progression repository |
+| 5.2 | Day unlock status is always computed server-side from stored timestamps | 🔴 Critical | ✅ Implemented | `isDayPlayable` is reapplied inside the guarded start transaction |
+| 5.3 | Day 2 unlock requires Day 1 to be marked complete in the database | 🔴 Critical | ✅ Implemented | Progression transaction verifies the preceding persisted day |
+| 5.4 | Day 3 unlock requires Day 2 to be marked complete in the database | 🔴 Critical | ✅ Implemented | Progression transaction verifies the preceding persisted day |
+| 5.5 | 24-hour cooldown is calculated from the stored `completedAt` timestamp — never from client time | 🔴 Critical | ✅ Implemented | Server-derived completion time plus exact elapsed UTC hours; client countdowns remain display-only |
 | 5.6 | `overrideCooldownAction` requires ADMIN or SUPER_ADMIN role | 🟠 High | ☐ Pending | Must be for testing only and audit-logged |
-| 5.7 | Completing Day 3 unlocks only the next sequential waypoint — not an arbitrary one | 🟠 High | ☐ Pending | Prevent arbitrary waypoint unlock via manipulated requests |
-| 5.8 | Duplicate day completion is prevented by unique DB constraint on `(userId, waypointId, dayLevel)` | 🔴 Critical | ☐ Pending | Database-level safety net against race conditions |
+| 5.7 | Completing Day 3 unlocks only the next currently published waypoint selected by the server | 🟠 High | ✅ Implemented | Database ordering is used rather than a client ID or an `N+1` assumption |
+| 5.8 | Duplicate day completion is prevented by the unique `(userId, waypointId, dayLevel)` record, transaction lock, and completed-state check | 🔴 Critical | ✅ Implemented | Database and transactional defenses reject repeat or concurrent completion |
 | 5.9 | Game mode completion order is enforced server-side (DRAG_DROP → PUZZLE → SWAP → CUE → FILL) | 🟠 High | ☐ Pending | User cannot jump to Fill mode without completing previous modes |
 | 5.10 | A day cannot be marked complete unless all five modes are recorded as complete | 🔴 Critical | ☐ Pending | Prevents partial-day reward collection |
 | 5.11 | Journey Stage hint rules are enforced server-side in `useHintAction` | 🔴 Critical | ☐ Pending | STRENGTHEN and MASTER stage requests must be rejected at the action level |
