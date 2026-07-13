@@ -379,6 +379,13 @@ A waypoint is a sequential learning checkpoint in the user's journey. The initia
 | `journeyStage` | The stage of this verse appearance: `LEARN`, `RECALL`, `STRENGTHEN`, or `MASTER` |
 | `isActive` | Whether the waypoint is published |
 
+All 220 waypoint records are seeded as hidden, unassigned placeholders. Because
+the database requires a Journey Stage before a verse is assigned, new
+placeholders use `LEARN` provisionally. That provisional value has no gameplay
+effect while the waypoint is hidden. Assignment requires the administrator to
+explicitly choose the intended Journey Stage, and a waypoint cannot be
+published until it has a currently published verse.
+
 ### 7.3 Waypoint Progression Rules
 
 - Waypoint 1 is the only waypoint unlocked for new users by default.

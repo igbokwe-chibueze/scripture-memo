@@ -406,7 +406,8 @@ Confirm the following before proceeding:
 
 ## Phase 9 — Admin Waypoint Management
 
-**Status:** Next.
+**Status:** Implemented — automated verification passed; manual ADMIN acceptance
+pending.
 
 **Goal:** Create and manage the 220-waypoint curriculum structure.
 
@@ -424,12 +425,16 @@ Confirm the following before proceeding:
 4. Build admin waypoint management view: table of 220 slots, each showing: number, assigned verse reference, Journey Stage badge, active status, and assign/edit button.
 5. **The `journeyStage` field is required when assigning a verse to a waypoint.** The admin must specify whether this appearance is Learn, Recall, Strengthen, or Master.
 6. Add seed placeholders for all 220 waypoints in `prisma/seed.ts`.
+7. Seed placeholders as hidden and unassigned with provisional `LEARN` stage.
+   Assignment must explicitly set the intended Journey Stage, and publishing
+   requires an assigned, currently published verse.
 
 ### Acceptance Criteria
 
 - Admin can assign a verse and a Journey Stage to any waypoint.
 - Two different waypoints can have the same verse assigned with different Journey Stages.
 - Waypoints 1–220 exist after seeding.
+- Empty placeholders remain hidden and cannot be published.
 
 ---
 

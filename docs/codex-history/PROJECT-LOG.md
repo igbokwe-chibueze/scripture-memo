@@ -41,11 +41,13 @@ Master) control long-term verse difficulty. Glow Points are the only currency.
   `docs/AGENTS.md` was removed.
 - Phase 8 changes remain uncommitted for project-owner review in VS Code Source
   Control.
+- Phase 9 waypoint management is implemented and remains uncommitted pending
+  manual ADMIN acceptance.
 
 ## Current Roadmap Position
 
 Phase 8 — Admin Pack Management is complete and manually accepted. Phase 9 —
-Admin Waypoint Management is next.
+Admin Waypoint Management is implemented and awaiting manual ADMIN acceptance.
 
 ## Completed Work
 
@@ -94,13 +96,13 @@ Admin Waypoint Management is next.
 
 ## Current Task
 
-Begin Phase 9 — Admin Waypoint Management.
+Manually verify Phase 9 — Admin Waypoint Management.
 
 ## Exact Next Task
 
-Inspect the existing Waypoint schema and seed workflow, then implement the Phase
-9 waypoint repository and ADMIN-authorized management actions before building
-the 220-slot management interface.
+Verify the 220-slot admin screen, assign one published verse to multiple
+waypoints with different Journey Stages, reorder slots, publish/hide an assigned
+waypoint, confirm empty slots cannot publish, and inspect the audit records.
 
 ## Important Decisions
 
@@ -123,6 +125,9 @@ the 220-slot management interface.
   and automatically hide when their final verse is removed.
 - Pack ordering uses one-based `PackVerse.position` values and supports pointer,
   touch, keyboard, and explicit arrow-button reordering.
+- All 220 waypoint placeholders start hidden and unassigned with provisional
+  `LEARN` stage. Assignment requires an explicit stage, and publishing requires
+  an assigned, currently published verse.
 - The Phase 4 placeholder Server Action using `ActionResult` belongs to the auth
   feature because authentication is the next feature that will consume the
   shared contract.
@@ -195,6 +200,8 @@ the 220-slot management interface.
   reset.
 - Phases 9–32 remain pending in roadmap order.
 - `.env.example` remains absent and is required by the security checklist.
+- Before upgrading to `pg` 9, update the configured database SSL mode explicitly
+  to `verify-full` to preserve the current certificate-verification behavior.
 
 ## Blockers and Unresolved Questions
 
@@ -206,6 +213,19 @@ the 220-slot management interface.
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-13 — Phase 9 waypoint management implemented
+
+- Approved the hidden, unassigned placeholder lifecycle with provisional
+  `LEARN` stage and documented its lack of gameplay effect before publication.
+- Added the Phase 9 repository, validated ADMIN actions, atomic audit records,
+  fixed-slot ordering, searchable verse assignment, explicit Journey Stage
+  selection, visibility controls, admin route, and Prisma 7 seed workflow.
+- Added `tsx` as a development dependency for the documented TypeScript seed.
+- Seeded all 220 placeholders successfully; a repeat run inserted zero and
+  preserved all 220, confirming idempotency.
+- TypeScript, ESLint, `git diff --check`, architecture checks, and the production
+  Next.js build passed. Manual ADMIN acceptance remains.
 
 ### 2026-07-13 — Phase 8 manually accepted
 
