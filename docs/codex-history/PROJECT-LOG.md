@@ -28,10 +28,10 @@ Master) control long-term verse difficulty. Glow Points are the only currency.
 
 ## Current Project State
 
-- Branch: `admin-verse-management`.
-- Current HEAD at this update: `80f215e`.
-- Phases 0–7 are complete and manually accepted, including bulk CSV import and
-  dynamic verse-list search.
+- Branch: `admin-pack-management`.
+- Current HEAD at this update: `c4ae06b`.
+- Phases 0–8 are complete and manually accepted, including bulk CSV import,
+  dynamic verse-list search, and admin pack management.
 - The public landing page and internal UI-foundation preview are implemented.
 - Better Auth registration, login, logout, onboarding, and protected-route flows
   are implemented and accepted.
@@ -39,13 +39,13 @@ Master) control long-term verse difficulty. Glow Points are the only currency.
   applied successfully during Phase 3.
 - Root `AGENTS.md` is the single authoritative agent instruction file;
   `docs/AGENTS.md` was removed.
-- Current Phase 7 changes remain uncommitted for project-owner review.
+- Phase 8 changes remain uncommitted for project-owner review in VS Code Source
+  Control.
 
 ## Current Roadmap Position
 
-Phase 7 — Admin Verse Management meets its original acceptance criteria. Its
-bulk CSV import and dynamic-search enhancement is implemented; Phase 8 — Admin
-Pack Management follows after manual enhancement acceptance.
+Phase 8 — Admin Pack Management is complete and manually accepted. Phase 9 —
+Admin Waypoint Management is next.
 
 ## Completed Work
 
@@ -94,12 +94,13 @@ Pack Management follows after manual enhancement acceptance.
 
 ## Current Task
 
-Complete Phase 7 audit hardening from pull-request review feedback.
+Begin Phase 9 — Admin Waypoint Management.
 
 ## Exact Next Task
 
-Verify create, update, publish, and archive audit records, then begin Phase 8 —
-Admin Pack Management.
+Inspect the existing Waypoint schema and seed workflow, then implement the Phase
+9 waypoint repository and ADMIN-authorized management actions before building
+the 220-slot management interface.
 
 ## Important Decisions
 
@@ -118,6 +119,10 @@ Admin Pack Management.
 - Every manual verse mutation and bulk import writes an actor-linked `AuditLog`
   record in the same transaction. Update metadata contains changed field names,
   never translation text, reflections, or study-note content.
+- Packs start hidden, require at least one published verse before publishing,
+  and automatically hide when their final verse is removed.
+- Pack ordering uses one-based `PackVerse.position` values and supports pointer,
+  touch, keyboard, and explicit arrow-button reordering.
 - The Phase 4 placeholder Server Action using `ActionResult` belongs to the auth
   feature because authentication is the next feature that will consume the
   shared contract.
@@ -185,16 +190,15 @@ Admin Pack Management.
 
 ## Outstanding Tasks
 
-- Manually verify and commit the Phase 7 verse-management changes.
+- Review and commit the accepted Phase 8 pack-management changes.
 - Select an email delivery provider before implementing verification or password
   reset.
-- Phases 8–32 remain pending in roadmap order.
+- Phases 9–32 remain pending in roadmap order.
 - `.env.example` remains absent and is required by the security checklist.
 
 ## Blockers and Unresolved Questions
 
-- No implementation blocker exists; immediate filter interaction awaits manual
-  acceptance.
+- No implementation blocker exists.
 - No email delivery provider has been selected, so verification and password
   reset are intentionally not implemented.
 - The recovered transcript contains historical references to the deleted
@@ -202,6 +206,27 @@ Admin Pack Management.
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-13 — Phase 8 manually accepted
+
+- The project owner confirmed that all Phase 8 manual acceptance tests passed.
+- Pack creation, published-verse membership, persistent ordering, visibility
+  controls, empty-pack publishing prevention, and automatic hiding after final
+  verse removal are accepted.
+- Phase 8 is complete; Phase 9 — Admin Waypoint Management is the next roadmap
+  task.
+
+### 2026-07-13 — Phase 8 admin pack management implemented
+
+- Added ADMIN-authorized pack repositories, Zod schemas, seven Server Actions,
+  transaction-backed audit logging, and hidden/published lifecycle enforcement.
+- Added `/admin/packs`, `/admin/packs/new`, and `/admin/packs/[id]/edit` through
+  one-line route re-exports with protected loading and error boundaries.
+- Added list, metadata form, searchable published-verse assignment, removal,
+  persistent ordering, and publish/hide confirmation UI.
+- Reordering supports mouse, touch, keyboard sensors, and explicit move buttons;
+  two-phase temporary positions preserve the database uniqueness constraint.
+- Phase 8 automated verification passed; manual ADMIN acceptance remains.
 
 ### 2026-07-13 — Phase 7 audit hardening
 

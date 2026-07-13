@@ -369,6 +369,9 @@ Confirm the following before proceeding:
 
 ## Phase 8 — Admin Pack Management
 
+**Status:** Complete — automated verification and manual acceptance passed on
+2026-07-13.
+
 **Goal:** Allow admins to organize verses into themed learning packs.
 
 ### Tasks
@@ -386,16 +389,24 @@ Confirm the following before proceeding:
 3. Create pack Server Actions (ADMIN+ required).
 4. Build admin pack views: list, create form, edit form, verse reorder UI (drag to reorder).
 5. Add Sonner toasts on all mutations.
+6. Audit every pack mutation and keep membership/order/status writes atomic.
+7. New packs start hidden. Publishing requires at least one published verse, and
+   removing the final verse automatically hides the pack.
 
 ### Acceptance Criteria
 
 - Admin can create packs and manage their verse lists.
 - Verse ordering within a pack is persisted correctly.
 - Pack publish/hide status is respected.
+- Empty packs cannot be published and cannot remain published after their final
+  verse is removed.
+- Reordering works with pointer, touch, keyboard, and explicit move controls.
 
 ---
 
 ## Phase 9 — Admin Waypoint Management
+
+**Status:** Next.
 
 **Goal:** Create and manage the 220-waypoint curriculum structure.
 

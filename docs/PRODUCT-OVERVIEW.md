@@ -341,6 +341,20 @@ validation against the exact NIV/KJV-compatible verse limits shared by all three
 required translations. The compact structure dataset contains counts only and no
 copyrighted Scripture text.
 
+### 6.4 Learning Pack Lifecycle
+
+A pack is an ordered themed collection of published verses. Packs are created
+hidden so an administrator can prepare membership and ordering before learner
+discovery. A pack requires at least one currently published verse before it can
+be published. Removing its final verse automatically hides it; hidden packs keep
+their metadata and ordering for later revision.
+
+Pack membership is many-to-many: a verse may belong to multiple packs, but may
+appear only once inside a given pack. Ordering is persisted through the
+`PackVerse.position` field. Create, update, membership, reorder, publish, and hide
+operations are ADMIN-authorized, transactional where multiple writes occur, and
+recorded in `AuditLog` without copying Scripture text into audit metadata.
+
 ### 6.3 Translation Fallback
 
 If a verse does not have the user's preferred translation, the system falls back to the default platform translation (configurable by Super Admin, defaulting to NIV).
