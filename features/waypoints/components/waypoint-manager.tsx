@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { ArrowDown, ArrowUp, Eye, EyeOff, FileQuestion, MapPinned, Plus, Save } from "lucide-react";
+import { ArrowDown, ArrowUp, BookOpenCheck, Eye, EyeOff, FileQuestion, MapPinned, Plus, Save } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -72,6 +72,7 @@ export function WaypointManager({ initialWaypoints, publishedVerses }: WaypointM
   const publishedCount = waypoints.filter(({ isActive }) => isActive).length;
   const hiddenCount = waypoints.length - publishedCount;
   const unassignedCount = waypoints.filter(({ verse }) => !verse).length;
+  const assignedCount = waypoints.length - unassignedCount;
   const proposedMoves = waypoints.flatMap((waypoint, index) => {
     const from = initialNumberById.get(waypoint.id) ?? index + 1;
     const to = index + 1;
@@ -120,8 +121,9 @@ export function WaypointManager({ initialWaypoints, publishedVerses }: WaypointM
 
   return (
     <div className="space-y-5">
-      <section className="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="Waypoint statistics">
+      <section className="grid grid-cols-2 gap-3 lg:grid-cols-5" aria-label="Waypoint statistics">
         <StatisticCard label="Total waypoints" value={waypoints.length} icon={<MapPinned aria-hidden="true" />} />
+        <StatisticCard label="Assigned" value={assignedCount} icon={<BookOpenCheck aria-hidden="true" />} />
         <StatisticCard label="Published" value={publishedCount} icon={<Eye aria-hidden="true" />} />
         <StatisticCard label="Hidden" value={hiddenCount} icon={<EyeOff aria-hidden="true" />} />
         <StatisticCard label="Unassigned" value={unassignedCount} icon={<FileQuestion aria-hidden="true" />} />

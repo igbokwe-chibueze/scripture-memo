@@ -430,7 +430,7 @@ pending.
    requires an assigned, currently published verse.
 8. Allow ADMIN users to append individual hidden, unassigned waypoints after the
    current final waypoint; 220 is the bootstrap count, not a maximum.
-9. Display total, published, hidden, and unassigned waypoint counts.
+9. Display total, assigned, unassigned, published, and hidden waypoint counts.
 10. Enforce a continuous published prefix followed by hidden drafts.
 11. Enforce per-verse Journey Stage order and uniqueness for Learn, Recall, and
     Strengthen; Master may repeat.

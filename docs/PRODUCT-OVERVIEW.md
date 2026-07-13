@@ -399,6 +399,9 @@ append after the current final waypoint. They use the same hidden, unassigned,
 provisional-`LEARN` defaults. The curriculum has no year grouping and historical
 waypoints are never renumbered merely because new content is appended.
 
+The administrative waypoint screen summarizes total, assigned, unassigned,
+published, and hidden records so curriculum readiness is visible at a glance.
+
 Published waypoints must form one continuous prefix followed by hidden drafts.
 An administrator cannot publish across an earlier hidden gap or hide a waypoint
 while a later published waypoint exists. Hidden future waypoints may be

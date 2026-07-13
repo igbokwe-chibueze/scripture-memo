@@ -221,6 +221,16 @@ progress-aware reordering, pending indicators, movement feedback, and audit logs
 
 ## Dated Session Updates
 
+### 2026-07-13 — Phase 9 assignment modal regression corrected
+
+- Added the missing assigned-waypoint statistic alongside total, unassigned,
+  published, and hidden counts.
+- Reset assignment-dialog verse and stage state from persisted props on open,
+  close, cancellation, successful save, and rejected save so a failed attempt
+  cannot appear as the current assignment when the modal is reopened.
+- TypeScript, ESLint, `git diff --check`, and the production build passed after
+  the regression correction.
+
 ### 2026-07-13 — Phase 9 scalability and curriculum invariants revised
 
 - Replaced the fixed 220 limit with ADMIN append-at-end behavior while retaining

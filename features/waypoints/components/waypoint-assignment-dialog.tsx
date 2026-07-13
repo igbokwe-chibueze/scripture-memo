@@ -54,19 +54,36 @@ export function WaypointAssignmentDialog({
     label: `${verse.reference} · ${verse.book}`,
   }));
 
+  function resetToPersistedAssignment(): void {
+    setVerseId(initialVerseId);
+    setJourneyStage(initialJourneyStage);
+  }
+
+  function handleOpenChange(nextOpen: boolean): void {
+    // WHY: This dialog remains mounted after dismissal. Resetting at both edges
+    // prevents cancelled or rejected client selections from masquerading as the
+    // authoritative assignment when the administrator opens it again.
+    resetToPersistedAssignment();
+    setOpen(nextOpen);
+  }
+
   function saveAssignment(): void {
     if (!verseId) return;
     startTransition(async () => {
       const result = await assignVerseToWaypointAction({ waypointId, verseId, journeyStage });
       if (result.success) {
         toast.success(result.message);
+        resetToPersistedAssignment();
         setOpen(false);
-      } else toast.error(result.message, { duration: Infinity });
+      } else {
+        resetToPersistedAssignment();
+        toast.error(result.message, { duration: Infinity });
+      }
     });
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger
         render={
           <Button type="button" variant="outline" className="min-h-11" disabled={disabled} />
