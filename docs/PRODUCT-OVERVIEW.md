@@ -298,13 +298,13 @@ A verse is the core content unit of the entire platform.
 | Field | Description |
 |---|---|
 | `id` | Unique internal identifier |
-| `reference` | Human-readable reference, e.g., `John 3:16` |
-| `book` | Bible book name |
-| `chapter` | Chapter number |
-| `verseStart` | Starting verse number |
-| `verseEnd` | Ending verse number (supports ranges) |
+| `reference` | Server-generated human-readable reference, e.g., `John 3:16` |
+| `book` | Selected from the 66-book Protestant canon |
+| `chapter` | Chapter number validated against the selected book |
+| `verseStart` | Starting verse validated against the selected chapter |
+| `verseEnd` | Optional ending verse validated against the selected chapter and start |
 | `reflection` | Short devotional thought for the Sanctuary |
-| `studyNote` | Deeper teaching insight |
+| `studyNote` | Deeper teaching insight stored as Markdown; embedded HTML is not supported |
 | `tags` | Array of category tags, e.g., `["love", "salvation"]` |
 | `isActive` | Whether the verse is published and available |
 | `createdBy` | Admin user ID |
@@ -324,6 +324,22 @@ Translations are stored in a separate normalized table so additional translation
 | `normalizedText` | Lowercase, punctuation-stripped version — used for answer validation only |
 
 **Important:** The `normalizedText` field is never shown to the user. It is used exclusively for server-side answer validation to allow case-insensitive, punctuation-tolerant comparisons.
+
+### 6.3 Administrative CSV Import
+
+Administrators can populate the verse library in batches of up to 100 rows using
+the downloadable CSV template. The import requires canonical location fields and all
+three MVP translations, applies the same validation and normalization as manual
+creation, and displays a row-by-row preview before confirmation. Existing
+references and repeated references within the file are skipped and reported;
+bulk import never overwrites an existing verse. Accepted rows and the associated
+admin audit record are written in one database transaction.
+
+References are never authored directly in either the form or CSV file. They are
+generated from book, chapter, starting verse, and optional ending verse after
+validation against the exact NIV/KJV-compatible verse limits shared by all three
+required translations. The compact structure dataset contains counts only and no
+copyrighted Scripture text.
 
 ### 6.3 Translation Fallback
 

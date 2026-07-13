@@ -1,6 +1,6 @@
 # Scripture Memo Project Log
 
-**Last updated:** 2026-07-12  
+**Last updated:** 2026-07-13
 **Purpose:** Concise continuity backup and current-status summary for Codex
 development sessions.
 
@@ -28,24 +28,24 @@ Master) control long-term verse difficulty. Glow Points are the only currency.
 
 ## Current Project State
 
-- Branch: `main`.
-- `main` matches `origin/main` at commit `4701a3b` as of this update.
-- Phases 0–5 are complete and accepted.
+- Branch: `admin-verse-management`.
+- Current HEAD at this update: `80f215e`.
+- Phases 0–7 are complete and manually accepted, including bulk CSV import and
+  dynamic verse-list search.
 - The public landing page and internal UI-foundation preview are implemented.
-- Better Auth's server/client foundation and auth route exist, but the complete
-  Phase 5 authentication experience has not been implemented.
+- Better Auth registration, login, logout, onboarding, and protected-route flows
+  are implemented and accepted.
 - The complete product-aware Prisma schema and migrations are present and were
   applied successfully during Phase 3.
 - Root `AGENTS.md` is the single authoritative agent instruction file;
   `docs/AGENTS.md` was removed.
-- There were no application-code modifications during the continuity-system task.
+- Current Phase 7 changes remain uncommitted for project-owner review.
 
 ## Current Roadmap Position
 
-Phase 4 — Core Libraries is complete.
-
-Phase 5 — Authentication is complete. Phase 6 — User Profile and Settings is
-implemented and awaiting the project owner's manual persistence acceptance test.
+Phase 7 — Admin Verse Management meets its original acceptance criteria. Its
+bulk CSV import and dynamic-search enhancement is implemented; Phase 8 — Admin
+Pack Management follows after manual enhancement acceptance.
 
 ## Completed Work
 
@@ -94,14 +94,12 @@ implemented and awaiting the project owner's manual persistence acceptance test.
 
 ## Current Task
 
-Phase 5 — Authentication has been implemented, manually accepted by the project
-owner, and verified through the final automated acceptance suite.
+Complete Phase 7 audit hardening from pull-request review feedback.
 
 ## Exact Next Task
 
-Open `/settings`, change every preference, save, reload, and confirm display
-name, country, translation, audio, reduced motion, and theme persist. After the
-manual acceptance test and commit, proceed to Phase 7 — Admin Verse Management.
+Verify create, update, publish, and archive audit records, then begin Phase 8 —
+Admin Pack Management.
 
 ## Important Decisions
 
@@ -113,6 +111,13 @@ manual acceptance test and commit, proceed to Phase 7 — Admin Verse Management
 - Agents must not rely on chat history alone.
 - Changes should remain uncommitted for review in VS Code Source Control unless
   the project owner explicitly asks Codex to commit or push.
+- Bulk verse imports skip and report existing or repeated references; they never
+  update existing verses. Imports are limited to 100 rows and 1 MB per file.
+- Long predefined dropdowns use searchable comboboxes; short lists such as
+  status, sort, theme, and translation remain simple selects.
+- Every manual verse mutation and bulk import writes an actor-linked `AuditLog`
+  record in the same transaction. Update metadata contains changed field names,
+  never translation text, reflections, or study-note content.
 - The Phase 4 placeholder Server Action using `ActionResult` belongs to the auth
   feature because authentication is the next feature that will consume the
   shared contract.
@@ -174,19 +179,22 @@ manual acceptance test and commit, proceed to Phase 7 — Admin Verse Management
 - `proxy.ts`: protected-route and admin navigation guards.
 - `prisma/migrations/20260712032838_add_auth_rate_limit/migration.sql`:
   Better Auth database-backed rate-limit storage.
+- `features/verses/components/markdown-editor.tsx`: accessible Markdown study-note
+  editor with formatting controls, undo/redo, character count, and a safe preview
+  that ignores embedded HTML.
 
 ## Outstanding Tasks
 
-- Manually verify and commit the Phase 6 profile/settings changes.
+- Manually verify and commit the Phase 7 verse-management changes.
 - Select an email delivery provider before implementing verification or password
   reset.
-- Phases 7–32 remain pending in roadmap order.
+- Phases 8–32 remain pending in roadmap order.
 - `.env.example` remains absent and is required by the security checklist.
 
 ## Blockers and Unresolved Questions
 
-- No implementation blocker exists; Phase 6 awaits authenticated manual
-  persistence acceptance before Phase 7 begins.
+- No implementation blocker exists; immediate filter interaction awaits manual
+  acceptance.
 - No email delivery provider has been selected, so verification and password
   reset are intentionally not implemented.
 - The recovered transcript contains historical references to the deleted
@@ -194,6 +202,68 @@ manual acceptance test and commit, proceed to Phase 7 — Admin Verse Management
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-13 — Phase 7 audit hardening
+
+- Accepted PR review feedback that publish/archive availability changes lacked
+  accountability records and applied the correction consistently to create,
+  update, publish, and archive.
+- Added stable audit action identifiers and centralized bounded request-IP
+  extraction for server-derived audit context.
+- Verse writes and their audit records now commit or roll back together.
+- Update audits record changed field names only; status audits record prior and
+  new availability without duplicating authored content.
+
+### 2026-07-13 — Reference card and searchable long lists
+
+- The project owner accepted canonical form and CSV boundary checks.
+- Redesigned the Scripture reference card with a prominent generated-reference
+  summary and aligned responsive location controls.
+- Added a shared accessible searchable-select pattern and applied it to Bible
+  books and countries while preserving simple controls for short lists.
+
+### 2026-07-13 — Canonical Bible location validation implemented
+
+- Added a reproducible, count-only dataset for all 66 books, 1,189 chapters, and
+  31,102 NIV/KJV-compatible verse positions.
+- Manual creation and editing now use a book selector, dynamic chapter and verse
+  bounds, and a read-only generated reference preview.
+- Server validation regenerates every reference from structured fields and
+  rejects impossible locations independently of client controls.
+- Removed `reference` from the CSV contract; imports use the same canonical
+  validation and generation rules as individual forms.
+
+### 2026-07-13 — Immediate verse filters implemented
+
+- The project owner manually accepted CSV import and debounced search.
+- Book, tag, publication status, and sorting controls now update immediately,
+  preserve URL state, reset pagination, and show shared pending feedback.
+- Removed the redundant Apply Filters button.
+
+### 2026-07-12 — Phase 7 admin verse management implemented
+
+- Added ADMIN-protected verse repositories, schemas, actions, normalization,
+  create/edit forms, list table, filters, pagination, and publish/archive flow.
+- All three MVP translations are required and `normalizedText` is generated only
+  in the repository from trusted server input.
+- Tags use normalized join records and Unicode-safe stable slugs.
+- TypeScript, ESLint, diff validation, production build, thin-route checks, and
+  repository-only Prisma architecture pass.
+- Manual acceptance requires an ADMIN account; initial administrator bootstrap
+  remains a project-owner decision.
+- Upgraded the study-note field from a plain textarea to a Markdown editor with
+  mobile-friendly controls, keyboard shortcuts, write/preview modes, and safe
+  React rendering. Markdown remains in the existing `studyNote` text column.
+- Fixed an intermittent post-create verse-list failure by removing an unnecessary
+  read-only Prisma transaction. Independent list queries now use the normal
+  connection-pool queue, and failures receive sanitized contextual server logs.
+- The project owner manually accepted create, edit, filter, sort, archive, and
+  publish behavior, completing the original Phase 7 acceptance criteria.
+- Added an approved CSV enhancement with a downloadable strict template,
+  row-level preview, duplicate and invalid-row reporting, server revalidation,
+  transactional creation, normalized translations, and an admin audit record.
+- Verse reference/book search now updates after a 300ms typing debounce while
+  retaining URL-backed filters and pagination reset behavior.
 
 ### 2026-07-12 — Phase 6 profile and settings implemented
 
