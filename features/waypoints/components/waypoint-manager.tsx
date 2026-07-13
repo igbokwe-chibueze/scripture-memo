@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { cn } from "@/lib/utils";
+import { showActionError } from "@/lib/errors/show-action-error";
 import { createWaypointAction } from "@/features/waypoints/actions/create-waypoint.action";
 import { reorderWaypointsAction } from "@/features/waypoints/actions/reorder-waypoints.action";
 import { WaypointAssignmentDialog } from "@/features/waypoints/components/waypoint-assignment-dialog";
@@ -156,7 +157,7 @@ export function WaypointManager({ initialWaypoints, publishedVerses }: WaypointM
         });
       } else {
         setWaypoints(initialWaypoints);
-        toast.error(result.message, { duration: Infinity });
+        showActionError(result);
       }
     });
   }
@@ -165,7 +166,7 @@ export function WaypointManager({ initialWaypoints, publishedVerses }: WaypointM
     startCreateTransition(async () => {
       const result = await createWaypointAction({});
       if (result.success) toast.success(result.message);
-      else toast.error(result.message, { duration: Infinity });
+      else showActionError(result);
     });
   }
 

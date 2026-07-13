@@ -27,6 +27,6 @@ export async function publishVerseAction(input: unknown): Promise<ActionResult> 
     revalidatePath("/admin/verses");
     return { success: true, message: "Verse published." };
   } catch {
-    return { success: false, message: "Unable to publish verse." };
+    return { success: false, message: "Unable to publish verse.", errorCode: "VRS-003" };
   }
 }

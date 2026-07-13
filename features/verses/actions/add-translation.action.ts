@@ -25,8 +25,8 @@ export async function addTranslationAction(input: unknown): Promise<ActionResult
     return { success: true, message: "Translation added." };
   } catch (error) {
     if (error instanceof VerseCurriculumConflictError) {
-      return { success: false, message: "Learner history makes this verse content permanent." };
+      return { success: false, message: "Learner history makes this verse content permanent.", errorCode: "VRS-002" };
     }
-    return { success: false, message: "Unable to add translation." };
+    return { success: false, message: "Unable to add translation.", errorCode: "VRS-003" };
   }
 }

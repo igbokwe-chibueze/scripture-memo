@@ -41,13 +41,15 @@ export async function updateVerseAction(input: unknown): Promise<ActionResult> {
         return {
           success: false,
           message: `Learner history at waypoint${error.waypointNumbers.length === 1 ? "" : "s"} ${error.waypointNumbers.join(", ")} makes this verse content permanent.`,
+          errorCode: "VRS-002",
         };
       }
       return {
         success: false,
         message: `Hide the published waypoint${error.waypointNumbers.length === 1 ? "" : "s"} using this verse first: ${error.waypointNumbers.join(", ")}.`,
+        errorCode: "VRS-001",
       };
     }
-    return { success: false, message: "Unable to update verse." };
+    return { success: false, message: "Unable to update verse.", errorCode: "VRS-003" };
   }
 }

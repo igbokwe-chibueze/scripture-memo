@@ -25,8 +25,8 @@ export async function updateTranslationAction(input: unknown): Promise<ActionRes
     return { success: true, message: "Translation updated." };
   } catch (error) {
     if (error instanceof VerseCurriculumConflictError) {
-      return { success: false, message: "Learner history makes this verse content permanent." };
+      return { success: false, message: "Learner history makes this verse content permanent.", errorCode: "VRS-002" };
     }
-    return { success: false, message: "Unable to update translation." };
+    return { success: false, message: "Unable to update translation.", errorCode: "VRS-003" };
   }
 }

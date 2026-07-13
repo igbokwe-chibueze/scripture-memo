@@ -43,12 +43,15 @@ long-term verse difficulty. Glow Points are the only currency.
 - Phase 9 waypoint management and its curriculum-history hardening are
   implemented. The current hardening changes remain uncommitted for
   project-owner review in VS Code Source Control.
+- Phase 9A operational error codes and the ADMIN reference page are implemented;
+  automated verification passed and manual ADMIN acceptance remains.
 
 ## Current Roadmap Position
 
-Phase 9 — Admin Waypoint Management is complete and manually accepted. Its
-post-acceptance lifecycle, dependency, concurrency, and regression-test
-hardening is implemented. Phase 10 — Progression Engine is next.
+Phase 9 — Admin Waypoint Management is complete and manually accepted. Phase 9A
+— Operational Error Code Foundation is implemented with automated verification
+passed and manual ADMIN acceptance pending. Phase 10 — Progression Engine is
+next after that focused check.
 
 ## Completed Work
 
@@ -97,14 +100,13 @@ hardening is implemented. Phase 10 — Progression Engine is next.
 
 ## Current Task
 
-Complete automated and project-owner verification of the Phase 9 curriculum
-history hardening.
+Manually verify the Phase 9A operational error-code foundation.
 
 ## Exact Next Task
 
-Provide an isolated empty PostgreSQL database through `TEST_DATABASE_URL`, run
-`npm run test:integration`, then begin Phase 10 — Progression Engine using lazy
-progress records and transactional next-published-waypoint unlocking.
+Open `/admin/error-reference`, verify exact and keyword searches, and trigger one
+safe waypoint or verse conflict to confirm Sonner displays its code. Then begin
+Phase 10 — Progression Engine using the established coded-error pattern.
 
 ## Important Decisions
 
@@ -146,6 +148,13 @@ progress records and transactional next-published-waypoint unlocking.
   stable per-verse locks so validation cannot race a conflicting mutation.
 - Phase 10 creates progress lazily, unlocks the next actually published waypoint
   by database query, and commits completion plus unlocking atomically.
+- Complex operational failures use stable feature codes from one structured
+  catalogue. Sonner shows only the short safe message and code; the ADMIN-only
+  reference page renders detailed safe guidance. Ordinary validation stays
+  uncoded, and codes identify conditions rather than individual occurrences.
+- The error reference is application-wide even though its first entries cover
+  Waypoints and Verses. Its permanent link belongs on the future admin front
+  page, not on either feature's management page.
 - The Phase 4 placeholder Server Action using `ActionResult` belongs to the auth
   feature because authentication is the next feature that will consume the
   shared contract.
@@ -235,6 +244,22 @@ progress records and transactional next-published-waypoint unlocking.
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-13 — Operational error-code foundation implemented
+
+- Extended failed `ActionResult` responses with catalogue-derived typed codes and
+  added a shared persistent Sonner presenter for coded failures.
+- Added 13 documented waypoint and verse codes covering curriculum history,
+  publication continuity, Journey Stage rules, stale state, dependencies, and
+  unexpected transactional failures.
+- Added the server-authorized, searchable, `noindex` `/admin/error-reference`
+  page. Its permanent link is intentionally deferred to the future admin front
+  page instead of coupling the shared manual to Waypoints or Verses.
+- Added fast catalogue tests for code uniqueness, format, and documentation
+  completeness while leaving ordinary field validation uncoded.
+- Updated authoritative agent, product, roadmap, security, and continuity
+  documentation. Catalogue tests, strict TypeScript, ESLint, diff checks,
+  thin-route validation, and the production build all passed.
 
 ### 2026-07-13 — Direct waypoint positioning added
 

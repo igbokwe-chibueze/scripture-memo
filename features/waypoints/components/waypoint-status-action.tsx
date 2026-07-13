@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ConfirmationDialog } from "@/components/shared/confirmation-dialog";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
+import { showActionError } from "@/lib/errors/show-action-error";
 import { hideWaypointAction } from "@/features/waypoints/actions/hide-waypoint.action";
 import { publishWaypointAction } from "@/features/waypoints/actions/publish-waypoint.action";
 
@@ -58,7 +59,7 @@ export function WaypointStatusAction({
       onConfirm={() => startTransition(async () => {
         const result = isActive ? await hideWaypointAction({ id }) : await publishWaypointAction({ id });
         if (result.success) toast.success(result.message);
-        else toast.error(result.message, { duration: Infinity });
+        else showActionError(result);
       })}
     />
   );

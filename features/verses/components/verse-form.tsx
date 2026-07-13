@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { FormError } from "@/components/shared/form-error";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { SearchableSelect } from "@/components/shared/searchable-select";
+import { showActionError } from "@/lib/errors/show-action-error";
 import { createVerseAction } from "@/features/verses/actions/create-verse.action";
 import { updateVerseAction } from "@/features/verses/actions/update-verse.action";
 import { MarkdownEditor } from "@/features/verses/components/markdown-editor";
@@ -76,7 +77,7 @@ export function VerseForm({ mode, initialValues }: VerseFormProps): React.ReactN
 
       if (!result.success) {
         form.setError("root", { message: result.message });
-        toast.error(result.message, { duration: Infinity });
+        showActionError(result);
         return;
       }
 
