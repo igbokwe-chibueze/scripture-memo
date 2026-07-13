@@ -29,8 +29,8 @@ long-term verse difficulty. Glow Points are the only currency.
 
 ## Current Project State
 
-- Branch: `admin-waypoint-management`.
-- Current HEAD at this update: `92c33fd`.
+- Branch: `progression_engine`.
+- Current HEAD at this update: `81a1597`.
 - Phases 0–9 are complete and manually accepted, including bulk CSV import,
   dynamic verse-list search, and admin pack management.
 - The public landing page and internal UI-foundation preview are implemented.
@@ -40,18 +40,15 @@ long-term verse difficulty. Glow Points are the only currency.
   applied successfully during Phase 3.
 - Root `AGENTS.md` is the single authoritative agent instruction file;
   `docs/AGENTS.md` was removed.
-- Phase 9 waypoint management and its curriculum-history hardening are
-  implemented. The current hardening changes remain uncommitted for
-  project-owner review in VS Code Source Control.
-- Phase 9A operational error codes and the ADMIN reference page are implemented;
-  automated verification passed and manual ADMIN acceptance remains.
+- Phase 9 waypoint management, curriculum-history hardening, and Phase 9A's
+  application-wide error reference are merged at the current HEAD.
+- Phase 10 progression engine is implemented with lazy initialization,
+  server-authoritative cooldowns, atomic advancement, and focused tests.
 
 ## Current Roadmap Position
 
-Phase 9 — Admin Waypoint Management is complete and manually accepted. Phase 9A
-— Operational Error Code Foundation is implemented with automated verification
-passed and manual ADMIN acceptance pending. Phase 10 — Progression Engine is
-next after that focused check.
+Phase 10 — Progression Engine is implemented. Phase 11 — Game Map is the next
+roadmap phase after the Phase 10 verification handoff.
 
 ## Completed Work
 
@@ -100,13 +97,13 @@ next after that focused check.
 
 ## Current Task
 
-Manually verify the Phase 9A operational error-code foundation.
+Verify the Phase 10 progression engine and prepare Phase 11 map implementation.
 
 ## Exact Next Task
 
-Open `/admin/error-reference`, verify exact and keyword searches, and trigger one
-safe waypoint or verse conflict to confirm Sonner displays its code. Then begin
-Phase 10 — Progression Engine using the established coded-error pattern.
+Configure an empty migrated PostgreSQL test database through `TEST_DATABASE_URL`
+and run `npm run test:progression:integration` when available. Then implement
+Phase 11 — Game Map against the lazy progression repository.
 
 ## Important Decisions
 
@@ -222,12 +219,13 @@ Phase 10 — Progression Engine using the established coded-error pattern.
 
 ## Outstanding Tasks
 
-- Review and commit the Phase 9 curriculum-history hardening changes.
+- Review and commit the Phase 10 progression-engine changes.
 - Select an email delivery provider before implementing verification or password
   reset.
-- Phases 10–32 remain pending in roadmap order.
+- Phases 11–32 remain pending in roadmap order.
 - Configure an isolated migrated PostgreSQL database through
-  `TEST_DATABASE_URL` and run the destructive integration suite before Phase 10.
+  `TEST_DATABASE_URL` and run both destructive repository integration suites
+  before merging Phase 10 when that environment is available.
 - `.env.example` remains absent and is required by the security checklist.
 - Before upgrading to `pg` 9, update the configured database SSL mode explicitly
   to `verify-full` to preserve the current certificate-verification behavior.
@@ -244,6 +242,22 @@ Phase 10 — Progression Engine using the established coded-error pattern.
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-13 — Phase 10 progression engine implemented
+
+- Added lazy first-playable-waypoint initialization and idempotent registration
+  and login repair hooks without pre-creating future locked progress.
+- Added UTC-safe day ordering and cooldown utilities with focused unit tests.
+- Added transaction-locked gameplay preparation and trusted day completion;
+  repeat completion, skipped days, cooldown bypass, locked waypoints, and stale
+  publication state are rejected server-side.
+- Made Day 3 completion, current waypoint completion, and next published
+  waypoint unlock atomic. Curriculum numbering gaps are supported and reaching
+  the end of currently published curriculum returns a caught-up result.
+- Added eight application-wide progression error references and a guarded
+  PostgreSQL integration suite. Unit tests, catalogue tests, strict TypeScript,
+  lint, architecture checks, diff validation, and production build passed; the
+  database suite skips until a separate `TEST_DATABASE_URL` is configured.
 
 ### 2026-07-13 — Operational error-code foundation implemented
 

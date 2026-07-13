@@ -442,12 +442,22 @@ requires a separately approved, reason-bearing, fully audited design.
 
 ### 7.3 Waypoint Progression Rules
 
-- Waypoint 1 is the only waypoint unlocked for new users by default.
+- The lowest-numbered currently published waypoint backed by a published verse
+  is the only waypoint unlocked for a new user. In a normally configured
+  curriculum this is Waypoint 1.
 - All other waypoints are locked until the previous waypoint is fully completed.
 - A waypoint is fully completed when all three days of its challenge are complete.
-- Completing a waypoint's Day 3 automatically unlocks the next waypoint.
+- Completing a waypoint's Day 3 automatically unlocks the next currently
+  published waypoint returned by the database; numbering gaps are not treated
+  as learner failures.
 - A completed waypoint displays **three flames** on the map.
 - A partially completed waypoint displays one or two flames depending on days completed.
+
+Progress records are created lazily. The application stores only waypoints and
+days the learner has actually unlocked or started; it does not pre-create locked
+rows for the rest of the expanding curriculum. First-waypoint initialization is
+idempotently attempted after registration and login, and game entry may safely
+retry it if an earlier database operation was interrupted.
 
 ### 7.4 User Waypoint Status Values
 
@@ -559,6 +569,12 @@ Day 3 unlock time = Day 2 completedAt + 24 hours
 ```
 
 The server computes whether a day is playable by comparing the current UTC timestamp against the stored unlock timestamp. The client never decides this.
+
+Starting a day requires an unlocked learner-waypoint record, the preceding day
+where applicable, and a currently published waypoint and verse. Completing a
+day requires a server-created `IN_PROGRESS` day record. Day 3 completion,
+waypoint completion, and the next available waypoint unlock commit in one
+transaction so a partial advancement state cannot be observed.
 
 ---
 

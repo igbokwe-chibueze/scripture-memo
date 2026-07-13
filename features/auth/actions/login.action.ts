@@ -3,10 +3,12 @@
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth/auth";
 import { rateLimit } from "@/lib/rate-limit";
+import { logger } from "@/lib/logger";
 import type { ActionResult } from "@/types/api";
 import { authRepository } from "@/features/auth/repositories/auth.repository";
 import { loginSchema } from "@/features/auth/schemas/login.schema";
 import { getSafePostLoginPath } from "@/features/auth/lib/get-safe-post-login-path";
+import { progressionRepository } from "@/features/progression/repositories/progression.repository";
 
 type LoginResult = { redirectTo: string };
 
@@ -46,6 +48,18 @@ export async function loginAction(input: unknown): Promise<ActionResult<LoginRes
     });
 
     await authRepository.ensureUserFoundation(result.user.id, result.user.name);
+    // WHY: Login is a safe repair point for identities created before the
+    // progression engine existed. The repository is idempotent and never
+    // pre-creates records for locked or future waypoints.
+    await progressionRepository.initializeFirstWaypoint(result.user.id).catch((error: unknown) => {
+      // WHY: A temporary progression failure must not be misreported as invalid
+      // credentials after Better Auth has already created a valid session. The
+      // game entry action can safely retry this idempotent initialization.
+      logger.error("Progression initialization failed after login.", {
+        error,
+        userId: result.user.id,
+      });
+    });
     const hasSelectedTranslation =
       await authRepository.hasSelectedTranslation(result.user.id);
 

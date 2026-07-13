@@ -485,6 +485,14 @@ export async function startGameSessionAction(waypointId: string, dayLevel: DayLe
 }
 ```
 
+Progression records are lazy: initialize only the first currently published
+waypoint, then create the next waypoint or day record only when it unlocks. Never
+pre-create locked progress for the full curriculum. Day 3 completion, waypoint
+completion, and unlocking the next currently published waypoint must share one
+database transaction. A day-completion caller must first prove the server-created
+game/day state is complete; never expose a Server Action that accepts an
+unverified client completion claim.
+
 ### 8.4 Glow Points Are the Only Currency
 
 There is no XP system. No experience points. No separate currency.

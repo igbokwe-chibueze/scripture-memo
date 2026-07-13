@@ -3,9 +3,11 @@
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth/auth";
 import { rateLimit } from "@/lib/rate-limit";
+import { logger } from "@/lib/logger";
 import type { ActionResult } from "@/types/api";
 import { authRepository } from "@/features/auth/repositories/auth.repository";
 import { registerSchema } from "@/features/auth/schemas/register.schema";
+import { progressionRepository } from "@/features/progression/repositories/progression.repository";
 
 type RegisterResult = { redirectTo: "/select-translation" };
 
@@ -48,6 +50,18 @@ export async function registerAction(
     });
 
     await authRepository.ensureUserFoundation(result.user.id, result.user.name);
+    // WHY: Better Auth signs the new learner in during registration. Progression
+    // initialization is idempotent, so a retry repairs a partial onboarding run
+    // while still creating only the first currently playable waypoint record.
+    await progressionRepository.initializeFirstWaypoint(result.user.id).catch((error: unknown) => {
+      // WHY: Identity creation has already committed in Better Auth. Returning a
+      // false registration failure would encourage a duplicate attempt, whereas
+      // progression can be repaired idempotently at login or game entry.
+      logger.error("Progression initialization failed after registration.", {
+        error,
+        userId: result.user.id,
+      });
+    });
 
     return {
       success: true,
