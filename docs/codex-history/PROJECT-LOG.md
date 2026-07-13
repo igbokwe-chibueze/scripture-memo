@@ -94,12 +94,12 @@ Pack Management follows after manual enhancement acceptance.
 
 ## Current Task
 
-Complete the immediate verse-filter interaction enhancement.
+Complete the polished Scripture reference card and long-list search pattern.
 
 ## Exact Next Task
 
-Verify that book, tag, publication status, and sort changes update the list
-immediately. After acceptance, begin Phase 8 — Admin Pack Management.
+Verify the redesigned reference card and searchable Bible-book/country selectors.
+After acceptance, begin Phase 8 — Admin Pack Management.
 
 ## Important Decisions
 
@@ -113,6 +113,8 @@ immediately. After acceptance, begin Phase 8 — Admin Pack Management.
   the project owner explicitly asks Codex to commit or push.
 - Bulk verse imports skip and report existing or repeated references; they never
   update existing verses. Imports are limited to 100 rows and 1 MB per file.
+- Long predefined dropdowns use searchable comboboxes; short lists such as
+  status, sort, theme, and translation remain simple selects.
 - The Phase 4 placeholder Server Action using `ActionResult` belongs to the auth
   feature because authentication is the next feature that will consume the
   shared contract.
@@ -197,6 +199,25 @@ immediately. After acceptance, begin Phase 8 — Admin Pack Management.
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-13 — Reference card and searchable long lists
+
+- The project owner accepted canonical form and CSV boundary checks.
+- Redesigned the Scripture reference card with a prominent generated-reference
+  summary and aligned responsive location controls.
+- Added a shared accessible searchable-select pattern and applied it to Bible
+  books and countries while preserving simple controls for short lists.
+
+### 2026-07-13 — Canonical Bible location validation implemented
+
+- Added a reproducible, count-only dataset for all 66 books, 1,189 chapters, and
+  31,102 NIV/KJV-compatible verse positions.
+- Manual creation and editing now use a book selector, dynamic chapter and verse
+  bounds, and a read-only generated reference preview.
+- Server validation regenerates every reference from structured fields and
+  rejects impossible locations independently of client controls.
+- Removed `reference` from the CSV contract; imports use the same canonical
+  validation and generation rules as individual forms.
 
 ### 2026-07-13 — Immediate verse filters implemented
 

@@ -1,4 +1,10 @@
 import { z } from "zod";
+import {
+  formatBibleReference,
+  getBibleChapterCount,
+  getBibleVerseCount,
+  isBibleBookName,
+} from "@/features/verses/lib/bible-reference";
 
 const translationTextSchema = z
   .string()
@@ -10,13 +16,9 @@ const translationTextSchema = z
 export const verseFormSchema = z
   .object({
     id: z.string().cuid().optional(),
-    reference: z
+    book: z
       .string()
-      .trim()
-      .min(3, "Reference is required.")
-      .max(100, "Reference cannot exceed 100 characters.")
-      .regex(/^[\p{L}\p{N} .:,-]+$/u, "Enter a valid Scripture reference."),
-    book: z.string().trim().min(2, "Book is required.").max(60),
+      .refine(isBibleBookName, "Select a valid Bible book."),
     chapter: z.coerce.number().int().min(1).max(150),
     verseStart: z.coerce.number().int().min(1).max(176),
     verseEnd: z.union([z.literal(""), z.coerce.number().int().min(1).max(176)]),
@@ -30,10 +32,49 @@ export const verseFormSchema = z
       KJV: translationTextSchema,
     }),
   })
-  .refine(
-    (value) => value.verseEnd === "" || value.verseEnd >= value.verseStart,
-    { path: ["verseEnd"], message: "Ending verse cannot precede the starting verse." },
-  );
+  .superRefine((value, context) => {
+    const chapterCount = getBibleChapterCount(value.book);
+    if (chapterCount !== undefined && value.chapter > chapterCount) {
+      context.addIssue({
+        code: "custom",
+        path: ["chapter"],
+        message: `${value.book} has ${chapterCount} ${chapterCount === 1 ? "chapter" : "chapters"}.`,
+      });
+      return;
+    }
+
+    const verseCount = getBibleVerseCount(value.book, value.chapter);
+    if (verseCount !== undefined && value.verseStart > verseCount) {
+      context.addIssue({
+        code: "custom",
+        path: ["verseStart"],
+        message: `${value.book} ${value.chapter} has ${verseCount} verses.`,
+      });
+    }
+    if (verseCount !== undefined && value.verseEnd !== "" && value.verseEnd > verseCount) {
+      context.addIssue({
+        code: "custom",
+        path: ["verseEnd"],
+        message: `${value.book} ${value.chapter} has ${verseCount} verses.`,
+      });
+    }
+    if (value.verseEnd !== "" && value.verseEnd < value.verseStart) {
+      context.addIssue({
+        code: "custom",
+        path: ["verseEnd"],
+        message: "Ending verse cannot precede the starting verse.",
+      });
+    }
+  })
+  .transform((value) => ({
+    ...value,
+    reference: formatBibleReference(
+      value.book,
+      value.chapter,
+      value.verseStart,
+      value.verseEnd,
+    ),
+  }));
 
 export type VerseFormInput = z.input<typeof verseFormSchema>;
 export type VerseFormValues = z.output<typeof verseFormSchema>;

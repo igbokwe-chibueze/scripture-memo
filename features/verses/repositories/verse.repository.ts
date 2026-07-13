@@ -3,6 +3,7 @@ import type { TranslationCode } from "@/lib/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import { normalizeVerseText } from "@/features/verses/lib/normalize-verse-text";
 import { slugifyTag } from "@/features/verses/lib/normalize-tags";
+import { formatBibleReference } from "@/features/verses/lib/bible-reference";
 import type {
   ParsedVerseImportRow,
   VerseListFilters,
@@ -71,8 +72,15 @@ export const verseRepository = {
   },
 
   async findAllReferences(): Promise<string[]> {
-    const verses = await prisma.verse.findMany({ select: { reference: true } });
-    return verses.map((verse) => verse.reference);
+    const verses = await prisma.verse.findMany({
+      select: { book: true, chapter: true, verseStart: true, verseEnd: true },
+    });
+    return verses.map((verse) => formatBibleReference(
+      verse.book,
+      verse.chapter,
+      verse.verseStart,
+      verse.verseEnd,
+    ));
   },
 
   async create(data: VerseWriteData, createdById: string) {

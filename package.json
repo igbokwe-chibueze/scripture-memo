@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
+    "bible-structure:generate": "node scripts/generate-bible-structure.mjs",
     "start": "next start",
     "auth:generate": "auth generate --config ./lib/auth/auth.ts",
     "lint": "eslint"
@@ -42,6 +43,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "bible-passage-reference-parser": "^3.2.0",
     "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",

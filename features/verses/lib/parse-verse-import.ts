@@ -6,6 +6,7 @@ import {
   VERSE_IMPORT_HEADERS,
 } from "@/features/verses/constants/verse-import";
 import { toVerseWriteData } from "@/features/verses/lib/to-verse-write-data";
+import { formatBibleReference } from "@/features/verses/lib/bible-reference";
 import { verseFormSchema } from "@/features/verses/schemas/verse.schema";
 import type {
   ParsedVerseImportRow,
@@ -100,9 +101,7 @@ export function prepareVerseImport(
 
   recordsResult.data.forEach((record, index) => {
     const rowNumber = index + 2;
-    const reference = record.reference?.trim() ?? "";
     const validated = verseFormSchema.safeParse({
-      reference,
       book: record.book,
       chapter: record.chapter,
       verseStart: record.verseStart,
@@ -121,7 +120,12 @@ export function prepareVerseImport(
     if (!validated.success) {
       previewRows.push({
         rowNumber,
-        reference: reference || "Missing reference",
+        reference: formatBibleReference(
+          record.book || "Unknown book",
+          Number(record.chapter) || 0,
+          Number(record.verseStart) || 0,
+          record.verseEnd ? Number(record.verseEnd) : "",
+        ),
         status: "invalid",
         messages: flattenMessages(validated.error),
       });

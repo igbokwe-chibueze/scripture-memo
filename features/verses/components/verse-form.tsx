@@ -2,8 +2,9 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { BookOpenText } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -12,9 +13,17 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { FormError } from "@/components/shared/form-error";
 import { LoadingButton } from "@/components/shared/loading-button";
+import { SearchableSelect } from "@/components/shared/searchable-select";
 import { createVerseAction } from "@/features/verses/actions/create-verse.action";
 import { updateVerseAction } from "@/features/verses/actions/update-verse.action";
 import { MarkdownEditor } from "@/features/verses/components/markdown-editor";
+import { BIBLE_BOOK_NAMES } from "@/features/verses/data/bible-structure";
+import {
+  formatBibleReference,
+  getBibleChapterCount,
+  getBibleVerseCount,
+  isBibleBookName,
+} from "@/features/verses/lib/bible-reference";
 import {
   verseFormSchema,
   type VerseFormInput,
@@ -23,10 +32,11 @@ import {
 
 export type VerseFormProps = {
   mode: "create" | "edit";
-  initialValues: VerseFormValues;
+  initialValues: VerseFormInput;
 };
 
 const translations = ["NIV", "ESV", "KJV"] as const;
+const bookOptions = BIBLE_BOOK_NAMES.map((book) => ({ value: book, label: book }));
 
 /** Complete verse editor shared by create and edit admin views. */
 export function VerseForm({ mode, initialValues }: VerseFormProps): React.ReactNode {
@@ -36,6 +46,25 @@ export function VerseForm({ mode, initialValues }: VerseFormProps): React.ReactN
     resolver: zodResolver(verseFormSchema),
     defaultValues: initialValues,
   });
+  const selectedBook = useWatch({ control: form.control, name: "book" });
+  const selectedChapter = useWatch({ control: form.control, name: "chapter" });
+  const selectedVerseStart = useWatch({ control: form.control, name: "verseStart" });
+  const selectedVerseEnd = useWatch({ control: form.control, name: "verseEnd" });
+  const chapterCount = getBibleChapterCount(selectedBook);
+  const verseCount = getBibleVerseCount(selectedBook, Number(selectedChapter));
+  const referencePreview =
+    isBibleBookName(selectedBook) &&
+    Number.isInteger(Number(selectedChapter)) &&
+    Number.isInteger(Number(selectedVerseStart))
+      ? formatBibleReference(
+          selectedBook,
+          Number(selectedChapter),
+          Number(selectedVerseStart),
+          selectedVerseEnd === "" ? "" : Number(selectedVerseEnd),
+        )
+      : "Select a valid book, chapter, and verse.";
+
+  const chapterRegistration = form.register("chapter", { valueAsNumber: true });
 
   function submit(values: VerseFormValues): void {
     form.clearErrors("root");
@@ -59,39 +88,90 @@ export function VerseForm({ mode, initialValues }: VerseFormProps): React.ReactN
   return (
     <form onSubmit={form.handleSubmit(submit)} noValidate className="space-y-6">
       <Card>
-        <CardHeader><CardTitle>Scripture reference</CardTitle></CardHeader>
+        <CardHeader className="border-b">
+          <CardTitle>Scripture reference</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Choose a canonical Bible location. Chapter and verse limits adjust automatically.
+          </p>
+        </CardHeader>
         <CardContent>
-          <FieldGroup>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field>
-                <FieldLabel htmlFor="reference">Reference</FieldLabel>
-                <Input id="reference" placeholder="John 3:16" {...form.register("reference")} />
-                <FieldError>{form.formState.errors.reference?.message}</FieldError>
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="book">Book</FieldLabel>
-                <Input id="book" placeholder="John" {...form.register("book")} />
-                <FieldError>{form.formState.errors.book?.message}</FieldError>
-              </Field>
+          <FieldGroup className="gap-6">
+            <div className="flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4 sm:p-5">
+              <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+                <BookOpenText className="size-5" aria-hidden="true" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold tracking-wider text-primary uppercase">Generated reference</p>
+                <output className="mt-1 block wrap-break-word text-lg font-semibold tracking-tight sm:text-xl" aria-live="polite">
+                  {referencePreview}
+                </output>
+              </div>
             </div>
-            <div className="grid grid-cols-3 gap-3">
+
+            <div className="grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-5">
+              <Controller
+                control={form.control}
+                name="book"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid} className="sm:col-span-2 lg:col-span-2">
+                    <FieldLabel>Book</FieldLabel>
+                    <SearchableSelect
+                      value={field.value}
+                      options={bookOptions}
+                      label="Bible book"
+                      placeholder="Select a book"
+                      searchPlaceholder="Search 66 books…"
+                      emptyMessage="No Bible book matches your search."
+                      disabled={isPending}
+                      invalid={fieldState.invalid}
+                      onValueChange={(book) => {
+                        field.onChange(book);
+                        // WHY: A new book changes every downstream bound. Resetting
+                        // the location prevents stale values from describing an
+                        // impossible reference during the next render.
+                        form.setValue("chapter", 1, { shouldValidate: true });
+                        form.setValue("verseStart", 1, { shouldValidate: true });
+                        form.setValue("verseEnd", "", { shouldValidate: true });
+                      }}
+                    />
+                    <FieldDescription>Search or browse the canonical 66 books.</FieldDescription>
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
               <Field>
                 <FieldLabel htmlFor="chapter">Chapter</FieldLabel>
-                <Input id="chapter" type="number" min={1} {...form.register("chapter", { valueAsNumber: true })} />
+                <Input
+                  id="chapter"
+                  type="number"
+                  min={1}
+                  max={chapterCount}
+                  disabled={isPending || !selectedBook}
+                  {...chapterRegistration}
+                  onChange={(event) => {
+                    void chapterRegistration.onChange(event);
+                    form.setValue("verseStart", 1, { shouldValidate: true });
+                    form.setValue("verseEnd", "", { shouldValidate: true });
+                  }}
+                />
+                <FieldDescription>{chapterCount ? `1–${chapterCount}` : "Select a book first."}</FieldDescription>
                 <FieldError>{form.formState.errors.chapter?.message}</FieldError>
               </Field>
               <Field>
                 <FieldLabel htmlFor="verse-start">Start</FieldLabel>
-                <Input id="verse-start" type="number" min={1} {...form.register("verseStart", { valueAsNumber: true })} />
+                <Input id="verse-start" type="number" min={1} max={verseCount} disabled={isPending || !verseCount} {...form.register("verseStart", { valueAsNumber: true })} />
+                <FieldDescription>{verseCount ? `1–${verseCount}` : "Choose a chapter."}</FieldDescription>
                 <FieldError>{form.formState.errors.verseStart?.message}</FieldError>
               </Field>
               <Field>
                 <FieldLabel htmlFor="verse-end">End</FieldLabel>
-                <Input id="verse-end" type="number" min={1} {...form.register("verseEnd")} />
+                <Input id="verse-end" type="number" min={1} max={verseCount} disabled={isPending || !verseCount} {...form.register("verseEnd")} />
+                <FieldDescription>{verseCount ? `Optional · max ${verseCount}` : "Optional range."}</FieldDescription>
                 <FieldError>{form.formState.errors.verseEnd?.message}</FieldError>
               </Field>
             </div>
-            <Field>
+
+            <Field className="border-t pt-5">
               <FieldLabel htmlFor="tags">Tags</FieldLabel>
               <Input id="tags" placeholder="love, salvation" {...form.register("tags")} />
               <FieldDescription>Separate tags with commas.</FieldDescription>

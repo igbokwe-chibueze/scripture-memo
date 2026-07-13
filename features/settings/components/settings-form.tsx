@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { FormError } from "@/components/shared/form-error";
 import { LoadingButton } from "@/components/shared/loading-button";
+import { SearchableSelect } from "@/components/shared/searchable-select";
 import { updateUserSettingsAction } from "@/features/settings/actions/update-user-settings.action";
 import { COUNTRY_OPTIONS } from "@/features/settings/data/country-options";
 import {
@@ -22,6 +23,11 @@ import {
 } from "@/features/settings/schemas/update-user-settings.schema";
 
 export type SettingsFormProps = { initialValues: UpdateUserSettingsInput };
+
+const countryOptions = [
+  { value: "", label: "Not selected" },
+  ...COUNTRY_OPTIONS.map((country) => ({ value: country.code, label: country.name })),
+];
 
 /** Editable profile and preference form with immediate local theme application. */
 export function SettingsForm({ initialValues }: SettingsFormProps): React.ReactNode {
@@ -82,22 +88,17 @@ export function SettingsForm({ initialValues }: SettingsFormProps): React.ReactN
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel>Country</FieldLabel>
-                  <Select
-                    value={field.value || "none"}
-                    onValueChange={(value) => field.onChange(value === "none" ? "" : value)}
-                  >
-                    <SelectTrigger className="min-h-11 w-full" aria-invalid={fieldState.invalid}>
-                      <SelectValue placeholder="Select your country" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">Not selected</SelectItem>
-                      {COUNTRY_OPTIONS.map((country) => (
-                        <SelectItem key={country.code} value={country.code}>
-                          {country.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <SearchableSelect
+                    value={field.value}
+                    options={countryOptions}
+                    label="Country"
+                    placeholder="Select your country"
+                    searchPlaceholder="Search countries…"
+                    emptyMessage="No country matches your search."
+                    disabled={isPending}
+                    invalid={fieldState.invalid}
+                    onValueChange={field.onChange}
+                  />
                   <FieldDescription>Used only for country leaderboard filtering.</FieldDescription>
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>

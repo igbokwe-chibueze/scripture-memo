@@ -21,7 +21,6 @@ export async function EditVerseView({ params }: { params: Promise<{ id: string }
           mode="edit"
           initialValues={{
             id: verse.id,
-            reference: verse.reference,
             book: verse.book,
             chapter: verse.chapter,
             verseStart: verse.verseStart,

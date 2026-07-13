@@ -9,7 +9,6 @@ export const MAX_VERSE_IMPORT_ROWS = 100;
 
 /** Canonical CSV contract used by template generation and strict server parsing. */
 export const VERSE_IMPORT_HEADERS = [
-  "reference",
   "book",
   "chapter",
   "verseStart",
