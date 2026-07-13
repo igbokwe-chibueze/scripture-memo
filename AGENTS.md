@@ -773,6 +773,30 @@ Use **database transactions** for all operations that involve more than one writ
 
 ---
 
+## 12A. Database Environment Safety
+
+- Treat the database configured by `DATABASE_URL` as protected. Never run an
+  integration-test cleanup, reset, destructive fixture workflow, or experimental
+  SQL against it.
+- Destructive repository integration tests may run only through
+  `TEST_DATABASE_URL`, with the exact `TEST_DATABASE_CONFIRMATION` required by
+  `lib/testing/test-database-guard.ts`, and only after confirming that the test
+  resource is separate and its relevant fixture tables are empty.
+- Never fall back from a missing test URL to `DATABASE_URL`. A missing or
+  ambiguous test configuration must skip or fail closed.
+- Use `TEST_DIRECT_URL` only for Prisma CLI migrations against the dedicated test
+  resource. Setting it as `DATABASE_URL` is permitted only as a process-local
+  override for that explicitly approved command; never rewrite the application's
+  persisted `DATABASE_URL`.
+- Keep all database credentials in gitignored environment files. Never print,
+  commit, document, or paste connection strings into chat.
+- Prisma MCP database creation, deletion, SQL execution, schema changes,
+  connection-string changes, backup recovery, migrations, resets, and seeds
+  require explicit project-owner approval. Read-only inventory must be clearly
+  identified as read-only before use.
+
+---
+
 ## 13. JSON Data Persistence Rules
 
 PostgreSQL through Prisma is the source of truth for durable application data.

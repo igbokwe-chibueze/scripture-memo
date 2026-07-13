@@ -101,9 +101,7 @@ Verify the Phase 10 progression engine and prepare Phase 11 map implementation.
 
 ## Exact Next Task
 
-Configure an empty migrated PostgreSQL test database through `TEST_DATABASE_URL`
-and run `npm run test:progression:integration` when available. Then implement
-Phase 11 — Game Map against the lazy progression repository.
+Implement Phase 11 — Game Map against the verified lazy progression repository.
 
 ## Important Decisions
 
@@ -145,6 +143,10 @@ Phase 11 — Game Map against the lazy progression repository.
   stable per-verse locks so validation cannot race a conflicting mutation.
 - Phase 10 creates progress lazily, unlocks the next actually published waypoint
   by database query, and commits completion plus unlocking atomically.
+- Automated destructive database tests use only the separately provisioned
+  `scripture-memo-integration-tests` Prisma Postgres resource. `DATABASE_URL`
+  remains protected, test configuration fails closed, and Prisma MCP write
+  operations require explicit project-owner approval.
 - Complex operational failures use stable feature codes from one structured
   catalogue. Sonner shows only the short safe message and code; the ADMIN-only
   reference page renders detailed safe guidance. Ordinary validation stays
@@ -223,18 +225,15 @@ Phase 11 — Game Map against the lazy progression repository.
 - Select an email delivery provider before implementing verification or password
   reset.
 - Phases 11–32 remain pending in roadmap order.
-- Configure an isolated migrated PostgreSQL database through
-  `TEST_DATABASE_URL` and run both destructive repository integration suites
-  before merging Phase 10 when that environment is available.
 - `.env.example` remains absent and is required by the security checklist.
 - Before upgrading to `pg` 9, update the configured database SSL mode explicitly
   to `verify-full` to preserve the current certificate-verification behavior.
 
 ## Blockers and Unresolved Questions
 
-- No implementation blocker exists. Full database-backed integration execution
-  awaits a separately configured empty test database; the suite refuses to use
-  the current application database.
+- No implementation blocker exists. The dedicated test database is configured,
+  migrated, and verified; both repository integration suites pass and clean up
+  their fixtures.
 - No email delivery provider has been selected, so verification and password
   reset are intentionally not implemented.
 - The recovered transcript contains historical references to the deleted
@@ -242,6 +241,19 @@ Phase 11 — Game Map against the lazy progression repository.
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-13 — Dedicated Prisma Postgres test database verified
+
+- Installed and authenticated Prisma's official Codex plugin and MCP server.
+- Created the non-default `scripture-memo-integration-tests` database as a
+  separate Prisma project in Europe (Frankfurt); the existing application
+  database was not queried, migrated, or modified.
+- Added fail-closed test URL and confirmation validation compatible with Prisma
+  Postgres resource URLs, plus focused guard tests.
+- Applied all four existing migrations only to the new test resource, without
+  seeding it.
+- Phase 9 waypoint lifecycle/concurrency and Phase 10 progression/curriculum-lock
+  integration suites both passed against real PostgreSQL and completed cleanup.
 
 ### 2026-07-13 — Phase 10 curriculum-lock race corrected
 
@@ -266,8 +278,8 @@ Phase 11 — Game Map against the lazy progression repository.
   the end of currently published curriculum returns a caught-up result.
 - Added eight application-wide progression error references and a guarded
   PostgreSQL integration suite. Unit tests, catalogue tests, strict TypeScript,
-  lint, architecture checks, diff validation, and production build passed; the
-  database suite skips until a separate `TEST_DATABASE_URL` is configured.
+  lint, architecture checks, diff validation, and production build passed. The
+  suite was subsequently executed successfully on the dedicated test resource.
 
 ### 2026-07-13 — Operational error-code foundation implemented
 
@@ -306,9 +318,9 @@ Phase 11 — Game Map against the lazy progression repository.
 - Serialized curriculum topology and verse dependency mutations with shared
   PostgreSQL advisory locks and expanded assignment audit metadata to include
   previous and new state.
-- Added an isolated PostgreSQL integration suite guarded by `TEST_DATABASE_URL`
-  and a test-database-name check; the suite is skipped safely until a separate
-  migrated test database is configured.
+- Added an isolated PostgreSQL integration suite guarded by `TEST_DATABASE_URL`;
+  its original URL-name check was later replaced by the Prisma Postgres-aware
+  fail-closed guard after the dedicated resource was provisioned.
 - Added the direct `server-only` dependency needed by standalone repository test
   execution without weakening the Next.js server boundary.
 - Updated root instructions, product behavior, Phase 9 acceptance, and Phase 10

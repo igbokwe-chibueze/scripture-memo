@@ -510,9 +510,9 @@ searchable troubleshooting manual.
 **Goal:** Implement the server-side logic that controls all user progression, cooldowns, and unlocks.
 
 **Implementation status (2026-07-13):** Complete. Unit and catalogue tests,
-strict TypeScript, lint, architecture checks, and the production build pass. The
-isolated PostgreSQL integration suite is included and skips safely until
-`TEST_DATABASE_URL` points to an empty migrated test database. Progression
+strict TypeScript, lint, architecture checks, the production build, and the real
+PostgreSQL integration suites pass against the dedicated, migrated
+`scripture-memo-integration-tests` Prisma Postgres resource. Progression
 initialization and next-waypoint unlocking share the curriculum transaction lock
 with administrator mutations, preventing availability checks from racing a
 hide, reassignment, publication, append, or reorder.

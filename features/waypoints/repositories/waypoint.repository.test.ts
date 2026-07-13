@@ -14,8 +14,11 @@
  */
 import assert from "node:assert/strict";
 import test from "node:test";
+import "dotenv/config";
+import { requireSafeTestDatabaseUrl } from "@/lib/testing/test-database-guard";
 
 const testDatabaseUrl = process.env.TEST_DATABASE_URL;
+const applicationDatabaseUrl = process.env.DATABASE_URL;
 
 test(
   "waypoint lifecycle and concurrency invariants survive real database writes",
@@ -23,12 +26,11 @@ test(
   async () => {
     if (!testDatabaseUrl) return;
 
-    const databaseName = decodeURIComponent(new URL(testDatabaseUrl).pathname.slice(1));
-    assert.match(
-      databaseName,
-      /test/i,
-      "TEST_DATABASE_URL must name a database containing 'test'.",
-    );
+    requireSafeTestDatabaseUrl({
+      applicationDatabaseUrl,
+      confirmation: process.env.TEST_DATABASE_CONFIRMATION,
+      testDatabaseUrl,
+    });
 
     process.env.DATABASE_URL = testDatabaseUrl;
     const [{ prisma }, { waypointRepository }, verseModule] = await Promise.all([

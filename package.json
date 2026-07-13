@@ -10,6 +10,7 @@
     "auth:generate": "auth generate --config ./lib/auth/auth.ts",
     "lint": "eslint",
     "test:errors": "tsx --test lib/errors/error-catalog.test.ts",
+    "test:database-guard": "tsx --test lib/testing/test-database-guard.test.ts",
     "test:progression": "tsx --test features/progression/lib/progression-utils.test.ts",
     "test:integration": "tsx --conditions=react-server --test features/waypoints/repositories/waypoint.repository.test.ts",
     "test:progression:integration": "tsx --conditions=react-server --test features/progression/repositories/progression.repository.test.ts"
