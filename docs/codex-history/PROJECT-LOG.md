@@ -45,7 +45,7 @@ long-term verse difficulty. Glow Points are the only currency.
 - Phase 10 progression engine is complete with lazy initialization,
   server-authoritative cooldowns, atomic advancement, and real PostgreSQL tests.
 - Phase 11 Game Map is implemented and automated verification passes; manual
-  browser acceptance remains.
+  browser acceptance remains after its approved mobile-game visual redesign.
 
 ## Current Roadmap Position
 
@@ -147,6 +147,9 @@ Day Selection Screen.
   stable per-verse locks so validation cannot race a conflicting mutation.
 - Phase 10 creates progress lazily, unlocks the next actually published waypoint
   by database query, and commits completion plus unlocking atomically.
+- The learner map uses an original mobile-first winding trail with tactile
+  circular nodes. Its three ring segments map exactly to the three completed
+  challenge days; decorative presentation must never inflate real progress.
 - Automated destructive database tests use only the separately provisioned
   `scripture-memo-integration-tests` Prisma Postgres resource. `DATABASE_URL`
   remains protected, test configuration fails closed, and Prisma MCP write
@@ -253,6 +256,18 @@ Day Selection Screen.
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-13 — Phase 11 mobile campaign trail redesign
+
+- Replaced the initial responsive card grid with an original mobile-first
+  winding trail inspired by familiar campaign-map interaction patterns without
+  copying external artwork or branding.
+- Added alternating tactile nodes, connected SVG trail progress, exact
+  three-day rings, active-waypoint callout, distinct status treatments,
+  scrollable group indicators, and lightweight code-native scenery.
+- Redesigned the route skeleton and page header to match the immersive trail
+  composition while retaining accessibility, reduced-motion behavior, dark
+  mode, existing progression rules, and the batched repository read.
 
 ### 2026-07-13 — Phase 11 Game Map implemented
 

@@ -969,11 +969,18 @@ The landing page after login. Shows:
 
 ### 15.2 Game Map (🗺️)
 
-Visual grid of all current waypoints.
+Mobile-first winding campaign trail of all current waypoints. The presentation
+uses original code-native scenery and tactile circular nodes rather than a
+dashboard grid, while keeping progress readable in light and dark themes.
 
 - Waypoints rendered in scrollable groups of 10—not the entire expanding
   curriculum at once.
-- Each waypoint node shows: number, Journey Stage badge, status (locked/unlocked/in-progress/complete), flame count.
+- Each waypoint node shows: number, Journey Stage badge, status
+  (locked/unlocked/in-progress/cooldown/complete), flame count, and an honest
+  three-segment ring representing the three challenge days.
+- Nodes alternate along an original connected trail, with the current waypoint
+  receiving a prominent continue treatment. Decorative progress never implies
+  completion that is absent from persisted learner state.
 - Clicking a locked waypoint shows a Sonner toast explaining how to unlock it.
 - Clicking an unlocked or in-progress waypoint navigates to its Day Selection screen.
 - Skeleton loaders shown while map data loads.
