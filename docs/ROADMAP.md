@@ -568,6 +568,14 @@ hide, reassignment, publication, append, or reorder.
 
 **Goal:** Build the visual representation of the complete expanding waypoint curriculum.
 
+**Implementation status (2026-07-13):** Implemented; automated verification
+passes and project-owner manual acceptance remains. The protected `/game/map`
+route loads the published curriculum and sparse learner progress in one batched
+repository request, renders only one ten-waypoint group at a time, and includes
+responsive navigation, current-node emphasis, safe locked-node feedback, an
+empty state, and a route skeleton. The clickable destination URL is established
+for Phase 12, which owns the Day Selection screen itself.
+
 ### Tasks
 
 1. Create `features/map/`.

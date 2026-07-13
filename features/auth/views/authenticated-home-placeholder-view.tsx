@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import { FlameIcon } from "lucide-react";
+import { FlameIcon, MapIcon } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
 import { LogoutButton } from "@/features/auth/components/logout-button";
 import { authRepository } from "@/features/auth/repositories/auth.repository";
 import { requireServerSession } from "@/lib/auth/session";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Your journey | Scripture Memo",
@@ -32,7 +35,16 @@ export async function AuthenticatedHomePlaceholderView(): Promise<React.ReactNod
             Your account is ready. The full Game Home arrives in its roadmap phase.
           </p>
         </div>
-        <LogoutButton />
+        <div className="flex flex-col justify-center gap-3 sm:flex-row">
+          <Link
+            href="/game/map"
+            className={cn(buttonVariants({ size: "lg" }), "min-h-11 gap-2 px-4")}
+          >
+            <MapIcon aria-hidden="true" />
+            Open game map
+          </Link>
+          <LogoutButton />
+        </div>
       </div>
     </main>
   );

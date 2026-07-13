@@ -29,8 +29,8 @@ long-term verse difficulty. Glow Points are the only currency.
 
 ## Current Project State
 
-- Branch: `progression_engine`.
-- Current HEAD at this update: `81a1597`.
+- Branch: `game-map`.
+- Current HEAD at this update: `b457f50`.
 - Phases 0–9 are complete and manually accepted, including bulk CSV import,
   dynamic verse-list search, and admin pack management.
 - The public landing page and internal UI-foundation preview are implemented.
@@ -42,13 +42,15 @@ long-term verse difficulty. Glow Points are the only currency.
   `docs/AGENTS.md` was removed.
 - Phase 9 waypoint management, curriculum-history hardening, and Phase 9A's
   application-wide error reference are merged at the current HEAD.
-- Phase 10 progression engine is implemented with lazy initialization,
-  server-authoritative cooldowns, atomic advancement, and focused tests.
+- Phase 10 progression engine is complete with lazy initialization,
+  server-authoritative cooldowns, atomic advancement, and real PostgreSQL tests.
+- Phase 11 Game Map is implemented and automated verification passes; manual
+  browser acceptance remains.
 
 ## Current Roadmap Position
 
-Phase 10 — Progression Engine is implemented. Phase 11 — Game Map is the next
-roadmap phase after the Phase 10 verification handoff.
+Phase 11 — Game Map is implemented and awaiting project-owner manual acceptance.
+Phase 12 — Day Selection Screen follows after acceptance.
 
 ## Completed Work
 
@@ -97,11 +99,13 @@ roadmap phase after the Phase 10 verification handoff.
 
 ## Current Task
 
-Verify the Phase 10 progression engine and prepare Phase 11 map implementation.
+Manually verify the Phase 11 Game Map at `/game/map` with real learner progress.
 
 ## Exact Next Task
 
-Implement Phase 11 — Game Map against the verified lazy progression repository.
+Confirm Phase 11 map grouping, statuses, flames, locked feedback, navigation,
+current-node emphasis, responsiveness, and loading state; then begin Phase 12 —
+Day Selection Screen.
 
 ## Important Decisions
 
@@ -185,6 +189,14 @@ Implement Phase 11 — Game Map against the verified lazy progression repository
 
 ## Recent Important File Changes
 
+- `features/map/`: Phase 11 batch repository read, map-state helpers and tests,
+  ten-node navigator, waypoint cards, skeleton, and protected view composition.
+- `components/shared/journey-stage-badge.tsx` and
+  `components/shared/flame-indicator.tsx`: reusable learner-facing progression
+  indicators for the map and upcoming Day Selection screen.
+- `app/(protected)/game/map/`: one-line page and loading re-exports.
+- `features/auth/views/authenticated-home-placeholder-view.tsx`: discoverable
+  link to the new map while the later Game Home phase remains pending.
 - `AGENTS.md`: consolidated all agent instructions at the repository root; added
   authority, JSON persistence, and project-continuity rules.
 - `docs/AGENTS.md`: deleted after consolidation into root `AGENTS.md`.
@@ -221,10 +233,10 @@ Implement Phase 11 — Game Map against the verified lazy progression repository
 
 ## Outstanding Tasks
 
-- Review and commit the Phase 10 progression-engine changes.
+- Manually accept Phase 11 and commit its changes after review.
 - Select an email delivery provider before implementing verification or password
   reset.
-- Phases 11–32 remain pending in roadmap order.
+- Phases 12–32 remain pending in roadmap order.
 - `.env.example` remains absent and is required by the security checklist.
 - Before upgrading to `pg` 9, update the configured database SSL mode explicitly
   to `verify-full` to preserve the current certificate-verification behavior.
@@ -241,6 +253,21 @@ Implement Phase 11 — Game Map against the verified lazy progression repository
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-13 — Phase 11 Game Map implemented
+
+- Added the protected `/game/map` experience and a discoverable entry from the
+  temporary authenticated home.
+- Loaded all currently published waypoints plus one learner's sparse waypoint
+  and completed-day progress in one batched Prisma request without N+1 reads.
+- Rendered one responsive ten-waypoint group at a time with scrollable range
+  navigation, Journey Stage badges, status, flame count, locked guidance, and
+  current-node emphasis.
+- Added an intentional no-curriculum state, route-level ten-card skeleton, and
+  the stable future Day Selection destination used by Phase 12.
+- Added three pure map-state tests. Strict TypeScript, ESLint, diff validation,
+  repository-boundary and thin-route checks, and the production build passed.
+  No migration, seed, MCP write, or destructive database operation was run.
 
 ### 2026-07-13 — Dedicated Prisma Postgres test database verified
 
