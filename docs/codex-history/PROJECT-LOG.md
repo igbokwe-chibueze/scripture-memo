@@ -99,13 +99,14 @@ Phase 12 — Day Selection Screen follows after acceptance.
 
 ## Current Task
 
-Manually compare Phase 11 Map A and Map B at `/game/map` with real learner progress.
+Manually verify the development-only PNG waypoint-positioning tool at
+`/map-positioner`, then continue comparative Phase 11 map acceptance.
 
 ## Exact Next Task
 
-Confirm both Phase 11 presentations show identical progress, locked feedback,
-gameplay navigation, group behavior, responsiveness, and persisted switching;
-then begin Phase 12 — Day Selection Screen.
+Use a local PNG to confirm marker dragging, clicking, keyboard adjustment,
+numeric editing, reset, and coordinate copying. Then confirm both Phase 11 map
+presentations show identical progression behavior before beginning Phase 12.
 
 ## Important Decisions
 
@@ -201,6 +202,9 @@ then begin Phase 12 — Day Selection Screen.
 - `features/map/`: Phase 11 batch repository read, map-state helpers and tests,
   ten-node navigator, waypoint cards, skeleton, protected view composition, and
   extensive intent-focused inline documentation across the complete feature.
+- `features/map/components/map-positioner.tsx`, related pure helpers/tests, and
+  `/map-positioner`: a browser-local, development-only PNG alignment tool that
+  exports ten responsive percentage coordinates without persistence or uploads.
 - `components/shared/journey-stage-badge.tsx` and
   `components/shared/flame-indicator.tsx`: reusable learner-facing progression
   indicators for the map and upcoming Day Selection screen.
@@ -263,6 +267,22 @@ then begin Phase 12 — Day Selection Screen.
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-14 — Development PNG map positioner implemented
+
+- Added the development-only `/map-positioner` route; production requests are
+  rejected by Proxy with HTTP 404 and repeated server-view `notFound()` defense,
+  while metadata and the response are `noindex`.
+- Added local PNG selection with exact natural aspect-ratio preview, ten draggable
+  and keyboard-adjustable waypoint markers, numeric controls, reset, and
+  paste-ready percentage-coordinate export.
+- Kept selected artwork entirely inside the browser through a temporary object
+  URL. No upload, Server Action, filesystem write, Prisma call, or database
+  operation exists in the tool.
+- Added pure tests for boundary normalization, pointer conversion, and export
+  formatting; the standard map test script now includes them.
+- TypeScript, ESLint, eight map tests, production build, diff checks, a live
+  development HTTP 200 check, and a production HTTP 404 check passed.
 
 ### 2026-07-14 — Game Map documentation audit completed
 
