@@ -92,7 +92,7 @@ export function GridGameMap({
         Showing waypoints {activeGroup.startNumber} through {activeGroup.endNumber}.
       </p>
 
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-3 min-[360px]:grid-cols-2 sm:gap-4 lg:grid-cols-5">
         {activeGroup.waypoints.map((waypoint) => (
           <GridWaypointCard
             key={waypoint.id}

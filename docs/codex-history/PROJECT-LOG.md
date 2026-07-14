@@ -276,6 +276,9 @@ then begin Phase 12 — Day Selection Screen.
   Stage previews while Day Selection remains the authoritative detail screen.
 - Added focused variant parsing and precedence tests. No schema, migration,
   repository query, progression rule, or database data changed.
+- Corrected Map B phone-width clipping by compacting long Journey Stage badges,
+  allowing Scripture references to wrap safely, tightening status/flame spacing,
+  and using one column below 360px instead of forcing unusably narrow cards.
 
 ### 2026-07-13 — Phase 11 mobile campaign trail redesign
 

@@ -13,7 +13,7 @@ export function FlameIndicator({
 
   return (
     <span
-      className={cn("inline-flex items-center gap-0.5", className)}
+      className={cn("inline-flex shrink-0 items-center gap-0.5", className)}
       aria-label={`${safeCount} of 3 challenge days complete`}
     >
       {[0, 1, 2].map((index) => (

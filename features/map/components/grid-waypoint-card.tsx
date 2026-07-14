@@ -33,7 +33,7 @@ export function GridWaypointCard({
       aria-label={`Waypoint ${waypoint.number}, ${presentation.label}, ${waypoint.reference}, ${waypoint.flameCount} of 3 days complete`}
       onClick={() => onSelect(waypoint)}
       className={cn(
-        "group relative flex min-h-48 w-full flex-col overflow-hidden rounded-3xl border p-4 text-left shadow-sm outline-none transition duration-200 focus-visible:ring-3 focus-visible:ring-ring/50 active:scale-[0.98] motion-reduce:transition-none",
+        "group relative flex min-h-48 min-w-0 w-full flex-col overflow-hidden rounded-3xl border p-3 text-left shadow-sm outline-none transition duration-200 focus-visible:ring-3 focus-visible:ring-ring/50 active:scale-[0.98] motion-reduce:transition-none sm:p-4",
         isLocked && "border-border/60 bg-card/55 text-muted-foreground shadow-none",
         waypoint.status === WaypointStatus.COMPLETED &&
           "border-emerald-500/25 bg-emerald-500/7 hover:border-emerald-500/45",
@@ -51,7 +51,7 @@ export function GridWaypointCard({
         )}
       />
 
-      <span className="relative flex items-start justify-between gap-3">
+      <span className="relative flex min-w-0 items-start justify-between gap-2 sm:gap-3">
         <span
           className={cn(
             "grid size-12 shrink-0 place-items-center rounded-2xl bg-muted text-lg font-black",
@@ -62,15 +62,18 @@ export function GridWaypointCard({
         >
           {waypoint.number}
         </span>
-        <JourneyStageBadge stage={waypoint.journeyStage} />
+        <JourneyStageBadge
+          stage={waypoint.journeyStage}
+          className="max-w-full px-1.5 text-[0.62rem] tracking-normal sm:px-2.5 sm:text-xs sm:tracking-wide"
+        />
       </span>
 
-      <span className="relative mt-4 line-clamp-2 min-h-10 text-sm font-semibold text-foreground">
+      <span className="relative mt-4 line-clamp-2 min-h-10 min-w-0 break-words text-sm font-semibold text-foreground">
         {waypoint.reference}
       </span>
 
-      <span className="relative mt-auto flex items-end justify-between gap-3 pt-4">
-        <span className="inline-flex items-center gap-1.5 text-xs font-semibold [&_svg]:size-4">
+      <span className="relative mt-auto flex min-w-0 items-end justify-between gap-1.5 pt-4 sm:gap-3">
+        <span className="inline-flex min-w-0 items-center gap-1 text-[0.7rem] font-semibold whitespace-nowrap sm:gap-1.5 sm:text-xs [&_svg]:size-4">
           {presentation.icon}
           {presentation.label}
         </span>
