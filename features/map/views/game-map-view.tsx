@@ -5,13 +5,24 @@ import { ResponsiveContainer } from "@/components/shared/responsive-container";
 import { GameMap } from "@/features/map/components/game-map";
 import { getGameMapData } from "@/features/map/lib/get-game-map-data";
 
+/**
+ * Private metadata prevents a personalized progress page from being indexed or
+ * included in public search results. No learner data is embedded in metadata.
+ */
 export const metadata: Metadata = {
   title: "Game map | Scripture Memo",
   description: "Follow your private Scripture Memo learning journey.",
   robots: { index: false, follow: false },
 };
 
-/** Protected campaign composition for the expanding waypoint curriculum. */
+/**
+ * Protected server composition for the expanding waypoint curriculum.
+ *
+ * Data is loaded before crossing into the interactive client boundary, keeping
+ * authentication and Prisma access on the server. The empty state distinguishes
+ * a valid account with no published curriculum from a loading or error state;
+ * route-level loading and error files handle those other cases.
+ */
 export async function GameMapView(): Promise<React.ReactNode> {
   const waypoints = await getGameMapData();
 

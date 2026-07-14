@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * Paginated card-grid presentation used as Map B. It shares progression data and
+ * selection behavior with Map A while retaining the richer stage/reference view.
+ */
+
 import { useMemo, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon, Grid2X2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,7 +13,11 @@ import { groupMapWaypoints } from "@/features/map/lib/map-utils";
 import type { MapWaypoint } from "@/features/map/types/map.types";
 import { cn } from "@/lib/utils";
 
-/** Original ten-card map presentation retained as comparison variant B. */
+/**
+ * Renders one ten-waypoint grid section at a time.
+ * Grouping is derived from the server DTO, and the initial section follows the
+ * learner's current node so an expanding curriculum remains easy to resume.
+ */
 export function GridGameMap({
   waypoints,
   onSelectWaypoint,
@@ -17,6 +26,8 @@ export function GridGameMap({
   onSelectWaypoint: (waypoint: MapWaypoint) => void;
 }): React.ReactNode {
   const groups = useMemo(() => groupMapWaypoints(waypoints), [waypoints]);
+  // A missing current node is valid when everything is complete/locked; clamp
+  // `findIndex`'s -1 to the predictable first group.
   const initialGroupIndex = Math.max(
     0,
     groups.findIndex((group) => group.waypoints.some(({ isCurrent }) => isCurrent)),
@@ -24,6 +35,8 @@ export function GridGameMap({
   const [activeGroupIndex, setActiveGroupIndex] = useState(initialGroupIndex);
   const activeGroup = groups[activeGroupIndex] ?? groups[0];
 
+  // The parent normally supplies an EmptyState, but defensive reuse with an
+  // empty list should still render safely.
   if (!activeGroup) return null;
 
   return (
@@ -57,6 +70,7 @@ export function GridGameMap({
         </Button>
 
         <div className="flex flex-1 snap-x gap-2 overflow-x-auto px-1 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {/* Labels use actual boundaries so numbering gaps stay truthful. */}
           {groups.map((group) => (
             <button
               key={group.index}
@@ -92,6 +106,8 @@ export function GridGameMap({
         Showing waypoints {activeGroup.startNumber} through {activeGroup.endNumber}.
       </p>
 
+      {/* One column below 360px prevents stage labels and flames from clipping;
+          wider mobile screens retain the compact two-column game layout. */}
       <div className="grid grid-cols-1 gap-3 min-[360px]:grid-cols-2 sm:gap-4 lg:grid-cols-5">
         {activeGroup.waypoints.map((waypoint) => (
           <GridWaypointCard

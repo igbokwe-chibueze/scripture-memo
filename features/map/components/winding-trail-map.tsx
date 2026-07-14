@@ -1,5 +1,11 @@
 "use client";
 
+/**
+ * Mobile-first winding campaign presentation used as Map A. Its landscape and
+ * route are code-native, keeping the UI responsive and independent of a fixed or
+ * externally copyrighted background illustration.
+ */
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ChevronLeftIcon,
@@ -16,7 +22,13 @@ import type { MapWaypoint } from "@/features/map/types/map.types";
 import { WaypointStatus } from "@/lib/generated/prisma/enums";
 import { cn } from "@/lib/utils";
 
+// One stable coordinate height lets the SVG road and absolute node controls use
+// the same system without runtime measurement for each ten-node section.
 const TRAIL_HEIGHT = 1_340;
+
+// Ten positions match the product group size. Alternating X percentages create
+// the winding rhythm; 120px Y spacing prevents the enlarged current node, ring,
+// and flames from colliding on narrow mobile screens.
 const TRAIL_NODE_POSITIONS = [
   { x: 50, y: 60 },
   { x: 25, y: 180 },
@@ -30,7 +42,12 @@ const TRAIL_NODE_POSITIONS = [
   { x: 28, y: 1_140 },
 ] as const;
 
-/** Builds a smooth original trail through the fixed ten-node mobile layout. */
+/**
+ * Builds a smooth cubic Bézier trail through the active node centers.
+ * X percentages become the SVG's 360-unit coordinates via 3.6, while the 48px
+ * Y offset targets the button center. Midpoint control points produce gentle
+ * vertical curves without a charting dependency; empty input returns no path.
+ */
 function buildTrailPath(nodeCount: number): string {
   const points = TRAIL_NODE_POSITIONS.slice(0, nodeCount).map(({ x, y }) => ({
     x: x * 3.6,
@@ -47,7 +64,11 @@ function buildTrailPath(nodeCount: number): string {
   }, `M ${first.x} ${first.y}`);
 }
 
-/** Adds lightweight, code-native scenery without competing with node controls. */
+/**
+ * Adds lightweight atmosphere without competing with node controls. The whole
+ * layer is pointer-transparent and accessibility-hidden because none of these
+ * decorative shapes communicates gameplay state.
+ */
 function TrailScenery(): React.ReactNode {
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden rounded-[2.5rem]">
@@ -75,7 +96,11 @@ function TrailScenery(): React.ReactNode {
   );
 }
 
-/** Current mobile winding-trail presentation retained as comparison variant A. */
+/**
+ * Renders one winding ten-waypoint section for comparison variant A.
+ * It opens on the current section, centers that node once, and delegates every
+ * click to the shared controller; this component never mutates progression.
+ */
 export function WindingTrailMap({
   waypoints,
   onSelectWaypoint,
@@ -84,6 +109,8 @@ export function WindingTrailMap({
   onSelectWaypoint: (waypoint: MapWaypoint) => void;
 }): React.ReactNode {
   const trailRef = useRef<HTMLDivElement>(null);
+  // Strict Mode may repeat effects in development. This ref prevents a second
+  // scroll jump after the learner/browser has established viewport position.
   const centeredCurrentRef = useRef(false);
   const groups = useMemo(() => groupMapWaypoints(waypoints), [waypoints]);
   const initialGroupIndex = Math.max(
@@ -100,20 +127,27 @@ export function WindingTrailMap({
     );
     if (!currentNode) return;
 
-    // Auto-centering mirrors native campaign maps while avoiding forced motion.
+    // Auto-centering mirrors native campaign maps. `auto` avoids forced animated
+    // motion and therefore respects reduced-motion expectations.
     currentNode.scrollIntoView({ block: "center", behavior: "auto" });
     centeredCurrentRef.current = true;
   }, []);
 
+  // The view normally owns the empty state, but direct reuse remains safe.
   if (!activeGroup) return null;
 
   const trailPath = buildTrailPath(activeGroup.waypoints.length);
+  // Reveal the route only to the furthest truthful milestone. This supports the
+  // current section and fully completed historical sections without fabricated
+  // progress between nodes.
   const currentIndex = activeGroup.waypoints.findIndex(({ isCurrent }) => isCurrent);
   const lastCompletedIndex = activeGroup.waypoints.findLastIndex(
     ({ status }) => status === WaypointStatus.COMPLETED,
   );
   const reachedIndex = Math.max(currentIndex, lastCompletedIndex);
   const progressPercent = activeGroup.waypoints.length <= 1
+    // A one-node partial group has no distance to divide; reaching its only node
+    // represents all of that available path.
     ? reachedIndex >= 0 ? 100 : 0
     : Math.max(0, (reachedIndex / (activeGroup.waypoints.length - 1)) * 100);
 
@@ -194,6 +228,7 @@ export function WindingTrailMap({
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 size-full"
         >
+          {/* Wide warm stroke forms the physical road beneath progression. */}
           <path
             d={trailPath}
             fill="none"
@@ -202,6 +237,8 @@ export function WindingTrailMap({
             strokeLinecap="round"
             className="text-amber-200/90 drop-shadow-sm dark:text-amber-900/65"
           />
+          {/* Normalized length allows a percentage reveal independent of the
+              Bézier path's actual rendered pixel length. */}
           <path
             d={trailPath}
             pathLength="100"
@@ -212,6 +249,7 @@ export function WindingTrailMap({
             strokeDasharray={`${progressPercent} 100`}
             className="text-emerald-500/75"
           />
+          {/* The dotted center line is depth treatment and never encodes state. */}
           <path
             d={trailPath}
             fill="none"
@@ -225,6 +263,8 @@ export function WindingTrailMap({
 
         {activeGroup.waypoints.map((waypoint, index) => {
           const position = TRAIL_NODE_POSITIONS[index];
+          // Grouping guarantees at most ten items. This guard prevents a future
+          // size mismatch from silently placing an extra node at the origin.
           if (!position) return null;
 
           return (

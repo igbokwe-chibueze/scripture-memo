@@ -2,6 +2,7 @@ import type { JourneyStage } from "@/lib/generated/prisma/enums";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
+/** Keeps canonical stage labels and theme-safe semantic colors in one place. */
 const stagePresentation: Record<JourneyStage, { label: string; className: string }> = {
   LEARN: {
     label: "Learn",
@@ -21,7 +22,11 @@ const stagePresentation: Record<JourneyStage, { label: string; className: string
   },
 };
 
-/** Shared Journey Stage identity used anywhere a learner meets a waypoint. */
+/**
+ * Renders the server-assigned Journey Stage as a compact semantic badge.
+ * Callers may adjust responsive sizing, but labels/colors remain centralized.
+ * Visible text ensures stage identity never depends on color alone.
+ */
 export function JourneyStageBadge({
   stage,
   className,

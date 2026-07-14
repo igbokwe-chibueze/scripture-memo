@@ -1,5 +1,11 @@
 "use client";
 
+/**
+ * Compact tactile waypoint node used by Map A's mobile winding trail. Scripture
+ * reference and Journey Stage are deliberately omitted here; players see that
+ * detail after entering the waypoint, leaving this map focused on progress.
+ */
+
 import {
   BookOpenIcon,
   CheckIcon,
@@ -26,6 +32,11 @@ const statusPresentation: Record<
 /**
  * Draws three honest ring segments—one for each completed challenge day.
  * Decorative tension never inflates progress beyond the persisted flame count.
+ */
+/**
+ * SVG `pathLength="100"` makes each 27-unit dash roughly one third of the ring,
+ * while 33.33-unit offsets distribute the three challenge-day segments evenly.
+ * Clamping is defensive display behavior and never awards completion.
  */
 function WaypointProgressRing({ count }: { count: number }): React.ReactNode {
   const safeCount = Math.max(0, Math.min(3, count));
@@ -60,7 +71,11 @@ function WaypointProgressRing({ count }: { count: number }): React.ReactNode {
   );
 }
 
-/** Tactile campaign node designed for thumb-first map navigation. */
+/**
+ * Renders a thumb-sized campaign node with status and three-day flame progress.
+ * Locked nodes stay focusable/clickable so the shared controller can explain the
+ * prerequisite, and every state exceeds the minimum 44px touch target.
+ */
 export function WaypointCard({
   waypoint,
   onSelect,
@@ -74,6 +89,8 @@ export function WaypointCard({
   const StatusIcon = presentation.icon;
 
   return (
+    // The trail queries this marker once to center the learner's next action.
+    // Omitting it on other nodes makes the DOM lookup unambiguous.
     <div
       data-current-waypoint={waypoint.isCurrent ? "true" : undefined}
       className="relative flex w-36 flex-col items-center"
@@ -90,6 +107,8 @@ export function WaypointCard({
 
       <div className="relative">
         {waypoint.isCurrent && (
+          // Decorative attention uses motion-safe so reduced-motion users keep
+          // the static current ring without a pulsing animation.
           <span
             aria-hidden="true"
             className="absolute -inset-3 rounded-full bg-amber-400/30 motion-safe:animate-ping"
@@ -110,6 +129,8 @@ export function WaypointCard({
             isCompleted &&
               "border-sky-300 bg-linear-to-b from-sky-400 to-sky-600 text-white shadow-[0_7px_0_0_rgb(3_105_161/0.75),0_12px_24px_rgb(14_165_233/0.24)] hover:from-sky-300 hover:to-sky-500",
             waypoint.status === WaypointStatus.COOLDOWN &&
+              // Cooldown retains a playable base but gets distinct timing color;
+              // class order intentionally lets this override the green gradient.
               "border-violet-300 from-violet-400 to-violet-600 shadow-[0_7px_0_0_rgb(109_40_217/0.75),0_12px_24px_rgb(139_92_246/0.25)]",
             waypoint.isCurrent && "size-24 border-amber-200 ring-4 ring-amber-400/35",
           )}
@@ -126,6 +147,8 @@ export function WaypointCard({
       </div>
 
       <div className="mt-4 flex flex-col items-center text-center">
+        {/* Status remains available to assistive technology while visible Map A
+            content stays intentionally limited to the flame indicator. */}
         <span className="sr-only">{presentation.label}</span>
         <FlameIndicator count={waypoint.flameCount} className="rounded-full bg-background/75 px-2 py-1" />
       </div>

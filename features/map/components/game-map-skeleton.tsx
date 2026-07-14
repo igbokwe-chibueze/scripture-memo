@@ -1,9 +1,20 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { ResponsiveContainer } from "@/components/shared/responsive-container";
 
+/**
+ * Horizontal percentages mirror Map A's alternating trail rhythm. The values
+ * are static placeholders only and never attempt to predict learner progress.
+ */
 const SKELETON_NODE_POSITIONS = [50, 25, 60, 76, 43, 23, 48, 76, 56, 28] as const;
 
-/** Route-level skeleton that mirrors the mobile winding-trail composition. */
+/**
+ * Route-level loading composition for the game map.
+ *
+ * Ten placeholders match the product's group size and preserve layout stability
+ * while authentication and the batched repository query resolve. `aria-busy`
+ * and the accessible label announce loading without exposing decorative nodes
+ * individually to assistive technology.
+ */
 export function GameMapSkeleton(): React.ReactNode {
   return (
     <main
@@ -29,6 +40,8 @@ export function GameMapSkeleton(): React.ReactNode {
 
         <div className="relative mx-auto h-[84rem] w-full max-w-[30rem] overflow-hidden rounded-[2.5rem] border bg-muted/35">
           <Skeleton className="absolute inset-0 rounded-[2.5rem] opacity-35" />
+          {/* Use the same 120px vertical cadence as the live trail so the page
+              does not jump dramatically when real waypoint nodes replace it. */}
           {SKELETON_NODE_POSITIONS.map((left, index) => (
             <div
               key={`${left}-${index}`}

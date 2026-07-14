@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * Rich waypoint preview used only by Map B. Map A intentionally omits the
+ * Journey Stage and scripture reference to keep its trail visually minimal.
+ */
+
 import { CheckCircle2Icon, Clock3Icon, LockKeyholeIcon, MapPinIcon } from "lucide-react";
 import { FlameIndicator } from "@/components/shared/flame-indicator";
 import { JourneyStageBadge } from "@/components/shared/journey-stage-badge";
@@ -15,7 +20,11 @@ const statusPresentation: Record<WaypointStatus, { label: string; icon: React.Re
   COMPLETED: { label: "Complete", icon: <CheckCircle2Icon aria-hidden="true" /> },
 };
 
-/** Restores the original Phase 11 card treatment and its richer waypoint preview. */
+/**
+ * Renders one touch-friendly grid waypoint with all visible state labelled.
+ * Locked cards use `aria-disabled` rather than native `disabled` because a click
+ * intentionally produces shared prerequisite guidance instead of doing nothing.
+ */
 export function GridWaypointCard({
   waypoint,
   onSelect,
@@ -33,6 +42,8 @@ export function GridWaypointCard({
       aria-label={`Waypoint ${waypoint.number}, ${presentation.label}, ${waypoint.reference}, ${waypoint.flameCount} of 3 days complete`}
       onClick={() => onSelect(waypoint)}
       className={cn(
+        // Shrinkable width, compact mobile padding, and wrapping-safe children
+        // keep long content inside narrow two-column cards.
         "group relative flex min-h-48 min-w-0 w-full flex-col overflow-hidden rounded-3xl border p-3 text-left shadow-sm outline-none transition duration-200 focus-visible:ring-3 focus-visible:ring-ring/50 active:scale-[0.98] motion-reduce:transition-none sm:p-4",
         isLocked && "border-border/60 bg-card/55 text-muted-foreground shadow-none",
         waypoint.status === WaypointStatus.COMPLETED &&
@@ -40,6 +51,8 @@ export function GridWaypointCard({
         !isLocked && waypoint.status !== WaypointStatus.COMPLETED &&
           "border-primary/25 bg-card hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg motion-reduce:hover:translate-y-0",
         waypoint.isCurrent &&
+          // Current position receives the strongest treatment without changing
+          // the underlying status used by navigation and assistive text.
           "border-amber-400/70 bg-linear-to-br from-amber-100/80 via-card to-primary/8 shadow-lg shadow-amber-500/10 ring-2 ring-amber-400/30 dark:from-amber-950/35",
       )}
     >
@@ -69,6 +82,7 @@ export function GridWaypointCard({
       </span>
 
       <span className="relative mt-4 line-clamp-2 min-h-10 min-w-0 break-words text-sm font-semibold text-foreground">
+        {/* Two lines preserve context without displacing footer feedback. */}
         {waypoint.reference}
       </span>
 
@@ -81,6 +95,7 @@ export function GridWaypointCard({
       </span>
 
       {waypoint.isCurrent && (
+        // Text supplements the highlight so location never relies on color alone.
         <span className="absolute right-4 bottom-12 rounded-full bg-amber-500 px-2 py-0.5 text-[0.65rem] font-black tracking-wider text-amber-950 uppercase">
           You are here
         </span>

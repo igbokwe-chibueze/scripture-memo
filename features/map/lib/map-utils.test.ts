@@ -4,6 +4,11 @@ import { JourneyStage, WaypointStatus } from "@/lib/generated/prisma/enums";
 import { groupMapWaypoints, markCurrentMapWaypoint } from "@/features/map/lib/map-utils";
 import type { MapWaypoint } from "@/features/map/types/map.types";
 
+/**
+ * Pure unit coverage for grouping and current-position derivation. In-memory
+ * fixtures ensure this suite cannot read, reset, seed, or migrate any database.
+ */
+
 /** Creates compact deterministic map fixtures without touching either database. */
 function createWaypoint(number: number, status: WaypointStatus): Omit<MapWaypoint, "isCurrent"> {
   return {
@@ -17,6 +22,8 @@ function createWaypoint(number: number, status: WaypointStatus): Omit<MapWaypoin
 }
 
 test("marks the lowest playable unfinished waypoint as current", () => {
+  // The numbering gap proves selection follows ordered published data rather
+  // than assuming every integer waypoint exists.
   const marked = markCurrentMapWaypoint([
     createWaypoint(1, WaypointStatus.COMPLETED),
     createWaypoint(2, WaypointStatus.IN_PROGRESS),
@@ -28,6 +35,7 @@ test("marks the lowest playable unfinished waypoint as current", () => {
 });
 
 test("does not invent a current waypoint when every published node is complete or locked", () => {
+  // A fabricated marker could incorrectly invite navigation to an invalid node.
   const marked = markCurrentMapWaypoint([
     createWaypoint(1, WaypointStatus.COMPLETED),
     createWaypoint(2, WaypointStatus.LOCKED),
@@ -37,6 +45,8 @@ test("does not invent a current waypoint when every published node is complete o
 });
 
 test("groups an expanding curriculum in ordered sets of ten", () => {
+  // Twenty-three items cover two full groups and one partial group, proving the
+  // algorithm has no obsolete 220-waypoint ceiling.
   const waypoints = markCurrentMapWaypoint(
     Array.from({ length: 23 }, (_, index) => createWaypoint(index + 1, WaypointStatus.LOCKED)),
   );

@@ -1,5 +1,14 @@
 "use client";
 
+/**
+ * Client controller shared by both experimental map presentations.
+ *
+ * This file owns display preference, browser-history synchronization, and the
+ * single waypoint-selection policy. Keeping those concerns above Map A and Map
+ * B ensures the experiment compares presentation only: neither variant can
+ * introduce different locking rules, navigation, or learner progression data.
+ */
+
 import { useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { Grid2X2Icon, MapIcon } from "lucide-react";
@@ -14,6 +23,7 @@ import { cn } from "@/lib/utils";
 const MAP_VARIANT_STORAGE_KEY = "scripture-memo:map-variant";
 const MAP_VARIANT_CHANGE_EVENT = "scripture-memo:map-variant-change";
 
+/** Tester-facing metadata for the two stable URL and storage identifiers. */
 const mapVariants: Array<{
   value: MapVariant;
   label: string;
@@ -24,7 +34,11 @@ const mapVariants: Array<{
   { value: "b", label: "Map B", description: "Grid", icon: Grid2X2Icon },
 ];
 
-/** Reads the browser-owned comparison choice without making it server state. */
+/**
+ * Reads the browser-owned comparison choice without making it server state.
+ * URL and storage strings are normalized, and storage access is guarded because
+ * browser privacy policies can throw even when `localStorage` exists.
+ */
 function getMapVariantSnapshot(): MapVariant {
   const queryVariant = new URLSearchParams(window.location.search).get("variant");
   let storedVariant: string | null = null;
@@ -39,7 +53,11 @@ function getMapVariantSnapshot(): MapVariant {
   return resolveMapVariant(queryVariant, storedVariant);
 }
 
-/** Subscribes React to browser history and in-page variant switch changes. */
+/**
+ * Subscribes to every browser event that can change the selected map.
+ * `popstate` covers history, `storage` covers another tab, and the custom event
+ * covers same-tab `replaceState`. Cleanup prevents duplicate listeners.
+ */
 function subscribeToMapVariant(onStoreChange: () => void): () => void {
   window.addEventListener("popstate", onStoreChange);
   window.addEventListener("storage", onStoreChange);
@@ -55,9 +73,12 @@ function subscribeToMapVariant(onStoreChange: () => void): () => void {
 /**
  * Owns the shared map behavior while two isolated presentations compete fairly.
  * Both variants receive identical progress data and waypoint navigation rules.
+ * The preference is presentation-only and never writes learner progression.
  */
 export function GameMap({ waypoints }: { waypoints: MapWaypoint[] }): React.ReactNode {
   const router = useRouter();
+  // The fixed server snapshot produces deterministic SSR output. Hydrated React
+  // then safely resolves URL/storage preference through the external store.
   const variant = useSyncExternalStore(
     subscribeToMapVariant,
     getMapVariantSnapshot,
@@ -76,11 +97,14 @@ export function GameMap({ waypoints }: { waypoints: MapWaypoint[] }): React.Reac
     const url = new URL(window.location.href);
     url.searchParams.set("variant", nextVariant);
     window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+    // `replaceState` emits no native event, so notify same-document subscribers.
     window.dispatchEvent(new Event(MAP_VARIANT_CHANGE_EVENT));
   }
 
   function selectWaypoint(waypoint: MapWaypoint): void {
     if (waypoint.status === WaypointStatus.LOCKED) {
+      // Use actual ordered data rather than number - 1 because permanent
+      // curriculum history may contain legitimate numbering gaps.
       const previousNumber = waypoints
         .filter(({ number }) => number < waypoint.number)
         .at(-1)?.number;
@@ -93,6 +117,8 @@ export function GameMap({ waypoints }: { waypoints: MapWaypoint[] }): React.Reac
       return;
     }
 
+    // The destination repeats authorization/progression checks server-side;
+    // this status check provides responsive UX and is not a security boundary.
     router.push(`/game/waypoints/${waypoint.id}`);
   }
 
@@ -131,6 +157,8 @@ export function GameMap({ waypoints }: { waypoints: MapWaypoint[] }): React.Reac
       </div>
 
       {variant === "a" ? (
+        // Only mount the active variant to avoid duplicate focus targets,
+        // announcements, subscriptions, and rendering work.
         <WindingTrailMap waypoints={waypoints} onSelectWaypoint={selectWaypoint} />
       ) : (
         <GridGameMap waypoints={waypoints} onSelectWaypoint={selectWaypoint} />

@@ -199,7 +199,8 @@ then begin Phase 12 — Day Selection Screen.
 ## Recent Important File Changes
 
 - `features/map/`: Phase 11 batch repository read, map-state helpers and tests,
-  ten-node navigator, waypoint cards, skeleton, and protected view composition.
+  ten-node navigator, waypoint cards, skeleton, protected view composition, and
+  extensive intent-focused inline documentation across the complete feature.
 - `components/shared/journey-stage-badge.tsx` and
   `components/shared/flame-indicator.tsx`: reusable learner-facing progression
   indicators for the map and upcoming Day Selection screen.
@@ -262,6 +263,16 @@ then begin Phase 12 — Day Selection Screen.
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-14 — Game Map documentation audit completed
+
+- Audited every TypeScript/TSX script in `features/map` plus the shared flame and
+  Journey Stage indicators used by the map.
+- Expanded file, exported API, state, accessibility, responsive-layout, browser
+  persistence, SVG geometry, privacy, and data-integrity comments without
+  changing map behavior or database state.
+- Preserved the required one-line route re-exports and added no comments there.
+- TypeScript, ESLint, all five map tests, and working-tree diff validation pass.
 
 ### 2026-07-14 — Comparative Map A and Map B testing added
 
