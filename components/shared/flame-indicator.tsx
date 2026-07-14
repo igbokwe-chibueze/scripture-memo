@@ -10,9 +10,16 @@ import { cn } from "@/lib/utils";
 export function FlameIndicator({
   count,
   className,
+  compact = false,
 }: {
   count: number;
   className?: string;
+  /**
+   * Uses smaller mobile icons while restoring the standard size at `sm`.
+   * Map A opts into this because its controls sit over narrow artwork; cards
+   * elsewhere keep the original fixed size by omitting the property.
+   */
+  compact?: boolean;
 }): React.ReactNode {
   // Three is the fixed Glimmer/Glow/Radiance product invariant. Clamping here is
   // visual protection only; the server remains the completion authority.
@@ -30,7 +37,8 @@ export function FlameIndicator({
           key={index}
           aria-hidden="true"
           className={cn(
-            "size-4 transition-colors",
+            "transition-colors",
+            compact ? "size-3 sm:size-4" : "size-4",
             index < safeCount
               ? "fill-amber-400 text-amber-500"
               : "fill-transparent text-muted-foreground/35",

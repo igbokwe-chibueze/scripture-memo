@@ -2,8 +2,8 @@ import { WaypointStatus } from "@/lib/generated/prisma/enums";
 import type { MapWaypoint, MapWaypointGroup } from "@/features/map/types/map.types";
 
 /**
- * Product-approved section size. Keeping this in a pure module lets both visual
- * variants group identically without coupling either component to the number.
+ * Map B's approved section size. Map A deliberately passes five after the
+ * project owner chose one five-waypoint group per 9:16 illustration.
  */
 export const MAP_GROUP_SIZE = 10;
 
@@ -37,13 +37,21 @@ export function markCurrentMapWaypoint(
  * time, preventing the initial 220 nodes—and future appended nodes—from becoming
  * one oversized DOM tree.
  */
-export function groupMapWaypoints(waypoints: MapWaypoint[]): MapWaypointGroup[] {
+export function groupMapWaypoints(
+  waypoints: MapWaypoint[],
+  groupSize: number = MAP_GROUP_SIZE,
+): MapWaypointGroup[] {
   const groups: MapWaypointGroup[] = [];
+  // Invalid sizes would cause an infinite offset loop. Throwing makes developer
+  // configuration mistakes fail immediately rather than freezing the browser.
+  if (!Number.isInteger(groupSize) || groupSize < 1) {
+    throw new Error("Map group size must be a positive integer.");
+  }
 
   // Offset iteration is deterministic and avoids mutating the source array that
   // is shared by both A/B presentations.
-  for (let offset = 0; offset < waypoints.length; offset += MAP_GROUP_SIZE) {
-    const groupWaypoints = waypoints.slice(offset, offset + MAP_GROUP_SIZE);
+  for (let offset = 0; offset < waypoints.length; offset += groupSize) {
+    const groupWaypoints = waypoints.slice(offset, offset + groupSize);
     const first = groupWaypoints[0];
     const last = groupWaypoints.at(-1);
 

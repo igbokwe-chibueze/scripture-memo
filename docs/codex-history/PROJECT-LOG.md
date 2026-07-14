@@ -99,14 +99,14 @@ Phase 12 — Day Selection Screen follows after acceptance.
 
 ## Current Task
 
-Manually verify the development-only PNG waypoint-positioning tool at
-`/map-positioner`, then continue comparative Phase 11 map acceptance.
+Use the upgraded `/map-positioner` to export separately reviewed mobile and
+large-screen coordinates for each of the three five-waypoint map images.
 
 ## Exact Next Task
 
-Use a local PNG to confirm marker dragging, clicking, keyboard adjustment,
-numeric editing, reset, and coordinate copying. Then confirm both Phase 11 map
-presentations show identical progression behavior before beginning Phase 12.
+Apply the project owner's exported responsive coordinates to the three Map A
+themes, manually accept continuous upward/downward loading, then confirm both
+Phase 11 presentations preserve identical progression behavior before Phase 12.
 
 ## Important Decisions
 
@@ -205,6 +205,9 @@ presentations show identical progression behavior before beginning Phase 12.
 - `features/map/components/map-positioner.tsx`, related pure helpers/tests, and
   `/map-positioner`: a browser-local, development-only PNG alignment tool that
   exports ten responsive percentage coordinates without persistence or uploads.
+- `public/images/maps/` and `features/map/data/map-themes.ts`: three repeating
+  owner-supplied Map A backgrounds with separate five-point mobile and
+  large-screen alignment metadata.
 - `components/shared/journey-stage-badge.tsx` and
   `components/shared/flame-indicator.tsx`: reusable learner-facing progression
   indicators for the map and upcoming Day Selection screen.
@@ -267,6 +270,97 @@ presentations show identical progression behavior before beginning Phase 12.
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-14 — Positioner field naming and help clarified
+
+- Renamed the Preview Settings field to `Current-state waypoint`, clarifying
+  that it chooses the marker receiving the larger active-player treatment.
+- Renamed the sticky-toolbar selector to `Edit waypoint`, clarifying that it
+  selects the marker whose coordinates are being changed without altering the
+  simulated current state.
+- Added keyboard-focusable, touch-sized tooltip icons to every Preview Settings
+  field and to the toolbar selector, with distinct explanations of count,
+  current state, preview width, breakpoint, and both button diameters.
+- TypeScript, ESLint, all 16 map tests, and diff validation passed. The compact
+  workspace production build passed immediately before this labels-and-help-only
+  change; its final rerun was unavailable because the execution service reported
+  an account usage limit. No database operation occurred.
+
+### 2026-07-14 — Map positioner compact workspace implemented
+
+- Removed the tall page header and above-preview configuration cards so the
+  development route opens directly into the image workspace.
+- Added a sticky compact toolbar with an Image Settings modal, tooltip-labelled
+  mobile/large layout icons, Fit/Actual preview icons, active-waypoint selector,
+  live zoom summary, and a controls-sheet trigger below desktop width.
+- Kept the full inspector sticky beside the preview on desktop and moved the same
+  settings, position fields, reset action, and export tools into a scrollable
+  side sheet on smaller screens.
+- Added Fit mode that calculates one non-enlarging scale for the PNG and waypoint
+  controls together. Actual mode preserves configured CSS dimensions with a
+  scrollable workspace. Clipping checks now use the rendered scaled diameter.
+- Added pure coverage for Fit scaling. TypeScript, ESLint, all 16 map tests, the
+  production build, and diff validation passed. No image upload, persistence,
+  database operation, commit, or push occurred.
+
+### 2026-07-14 — Five-waypoint continuous trail and responsive positioner implemented
+
+- Changed Map A alone to one complete 9:16 image per five-waypoint group. Map B
+  retains its original paginated groups of ten.
+- Removed Map A's previous/next group controls. It now opens centered on the
+  player's current map, preloads one neighboring map in each direction, mounts
+  earlier history while scrolling upward, and mounts future maps while scrolling
+  downward. Prepend anchoring prevents scroll jumps when history appears above.
+- Restored the repeating Map 1 → Map 2 → Map 3 sequence with separate mobile and
+  large-screen position arrays ready for owner-reviewed coordinates.
+- Expanded `/map-positioner` with editable image dimensions, waypoint count,
+  current-waypoint selection, breakpoint, mobile/large preview widths, normal and
+  current button diameters, independent responsive coordinates, real-size
+  draggable markers, boundary-clipping warnings, and full configuration export.
+- Updated Phase 11 documentation and pure tests for independent group sizes,
+  configurable positioner layouts, clipping detection, responsive theme data,
+  and indefinite artwork repetition. TypeScript, ESLint, all 15 map tests, the
+  production build, and diff validation passed. No database operation occurred.
+
+### 2026-07-14 — Map A mobile clipping and crowding hardened
+
+- Made Map A waypoint controls responsive: 64px normal and 72px current nodes on
+  mobile, restoring the original 80px and 96px sizes from the `sm` breakpoint.
+- Reduced the mobile card footprint, current-node label, status icon, flame
+  indicator, spacing, borders, and shadows while preserving the required 44px
+  minimum touch target and the full desktop presentation.
+- Added responsive horizontal safe-edge clamping so percentage coordinates
+  cannot place part of a waypoint card outside narrow artwork. Pulled each
+  panel's final node away from the cloud seam and compacted the seam on mobile.
+- Map B and progression behavior remain unchanged. TypeScript, ESLint, all 11
+  map tests, the production build, and diff validation passed. No database
+  operation was performed.
+
+### 2026-07-14 — Five-waypoint PNG panels and atmospheric join implemented
+
+- Preserved each logical group of ten waypoints while presenting it as two
+  vertically stacked 9:16 panels with five comfortably spaced nodes per image.
+- Added two repeating compositions: Map 1 + Map 2 and Map 3 + Map 1. Newly
+  appended curriculum groups continue alternating these arrangements without a
+  visual maximum or any change to progression data.
+- Added a responsive CSS cloud-and-mist layer across the panel boundary. It sits
+  above both images but below the waypoint controls, cannot intercept input, and
+  does not modify the replaceable source PNGs.
+- Updated configuration tests to guarantee five in-bounds positions per panel,
+  two panels and ten positions per composition, and indefinite composition
+  repetition. TypeScript, ESLint, all 11 map tests, the production build, and
+  diff validation passed. No database operation was performed.
+
+### 2026-07-14 — Owner-supplied PNG themes previewed in Map A
+
+- Replaced Map A's generated scenery and SVG road with the three supplied PNGs,
+  repeating Map 1 → Map 2 → Map 3 for an unlimited number of groups.
+- Applied the owner's exact Map 1 positioner export and added initial road-based
+  alignment coordinates for Maps 2 and 3 pending visual refinement.
+- Kept waypoint buttons, status, flames, current-node emphasis, locking feedback,
+  group navigation, progression data, and Map B behavior unchanged.
+- Added pure configuration tests for ten in-bounds positions and indefinite
+  three-theme cycling. No database or progression data was changed.
 
 ### 2026-07-14 — Development PNG map positioner implemented
 

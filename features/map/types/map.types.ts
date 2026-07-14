@@ -34,7 +34,8 @@ export type MapWaypoint = {
 };
 
 /**
- * One ten-waypoint section rendered independently for predictable performance.
+ * One ordered waypoint section rendered independently for predictable performance.
+ * Map A uses five nodes per illustration while Map B uses ten nodes per page.
  * Group boundaries use actual curriculum numbers instead of assuming N+1, so
  * legitimate numbering gaps remain visible and navigable.
  */

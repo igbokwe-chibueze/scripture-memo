@@ -1,105 +1,63 @@
 "use client";
 
 /**
- * Mobile-first winding campaign presentation used as Map A. Its landscape and
- * route are code-native, keeping the UI responsive and independent of a fixed or
- * externally copyrighted background illustration.
+ * Continuous mobile-first campaign trail used as Map A.
+ *
+ * Each five-waypoint group owns one complete 9:16 illustration. The component
+ * opens at the player's current group, keeps earlier history above it, and
+ * progressively mounts more groups in either scroll direction. All curriculum
+ * and progression decisions still come from the server-provided waypoint DTOs.
  */
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  FlagIcon,
-  LeafIcon,
-  MapIcon,
-  SparklesIcon,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
+import { FlagIcon, MapIcon } from "lucide-react";
 import { WaypointCard } from "@/features/map/components/waypoint-card";
+import { getMapTheme } from "@/features/map/data/map-themes";
 import { groupMapWaypoints } from "@/features/map/lib/map-utils";
 import type { MapWaypoint } from "@/features/map/types/map.types";
-import { WaypointStatus } from "@/lib/generated/prisma/enums";
-import { cn } from "@/lib/utils";
 
-// One stable coordinate height lets the SVG road and absolute node controls use
-// the same system without runtime measurement for each ten-node section.
-const TRAIL_HEIGHT = 1_340;
+const TRAIL_MAP_GROUP_SIZE = 5;
+const INITIAL_NEIGHBOR_COUNT = 1;
 
-// Ten positions match the product group size. Alternating X percentages create
-// the winding rhythm; 120px Y spacing prevents the enlarged current node, ring,
-// and flames from colliding on narrow mobile screens.
-const TRAIL_NODE_POSITIONS = [
-  { x: 50, y: 60 },
-  { x: 25, y: 180 },
-  { x: 60, y: 300 },
-  { x: 76, y: 420 },
-  { x: 43, y: 540 },
-  { x: 23, y: 660 },
-  { x: 48, y: 780 },
-  { x: 76, y: 900 },
-  { x: 56, y: 1_020 },
-  { x: 28, y: 1_140 },
-] as const;
+/** CSS variables let Tailwind switch percentage coordinates at its 640px `sm` breakpoint. */
+type ResponsiveNodeStyle = CSSProperties & {
+  "--map-mobile-x": string;
+  "--map-mobile-y": string;
+  "--map-large-x": string;
+  "--map-large-y": string;
+};
 
-/**
- * Builds a smooth cubic Bézier trail through the active node centers.
- * X percentages become the SVG's 360-unit coordinates via 3.6, while the 48px
- * Y offset targets the button center. Midpoint control points produce gentle
- * vertical curves without a charting dependency; empty input returns no path.
- */
-function buildTrailPath(nodeCount: number): string {
-  const points = TRAIL_NODE_POSITIONS.slice(0, nodeCount).map(({ x, y }) => ({
-    x: x * 3.6,
-    y: y + 48,
-  }));
-  const first = points[0];
-  if (!first) return "";
+type VisibleGroupRange = {
+  /** Inclusive index of the earliest mounted map. */
+  start: number;
+  /** Inclusive index of the latest mounted map. */
+  end: number;
+};
 
-  return points.slice(1).reduce((path, point, index) => {
-    const previous = points[index];
-    if (!previous) return path;
-    const middleY = (previous.y + point.y) / 2;
-    return `${path} C ${previous.x} ${middleY}, ${point.x} ${middleY}, ${point.x} ${point.y}`;
-  }, `M ${first.x} ${first.y}`);
-}
+type PrependAnchor = {
+  /** Group that must retain its viewport position after history is inserted. */
+  groupIndex: number;
+  /** Its pre-insertion distance from the top of the viewport. */
+  viewportTop: number;
+};
 
 /**
- * Adds lightweight atmosphere without competing with node controls. The whole
- * layer is pointer-transparent and accessibility-hidden because none of these
- * decorative shapes communicates gameplay state.
- */
-function TrailScenery(): React.ReactNode {
-  return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden rounded-[2.5rem]">
-      <div className="absolute -top-20 -left-20 size-56 rounded-full bg-sky-300/25 blur-2xl dark:bg-sky-700/15" />
-      <div className="absolute top-52 -right-20 size-64 rounded-full bg-emerald-300/30 blur-2xl dark:bg-emerald-800/15" />
-      <div className="absolute bottom-44 -left-24 size-64 rounded-full bg-amber-200/35 blur-2xl dark:bg-amber-800/10" />
-
-      <LeafIcon className="absolute top-36 right-[12%] size-8 rotate-12 text-emerald-600/25" />
-      <SparklesIcon className="absolute top-[31%] left-[8%] size-7 text-amber-500/35" />
-      <LeafIcon className="absolute top-[48%] right-[8%] size-10 -rotate-12 text-emerald-600/20" />
-      <SparklesIcon className="absolute top-[66%] left-[12%] size-6 text-sky-500/30" />
-      <LeafIcon className="absolute right-[13%] bottom-28 size-8 rotate-45 text-emerald-600/25" />
-
-      <div className="absolute top-[21%] left-[7%] flex gap-1">
-        <span className="size-3 rounded-full bg-emerald-500/20" />
-        <span className="mt-2 size-2 rounded-full bg-emerald-500/15" />
-        <span className="size-4 rounded-full bg-emerald-500/20" />
-      </div>
-      <div className="absolute right-[8%] bottom-[22%] flex gap-1">
-        <span className="size-4 rounded-full bg-sky-500/15" />
-        <span className="mt-2 size-2 rounded-full bg-sky-500/20" />
-        <span className="size-3 rounded-full bg-sky-500/15" />
-      </div>
-    </div>
-  );
-}
-
-/**
- * Renders one winding ten-waypoint section for comparison variant A.
- * It opens on the current section, centers that node once, and delegates every
- * click to the shared controller; this component never mutates progression.
+ * Renders Map A as one continuous scrollable history.
+ *
+ * One neighboring map is mounted above and below the current map initially, so
+ * both directions feel immediate. Intersection observers then extend the DOM by
+ * one map near either boundary. Earlier groups are prepended with anchor
+ * correction, preventing the browser from visually jumping the player when new
+ * history appears above their viewport. This is client-side progressive
+ * rendering of already-authorized DTOs; it performs no database reads or writes.
  */
 export function WindingTrailMap({
   waypoints,
@@ -109,16 +67,25 @@ export function WindingTrailMap({
   onSelectWaypoint: (waypoint: MapWaypoint) => void;
 }): React.ReactNode {
   const trailRef = useRef<HTMLDivElement>(null);
-  // Strict Mode may repeat effects in development. This ref prevents a second
-  // scroll jump after the learner/browser has established viewport position.
+  const topSentinelRef = useRef<HTMLDivElement>(null);
+  const bottomSentinelRef = useRef<HTMLDivElement>(null);
   const centeredCurrentRef = useRef(false);
-  const groups = useMemo(() => groupMapWaypoints(waypoints), [waypoints]);
-  const initialGroupIndex = Math.max(
+  const prependAnchorRef = useRef<PrependAnchor | null>(null);
+
+  const groups = useMemo(
+    () => groupMapWaypoints(waypoints, TRAIL_MAP_GROUP_SIZE),
+    [waypoints],
+  );
+  const currentGroupIndex = Math.max(
     0,
     groups.findIndex((group) => group.waypoints.some(({ isCurrent }) => isCurrent)),
   );
-  const [activeGroupIndex, setActiveGroupIndex] = useState(initialGroupIndex);
-  const activeGroup = groups[activeGroupIndex] ?? groups[0];
+  const [visibleRange, setVisibleRange] = useState<VisibleGroupRange>(() => ({
+    start: Math.max(0, currentGroupIndex - INITIAL_NEIGHBOR_COUNT),
+    end: Math.min(groups.length - 1, currentGroupIndex + INITIAL_NEIGHBOR_COUNT),
+  }));
+
+  const visibleGroups = groups.slice(visibleRange.start, visibleRange.end + 1);
 
   useEffect(() => {
     if (centeredCurrentRef.current) return;
@@ -127,157 +94,171 @@ export function WindingTrailMap({
     );
     if (!currentNode) return;
 
-    // Auto-centering mirrors native campaign maps. `auto` avoids forced animated
-    // motion and therefore respects reduced-motion expectations.
+    // Stable image aspect ratios reserve layout before loading, so centering the
+    // current control once does not drift as the PNG becomes visible.
     currentNode.scrollIntoView({ block: "center", behavior: "auto" });
     centeredCurrentRef.current = true;
   }, []);
 
-  // The view normally owns the empty state, but direct reuse remains safe.
-  if (!activeGroup) return null;
+  useLayoutEffect(() => {
+    const anchor = prependAnchorRef.current;
+    if (!anchor) return;
 
-  const trailPath = buildTrailPath(activeGroup.waypoints.length);
-  // Reveal the route only to the furthest truthful milestone. This supports the
-  // current section and fully completed historical sections without fabricated
-  // progress between nodes.
-  const currentIndex = activeGroup.waypoints.findIndex(({ isCurrent }) => isCurrent);
-  const lastCompletedIndex = activeGroup.waypoints.findLastIndex(
-    ({ status }) => status === WaypointStatus.COMPLETED,
-  );
-  const reachedIndex = Math.max(currentIndex, lastCompletedIndex);
-  const progressPercent = activeGroup.waypoints.length <= 1
-    // A one-node partial group has no distance to divide; reaching its only node
-    // represents all of that available path.
-    ? reachedIndex >= 0 ? 100 : 0
-    : Math.max(0, (reachedIndex / (activeGroup.waypoints.length - 1)) * 100);
+    const anchoredGroup = trailRef.current?.querySelector<HTMLElement>(
+      `[data-map-group-index="${anchor.groupIndex}"]`,
+    );
+    if (anchoredGroup) {
+      // Compensate by the exact inserted height rather than guessing from image
+      // dimensions. This also accounts for headings, gaps, and responsive CSS.
+      window.scrollBy({
+        top: anchoredGroup.getBoundingClientRect().top - anchor.viewportTop,
+        behavior: "auto",
+      });
+    }
+    prependAnchorRef.current = null;
+  }, [visibleRange.start]);
+
+  useEffect(() => {
+    if (groups.length === 0 || typeof IntersectionObserver === "undefined") return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+
+          if (entry.target === topSentinelRef.current) {
+            setVisibleRange((currentRange) => {
+              if (currentRange.start === 0) return currentRange;
+
+              const firstMountedGroup = trailRef.current?.querySelector<HTMLElement>(
+                `[data-map-group-index="${currentRange.start}"]`,
+              );
+              if (firstMountedGroup) {
+                prependAnchorRef.current = {
+                  groupIndex: currentRange.start,
+                  viewportTop: firstMountedGroup.getBoundingClientRect().top,
+                };
+              }
+
+              return { ...currentRange, start: currentRange.start - 1 };
+            });
+          }
+
+          if (entry.target === bottomSentinelRef.current) {
+            setVisibleRange((currentRange) =>
+              currentRange.end >= groups.length - 1
+                ? currentRange
+                : { ...currentRange, end: currentRange.end + 1 },
+            );
+          }
+        }
+      },
+      // Prefetch shortly before a boundary enters view, avoiding a blank pause
+      // without mounting all 220+ curriculum controls on initial render.
+      { rootMargin: "320px 0px", threshold: 0.01 },
+    );
+
+    const topSentinel = topSentinelRef.current;
+    const bottomSentinel = bottomSentinelRef.current;
+    if (topSentinel) observer.observe(topSentinel);
+    if (bottomSentinel) observer.observe(bottomSentinel);
+
+    return () => observer.disconnect();
+  }, [groups.length]);
+
+  // The parent owns the route-level empty state; defensive reuse remains safe.
+  if (groups.length === 0) return null;
 
   return (
-    <div className="space-y-5">
-      <div className="sticky top-3 z-30 mx-auto max-w-xl rounded-3xl border border-white/60 bg-background/90 p-3 shadow-xl shadow-foreground/5 backdrop-blur-xl dark:border-white/10">
-        <div className="flex items-center gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            size="icon-lg"
-            className="size-11 shrink-0 rounded-full"
-            disabled={activeGroupIndex === 0}
-            onClick={() => setActiveGroupIndex((index) => Math.max(0, index - 1))}
-            aria-label="Show previous waypoint trail"
-          >
-            <ChevronLeftIcon aria-hidden="true" />
-          </Button>
+    <div ref={trailRef} className="mx-auto w-full max-w-[30rem]">
+      <div ref={topSentinelRef} className="h-px" aria-hidden="true" />
 
-          <div className="min-w-0 flex-1 text-center">
-            <p className="flex items-center justify-center gap-1.5 text-[0.65rem] font-black tracking-[0.16em] text-emerald-700 uppercase dark:text-emerald-300">
-              <MapIcon className="size-3.5" aria-hidden="true" />
-              Trail {activeGroupIndex + 1} of {groups.length}
-            </p>
-            <h2 className="truncate font-heading text-lg font-black">
-              Waypoints {activeGroup.startNumber}–{activeGroup.endNumber}
-            </h2>
-          </div>
-
-          <Button
-            type="button"
-            variant="outline"
-            size="icon-lg"
-            className="size-11 shrink-0 rounded-full"
-            disabled={activeGroupIndex === groups.length - 1}
-            onClick={() => setActiveGroupIndex((index) => Math.min(groups.length - 1, index + 1))}
-            aria-label="Show next waypoint trail"
-          >
-            <ChevronRightIcon aria-hidden="true" />
-          </Button>
-        </div>
-
-        <div className="mt-3 flex snap-x gap-1.5 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {groups.map((group) => (
-            <button
-              key={group.index}
-              type="button"
-              onClick={() => setActiveGroupIndex(group.index)}
-              aria-current={group.index === activeGroupIndex ? "page" : undefined}
-              aria-label={`Show waypoints ${group.startNumber} through ${group.endNumber}`}
-              className={cn(
-                "h-2.5 min-w-8 flex-1 snap-center rounded-full outline-none transition-all focus-visible:ring-3 focus-visible:ring-ring/50",
-                group.index === activeGroupIndex
-                  ? "bg-emerald-500"
-                  : "bg-muted-foreground/20 hover:bg-muted-foreground/35",
-              )}
-            />
-          ))}
-        </div>
-      </div>
-
-      <p className="sr-only" aria-live="polite">
-        Showing waypoints {activeGroup.startNumber} through {activeGroup.endNumber}.
-      </p>
-
-      <div
-        ref={trailRef}
-        className="relative mx-auto w-full max-w-[30rem] overflow-hidden rounded-[2.5rem] border border-emerald-500/15 bg-linear-to-b from-sky-100 via-emerald-50 to-amber-50 shadow-2xl shadow-emerald-950/8 dark:from-sky-950/45 dark:via-emerald-950/25 dark:to-amber-950/20"
-        style={{ height: TRAIL_HEIGHT }}
-      >
-        <TrailScenery />
-        <div className="absolute inset-x-0 top-0 h-28 bg-linear-to-b from-sky-300/25 to-transparent" />
-        <FlagIcon className="absolute top-5 left-1/2 size-9 -translate-x-1/2 text-emerald-700/45" aria-hidden="true" />
-
-        <svg
-          viewBox={`0 0 360 ${TRAIL_HEIGHT}`}
-          preserveAspectRatio="none"
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 size-full"
-        >
-          {/* Wide warm stroke forms the physical road beneath progression. */}
-          <path
-            d={trailPath}
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="25"
-            strokeLinecap="round"
-            className="text-amber-200/90 drop-shadow-sm dark:text-amber-900/65"
-          />
-          {/* Normalized length allows a percentage reveal independent of the
-              Bézier path's actual rendered pixel length. */}
-          <path
-            d={trailPath}
-            pathLength="100"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="10"
-            strokeLinecap="round"
-            strokeDasharray={`${progressPercent} 100`}
-            className="text-emerald-500/75"
-          />
-          {/* The dotted center line is depth treatment and never encodes state. */}
-          <path
-            d={trailPath}
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeDasharray="2 12"
-            className="text-amber-700/25 dark:text-amber-200/20"
-          />
-        </svg>
-
-        {activeGroup.waypoints.map((waypoint, index) => {
-          const position = TRAIL_NODE_POSITIONS[index];
-          // Grouping guarantees at most ten items. This guard prevents a future
-          // size mismatch from silently placing an extra node at the origin.
-          if (!position) return null;
+      <div className="space-y-7">
+        {visibleGroups.map((group) => {
+          const theme = getMapTheme(group.index);
 
           return (
-            <div
-              key={waypoint.id}
-              className="absolute z-10 -translate-x-1/2"
-              style={{ left: `${position.x}%`, top: position.y }}
+            <section
+              key={group.index}
+              data-map-group-index={group.index}
+              aria-labelledby={`trail-map-heading-${group.index}`}
+              className="space-y-3"
             >
-              <WaypointCard waypoint={waypoint} onSelect={onSelectWaypoint} />
-            </div>
+              <div className="flex items-center justify-between gap-4 px-2">
+                <div>
+                  <p className="flex items-center gap-1.5 text-[0.65rem] font-black tracking-[0.16em] text-emerald-700 uppercase dark:text-emerald-300">
+                    <MapIcon className="size-3.5" aria-hidden="true" />
+                    Trail {group.index + 1}
+                  </p>
+                  <h2
+                    id={`trail-map-heading-${group.index}`}
+                    className="font-heading text-lg font-black"
+                  >
+                    Waypoints {group.startNumber}–{group.endNumber}
+                  </h2>
+                </div>
+                {group.index === currentGroupIndex && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/60 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-900 shadow-sm dark:border-amber-500/30 dark:bg-amber-950/80 dark:text-amber-200">
+                    <FlagIcon className="size-3.5" aria-hidden="true" />
+                    Current map
+                  </span>
+                )}
+              </div>
+
+              <div
+                className="relative w-full overflow-hidden rounded-[2.25rem] border border-amber-200/40 bg-muted shadow-xl shadow-foreground/12 dark:border-amber-100/15"
+                style={{ aspectRatio: `${theme.width} / ${theme.height}` }}
+              >
+                <Image
+                  src={theme.imageSrc}
+                  alt={theme.alt}
+                  fill
+                  loading={group.index === currentGroupIndex ? "eager" : "lazy"}
+                  sizes="(max-width: 480px) 100vw, 480px"
+                  className="pointer-events-none select-none object-fill"
+                />
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 bg-linear-to-b from-black/5 via-transparent to-black/15"
+                />
+
+                {group.waypoints.map((waypoint, waypointIndex) => {
+                  const mobilePosition = theme.mobilePositions[waypointIndex];
+                  const largePosition = theme.largePositions[waypointIndex];
+                  if (!mobilePosition || !largePosition) return null;
+
+                  const nodeStyle: ResponsiveNodeStyle = {
+                    "--map-mobile-x": `${mobilePosition.x}%`,
+                    "--map-mobile-y": `${mobilePosition.y}%`,
+                    "--map-large-x": `${largePosition.x}%`,
+                    "--map-large-y": `${largePosition.y}%`,
+                  };
+
+                  return (
+                    <div
+                      key={waypoint.id}
+                      className="absolute z-10 top-[var(--map-mobile-y)] left-[var(--map-mobile-x)] -translate-x-1/2 -translate-y-1/2 sm:top-[var(--map-large-y)] sm:left-[var(--map-large-x)]"
+                      style={nodeStyle}
+                    >
+                      <WaypointCard
+                        waypoint={waypoint}
+                        onSelect={onSelectWaypoint}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
           );
         })}
       </div>
+
+      <div ref={bottomSentinelRef} className="h-px" aria-hidden="true" />
+      {visibleRange.end === groups.length - 1 && (
+        <p className="py-8 text-center text-sm font-semibold text-muted-foreground">
+          End of the currently published trail
+        </p>
+      )}
     </div>
   );
 }

@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
-import { ConstructionIcon, MapPinnedIcon } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { PageHeader } from "@/components/shared/page-header";
 import { ResponsiveContainer } from "@/components/shared/responsive-container";
 import { MapPositioner } from "@/features/map/components/map-positioner";
 
@@ -33,20 +30,8 @@ export async function MapPositionerView(): Promise<React.ReactNode> {
   if (process.env.NODE_ENV !== "development") notFound();
 
   return (
-    <main className="min-h-screen bg-linear-to-b from-background via-muted/25 to-background py-6 sm:py-10">
-      <ResponsiveContainer className="space-y-6">
-        <PageHeader
-          eyebrow={
-            <Badge variant="outline" className="gap-1.5">
-              <ConstructionIcon className="size-3.5" aria-hidden="true" />
-              Development only
-            </Badge>
-          }
-          title="Trail map positioner"
-          description="Choose a local PNG, align ten waypoint centers, then copy responsive percentage coordinates. Nothing is uploaded or saved automatically."
-          action={<MapPinnedIcon className="size-8 text-primary" aria-hidden="true" />}
-        />
-
+    <main className="min-h-screen bg-linear-to-b from-background via-muted/25 to-background py-2">
+      <ResponsiveContainer size="full">
         <MapPositioner />
       </ResponsiveContainer>
     </main>

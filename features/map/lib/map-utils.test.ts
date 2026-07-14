@@ -60,3 +60,20 @@ test("groups an expanding curriculum in ordered sets of ten", () => {
   ]);
   assert.deepEqual(groups.map(({ waypoints: items }) => items.length), [10, 10, 3]);
 });
+
+test("supports Map A's independent five-waypoint illustration groups", () => {
+  const waypoints = markCurrentMapWaypoint(
+    Array.from({ length: 12 }, (_, index) => createWaypoint(index + 1, WaypointStatus.LOCKED)),
+  );
+  const groups = groupMapWaypoints(waypoints, 5);
+
+  assert.deepEqual(groups.map(({ startNumber, endNumber }) => [startNumber, endNumber]), [
+    [1, 5],
+    [6, 10],
+    [11, 12],
+  ]);
+});
+
+test("rejects an invalid group size before offset iteration", () => {
+  assert.throws(() => groupMapWaypoints([], 0), /positive integer/);
+});

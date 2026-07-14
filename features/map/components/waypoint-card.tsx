@@ -72,9 +72,11 @@ function WaypointProgressRing({ count }: { count: number }): React.ReactNode {
 }
 
 /**
- * Renders a thumb-sized campaign node with status and three-day flame progress.
- * Locked nodes stay focusable/clickable so the shared controller can explain the
- * prerequisite, and every state exceeds the minimum 44px touch target.
+ * Renders a responsive campaign node with status and three-day flame progress.
+ * Mobile controls shrink to 64px (72px for the current node), then restore the
+ * original 80px/96px presentation from the `sm` breakpoint. Both sizes remain
+ * comfortably above the required 44px touch target. Locked nodes stay focusable
+ * so the shared controller can explain their prerequisite.
  */
 export function WaypointCard({
   waypoint,
@@ -93,14 +95,14 @@ export function WaypointCard({
     // Omitting it on other nodes makes the DOM lookup unambiguous.
     <div
       data-current-waypoint={waypoint.isCurrent ? "true" : undefined}
-      className="relative flex w-36 flex-col items-center"
+      className="relative flex w-24 flex-col items-center sm:w-36"
     >
       {waypoint.isCurrent && (
-        <span className="absolute -top-12 left-1/2 z-20 -translate-x-1/2 rounded-xl border border-amber-300/70 bg-amber-50 px-3 py-1.5 text-center text-[0.65rem] font-black tracking-[0.14em] whitespace-nowrap text-amber-900 uppercase shadow-lg shadow-amber-500/15 dark:border-amber-500/35 dark:bg-amber-950/90 dark:text-amber-200">
+        <span className="absolute -top-9 left-1/2 z-20 -translate-x-1/2 rounded-lg border border-amber-300/70 bg-amber-50 px-2 py-1 text-center text-[0.55rem] font-black tracking-[0.1em] whitespace-nowrap text-amber-900 uppercase shadow-lg shadow-amber-500/15 sm:-top-12 sm:rounded-xl sm:px-3 sm:py-1.5 sm:text-[0.65rem] sm:tracking-[0.14em] dark:border-amber-500/35 dark:bg-amber-950/90 dark:text-amber-200">
           Continue here
           <span
             aria-hidden="true"
-            className="absolute top-7 left-1/2 size-2.5 -translate-x-1/2 rotate-45 border-r border-b border-amber-300/70 bg-amber-50 dark:border-amber-500/35 dark:bg-amber-950"
+            className="absolute top-5 left-1/2 size-2 -translate-x-1/2 rotate-45 border-r border-b border-amber-300/70 bg-amber-50 sm:top-7 sm:size-2.5 dark:border-amber-500/35 dark:bg-amber-950"
           />
         </span>
       )}
@@ -121,7 +123,7 @@ export function WaypointCard({
           aria-label={`Waypoint ${waypoint.number}, ${presentation.label}, ${waypoint.flameCount} of 3 days complete`}
           onClick={() => onSelect(waypoint)}
           className={cn(
-            "group relative grid size-20 place-items-center rounded-full border-4 text-xl font-black shadow-[0_7px_0_0_rgb(0_0_0/0.16),0_12px_22px_rgb(0_0_0/0.14)] outline-none transition duration-200 focus-visible:ring-4 focus-visible:ring-ring/50 active:translate-y-1 active:shadow-[0_3px_0_0_rgb(0_0_0/0.16)] motion-reduce:transition-none",
+            "group relative grid size-16 place-items-center rounded-full border-[3px] text-base font-black shadow-[0_5px_0_0_rgb(0_0_0/0.16),0_8px_16px_rgb(0_0_0/0.14)] outline-none transition duration-200 focus-visible:ring-4 focus-visible:ring-ring/50 active:translate-y-1 active:shadow-[0_2px_0_0_rgb(0_0_0/0.16)] sm:size-20 sm:border-4 sm:text-xl sm:shadow-[0_7px_0_0_rgb(0_0_0/0.16),0_12px_22px_rgb(0_0_0/0.14)] sm:active:shadow-[0_3px_0_0_rgb(0_0_0/0.16)] motion-reduce:transition-none",
             isLocked &&
               "border-zinc-300 bg-zinc-200 text-zinc-500 shadow-[0_7px_0_0_rgb(113_113_122/0.35),0_12px_20px_rgb(0_0_0/0.08)] dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-300",
             !isLocked && !isCompleted &&
@@ -132,11 +134,12 @@ export function WaypointCard({
               // Cooldown retains a playable base but gets distinct timing color;
               // class order intentionally lets this override the green gradient.
               "border-violet-300 from-violet-400 to-violet-600 shadow-[0_7px_0_0_rgb(109_40_217/0.75),0_12px_24px_rgb(139_92_246/0.25)]",
-            waypoint.isCurrent && "size-24 border-amber-200 ring-4 ring-amber-400/35",
+            waypoint.isCurrent &&
+              "size-18 border-amber-200 ring-3 ring-amber-400/35 sm:size-24 sm:ring-4",
           )}
         >
           <span className="flex flex-col items-center leading-none">
-            <StatusIcon className="mb-1 size-5" aria-hidden={true} />
+            <StatusIcon className="mb-0.5 size-4 sm:mb-1 sm:size-5" aria-hidden={true} />
             <span>{waypoint.number}</span>
           </span>
           <span
@@ -146,11 +149,15 @@ export function WaypointCard({
         </button>
       </div>
 
-      <div className="mt-4 flex flex-col items-center text-center">
+      <div className="mt-2 flex flex-col items-center text-center sm:mt-4">
         {/* Status remains available to assistive technology while visible Map A
             content stays intentionally limited to the flame indicator. */}
         <span className="sr-only">{presentation.label}</span>
-        <FlameIndicator count={waypoint.flameCount} className="rounded-full bg-background/75 px-2 py-1" />
+        <FlameIndicator
+          count={waypoint.flameCount}
+          compact
+          className="rounded-full bg-background/75 px-1.5 py-0.5 sm:px-2 sm:py-1"
+        />
       </div>
     </div>
   );

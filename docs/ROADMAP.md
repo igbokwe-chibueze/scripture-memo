@@ -571,11 +571,13 @@ hide, reassignment, publication, append, or reorder.
 **Implementation status (2026-07-13):** Implemented; automated verification
 passes and project-owner manual acceptance remains. The protected `/game/map`
 route loads the published curriculum and sparse learner progress in one batched
-repository request, renders only one ten-waypoint group at a time, and includes
-an original mobile-first winding trail, honest three-day progress rings,
-responsive group navigation, current-node emphasis, safe locked-node feedback,
-an empty state, and a matching route skeleton. The clickable destination URL is
-established for Phase 12, which owns the Day Selection screen itself.
+repository request. Map A renders one owner-supplied 9:16 illustration per
+five-waypoint group, opens at the player's current map, and progressively mounts
+earlier history above and future maps below during continuous scrolling. Map B
+retains one paginated ten-waypoint grid at a time. Both include honest three-day
+progress, current-node emphasis, safe locked-node feedback, an empty state, and
+a matching route skeleton. The clickable destination URL is established for
+Phase 12, which owns the Day Selection screen itself.
 For pre-launch comparison, the original responsive card-grid presentation is
 also retained as Map B. A persistent Map A/Map B control and deterministic
 `variant` query parameter switch presentation without duplicating data access or
@@ -587,7 +589,10 @@ gameplay navigation.
 2. Create `map.repository.ts`:
    - `getUserMapData(userId)` — fetches all waypoint progress records for the user efficiently (batch query, not N+1)
 3. Create `features/map/views/game-map-view.tsx`.
-4. Group waypoints into sets of 10. Render one group at a time with scroll navigation between groups.
+4. Map A groups waypoints into sets of 5, uses one PNG per group, opens at the
+   player's current group, and continuously loads previous/future groups during
+   upward/downward scrolling. Map B groups waypoints into sets of 10 and renders
+   one paginated grid group at a time.
 5. Use `<WaypointCard>` for each node. Map A displays the waypoint control and
    flame progress; Map B additionally previews Scripture reference and Journey
    Stage. Day Selection owns the authoritative full details.
@@ -598,8 +603,9 @@ gameplay navigation.
 
 ### Acceptance Criteria
 
-- Map displays every current waypoint in groups of 10 and accommodates appended
-  waypoints without a fixed maximum.
+- Map displays every current waypoint, using five-node illustrated groups in Map
+  A and ten-node grid groups in Map B, and accommodates appended waypoints
+  without a fixed maximum.
 - Map A remains visually focused, while Map B restores the original Scripture
   and Journey Stage preview for comparative testing.
 - Waypoint status accurately reflects actual database progress.
