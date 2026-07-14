@@ -1,6 +1,6 @@
 # Scripture Memo Project Log
 
-**Last updated:** 2026-07-13
+**Last updated:** 2026-07-14
 **Purpose:** Concise continuity backup and current-status summary for Codex
 development sessions.
 
@@ -45,7 +45,7 @@ long-term verse difficulty. Glow Points are the only currency.
 - Phase 10 progression engine is complete with lazy initialization,
   server-authoritative cooldowns, atomic advancement, and real PostgreSQL tests.
 - Phase 11 Game Map is implemented and automated verification passes; manual
-  browser acceptance remains after its approved mobile-game visual redesign.
+  browser acceptance remains after adding comparative Map A and Map B views.
 
 ## Current Roadmap Position
 
@@ -99,13 +99,13 @@ Phase 12 — Day Selection Screen follows after acceptance.
 
 ## Current Task
 
-Manually verify the Phase 11 Game Map at `/game/map` with real learner progress.
+Manually compare Phase 11 Map A and Map B at `/game/map` with real learner progress.
 
 ## Exact Next Task
 
-Confirm Phase 11 map grouping, statuses, flames, locked feedback, navigation,
-current-node emphasis, responsiveness, and loading state; then begin Phase 12 —
-Day Selection Screen.
+Confirm both Phase 11 presentations show identical progress, locked feedback,
+gameplay navigation, group behavior, responsiveness, and persisted switching;
+then begin Phase 12 — Day Selection Screen.
 
 ## Important Decisions
 
@@ -150,6 +150,12 @@ Day Selection Screen.
 - The learner map uses an original mobile-first winding trail with tactile
   circular nodes. Its three ring segments map exactly to the three completed
   challenge days; decorative presentation must never inflate real progress.
+- Map A nodes show only their waypoint control and flame progress. Map B restores
+  the earlier Scripture reference and Journey Stage preview; Day Selection still
+  owns the authoritative full details for both.
+- Pre-launch map comparison uses Map A (winding trail) and Map B (original card
+  grid) over one shared data and navigation controller. Tester preference is
+  browser-local, URL assignment takes precedence, and neither affects progress.
 - Automated destructive database tests use only the separately provisioned
   `scripture-memo-integration-tests` Prisma Postgres resource. `DATABASE_URL`
   remains protected, test configuration fails closed, and Prisma MCP write
@@ -257,6 +263,20 @@ Day Selection Screen.
 
 ## Dated Session Updates
 
+### 2026-07-14 — Comparative Map A and Map B testing added
+
+- Preserved the current winding campaign trail as Map A and recovered the
+  original Phase 11 card-grid presentation from Git history as Map B.
+- Added one accessible segmented switch, browser-local preference persistence,
+  and deterministic `?variant=a` / `?variant=b` tester links.
+- Centralized locked-waypoint feedback and gameplay routing so both variants
+  consume identical progress data and cannot diverge behaviorally.
+- Kept waypoint controls, status treatment, and flame progress minimal in Map A.
+  After further owner review, Map B restored its original Scripture and Journey
+  Stage previews while Day Selection remains the authoritative detail screen.
+- Added focused variant parsing and precedence tests. No schema, migration,
+  repository query, progression rule, or database data changed.
+
 ### 2026-07-13 — Phase 11 mobile campaign trail redesign
 
 - Replaced the initial responsive card grid with an original mobile-first
@@ -268,6 +288,9 @@ Day Selection Screen.
 - Redesigned the route skeleton and page header to match the immersive trail
   composition while retaining accessibility, reduced-motion behavior, dark
   mode, existing progression rules, and the batched repository read.
+- Simplified node labels after product-owner review: removed visible verse and
+  Journey Stage details from the map and retained only flame progress beneath
+  each waypoint control.
 
 ### 2026-07-13 — Phase 11 Game Map implemented
 

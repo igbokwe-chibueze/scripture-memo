@@ -8,7 +8,6 @@ import {
   PlayIcon,
 } from "lucide-react";
 import { FlameIndicator } from "@/components/shared/flame-indicator";
-import { JourneyStageBadge } from "@/components/shared/journey-stage-badge";
 import type { MapWaypoint } from "@/features/map/types/map.types";
 import { WaypointStatus } from "@/lib/generated/prisma/enums";
 import { cn } from "@/lib/utils";
@@ -100,7 +99,7 @@ export function WaypointCard({
         <button
           type="button"
           aria-disabled={isLocked}
-          aria-label={`Waypoint ${waypoint.number}, ${presentation.label}, ${waypoint.reference}, ${waypoint.flameCount} of 3 days complete`}
+          aria-label={`Waypoint ${waypoint.number}, ${presentation.label}, ${waypoint.flameCount} of 3 days complete`}
           onClick={() => onSelect(waypoint)}
           className={cn(
             "group relative grid size-20 place-items-center rounded-full border-4 text-xl font-black shadow-[0_7px_0_0_rgb(0_0_0/0.16),0_12px_22px_rgb(0_0_0/0.14)] outline-none transition duration-200 focus-visible:ring-4 focus-visible:ring-ring/50 active:translate-y-1 active:shadow-[0_3px_0_0_rgb(0_0_0/0.16)] motion-reduce:transition-none",
@@ -126,11 +125,7 @@ export function WaypointCard({
         </button>
       </div>
 
-      <div className="mt-4 flex max-w-36 flex-col items-center gap-1.5 text-center">
-        <JourneyStageBadge stage={waypoint.journeyStage} className="shadow-sm" />
-        <span className="max-w-full truncate text-xs font-semibold text-foreground">
-          {waypoint.reference}
-        </span>
+      <div className="mt-4 flex flex-col items-center text-center">
         <span className="sr-only">{presentation.label}</span>
         <FlameIndicator count={waypoint.flameCount} className="rounded-full bg-background/75 px-2 py-1" />
       </div>

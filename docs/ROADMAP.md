@@ -576,6 +576,10 @@ an original mobile-first winding trail, honest three-day progress rings,
 responsive group navigation, current-node emphasis, safe locked-node feedback,
 an empty state, and a matching route skeleton. The clickable destination URL is
 established for Phase 12, which owns the Day Selection screen itself.
+For pre-launch comparison, the original responsive card-grid presentation is
+also retained as Map B. A persistent Map A/Map B control and deterministic
+`variant` query parameter switch presentation without duplicating data access or
+gameplay navigation.
 
 ### Tasks
 
@@ -584,7 +588,9 @@ established for Phase 12, which owns the Day Selection screen itself.
    - `getUserMapData(userId)` — fetches all waypoint progress records for the user efficiently (batch query, not N+1)
 3. Create `features/map/views/game-map-view.tsx`.
 4. Group waypoints into sets of 10. Render one group at a time with scroll navigation between groups.
-5. Use `<WaypointCard>` for each node. Display: number, Journey Stage badge, status, flame count.
+5. Use `<WaypointCard>` for each node. Map A displays the waypoint control and
+   flame progress; Map B additionally previews Scripture reference and Journey
+   Stage. Day Selection owns the authoritative full details.
 6. Clicking a locked waypoint fires a Sonner info toast: "Complete Waypoint [N] to unlock this."
 7. Clicking an unlocked or in-progress waypoint navigates to the Day Selection screen.
 8. Add skeleton loaders while map data loads.
@@ -594,7 +600,8 @@ established for Phase 12, which owns the Day Selection screen itself.
 
 - Map displays every current waypoint in groups of 10 and accommodates appended
   waypoints without a fixed maximum.
-- Journey Stage badges are visible on each waypoint node.
+- Map A remains visually focused, while Map B restores the original Scripture
+  and Journey Stage preview for comparative testing.
 - Waypoint status accurately reflects actual database progress.
 - Locked waypoints are unclickable and show a toast explaining how to unlock.
 - Skeleton loads correctly before data arrives.
