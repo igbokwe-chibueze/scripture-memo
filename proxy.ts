@@ -12,6 +12,19 @@ import { PROTECTED_PATH_PREFIXES } from "@/features/auth/constants/protected-pat
  */
 export async function proxy(request: NextRequest): Promise<NextResponse> {
   const pathname = request.nextUrl.pathname;
+
+  // The PNG positioner is source-authoring tooling, not a product route. Block
+  // it before React streaming starts so production returns a genuine 404 rather
+  // than a successful response containing a streamed not-found UI. The view
+  // repeats the environment guard as defense in depth if Proxy configuration is
+  // ever changed. This check performs no authentication or database access.
+  if (pathname === "/map-positioner" && process.env.NODE_ENV !== "development") {
+    return new NextResponse(null, {
+      status: 404,
+      headers: { "X-Robots-Tag": "noindex, nofollow" },
+    });
+  }
+
   const isProtected = PROTECTED_PATH_PREFIXES.some(
     (path) => pathname === path || pathname.startsWith(`${path}/`),
   );
@@ -39,6 +52,6 @@ export const config = {
     "/game/:path*", "/map/:path*", "/waypoints/:path*", "/vault/:path*",
     "/sanctuary/:path*", "/oil-shop/:path*", "/fellowships/:path*",
     "/leaderboard/:path*", "/settings/:path*", "/select-translation/:path*",
-    "/admin/:path*",
+    "/admin/:path*", "/map-positioner",
   ],
 };

@@ -1,6 +1,6 @@
 # Scripture Memo Project Log
 
-**Last updated:** 2026-07-13
+**Last updated:** 2026-07-14
 **Purpose:** Concise continuity backup and current-status summary for Codex
 development sessions.
 
@@ -29,8 +29,8 @@ long-term verse difficulty. Glow Points are the only currency.
 
 ## Current Project State
 
-- Branch: `progression_engine`.
-- Current HEAD at this update: `81a1597`.
+- Branch: `game-map`.
+- Current HEAD at this update: `b457f50`.
 - Phases 0–9 are complete and manually accepted, including bulk CSV import,
   dynamic verse-list search, and admin pack management.
 - The public landing page and internal UI-foundation preview are implemented.
@@ -42,13 +42,15 @@ long-term verse difficulty. Glow Points are the only currency.
   `docs/AGENTS.md` was removed.
 - Phase 9 waypoint management, curriculum-history hardening, and Phase 9A's
   application-wide error reference are merged at the current HEAD.
-- Phase 10 progression engine is implemented with lazy initialization,
-  server-authoritative cooldowns, atomic advancement, and focused tests.
+- Phase 10 progression engine is complete with lazy initialization,
+  server-authoritative cooldowns, atomic advancement, and real PostgreSQL tests.
+- Phase 11 Game Map is implemented and automated verification passes; manual
+  browser acceptance remains after adding comparative Map A and Map B views.
 
 ## Current Roadmap Position
 
-Phase 10 — Progression Engine is implemented. Phase 11 — Game Map is the next
-roadmap phase after the Phase 10 verification handoff.
+Phase 11 — Game Map is implemented and awaiting project-owner manual acceptance.
+Phase 12 — Day Selection Screen follows after acceptance.
 
 ## Completed Work
 
@@ -97,11 +99,14 @@ roadmap phase after the Phase 10 verification handoff.
 
 ## Current Task
 
-Verify the Phase 10 progression engine and prepare Phase 11 map implementation.
+Use the upgraded `/map-positioner` to export separately reviewed mobile and
+large-screen coordinates for each of the three five-waypoint map images.
 
 ## Exact Next Task
 
-Implement Phase 11 — Game Map against the verified lazy progression repository.
+Apply the project owner's exported responsive coordinates to the three Map A
+themes, manually accept continuous upward/downward loading, then confirm both
+Phase 11 presentations preserve identical progression behavior before Phase 12.
 
 ## Important Decisions
 
@@ -143,6 +148,15 @@ Implement Phase 11 — Game Map against the verified lazy progression repository
   stable per-verse locks so validation cannot race a conflicting mutation.
 - Phase 10 creates progress lazily, unlocks the next actually published waypoint
   by database query, and commits completion plus unlocking atomically.
+- The learner map uses an original mobile-first winding trail with tactile
+  circular nodes. Its three ring segments map exactly to the three completed
+  challenge days; decorative presentation must never inflate real progress.
+- Map A nodes show only their waypoint control and flame progress. Map B restores
+  the earlier Scripture reference and Journey Stage preview; Day Selection still
+  owns the authoritative full details for both.
+- Pre-launch map comparison uses Map A (winding trail) and Map B (original card
+  grid) over one shared data and navigation controller. Tester preference is
+  browser-local, URL assignment takes precedence, and neither affects progress.
 - Automated destructive database tests use only the separately provisioned
   `scripture-memo-integration-tests` Prisma Postgres resource. `DATABASE_URL`
   remains protected, test configuration fails closed, and Prisma MCP write
@@ -185,6 +199,21 @@ Implement Phase 11 — Game Map against the verified lazy progression repository
 
 ## Recent Important File Changes
 
+- `features/map/`: Phase 11 batch repository read, map-state helpers and tests,
+  ten-node navigator, waypoint cards, skeleton, protected view composition, and
+  extensive intent-focused inline documentation across the complete feature.
+- `features/map/components/map-positioner.tsx`, related pure helpers/tests, and
+  `/map-positioner`: a browser-local, development-only PNG alignment tool that
+  exports ten responsive percentage coordinates without persistence or uploads.
+- `public/images/maps/` and `features/map/data/map-themes.ts`: three repeating
+  owner-supplied Map A backgrounds with separate five-point mobile and
+  large-screen alignment metadata.
+- `components/shared/journey-stage-badge.tsx` and
+  `components/shared/flame-indicator.tsx`: reusable learner-facing progression
+  indicators for the map and upcoming Day Selection screen.
+- `app/(protected)/game/map/`: one-line page and loading re-exports.
+- `features/auth/views/authenticated-home-placeholder-view.tsx`: discoverable
+  link to the new map while the later Game Home phase remains pending.
 - `AGENTS.md`: consolidated all agent instructions at the repository root; added
   authority, JSON persistence, and project-continuity rules.
 - `docs/AGENTS.md`: deleted after consolidation into root `AGENTS.md`.
@@ -221,10 +250,10 @@ Implement Phase 11 — Game Map against the verified lazy progression repository
 
 ## Outstanding Tasks
 
-- Review and commit the Phase 10 progression-engine changes.
+- Manually accept Phase 11 and commit its changes after review.
 - Select an email delivery provider before implementing verification or password
   reset.
-- Phases 11–32 remain pending in roadmap order.
+- Phases 12–32 remain pending in roadmap order.
 - `.env.example` remains absent and is required by the security checklist.
 - Before upgrading to `pg` 9, update the configured database SSL mode explicitly
   to `verify-full` to preserve the current certificate-verification behavior.
@@ -241,6 +270,170 @@ Implement Phase 11 — Game Map against the verified lazy progression repository
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-14 — Positioner field naming and help clarified
+
+- Renamed the Preview Settings field to `Current-state waypoint`, clarifying
+  that it chooses the marker receiving the larger active-player treatment.
+- Renamed the sticky-toolbar selector to `Edit waypoint`, clarifying that it
+  selects the marker whose coordinates are being changed without altering the
+  simulated current state.
+- Added keyboard-focusable, touch-sized tooltip icons to every Preview Settings
+  field and to the toolbar selector, with distinct explanations of count,
+  current state, preview width, breakpoint, and both button diameters.
+- TypeScript, ESLint, all 16 map tests, and diff validation passed. The compact
+  workspace production build passed immediately before this labels-and-help-only
+  change; its final rerun was unavailable because the execution service reported
+  an account usage limit. No database operation occurred.
+
+### 2026-07-14 — Map positioner compact workspace implemented
+
+- Removed the tall page header and above-preview configuration cards so the
+  development route opens directly into the image workspace.
+- Added a sticky compact toolbar with an Image Settings modal, tooltip-labelled
+  mobile/large layout icons, Fit/Actual preview icons, active-waypoint selector,
+  live zoom summary, and a controls-sheet trigger below desktop width.
+- Kept the full inspector sticky beside the preview on desktop and moved the same
+  settings, position fields, reset action, and export tools into a scrollable
+  side sheet on smaller screens.
+- Added Fit mode that calculates one non-enlarging scale for the PNG and waypoint
+  controls together. Actual mode preserves configured CSS dimensions with a
+  scrollable workspace. Clipping checks now use the rendered scaled diameter.
+- Added pure coverage for Fit scaling. TypeScript, ESLint, all 16 map tests, the
+  production build, and diff validation passed. No image upload, persistence,
+  database operation, commit, or push occurred.
+
+### 2026-07-14 — Five-waypoint continuous trail and responsive positioner implemented
+
+- Changed Map A alone to one complete 9:16 image per five-waypoint group. Map B
+  retains its original paginated groups of ten.
+- Removed Map A's previous/next group controls. It now opens centered on the
+  player's current map, preloads one neighboring map in each direction, mounts
+  earlier history while scrolling upward, and mounts future maps while scrolling
+  downward. Prepend anchoring prevents scroll jumps when history appears above.
+- Restored the repeating Map 1 → Map 2 → Map 3 sequence with separate mobile and
+  large-screen position arrays ready for owner-reviewed coordinates.
+- Expanded `/map-positioner` with editable image dimensions, waypoint count,
+  current-waypoint selection, breakpoint, mobile/large preview widths, normal and
+  current button diameters, independent responsive coordinates, real-size
+  draggable markers, boundary-clipping warnings, and full configuration export.
+- Updated Phase 11 documentation and pure tests for independent group sizes,
+  configurable positioner layouts, clipping detection, responsive theme data,
+  and indefinite artwork repetition. TypeScript, ESLint, all 15 map tests, the
+  production build, and diff validation passed. No database operation occurred.
+
+### 2026-07-14 — Map A mobile clipping and crowding hardened
+
+- Made Map A waypoint controls responsive: 64px normal and 72px current nodes on
+  mobile, restoring the original 80px and 96px sizes from the `sm` breakpoint.
+- Reduced the mobile card footprint, current-node label, status icon, flame
+  indicator, spacing, borders, and shadows while preserving the required 44px
+  minimum touch target and the full desktop presentation.
+- Added responsive horizontal safe-edge clamping so percentage coordinates
+  cannot place part of a waypoint card outside narrow artwork. Pulled each
+  panel's final node away from the cloud seam and compacted the seam on mobile.
+- Map B and progression behavior remain unchanged. TypeScript, ESLint, all 11
+  map tests, the production build, and diff validation passed. No database
+  operation was performed.
+
+### 2026-07-14 — Five-waypoint PNG panels and atmospheric join implemented
+
+- Preserved each logical group of ten waypoints while presenting it as two
+  vertically stacked 9:16 panels with five comfortably spaced nodes per image.
+- Added two repeating compositions: Map 1 + Map 2 and Map 3 + Map 1. Newly
+  appended curriculum groups continue alternating these arrangements without a
+  visual maximum or any change to progression data.
+- Added a responsive CSS cloud-and-mist layer across the panel boundary. It sits
+  above both images but below the waypoint controls, cannot intercept input, and
+  does not modify the replaceable source PNGs.
+- Updated configuration tests to guarantee five in-bounds positions per panel,
+  two panels and ten positions per composition, and indefinite composition
+  repetition. TypeScript, ESLint, all 11 map tests, the production build, and
+  diff validation passed. No database operation was performed.
+
+### 2026-07-14 — Owner-supplied PNG themes previewed in Map A
+
+- Replaced Map A's generated scenery and SVG road with the three supplied PNGs,
+  repeating Map 1 → Map 2 → Map 3 for an unlimited number of groups.
+- Applied the owner's exact Map 1 positioner export and added initial road-based
+  alignment coordinates for Maps 2 and 3 pending visual refinement.
+- Kept waypoint buttons, status, flames, current-node emphasis, locking feedback,
+  group navigation, progression data, and Map B behavior unchanged.
+- Added pure configuration tests for ten in-bounds positions and indefinite
+  three-theme cycling. No database or progression data was changed.
+
+### 2026-07-14 — Development PNG map positioner implemented
+
+- Added the development-only `/map-positioner` route; production requests are
+  rejected by Proxy with HTTP 404 and repeated server-view `notFound()` defense,
+  while metadata and the response are `noindex`.
+- Added local PNG selection with exact natural aspect-ratio preview, ten draggable
+  and keyboard-adjustable waypoint markers, numeric controls, reset, and
+  paste-ready percentage-coordinate export.
+- Kept selected artwork entirely inside the browser through a temporary object
+  URL. No upload, Server Action, filesystem write, Prisma call, or database
+  operation exists in the tool.
+- Added pure tests for boundary normalization, pointer conversion, and export
+  formatting; the standard map test script now includes them.
+- TypeScript, ESLint, eight map tests, production build, diff checks, a live
+  development HTTP 200 check, and a production HTTP 404 check passed.
+
+### 2026-07-14 — Game Map documentation audit completed
+
+- Audited every TypeScript/TSX script in `features/map` plus the shared flame and
+  Journey Stage indicators used by the map.
+- Expanded file, exported API, state, accessibility, responsive-layout, browser
+  persistence, SVG geometry, privacy, and data-integrity comments without
+  changing map behavior or database state.
+- Preserved the required one-line route re-exports and added no comments there.
+- TypeScript, ESLint, all five map tests, and working-tree diff validation pass.
+
+### 2026-07-14 — Comparative Map A and Map B testing added
+
+- Preserved the current winding campaign trail as Map A and recovered the
+  original Phase 11 card-grid presentation from Git history as Map B.
+- Added one accessible segmented switch, browser-local preference persistence,
+  and deterministic `?variant=a` / `?variant=b` tester links.
+- Centralized locked-waypoint feedback and gameplay routing so both variants
+  consume identical progress data and cannot diverge behaviorally.
+- Kept waypoint controls, status treatment, and flame progress minimal in Map A.
+  After further owner review, Map B restored its original Scripture and Journey
+  Stage previews while Day Selection remains the authoritative detail screen.
+- Added focused variant parsing and precedence tests. No schema, migration,
+  repository query, progression rule, or database data changed.
+- Corrected Map B phone-width clipping by compacting long Journey Stage badges,
+  allowing Scripture references to wrap safely, tightening status/flame spacing,
+  and using one column below 360px instead of forcing unusably narrow cards.
+
+### 2026-07-13 — Phase 11 mobile campaign trail redesign
+
+- Replaced the initial responsive card grid with an original mobile-first
+  winding trail inspired by familiar campaign-map interaction patterns without
+  copying external artwork or branding.
+- Added alternating tactile nodes, connected SVG trail progress, exact
+  three-day rings, active-waypoint callout, distinct status treatments,
+  scrollable group indicators, and lightweight code-native scenery.
+- Redesigned the route skeleton and page header to match the immersive trail
+  composition while retaining accessibility, reduced-motion behavior, dark
+  mode, existing progression rules, and the batched repository read.
+- Simplified node labels after product-owner review: removed visible verse and
+  Journey Stage details from the map and retained only flame progress beneath
+  each waypoint control.
+
+### 2026-07-13 — Phase 11 Game Map implemented
+
+- Added the protected `/game/map` experience and a discoverable entry from the
+  temporary authenticated home.
+- Loaded all currently published waypoints plus one learner's sparse waypoint
+  and completed-day progress in one batched Prisma request without N+1 reads.
+- Rendered one responsive ten-waypoint group at a time with scrollable range
+  navigation, Journey Stage badges, status, flame count, locked guidance, and
+  current-node emphasis.
+- Added an intentional no-curriculum state, route-level ten-card skeleton, and
+  the stable future Day Selection destination used by Phase 12.
+- Added three pure map-state tests. Strict TypeScript, ESLint, diff validation,
+  repository-boundary and thin-route checks, and the production build passed.
+  No migration, seed, MCP write, or destructive database operation was run.
 
 ### 2026-07-13 — Dedicated Prisma Postgres test database verified
 

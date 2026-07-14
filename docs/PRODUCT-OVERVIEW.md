@@ -969,11 +969,31 @@ The landing page after login. Shows:
 
 ### 15.2 Game Map (🗺️)
 
-Visual grid of all current waypoints.
+Mobile-first winding campaign trail of all current waypoints. The presentation
+uses original code-native scenery and tactile circular nodes rather than a
+dashboard grid, while keeping progress readable in light and dark themes.
+
+During pre-launch comparative testing, the map exposes two interchangeable
+presentations over the same progress data and gameplay navigation:
+
+- **Map A — Trail:** the mobile-first winding campaign trail.
+- **Map B — Grid:** the original responsive ten-card map.
+
+The tester may switch freely, the browser remembers the preference locally, and
+`?variant=a` or `?variant=b` creates a deterministic tester link. This preference
+does not affect progression and is not durable application data. Map A keeps its
+minimal waypoint-and-flames presentation; Map B intentionally restores the
+original Scripture reference and Journey Stage preview for comparison.
 
 - Waypoints rendered in scrollable groups of 10—not the entire expanding
   curriculum at once.
-- Each waypoint node shows: number, Journey Stage badge, status (locked/unlocked/in-progress/complete), flame count.
+- Map A shows each waypoint's number, status treatment, flame count, and an
+  honest three-segment ring representing the three challenge days. Map B also
+  previews the Scripture reference and Journey Stage. Day Selection remains the
+  authoritative full-detail screen for both variants.
+- Nodes alternate along an original connected trail, with the current waypoint
+  receiving a prominent continue treatment. Decorative progress never implies
+  completion that is absent from persisted learner state.
 - Clicking a locked waypoint shows a Sonner toast explaining how to unlock it.
 - Clicking an unlocked or in-progress waypoint navigates to its Day Selection screen.
 - Skeleton loaders shown while map data loads.
