@@ -631,12 +631,23 @@ navigation work as intended.
 
 **Goal:** Allow users to select and begin available challenge days for a waypoint.
 
+**Status:** Complete — automated verification and project-owner manual browser
+acceptance passed on 2026-07-23. The authenticated
+dynamic route renders the preferred verse translation, Journey Stage rules, and
+three persisted day states. Starts validate and atomically create or resume a
+server-owned session. Until Phase 13 supplies the five-mode game shell, a
+temporary protected session-ready screen verifies the end-to-end start flow.
+The live countdown component and server cooldown enforcement are verified in
+isolation; the complete natural completion-to-cooldown learner flow is deferred
+to Phase 13 because that phase implements playable modes and day completion.
+
 ### Tasks
 
 1. Create the Day Selection view inside `features/waypoints/views/day-selection-view.tsx`.
 2. Display at the top: verse reference, current translation, Journey Stage badge.
 3. If Journey Stage is Strengthen or Master: show a "No hints available at this stage" notice.
-4. If Journey Stage is Recall or Master: show the time limit notice for this stage.
+4. If Journey Stage is Recall, Strengthen, or Master: show the appropriate
+   generous, shorter, or strict time-limit notice for this stage.
 5. Render three `<DayCard>` components (Glimmer, Glow, Radiance). Each shows:
    - Day name and difficulty label
    - Status (locked / cooldown / ready / complete)
@@ -653,6 +664,11 @@ navigation work as intended.
 - Countdown timers update in real time.
 - Server blocks invalid day starts even if the client sends a direct request.
 - Journey Stage information is clearly communicated on this screen.
+
+**Acceptance recorded (2026-07-23):** The project owner accepted the Day
+Selection presentation, challenge states, stage messaging, reward previews, and
+session-start flow. End-to-end cooldown testing will occur in Phase 13 when a
+learner can complete Glimmer through real gameplay.
 
 ---
 

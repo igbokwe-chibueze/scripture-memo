@@ -1,6 +1,6 @@
 # Scripture Memo Project Log
 
-**Last updated:** 2026-07-22
+**Last updated:** 2026-07-23
 **Purpose:** Concise continuity backup and current-status summary for Codex
 development sessions.
 
@@ -29,8 +29,8 @@ long-term verse difficulty. Glow Points are the only currency.
 
 ## Current Project State
 
-- Branch: `main`.
-- Current committed HEAD at this update: `ade182a` (merged PR #13).
+- Branch: `day-selection-screen`.
+- Current committed HEAD at this update: `f643428`.
 - Phases 0–9 are complete and manually accepted, including bulk CSV import,
   dynamic verse-list search, and admin pack management.
 - The public landing page and internal UI-foundation preview are implemented.
@@ -46,11 +46,13 @@ long-term verse difficulty. Glow Points are the only currency.
   server-authoritative cooldowns, atomic advancement, and real PostgreSQL tests.
 - Phase 11 Game Map, shared responsive trail coordinates, and Trail Navigator
   are implemented and have passed automated and project-owner manual acceptance.
+- Phase 12 Day Selection is complete and manually accepted, with server-derived
+  states, live cooldowns, and atomic session starts.
 
 ## Current Roadmap Position
 
-Phase 11 — Game Map is complete and manually accepted.
-Phase 12 — Day Selection Screen is next.
+Phases 0–12 are complete and manually accepted.
+Phase 13 — Gameplay Shared Engine is next.
 
 ## Completed Work
 
@@ -99,11 +101,11 @@ Phase 12 — Day Selection Screen is next.
 
 ## Current Task
 
-Review, commit, and merge the accepted Phase 11 changes.
+Review, commit, and merge the accepted Phase 12 changes.
 
 ## Exact Next Task
 
-Begin Phase 12 — Day Selection Screen after the accepted Phase 11 changes are
+Begin Phase 13 — Gameplay Shared Engine after the accepted Phase 12 changes are
 committed and merged.
 
 ## Important Decisions
@@ -257,10 +259,10 @@ committed and merged.
 
 ## Outstanding Tasks
 
-- Commit and merge the manually accepted Phase 11 changes.
+- Commit and merge the manually accepted Phase 12 changes.
 - Select an email delivery provider before implementing verification or password
   reset.
-- Phases 12–32 remain pending in roadmap order.
+- Phases 13–32 remain pending in roadmap order.
 - `.env.example` remains absent and is required by the security checklist.
 - Before upgrading to `pg` 9, update the configured database SSL mode explicitly
   to `verify-full` to preserve the current certificate-verification behavior.
@@ -277,6 +279,34 @@ committed and merged.
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-23 — Phase 12 manually accepted
+
+- The project owner accepted the Day Selection presentation, challenge-state
+  behavior, Journey Stage notices, reward previews, and session-start flow.
+- The shared live countdown and server cooldown rejection already have focused
+  automated coverage. The natural completion-to-cooldown browser flow remains a
+  Phase 13 verification because playable modes and day completion begin there.
+- Phase 12 is complete. Phase 13 — Gameplay Shared Engine is next after the
+  accepted changes are committed and merged.
+
+### 2026-07-22 — Phase 12 Day Selection implemented
+
+- Added the protected dynamic waypoint route, route skeleton, preferred
+  translation display, Journey Stage badge, no-hint/timed-stage notices, and
+  mobile-first Glimmer, Glow, and Radiance cards.
+- Derived ready, locked, cooldown, and completed states from persisted progress
+  and server request time. Countdown expiry refreshes server state; it never
+  authorizes gameplay in the browser.
+- Added reward previews, complete flames, real-time countdowns, blocked-state
+  Sonner feedback, pending buttons, action result toasts, and safe 404 handling
+  for unavailable or learner-locked direct URLs.
+- Added a validated authenticated Start action and gameplay repository that
+  atomically prepare the day and create or resume its server-owned GameSession.
+- Added a temporary protected session-ready destination for Phase 12 testing;
+  Phase 13 will replace it with the five-mode gameplay shell.
+- Corrected the Phase 12 roadmap to include Strengthen among timed Journey
+  Stages, matching root instructions and the product specification.
 
 ### 2026-07-22 — Phase 11 manually accepted
 

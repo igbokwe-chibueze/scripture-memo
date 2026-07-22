@@ -18,6 +18,7 @@ import type {
   InitializeProgressionResult,
   ProgressionConflictCode,
 } from "@/features/progression/types/progression.types";
+import type { UserDayProgressModel } from "@/lib/generated/prisma/models/UserDayProgress";
 
 const progressionTransactionOptions = { maxWait: 10_000, timeout: 60_000 } as const;
 
@@ -86,6 +87,79 @@ function calculateNextUnlock(dayLevel: DayLevelValue, completedAt: Date): Date |
   if (dayLevel === DayLevel.GLIMMER) return calculateDay2UnlockTime(completedAt);
   if (dayLevel === DayLevel.GLOW) return calculateDay3UnlockTime(completedAt);
   return null;
+}
+
+/**
+ * Validates and prepares one challenge day inside a caller-owned transaction.
+ *
+ * Exporting the transaction-aware form lets gameplay create the matching
+ * GameSession atomically. Callers must not use this helper for read-only status
+ * display; it acquires locks and writes progression state.
+ */
+export async function prepareDayForGameplayInTransaction(
+  transaction: Prisma.TransactionClient,
+  userId: string,
+  waypointId: string,
+  dayLevel: DayLevelValue,
+  startedAt: Date,
+): Promise<UserDayProgressModel> {
+  await lockProgression(transaction, userId, waypointId);
+  await requireAvailableWaypoint(transaction, waypointId);
+  const waypointProgress = await transaction.userWaypointProgress.findUnique({
+    where: { userId_waypointId: { userId, waypointId } },
+  });
+  if (!waypointProgress || waypointProgress.status === WaypointStatus.LOCKED) {
+    throw new ProgressionConflictError("WAYPOINT_LOCKED");
+  }
+  if (waypointProgress.status === WaypointStatus.COMPLETED) {
+    throw new ProgressionConflictError("DAY_ALREADY_COMPLETED");
+  }
+
+  const previousDay = getPreviousDayLevel(dayLevel);
+  if (previousDay) {
+    const previousProgress = await transaction.userDayProgress.findUnique({
+      where: { userId_waypointId_dayLevel: { userId, waypointId, dayLevel: previousDay } },
+    });
+    if (previousProgress?.status !== CompletionStatus.COMPLETED) {
+      throw new ProgressionConflictError("PREVIOUS_DAY_INCOMPLETE");
+    }
+  }
+
+  const dayProgress = await transaction.userDayProgress.findUnique({
+    where: { userId_waypointId_dayLevel: { userId, waypointId, dayLevel } },
+  });
+  if (dayProgress?.status === CompletionStatus.COMPLETED) {
+    throw new ProgressionConflictError("DAY_ALREADY_COMPLETED");
+  }
+  if (dayLevel !== DayLevel.GLIMMER && !dayProgress) {
+    throw new ProgressionConflictError("DAY_NOT_INITIALIZED");
+  }
+  if (dayProgress && !isDayPlayable(dayProgress, startedAt)) {
+    throw new ProgressionConflictError("DAY_COOLDOWN_ACTIVE", dayProgress.unlocksAt);
+  }
+
+  const prepared = await transaction.userDayProgress.upsert({
+    where: { userId_waypointId_dayLevel: { userId, waypointId, dayLevel } },
+    update: {
+      status: CompletionStatus.IN_PROGRESS,
+      startedAt: dayProgress?.startedAt ?? startedAt,
+    },
+    create: {
+      userId,
+      waypointId,
+      dayLevel,
+      status: CompletionStatus.IN_PROGRESS,
+      startedAt,
+    },
+  });
+  await transaction.userWaypointProgress.update({
+    where: { userId_waypointId: { userId, waypointId } },
+    data: {
+      status: WaypointStatus.IN_PROGRESS,
+      startedAt: waypointProgress.startedAt ?? startedAt,
+    },
+  });
+  return prepared;
 }
 
 /** Creates the next day lazily inside the caller's completion transaction. */
@@ -212,62 +286,16 @@ export const progressionRepository = {
     dayLevel: DayLevelValue,
     startedAt: Date,
   ) {
-    return prisma.$transaction(async (transaction) => {
-      await lockProgression(transaction, userId, waypointId);
-      await requireAvailableWaypoint(transaction, waypointId);
-      const waypointProgress = await transaction.userWaypointProgress.findUnique({
-        where: { userId_waypointId: { userId, waypointId } },
-      });
-      if (!waypointProgress || waypointProgress.status === WaypointStatus.LOCKED) {
-        throw new ProgressionConflictError("WAYPOINT_LOCKED");
-      }
-      if (waypointProgress.status === WaypointStatus.COMPLETED) {
-        throw new ProgressionConflictError("DAY_ALREADY_COMPLETED");
-      }
-
-      const previousDay = getPreviousDayLevel(dayLevel);
-      if (previousDay) {
-        const previousProgress = await transaction.userDayProgress.findUnique({
-          where: { userId_waypointId_dayLevel: { userId, waypointId, dayLevel: previousDay } },
-        });
-        if (previousProgress?.status !== CompletionStatus.COMPLETED) {
-          throw new ProgressionConflictError("PREVIOUS_DAY_INCOMPLETE");
-        }
-      }
-
-      const dayProgress = await transaction.userDayProgress.findUnique({
-        where: { userId_waypointId_dayLevel: { userId, waypointId, dayLevel } },
-      });
-      if (dayProgress?.status === CompletionStatus.COMPLETED) {
-        throw new ProgressionConflictError("DAY_ALREADY_COMPLETED");
-      }
-      if (dayLevel !== DayLevel.GLIMMER && !dayProgress) {
-        throw new ProgressionConflictError("DAY_NOT_INITIALIZED");
-      }
-      if (dayProgress && !isDayPlayable(dayProgress, startedAt)) {
-        throw new ProgressionConflictError("DAY_COOLDOWN_ACTIVE", dayProgress.unlocksAt);
-      }
-
-      const prepared = await transaction.userDayProgress.upsert({
-        where: { userId_waypointId_dayLevel: { userId, waypointId, dayLevel } },
-        update: { status: CompletionStatus.IN_PROGRESS, startedAt: dayProgress?.startedAt ?? startedAt },
-        create: {
-          userId,
-          waypointId,
-          dayLevel,
-          status: CompletionStatus.IN_PROGRESS,
-          startedAt,
-        },
-      });
-      await transaction.userWaypointProgress.update({
-        where: { userId_waypointId: { userId, waypointId } },
-        data: {
-          status: WaypointStatus.IN_PROGRESS,
-          startedAt: waypointProgress.startedAt ?? startedAt,
-        },
-      });
-      return prepared;
-    }, progressionTransactionOptions);
+    return prisma.$transaction(
+      (transaction) => prepareDayForGameplayInTransaction(
+        transaction,
+        userId,
+        waypointId,
+        dayLevel,
+        startedAt,
+      ),
+      progressionTransactionOptions,
+    );
   },
 
   /**
