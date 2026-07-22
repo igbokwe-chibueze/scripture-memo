@@ -568,8 +568,8 @@ hide, reassignment, publication, append, or reorder.
 
 **Goal:** Build the visual representation of the complete expanding waypoint curriculum.
 
-**Implementation status (2026-07-13):** Implemented; automated verification
-passes and project-owner manual acceptance remains. The protected `/game/map`
+**Status:** Complete — automated verification and project-owner manual browser
+acceptance passed on 2026-07-22. The protected `/game/map`
 route loads the published curriculum and sparse learner progress in one batched
 repository request. Map A renders one owner-supplied 9:16 illustration per
 five-waypoint group, opens at the player's current map, and progressively mounts
@@ -596,6 +596,14 @@ gameplay navigation.
 5. Use `<WaypointCard>` for each node. Map A displays the waypoint control and
    flame progress; Map B additionally previews Scripture reference and Journey
    Stage. Day Selection owns the authoritative full details.
+   Map A also provides a full-height right-side Trail Navigator at every
+   breakpoint. The navigator lists all published five-waypoint trails with
+   sequential trail numbers, artwork thumbnails, waypoint ranges, progress, and
+   state. It can jump to unlocked trails; locked trails remain visible and
+   disabled. Distant jumps must preserve progressive rendering rather than
+   mounting every intervening trail.
+   Bottom-right icon controls open the navigator and return the learner to the
+   current trail after they browse distant history.
 6. Clicking a locked waypoint fires a Sonner info toast: "Complete Waypoint [N] to unlock this."
 7. Clicking an unlocked or in-progress waypoint navigates to the Day Selection screen.
 8. Add skeleton loaders while map data loads.
@@ -611,6 +619,11 @@ gameplay navigation.
 - Waypoint status accurately reflects actual database progress.
 - Locked waypoints are unclickable and show a toast explaining how to unlock.
 - Skeleton loads correctly before data arrives.
+
+**Acceptance recorded (2026-07-22):** The project owner confirmed Map A and Map
+B progression parity, responsive presentation, continuous loading, Trail
+Navigator behavior, locked-trail handling, distant jumps, and return-to-current
+navigation work as intended.
 
 ---
 

@@ -18,7 +18,9 @@ import {
   useState,
   type CSSProperties,
 } from "react";
-import { FlagIcon, MapIcon } from "lucide-react";
+import { FlagIcon, LocateFixedIcon, MapIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { TrailNavigator } from "@/features/map/components/trail-navigator";
 import { WaypointCard } from "@/features/map/components/waypoint-card";
 import { getMapTheme } from "@/features/map/data/map-themes";
 import { groupMapWaypoints } from "@/features/map/lib/map-utils";
@@ -71,6 +73,7 @@ export function WindingTrailMap({
   const bottomSentinelRef = useRef<HTMLDivElement>(null);
   const centeredCurrentRef = useRef(false);
   const prependAnchorRef = useRef<PrependAnchor | null>(null);
+  const requestedGroupRef = useRef<number | null>(null);
 
   const groups = useMemo(
     () => groupMapWaypoints(waypoints, TRAIL_MAP_GROUP_SIZE),
@@ -86,6 +89,37 @@ export function WindingTrailMap({
   }));
 
   const visibleGroups = groups.slice(visibleRange.start, visibleRange.end + 1);
+
+  function navigateToGroup(groupIndex: number): void {
+    // Distant jumps replace the small rendered window instead of mounting every
+    // intervening trail. This keeps navigation fast as the curriculum grows.
+    requestedGroupRef.current = groupIndex;
+    setVisibleRange({
+      start: Math.max(0, groupIndex - INITIAL_NEIGHBOR_COUNT),
+      end: Math.min(groups.length - 1, groupIndex + INITIAL_NEIGHBOR_COUNT),
+    });
+  }
+
+  useLayoutEffect(() => {
+    const requestedGroup = requestedGroupRef.current;
+    if (requestedGroup === null) return;
+
+    const destination = trailRef.current?.querySelector<HTMLElement>(
+      `[data-map-group-index="${requestedGroup}"]`,
+    );
+    if (!destination) return;
+
+    // Respect the operating-system motion preference even when the saved app
+    // setting has not hydrated yet. Navigation remains immediate and complete.
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    destination.scrollIntoView({
+      block: "start",
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+    });
+    requestedGroupRef.current = null;
+  }, [visibleRange]);
 
   useEffect(() => {
     if (centeredCurrentRef.current) return;
@@ -171,6 +205,24 @@ export function WindingTrailMap({
 
   return (
     <div ref={trailRef} className="mx-auto w-full max-w-[30rem]">
+      <div className="fixed right-4 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-40 flex items-center gap-2 sm:right-6">
+        <Button
+          type="button"
+          aria-label="Back to current trail"
+          title="Back to current trail"
+          variant="outline"
+          size="icon-lg"
+          onClick={() => navigateToGroup(currentGroupIndex)}
+          className="size-12 rounded-full bg-card/95 shadow-lg backdrop-blur-sm"
+        >
+          <LocateFixedIcon className="size-5" aria-hidden="true" />
+        </Button>
+        <TrailNavigator
+          groups={groups}
+          currentGroupIndex={currentGroupIndex}
+          onNavigate={navigateToGroup}
+        />
+      </div>
       <div ref={topSentinelRef} className="h-px" aria-hidden="true" />
 
       <div className="space-y-7">

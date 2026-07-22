@@ -1,6 +1,6 @@
 # Scripture Memo Project Log
 
-**Last updated:** 2026-07-14
+**Last updated:** 2026-07-22
 **Purpose:** Concise continuity backup and current-status summary for Codex
 development sessions.
 
@@ -29,8 +29,8 @@ long-term verse difficulty. Glow Points are the only currency.
 
 ## Current Project State
 
-- Branch: `game-map`.
-- Current HEAD at this update: `b457f50`.
+- Branch: `main`.
+- Current committed HEAD at this update: `ade182a` (merged PR #13).
 - Phases 0–9 are complete and manually accepted, including bulk CSV import,
   dynamic verse-list search, and admin pack management.
 - The public landing page and internal UI-foundation preview are implemented.
@@ -44,13 +44,13 @@ long-term verse difficulty. Glow Points are the only currency.
   application-wide error reference are merged at the current HEAD.
 - Phase 10 progression engine is complete with lazy initialization,
   server-authoritative cooldowns, atomic advancement, and real PostgreSQL tests.
-- Phase 11 Game Map is implemented and automated verification passes; manual
-  browser acceptance remains after adding comparative Map A and Map B views.
+- Phase 11 Game Map, shared responsive trail coordinates, and Trail Navigator
+  are implemented and have passed automated and project-owner manual acceptance.
 
 ## Current Roadmap Position
 
-Phase 11 — Game Map is implemented and awaiting project-owner manual acceptance.
-Phase 12 — Day Selection Screen follows after acceptance.
+Phase 11 — Game Map is complete and manually accepted.
+Phase 12 — Day Selection Screen is next.
 
 ## Completed Work
 
@@ -99,14 +99,12 @@ Phase 12 — Day Selection Screen follows after acceptance.
 
 ## Current Task
 
-Use the upgraded `/map-positioner` to export separately reviewed mobile and
-large-screen coordinates for each of the three five-waypoint map images.
+Review, commit, and merge the accepted Phase 11 changes.
 
 ## Exact Next Task
 
-Apply the project owner's exported responsive coordinates to the three Map A
-themes, manually accept continuous upward/downward loading, then confirm both
-Phase 11 presentations preserve identical progression behavior before Phase 12.
+Begin Phase 12 — Day Selection Screen after the accepted Phase 11 changes are
+committed and merged.
 
 ## Important Decisions
 
@@ -151,6 +149,15 @@ Phase 11 presentations preserve identical progression behavior before Phase 12.
 - The learner map uses an original mobile-first winding trail with tactile
   circular nodes. Its three ring segments map exactly to the three completed
   challenge days; decorative presentation must never inflate real progress.
+- Every current and future Map A trail illustration uses the shared positions
+  `(50,10)`, `(35,30)`, `(65,50)`, `(40,70)`, and `(60,90)` for both mobile and
+  large layouts unless the project owner explicitly approves an exception.
+- Map A uses a full-height right-side Trail Navigator at every breakpoint. It
+  labels groups sequentially as `Trail N`, lists every published trail including
+  locked future groups, and permits jumps only to groups with accessible
+  waypoints. Custom trail names are intentionally deferred.
+- Map A's bottom-right viewport controls are icon-only: one opens the navigator
+  and one returns the learner to the current trail after distant scrolling.
 - Map A nodes show only their waypoint control and flame progress. Map B restores
   the earlier Scripture reference and Journey Stage preview; Day Selection still
   owns the authoritative full details for both.
@@ -250,7 +257,7 @@ Phase 11 presentations preserve identical progression behavior before Phase 12.
 
 ## Outstanding Tasks
 
-- Manually accept Phase 11 and commit its changes after review.
+- Commit and merge the manually accepted Phase 11 changes.
 - Select an email delivery provider before implementing verification or password
   reset.
 - Phases 12–32 remain pending in roadmap order.
@@ -270,6 +277,35 @@ Phase 11 presentations preserve identical progression behavior before Phase 12.
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-22 — Phase 11 manually accepted
+
+- The project owner confirmed the complete Game Map works as intended,
+  including Map A and Map B, shared responsive trail positioning, continuous
+  loading, locked trail visibility, distant navigation, and return-to-current.
+- Phase 11 is complete. Phase 12 — Day Selection Screen is next after the
+  accepted changes are committed and merged.
+
+### 2026-07-22 — Trail Navigator implemented
+
+- Added a full-height right-side Map A panel with thumbnails, sequential trail
+  numbers, waypoint ranges, completion progress, and current/locked/completed
+  treatments.
+- Kept all published trails visible while disabling navigation to fully locked
+  groups. Opening centers the current trail in the panel.
+- Distant jumps replace the small rendered trail window with the destination
+  and its neighbors, preserving progressive rendering as the curriculum grows.
+- Navigation honors the operating-system reduced-motion preference.
+- Replaced the text trigger with a bottom-right icon control and added an
+  adjacent icon control that returns directly to the current trail.
+
+### 2026-07-22 — Shared trail coordinates approved
+
+- Applied the project owner's five approved waypoint positions to mobile and
+  large layouts across all three current trail themes.
+- Centralized the positions so newly added trail artwork inherits the same
+  layout unless the project owner explicitly requests different coordinates.
+- Updated the configuration test to guard the exact shared layout.
 
 ### 2026-07-14 — Positioner field naming and help clarified
 

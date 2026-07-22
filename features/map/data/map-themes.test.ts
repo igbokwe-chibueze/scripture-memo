@@ -20,6 +20,24 @@ test("every map defines five in-bounds positions for both responsive layouts", (
   }
 });
 
+test("every trail theme uses the owner-approved positions at both breakpoints", () => {
+  const approvedPositions = [
+    { x: 50, y: 10 },
+    { x: 35, y: 30 },
+    { x: 65, y: 50 },
+    { x: 40, y: 70 },
+    { x: 60, y: 90 },
+  ];
+
+  // WHY: New artwork inherits one stable trail rhythm by default. This exact
+  // assertion prevents future themes from introducing per-image coordinates
+  // without making that product decision visible in review.
+  for (const theme of MAP_THEMES) {
+    assert.deepEqual(theme.mobilePositions, approvedPositions);
+    assert.deepEqual(theme.largePositions, approvedPositions);
+  }
+});
+
 test("five-waypoint map themes repeat indefinitely in artwork order", () => {
   assert.deepEqual(
     [0, 1, 2, 3, 4, 5, 300].map((index) => getMapTheme(index).id),

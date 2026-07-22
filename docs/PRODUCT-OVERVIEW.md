@@ -991,6 +991,13 @@ original Scripture reference and Journey Stage preview for comparison.
   honest three-segment ring representing the three challenge days. Map B also
   previews the Scripture reference and Journey Stage. Day Selection remains the
   authoritative full-detail screen for both variants.
+- Map A includes a full-height right-side Trail Navigator on mobile and larger
+  screens. It lists every published five-waypoint trail as `Trail N`, shows its
+  artwork, waypoint range, completion progress, and current/locked/completed
+  state, and jumps to unlocked trails without changing progression. Locked
+  trails remain visible but cannot be selected.
+- Map A keeps two icon-only controls near the bottom-right viewport edge: one
+  opens the Trail Navigator and one returns directly to the current trail.
 - Nodes alternate along an original connected trail, with the current waypoint
   receiving a prominent continue treatment. Decorative progress never implies
   completion that is absent from persisted learner state.

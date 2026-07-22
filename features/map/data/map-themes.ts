@@ -32,32 +32,17 @@ export type MapTheme = {
 };
 
 /**
- * Initial mobile and large coordinates are identical until the owner exports
- * separately reviewed layouts from the upgraded positioner. The dual contract
- * is already live, so those later values are a data-only change.
+ * Every current and future trail illustration uses this owner-approved rhythm
+ * on both sides of the 640px breakpoint. A single source of truth prevents a
+ * newly added theme from silently drifting into map-specific alignment unless
+ * the project owner explicitly approves a different position set.
  */
-const COASTAL_POSITIONS = [
-  { x: 47.14, y: 16.57 },
-  { x: 42.84, y: 29.43 },
-  { x: 44.99, y: 43.66 },
-  { x: 50.33, y: 71.69 },
-  { x: 32.07, y: 86 },
-] as const;
-
-const DESERT_POSITIONS = [
-  { x: 62, y: 15 },
-  { x: 61, y: 31 },
-  { x: 57, y: 47 },
-  { x: 39, y: 63 },
-  { x: 43, y: 86 },
-] as const;
-
-const TEMPLE_POSITIONS = [
-  { x: 55, y: 13 },
-  { x: 52, y: 28 },
-  { x: 46, y: 44 },
-  { x: 53, y: 69 },
-  { x: 45, y: 86 },
+const TRAIL_POSITIONS = [
+  { x: 50, y: 10 },
+  { x: 35, y: 30 },
+  { x: 65, y: 50 },
+  { x: 40, y: 70 },
+  { x: 60, y: 90 },
 ] as const;
 
 const COASTAL_THEME: MapTheme = {
@@ -66,8 +51,8 @@ const COASTAL_THEME: MapTheme = {
   imageSrc: "/images/maps/trail-map-1.png",
   width: 941,
   height: 1672,
-  mobilePositions: COASTAL_POSITIONS,
-  largePositions: COASTAL_POSITIONS,
+  mobilePositions: TRAIL_POSITIONS,
+  largePositions: TRAIL_POSITIONS,
 };
 
 const DESERT_THEME: MapTheme = {
@@ -76,8 +61,8 @@ const DESERT_THEME: MapTheme = {
   imageSrc: "/images/maps/trail-map-2.png",
   width: 941,
   height: 1672,
-  mobilePositions: DESERT_POSITIONS,
-  largePositions: DESERT_POSITIONS,
+  mobilePositions: TRAIL_POSITIONS,
+  largePositions: TRAIL_POSITIONS,
 };
 
 const TEMPLE_THEME: MapTheme = {
@@ -86,8 +71,8 @@ const TEMPLE_THEME: MapTheme = {
   imageSrc: "/images/maps/trail-map-3.png",
   width: 941,
   height: 1672,
-  mobilePositions: TEMPLE_POSITIONS,
-  largePositions: TEMPLE_POSITIONS,
+  mobilePositions: TRAIL_POSITIONS,
+  largePositions: TRAIL_POSITIONS,
 };
 
 /** Public order controls the repeating Map 1 → Map 2 → Map 3 sequence. */
