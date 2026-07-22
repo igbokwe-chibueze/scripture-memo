@@ -34,8 +34,17 @@ export function LoadingButton({
       className={cn("min-h-11", className)}
       {...props}
     >
-      {isPending && <LoadingSpinner size="sm" label={pendingLabel} />}
-      <span>{isPending ? pendingLabel : children}</span>
+      {isPending ? (
+        <>
+          <LoadingSpinner size="sm" label={pendingLabel} />
+          <span>{pendingLabel}</span>
+        </>
+      ) : (
+        // Preserve normal Button child composition so leading icons remain
+        // direct flex items beside their label instead of stacking inside a
+        // text wrapper. Pending content stays explicit and accessible above.
+        children
+      )}
     </Button>
   );
 }
