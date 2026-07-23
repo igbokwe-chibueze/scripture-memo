@@ -1,5 +1,22 @@
 import { deterministicShuffle } from "@/features/gameplay/lib/deterministic-random";
 import type { VerseToken } from "@/features/gameplay/lib/verse-tokenizer";
+import { DIFFICULTY_RANGES } from "@/lib/constants";
+import type { DayLevel } from "@/lib/generated/prisma/enums";
+
+/**
+ * Chooses one stable percentage within the day difficulty's inclusive range.
+ *
+ * Different sessions may vary within the product range, while retries in the
+ * same session reproduce the exact exercise and avoid moving blanks.
+ */
+export function getSessionHiddenPercent(dayLevel: DayLevel, seed: string): number {
+  const range = DIFFICULTY_RANGES[dayLevel];
+  const values = Array.from(
+    { length: range.maxHiddenPercent - range.minHiddenPercent + 1 },
+    (_, offset) => range.minHiddenPercent + offset,
+  );
+  return deterministicShuffle(values, `${seed}:hidden-percent`)[0] ?? range.minHiddenPercent;
+}
 
 /**
  * Selects stable token positions to hide for one session and mode.
