@@ -48,11 +48,14 @@ long-term verse difficulty. Glow Points are the only currency.
   are implemented and have passed automated and project-owner manual acceptance.
 - Phase 12 Day Selection is complete and manually accepted, with server-derived
   states, live cooldowns, and atomic session starts.
+- Phase 13 Gameplay Shared Engine is complete and manually accepted with the reusable gameplay
+  shell, deterministic generators, server-owned ordered attempts, stage-based
+  limits, and atomic final-mode/day completion.
 
 ## Current Roadmap Position
 
-Phases 0–12 are complete and manually accepted.
-Phase 13 — Gameplay Shared Engine is next.
+Phases 0–13 are complete and manually accepted.
+Phase 14 — Drag & Drop Mode is next.
 
 ## Completed Work
 
@@ -101,11 +104,11 @@ Phase 13 — Gameplay Shared Engine is next.
 
 ## Current Task
 
-Review, commit, and merge the accepted Phase 12 changes.
+Review, commit, and merge the accepted Phase 13 changes.
 
 ## Exact Next Task
 
-Begin Phase 13 — Gameplay Shared Engine after the accepted Phase 12 changes are
+Begin Phase 14 — Drag & Drop Mode after the accepted Phase 13 changes are
 committed and merged.
 
 ## Important Decisions

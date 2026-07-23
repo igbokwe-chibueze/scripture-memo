@@ -1,8 +1,10 @@
 import {
   DayLevel,
   GameMode,
+  JourneyStage,
   type DayLevel as DayLevelValue,
   type GameMode as GameModeValue,
+  type JourneyStage as JourneyStageValue,
 } from "@/lib/generated/prisma/enums";
 
 /** Mandatory gameplay order; server actions must reject out-of-order attempts. */
@@ -26,6 +28,20 @@ export const BASE_GLOW_POINTS = 100;
 
 /** Required elapsed hours between consecutive challenge days. */
 export const DAY_COOLDOWN_HOURS = 24;
+
+/**
+ * Server-authoritative seconds available for one mode attempt by Journey Stage.
+ *
+ * Learn remains untimed. Timed values are deliberately forgiving because this
+ * is retrieval practice, not a speed-reading test. The repository calculates
+ * deadlines from persisted `startedAt`; client timers never grant completion.
+ */
+export const JOURNEY_STAGE_MODE_TIME_LIMIT_SECONDS = {
+  [JourneyStage.LEARN]: null,
+  [JourneyStage.RECALL]: 5 * 60,
+  [JourneyStage.STRENGTHEN]: 3 * 60,
+  [JourneyStage.MASTER]: 2 * 60,
+} as const satisfies Record<JourneyStageValue, number | null>;
 
 export type DifficultyRange = {
   minHiddenPercent: number;

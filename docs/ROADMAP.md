@@ -681,8 +681,8 @@ learner can complete Glimmer through real gameplay.
 1. Create `features/gameplay/` with the full folder structure documented in `PRODUCT-OVERVIEW.md` §4.
 2. Create `gameplay.repository.ts`:
    - `startSession(userId, waypointId, day)` — creates or retrieves active `GameSession`
-   - `recordModeAttempt(sessionId, gameMode, isCorrect)`
-   - `markModeComplete(sessionId, gameMode)`
+   - create or resume the next ordered, server-timed mode attempt
+   - validate and complete an attempt against trusted session verse data
    - `getSessionProgress(sessionId)` — returns which modes are complete
 3. Create `features/gameplay/lib/`:
    - `verse-tokenizer.ts` — splits verse text into word tokens with index positions
@@ -695,9 +695,14 @@ learner can complete Glimmer through real gameplay.
    - Timed stages use server-authoritative per-mode attempt limits: Recall 5
      minutes, Strengthen 3 minutes, and Master 2 minutes. Expiry permits a retry
      of the same mode without erasing earlier mode completion.
-5. Create `startGameSessionAction` and `completeGameModeAction`:
-   - `completeGameModeAction`: records the attempt, marks mode complete, then — if all 5 modes are complete — calls `completeDayAction`
-   - `completeDayAction`: awards Glow Points (in a transaction), sets next day's unlock time, updates streak, evaluates badge progress, revalidates paths
+5. Create `startGameSessionAction`, `startGameModeAction`, and
+   `completeGameModeAction`:
+   - `completeGameModeAction` validates the answer and attempt on the server,
+     records its terminal state, and atomically advances the challenge day after
+     all five modes complete.
+   - Phase 13 advances day and waypoint state without rewards. Glow Point
+     awards, hints, streak updates, and badge evaluation remain deferred to
+     their dedicated later phases.
 6. Create `useAudioFeedback()` hook: checks user settings before playing any audio file.
 
 ### Acceptance Criteria
@@ -709,6 +714,18 @@ learner can complete Glimmer through real gameplay.
 - Swap generator correctly handles verses with duplicate words.
 - Server rejects an expired timed attempt regardless of client timer state, and
   a retry receives a fresh attempt without losing completed modes.
+
+### Implementation Status
+
+**Complete — 2026-07-23.** The shared shell, deterministic generators,
+normalized answer validation, ordered attempt lifecycle, server-authoritative
+stage timers, immediate same-mode retries, audio feedback hook, and atomic
+final-mode/day transition are implemented. Rewards, hints, streaks, and badges
+remain assigned to their dedicated later phases.
+
+**Acceptance recorded — 2026-07-23.** The project owner verified that Glimmer
+opens the shared gameplay shell after the Phase 13 migration and generated
+Prisma client were applied. Phase 14 — Drag & Drop Mode is next.
 
 ---
 
