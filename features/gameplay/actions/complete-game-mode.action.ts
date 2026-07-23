@@ -72,7 +72,9 @@ export async function completeGameModeAction(
       };
     }
 
-    revalidatePath(`/game/sessions/${parsed.data.sessionId}`);
+    // WHY: The learner remains on a celebratory completion interstitial until
+    // explicitly continuing. Refreshing this route here would replace the
+    // client tree immediately and skip that intentional success pause.
     if (result.status === "day-complete") {
       revalidatePath("/game/map");
     }

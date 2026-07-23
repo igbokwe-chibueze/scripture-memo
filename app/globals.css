@@ -140,3 +140,29 @@
     @apply font-sans;
   }
 }
+
+/*
+ * Gameplay celebrations use one lightweight CSS animation instead of shipping
+ * a canvas dependency. Individual pieces receive deterministic horizontal,
+ * delay, and duration values from the component. Reduced-motion users never
+ * receive this animation because the component applies `motion-reduce:hidden`.
+ */
+@keyframes gameplay-confetti-fall {
+  0% {
+    opacity: 0;
+    transform: translateY(-5vh) rotate(0deg);
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(105vh) rotate(720deg);
+  }
+}
+
+.animate-gameplay-confetti {
+  animation-name: gameplay-confetti-fall;
+  animation-timing-function: ease-in;
+  animation-fill-mode: both;
+}

@@ -755,6 +755,29 @@ Prisma client were applied. Phase 14 — Drag & Drop Mode is next.
 - Correct completion advances to Puzzle mode.
 - Duplicate submission of the same completion is not possible while pending.
 
+### Implementation Status
+
+**Complete and manually accepted — 2026-07-23.** Drag & Drop now uses
+deterministic day-level hiding and a shuffled position-identified word bank.
+Mouse dragging, touch dragging, keyboard dragging, and mobile tap-to-place share
+the same state model. Placed words return to the bank on activation, Check gives
+per-slot feedback, pending state blocks repeat submissions, and a correct answer
+uses the Phase 13 server-authoritative completion action before confetti, audio,
+and the transition to Puzzle. Pointer collision requires the dragged pointer to
+be physically inside a blank, drag auto-scroll is disabled, and immediate
+pickup/drop tones respect the persisted audio preference. Selecting a bank word
+or beginning a drag highlights every available blank, removing a placed word
+also plays feedback, and surrounding punctuation remains anchored in the verse
+instead of appearing on draggable word tiles. Successful completion now plays a
+strong victory chord and pauses on an animated, reduced-motion-aware completion
+screen until the learner explicitly continues. Gameplay has an Exit control
+back to Day Selection. Administrators can replay completed Drag & Drop modes in
+a clearly labeled client-only Test Replay that performs no progression writes.
+Failed checks now play an immediate negative cue. Successful checks randomly
+choose from three non-repeating victory treatments: triumphant chord, bright
+fanfare, or a synthesized crowd-cheer-style celebration. The named pool is
+extensible so recorded or additional victory sounds can be introduced later.
+
 ---
 
 ## Phase 15 — Puzzle Mode

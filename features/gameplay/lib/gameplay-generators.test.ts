@@ -4,7 +4,10 @@ import {
   isGameplayAnswerCorrect,
   normalizeGameplayAnswer,
 } from "@/features/gameplay/lib/answer-validator";
-import { generateHiddenTokenIndexes } from "@/features/gameplay/lib/hidden-word-generator";
+import {
+  generateHiddenTokenIndexes,
+  getSessionHiddenPercent,
+} from "@/features/gameplay/lib/hidden-word-generator";
 import { generateVersePhrases } from "@/features/gameplay/lib/phrase-generator";
 import {
   areSwapTokensCorrect,
@@ -35,6 +38,29 @@ test("hidden positions are deterministic and respect the requested count", () =>
 
   assert.deepEqual(first, retry);
   assert.equal(first.length, 4);
+});
+
+test("tokenizer keeps surrounding punctuation out of gameplay word tiles", () => {
+  const tokens = tokenizeVerse("“Love,” is kind...");
+  assert.deepEqual(
+    tokens.map(({ wordText, leadingPunctuation, trailingPunctuation }) => ({
+      wordText,
+      leadingPunctuation,
+      trailingPunctuation,
+    })),
+    [
+      { wordText: "Love", leadingPunctuation: "“", trailingPunctuation: ",”" },
+      { wordText: "is", leadingPunctuation: "", trailingPunctuation: "" },
+      { wordText: "kind", leadingPunctuation: "", trailingPunctuation: "..." },
+    ],
+  );
+});
+
+test("day difficulty percentage is stable and remains within its product range", () => {
+  const first = getSessionHiddenPercent("GLIMMER", "session-1");
+  const retry = getSessionHiddenPercent("GLIMMER", "session-1");
+  assert.equal(first, retry);
+  assert.equal(first >= 20 && first <= 35, true);
 });
 
 test("phrase boundaries remain deterministic and avoid tiny trailing chunks", () => {

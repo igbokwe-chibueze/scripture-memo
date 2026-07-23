@@ -613,6 +613,14 @@ Every game mode must include:
 - Smooth transition animation between modes
 - Confetti animation on successful completion
 - Optional audio feedback for: pick, drop, correct, incorrect, complete
+- A prominent Exit control returns the learner to the current waypoint's Day
+  Selection screen without claiming completion.
+- After a successful mode submission, show an animated completion interstitial
+  with a deliberate Continue action; do not advance the visible mode
+  automatically.
+- Administrators may launch a clearly labeled Test Replay of an already
+  completed mode. Test Replay is non-progressing and must never create attempts,
+  rewards, cooldowns, streak changes, badge events, or completion writes.
 
 ---
 
@@ -628,9 +636,13 @@ Every game mode must include:
 - Tapping or clicking a placed word returns it to the bank.
 - The Check button validates all placements simultaneously.
 - Correct placements highlight green; incorrect placements highlight red.
-- On all correct: confetti fires, success toast appears, Continue button appears.
+- On all correct: confetti fires, one sound is randomly selected from the
+  extensible victory pool, and an animated completion interstitial presents the
+  Continue button. The initial pool contains a triumphant chord, bright fanfare,
+  and crowd-cheer-style celebration, with immediate repetition avoided.
 
-**Audio cues:** Pick (on drag start), drop (on placement), error (on failed check), correct (on full success).
+**Audio cues:** Pick (on drag start), drop (on placement), an audible negative
+cue on failed Check, and a randomized victory-pool sound on full success.
 
 **Reusable components required:**
 - `word-bank.tsx`

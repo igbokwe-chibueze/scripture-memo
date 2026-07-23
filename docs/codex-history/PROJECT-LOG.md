@@ -51,11 +51,14 @@ long-term verse difficulty. Glow Points are the only currency.
 - Phase 13 Gameplay Shared Engine is complete and manually accepted with the reusable gameplay
   shell, deterministic generators, server-owned ordered attempts, stage-based
   limits, and atomic final-mode/day completion.
+- Phase 14 Drag & Drop Mode is complete and manually accepted, including
+  desktop/touch placement, feedback audio, victory variants, the completion
+  interstitial, Exit navigation, and administrator Test Replay.
 
 ## Current Roadmap Position
 
-Phases 0–13 are complete and manually accepted.
-Phase 14 — Drag & Drop Mode is next.
+Phases 0–14 are complete and manually accepted.
+Phase 15 — Puzzle Mode is next.
 
 ## Completed Work
 
@@ -104,12 +107,12 @@ Phase 14 — Drag & Drop Mode is next.
 
 ## Current Task
 
-Review, commit, and merge the accepted Phase 13 changes.
+Review, commit, and merge the accepted Phase 14 changes.
 
 ## Exact Next Task
 
-Begin Phase 14 — Drag & Drop Mode after the accepted Phase 13 changes are
-committed and merged.
+Begin Phase 15 — Puzzle Mode after the accepted Phase 14 changes are committed
+and merged.
 
 ## Important Decisions
 
@@ -285,6 +288,42 @@ committed and merged.
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-23 — Phase 14 Drag & Drop completed and accepted
+
+- Added deterministic hidden-word selection and shuffled word-bank ordering
+  within each challenge-day range.
+- Added position-based placement helpers and tests so duplicate word text never
+  becomes the identity of a draggable token.
+- Added desktop mouse dragging, touch dragging, keyboard dragging, mobile
+  select-and-tap placement, placed-word return, reset, and per-slot feedback.
+- Corrected pointer collision so a blank highlights only while the dragged
+  pointer is physically over it, disabled drag auto-scroll to prevent
+  disorienting viewport movement, and added immediate pickup/drop tones.
+- Refined tap feedback so selecting a word highlights every available blank
+  without weakening precise drag-drop collision. Returning a placed word now
+  plays audio, while leading and trailing punctuation stays in the verse rather
+  than following word-bank tiles.
+- Unified selection feedback so starting a drag highlights all available blanks
+  even when the word was not clicked first; successful drops still require the
+  pointer to be physically inside a blank.
+- Added a stronger success chord and an animated, reduced-motion-aware mode
+  completion interstitial that waits for explicit Continue rather than
+  automatically replacing the mode.
+- Added an immediate wrong-answer sound and replaced the single success chord
+  with a randomized, non-repeating three-sound victory pool: triumphant chord,
+  bright fanfare, and a license-safe synthesized crowd-cheer-style celebration.
+  The named pool can be extended or replaced with recorded assets later.
+- Added a gameplay Exit control back to the current waypoint's Day Selection
+  and an administrator-only Test Replay for completed Drag & Drop modes. Test
+  Replay is clearly labeled and makes no attempt, reward, cooldown, or
+  progression writes.
+- Correct checks call the server-owned attempt completion action before success
+  audio, confetti, toast feedback, and progression to Puzzle. Pending state
+  prevents duplicate submissions.
+- Gameplay, progression, and day-selection tests, strict TypeScript, ESLint,
+  diff validation, and the production build pass. The project owner manually
+  accepted the completed desktop and mobile interaction experience.
 
 ### 2026-07-23 — Journey Stage time limits resolved
 

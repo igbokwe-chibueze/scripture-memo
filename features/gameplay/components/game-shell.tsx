@@ -1,21 +1,25 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import {
   Clock3Icon,
   LightbulbIcon,
   PlayIcon,
+  ShieldCheckIcon,
   Volume2Icon,
   VolumeXIcon,
+  XIcon,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { CountdownTimer } from "@/components/shared/countdown-timer";
 import { JourneyStageBadge } from "@/components/shared/journey-stage-badge";
 import { showActionError } from "@/lib/errors/show-action-error";
 import { GAME_MODE_ORDER } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { startGameModeAction } from "@/features/gameplay/actions/start-game-mode.action";
+import { DragDropMode } from "@/features/gameplay/components/modes/drag-drop-mode";
 import type {
   GameModeAttemptData,
   GameplaySessionData,
@@ -37,11 +41,14 @@ const GAME_MODE_LABELS = {
  */
 export function GameShell({
   gameSession,
+  isAdmin,
 }: {
   gameSession: GameplaySessionData;
+  isAdmin: boolean;
 }): React.ReactNode {
   const [attempt, setAttempt] = useState<GameModeAttemptData | null>(null);
   const [audioEnabled, setAudioEnabled] = useState(gameSession.audioEnabled);
+  const [isTestingDragDrop, setIsTestingDragDrop] = useState(false);
   const [isPending, startTransition] = useTransition();
   const currentMode = gameSession.currentMode;
   const currentModeIndex = currentMode
@@ -92,16 +99,31 @@ export function GameShell({
                 {gameSession.verse.reference}
               </h1>
             </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-lg"
-              className="min-h-11 min-w-11 rounded-xl text-white hover:bg-white/10 hover:text-white"
-              aria-label={audioEnabled ? "Mute audio feedback" : "Enable audio feedback"}
-              onClick={toggleAudio}
-            >
-              {audioEnabled ? <Volume2Icon aria-hidden="true" /> : <VolumeXIcon aria-hidden="true" />}
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-lg"
+                className="min-h-11 min-w-11 rounded-xl text-white hover:bg-white/10 hover:text-white"
+                aria-label={audioEnabled ? "Mute audio feedback" : "Enable audio feedback"}
+                onClick={toggleAudio}
+              >
+                {audioEnabled ? <Volume2Icon aria-hidden="true" /> : <VolumeXIcon aria-hidden="true" />}
+              </Button>
+              {gameSession.waypointId && (
+                <Link
+                  href={`/game/waypoints/${gameSession.waypointId}`}
+                  aria-label="Exit gameplay and return to challenge days"
+                  className={buttonVariants({
+                    variant: "ghost",
+                    size: "icon-lg",
+                    className: "min-h-11 min-w-11 rounded-xl text-white hover:bg-white/10 hover:text-white",
+                  })}
+                >
+                  <XIcon aria-hidden="true" />
+                </Link>
+              )}
+            </div>
           </div>
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
@@ -132,21 +154,29 @@ export function GameShell({
               />
             ))}
           </ol>
+
+          {isAdmin && gameSession.completedModes.includes("DRAG_DROP") && (
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-sky-300/20 bg-sky-300/8 px-3 py-2.5">
+              <span className="inline-flex items-center gap-2 text-xs font-bold text-sky-200">
+                <ShieldCheckIcon className="size-4" aria-hidden="true" />
+                Admin testing · no progress changes
+              </span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="min-h-9 rounded-lg text-sky-100 hover:bg-sky-300/15 hover:text-white"
+                onClick={() => setIsTestingDragDrop((current) => !current)}
+              >
+                {isTestingDragDrop ? "Return to current mode" : "Test Drag & Drop again"}
+              </Button>
+            </div>
+          )}
         </header>
 
-        <div className="flex flex-1 flex-col items-center justify-center px-5 py-8 text-center sm:px-10">
-          <span className="grid size-16 place-items-center rounded-2xl bg-violet-500/20 text-violet-200">
-            <PlayIcon className="size-8" aria-hidden="true" />
-          </span>
-          <p className="mt-5 text-xs font-black tracking-[0.16em] text-violet-300 uppercase">
-            Current mode
-          </p>
-          <h2 className="mt-2 font-heading text-3xl font-black">
-            {currentMode ? GAME_MODE_LABELS[currentMode] : "Day complete"}
-          </h2>
-
+        <div className="flex flex-1 flex-col items-center px-5 py-8 text-center sm:px-10">
           {attempt?.expiresAt && (
-            <div className="mt-5 flex flex-col items-center gap-2">
+            <div className="mb-6 flex flex-col items-center gap-2">
               <span className="inline-flex items-center gap-2 text-sm font-bold text-amber-200">
                 <Clock3Icon className="size-4" aria-hidden="true" />
                 Attempt time remaining
@@ -162,23 +192,54 @@ export function GameShell({
             </div>
           )}
 
-          <p className="mt-5 max-w-md text-sm leading-6 text-slate-300">
-            {attempt
-              ? "Your server-authorized attempt is active. The interactive mode surface is introduced in the next gameplay phase."
-              : "Begin when ready. Completed earlier modes remain saved if a timed attempt expires."}
-          </p>
+          {isTestingDragDrop && gameSession.dayLevel ? (
+            <DragDropMode
+              sessionId={gameSession.id}
+              dayLevel={gameSession.dayLevel}
+              verseText={gameSession.verse.translationText}
+              attempt={null}
+              isTestReplay
+              nextMode={currentMode}
+              onTestReplayExit={() => setIsTestingDragDrop(false)}
+            />
+          ) : currentMode === "DRAG_DROP" && attempt && gameSession.dayLevel ? (
+            <DragDropMode
+              sessionId={gameSession.id}
+              dayLevel={gameSession.dayLevel}
+              verseText={gameSession.verse.translationText}
+              attempt={attempt}
+              nextMode={GAME_MODE_ORDER[currentModeIndex + 1] ?? null}
+            />
+          ) : (
+            <div className="my-auto flex flex-col items-center">
+              <span className="grid size-16 place-items-center rounded-2xl bg-violet-500/20 text-violet-200">
+                <PlayIcon className="size-8" aria-hidden="true" />
+              </span>
+              <p className="mt-5 text-xs font-black tracking-[0.16em] text-violet-300 uppercase">
+                Current mode
+              </p>
+              <h2 className="mt-2 font-heading text-3xl font-black">
+                {currentMode ? GAME_MODE_LABELS[currentMode] : "Day complete"}
+              </h2>
+              <p className="mt-5 max-w-md text-sm leading-6 text-slate-300">
+                {attempt
+                  ? "This mode arrives in its dedicated gameplay phase."
+                  : "Begin when ready. Completed earlier modes remain saved if a timed attempt expires."}
+              </p>
 
-          {currentMode && !attempt && (
-            <Button
-              type="button"
-              size="lg"
-              className="mt-7 min-h-12 rounded-xl bg-amber-400 px-7 font-black text-slate-950 hover:bg-amber-300"
-              disabled={isPending}
-              onClick={beginMode}
-            >
-              <PlayIcon data-icon="inline-start" aria-hidden="true" />
-              {isPending ? "Starting…" : `Begin ${GAME_MODE_LABELS[currentMode]}`}
-            </Button>
+              {currentMode && !attempt && (
+                <Button
+                  type="button"
+                  size="lg"
+                  className="mt-7 min-h-12 rounded-xl bg-amber-400 px-7 font-black text-slate-950 hover:bg-amber-300"
+                  disabled={isPending}
+                  onClick={beginMode}
+                >
+                  <PlayIcon data-icon="inline-start" aria-hidden="true" />
+                  {isPending ? "Starting…" : `Begin ${GAME_MODE_LABELS[currentMode]}`}
+                </Button>
+              )}
+            </div>
           )}
         </div>
 
