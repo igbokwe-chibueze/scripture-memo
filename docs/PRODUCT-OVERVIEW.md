@@ -482,9 +482,9 @@ separate from and independent of the Three-Day Challenge System.
 | Stage | Icon | Purpose | Hints Available | Time Limit |
 |---|---|---|---|---|
 | **Learn** | 📖 | First introduction to the verse. Encourage engagement and initial familiarity. | Yes | None |
-| **Recall** | 🧠 | Revisit the verse after several waypoints to test memory retention. | Yes | Yes (generous) |
-| **Strengthen** | 💪 | Verse returns with increased difficulty and reduced support. | No | Yes (shorter) |
-| **Master** | 👑 | Final challenge for this verse. Maximum difficulty, no assistance. | No | Yes (strict) |
+| **Recall** | 🧠 | Revisit the verse after several waypoints to test memory retention. | Yes | 5 minutes per mode attempt |
+| **Strengthen** | 💪 | Verse returns with increased difficulty and reduced support. | No | 3 minutes per mode attempt |
+| **Master** | 👑 | Final challenge for this verse. Maximum difficulty, no assistance. | No | 2 minutes per mode attempt |
 
 ### 8.2 How Journey Stages Work
 
@@ -512,9 +512,17 @@ to be published at an earlier waypoint.
 | Rule | Learn | Recall | Strengthen | Master |
 |---|---|---|---|---|
 | Hints available | ✅ | ✅ | ❌ | ❌ |
-| Time limit | ❌ | ✅ (generous) | ✅ (shorter) | ✅ (strict) |
+| Time limit per mode attempt | ❌ | ✅ 5 minutes | ✅ 3 minutes | ✅ 2 minutes |
 
 These rules apply regardless of which of the five game modes is being played. If the Journey Stage disables hints, all modes within that waypoint have hints disabled.
+
+Time limits apply independently to each mode attempt, not to the complete
+five-mode day. A timed attempt begins from its server-persisted `startedAt`, and
+the server rejects completion after its deadline even if a client timer was
+paused or altered. An expired attempt awards nothing and unlocks nothing; the
+learner may immediately create a new attempt for the same mode. Earlier completed
+modes remain complete. Leaving the page, backgrounding the browser, refreshing,
+or changing the device clock does not pause or extend an attempt.
 
 ### 8.4 Journey Stage Display
 

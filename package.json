@@ -12,6 +12,7 @@
     "test:errors": "tsx --test lib/errors/error-catalog.test.ts",
     "test:database-guard": "tsx --test lib/testing/test-database-guard.test.ts",
     "test:progression": "tsx --test features/progression/lib/progression-utils.test.ts",
+    "test:gameplay": "tsx --test features/gameplay/lib/gameplay-generators.test.ts",
     "test:day-selection": "tsx --test features/waypoints/lib/day-selection.test.ts",
     "test:map": "tsx --test features/map/data/map-themes.test.ts features/map/lib/map-positioner.test.ts features/map/lib/map-utils.test.ts features/map/lib/map-variant.test.ts",
     "test:integration": "tsx --conditions=react-server --test features/waypoints/repositories/waypoint.repository.test.ts",

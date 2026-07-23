@@ -431,7 +431,15 @@ The Journey Stage (LEARN, RECALL, STRENGTHEN, MASTER) is stored on the `Waypoint
 | Rule | LEARN | RECALL | STRENGTHEN | MASTER |
 |---|---|---|---|---|
 | Hints available | ✅ | ✅ | ❌ | ❌ |
-| Time limit | ❌ | ✅ (generous) | ✅ (shorter) | ✅ (strict) |
+| Time limit per mode attempt | ❌ | ✅ 5 minutes | ✅ 3 minutes | ✅ 2 minutes |
+
+Timed Journey Stages use a fresh server-created attempt deadline for each game
+mode, not one timer for the entire five-mode day. The server derives the deadline
+from the persisted attempt `startedAt`; pausing, backgrounding, refreshing, or
+changing the client clock never pauses or extends it. Expiry fails only that
+attempt: the learner may immediately retry the same mode, while previously
+completed modes, day progress, Glow Points, and rewards remain unchanged. Client
+timers are display-only. Reduced-motion and audio settings never alter timing.
 
 **These rules are enforced server-side.** The `useHintAction` must check the waypoint's Journey Stage and reject the request if the stage is STRENGTHEN or MASTER — regardless of what the client sends.
 

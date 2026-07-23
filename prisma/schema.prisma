@@ -60,6 +60,13 @@ enum CompletionStatus {
   COMPLETED
 }
 
+enum GameModeAttemptStatus {
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  EXPIRED
+}
+
 enum BadgeCategory {
   LEARNING
   STREAK
@@ -309,6 +316,7 @@ model GameSession {
   verseId       String
   dayProgressId String?
   dayLevel      DayLevel?
+  translation   TranslationCode   @default(NIV)
   status        CompletionStatus  @default(IN_PROGRESS)
   isVaultReplay Boolean           @default(false)
   startedAt     DateTime          @default(now())
@@ -329,20 +337,20 @@ model GameSession {
 }
 
 model GameModeAttempt {
-  id            String           @id @default(cuid())
+  id            String                @id @default(cuid())
   gameSessionId String
   userId        String
   gameMode      GameMode
-  attemptNumber Int              @default(1)
-  status        CompletionStatus @default(IN_PROGRESS)
+  attemptNumber Int                   @default(1)
+  status        GameModeAttemptStatus @default(IN_PROGRESS)
   score         Int?
   durationMs    Int?
-  startedAt     DateTime         @default(now())
+  startedAt     DateTime              @default(now())
   completedAt   DateTime?
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
-  gameSession   GameSession      @relation(fields: [gameSessionId], references: [id], onDelete: Cascade)
-  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  gameSession   GameSession           @relation(fields: [gameSessionId], references: [id], onDelete: Cascade)
+  user          User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([gameSessionId, gameMode, attemptNumber])
   @@index([userId, gameMode, status])

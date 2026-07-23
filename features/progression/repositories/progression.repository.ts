@@ -213,6 +213,101 @@ async function unlockNextWaypointInTransaction(
   return nextWaypoint;
 }
 
+/**
+ * Completes a server-proven day inside the gameplay caller's transaction.
+ *
+ * The caller must first prove all five ordered modes are complete. Keeping this
+ * transition transaction-aware lets the final mode, day, waypoint, and next
+ * waypoint commit as one indivisible state change.
+ */
+export async function markDayCompleteInTransaction(
+  transaction: Prisma.TransactionClient,
+  userId: string,
+  waypointId: string,
+  dayLevel: DayLevelValue,
+  completedAt: Date,
+): Promise<CompleteDayResult> {
+  await lockProgression(transaction, userId, waypointId);
+  const waypoint = await requireAvailableWaypoint(transaction, waypointId);
+  const waypointProgress = await transaction.userWaypointProgress.findUnique({
+    where: { userId_waypointId: { userId, waypointId } },
+  });
+  if (!waypointProgress || waypointProgress.status === WaypointStatus.LOCKED) {
+    throw new ProgressionConflictError("WAYPOINT_LOCKED");
+  }
+
+  const dayProgress = await transaction.userDayProgress.findUnique({
+    where: { userId_waypointId_dayLevel: { userId, waypointId, dayLevel } },
+  });
+  if (dayProgress?.status === CompletionStatus.COMPLETED) {
+    throw new ProgressionConflictError("DAY_ALREADY_COMPLETED");
+  }
+  // WHY: Only a server-started game can create IN_PROGRESS state. This keeps a
+  // client from skipping gameplay proof and calling completion directly.
+  if (dayProgress?.status !== CompletionStatus.IN_PROGRESS) {
+    throw new ProgressionConflictError("DAY_NOT_INITIALIZED");
+  }
+
+  const previousDay = getPreviousDayLevel(dayLevel);
+  if (previousDay) {
+    const previousProgress = await transaction.userDayProgress.findUnique({
+      where: {
+        userId_waypointId_dayLevel: {
+          userId,
+          waypointId,
+          dayLevel: previousDay,
+        },
+      },
+    });
+    if (previousProgress?.status !== CompletionStatus.COMPLETED) {
+      throw new ProgressionConflictError("PREVIOUS_DAY_INCOMPLETE");
+    }
+  }
+
+  await transaction.userDayProgress.update({
+    where: { id: dayProgress.id },
+    data: { status: CompletionStatus.COMPLETED, completedAt },
+  });
+
+  const nextDayUnlocksAt = calculateNextUnlock(dayLevel, completedAt);
+  if (nextDayUnlocksAt) {
+    await setNextDayUnlockInTransaction(
+      transaction,
+      userId,
+      waypointId,
+      dayLevel,
+      nextDayUnlocksAt,
+    );
+    await transaction.userWaypointProgress.update({
+      where: { userId_waypointId: { userId, waypointId } },
+      data: { status: WaypointStatus.COOLDOWN },
+    });
+    return {
+      completedDay: dayLevel,
+      nextDayUnlocksAt,
+      unlockedWaypoint: null,
+      caughtUp: false,
+    };
+  }
+
+  await transaction.userWaypointProgress.update({
+    where: { userId_waypointId: { userId, waypointId } },
+    data: { status: WaypointStatus.COMPLETED, completedAt },
+  });
+  const unlockedWaypoint = await unlockNextWaypointInTransaction(
+    transaction,
+    userId,
+    waypoint.number,
+    completedAt,
+  );
+  return {
+    completedDay: dayLevel,
+    nextDayUnlocksAt: null,
+    unlockedWaypoint,
+    caughtUp: unlockedWaypoint === null,
+  };
+}
+
 /** Database boundary for lazy, server-authoritative learner progression. */
 export const progressionRepository = {
   /** Returns one learner's persisted waypoint state, or null while it is lazy. */
@@ -308,81 +403,16 @@ export const progressionRepository = {
     dayLevel: DayLevelValue,
     completedAt: Date,
   ): Promise<CompleteDayResult> {
-    return prisma.$transaction(async (transaction) => {
-      await lockProgression(transaction, userId, waypointId);
-      const waypoint = await requireAvailableWaypoint(transaction, waypointId);
-      const waypointProgress = await transaction.userWaypointProgress.findUnique({
-        where: { userId_waypointId: { userId, waypointId } },
-      });
-      if (!waypointProgress || waypointProgress.status === WaypointStatus.LOCKED) {
-        throw new ProgressionConflictError("WAYPOINT_LOCKED");
-      }
-
-      const dayProgress = await transaction.userDayProgress.findUnique({
-        where: { userId_waypointId_dayLevel: { userId, waypointId, dayLevel } },
-      });
-      if (dayProgress?.status === CompletionStatus.COMPLETED) {
-        throw new ProgressionConflictError("DAY_ALREADY_COMPLETED");
-      }
-      // WHY: Only a server-started game can create IN_PROGRESS state. This keeps
-      // a client from skipping the gameplay proof and calling completion directly.
-      if (dayProgress?.status !== CompletionStatus.IN_PROGRESS) {
-        throw new ProgressionConflictError("DAY_NOT_INITIALIZED");
-      }
-
-      const previousDay = getPreviousDayLevel(dayLevel);
-      if (previousDay) {
-        const previousProgress = await transaction.userDayProgress.findUnique({
-          where: { userId_waypointId_dayLevel: { userId, waypointId, dayLevel: previousDay } },
-        });
-        if (previousProgress?.status !== CompletionStatus.COMPLETED) {
-          throw new ProgressionConflictError("PREVIOUS_DAY_INCOMPLETE");
-        }
-      }
-
-      await transaction.userDayProgress.update({
-        where: { id: dayProgress.id },
-        data: { status: CompletionStatus.COMPLETED, completedAt },
-      });
-
-      const nextDayUnlocksAt = calculateNextUnlock(dayLevel, completedAt);
-      if (nextDayUnlocksAt) {
-        await setNextDayUnlockInTransaction(
-          transaction,
-          userId,
-          waypointId,
-          dayLevel,
-          nextDayUnlocksAt,
-        );
-        await transaction.userWaypointProgress.update({
-          where: { userId_waypointId: { userId, waypointId } },
-          data: { status: WaypointStatus.COOLDOWN },
-        });
-        return {
-          completedDay: dayLevel,
-          nextDayUnlocksAt,
-          unlockedWaypoint: null,
-          caughtUp: false,
-        };
-      }
-
-      await transaction.userWaypointProgress.update({
-        where: { userId_waypointId: { userId, waypointId } },
-        data: { status: WaypointStatus.COMPLETED, completedAt },
-      });
-      const unlockedWaypoint = await unlockNextWaypointInTransaction(
+    return prisma.$transaction(
+      (transaction) => markDayCompleteInTransaction(
         transaction,
         userId,
-        waypoint.number,
+        waypointId,
+        dayLevel,
         completedAt,
-      );
-      return {
-        completedDay: dayLevel,
-        nextDayUnlocksAt: null,
-        unlockedWaypoint,
-        caughtUp: unlockedWaypoint === null,
-      };
-    }, progressionTransactionOptions);
+      ),
+      progressionTransactionOptions,
+    );
   },
 
   /** Sets the following day's timestamp in its own guarded transaction. */
