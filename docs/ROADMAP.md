@@ -692,6 +692,9 @@ learner can complete Glimmer through real gameplay.
    - `answer-validator.ts` — normalizes both the user input and the correct answer before comparing; comments must explain why normalization is necessary
 4. Create the game shell (`features/gameplay/components/game-shell.tsx`):
    - Displays: verse reference, Journey Stage badge, mode progress bar (Mode X of 5), hint button (hidden on Strengthen/Master), audio toggle
+   - Timed stages use server-authoritative per-mode attempt limits: Recall 5
+     minutes, Strengthen 3 minutes, and Master 2 minutes. Expiry permits a retry
+     of the same mode without erasing earlier mode completion.
 5. Create `startGameSessionAction` and `completeGameModeAction`:
    - `completeGameModeAction`: records the attempt, marks mode complete, then — if all 5 modes are complete — calls `completeDayAction`
    - `completeDayAction`: awards Glow Points (in a transaction), sets next day's unlock time, updates streak, evaluates badge progress, revalidates paths
@@ -704,6 +707,8 @@ learner can complete Glimmer through real gameplay.
 - Answer validator passes case-insensitive, punctuation-stripped tests.
 - Phrase generator returns the same phrases for the same input on retry.
 - Swap generator correctly handles verses with duplicate words.
+- Server rejects an expired timed attempt regardless of client timer state, and
+  a retry receives a fresh attempt without losing completed modes.
 
 ---
 

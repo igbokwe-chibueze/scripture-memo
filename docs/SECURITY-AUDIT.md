@@ -117,7 +117,7 @@ The server and database are the only sources of truth for all security-sensitive
 | 5.9 | Game mode completion order is enforced server-side (DRAG_DROP → PUZZLE → SWAP → CUE → FILL) | 🟠 High | ☐ Pending | User cannot jump to Fill mode without completing previous modes |
 | 5.10 | A day cannot be marked complete unless all five modes are recorded as complete | 🔴 Critical | ☐ Pending | Prevents partial-day reward collection |
 | 5.11 | Journey Stage hint rules are enforced server-side in `useHintAction` | 🔴 Critical | ☐ Pending | STRENGTHEN and MASTER stage requests must be rejected at the action level |
-| 5.12 | Journey Stage time limit rules are enforced server-side | 🟠 High | ☐ Pending | Client timer is display-only; server validates actual elapsed time if time limit exists |
+| 5.12 | Journey Stage time limit rules are enforced server-side | 🟠 High | ☐ Pending | Per-mode limits are Recall 5m, Strengthen 3m, Master 2m; persisted attempt time is authoritative and client timers are display-only |
 
 ---
 

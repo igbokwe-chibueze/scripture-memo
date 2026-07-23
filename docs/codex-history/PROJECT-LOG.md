@@ -199,6 +199,9 @@ committed and merged.
   authorize, call repositories, and revalidate.
 - Durable application data belongs in PostgreSQL through Prisma, not JSON files.
 - Mode 4 is Cue, never Hint; hints are a separate system.
+- Timed Journey Stages use one server-authoritative deadline per mode attempt:
+  Recall 5 minutes, Strengthen 3 minutes, and Master 2 minutes. Expiry permits a
+  fresh retry of that mode without erasing completed modes or awarding progress.
 - Hints are disabled during Strengthen and Master.
 - Cooldowns, game order, completion, and rewards are server-authoritative.
 - Glow Points are the only currency; no XP system exists.
@@ -279,6 +282,17 @@ committed and merged.
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-23 — Journey Stage time limits resolved
+
+- Defined forgiving per-mode limits: Recall 5 minutes, Strengthen 3 minutes,
+  and Master 2 minutes; Learn remains untimed.
+- Defined server-persisted attempt time as authoritative. Browser suspension,
+  refresh, navigation, or device-clock changes cannot extend the deadline.
+- Expiry fails only the current attempt and allows an immediate retry without
+  erasing previously completed modes or awarding progress.
+- Updated root instructions, product requirements, roadmap acceptance, security
+  audit guidance, and this continuity log with the same contract.
 
 ### 2026-07-23 — Phase 12 manually accepted
 
