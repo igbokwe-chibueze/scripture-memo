@@ -51,8 +51,14 @@ export function ThemeSwitcher({
     () => false,
   );
 
-  const ActiveIcon =
-    themeOptions.find((option) => option.value === theme)?.icon ?? LaptopIcon;
+  // WHY: The server cannot read next-themes browser storage. Rendering the
+  // saved theme icon during the client's first pass would mismatch the server's
+  // laptop fallback and force React to discard this hydrated tree. Both sides
+  // render LaptopIcon until hydration completes; only then may browser-owned
+  // theme state choose the visible icon.
+  const ActiveIcon = mounted
+    ? themeOptions.find((option) => option.value === theme)?.icon ?? LaptopIcon
+    : LaptopIcon;
 
   return (
     <DropdownMenu>

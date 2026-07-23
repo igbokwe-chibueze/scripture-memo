@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeftIcon, ConstructionIcon, SparklesIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { JourneyStageBadge } from "@/components/shared/journey-stage-badge";
 import { ResponsiveContainer } from "@/components/shared/responsive-container";
 import { requireServerSession } from "@/lib/auth/session";
@@ -59,14 +59,16 @@ export async function SessionReadyView({
             <SparklesIcon className="size-4" aria-hidden="true" />
             Session progress is preserved
           </div>
-          <Button
-            render={<Link href={`/game/waypoints/${gameSession.waypointId}`} />}
-            variant="outline"
-            className="mt-7 min-h-11 rounded-xl px-5"
+          <Link
+            href={`/game/waypoints/${gameSession.waypointId}`}
+            className={buttonVariants({
+              variant: "outline",
+              className: "mt-7 min-h-11 rounded-xl px-5",
+            })}
           >
             <ArrowLeftIcon className="size-4" aria-hidden="true" />
             Back to challenge days
-          </Button>
+          </Link>
         </section>
       </ResponsiveContainer>
     </main>

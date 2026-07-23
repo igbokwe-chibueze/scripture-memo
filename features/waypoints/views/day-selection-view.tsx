@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeftIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { ResponsiveContainer } from "@/components/shared/responsive-container";
 import { requireServerSession } from "@/lib/auth/session";
 import { DaySelection } from "@/features/waypoints/components/day-selection";
@@ -35,14 +35,16 @@ export async function DaySelectionView({
   return (
     <main className="min-h-svh bg-linear-to-b from-sky-100/70 via-background to-amber-100/40 py-5 dark:from-sky-950/30 dark:to-amber-950/20 sm:py-8">
       <ResponsiveContainer size="lg" className="space-y-5">
-        <Button
-          render={<Link href="/game/map" />}
-          variant="ghost"
-          className="min-h-11 rounded-xl px-3"
+        <Link
+          href="/game/map"
+          className={buttonVariants({
+            variant: "ghost",
+            className: "min-h-11 rounded-xl px-3",
+          })}
         >
           <ArrowLeftIcon className="size-4" aria-hidden="true" />
           Back to map
-        </Button>
+        </Link>
         <DaySelection data={data} cards={cards} />
       </ResponsiveContainer>
     </main>
