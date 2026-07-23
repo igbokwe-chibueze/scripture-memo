@@ -232,7 +232,7 @@ export function DragDropMode({
       >
         <section className="w-full max-w-2xl text-left" aria-labelledby="drag-drop-title">
           <div className="text-center">
-            <p className="text-xs font-black tracking-[0.16em] text-violet-300 uppercase">
+            <p className="text-xs font-black tracking-[0.16em] text-violet-700 uppercase dark:text-violet-300">
               Restore the missing words
             </p>
             <h2 id="drag-drop-title" className="mt-2 font-heading text-3xl font-black">
@@ -241,7 +241,7 @@ export function DragDropMode({
           </div>
 
           <div
-            className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 text-lg leading-[3.25rem] font-semibold sm:p-6 sm:text-xl"
+            className="mt-6 rounded-2xl border border-border bg-muted/35 p-4 text-lg leading-[3.25rem] font-semibold dark:border-white/10 dark:bg-white/5 sm:p-6 sm:text-xl"
             aria-label="Verse with missing words"
           >
             {tokens.map((token) =>
@@ -306,7 +306,7 @@ export function DragDropMode({
             <Button
               type="button"
               variant="ghost"
-              className="min-h-12 rounded-xl px-4 text-slate-300 hover:bg-white/10 hover:text-white"
+              className="min-h-12 rounded-xl px-4 text-muted-foreground hover:bg-muted hover:text-foreground dark:hover:bg-white/10 dark:hover:text-white"
               disabled={isPending || isComplete || Object.keys(placements).length === 0}
               onClick={resetPlacements}
             >

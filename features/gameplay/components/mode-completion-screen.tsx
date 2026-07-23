@@ -42,7 +42,7 @@ export function ModeCompletionScreen({
 
   return (
     <motion.div
-      className="fixed inset-0 z-40 grid place-items-center overflow-y-auto bg-slate-950/85 px-4 py-8 backdrop-blur-md"
+      className="fixed inset-0 z-40 grid place-items-center overflow-y-auto bg-slate-950/65 px-4 py-8 backdrop-blur-md dark:bg-slate-950/85"
       initial={{ opacity: shouldReduceMotion ? 1 : 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: shouldReduceMotion ? 0 : 0.25 }}
@@ -51,7 +51,7 @@ export function ModeCompletionScreen({
       aria-labelledby="mode-complete-title"
     >
       <motion.section
-        className="w-full max-w-md overflow-hidden rounded-[2rem] border border-emerald-300/25 bg-linear-to-b from-slate-800 to-slate-950 p-6 text-center text-white shadow-2xl shadow-emerald-950/60 sm:p-8"
+        className="w-full max-w-md overflow-hidden rounded-[2rem] border border-emerald-500/25 bg-linear-to-b from-white to-emerald-50 p-6 text-center text-foreground shadow-2xl shadow-emerald-950/25 dark:border-emerald-300/25 dark:from-slate-800 dark:to-slate-950 dark:text-white dark:shadow-emerald-950/60 sm:p-8"
         initial={shouldReduceMotion ? false : { opacity: 0, y: 48, scale: 0.9 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={
@@ -74,19 +74,19 @@ export function ModeCompletionScreen({
           <CheckIcon className="size-14 stroke-3" aria-hidden="true" />
         </motion.div>
 
-        <p className="mt-6 text-xs font-black tracking-[0.18em] text-emerald-300 uppercase">
+        <p className="mt-6 text-xs font-black tracking-[0.18em] text-emerald-700 uppercase dark:text-emerald-300">
           {isTestReplay ? "Admin test replay" : "Mode restored"}
         </p>
         <h2 id="mode-complete-title" className="mt-2 font-heading text-4xl font-black">
           Beautiful work!
         </h2>
-        <p className="mt-3 text-lg font-bold text-slate-200">
+        <p className="mt-3 text-lg font-bold text-foreground/80 dark:text-slate-200">
           {MODE_LABELS[completedMode]} complete
         </p>
 
-        <div className="mt-7 rounded-2xl border border-amber-300/20 bg-amber-300/8 p-4">
-          <SparklesIcon className="mx-auto size-6 text-amber-300" aria-hidden="true" />
-          <p className="mt-2 text-sm font-semibold text-slate-300">
+        <div className="mt-7 rounded-2xl border border-amber-400/30 bg-amber-100/70 p-4 dark:border-amber-300/20 dark:bg-amber-300/8">
+          <SparklesIcon className="mx-auto size-6 text-amber-600 dark:text-amber-300" aria-hidden="true" />
+          <p className="mt-2 text-sm font-semibold text-muted-foreground dark:text-slate-300">
             {isTestReplay
               ? "Testing complete. No progress, rewards, or cooldowns were changed."
               : nextMode
@@ -108,7 +108,7 @@ export function ModeCompletionScreen({
             <Button
               type="button"
               variant="ghost"
-              className="min-h-11 rounded-xl text-slate-300 hover:bg-white/10 hover:text-white"
+              className="min-h-11 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
               onClick={onReplay}
             >
               <RotateCcwIcon data-icon="inline-start" aria-hidden="true" />

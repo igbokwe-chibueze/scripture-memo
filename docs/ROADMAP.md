@@ -777,6 +777,12 @@ Failed checks now play an immediate negative cue. Successful checks randomly
 choose from three non-repeating victory treatments: triumphant chord, bright
 fanfare, or a synthesized crowd-cheer-style celebration. The named pool is
 extensible so recorded or additional victory sounds can be introduced later.
+The shared shell, Drag & Drop surface, word bank, blanks, controls, and
+completion interstitial use theme-aware semantic colors and now honor the
+learner's saved Light, Dark, or System preference.
+The shared landing-page theme switcher now persists authenticated choices
+through a validated Server Action. This prevents the protected `/game` layout
+from restoring an older database theme after a browser-only switch.
 
 ---
 

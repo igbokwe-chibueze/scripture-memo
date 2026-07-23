@@ -615,6 +615,14 @@ Every game mode must include:
 - Optional audio feedback for: pick, drop, correct, incorrect, complete
 - A prominent Exit control returns the learner to the current waypoint's Day
   Selection screen without claiming completion.
+- Every game route and mode must honor the saved Light, Dark, or System theme.
+  Shared gameplay surfaces use semantic theme colors with intentional
+  light/dark accents; a mode must never force the complete experience into one
+  color scheme.
+- The shared public theme switcher persists its selection to `UserSettings`
+  whenever the visitor is authenticated. Anonymous visitors retain a
+  browser-only choice. Protected layouts and public controls must never maintain
+  competing theme values that cause navigation to restore an older appearance.
 - After a successful mode submission, show an animated completion interstitial
   with a deliberate Continue action; do not advance the visible mode
   automatically.
