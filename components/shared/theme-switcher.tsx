@@ -1,8 +1,9 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useSyncExternalStore, useTransition } from "react";
 import { LaptopIcon, MoonIcon, SunIcon } from "lucide-react";
 import { useTheme } from "next-themes";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { updateThemePreferenceAction } from "@/features/settings/actions/update-theme-preference.action";
 
 export type ThemeSwitcherProps = {
   /** Optional accessible label when the control appears in a specific context. */
@@ -45,6 +47,7 @@ export function ThemeSwitcher({
   label = "Choose appearance",
 }: ThemeSwitcherProps): React.ReactNode {
   const { theme, setTheme } = useTheme();
+  const [, startTransition] = useTransition();
   const mounted = useSyncExternalStore(
     subscribeToHydration,
     () => true,
@@ -83,7 +86,20 @@ export function ThemeSwitcher({
           return (
             <DropdownMenuItem
               key={option.value}
-              onClick={() => setTheme(option.value)}
+              onClick={() => {
+                // Apply immediately for tactile feedback, then persist through
+                // the authenticated action so protected layouts read the same
+                // choice instead of restoring an older database preference.
+                setTheme(option.value);
+                startTransition(async () => {
+                  const result = await updateThemePreferenceAction({
+                    theme: option.value,
+                  });
+                  if (!result.success) {
+                    toast.error(result.message, { duration: Infinity });
+                  }
+                });
+              }}
             >
               <Icon aria-hidden="true" />
               {option.label}

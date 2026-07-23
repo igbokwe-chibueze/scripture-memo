@@ -71,4 +71,21 @@ export const settingsRepository = {
       }),
     ]);
   },
+
+  /**
+   * Persists the compact theme-switcher choice without overwriting profile data.
+   *
+   * The upsert supports authenticated accounts whose settings initialization
+   * has not completed yet; all unrelated settings retain schema defaults.
+   */
+  async updateThemeForUser(
+    userId: string,
+    theme: "light" | "dark" | "system",
+  ): Promise<void> {
+    await prisma.userSettings.upsert({
+      where: { userId },
+      update: { theme },
+      create: { userId, theme },
+    });
+  },
 } as const;

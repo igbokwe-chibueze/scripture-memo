@@ -30,8 +30,8 @@ export function DraggableWord({
       type="button"
       style={{ transform: CSS.Translate.toString(transform) }}
       className={cn(
-        "min-h-11 touch-none rounded-xl border border-violet-300/30 bg-violet-500/15 px-3 py-2 font-bold text-violet-50 shadow-sm transition",
-        "hover:border-violet-300/70 hover:bg-violet-500/25 focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none",
+        "min-h-11 touch-none rounded-xl border border-violet-400/35 bg-violet-100 px-3 py-2 font-bold text-violet-950 shadow-sm transition dark:border-violet-300/30 dark:bg-violet-500/15 dark:text-violet-50",
+        "hover:border-violet-500/70 hover:bg-violet-200 focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none dark:hover:border-violet-300/70 dark:hover:bg-violet-500/25",
         selected && "border-amber-300 bg-amber-300 text-slate-950 ring-2 ring-amber-300/30",
         isDragging && "z-20 scale-105 opacity-70 shadow-xl",
       )}

@@ -314,6 +314,15 @@ and merged.
   with a randomized, non-repeating three-sound victory pool: triumphant chord,
   bright fanfare, and a license-safe synthesized crowd-cheer-style celebration.
   The named pool can be extended or replaced with recorded assets later.
+- Corrected the game-route theme inconsistency caused by fixed dark slate
+  palettes in the shared gameplay shell. The shell, Drag & Drop surface, word
+  bank, blanks, controls, and completion interstitial now honor saved Light,
+  Dark, and System preferences through semantic theme colors.
+- Diagnosed the remaining navigation reset: the landing theme switcher changed
+  only next-themes browser storage while the authenticated account still stored
+  `dark`, so the protected layout reapplied that database value. Added a
+  validated session-derived theme action and focused repository upsert so
+  authenticated switcher choices persist; anonymous choices remain local.
 - Added a gameplay Exit control back to the current waypoint's Day Selection
   and an administrator-only Test Replay for completed Drag & Drop modes. Test
   Replay is clearly labeled and makes no attempt, reward, cooldown, or
