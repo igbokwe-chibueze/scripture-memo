@@ -12,6 +12,9 @@ import { generateVersePhrases } from "@/features/gameplay/lib/phrase-generator";
 import {
   areSwapTokensCorrect,
   generateSwapTokens,
+  getIncorrectSwapPositions,
+  reconstructSwapAnswer,
+  swapTokenPositions,
 } from "@/features/gameplay/lib/swap-generator";
 import { tokenizeVerse } from "@/features/gameplay/lib/verse-tokenizer";
 
@@ -95,4 +98,41 @@ test("swap generation tracks duplicate words by position and can be restored", (
     }))),
     true,
   );
+});
+
+test("swap interaction exchanges identities while positions remain stable", () => {
+  const tokens = tokenizeVerse("one two three four");
+  const initial = generateSwapTokens(tokens, 100, "interactive-swap");
+  const firstPosition = initial[0]?.position;
+  const matchingPosition = initial.find(
+    ({ originalIndex }) => originalIndex === firstPosition,
+  )?.position;
+
+  assert.equal(typeof firstPosition, "number");
+  assert.equal(typeof matchingPosition, "number");
+  if (firstPosition === undefined || matchingPosition === undefined) return;
+
+  const moved = swapTokenPositions(initial, firstPosition, matchingPosition);
+  assert.deepEqual(
+    moved.map(({ position }) => position),
+    initial.map(({ position }) => position),
+  );
+  assert.equal(
+    getIncorrectSwapPositions(moved).length <
+      getIncorrectSwapPositions(initial).length,
+    true,
+  );
+});
+
+test("swap reconstruction keeps punctuation anchored to canonical slots", () => {
+  const verseTokens = tokenizeVerse("“Love,” is kind...");
+  const swapped = generateSwapTokens(verseTokens, 100, "punctuation-swap");
+  const restored = swapped.map((token) => ({
+    ...token,
+    originalIndex: token.position,
+    text: verseTokens[token.position]?.wordText ?? "",
+  }));
+
+  assert.equal(reconstructSwapAnswer(restored, verseTokens), "“Love,” is kind...");
+  assert.equal(areSwapTokensCorrect(restored), true);
 });

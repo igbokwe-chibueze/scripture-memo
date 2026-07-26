@@ -808,8 +808,8 @@ from restoring an older database theme after a browser-only switch.
 
 ### Implementation Status
 
-**Implemented; automated verification passed — 2026-07-26. Manual browser
-acceptance pending.** Puzzle uses stable 3–6-word phrase boundaries and applies
+**Complete and manually accepted — 2026-07-26.** Puzzle uses stable 3–6-word
+phrase boundaries and applies
 the Glimmer, Glow, and Radiance hidden-percentage ranges at phrase level. Phrase
 occurrences retain their original indexes, so duplicate text remains safe during
 shuffle, placement, feedback, reconstruction, and validation. Mouse, touch,
@@ -844,6 +844,25 @@ administrators through the non-progressing Test Replay controls.
 - Swap mode correctly handles verses containing duplicate words.
 - Selection state machine works cleanly: none selected → one selected → swap.
 - User cannot complete the mode unless all words are in correct positions.
+
+### Implementation Status
+
+**Implemented; automated verification passed — 2026-07-26. Manual browser
+acceptance pending.** Swap deterministically rotates a day-level percentage of
+word occurrences while retaining fixed verse positions and punctuation.
+Swappable words begin yellow, turn purple while selected, exchange on the second
+selection, and deselect when activated twice. Check marks restored positions
+green and remaining misplaced positions red. Occurrence indexes—not display
+text—govern swaps and correctness, so duplicate words cannot produce false
+completion. Incorrect checks play negative feedback; correct submissions use
+the authenticated server-owned attempt action before randomized victory audio,
+confetti, the success toast, and explicit completion interstitial. Completed
+Swap modes are available through non-progressing administrator Test Replay.
+The selected state uses an enforced high-contrast violet treatment across
+custom themes. Refreshed Server Component data no longer changes the visible
+mode immediately after completion: the shared shell retains the completed
+surface and pauses its attempt timer until the player explicitly presses
+Continue.
 
 ---
 

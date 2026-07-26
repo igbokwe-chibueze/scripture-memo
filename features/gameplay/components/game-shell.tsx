@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Clock3Icon,
   LightbulbIcon,
@@ -21,6 +22,7 @@ import { cn } from "@/lib/utils";
 import { startGameModeAction } from "@/features/gameplay/actions/start-game-mode.action";
 import { DragDropMode } from "@/features/gameplay/components/modes/drag-drop-mode";
 import { PuzzleMode } from "@/features/gameplay/components/modes/puzzle-mode";
+import { SwapMode } from "@/features/gameplay/components/modes/swap-mode";
 import type {
   GameModeAttemptData,
   GameplaySessionData,
@@ -48,11 +50,15 @@ export function GameShell({
   gameSession: GameplaySessionData;
   isAdmin: boolean;
 }): React.ReactNode {
+  const router = useRouter();
   const [attempt, setAttempt] = useState<GameModeAttemptData | null>(null);
   const [audioEnabled, setAudioEnabled] = useState(gameSession.audioEnabled);
   const [testReplayMode, setTestReplayMode] = useState<GameMode | null>(null);
+  const [currentMode, setCurrentMode] = useState<GameMode | null>(
+    gameSession.currentMode,
+  );
+  const [isAwaitingContinue, setIsAwaitingContinue] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const currentMode = gameSession.currentMode;
   const currentModeIndex = currentMode
     ? GAME_MODE_ORDER.indexOf(currentMode)
     : GAME_MODE_ORDER.length;
@@ -86,6 +92,26 @@ export function GameShell({
         : "Audio feedback muted for this session.",
       { duration: 4_000 },
     );
+  };
+
+  /**
+   * Advances the visible mode only after the learner activates Continue.
+   *
+   * Server Actions can stream refreshed session props in their response. Local
+   * mode state intentionally holds the completed surface in place until this
+   * explicit transition, so the completion dialog cannot dismiss itself.
+   */
+  const continueToMode = (nextMode: GameMode | null): void => {
+    setAttempt(null);
+    setCurrentMode(nextMode);
+    setIsAwaitingContinue(false);
+    router.refresh();
+  };
+
+  /** Restores the live attempt after a client-only administrator replay. */
+  const exitTestReplay = (): void => {
+    setTestReplayMode(null);
+    setIsAwaitingContinue(false);
   };
 
   return (
@@ -176,7 +202,12 @@ export function GameShell({
                   </Button>
                 ) : (
                   gameSession.completedModes
-                    .filter((mode) => mode === "DRAG_DROP" || mode === "PUZZLE")
+                    .filter(
+                      (mode) =>
+                        mode === "DRAG_DROP" ||
+                        mode === "PUZZLE" ||
+                        mode === "SWAP",
+                    )
                     .map((mode) => (
                       <Button
                         key={mode}
@@ -196,7 +227,7 @@ export function GameShell({
         </header>
 
         <div className="flex flex-1 flex-col items-center px-5 py-8 text-center sm:px-10">
-          {attempt?.expiresAt && (
+          {attempt?.expiresAt && !isAwaitingContinue && !testReplayMode && (
             <div className="mb-6 flex flex-col items-center gap-2">
               <span className="inline-flex items-center gap-2 text-sm font-bold text-amber-700 dark:text-amber-200">
                 <Clock3Icon className="size-4" aria-hidden="true" />
@@ -221,7 +252,9 @@ export function GameShell({
               attempt={null}
               isTestReplay
               nextMode={currentMode}
-              onTestReplayExit={() => setTestReplayMode(null)}
+              onContinue={exitTestReplay}
+              onCompletionShown={() => setIsAwaitingContinue(true)}
+              onTestReplayExit={exitTestReplay}
             />
           ) : testReplayMode === "PUZZLE" && gameSession.dayLevel ? (
             <PuzzleMode
@@ -231,7 +264,21 @@ export function GameShell({
               attempt={null}
               isTestReplay
               nextMode={currentMode}
-              onTestReplayExit={() => setTestReplayMode(null)}
+              onContinue={exitTestReplay}
+              onCompletionShown={() => setIsAwaitingContinue(true)}
+              onTestReplayExit={exitTestReplay}
+            />
+          ) : testReplayMode === "SWAP" && gameSession.dayLevel ? (
+            <SwapMode
+              sessionId={gameSession.id}
+              dayLevel={gameSession.dayLevel}
+              verseText={gameSession.verse.translationText}
+              attempt={null}
+              isTestReplay
+              nextMode={currentMode}
+              onContinue={exitTestReplay}
+              onCompletionShown={() => setIsAwaitingContinue(true)}
+              onTestReplayExit={exitTestReplay}
             />
           ) : currentMode === "DRAG_DROP" && attempt && gameSession.dayLevel ? (
             <DragDropMode
@@ -240,6 +287,10 @@ export function GameShell({
               verseText={gameSession.verse.translationText}
               attempt={attempt}
               nextMode={GAME_MODE_ORDER[currentModeIndex + 1] ?? null}
+              onContinue={() =>
+                continueToMode(GAME_MODE_ORDER[currentModeIndex + 1] ?? null)
+              }
+              onCompletionShown={() => setIsAwaitingContinue(true)}
             />
           ) : currentMode === "PUZZLE" && attempt && gameSession.dayLevel ? (
             <PuzzleMode
@@ -248,6 +299,22 @@ export function GameShell({
               verseText={gameSession.verse.translationText}
               attempt={attempt}
               nextMode={GAME_MODE_ORDER[currentModeIndex + 1] ?? null}
+              onContinue={() =>
+                continueToMode(GAME_MODE_ORDER[currentModeIndex + 1] ?? null)
+              }
+              onCompletionShown={() => setIsAwaitingContinue(true)}
+            />
+          ) : currentMode === "SWAP" && attempt && gameSession.dayLevel ? (
+            <SwapMode
+              sessionId={gameSession.id}
+              dayLevel={gameSession.dayLevel}
+              verseText={gameSession.verse.translationText}
+              attempt={attempt}
+              nextMode={GAME_MODE_ORDER[currentModeIndex + 1] ?? null}
+              onContinue={() =>
+                continueToMode(GAME_MODE_ORDER[currentModeIndex + 1] ?? null)
+              }
+              onCompletionShown={() => setIsAwaitingContinue(true)}
             />
           ) : (
             <div className="my-auto flex flex-col items-center">

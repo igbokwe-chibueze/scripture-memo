@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import {
   DndContext,
   DragOverlay,
@@ -66,6 +65,8 @@ export function PuzzleMode({
   attempt,
   isTestReplay = false,
   nextMode,
+  onContinue,
+  onCompletionShown,
   onTestReplayExit,
 }: {
   sessionId: string;
@@ -74,9 +75,10 @@ export function PuzzleMode({
   attempt: GameModeAttemptData | null;
   isTestReplay?: boolean;
   nextMode: GameModeAttemptData["gameMode"] | null;
+  onContinue: () => void;
+  onCompletionShown: () => void;
   onTestReplayExit?: () => void;
 }): React.ReactNode {
-  const router = useRouter();
   const playAudio = useAudioFeedback();
   const [placements, setPlacements] = useState<PuzzlePlacements>({});
   const [selectedPhraseIndex, setSelectedPhraseIndex] = useState<number | null>(null);
@@ -170,6 +172,7 @@ export function PuzzleMode({
       setIsComplete(true);
       setShowConfetti(true);
       setShowCompletion(true);
+      onCompletionShown();
       playAudio("correct");
       toast.success("Admin Puzzle replay complete. Progress was not changed.", {
         duration: 4_000,
@@ -194,6 +197,7 @@ export function PuzzleMode({
       setIsComplete(true);
       setShowConfetti(true);
       setShowCompletion(true);
+      onCompletionShown();
       playAudio("correct");
       toast.success("Puzzle complete!", { duration: 4_000 });
     });
@@ -222,7 +226,7 @@ export function PuzzleMode({
           isTestReplay={isTestReplay}
           onContinue={() => {
             if (isTestReplay) onTestReplayExit?.();
-            else router.refresh();
+            else onContinue();
           }}
           onReplay={isTestReplay ? replayTestMode : undefined}
         />

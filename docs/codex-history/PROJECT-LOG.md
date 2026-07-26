@@ -54,13 +54,14 @@ long-term verse difficulty. Glow Points are the only currency.
 - Phase 14 Drag & Drop Mode is complete and manually accepted, including
   desktop/touch placement, feedback audio, victory variants, the completion
   interstitial, Exit navigation, and administrator Test Replay.
-- Phase 15 Puzzle Mode is implemented with automated verification passing;
+- Phase 15 Puzzle Mode is complete and manually accepted.
+- Phase 16 Swap Mode is implemented with automated verification passing;
   project-owner browser acceptance is pending.
 
 ## Current Roadmap Position
 
-Phases 0–14 are complete and manually accepted.
-Phase 15 — Puzzle Mode is implemented and awaiting manual acceptance.
+Phases 0–15 are complete and manually accepted.
+Phase 16 — Swap Mode is implemented and awaiting manual acceptance.
 
 ## Completed Work
 
@@ -109,12 +110,12 @@ Phase 15 — Puzzle Mode is implemented and awaiting manual acceptance.
 
 ## Current Task
 
-Manually verify Phase 15 Puzzle Mode across pointer and tap interaction.
+Manually verify Phase 16 Swap Mode across desktop and mobile interaction.
 
 ## Exact Next Task
 
-After Phase 15 manual acceptance, mark it complete, commit and merge the
-`puzzle-mode` branch, then begin Phase 16 — Swap Mode.
+After Phase 16 manual acceptance, mark it complete, commit and merge the current
+gameplay changes, then begin Phase 17 — Cue Mode.
 
 ## Important Decisions
 
@@ -291,7 +292,36 @@ After Phase 15 manual acceptance, mark it complete, commit and merge the
 
 ## Dated Session Updates
 
-### 2026-07-26 — Phase 15 Puzzle Mode implemented
+### 2026-07-26 — Phase 16 Swap Mode implemented
+
+- Recorded project-owner manual acceptance of Phase 15 Puzzle Mode.
+- Added the complete Swap interaction surface with yellow available words,
+  purple selection, second-word exchange, same-word deselection, Reset, and
+  mobile-friendly 44px-or-larger targets.
+- Applied deterministic Glimmer, Glow, and Radiance swap percentages through the
+  existing day-difficulty helper.
+- Kept occurrence identity separate from visible word text so duplicate words
+  cannot produce a false correct result. Added tests for stable position
+  identity, interactive exchanges, and canonical punctuation anchoring.
+- Kept punctuation fixed at its original verse slot while only the word
+  occurrence moves, preventing commas and full stops from travelling during a
+  swap.
+- Added per-position green/red Check feedback, wrong-answer audio, selection and
+  exchange sounds, authenticated server completion, randomized victory audio,
+  confetti, success toast, and the explicit animated Continue interstitial.
+- Extended administrator Test Replay to completed Swap modes without creating
+  attempts or changing progression.
+- Corrected a custom-theme contrast conflict that could render the purple
+  selected word as white text on a white surface. The selected treatment now
+  enforces its violet background, border, and foreground together.
+- Corrected the completion interstitial dismissing itself when the successful
+  Server Action streamed refreshed session props. The shared shell now remains
+  keyed to the session, holds the completed mode locally, suppresses its timer,
+  and advances only through the player's explicit Continue action.
+- All 16 gameplay tests, full ESLint, strict TypeScript, diff validation, and
+  the production build pass. Manual browser acceptance remains pending.
+
+### 2026-07-26 — Phase 15 Puzzle Mode completed and accepted
 
 - Added deterministic phrase-level hiding across the Glimmer, Glow, and
   Radiance difficulty ranges while retaining the existing stable 3–6-word
@@ -314,7 +344,7 @@ After Phase 15 manual acceptance, mark it complete, commit and merge the
 - Marked the existing server-enforced game-mode order and all-five-mode
   day-completion gate as implemented in the security audit.
 - All 14 gameplay unit tests, focused ESLint, strict TypeScript, diff validation,
-  and the production build pass. Manual browser acceptance remains pending.
+  and the production build passed before project-owner browser acceptance.
 
 ### 2026-07-23 — Phase 14 Drag & Drop completed and accepted
 
