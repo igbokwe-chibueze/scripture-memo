@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import { startGameModeAction } from "@/features/gameplay/actions/start-game-mode.action";
 import { CueMode } from "@/features/gameplay/components/modes/cue-mode";
 import { DragDropMode } from "@/features/gameplay/components/modes/drag-drop-mode";
+import { FillMode } from "@/features/gameplay/components/modes/fill-mode";
 import { PuzzleMode } from "@/features/gameplay/components/modes/puzzle-mode";
 import { SwapMode } from "@/features/gameplay/components/modes/swap-mode";
 import type {
@@ -106,6 +107,10 @@ export function GameShell({
     setAttempt(null);
     setCurrentMode(nextMode);
     setIsAwaitingContinue(false);
+    if (!nextMode && gameSession.waypointId) {
+      router.push(`/game/waypoints/${gameSession.waypointId}`);
+      return;
+    }
     router.refresh();
   };
 
@@ -208,7 +213,8 @@ export function GameShell({
                         mode === "DRAG_DROP" ||
                         mode === "PUZZLE" ||
                         mode === "SWAP" ||
-                        mode === "CUE",
+                        mode === "CUE" ||
+                        mode === "FILL",
                     )
                     .map((mode) => (
                       <Button
@@ -294,6 +300,18 @@ export function GameShell({
               onCompletionShown={() => setIsAwaitingContinue(true)}
               onTestReplayExit={exitTestReplay}
             />
+          ) : testReplayMode === "FILL" && gameSession.dayLevel ? (
+            <FillMode
+              sessionId={gameSession.id}
+              dayLevel={gameSession.dayLevel}
+              verseText={gameSession.verse.translationText}
+              attempt={null}
+              isTestReplay
+              nextMode={currentMode}
+              onContinue={exitTestReplay}
+              onCompletionShown={() => setIsAwaitingContinue(true)}
+              onTestReplayExit={exitTestReplay}
+            />
           ) : currentMode === "DRAG_DROP" && attempt && gameSession.dayLevel ? (
             <DragDropMode
               sessionId={gameSession.id}
@@ -340,6 +358,16 @@ export function GameShell({
               onContinue={() =>
                 continueToMode(GAME_MODE_ORDER[currentModeIndex + 1] ?? null)
               }
+              onCompletionShown={() => setIsAwaitingContinue(true)}
+            />
+          ) : currentMode === "FILL" && attempt && gameSession.dayLevel ? (
+            <FillMode
+              sessionId={gameSession.id}
+              dayLevel={gameSession.dayLevel}
+              verseText={gameSession.verse.translationText}
+              attempt={attempt}
+              nextMode={null}
+              onContinue={() => continueToMode(null)}
               onCompletionShown={() => setIsAwaitingContinue(true)}
             />
           ) : (

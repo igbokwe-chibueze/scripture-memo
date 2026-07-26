@@ -728,7 +728,12 @@ cue on failed Check, and a randomized victory-pool sound on full success.
 - Correct inputs highlight **green**; incorrect inputs highlight **red**.
 - On all correct: confetti, success toast. Completing Fill Mode also triggers day completion logic.
 
-**Note:** Fill Mode is the final mode of each day. Its successful completion triggers the `complete-day` Server Action, which awards Glow Points, updates the streak, sets the cooldown for the next day, and — if Day 3 — marks the waypoint complete and unlocks the next waypoint.
+**Note:** Fill Mode is the final mode of each day. Its successful completion
+triggers the server-owned day transition, which sets the next-day cooldown and
+— on Day 3 — marks the waypoint complete and unlocks the next currently
+published waypoint atomically. Glow Point awards, streak updates, and badge
+evaluation are added by their dedicated roadmap phases and must not be claimed
+by the UI before those systems are implemented.
 
 ---
 

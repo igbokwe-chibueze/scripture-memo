@@ -921,23 +921,41 @@ so neither the success icon nor actions can be clipped above the scroll origin.
 4. Auto-advance when typed word reaches target length.
 5. Check button validates all inputs using `answer-validator.ts`.
 6. Green/red visual state per input.
-7. On all correct: fire `completeGameModeAction`. Since Fill is Mode 5 (the last), this triggers `completeDayAction` automatically if all previous modes are recorded as complete.
-8. `completeDayAction`:
-   - Awards Glow Points using a database transaction.
-   - Inserts a `RewardLedger` record.
-   - Updates `UserStreak`.
+7. On all correct: fire `completeGameModeAction`. Since Fill is Mode 5 (the
+   last), the existing server-owned completion transaction verifies all prior
+   modes and completes the day.
+8. The existing day transition:
    - Sets the next day's `unlockedAt` timestamp.
-   - If Day 3: calls `markWaypointComplete` and `unlockNextWaypoint`.
-   - Calls badge engine evaluation.
-   - Fires Sonner success toast: "Day complete! +[points] Glow Points earned."
-   - If waypoint complete: additional toast "Waypoint [N] complete! Next waypoint unlocked."
+   - If Day 3: marks the waypoint complete and unlocks the next currently
+     published waypoint atomically.
+   - Returns only persisted progression outcomes for accurate success feedback.
+   - Leaves Glow Point awards to Phase 19, badge evaluation to Phase 24, and
+     streak updates to Phase 25.
+   - Never displays point, badge, or streak claims before those systems exist.
 
 ### Acceptance Criteria
 
 - Completing Fill mode correctly triggers all downstream progression logic.
-- Glow Points are not awarded twice if the action is called twice.
 - The next day's unlock time is correctly set.
 - Waypoint completion and next waypoint unlock happen atomically in a transaction.
+- Later reward, badge, and streak phases remain unimplemented and are not
+  represented as completed UI outcomes.
+
+### Implementation Status
+
+**Implemented; automated verification passed — 2026-07-26. Manual browser
+acceptance pending.** Fill deterministically hides complete words within each
+day-level difficulty range and renders unassisted inputs with blue focus
+feedback. Typing, paste, and autofill are sanitized and clamped to the exact
+normalized word length; reaching that length advances to the next blank. Check
+applies green/red per-position feedback and reconstructs canonical punctuation
+outside the fields. A correct answer uses the authenticated fifth-mode
+completion action, which proves the ordered session and atomically completes the
+day, schedules the next-day cooldown, or completes Day 3 and unlocks the next
+published waypoint. The completion screen waits for Continue, then returns to
+Day Selection. Administrator Test Replay performs no writes. Per the approved
+roadmap resolution, no Glow Point, streak, or badge outcome is claimed before
+its dedicated phase.
 
 ---
 

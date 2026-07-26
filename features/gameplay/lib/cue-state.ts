@@ -54,20 +54,6 @@ export function getCueWordParts(token: VerseToken): CueWordParts {
   };
 }
 
-/**
- * Removes punctuation and clamps Cue input to the exact normalized word length.
- *
- * This applies to typing, paste, and autofill alike, preventing extra letters
- * such as `kindsss` from ever entering a four-letter `kind` field.
- */
-export function limitCueInput(value: string, expectedWord: string): string {
-  return Array.from(
-    value.normalize("NFKC").replace(/[^\p{L}\p{N}]/gu, ""),
-  )
-    .slice(0, Array.from(expectedWord).length)
-    .join("");
-}
-
 /** Validates one Cue response with the shared punctuation-tolerant normalizer. */
 export function isCueAnswerCorrect(
   token: VerseToken,

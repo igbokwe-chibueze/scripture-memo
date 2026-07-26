@@ -57,11 +57,13 @@ long-term verse difficulty. Glow Points are the only currency.
 - Phase 15 Puzzle Mode is complete and manually accepted.
 - Phase 16 Swap Mode is complete and manually accepted.
 - Phase 17 Cue Mode is complete and manually accepted.
+- Phase 18 Fill Mode is implemented with automated verification passing;
+  project-owner browser acceptance is pending.
 
 ## Current Roadmap Position
 
 Phases 0–17 are complete and manually accepted.
-Phase 18 — Fill Mode is next.
+Phase 18 — Fill Mode is implemented and awaiting manual acceptance.
 
 ## Completed Work
 
@@ -110,12 +112,12 @@ Phase 18 — Fill Mode is next.
 
 ## Current Task
 
-Review, commit, and push the accepted Phase 17 changes.
+Manually verify Phase 18 Fill Mode and its final day transition.
 
 ## Exact Next Task
 
-After the accepted Phase 17 changes are committed and merged, begin Phase 18 —
-Fill Mode.
+After Phase 18 manual acceptance, mark it complete, commit and merge the current
+gameplay changes, then begin Phase 19 — Glow Points and Rewards.
 
 ## Important Decisions
 
@@ -291,6 +293,35 @@ Fill Mode.
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-26 — Phase 18 Fill Mode implemented
+
+- Resolved the roadmap overlap with project-owner approval: Phase 18 owns Fill
+  and the existing atomic day/cooldown/waypoint transition. Glow Points remain
+  Phase 19, badges Phase 24, and streaks Phase 25; Fill makes no premature claim
+  about those outcomes.
+- Extracted exact-length typed-word sanitization into the shared answer
+  validator so Cue and Fill handle typing, paste, autofill, case, and canonical
+  punctuation consistently.
+- Added deterministic unassisted Fill blanks across Glimmer, Glow, and Radiance,
+  with blue focus treatment, exact-length auto-advance, Reset, and per-position
+  green/red Check feedback.
+- Added focused tests for normalized Fill validation, pasted extra-character
+  clamping, incomplete positions, and punctuation reconstruction.
+- Connected correct Fill answers to the authenticated fifth-mode completion
+  action. The existing session-locked transaction completes the day, schedules
+  the next cooldown, or completes Day 3 and unlocks the next published waypoint.
+- Added accurate day/cooldown/waypoint toasts, randomized victory audio,
+  confetti, the explicit completion interstitial, and Continue navigation back
+  to Day Selection.
+- Extended administrator Test Replay to completed Fill modes without attempts or
+  progression writes.
+- All 24 gameplay tests, three progression utility tests, the database safety
+  guard, gameplay ESLint, strict TypeScript, diff validation, and the production
+  build pass. The existing PostgreSQL progression integration suite was also
+  invoked but its configured test database failed on the initial
+  `waypoint.count()` before exercising Fill; no schema or database code changed
+  in this phase. Manual browser acceptance remains pending.
 
 ### 2026-07-26 — Phase 17 Cue Mode completed and accepted
 

@@ -5,9 +5,9 @@ import {
   getCueWordParts,
   getIncorrectCuePositions,
   isCueAnswerCorrect,
-  limitCueInput,
   reconstructCueAnswer,
 } from "@/features/gameplay/lib/cue-state";
+import { limitGameplayWordInput } from "@/features/gameplay/lib/answer-validator";
 import { tokenizeVerse } from "@/features/gameplay/lib/verse-tokenizer";
 
 test("Cue positions remain deterministic and include one-letter words", () => {
@@ -29,8 +29,8 @@ test("Cue provides a first-letter placeholder and normalized full target", () =>
 });
 
 test("Cue input strips punctuation and clamps pasted extra characters", () => {
-  assert.equal(limitCueInput("kindsss", "kind"), "kind");
-  assert.equal(limitCueInput("K-I-N-D", "kind"), "KIND");
+  assert.equal(limitGameplayWordInput("kindsss", "kind"), "kind");
+  assert.equal(limitGameplayWordInput("K-I-N-D", "kind"), "KIND");
 });
 
 test("Cue validation is case-insensitive and punctuation-tolerant", () => {
