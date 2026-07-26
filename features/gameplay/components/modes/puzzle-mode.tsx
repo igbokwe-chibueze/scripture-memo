@@ -91,13 +91,21 @@ export function PuzzleMode({
   const seed = `${sessionId}:${dayLevel}:PUZZLE`;
   const tokens = useMemo(() => tokenizeVerse(verseText), [verseText]);
   const phrases = useMemo(
-    () => generateVersePhrases(tokens, `${seed}:boundaries`),
-    [seed, tokens],
+    () => generateVersePhrases(tokens, `${seed}:boundaries`, dayLevel),
+    [dayLevel, seed, tokens],
   );
   const hiddenPhraseIndexes = useMemo(() => {
     const hiddenPercent = getSessionHiddenPercent(dayLevel, seed);
-    return generateHiddenPhraseIndexes(phrases, hiddenPercent, seed);
-  }, [dayLevel, phrases, seed]);
+    const shortVerseMinimum =
+      tokens.length <= 6
+        ? dayLevel === "GLIMMER"
+          ? 1
+          : dayLevel === "GLOW"
+            ? 2
+            : phrases.length
+        : 1;
+    return generateHiddenPhraseIndexes(phrases, hiddenPercent, seed, shortVerseMinimum);
+  }, [dayLevel, phrases, seed, tokens.length]);
   const phraseBankOrder = useMemo(
     () => createPuzzlePhraseBank(hiddenPhraseIndexes, seed),
     [hiddenPhraseIndexes, seed],
@@ -256,57 +264,50 @@ export function PuzzleMode({
             </h2>
           </div>
 
-          <ol
-            className="mt-6 grid gap-3 rounded-2xl border border-border bg-muted/35 p-4 dark:border-white/10 dark:bg-white/5 sm:p-6"
+          <div
+            className="mt-6 flex flex-wrap items-center gap-x-2 gap-y-3 rounded-2xl border border-border bg-muted/35 p-4 text-lg leading-relaxed dark:border-white/10 dark:bg-white/5 sm:p-6 sm:text-xl"
             aria-label="Verse phrase positions"
           >
             {phrases.map((phrase) => (
-              <li key={phrase.index} className="grid grid-cols-[2rem_1fr] items-center gap-2">
-                <span
-                  className="grid size-8 place-items-center rounded-full bg-violet-500/15 text-xs font-black text-violet-700 dark:text-violet-200"
-                  aria-hidden="true"
-                >
-                  {phrase.index + 1}
+              hiddenPhraseSet.has(phrase.index) ? (
+                <PhraseSlot
+                  key={phrase.index}
+                  slotIndex={phrase.index}
+                  placedText={
+                    placements[phrase.index] === undefined
+                      ? null
+                      : (phrases[placements[phrase.index]]?.text ?? null)
+                  }
+                  selectedPhraseAvailable={
+                    selectedPhraseIndex !== null ||
+                    activeDragPhraseIndex !== null
+                  }
+                  feedback={slotFeedback[phrase.index] ?? null}
+                  disabled={isPending || isComplete}
+                  onPlaceSelected={() => {
+                    if (selectedPhraseIndex !== null) {
+                      placePhrase(selectedPhraseIndex, phrase.index);
+                    }
+                  }}
+                  onReturnPhrase={() => {
+                    setPlacements((current) =>
+                      removePuzzlePlacement(current, phrase.index),
+                    );
+                    setSlotFeedback((current) => {
+                      const next = { ...current };
+                      delete next[phrase.index];
+                      return next;
+                    });
+                    playAudio("drop");
+                  }}
+                />
+              ) : (
+                <span key={phrase.index} className="py-2 font-bold text-foreground">
+                  {phrase.text}
                 </span>
-                {hiddenPhraseSet.has(phrase.index) ? (
-                  <PhraseSlot
-                    slotIndex={phrase.index}
-                    placedText={
-                      placements[phrase.index] === undefined
-                        ? null
-                        : (phrases[placements[phrase.index]]?.text ?? null)
-                    }
-                    selectedPhraseAvailable={
-                      selectedPhraseIndex !== null ||
-                      activeDragPhraseIndex !== null
-                    }
-                    feedback={slotFeedback[phrase.index] ?? null}
-                    disabled={isPending || isComplete}
-                    onPlaceSelected={() => {
-                      if (selectedPhraseIndex !== null) {
-                        placePhrase(selectedPhraseIndex, phrase.index);
-                      }
-                    }}
-                    onReturnPhrase={() => {
-                      setPlacements((current) =>
-                        removePuzzlePlacement(current, phrase.index),
-                      );
-                      setSlotFeedback((current) => {
-                        const next = { ...current };
-                        delete next[phrase.index];
-                        return next;
-                      });
-                      playAudio("drop");
-                    }}
-                  />
-                ) : (
-                  <div className="flex min-h-16 items-center rounded-2xl border border-border bg-background/70 px-4 py-3 font-semibold text-foreground dark:border-white/10 dark:bg-slate-800/50">
-                    {phrase.text}
-                  </div>
-                )}
-              </li>
+              )
             ))}
-          </ol>
+          </div>
 
           <div className="mt-5">
             <PhraseBank

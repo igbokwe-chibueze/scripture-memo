@@ -666,8 +666,16 @@ cue on failed Check, and a randomized victory-pool sound on full success.
 
 **Interaction:**
 - Same drag/tap mechanics as Drag & Drop but operating on phrase tiles instead of single words.
+- The verse remains one flowing sentence: visible phrases and inline phrase
+  blanks share the same verse area and wrap naturally across screen sizes.
 - Phrase bank shows shuffled phrase chunks.
 - Difficulty scaling: Day 1 removes 20–35% of phrases; Day 2 removes 40–60%; Day 3 removes 70–100%.
+- Short-verse testing exception: when a verse has six words or fewer, Puzzle
+  may use chunks smaller than three words so the exercise never collapses into
+  one trivial tile. Glimmer creates up to two chunks and moves one; Glow creates
+  up to three chunks and moves at least two; Radiance creates up to three chunks
+  and moves all of them. Longer verses retain the normal 3–6-word chunks and
+  percentage ranges.
 - Phrase tiles are visually larger and more distinct than individual word tiles.
 - On all correct: confetti, success toast, Continue button.
 
@@ -1508,6 +1516,13 @@ if (isUnlocked) { ... }
 
 ### Defer Post-MVP
 
+- Player-accessible map replay for completed challenge days. A player may choose
+  any individually completed mode from a completed Glimmer, Glow, or Radiance
+  card. These practice sessions are explicitly non-progressing and reward-free
+  by default; they never alter attempts, cooldowns, streaks, campaign progress,
+  or waypoint history. Vault replay remains available as the organized
+  long-term mastery library. Revisit any limited daily practice reward only as
+  a separate, abuse-resistant product decision.
 - Advanced Oil Shop cosmetics (map skins, flame styles)
 - Fellowship moderation tools
 - Push notifications

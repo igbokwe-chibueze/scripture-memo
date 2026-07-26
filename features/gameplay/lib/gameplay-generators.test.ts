@@ -70,14 +70,25 @@ test("phrase boundaries remain deterministic and avoid tiny trailing chunks", ()
   const tokens = tokenizeVerse(
     "one two three four five six seven eight nine ten eleven twelve thirteen fourteen",
   );
-  const first = generateVersePhrases(tokens, "stable-session-seed");
-  const retry = generateVersePhrases(tokens, "stable-session-seed");
+  const first = generateVersePhrases(tokens, "stable-session-seed", "GLOW");
+  const retry = generateVersePhrases(tokens, "stable-session-seed", "GLOW");
 
   assert.deepEqual(first, retry);
   assert.equal(first.every((phrase) => {
     const size = phrase.endTokenIndex - phrase.startTokenIndex + 1;
     return size >= 3 && size <= 6;
   }), true);
+});
+
+test("short Puzzle verses gain day-specific chunks instead of one trivial tile", () => {
+  const tokens = tokenizeVerse("Love is patient and kind");
+  const glimmer = generateVersePhrases(tokens, "short-verse", "GLIMMER");
+  const glow = generateVersePhrases(tokens, "short-verse", "GLOW");
+  const radiance = generateVersePhrases(tokens, "short-verse", "RADIANCE");
+
+  assert.deepEqual(glimmer.map(({ text }) => text), ["Love is patient", "and kind"]);
+  assert.deepEqual(glow.map(({ text }) => text), ["Love is", "patient", "and kind"]);
+  assert.deepEqual(radiance, glow);
 });
 
 test("swap generation tracks duplicate words by position and can be restored", () => {

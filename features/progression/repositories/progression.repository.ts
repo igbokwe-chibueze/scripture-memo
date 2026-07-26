@@ -13,9 +13,11 @@ import {
   getPreviousDayLevel,
   isDayPlayable,
 } from "@/features/progression/lib/progression-utils";
+import { PROGRESSION_AUDIT_ACTIONS } from "@/features/progression/constants/progression-audit-actions";
 import type {
   CompleteDayResult,
   InitializeProgressionResult,
+  OverrideCooldownResult,
   ProgressionConflictCode,
 } from "@/features/progression/types/progression.types";
 import type { UserDayProgressModel } from "@/lib/generated/prisma/models/UserDayProgress";
@@ -310,6 +312,80 @@ export async function markDayCompleteInTransaction(
 
 /** Database boundary for lazy, server-authoritative learner progression. */
 export const progressionRepository = {
+  /**
+   * Removes only the signed-in administrator's active day cooldown and records
+   * the privileged change in the same transaction.
+   */
+  async overrideOwnCooldown(
+    userId: string,
+    waypointId: string,
+    dayLevel: DayLevelValue,
+    actorId: string,
+    ipAddress: string | null,
+    overriddenAt: Date,
+  ): Promise<OverrideCooldownResult> {
+    return prisma.$transaction(async (transaction) => {
+      await lockProgression(transaction, userId, waypointId);
+      await requireAvailableWaypoint(transaction, waypointId);
+
+      const previousDay = getPreviousDayLevel(dayLevel);
+      if (!previousDay) return { status: "unavailable" };
+      const [previousProgress, targetProgress] = await Promise.all([
+        transaction.userDayProgress.findUnique({
+          where: {
+            userId_waypointId_dayLevel: {
+              userId,
+              waypointId,
+              dayLevel: previousDay,
+            },
+          },
+          select: { status: true },
+        }),
+        transaction.userDayProgress.findUnique({
+          where: {
+            userId_waypointId_dayLevel: { userId, waypointId, dayLevel },
+          },
+          select: { id: true, status: true, unlocksAt: true },
+        }),
+      ]);
+
+      if (
+        previousProgress?.status !== CompletionStatus.COMPLETED ||
+        !targetProgress ||
+        targetProgress.status === CompletionStatus.COMPLETED
+      ) {
+        return { status: "unavailable" };
+      }
+      if (!targetProgress.unlocksAt || targetProgress.unlocksAt <= overriddenAt) {
+        return { status: "already-ready" };
+      }
+
+      await transaction.userDayProgress.update({
+        where: { id: targetProgress.id },
+        data: { unlocksAt: overriddenAt },
+      });
+      // WHY: A cooldown bypass changes a server-authoritative progression rule.
+      // Persisting the audit record in the same transaction prevents the
+      // privileged mutation from succeeding without its accountability trail.
+      await transaction.auditLog.create({
+        data: {
+          actorId,
+          action: PROGRESSION_AUDIT_ACTIONS.overrideCooldown,
+          entityType: "UserDayProgress",
+          entityId: targetProgress.id,
+          ipAddress,
+          metadata: {
+            dayLevel,
+            previousUnlocksAt: targetProgress.unlocksAt.toISOString(),
+            overriddenAt: overriddenAt.toISOString(),
+            scope: "SELF_TESTING",
+          },
+        },
+      });
+      return { status: "overridden" };
+    }, progressionTransactionOptions);
+  },
+
   /** Returns one learner's persisted waypoint state, or null while it is lazy. */
   async getUserWaypointProgress(userId: string, waypointId: string) {
     return prisma.userWaypointProgress.findUnique({

@@ -4,7 +4,7 @@ import { useDroppable } from "@dnd-kit/core";
 import { GripVerticalIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-/** Wide phrase destination with tap placement and per-position feedback. */
+/** Inline phrase destination that remains part of the readable verse sentence. */
 export function PhraseSlot({
   slotIndex,
   placedText,
@@ -38,7 +38,7 @@ export function PhraseSlot({
       ref={setNodeRef}
       type="button"
       className={cn(
-        "flex min-h-16 w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-4 py-3 text-center font-bold transition",
+        "inline-flex min-h-12 min-w-28 max-w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed px-3 py-2 text-center font-bold transition",
         "border-border bg-background text-foreground focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none dark:border-slate-500 dark:bg-slate-800/80 dark:text-slate-100",
         selectedPhraseAvailable && !placedText && "border-amber-500 bg-amber-100 text-amber-950 dark:border-amber-300 dark:bg-amber-300/15 dark:text-amber-100",
         isOver && "scale-[1.02] border-emerald-500 bg-emerald-100 text-emerald-950 shadow-lg shadow-emerald-500/15 dark:border-emerald-300 dark:bg-emerald-300/20 dark:text-emerald-100",
@@ -59,7 +59,7 @@ export function PhraseSlot({
           <span>{placedText}</span>
         </>
       ) : (
-        <span aria-hidden="true">Place phrase {slotIndex + 1}</span>
+        <span aria-hidden="true">•••</span>
       )}
     </button>
   );

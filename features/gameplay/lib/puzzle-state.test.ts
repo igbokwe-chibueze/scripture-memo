@@ -17,6 +17,7 @@ test("phrase visibility and bank order remain deterministic across retries", () 
       "one two three four five six seven eight nine ten eleven twelve thirteen fourteen",
     ),
     "stable-boundaries",
+    "GLOW",
   );
   const firstHidden = generateHiddenPhraseIndexes(phrases, 60, "session-puzzle");
   const retryHidden = generateHiddenPhraseIndexes(phrases, 60, "session-puzzle");
@@ -59,11 +60,29 @@ test("incomplete puzzle reconstruction cannot match the canonical verse", () => 
   const phrases = generateVersePhrases(
     tokenizeVerse("Love is patient and kind and rejoices with truth"),
     "incomplete-boundaries",
+    "GLOW",
   );
   const hidden = phrases.map(({ index }) => index);
 
   assert.notEqual(
     reconstructPuzzleAnswer(phrases, hidden, {}),
     phrases.map(({ text }) => text).join(" "),
+  );
+});
+
+test("short-verse minimums make Glow and Radiance progressively substantial", () => {
+  const phrases = generateVersePhrases(
+    tokenizeVerse("Love is patient and kind"),
+    "short-boundaries",
+    "GLOW",
+  );
+
+  assert.equal(
+    generateHiddenPhraseIndexes(phrases, 40, "short-glow", 2).length,
+    2,
+  );
+  assert.equal(
+    generateHiddenPhraseIndexes(phrases, 70, "short-radiance", phrases.length).length,
+    3,
   );
 });

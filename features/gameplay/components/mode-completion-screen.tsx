@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { GameMode } from "@/lib/generated/prisma/enums";
+import type { DayRewardResult } from "@/features/rewards/types/reward.types";
 
 const MODE_LABELS = {
   DRAG_DROP: "Drag & Drop",
@@ -21,9 +22,9 @@ const MODE_LABELS = {
 /**
  * Pauses progression on a celebratory, explicit learner-controlled transition.
  *
- * The panel deliberately omits Glow Points until the rewards phase implements
- * real ledger-backed awards. Reduced-motion preferences replace movement with
- * an immediate opacity transition through Framer Motion's user preference.
+ * Glow Points render only from the persisted reward returned by the atomic
+ * completion transaction. Reduced-motion preferences replace movement with an
+ * immediate opacity transition through Framer Motion's user preference.
  */
 export function ModeCompletionScreen({
   completedMode,
@@ -31,12 +32,14 @@ export function ModeCompletionScreen({
   isTestReplay,
   onContinue,
   onReplay,
+  reward = null,
 }: {
   completedMode: GameMode;
   nextMode: GameMode | null;
   isTestReplay: boolean;
   onContinue: () => void;
   onReplay?: () => void;
+  reward?: DayRewardResult | null;
 }): React.ReactNode {
   const shouldReduceMotion = useReducedMotion();
 
@@ -100,6 +103,19 @@ export function ModeCompletionScreen({
                   ? `${MODE_LABELS[nextMode]} is ready when you are.`
                   : "Every mode in this challenge day is complete."}
             </p>
+            {!isTestReplay && reward && (
+              <div className="mt-3">
+                <p className="text-xs font-black tracking-[0.14em] text-amber-700 uppercase dark:text-amber-300">
+                  Glow Points earned
+                </p>
+                <p className="font-heading text-3xl font-black text-amber-700 dark:text-amber-300">
+                  +{reward.amount}
+                </p>
+                <p className="text-xs font-semibold text-muted-foreground dark:text-slate-300">
+                  New balance: {reward.balance}
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="mt-5 grid gap-3 sm:mt-7">

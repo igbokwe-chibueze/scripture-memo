@@ -25,6 +25,7 @@ import {
 } from "@/features/gameplay/lib/hidden-word-generator";
 import { tokenizeVerse } from "@/features/gameplay/lib/verse-tokenizer";
 import type { GameModeAttemptData } from "@/features/gameplay/types/game-session.types";
+import type { DayRewardResult } from "@/features/rewards/types/reward.types";
 import { cn } from "@/lib/utils";
 import type { DayLevel } from "@/lib/generated/prisma/enums";
 
@@ -65,6 +66,7 @@ export function FillMode({
   const [showConfetti, setShowConfetti] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
+  const [earnedReward, setEarnedReward] = useState<DayRewardResult | null>(null);
   const [isPending, startTransition] = useTransition();
   const seed = `${sessionId}:${dayLevel}:FILL`;
   const tokens = useMemo(() => tokenizeVerse(verseText), [verseText]);
@@ -160,8 +162,12 @@ export function FillMode({
       playAudio("correct");
 
       const completion = result.data;
-      toast.success("Challenge day complete!", { duration: 4_000 });
       if (completion?.status === "day-complete") {
+        setEarnedReward(completion.dayCompletion.reward);
+        toast.success(
+          `Challenge day complete! +${completion.dayCompletion.reward.amount} Glow Points earned.`,
+          { duration: 4_000 },
+        );
         if (completion.dayCompletion.unlockedWaypoint) {
           toast.success(
             `Waypoint complete! Waypoint ${completion.dayCompletion.unlockedWaypoint.number} is now unlocked.`,
@@ -194,6 +200,7 @@ export function FillMode({
     setIsComplete(false);
     setShowConfetti(false);
     setShowCompletion(false);
+    setEarnedReward(null);
   };
 
   return (
@@ -204,6 +211,7 @@ export function FillMode({
           completedMode="FILL"
           nextMode={nextMode}
           isTestReplay={isTestReplay}
+          reward={earnedReward}
           onContinue={() => {
             if (isTestReplay) onTestReplayExit?.();
             else onContinue();

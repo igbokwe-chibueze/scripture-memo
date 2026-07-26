@@ -14,6 +14,7 @@ export function generateHiddenPhraseIndexes(
   phrases: readonly VersePhrase[],
   hiddenPercent: number,
   seed: string,
+  minimumHiddenCount = 1,
 ): number[] {
   if (!Number.isFinite(hiddenPercent) || hiddenPercent < 0 || hiddenPercent > 100) {
     throw new RangeError("Hidden percentage must be between 0 and 100.");
@@ -22,7 +23,7 @@ export function generateHiddenPhraseIndexes(
 
   const hiddenCount = Math.min(
     phrases.length,
-    Math.max(1, Math.ceil(phrases.length * hiddenPercent / 100)),
+    Math.max(minimumHiddenCount, Math.ceil(phrases.length * hiddenPercent / 100)),
   );
 
   return deterministicShuffle(

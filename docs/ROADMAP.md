@@ -795,6 +795,8 @@ from restoring an older database theme after a browser-only switch.
 1. Create `puzzle-mode.tsx` in `features/gameplay/components/modes/`.
 2. Use `phrase-generator.ts` to split the verse into phrase chunks.
 3. Same drag/tap mechanic as Drag & Drop but operating on phrase tiles.
+   Render visible phrases and phrase blanks inline as one flowing verse
+   sentence; do not present phrase positions as separate numbered rows.
 4. Phrase tiles are visually wider and distinct from word tiles.
 5. Validate correct phrase order on Check.
 6. Apply difficulty based on current day level (percentage of phrases hidden).
@@ -820,6 +822,13 @@ accepted audio feedback system. Correct answers pass through the authenticated,
 server-authoritative ordered-attempt action before confetti, toast feedback, and
 the animated Continue interstitial. Completed Puzzle modes are available to
 administrators through the non-progressing Test Replay controls.
+
+Verses of six words or fewer use the approved short-verse testing exception:
+Glimmer produces up to two chunks and moves one, Glow produces up to three
+smaller chunks and moves at least two, and Radiance moves all available chunks.
+This prevents short test content from producing the same one-tile Puzzle on
+every day. Normal verses continue using deterministic 3–6-word chunks and the
+standard day percentages.
 
 ---
 
@@ -943,8 +952,7 @@ so neither the success icon nor actions can be clipped above the scroll origin.
 
 ### Implementation Status
 
-**Implemented; automated verification passed — 2026-07-26. Manual browser
-acceptance pending.** Fill deterministically hides complete words within each
+**Complete and manually accepted — 2026-07-26.** Fill deterministically hides complete words within each
 day-level difficulty range and renders unassisted inputs with blue focus
 feedback. Typing, paste, and autofill are sanitized and clamped to the exact
 normalized word length; reaching that length advances to the next blank. Check
@@ -956,6 +964,14 @@ published waypoint. The completion screen waits for Continue, then returns to
 Day Selection. Administrator Test Replay performs no writes. Per the approved
 roadmap resolution, no Glow Point, streak, or badge outcome is claimed before
 its dedicated phase.
+
+Completed challenge-day cards now expose an administrator-only Test Replay
+entry into the persisted completed session. The existing mode selector permits
+replaying any completed mode without attempts, progression, rewards, or
+cooldown changes. Active Glow and Radiance cooldown cards also expose an
+administrator-only **Unlock for testing** action. It can affect only the
+authenticated administrator's own progression, repeats ordering and timing
+checks server-side, and commits an AuditLog record with the override.
 
 ---
 
@@ -985,6 +1001,23 @@ its dedicated phase.
 - Attempting to award points for the same day a second time returns an error, not double points.
 - `RewardLedger` contains a record for every point event.
 - User balance matches the sum of all ledger records.
+
+### Implementation Status
+
+**Complete and manually accepted — 2026-07-26.** The
+server-verified fifth-mode transaction now creates an immutable
+`DAY_COMPLETE` ledger entry and atomically increments the learner profile by
+100 Glow Points for Glimmer, 150 for Glow, or 200 for Radiance. A unique key
+derived from the authenticated learner, waypoint, and day prevents duplicate
+awards. The persisted amount and new balance are returned for the completion
+toast and interstitial; clients never submit a reward value. Balance and
+bounded newest-first history reads are available through the rewards
+repository. Unit tests, ESLint, and strict TypeScript pass. The dedicated
+PostgreSQL integration test was added but the configured test database rejected
+fixture creation before the reward transaction ran, matching the existing
+test-database availability issue. Manual Glow completion awarded the expected
+150 Glow Points, displayed the persisted new balance, and retained the explicit
+Continue transition.
 
 ---
 
@@ -1358,6 +1391,24 @@ its dedicated phase.
 - Security checklist is complete.
 - All Critical and High items are resolved.
 - App is cleared for deployment review.
+
+---
+
+## Post-Roadmap Extras
+
+### Player Map Replay
+
+- Let players open a completed Glimmer, Glow, or Radiance card from Day
+  Selection and choose an individual completed mode to practise.
+- Mark the experience clearly as practice and keep it separate from the
+  administrator-only Test Replay label.
+- Create no campaign attempts and change no progression, cooldown, streak,
+  waypoint history, or reward state.
+- Award no Glow Points by default. If replay rewards are reconsidered, design a
+  separately approved, rate-limited daily-review reward rather than an
+  infinitely repeatable point.
+- Keep Vault replay as the filtered, long-term mastery library; map replay is
+  the convenient route back to recently completed challenge content.
 
 ---
 

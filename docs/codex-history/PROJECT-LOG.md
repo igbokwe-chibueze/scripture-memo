@@ -30,7 +30,7 @@ long-term verse difficulty. Glow Points are the only currency.
 ## Current Project State
 
 - Branch: `puzzle-mode`.
-- Current committed HEAD at this update: `1bdeb37`.
+- Current committed HEAD at this update: `5a4eeeb`.
 - Phases 0–9 are complete and manually accepted, including bulk CSV import,
   dynamic verse-list search, and admin pack management.
 - The public landing page and internal UI-foundation preview are implemented.
@@ -57,13 +57,16 @@ long-term verse difficulty. Glow Points are the only currency.
 - Phase 15 Puzzle Mode is complete and manually accepted.
 - Phase 16 Swap Mode is complete and manually accepted.
 - Phase 17 Cue Mode is complete and manually accepted.
-- Phase 18 Fill Mode is implemented with automated verification passing;
-  project-owner browser acceptance is pending.
+- Phase 18 Fill Mode is complete and manually accepted.
+- Completed-day administrator Test Replay entry and audited self-testing
+  cooldown overrides are implemented.
+- Phase 19 Glow Points and Rewards is complete and manually accepted.
 
 ## Current Roadmap Position
 
-Phases 0–17 are complete and manually accepted.
-Phase 18 — Fill Mode is implemented and awaiting manual acceptance.
+Phases 0–18 are complete and manually accepted.
+Phases 0–19 are complete and manually accepted.
+Phase 20 — Hint System is next.
 
 ## Completed Work
 
@@ -112,15 +115,19 @@ Phase 18 — Fill Mode is implemented and awaiting manual acceptance.
 
 ## Current Task
 
-Manually verify Phase 18 Fill Mode and its final day transition.
+Prepare Phase 20 — Hint System implementation.
 
 ## Exact Next Task
 
-After Phase 18 manual acceptance, mark it complete, commit and merge the current
-gameplay changes, then begin Phase 19 — Glow Points and Rewards.
+Commit the accepted Phase 19 changes, then begin Phase 20 — Hint System.
 
 ## Important Decisions
 
+- Player-accessible replay from completed map challenge cards is deferred to
+  Post-Roadmap Extras. It will use individual mode selection, remain
+  non-progressing and reward-free by default, and coexist with organized Vault
+  replay. Any limited practice reward requires a separate abuse-resistant
+  product decision.
 - Root `AGENTS.md` overrides supporting documents when instructions conflict.
 - Available Codex conversation history remains useful and should be read when
   present; this file is only a continuity backup and status summary.
@@ -293,6 +300,65 @@ gameplay changes, then begin Phase 19 — Glow Points and Rewards.
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-26 — Phase 19 Glow Points and Rewards implemented
+
+- Added server-owned Glimmer, Glow, and Radiance reward calculations of 100,
+  150, and 200 Glow Points.
+- Added a rewards repository with balance and bounded newest-first immutable
+  history reads.
+- Integrated the ledger insert and atomic profile increment directly into the
+  existing server-proven fifth-mode/day/session completion transaction.
+- Added a unique learner/waypoint/day idempotency identity so a repeated award
+  cannot create another ledger event or balance increment.
+- Completion feedback now displays only the persisted earned amount and new
+  balance returned by the transaction.
+- Reward calculation and identity tests, the 26 gameplay regression tests,
+  ESLint, strict TypeScript, and the production build pass.
+  The new PostgreSQL integration test was invoked, but the configured test
+  database rejected user fixture creation before exercising reward writes,
+  consistent with the existing test-database availability issue.
+- Project-owner manual acceptance passed by completing Glow: the completion
+  screen displayed the expected +150 Glow Points, a persisted balance of 150,
+  and remained open for the explicit Continue action. Phase 19 is complete.
+
+### 2026-07-26 — Puzzle short-verse difficulty correction
+
+- Diagnosed the one-tile Glow Puzzle: the standard 3–6-word phrase rule turned
+  every verse of six words or fewer into one phrase, so percentage scaling
+  could not make later days more demanding.
+- Added the approved deterministic short-verse exception. Glimmer creates up to
+  two chunks and moves one; Glow creates up to three chunks and moves at least
+  two; Radiance moves all available chunks.
+- Longer verses retain the established 3–6-word phrase generator and normal
+  hidden-percentage ranges.
+- Added tests for the exact five-word test verse, day-specific phrase
+  boundaries, deterministic output, and Glow/Radiance minimum bank sizes. All
+  26 gameplay tests, ESLint, strict TypeScript, and the production build pass.
+- Corrected the Puzzle verse presentation after project-owner review: visible
+  phrases and interactive blanks now remain inline as one naturally wrapping
+  sentence. The former separate numbered phrase rows were removed; chunking and
+  day difficulty behavior are unchanged.
+
+### 2026-07-26 — Completed-day replay entry and cooldown testing override
+
+- Confirmed the documented replay boundary: ordinary campaign days remain
+  complete, later learner replay belongs to the Vault, and administrators may
+  use clearly labeled non-progressing Test Replay for completed modes.
+- Added an administrator-only **Test replay [day]** action to completed
+  challenge cards. It opens the learner-owned completed session and reuses the
+  existing mode-by-mode Test Replay controls without creating attempts or
+  changing progression, rewards, or cooldowns.
+- Added an administrator-only **Unlock for testing** control beside active Glow
+  and Radiance cooldowns.
+- Added a validated and independently authorized Server Action. The repository
+  can alter only the authenticated administrator's own pending day, locks the
+  progression transaction, rechecks publication, ordering, completion, and the
+  live server timestamp, and atomically records the privileged override in
+  `AuditLog`.
+- Day-selection and progression utility tests, ESLint, strict TypeScript, and
+  the production build pass. The first sandboxed build could not download the
+  configured Google fonts; the approved network-enabled rerun passed.
 
 ### 2026-07-26 — Phase 18 Fill Mode implemented
 

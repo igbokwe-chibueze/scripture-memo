@@ -7,6 +7,7 @@ import type {
   TranslationCode,
 } from "@/lib/generated/prisma/enums";
 import type { CompleteDayResult } from "@/features/progression/types/progression.types";
+import type { DayRewardResult } from "@/features/rewards/types/reward.types";
 
 export type GameplayConflictCode =
   | "SESSION_UNAVAILABLE"
@@ -59,5 +60,5 @@ export type CompleteModeResult =
       status: "day-complete";
       gameMode: GameMode;
       nextMode: null;
-      dayCompletion: CompleteDayResult;
+      dayCompletion: CompleteDayResult & { reward: DayRewardResult };
     };

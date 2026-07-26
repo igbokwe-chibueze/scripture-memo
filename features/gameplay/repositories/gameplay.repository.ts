@@ -20,6 +20,7 @@ import {
   markDayCompleteInTransaction,
   prepareDayForGameplayInTransaction,
 } from "@/features/progression/repositories/progression.repository";
+import { awardDayCompletionRewardInTransaction } from "@/features/rewards/repositories/reward.repository";
 import type {
   CompleteModeResult,
   GameModeAttemptData,
@@ -461,6 +462,12 @@ export const gameplayRepository = {
         session.dayLevel,
         completedAt,
       );
+      const reward = await awardDayCompletionRewardInTransaction(
+        transaction,
+        userId,
+        session.waypointId,
+        session.dayLevel,
+      );
       await transaction.gameSession.update({
         where: { id: sessionId },
         data: { status: CompletionStatus.COMPLETED, completedAt },
@@ -469,7 +476,7 @@ export const gameplayRepository = {
         status: "day-complete",
         gameMode: requestedMode,
         nextMode: null,
-        dayCompletion,
+        dayCompletion: { ...dayCompletion, reward },
       };
     }, gameplayTransactionOptions);
   },

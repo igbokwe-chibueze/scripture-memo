@@ -10,9 +10,11 @@ import { JourneyStage } from "@/lib/generated/prisma/enums";
 export function DaySelection({
   data,
   cards,
+  isAdmin,
 }: {
   data: DaySelectionData;
   cards: DayCardData[];
+  isAdmin: boolean;
 }): React.ReactNode {
   const hintsUnavailable =
     data.journeyStage === JourneyStage.STRENGTHEN ||
@@ -84,6 +86,7 @@ export function DaySelection({
               card={card}
               waypointId={data.waypointId}
               index={index}
+              isAdmin={isAdmin}
             />
           ))}
         </div>
