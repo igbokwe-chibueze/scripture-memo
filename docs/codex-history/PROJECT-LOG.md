@@ -1,6 +1,6 @@
 # Scripture Memo Project Log
 
-**Last updated:** 2026-07-23
+**Last updated:** 2026-07-26
 **Purpose:** Concise continuity backup and current-status summary for Codex
 development sessions.
 
@@ -29,8 +29,8 @@ long-term verse difficulty. Glow Points are the only currency.
 
 ## Current Project State
 
-- Branch: `day-selection-screen`.
-- Current committed HEAD at this update: `f643428`.
+- Branch: `puzzle-mode`.
+- Current committed HEAD at this update: `b1eddc1`.
 - Phases 0–9 are complete and manually accepted, including bulk CSV import,
   dynamic verse-list search, and admin pack management.
 - The public landing page and internal UI-foundation preview are implemented.
@@ -54,11 +54,13 @@ long-term verse difficulty. Glow Points are the only currency.
 - Phase 14 Drag & Drop Mode is complete and manually accepted, including
   desktop/touch placement, feedback audio, victory variants, the completion
   interstitial, Exit navigation, and administrator Test Replay.
+- Phase 15 Puzzle Mode is implemented with automated verification passing;
+  project-owner browser acceptance is pending.
 
 ## Current Roadmap Position
 
 Phases 0–14 are complete and manually accepted.
-Phase 15 — Puzzle Mode is next.
+Phase 15 — Puzzle Mode is implemented and awaiting manual acceptance.
 
 ## Completed Work
 
@@ -107,12 +109,12 @@ Phase 15 — Puzzle Mode is next.
 
 ## Current Task
 
-Review, commit, and merge the accepted Phase 14 changes.
+Manually verify Phase 15 Puzzle Mode across pointer and tap interaction.
 
 ## Exact Next Task
 
-Begin Phase 15 — Puzzle Mode after the accepted Phase 14 changes are committed
-and merged.
+After Phase 15 manual acceptance, mark it complete, commit and merge the
+`puzzle-mode` branch, then begin Phase 16 — Swap Mode.
 
 ## Important Decisions
 
@@ -288,6 +290,31 @@ and merged.
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-26 — Phase 15 Puzzle Mode implemented
+
+- Added deterministic phrase-level hiding across the Glimmer, Glow, and
+  Radiance difficulty ranges while retaining the existing stable 3–6-word
+  phrase boundaries.
+- Added position-based Puzzle state helpers and focused tests for stable bank
+  order, one-to-one placement, incomplete submissions, and duplicate phrase
+  occurrences.
+- Added visually wider phrase tiles, numbered verse positions, the phrase bank,
+  exact pointer collision, disabled drag auto-scroll, keyboard dragging, touch
+  dragging, and mobile select-and-tap placement.
+- Added reset, placed-phrase return, per-slot correct/incorrect feedback, failed
+  Check audio, pickup/drop audio, randomized success audio, confetti, success
+  toast, and the explicit animated completion interstitial.
+- Connected successful Puzzle submissions to the existing authenticated,
+  server-authoritative ordered-attempt action. The server continues to own
+  canonical answer validation, deadlines, and mode progression.
+- Generalized administrator Test Replay controls so completed Drag & Drop and
+  Puzzle modes can be replayed without attempts, rewards, cooldowns, streaks,
+  badges, or progression writes.
+- Marked the existing server-enforced game-mode order and all-five-mode
+  day-completion gate as implemented in the security audit.
+- All 14 gameplay unit tests, focused ESLint, strict TypeScript, diff validation,
+  and the production build pass. Manual browser acceptance remains pending.
 
 ### 2026-07-23 — Phase 14 Drag & Drop completed and accepted
 

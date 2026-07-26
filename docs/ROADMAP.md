@@ -806,6 +806,21 @@ from restoring an older database theme after a browser-only switch.
 - Phrase generation is deterministic (same phrases on retry).
 - Duplicate phrase issues handled by position tracking.
 
+### Implementation Status
+
+**Implemented; automated verification passed — 2026-07-26. Manual browser
+acceptance pending.** Puzzle uses stable 3–6-word phrase boundaries and applies
+the Glimmer, Glow, and Radiance hidden-percentage ranges at phrase level. Phrase
+occurrences retain their original indexes, so duplicate text remains safe during
+shuffle, placement, feedback, reconstruction, and validation. Mouse, touch,
+keyboard drag, and mobile select-and-tap workflows share one state model.
+Pointer drops require physical overlap, drag auto-scroll is disabled, and phrase
+pickup, placement, removal, failed Check, and successful completion reuse the
+accepted audio feedback system. Correct answers pass through the authenticated,
+server-authoritative ordered-attempt action before confetti, toast feedback, and
+the animated Continue interstitial. Completed Puzzle modes are available to
+administrators through the non-progressing Test Replay controls.
+
 ---
 
 ## Phase 16 — Swap Mode

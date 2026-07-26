@@ -114,8 +114,8 @@ The server and database are the only sources of truth for all security-sensitive
 | 5.6 | `overrideCooldownAction` requires ADMIN or SUPER_ADMIN role | 🟠 High | ☐ Pending | Must be for testing only and audit-logged |
 | 5.7 | Completing Day 3 unlocks only the next currently published waypoint selected by the server | 🟠 High | ✅ Implemented | Database ordering is used rather than a client ID or an `N+1` assumption |
 | 5.8 | Duplicate day completion is prevented by the unique `(userId, waypointId, dayLevel)` record, transaction lock, and completed-state check | 🔴 Critical | ✅ Implemented | Database and transactional defenses reject repeat or concurrent completion |
-| 5.9 | Game mode completion order is enforced server-side (DRAG_DROP → PUZZLE → SWAP → CUE → FILL) | 🟠 High | ☐ Pending | User cannot jump to Fill mode without completing previous modes |
-| 5.10 | A day cannot be marked complete unless all five modes are recorded as complete | 🔴 Critical | ☐ Pending | Prevents partial-day reward collection |
+| 5.9 | Game mode completion order is enforced server-side (DRAG_DROP → PUZZLE → SWAP → CUE → FILL) | 🟠 High | ✅ Implemented | Session-locked start and completion transactions derive the sole current mode from persisted completed attempts |
+| 5.10 | A day cannot be marked complete unless all five modes are recorded as complete | 🔴 Critical | ✅ Implemented | The completion transaction invokes day completion only when the ordered mode sequence has no next mode |
 | 5.11 | Journey Stage hint rules are enforced server-side in `useHintAction` | 🔴 Critical | ☐ Pending | STRENGTHEN and MASTER stage requests must be rejected at the action level |
 | 5.12 | Journey Stage time limit rules are enforced server-side | 🟠 High | ✅ Complete | Per-mode limits are Recall 5m, Strengthen 3m, Master 2m; persisted attempt time is authoritative and client timers are display-only |
 

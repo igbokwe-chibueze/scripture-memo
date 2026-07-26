@@ -20,10 +20,12 @@ import { GAME_MODE_ORDER } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { startGameModeAction } from "@/features/gameplay/actions/start-game-mode.action";
 import { DragDropMode } from "@/features/gameplay/components/modes/drag-drop-mode";
+import { PuzzleMode } from "@/features/gameplay/components/modes/puzzle-mode";
 import type {
   GameModeAttemptData,
   GameplaySessionData,
 } from "@/features/gameplay/types/game-session.types";
+import type { GameMode } from "@/lib/generated/prisma/enums";
 
 const GAME_MODE_LABELS = {
   DRAG_DROP: "Drag & Drop",
@@ -48,7 +50,7 @@ export function GameShell({
 }): React.ReactNode {
   const [attempt, setAttempt] = useState<GameModeAttemptData | null>(null);
   const [audioEnabled, setAudioEnabled] = useState(gameSession.audioEnabled);
-  const [isTestingDragDrop, setIsTestingDragDrop] = useState(false);
+  const [testReplayMode, setTestReplayMode] = useState<GameMode | null>(null);
   const [isPending, startTransition] = useTransition();
   const currentMode = gameSession.currentMode;
   const currentModeIndex = currentMode
@@ -155,21 +157,40 @@ export function GameShell({
             ))}
           </ol>
 
-          {isAdmin && gameSession.completedModes.includes("DRAG_DROP") && (
+          {isAdmin && gameSession.completedModes.length > 0 && (
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-sky-400/25 bg-sky-100/70 px-3 py-2.5 dark:border-sky-300/20 dark:bg-sky-300/8">
               <span className="inline-flex items-center gap-2 text-xs font-bold text-sky-800 dark:text-sky-200">
                 <ShieldCheckIcon className="size-4" aria-hidden="true" />
                 Admin testing · no progress changes
               </span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="min-h-9 rounded-lg text-sky-800 hover:bg-sky-200/70 hover:text-sky-950 dark:text-sky-100 dark:hover:bg-sky-300/15 dark:hover:text-white"
-                onClick={() => setIsTestingDragDrop((current) => !current)}
-              >
-                {isTestingDragDrop ? "Return to current mode" : "Test Drag & Drop again"}
-              </Button>
+              <div className="flex flex-wrap justify-end gap-1">
+                {testReplayMode ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="min-h-9 rounded-lg text-sky-800 hover:bg-sky-200/70 hover:text-sky-950 dark:text-sky-100 dark:hover:bg-sky-300/15 dark:hover:text-white"
+                    onClick={() => setTestReplayMode(null)}
+                  >
+                    Return to current mode
+                  </Button>
+                ) : (
+                  gameSession.completedModes
+                    .filter((mode) => mode === "DRAG_DROP" || mode === "PUZZLE")
+                    .map((mode) => (
+                      <Button
+                        key={mode}
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="min-h-9 rounded-lg text-sky-800 hover:bg-sky-200/70 hover:text-sky-950 dark:text-sky-100 dark:hover:bg-sky-300/15 dark:hover:text-white"
+                        onClick={() => setTestReplayMode(mode)}
+                      >
+                        Test {GAME_MODE_LABELS[mode]} again
+                      </Button>
+                    ))
+                )}
+              </div>
             </div>
           )}
         </header>
@@ -192,7 +213,7 @@ export function GameShell({
             </div>
           )}
 
-          {isTestingDragDrop && gameSession.dayLevel ? (
+          {testReplayMode === "DRAG_DROP" && gameSession.dayLevel ? (
             <DragDropMode
               sessionId={gameSession.id}
               dayLevel={gameSession.dayLevel}
@@ -200,10 +221,28 @@ export function GameShell({
               attempt={null}
               isTestReplay
               nextMode={currentMode}
-              onTestReplayExit={() => setIsTestingDragDrop(false)}
+              onTestReplayExit={() => setTestReplayMode(null)}
+            />
+          ) : testReplayMode === "PUZZLE" && gameSession.dayLevel ? (
+            <PuzzleMode
+              sessionId={gameSession.id}
+              dayLevel={gameSession.dayLevel}
+              verseText={gameSession.verse.translationText}
+              attempt={null}
+              isTestReplay
+              nextMode={currentMode}
+              onTestReplayExit={() => setTestReplayMode(null)}
             />
           ) : currentMode === "DRAG_DROP" && attempt && gameSession.dayLevel ? (
             <DragDropMode
+              sessionId={gameSession.id}
+              dayLevel={gameSession.dayLevel}
+              verseText={gameSession.verse.translationText}
+              attempt={attempt}
+              nextMode={GAME_MODE_ORDER[currentModeIndex + 1] ?? null}
+            />
+          ) : currentMode === "PUZZLE" && attempt && gameSession.dayLevel ? (
+            <PuzzleMode
               sessionId={gameSession.id}
               dayLevel={gameSession.dayLevel}
               verseText={gameSession.verse.translationText}
