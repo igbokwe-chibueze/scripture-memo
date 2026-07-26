@@ -702,9 +702,12 @@ cue on failed Check, and a randomized victory-pool sound on full success.
 **Rename note:** This mode was previously called "Hint Mode" and has been renamed to **Cue Mode** to avoid confusion with the game's separate Hint System. Cue Mode and the Hint System are completely independent.
 
 **Interaction:**
-- Each blank shows the first letter of the missing word (e.g., "L_____" for "Lord").
-- The first letter is pre-rendered and not editable.
-- The user types the remaining letters to complete the word.
+- Each blank shows the first letter as a light-grey placeholder cue (e.g.,
+  "L_____" for "Lord").
+- The cue is not pre-filled input: the learner types the complete word,
+  including its first letter.
+- Input is clamped to the exact normalized word length, including for pasted
+  text; canonical punctuation remains outside the field and is not typed.
 - Inputs auto-advance when the user reaches the correct word length.
 - Validation uses normalized text (lowercase, punctuation-stripped).
 - Same green/red visual feedback as Fill Mode.

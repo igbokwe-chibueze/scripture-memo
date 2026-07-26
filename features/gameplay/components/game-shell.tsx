@@ -20,6 +20,7 @@ import { showActionError } from "@/lib/errors/show-action-error";
 import { GAME_MODE_ORDER } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { startGameModeAction } from "@/features/gameplay/actions/start-game-mode.action";
+import { CueMode } from "@/features/gameplay/components/modes/cue-mode";
 import { DragDropMode } from "@/features/gameplay/components/modes/drag-drop-mode";
 import { PuzzleMode } from "@/features/gameplay/components/modes/puzzle-mode";
 import { SwapMode } from "@/features/gameplay/components/modes/swap-mode";
@@ -206,7 +207,8 @@ export function GameShell({
                       (mode) =>
                         mode === "DRAG_DROP" ||
                         mode === "PUZZLE" ||
-                        mode === "SWAP",
+                        mode === "SWAP" ||
+                        mode === "CUE",
                     )
                     .map((mode) => (
                       <Button
@@ -280,6 +282,18 @@ export function GameShell({
               onCompletionShown={() => setIsAwaitingContinue(true)}
               onTestReplayExit={exitTestReplay}
             />
+          ) : testReplayMode === "CUE" && gameSession.dayLevel ? (
+            <CueMode
+              sessionId={gameSession.id}
+              dayLevel={gameSession.dayLevel}
+              verseText={gameSession.verse.translationText}
+              attempt={null}
+              isTestReplay
+              nextMode={currentMode}
+              onContinue={exitTestReplay}
+              onCompletionShown={() => setIsAwaitingContinue(true)}
+              onTestReplayExit={exitTestReplay}
+            />
           ) : currentMode === "DRAG_DROP" && attempt && gameSession.dayLevel ? (
             <DragDropMode
               sessionId={gameSession.id}
@@ -306,6 +320,18 @@ export function GameShell({
             />
           ) : currentMode === "SWAP" && attempt && gameSession.dayLevel ? (
             <SwapMode
+              sessionId={gameSession.id}
+              dayLevel={gameSession.dayLevel}
+              verseText={gameSession.verse.translationText}
+              attempt={attempt}
+              nextMode={GAME_MODE_ORDER[currentModeIndex + 1] ?? null}
+              onContinue={() =>
+                continueToMode(GAME_MODE_ORDER[currentModeIndex + 1] ?? null)
+              }
+              onCompletionShown={() => setIsAwaitingContinue(true)}
+            />
+          ) : currentMode === "CUE" && attempt && gameSession.dayLevel ? (
+            <CueMode
               sessionId={gameSession.id}
               dayLevel={gameSession.dayLevel}
               verseText={gameSession.verse.translationText}

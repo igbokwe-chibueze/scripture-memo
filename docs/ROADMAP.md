@@ -873,8 +873,8 @@ Continue.
 ### Tasks
 
 1. Create `cue-mode.tsx` in `features/gameplay/components/modes/`.
-2. Render blanks with first letter visible as a non-editable prefix (e.g., "L___").
-3. Inputs take the remaining letters from the user.
+2. Render the first letter as a light-grey placeholder cue (e.g., "L___").
+3. Require the user to type the complete word, including the cued first letter.
 4. Auto-advance when correct word length is reached.
 5. Validate using `answer-validator.ts` (normalized comparison).
 6. Apply green/red styling per input on Check.
@@ -886,6 +886,26 @@ Continue.
 - First-letter prefixes render correctly for all missing words.
 - Validation is case-insensitive and punctuation-tolerant.
 - Mode is named "Cue" throughout the UI, not "Hint."
+
+### Implementation Status
+
+**Complete and manually accepted — 2026-07-26.** Cue deterministically selects
+eligible words within each day-level difficulty range and keeps canonical
+punctuation outside the editable field. Each blank presents the translation's
+first letter as a light-grey placeholder, while the learner must type the
+complete word, including that letter. Input is sanitized and clamped to the
+exact normalized target length for typing and paste, so extra characters cannot
+enter the field. Inputs disable autocomplete, autocorrect, capitalization, and
+spellcheck assistance, then advance focus when the exact target length is
+reached. Check uses the shared case-insensitive, punctuation-tolerant normalizer
+and applies green/red per-position feedback.
+Correct answers pass through the authenticated ordered-attempt action before
+victory audio, confetti, success toast, and the explicit Continue interstitial.
+Completed Cue modes are available through non-progressing administrator Test
+Replay and remain fully independent of the separate Hint System.
+The shared completion dialog uses safe vertical centering: it remains centered
+when it fits, but starts within the scrollable viewport on short mobile screens
+so neither the success icon nor actions can be clipped above the scroll origin.
 
 ---
 

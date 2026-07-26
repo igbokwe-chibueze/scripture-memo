@@ -56,11 +56,12 @@ long-term verse difficulty. Glow Points are the only currency.
   interstitial, Exit navigation, and administrator Test Replay.
 - Phase 15 Puzzle Mode is complete and manually accepted.
 - Phase 16 Swap Mode is complete and manually accepted.
+- Phase 17 Cue Mode is complete and manually accepted.
 
 ## Current Roadmap Position
 
-Phases 0–16 are complete and manually accepted.
-Phase 17 — Cue Mode is next.
+Phases 0–17 are complete and manually accepted.
+Phase 18 — Fill Mode is next.
 
 ## Completed Work
 
@@ -109,11 +110,12 @@ Phase 17 — Cue Mode is next.
 
 ## Current Task
 
-Review, commit, and push the Phase 16 acceptance log update.
+Review, commit, and push the accepted Phase 17 changes.
 
 ## Exact Next Task
 
-Merge the accepted `puzzle-mode` branch, then begin Phase 17 — Cue Mode.
+After the accepted Phase 17 changes are committed and merged, begin Phase 18 —
+Fill Mode.
 
 ## Important Decisions
 
@@ -289,6 +291,35 @@ Merge the accepted `puzzle-mode` branch, then begin Phase 17 — Cue Mode.
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-26 — Phase 17 Cue Mode completed and accepted
+
+- Added deterministic first-letter Cue positions across the Glimmer, Glow, and
+  Radiance difficulty ranges.
+- Added normalized Cue helpers and tests for deterministic selection,
+  first-letter/remainder separation, case-insensitive and
+  punctuation-tolerant validation, incomplete-position feedback, and canonical
+  punctuation reconstruction.
+- Added inline, touch-friendly fields that show the first letter as a light-grey
+  placeholder but require the complete word from the learner. Input is
+  sanitized and hard-clamped to the exact normalized word length for typing,
+  paste, and autofill, preventing extra characters such as `kindsss`.
+  Browser autocomplete, autocorrect, automatic capitalization, and spellcheck
+  assistance are disabled.
+- Added normalized-length keyboard auto-advance, Reset and refocus behavior,
+  per-input green/red Check feedback, and accessible labels that explain the
+  first-letter placeholder without conflating Cue with the Hint System.
+- Connected correct answers to the authenticated, server-owned fourth-mode
+  attempt before randomized victory audio, confetti, success toast, and the
+  explicit completion interstitial leading to Fill.
+- Extended administrator Test Replay to completed Cue modes without creating
+  attempts or changing progression.
+- Corrected mobile clipping in the shared completion interstitial. A safely
+  centered flex layout now centers cards that fit while keeping oversized cards
+  top-reachable and scrollable; compact mobile spacing further preserves the
+  success icon and actions on short screens.
+- All 21 gameplay tests, full ESLint, strict TypeScript, diff validation, and
+  the production build passed before project-owner browser acceptance.
 
 ### 2026-07-26 — Phase 16 Swap Mode completed and accepted
 
