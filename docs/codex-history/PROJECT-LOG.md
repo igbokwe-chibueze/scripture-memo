@@ -30,7 +30,7 @@ long-term verse difficulty. Glow Points are the only currency.
 ## Current Project State
 
 - Branch: `puzzle-mode`.
-- Current committed HEAD at this update: `b1eddc1`.
+- Current committed HEAD at this update: `1bdeb37`.
 - Phases 0–9 are complete and manually accepted, including bulk CSV import,
   dynamic verse-list search, and admin pack management.
 - The public landing page and internal UI-foundation preview are implemented.
@@ -55,13 +55,12 @@ long-term verse difficulty. Glow Points are the only currency.
   desktop/touch placement, feedback audio, victory variants, the completion
   interstitial, Exit navigation, and administrator Test Replay.
 - Phase 15 Puzzle Mode is complete and manually accepted.
-- Phase 16 Swap Mode is implemented with automated verification passing;
-  project-owner browser acceptance is pending.
+- Phase 16 Swap Mode is complete and manually accepted.
 
 ## Current Roadmap Position
 
-Phases 0–15 are complete and manually accepted.
-Phase 16 — Swap Mode is implemented and awaiting manual acceptance.
+Phases 0–16 are complete and manually accepted.
+Phase 17 — Cue Mode is next.
 
 ## Completed Work
 
@@ -110,12 +109,11 @@ Phase 16 — Swap Mode is implemented and awaiting manual acceptance.
 
 ## Current Task
 
-Manually verify Phase 16 Swap Mode across desktop and mobile interaction.
+Review, commit, and push the Phase 16 acceptance log update.
 
 ## Exact Next Task
 
-After Phase 16 manual acceptance, mark it complete, commit and merge the current
-gameplay changes, then begin Phase 17 — Cue Mode.
+Merge the accepted `puzzle-mode` branch, then begin Phase 17 — Cue Mode.
 
 ## Important Decisions
 
@@ -292,7 +290,7 @@ gameplay changes, then begin Phase 17 — Cue Mode.
 
 ## Dated Session Updates
 
-### 2026-07-26 — Phase 16 Swap Mode implemented
+### 2026-07-26 — Phase 16 Swap Mode completed and accepted
 
 - Recorded project-owner manual acceptance of Phase 15 Puzzle Mode.
 - Added the complete Swap interaction surface with yellow available words,
@@ -319,7 +317,7 @@ gameplay changes, then begin Phase 17 — Cue Mode.
   keyed to the session, holds the completed mode locally, suppresses its timer,
   and advances only through the player's explicit Continue action.
 - All 16 gameplay tests, full ESLint, strict TypeScript, diff validation, and
-  the production build pass. Manual browser acceptance remains pending.
+  the production build passed before project-owner browser acceptance.
 
 ### 2026-07-26 — Phase 15 Puzzle Mode completed and accepted
 

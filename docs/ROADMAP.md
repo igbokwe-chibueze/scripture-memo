@@ -847,9 +847,9 @@ administrators through the non-progressing Test Replay controls.
 
 ### Implementation Status
 
-**Implemented; automated verification passed — 2026-07-26. Manual browser
-acceptance pending.** Swap deterministically rotates a day-level percentage of
-word occurrences while retaining fixed verse positions and punctuation.
+**Complete and manually accepted — 2026-07-26.** Swap deterministically rotates
+a day-level percentage of word occurrences while retaining fixed verse
+positions and punctuation.
 Swappable words begin yellow, turn purple while selected, exchange on the second
 selection, and deselect when activated twice. Check marks restored positions
 green and remaining misplaced positions red. Occurrence indexes—not display
