@@ -10,6 +10,7 @@ import { StatCard } from "@/components/shared/stat-card";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { FoundationControls } from "@/features/ui-foundation/components/foundation-controls";
 import { FoundationTable } from "@/features/ui-foundation/components/foundation-table";
+import { WaypointCompletionPreview } from "@/features/ui-foundation/components/waypoint-completion-preview";
 
 export const metadata: Metadata = {
   title: "UI Foundation Preview | Scripture Memo",
@@ -56,6 +57,7 @@ export function UiFoundationView(): React.ReactNode {
         </div>
 
         <FoundationControls />
+        <WaypointCompletionPreview />
         <FoundationTable />
 
         <EmptyState

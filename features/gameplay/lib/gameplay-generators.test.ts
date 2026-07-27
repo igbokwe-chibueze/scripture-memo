@@ -12,6 +12,9 @@ import { generateVersePhrases } from "@/features/gameplay/lib/phrase-generator";
 import {
   areSwapTokensCorrect,
   generateSwapTokens,
+  getIncorrectSwapPositions,
+  reconstructSwapAnswer,
+  swapTokenPositions,
 } from "@/features/gameplay/lib/swap-generator";
 import { tokenizeVerse } from "@/features/gameplay/lib/verse-tokenizer";
 
@@ -67,14 +70,25 @@ test("phrase boundaries remain deterministic and avoid tiny trailing chunks", ()
   const tokens = tokenizeVerse(
     "one two three four five six seven eight nine ten eleven twelve thirteen fourteen",
   );
-  const first = generateVersePhrases(tokens, "stable-session-seed");
-  const retry = generateVersePhrases(tokens, "stable-session-seed");
+  const first = generateVersePhrases(tokens, "stable-session-seed", "GLOW");
+  const retry = generateVersePhrases(tokens, "stable-session-seed", "GLOW");
 
   assert.deepEqual(first, retry);
   assert.equal(first.every((phrase) => {
     const size = phrase.endTokenIndex - phrase.startTokenIndex + 1;
     return size >= 3 && size <= 6;
   }), true);
+});
+
+test("short Puzzle verses gain day-specific chunks instead of one trivial tile", () => {
+  const tokens = tokenizeVerse("Love is patient and kind");
+  const glimmer = generateVersePhrases(tokens, "short-verse", "GLIMMER");
+  const glow = generateVersePhrases(tokens, "short-verse", "GLOW");
+  const radiance = generateVersePhrases(tokens, "short-verse", "RADIANCE");
+
+  assert.deepEqual(glimmer.map(({ text }) => text), ["Love is patient", "and kind"]);
+  assert.deepEqual(glow.map(({ text }) => text), ["Love is", "patient", "and kind"]);
+  assert.deepEqual(radiance, glow);
 });
 
 test("swap generation tracks duplicate words by position and can be restored", () => {
@@ -95,4 +109,41 @@ test("swap generation tracks duplicate words by position and can be restored", (
     }))),
     true,
   );
+});
+
+test("swap interaction exchanges identities while positions remain stable", () => {
+  const tokens = tokenizeVerse("one two three four");
+  const initial = generateSwapTokens(tokens, 100, "interactive-swap");
+  const firstPosition = initial[0]?.position;
+  const matchingPosition = initial.find(
+    ({ originalIndex }) => originalIndex === firstPosition,
+  )?.position;
+
+  assert.equal(typeof firstPosition, "number");
+  assert.equal(typeof matchingPosition, "number");
+  if (firstPosition === undefined || matchingPosition === undefined) return;
+
+  const moved = swapTokenPositions(initial, firstPosition, matchingPosition);
+  assert.deepEqual(
+    moved.map(({ position }) => position),
+    initial.map(({ position }) => position),
+  );
+  assert.equal(
+    getIncorrectSwapPositions(moved).length <
+      getIncorrectSwapPositions(initial).length,
+    true,
+  );
+});
+
+test("swap reconstruction keeps punctuation anchored to canonical slots", () => {
+  const verseTokens = tokenizeVerse("“Love,” is kind...");
+  const swapped = generateSwapTokens(verseTokens, 100, "punctuation-swap");
+  const restored = swapped.map((token) => ({
+    ...token,
+    originalIndex: token.position,
+    text: verseTokens[token.position]?.wordText ?? "",
+  }));
+
+  assert.equal(reconstructSwapAnswer(restored, verseTokens), "“Love,” is kind...");
+  assert.equal(areSwapTokensCorrect(restored), true);
 });

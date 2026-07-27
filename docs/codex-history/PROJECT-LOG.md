@@ -1,6 +1,6 @@
 # Scripture Memo Project Log
 
-**Last updated:** 2026-07-23
+**Last updated:** 2026-07-27
 **Purpose:** Concise continuity backup and current-status summary for Codex
 development sessions.
 
@@ -29,8 +29,8 @@ long-term verse difficulty. Glow Points are the only currency.
 
 ## Current Project State
 
-- Branch: `day-selection-screen`.
-- Current committed HEAD at this update: `f643428`.
+- Branch: `puzzle-mode`.
+- Current committed HEAD at this update: `5a4eeeb`.
 - Phases 0–9 are complete and manually accepted, including bulk CSV import,
   dynamic verse-list search, and admin pack management.
 - The public landing page and internal UI-foundation preview are implemented.
@@ -54,11 +54,20 @@ long-term verse difficulty. Glow Points are the only currency.
 - Phase 14 Drag & Drop Mode is complete and manually accepted, including
   desktop/touch placement, feedback audio, victory variants, the completion
   interstitial, Exit navigation, and administrator Test Replay.
+- Phase 15 Puzzle Mode is complete and manually accepted.
+- Phase 16 Swap Mode is complete and manually accepted.
+- Phase 17 Cue Mode is complete and manually accepted.
+- Phase 18 Fill Mode is complete and manually accepted.
+- Completed-day administrator Test Replay entry and audited self-testing
+  cooldown overrides are implemented.
+- Phase 19 Glow Points and Rewards is complete and manually accepted.
+- Phase 20 Hint System is implemented and awaiting manual browser acceptance.
 
 ## Current Roadmap Position
 
-Phases 0–14 are complete and manually accepted.
-Phase 15 — Puzzle Mode is next.
+Phases 0–18 are complete and manually accepted.
+Phases 0–19 are complete and manually accepted.
+Phase 20 — Hint System is implemented and awaiting manual browser acceptance.
 
 ## Completed Work
 
@@ -107,15 +116,21 @@ Phase 15 — Puzzle Mode is next.
 
 ## Current Task
 
-Review, commit, and merge the accepted Phase 14 changes.
+Manually verify Phase 20 hints in Learn/Recall and their absence in
+Strengthen/Master.
 
 ## Exact Next Task
 
-Begin Phase 15 — Puzzle Mode after the accepted Phase 14 changes are committed
-and merged.
+After Phase 20 manual acceptance, mark it complete and begin Phase 21 — Streak
+System.
 
 ## Important Decisions
 
+- Player-accessible replay from completed map challenge cards is deferred to
+  Post-Roadmap Extras. It will use individual mode selection, remain
+  non-progressing and reward-free by default, and coexist with organized Vault
+  replay. Any limited practice reward requires a separate abuse-resistant
+  product decision.
 - Root `AGENTS.md` overrides supporting documents when instructions conflict.
 - Available Codex conversation history remains useful and should be read when
   present; this file is only a continuity backup and status summary.
@@ -288,6 +303,219 @@ and merged.
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-27 — Phase 20 Hint System implemented
+
+- Added a five-hint free balance derived from persisted `HintUsage` records.
+- Added a validated authenticated action and transaction-locked repository
+  consumption flow that rechecks session ownership, active state, Journey
+  Stage, current mode, canonical translation, and remaining balance.
+- Successful consumption creates `HintUsage` and increments
+  `UserProfile.totalHintsUsed` atomically before revealing the verse.
+- Added the shared Hint button, accurate remaining-count feedback, and a calm
+  full-verse modal. Strengthen/Master sessions render no hint control, and
+  the modal now shows a six-second progress bar before closing itself.
+- Normal admin campaign play consumes real hints for end-to-end verification;
+  Admin Test Replay exposes unlimited non-persisting **Test hint** access.
+- Purchased hint credit is deliberately deferred to Phase 22 because the
+  current generic shop schema does not yet define hint quantities.
+- Hint balance tests, ESLint, strict TypeScript, and the production build pass.
+- Corrected the shared mode-completion overlay to lock background document
+  scrolling while open. Only the overlay scrolls when its card exceeds the
+  viewport, eliminating the duplicate scrollbar and preventing hidden gameplay
+  content from moving behind the success screen.
+- Added the distinct Radiance-only Waypoint Complete milestone after the normal
+  day-reward screen. It animates three flames, shows the completed waypoint and
+  verse plus the server-returned next-waypoint/caught-up result, plays a
+  dedicated fanfare, locks background scrolling, and returns to the trail map
+  only after the learner presses Continue.
+- Added a reusable **Preview Waypoint Complete** control to `/ui-foundation`.
+  It opens the real production milestone with fixed display-only sample data,
+  plays its fanfare, changes no database or game state, and can be repeated
+  indefinitely for visual and audio acceptance testing.
+- Smoothed the three-flame mobile entrance by replacing three concurrent spring
+  animations with one short GPU-friendly group transition. The milestone now
+  shows the persisted rewards earned for that waypoint and the learner's total
+  Glow Point balance; the UI Foundation preview reflects both values.
+- Refined the approved milestone sequence: after the screen enters, each flame
+  pops in separately with small particles and synchronized interaction audio,
+  then Waypoint Rewards drops into position followed by Total Balance. The
+  sequence uses short transform-only tweens for mobile smoothness and removes
+  staged movement and particles when reduced motion is enabled.
+- Increased the flame stagger to roughly half a second between arrivals and
+  delayed both Glow Point cards until the third flame finishes, making each
+  milestone beat easier to perceive.
+
+### 2026-07-26 — Phase 19 Glow Points and Rewards implemented
+
+- Added server-owned Glimmer, Glow, and Radiance reward calculations of 100,
+  150, and 200 Glow Points.
+- Added a rewards repository with balance and bounded newest-first immutable
+  history reads.
+- Integrated the ledger insert and atomic profile increment directly into the
+  existing server-proven fifth-mode/day/session completion transaction.
+- Added a unique learner/waypoint/day idempotency identity so a repeated award
+  cannot create another ledger event or balance increment.
+- Completion feedback now displays only the persisted earned amount and new
+  balance returned by the transaction.
+- Reward calculation and identity tests, the 26 gameplay regression tests,
+  ESLint, strict TypeScript, and the production build pass.
+  The new PostgreSQL integration test was invoked, but the configured test
+  database rejected user fixture creation before exercising reward writes,
+  consistent with the existing test-database availability issue.
+- Project-owner manual acceptance passed by completing Glow: the completion
+  screen displayed the expected +150 Glow Points, a persisted balance of 150,
+  and remained open for the explicit Continue action. Phase 19 is complete.
+
+### 2026-07-26 — Puzzle short-verse difficulty correction
+
+- Diagnosed the one-tile Glow Puzzle: the standard 3–6-word phrase rule turned
+  every verse of six words or fewer into one phrase, so percentage scaling
+  could not make later days more demanding.
+- Added the approved deterministic short-verse exception. Glimmer creates up to
+  two chunks and moves one; Glow creates up to three chunks and moves at least
+  two; Radiance moves all available chunks.
+- Longer verses retain the established 3–6-word phrase generator and normal
+  hidden-percentage ranges.
+- Added tests for the exact five-word test verse, day-specific phrase
+  boundaries, deterministic output, and Glow/Radiance minimum bank sizes. All
+  26 gameplay tests, ESLint, strict TypeScript, and the production build pass.
+- Corrected the Puzzle verse presentation after project-owner review: visible
+  phrases and interactive blanks now remain inline as one naturally wrapping
+  sentence. The former separate numbered phrase rows were removed; chunking and
+  day difficulty behavior are unchanged.
+
+### 2026-07-26 — Completed-day replay entry and cooldown testing override
+
+- Confirmed the documented replay boundary: ordinary campaign days remain
+  complete, later learner replay belongs to the Vault, and administrators may
+  use clearly labeled non-progressing Test Replay for completed modes.
+- Added an administrator-only **Test replay [day]** action to completed
+  challenge cards. It opens the learner-owned completed session and reuses the
+  existing mode-by-mode Test Replay controls without creating attempts or
+  changing progression, rewards, or cooldowns.
+- Added an administrator-only **Unlock for testing** control beside active Glow
+  and Radiance cooldowns.
+- Added a validated and independently authorized Server Action. The repository
+  can alter only the authenticated administrator's own pending day, locks the
+  progression transaction, rechecks publication, ordering, completion, and the
+  live server timestamp, and atomically records the privileged override in
+  `AuditLog`.
+- Day-selection and progression utility tests, ESLint, strict TypeScript, and
+  the production build pass. The first sandboxed build could not download the
+  configured Google fonts; the approved network-enabled rerun passed.
+
+### 2026-07-26 — Phase 18 Fill Mode implemented
+
+- Resolved the roadmap overlap with project-owner approval: Phase 18 owns Fill
+  and the existing atomic day/cooldown/waypoint transition. Glow Points remain
+  Phase 19, badges Phase 24, and streaks Phase 25; Fill makes no premature claim
+  about those outcomes.
+- Extracted exact-length typed-word sanitization into the shared answer
+  validator so Cue and Fill handle typing, paste, autofill, case, and canonical
+  punctuation consistently.
+- Added deterministic unassisted Fill blanks across Glimmer, Glow, and Radiance,
+  with blue focus treatment, exact-length auto-advance, Reset, and per-position
+  green/red Check feedback.
+- Added focused tests for normalized Fill validation, pasted extra-character
+  clamping, incomplete positions, and punctuation reconstruction.
+- Connected correct Fill answers to the authenticated fifth-mode completion
+  action. The existing session-locked transaction completes the day, schedules
+  the next cooldown, or completes Day 3 and unlocks the next published waypoint.
+- Added accurate day/cooldown/waypoint toasts, randomized victory audio,
+  confetti, the explicit completion interstitial, and Continue navigation back
+  to Day Selection.
+- Extended administrator Test Replay to completed Fill modes without attempts or
+  progression writes.
+- All 24 gameplay tests, three progression utility tests, the database safety
+  guard, gameplay ESLint, strict TypeScript, diff validation, and the production
+  build pass. The existing PostgreSQL progression integration suite was also
+  invoked but its configured test database failed on the initial
+  `waypoint.count()` before exercising Fill; no schema or database code changed
+  in this phase. Manual browser acceptance remains pending.
+
+### 2026-07-26 — Phase 17 Cue Mode completed and accepted
+
+- Added deterministic first-letter Cue positions across the Glimmer, Glow, and
+  Radiance difficulty ranges.
+- Added normalized Cue helpers and tests for deterministic selection,
+  first-letter/remainder separation, case-insensitive and
+  punctuation-tolerant validation, incomplete-position feedback, and canonical
+  punctuation reconstruction.
+- Added inline, touch-friendly fields that show the first letter as a light-grey
+  placeholder but require the complete word from the learner. Input is
+  sanitized and hard-clamped to the exact normalized word length for typing,
+  paste, and autofill, preventing extra characters such as `kindsss`.
+  Browser autocomplete, autocorrect, automatic capitalization, and spellcheck
+  assistance are disabled.
+- Added normalized-length keyboard auto-advance, Reset and refocus behavior,
+  per-input green/red Check feedback, and accessible labels that explain the
+  first-letter placeholder without conflating Cue with the Hint System.
+- Connected correct answers to the authenticated, server-owned fourth-mode
+  attempt before randomized victory audio, confetti, success toast, and the
+  explicit completion interstitial leading to Fill.
+- Extended administrator Test Replay to completed Cue modes without creating
+  attempts or changing progression.
+- Corrected mobile clipping in the shared completion interstitial. A safely
+  centered flex layout now centers cards that fit while keeping oversized cards
+  top-reachable and scrollable; compact mobile spacing further preserves the
+  success icon and actions on short screens.
+- All 21 gameplay tests, full ESLint, strict TypeScript, diff validation, and
+  the production build passed before project-owner browser acceptance.
+
+### 2026-07-26 — Phase 16 Swap Mode completed and accepted
+
+- Recorded project-owner manual acceptance of Phase 15 Puzzle Mode.
+- Added the complete Swap interaction surface with yellow available words,
+  purple selection, second-word exchange, same-word deselection, Reset, and
+  mobile-friendly 44px-or-larger targets.
+- Applied deterministic Glimmer, Glow, and Radiance swap percentages through the
+  existing day-difficulty helper.
+- Kept occurrence identity separate from visible word text so duplicate words
+  cannot produce a false correct result. Added tests for stable position
+  identity, interactive exchanges, and canonical punctuation anchoring.
+- Kept punctuation fixed at its original verse slot while only the word
+  occurrence moves, preventing commas and full stops from travelling during a
+  swap.
+- Added per-position green/red Check feedback, wrong-answer audio, selection and
+  exchange sounds, authenticated server completion, randomized victory audio,
+  confetti, success toast, and the explicit animated Continue interstitial.
+- Extended administrator Test Replay to completed Swap modes without creating
+  attempts or changing progression.
+- Corrected a custom-theme contrast conflict that could render the purple
+  selected word as white text on a white surface. The selected treatment now
+  enforces its violet background, border, and foreground together.
+- Corrected the completion interstitial dismissing itself when the successful
+  Server Action streamed refreshed session props. The shared shell now remains
+  keyed to the session, holds the completed mode locally, suppresses its timer,
+  and advances only through the player's explicit Continue action.
+- All 16 gameplay tests, full ESLint, strict TypeScript, diff validation, and
+  the production build passed before project-owner browser acceptance.
+
+### 2026-07-26 — Phase 15 Puzzle Mode completed and accepted
+
+- Added deterministic phrase-level hiding across the Glimmer, Glow, and
+  Radiance difficulty ranges while retaining the existing stable 3–6-word
+  phrase boundaries.
+- Added position-based Puzzle state helpers and focused tests for stable bank
+  order, one-to-one placement, incomplete submissions, and duplicate phrase
+  occurrences.
+- Added visually wider phrase tiles, numbered verse positions, the phrase bank,
+  exact pointer collision, disabled drag auto-scroll, keyboard dragging, touch
+  dragging, and mobile select-and-tap placement.
+- Added reset, placed-phrase return, per-slot correct/incorrect feedback, failed
+  Check audio, pickup/drop audio, randomized success audio, confetti, success
+  toast, and the explicit animated completion interstitial.
+- Connected successful Puzzle submissions to the existing authenticated,
+  server-authoritative ordered-attempt action. The server continues to own
+  canonical answer validation, deadlines, and mode progression.
+- Generalized administrator Test Replay controls so completed Drag & Drop and
+  Puzzle modes can be replayed without attempts, rewards, cooldowns, streaks,
+  badges, or progression writes.
+- Marked the existing server-enforced game-mode order and all-five-mode
+  day-completion gate as implemented in the security audit.
+- All 14 gameplay unit tests, focused ESLint, strict TypeScript, diff validation,
+  and the production build passed before project-owner browser acceptance.
 
 ### 2026-07-23 — Phase 14 Drag & Drop completed and accepted
 

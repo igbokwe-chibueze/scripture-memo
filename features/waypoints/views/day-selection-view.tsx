@@ -5,6 +5,8 @@ import { ArrowLeftIcon } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { ResponsiveContainer } from "@/components/shared/responsive-container";
 import { requireServerSession } from "@/lib/auth/session";
+import type { UserRole } from "@/lib/generated/prisma/enums";
+import { isAdmin } from "@/lib/permissions";
 import { DaySelection } from "@/features/waypoints/components/day-selection";
 import { buildDayCards } from "@/features/waypoints/lib/day-selection";
 import { daySelectionRepository } from "@/features/waypoints/repositories/day-selection.repository";
@@ -45,7 +47,11 @@ export async function DaySelectionView({
           <ArrowLeftIcon className="size-4" aria-hidden="true" />
           Back to map
         </Link>
-        <DaySelection data={data} cards={cards} />
+        <DaySelection
+          data={data}
+          cards={cards}
+          isAdmin={isAdmin(session.user.role as UserRole | undefined)}
+        />
       </ResponsiveContainer>
     </main>
   );

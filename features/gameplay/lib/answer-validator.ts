@@ -23,3 +23,21 @@ export function isGameplayAnswerCorrect(
   return normalizeGameplayAnswer(submittedAnswer) ===
     normalizeGameplayAnswer(canonicalAnswer);
 }
+
+/**
+ * Removes punctuation and clamps one typed word to its normalized target length.
+ *
+ * Applying this during every change covers typing, paste, and autofill. Canonical
+ * punctuation remains rendered outside gameplay inputs, so it is never required
+ * from the learner and cannot consume a character slot.
+ */
+export function limitGameplayWordInput(
+  value: string,
+  expectedWord: string,
+): string {
+  return Array.from(
+    value.normalize("NFKC").replace(/[^\p{L}\p{N}]/gu, ""),
+  )
+    .slice(0, Array.from(expectedWord).length)
+    .join("");
+}

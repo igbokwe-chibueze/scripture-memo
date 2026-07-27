@@ -8,6 +8,8 @@ import {
   FlameIcon,
   LockKeyholeIcon,
   PlayIcon,
+  RotateCcwIcon,
+  ShieldCheckIcon,
   SparklesIcon,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -19,6 +21,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { showActionError } from "@/lib/errors/show-action-error";
 import { cn } from "@/lib/utils";
 import { startGameSessionAction } from "@/features/gameplay/actions/start-game-session.action";
+import { overrideCooldownAction } from "@/features/progression/actions/override-cooldown.action";
 import type { DayCardData } from "@/features/waypoints/types/day-selection.types";
 
 const statusPresentation = {
@@ -33,10 +36,12 @@ export function DayCard({
   card,
   waypointId,
   index,
+  isAdmin,
 }: {
   card: DayCardData;
   waypointId: string;
   index: number;
+  isAdmin: boolean;
 }): React.ReactNode {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -66,6 +71,28 @@ export function DayCard({
       toast.success(result.message, { duration: 4_000 });
       if (result.data) router.push(result.data.redirectTo);
     });
+  }
+
+  function overrideCooldown(): void {
+    startTransition(async () => {
+      const result = await overrideCooldownAction({
+        waypointId,
+        dayLevel: card.dayLevel,
+      });
+      if (!result.success) {
+        showActionError(result);
+        return;
+      }
+
+      toast.success(result.message, { duration: 4_000 });
+      router.refresh();
+    });
+  }
+
+  function openTestReplay(): void {
+    if (card.completedSessionId) {
+      router.push(`/game/sessions/${card.completedSessionId}`);
+    }
   }
 
   return (
@@ -146,14 +173,43 @@ export function DayCard({
             Start {card.name}
           </LoadingButton>
         ) : card.status === "LOCKED" || card.status === "COOLDOWN" ? (
+          <div
+            className={cn(
+              "grid w-full gap-2",
+              isAdmin && card.status === "COOLDOWN" ? "grid-cols-2" : "grid-cols-1",
+            )}
+          >
+            <Button
+              type="button"
+              variant="outline"
+              onClick={explainBlockedDay}
+              className="min-h-11 rounded-xl"
+            >
+              <StatusIcon className="size-4" aria-hidden="true" />
+              {card.status === "COOLDOWN" ? "Cooling down" : "Locked"}
+            </Button>
+            {isAdmin && card.status === "COOLDOWN" && (
+              <LoadingButton
+                isPending={isPending}
+                pendingLabel="Unlocking"
+                variant="secondary"
+                onClick={overrideCooldown}
+                className="min-h-11 rounded-xl px-2 text-xs sm:text-sm"
+              >
+                <ShieldCheckIcon className="size-4" aria-hidden="true" />
+                Unlock for testing
+              </LoadingButton>
+            )}
+          </div>
+        ) : isAdmin && card.completedSessionId ? (
           <Button
             type="button"
             variant="outline"
-            onClick={explainBlockedDay}
-            className="h-11 w-full rounded-xl"
+            onClick={openTestReplay}
+            className="h-12 w-full rounded-xl font-black"
           >
-            <StatusIcon className="size-4" aria-hidden="true" />
-            {card.status === "COOLDOWN" ? "Cooling down" : "Locked"}
+            <RotateCcwIcon className="size-4" aria-hidden="true" />
+            Test replay {card.name}
           </Button>
         ) : (
           <p className="w-full text-center text-sm font-bold text-emerald-700 dark:text-emerald-300">

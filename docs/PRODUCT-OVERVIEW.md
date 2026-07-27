@@ -666,8 +666,16 @@ cue on failed Check, and a randomized victory-pool sound on full success.
 
 **Interaction:**
 - Same drag/tap mechanics as Drag & Drop but operating on phrase tiles instead of single words.
+- The verse remains one flowing sentence: visible phrases and inline phrase
+  blanks share the same verse area and wrap naturally across screen sizes.
 - Phrase bank shows shuffled phrase chunks.
 - Difficulty scaling: Day 1 removes 20–35% of phrases; Day 2 removes 40–60%; Day 3 removes 70–100%.
+- Short-verse testing exception: when a verse has six words or fewer, Puzzle
+  may use chunks smaller than three words so the exercise never collapses into
+  one trivial tile. Glimmer creates up to two chunks and moves one; Glow creates
+  up to three chunks and moves at least two; Radiance creates up to three chunks
+  and moves all of them. Longer verses retain the normal 3–6-word chunks and
+  percentage ranges.
 - Phrase tiles are visually larger and more distinct than individual word tiles.
 - On all correct: confetti, success toast, Continue button.
 
@@ -702,9 +710,12 @@ cue on failed Check, and a randomized victory-pool sound on full success.
 **Rename note:** This mode was previously called "Hint Mode" and has been renamed to **Cue Mode** to avoid confusion with the game's separate Hint System. Cue Mode and the Hint System are completely independent.
 
 **Interaction:**
-- Each blank shows the first letter of the missing word (e.g., "L_____" for "Lord").
-- The first letter is pre-rendered and not editable.
-- The user types the remaining letters to complete the word.
+- Each blank shows the first letter as a light-grey placeholder cue (e.g.,
+  "L_____" for "Lord").
+- The cue is not pre-filled input: the learner types the complete word,
+  including its first letter.
+- Input is clamped to the exact normalized word length, including for pasted
+  text; canonical punctuation remains outside the field and is not typed.
 - Inputs auto-advance when the user reaches the correct word length.
 - Validation uses normalized text (lowercase, punctuation-stripped).
 - Same green/red visual feedback as Fill Mode.
@@ -725,7 +736,23 @@ cue on failed Check, and a randomized victory-pool sound on full success.
 - Correct inputs highlight **green**; incorrect inputs highlight **red**.
 - On all correct: confetti, success toast. Completing Fill Mode also triggers day completion logic.
 
-**Note:** Fill Mode is the final mode of each day. Its successful completion triggers the `complete-day` Server Action, which awards Glow Points, updates the streak, sets the cooldown for the next day, and — if Day 3 — marks the waypoint complete and unlocks the next waypoint.
+**Note:** Fill Mode is the final mode of each day. Its successful completion
+triggers the server-owned day transition, which sets the next-day cooldown and
+— on Day 3 — marks the waypoint complete and unlocks the next currently
+published waypoint atomically. Glow Point awards, streak updates, and badge
+evaluation are added by their dedicated roadmap phases and must not be claimed
+by the UI before those systems are implemented.
+
+After Radiance, the normal day-reward completion screen is followed by a
+separate learner-controlled **Waypoint Complete** milestone. It shows three
+kindled flames, the completed waypoint and verse, the next unlocked waypoint or
+caught-up state, the persisted Glow Points earned across that waypoint, and the
+learner's total balance. It plays the waypoint fanfare and returns to the
+refreshed trail map. Glimmer and Glow do not show this second milestone.
+After the screen enters, the three flames pop in sequentially with lightweight
+particles and synchronized sound. The Waypoint Rewards card then drops into
+place, followed by the Total Balance card. Reduced-motion preferences render
+the same information immediately without staged movement or particles.
 
 ---
 
@@ -737,6 +764,9 @@ The Hint System is a separate gameplay assistance mechanism that is independent 
 
 - Each user receives a free hint allowance (default configurable by Super Admin).
 - Users may purchase additional hints from the Oil Shop using Glow Points.
+- Until the Oil Shop phase defines explicit hint-pack quantities, the balance
+  consists only of the configured free allowance. Generic purchases must never
+  be guessed to represent hint credits.
 - **Hints are only available during the Learn and Recall Journey Stages.**
 - Hints are completely disabled during the Strengthen and Master Journey Stages, regardless of the game mode being played.
 - Using a hint is recorded in `HintUsage`.
@@ -746,9 +776,16 @@ The Hint System is a separate gameplay assistance mechanism that is independent 
 
 - A Hint button is visible in the game shell when hints are available for the current Journey Stage.
 - Clicking the Hint button opens a modal showing the full verse text.
+- The modal remains visible for six seconds, shows a top progress bar filling
+  across that interval, and then closes automatically. It may still be closed
+  manually. Reduced-motion users receive a static progress state and duration
+  notice instead of the filling animation.
 - A Sonner toast fires confirming "Hint used. X hints remaining."
 - The Hint button becomes disabled and shows a count of zero when no hints remain.
 - When the Journey Stage is Strengthen or Master, the Hint button is not rendered at all.
+- Administrators consume real hints during normal campaign gameplay. During
+  Admin Test Replay, an unlimited **Test hint** uses the same modal without
+  creating `HintUsage`, reducing balance, or changing profile statistics.
 
 ---
 
@@ -1500,6 +1537,13 @@ if (isUnlocked) { ... }
 
 ### Defer Post-MVP
 
+- Player-accessible map replay for completed challenge days. A player may choose
+  any individually completed mode from a completed Glimmer, Glow, or Radiance
+  card. These practice sessions are explicitly non-progressing and reward-free
+  by default; they never alter attempts, cooldowns, streaks, campaign progress,
+  or waypoint history. Vault replay remains available as the organized
+  long-term mastery library. Revisit any limited daily practice reward only as
+  a separate, abuse-resistant product decision.
 - Advanced Oil Shop cosmetics (map skins, flame styles)
 - Fellowship moderation tools
 - Push notifications

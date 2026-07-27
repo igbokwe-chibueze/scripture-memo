@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import {
   DndContext,
   DragOverlay,
@@ -67,6 +66,8 @@ export function DragDropMode({
   attempt,
   isTestReplay = false,
   nextMode,
+  onContinue,
+  onCompletionShown,
   onTestReplayExit,
 }: {
   sessionId: string;
@@ -75,9 +76,10 @@ export function DragDropMode({
   attempt: GameModeAttemptData | null;
   isTestReplay?: boolean;
   nextMode: GameModeAttemptData["gameMode"] | null;
+  onContinue: () => void;
+  onCompletionShown: () => void;
   onTestReplayExit?: () => void;
 }): React.ReactNode {
-  const router = useRouter();
   const playAudio = useAudioFeedback();
   const [placements, setPlacements] = useState<DragDropPlacements>({});
   const [selectedTokenIndex, setSelectedTokenIndex] = useState<number | null>(null);
@@ -160,6 +162,7 @@ export function DragDropMode({
       setIsComplete(true);
       setShowConfetti(true);
       setShowCompletion(true);
+      onCompletionShown();
       playAudio("correct");
       toast.success("Admin test replay complete. Progress was not changed.", {
         duration: 4_000,
@@ -184,6 +187,7 @@ export function DragDropMode({
       setIsComplete(true);
       setShowConfetti(true);
       setShowCompletion(true);
+      onCompletionShown();
       playAudio("correct");
       toast.success("Drag & Drop complete!", { duration: 4_000 });
     });
@@ -212,7 +216,7 @@ export function DragDropMode({
           isTestReplay={isTestReplay}
           onContinue={() => {
             if (isTestReplay) onTestReplayExit?.();
-            else router.refresh();
+            else onContinue();
           }}
           onReplay={isTestReplay ? replayTestMode : undefined}
         />

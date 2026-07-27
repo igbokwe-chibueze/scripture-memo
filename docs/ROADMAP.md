@@ -795,6 +795,8 @@ from restoring an older database theme after a browser-only switch.
 1. Create `puzzle-mode.tsx` in `features/gameplay/components/modes/`.
 2. Use `phrase-generator.ts` to split the verse into phrase chunks.
 3. Same drag/tap mechanic as Drag & Drop but operating on phrase tiles.
+   Render visible phrases and phrase blanks inline as one flowing verse
+   sentence; do not present phrase positions as separate numbered rows.
 4. Phrase tiles are visually wider and distinct from word tiles.
 5. Validate correct phrase order on Check.
 6. Apply difficulty based on current day level (percentage of phrases hidden).
@@ -805,6 +807,28 @@ from restoring an older database theme after a browser-only switch.
 - Puzzle mode works for all three difficulty levels.
 - Phrase generation is deterministic (same phrases on retry).
 - Duplicate phrase issues handled by position tracking.
+
+### Implementation Status
+
+**Complete and manually accepted — 2026-07-26.** Puzzle uses stable 3–6-word
+phrase boundaries and applies
+the Glimmer, Glow, and Radiance hidden-percentage ranges at phrase level. Phrase
+occurrences retain their original indexes, so duplicate text remains safe during
+shuffle, placement, feedback, reconstruction, and validation. Mouse, touch,
+keyboard drag, and mobile select-and-tap workflows share one state model.
+Pointer drops require physical overlap, drag auto-scroll is disabled, and phrase
+pickup, placement, removal, failed Check, and successful completion reuse the
+accepted audio feedback system. Correct answers pass through the authenticated,
+server-authoritative ordered-attempt action before confetti, toast feedback, and
+the animated Continue interstitial. Completed Puzzle modes are available to
+administrators through the non-progressing Test Replay controls.
+
+Verses of six words or fewer use the approved short-verse testing exception:
+Glimmer produces up to two chunks and moves one, Glow produces up to three
+smaller chunks and moves at least two, and Radiance moves all available chunks.
+This prevents short test content from producing the same one-tile Puzzle on
+every day. Normal verses continue using deterministic 3–6-word chunks and the
+standard day percentages.
 
 ---
 
@@ -830,6 +854,25 @@ from restoring an older database theme after a browser-only switch.
 - Selection state machine works cleanly: none selected → one selected → swap.
 - User cannot complete the mode unless all words are in correct positions.
 
+### Implementation Status
+
+**Complete and manually accepted — 2026-07-26.** Swap deterministically rotates
+a day-level percentage of word occurrences while retaining fixed verse
+positions and punctuation.
+Swappable words begin yellow, turn purple while selected, exchange on the second
+selection, and deselect when activated twice. Check marks restored positions
+green and remaining misplaced positions red. Occurrence indexes—not display
+text—govern swaps and correctness, so duplicate words cannot produce false
+completion. Incorrect checks play negative feedback; correct submissions use
+the authenticated server-owned attempt action before randomized victory audio,
+confetti, the success toast, and explicit completion interstitial. Completed
+Swap modes are available through non-progressing administrator Test Replay.
+The selected state uses an enforced high-contrast violet treatment across
+custom themes. Refreshed Server Component data no longer changes the visible
+mode immediately after completion: the shared shell retains the completed
+surface and pauses its attempt timer until the player explicitly presses
+Continue.
+
 ---
 
 ## Phase 17 — Cue Mode
@@ -839,8 +882,8 @@ from restoring an older database theme after a browser-only switch.
 ### Tasks
 
 1. Create `cue-mode.tsx` in `features/gameplay/components/modes/`.
-2. Render blanks with first letter visible as a non-editable prefix (e.g., "L___").
-3. Inputs take the remaining letters from the user.
+2. Render the first letter as a light-grey placeholder cue (e.g., "L___").
+3. Require the user to type the complete word, including the cued first letter.
 4. Auto-advance when correct word length is reached.
 5. Validate using `answer-validator.ts` (normalized comparison).
 6. Apply green/red styling per input on Check.
@@ -852,6 +895,26 @@ from restoring an older database theme after a browser-only switch.
 - First-letter prefixes render correctly for all missing words.
 - Validation is case-insensitive and punctuation-tolerant.
 - Mode is named "Cue" throughout the UI, not "Hint."
+
+### Implementation Status
+
+**Complete and manually accepted — 2026-07-26.** Cue deterministically selects
+eligible words within each day-level difficulty range and keeps canonical
+punctuation outside the editable field. Each blank presents the translation's
+first letter as a light-grey placeholder, while the learner must type the
+complete word, including that letter. Input is sanitized and clamped to the
+exact normalized target length for typing and paste, so extra characters cannot
+enter the field. Inputs disable autocomplete, autocorrect, capitalization, and
+spellcheck assistance, then advance focus when the exact target length is
+reached. Check uses the shared case-insensitive, punctuation-tolerant normalizer
+and applies green/red per-position feedback.
+Correct answers pass through the authenticated ordered-attempt action before
+victory audio, confetti, success toast, and the explicit Continue interstitial.
+Completed Cue modes are available through non-progressing administrator Test
+Replay and remain fully independent of the separate Hint System.
+The shared completion dialog uses safe vertical centering: it remains centered
+when it fits, but starts within the scrollable viewport on short mobile screens
+so neither the success icon nor actions can be clipped above the scroll origin.
 
 ---
 
@@ -867,23 +930,51 @@ from restoring an older database theme after a browser-only switch.
 4. Auto-advance when typed word reaches target length.
 5. Check button validates all inputs using `answer-validator.ts`.
 6. Green/red visual state per input.
-7. On all correct: fire `completeGameModeAction`. Since Fill is Mode 5 (the last), this triggers `completeDayAction` automatically if all previous modes are recorded as complete.
-8. `completeDayAction`:
-   - Awards Glow Points using a database transaction.
-   - Inserts a `RewardLedger` record.
-   - Updates `UserStreak`.
+7. On all correct: fire `completeGameModeAction`. Since Fill is Mode 5 (the
+   last), the existing server-owned completion transaction verifies all prior
+   modes and completes the day.
+8. The existing day transition:
    - Sets the next day's `unlockedAt` timestamp.
-   - If Day 3: calls `markWaypointComplete` and `unlockNextWaypoint`.
-   - Calls badge engine evaluation.
-   - Fires Sonner success toast: "Day complete! +[points] Glow Points earned."
-   - If waypoint complete: additional toast "Waypoint [N] complete! Next waypoint unlocked."
+   - If Day 3: marks the waypoint complete and unlocks the next currently
+     published waypoint atomically.
+   - Returns only persisted progression outcomes for accurate success feedback.
+   - Leaves Glow Point awards to Phase 19, badge evaluation to Phase 24, and
+     streak updates to Phase 25.
+   - Never displays point, badge, or streak claims before those systems exist.
 
 ### Acceptance Criteria
 
 - Completing Fill mode correctly triggers all downstream progression logic.
-- Glow Points are not awarded twice if the action is called twice.
 - The next day's unlock time is correctly set.
 - Waypoint completion and next waypoint unlock happen atomically in a transaction.
+- Later reward, badge, and streak phases remain unimplemented and are not
+  represented as completed UI outcomes.
+
+### Implementation Status
+
+**Complete and manually accepted — 2026-07-26.** Fill deterministically hides complete words within each
+day-level difficulty range and renders unassisted inputs with blue focus
+feedback. Typing, paste, and autofill are sanitized and clamped to the exact
+normalized word length; reaching that length advances to the next blank. Check
+applies green/red per-position feedback and reconstructs canonical punctuation
+outside the fields. A correct answer uses the authenticated fifth-mode
+completion action, which proves the ordered session and atomically completes the
+day, schedules the next-day cooldown, or completes Day 3 and unlocks the next
+published waypoint. The completion screen waits for Continue, then returns to
+Day Selection. After Radiance, Continue first opens a dedicated Waypoint
+Complete milestone with three flames, the completed verse, the persisted
+next-waypoint or caught-up outcome, and a distinct fanfare; its explicit action
+returns to the trail map. Administrator Test Replay performs no writes. Per the approved
+roadmap resolution, no Glow Point, streak, or badge outcome is claimed before
+its dedicated phase.
+
+Completed challenge-day cards now expose an administrator-only Test Replay
+entry into the persisted completed session. The existing mode selector permits
+replaying any completed mode without attempts, progression, rewards, or
+cooldown changes. Active Glow and Radiance cooldown cards also expose an
+administrator-only **Unlock for testing** action. It can affect only the
+authenticated administrator's own progression, repeats ordering and timing
+checks server-side, and commits an AuditLog record with the override.
 
 ---
 
@@ -913,6 +1004,23 @@ from restoring an older database theme after a browser-only switch.
 - Attempting to award points for the same day a second time returns an error, not double points.
 - `RewardLedger` contains a record for every point event.
 - User balance matches the sum of all ledger records.
+
+### Implementation Status
+
+**Complete and manually accepted — 2026-07-26.** The
+server-verified fifth-mode transaction now creates an immutable
+`DAY_COMPLETE` ledger entry and atomically increments the learner profile by
+100 Glow Points for Glimmer, 150 for Glow, or 200 for Radiance. A unique key
+derived from the authenticated learner, waypoint, and day prevents duplicate
+awards. The persisted amount and new balance are returned for the completion
+toast and interstitial; clients never submit a reward value. Balance and
+bounded newest-first history reads are available through the rewards
+repository. Unit tests, ESLint, and strict TypeScript pass. The dedicated
+PostgreSQL integration test was added but the configured test database rejected
+fixture creation before the reward transaction ran, matching the existing
+test-database availability issue. Manual Glow completion awarded the expected
+150 Glow Points, displayed the persisted new balance, and retained the explicit
+Continue transition.
 
 ---
 
@@ -944,6 +1052,23 @@ from restoring an older database theme after a browser-only switch.
 - Hint count decrements correctly and persists.
 - Using hints when the count is zero returns a helpful error toast.
 - Hint modal shows the correct translation.
+
+### Implementation Status
+
+**Implemented; manual browser acceptance pending — 2026-07-27.** Learn and
+Recall gameplay sessions show a touch-friendly Hint button with the persisted
+free balance; Strengthen and Master render no control. The validated action
+derives learner identity from the session, while the repository locks hint
+consumption and rechecks session ownership, active campaign state, Journey
+Stage, current mode, canonical session translation, and remaining balance
+inside one transaction. Successful use creates `HintUsage`, increments
+`totalHintsUsed`, opens the full-verse modal, and reports the remaining count.
+The modal displays a six-second top progress bar and closes automatically;
+reduced-motion users receive a static state and duration notice. Normal admin
+campaign play consumes real hints, while Admin Test Replay provides unlimited
+non-persisting **Test hint** access. Phase 20 grants the configured five
+free hints; purchased hint entitlements remain explicitly deferred to Phase 22,
+where shop products will gain an unambiguous hint quantity.
 
 ---
 
@@ -1286,6 +1411,24 @@ from restoring an older database theme after a browser-only switch.
 - Security checklist is complete.
 - All Critical and High items are resolved.
 - App is cleared for deployment review.
+
+---
+
+## Post-Roadmap Extras
+
+### Player Map Replay
+
+- Let players open a completed Glimmer, Glow, or Radiance card from Day
+  Selection and choose an individual completed mode to practise.
+- Mark the experience clearly as practice and keep it separate from the
+  administrator-only Test Replay label.
+- Create no campaign attempts and change no progression, cooldown, streak,
+  waypoint history, or reward state.
+- Award no Glow Points by default. If replay rewards are reconsidered, design a
+  separately approved, rate-limited daily-review reward rather than an
+  infinitely repeatable point.
+- Keep Vault replay as the filtered, long-term mastery library; map replay is
+  the convenient route back to recently completed challenge content.
 
 ---
 

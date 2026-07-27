@@ -1,6 +1,10 @@
 import "server-only";
 
-import { TranslationCode, WaypointStatus } from "@/lib/generated/prisma/client";
+import {
+  CompletionStatus,
+  TranslationCode,
+  WaypointStatus,
+} from "@/lib/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import type { DaySelectionData } from "@/features/waypoints/types/day-selection.types";
 
@@ -41,7 +45,21 @@ export const daySelectionRepository = {
         },
         dayProgress: {
           where: { userId },
-          select: { dayLevel: true, status: true, unlocksAt: true },
+          select: {
+            dayLevel: true,
+            status: true,
+            unlocksAt: true,
+            gameSessions: {
+              where: {
+                userId,
+                isVaultReplay: false,
+                status: CompletionStatus.COMPLETED,
+              },
+              select: { id: true },
+              orderBy: { completedAt: "desc" },
+              take: 1,
+            },
+          },
         },
       },
     });
@@ -72,7 +90,10 @@ export const daySelectionRepository = {
       journeyStage: waypoint.journeyStage,
       translation: selectedTranslation.translation,
       translationText: selectedTranslation.text,
-      dayProgress: waypoint.dayProgress,
+      dayProgress: waypoint.dayProgress.map(({ gameSessions, ...progressItem }) => ({
+        ...progressItem,
+        completedSessionId: gameSessions[0]?.id ?? null,
+      })),
     };
   },
 } as const;

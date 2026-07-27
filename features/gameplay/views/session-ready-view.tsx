@@ -29,12 +29,12 @@ export async function SessionReadyView({
     notFound();
   }
 
-  // WHY: A completed mode refreshes this route with a new current mode. The key
-  // forces interaction state from the prior mode to unmount instead of leaking
-  // a completed attempt or timer into the next mode's shell.
+  // WHY: Keep the shell mounted when a Server Action streams refreshed session
+  // props. The shell owns the deliberate Continue transition and resets mode
+  // state itself; keying by current mode would dismiss its completion dialog.
   return (
     <GameShell
-      key={`${gameSession.id}:${gameSession.currentMode ?? "complete"}`}
+      key={gameSession.id}
       gameSession={gameSession}
       isAdmin={isAdmin(session.user.role as UserRole | null | undefined)}
     />

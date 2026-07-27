@@ -7,6 +7,7 @@ import type {
   TranslationCode,
 } from "@/lib/generated/prisma/enums";
 import type { CompleteDayResult } from "@/features/progression/types/progression.types";
+import type { DayRewardResult } from "@/features/rewards/types/reward.types";
 
 export type GameplayConflictCode =
   | "SESSION_UNAVAILABLE"
@@ -31,6 +32,7 @@ export type GameplaySessionData = {
   completedModes: GameMode[];
   currentMode: GameMode | null;
   audioEnabled: boolean;
+  hintBalance: number;
 };
 
 /** One server-created attempt and its optional authoritative deadline. */
@@ -59,5 +61,5 @@ export type CompleteModeResult =
       status: "day-complete";
       gameMode: GameMode;
       nextMode: null;
-      dayCompletion: CompleteDayResult;
+      dayCompletion: CompleteDayResult & { reward: DayRewardResult };
     };

@@ -12,6 +12,7 @@ export type DayProgressSnapshot = {
   dayLevel: DayLevel;
   status: CompletionStatus;
   unlocksAt: Date | null;
+  completedSessionId?: string | null;
 };
 
 /** Authenticated, serializable data displayed by the Day Selection screen. */
@@ -34,4 +35,5 @@ export type DayCardData = {
   reward: number;
   unlocksAt: Date | null;
   blockedReason: string | null;
+  completedSessionId: string | null;
 };

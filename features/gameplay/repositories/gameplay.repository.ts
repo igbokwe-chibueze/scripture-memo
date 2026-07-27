@@ -20,6 +20,8 @@ import {
   markDayCompleteInTransaction,
   prepareDayForGameplayInTransaction,
 } from "@/features/progression/repositories/progression.repository";
+import { awardDayCompletionRewardInTransaction } from "@/features/rewards/repositories/reward.repository";
+import { calculateHintBalance } from "@/features/hints/lib/hint-balance";
 import type {
   CompleteModeResult,
   GameModeAttemptData,
@@ -152,7 +154,7 @@ export const gameplayRepository = {
     userId: string,
     sessionId: string,
   ): Promise<GameplaySessionData | null> {
-    const [session, settings] = await Promise.all([
+    const [session, settings, usedHintCount] = await Promise.all([
       prisma.gameSession.findFirst({
         where: { id: sessionId, userId, isVaultReplay: false },
         select: {
@@ -181,6 +183,7 @@ export const gameplayRepository = {
         where: { userId },
         select: { audioEnabled: true },
       }),
+      prisma.hintUsage.count({ where: { userId } }),
     ]);
     if (!session) return null;
 
@@ -208,6 +211,7 @@ export const gameplayRepository = {
       completedModes,
       currentMode: getCurrentMode(completedModes),
       audioEnabled: settings?.audioEnabled ?? true,
+      hintBalance: calculateHintBalance(usedHintCount),
     };
   },
 
@@ -461,6 +465,12 @@ export const gameplayRepository = {
         session.dayLevel,
         completedAt,
       );
+      const reward = await awardDayCompletionRewardInTransaction(
+        transaction,
+        userId,
+        session.waypointId,
+        session.dayLevel,
+      );
       await transaction.gameSession.update({
         where: { id: sessionId },
         data: { status: CompletionStatus.COMPLETED, completedAt },
@@ -469,7 +479,7 @@ export const gameplayRepository = {
         status: "day-complete",
         gameMode: requestedMode,
         nextMode: null,
-        dayCompletion,
+        dayCompletion: { ...dayCompletion, reward },
       };
     }, gameplayTransactionOptions);
   },

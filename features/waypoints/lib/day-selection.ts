@@ -63,6 +63,7 @@ export function buildDayCards(
         status: "COMPLETE" as const,
         unlocksAt: null,
         blockedReason: null,
+        completedSessionId: progress.completedSessionId ?? null,
       };
     }
 
@@ -73,6 +74,7 @@ export function buildDayCards(
         status: "LOCKED" as const,
         unlocksAt: null,
         blockedReason: `Complete ${DAY_PRESENTATION[previousLevel!].name} first.`,
+        completedSessionId: null,
       };
     }
 
@@ -83,6 +85,7 @@ export function buildDayCards(
         status: "COOLDOWN" as const,
         unlocksAt: progress.unlocksAt,
         blockedReason: `${presentation.name} is still gathering light.`,
+        completedSessionId: null,
       };
     }
 
@@ -92,6 +95,7 @@ export function buildDayCards(
       status: "READY" as const,
       unlocksAt: null,
       blockedReason: null,
+      completedSessionId: null,
     };
   });
 }

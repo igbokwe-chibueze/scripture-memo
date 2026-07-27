@@ -2,9 +2,9 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Clock3Icon,
-  LightbulbIcon,
   PlayIcon,
   ShieldCheckIcon,
   Volume2Icon,
@@ -19,11 +19,17 @@ import { showActionError } from "@/lib/errors/show-action-error";
 import { GAME_MODE_ORDER } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { startGameModeAction } from "@/features/gameplay/actions/start-game-mode.action";
+import { CueMode } from "@/features/gameplay/components/modes/cue-mode";
 import { DragDropMode } from "@/features/gameplay/components/modes/drag-drop-mode";
+import { FillMode } from "@/features/gameplay/components/modes/fill-mode";
+import { PuzzleMode } from "@/features/gameplay/components/modes/puzzle-mode";
+import { SwapMode } from "@/features/gameplay/components/modes/swap-mode";
 import type {
   GameModeAttemptData,
   GameplaySessionData,
 } from "@/features/gameplay/types/game-session.types";
+import type { GameMode } from "@/lib/generated/prisma/enums";
+import { HintButton } from "@/features/hints/components/hint-button";
 
 const GAME_MODE_LABELS = {
   DRAG_DROP: "Drag & Drop",
@@ -46,11 +52,15 @@ export function GameShell({
   gameSession: GameplaySessionData;
   isAdmin: boolean;
 }): React.ReactNode {
+  const router = useRouter();
   const [attempt, setAttempt] = useState<GameModeAttemptData | null>(null);
   const [audioEnabled, setAudioEnabled] = useState(gameSession.audioEnabled);
-  const [isTestingDragDrop, setIsTestingDragDrop] = useState(false);
+  const [testReplayMode, setTestReplayMode] = useState<GameMode | null>(null);
+  const [currentMode, setCurrentMode] = useState<GameMode | null>(
+    gameSession.currentMode,
+  );
+  const [isAwaitingContinue, setIsAwaitingContinue] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const currentMode = gameSession.currentMode;
   const currentModeIndex = currentMode
     ? GAME_MODE_ORDER.indexOf(currentMode)
     : GAME_MODE_ORDER.length;
@@ -84,6 +94,37 @@ export function GameShell({
         : "Audio feedback muted for this session.",
       { duration: 4_000 },
     );
+  };
+
+  /**
+   * Advances the visible mode only after the learner activates Continue.
+   *
+   * Server Actions can stream refreshed session props in their response. Local
+   * mode state intentionally holds the completed surface in place until this
+   * explicit transition, so the completion dialog cannot dismiss itself.
+   */
+  const continueToMode = (nextMode: GameMode | null): void => {
+    setAttempt(null);
+    setCurrentMode(nextMode);
+    setIsAwaitingContinue(false);
+    if (!nextMode && gameSession.waypointId) {
+      router.push(`/game/waypoints/${gameSession.waypointId}`);
+      return;
+    }
+    router.refresh();
+  };
+
+  /** Leaves the Radiance milestone for the newly refreshed trail state. */
+  const continueToTrail = (): void => {
+    setAttempt(null);
+    setIsAwaitingContinue(false);
+    router.push("/game/map");
+  };
+
+  /** Restores the live attempt after a client-only administrator replay. */
+  const exitTestReplay = (): void => {
+    setTestReplayMode(null);
+    setIsAwaitingContinue(false);
   };
 
   return (
@@ -155,27 +196,53 @@ export function GameShell({
             ))}
           </ol>
 
-          {isAdmin && gameSession.completedModes.includes("DRAG_DROP") && (
+          {isAdmin && gameSession.completedModes.length > 0 && (
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-sky-400/25 bg-sky-100/70 px-3 py-2.5 dark:border-sky-300/20 dark:bg-sky-300/8">
               <span className="inline-flex items-center gap-2 text-xs font-bold text-sky-800 dark:text-sky-200">
                 <ShieldCheckIcon className="size-4" aria-hidden="true" />
                 Admin testing · no progress changes
               </span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="min-h-9 rounded-lg text-sky-800 hover:bg-sky-200/70 hover:text-sky-950 dark:text-sky-100 dark:hover:bg-sky-300/15 dark:hover:text-white"
-                onClick={() => setIsTestingDragDrop((current) => !current)}
-              >
-                {isTestingDragDrop ? "Return to current mode" : "Test Drag & Drop again"}
-              </Button>
+              <div className="flex flex-wrap justify-end gap-1">
+                {testReplayMode ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="min-h-9 rounded-lg text-sky-800 hover:bg-sky-200/70 hover:text-sky-950 dark:text-sky-100 dark:hover:bg-sky-300/15 dark:hover:text-white"
+                    onClick={() => setTestReplayMode(null)}
+                  >
+                    Return to current mode
+                  </Button>
+                ) : (
+                  gameSession.completedModes
+                    .filter(
+                      (mode) =>
+                        mode === "DRAG_DROP" ||
+                        mode === "PUZZLE" ||
+                        mode === "SWAP" ||
+                        mode === "CUE" ||
+                        mode === "FILL",
+                    )
+                    .map((mode) => (
+                      <Button
+                        key={mode}
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="min-h-9 rounded-lg text-sky-800 hover:bg-sky-200/70 hover:text-sky-950 dark:text-sky-100 dark:hover:bg-sky-300/15 dark:hover:text-white"
+                        onClick={() => setTestReplayMode(mode)}
+                      >
+                        Test {GAME_MODE_LABELS[mode]} again
+                      </Button>
+                    ))
+                )}
+              </div>
             </div>
           )}
         </header>
 
         <div className="flex flex-1 flex-col items-center px-5 py-8 text-center sm:px-10">
-          {attempt?.expiresAt && (
+          {attempt?.expiresAt && !isAwaitingContinue && !testReplayMode && (
             <div className="mb-6 flex flex-col items-center gap-2">
               <span className="inline-flex items-center gap-2 text-sm font-bold text-amber-700 dark:text-amber-200">
                 <Clock3Icon className="size-4" aria-hidden="true" />
@@ -192,7 +259,7 @@ export function GameShell({
             </div>
           )}
 
-          {isTestingDragDrop && gameSession.dayLevel ? (
+          {testReplayMode === "DRAG_DROP" && gameSession.dayLevel ? (
             <DragDropMode
               sessionId={gameSession.id}
               dayLevel={gameSession.dayLevel}
@@ -200,7 +267,60 @@ export function GameShell({
               attempt={null}
               isTestReplay
               nextMode={currentMode}
-              onTestReplayExit={() => setIsTestingDragDrop(false)}
+              onContinue={exitTestReplay}
+              onCompletionShown={() => setIsAwaitingContinue(true)}
+              onTestReplayExit={exitTestReplay}
+            />
+          ) : testReplayMode === "PUZZLE" && gameSession.dayLevel ? (
+            <PuzzleMode
+              sessionId={gameSession.id}
+              dayLevel={gameSession.dayLevel}
+              verseText={gameSession.verse.translationText}
+              attempt={null}
+              isTestReplay
+              nextMode={currentMode}
+              onContinue={exitTestReplay}
+              onCompletionShown={() => setIsAwaitingContinue(true)}
+              onTestReplayExit={exitTestReplay}
+            />
+          ) : testReplayMode === "SWAP" && gameSession.dayLevel ? (
+            <SwapMode
+              sessionId={gameSession.id}
+              dayLevel={gameSession.dayLevel}
+              verseText={gameSession.verse.translationText}
+              attempt={null}
+              isTestReplay
+              nextMode={currentMode}
+              onContinue={exitTestReplay}
+              onCompletionShown={() => setIsAwaitingContinue(true)}
+              onTestReplayExit={exitTestReplay}
+            />
+          ) : testReplayMode === "CUE" && gameSession.dayLevel ? (
+            <CueMode
+              sessionId={gameSession.id}
+              dayLevel={gameSession.dayLevel}
+              verseText={gameSession.verse.translationText}
+              attempt={null}
+              isTestReplay
+              nextMode={currentMode}
+              onContinue={exitTestReplay}
+              onCompletionShown={() => setIsAwaitingContinue(true)}
+              onTestReplayExit={exitTestReplay}
+            />
+          ) : testReplayMode === "FILL" && gameSession.dayLevel && gameSession.waypoint ? (
+            <FillMode
+              sessionId={gameSession.id}
+              dayLevel={gameSession.dayLevel}
+              waypointNumber={gameSession.waypoint.number}
+              verseReference={gameSession.verse.reference}
+              verseText={gameSession.verse.translationText}
+              attempt={null}
+              isTestReplay
+              nextMode={currentMode}
+              onContinue={exitTestReplay}
+              onWaypointContinue={continueToTrail}
+              onCompletionShown={() => setIsAwaitingContinue(true)}
+              onTestReplayExit={exitTestReplay}
             />
           ) : currentMode === "DRAG_DROP" && attempt && gameSession.dayLevel ? (
             <DragDropMode
@@ -209,6 +329,59 @@ export function GameShell({
               verseText={gameSession.verse.translationText}
               attempt={attempt}
               nextMode={GAME_MODE_ORDER[currentModeIndex + 1] ?? null}
+              onContinue={() =>
+                continueToMode(GAME_MODE_ORDER[currentModeIndex + 1] ?? null)
+              }
+              onCompletionShown={() => setIsAwaitingContinue(true)}
+            />
+          ) : currentMode === "PUZZLE" && attempt && gameSession.dayLevel ? (
+            <PuzzleMode
+              sessionId={gameSession.id}
+              dayLevel={gameSession.dayLevel}
+              verseText={gameSession.verse.translationText}
+              attempt={attempt}
+              nextMode={GAME_MODE_ORDER[currentModeIndex + 1] ?? null}
+              onContinue={() =>
+                continueToMode(GAME_MODE_ORDER[currentModeIndex + 1] ?? null)
+              }
+              onCompletionShown={() => setIsAwaitingContinue(true)}
+            />
+          ) : currentMode === "SWAP" && attempt && gameSession.dayLevel ? (
+            <SwapMode
+              sessionId={gameSession.id}
+              dayLevel={gameSession.dayLevel}
+              verseText={gameSession.verse.translationText}
+              attempt={attempt}
+              nextMode={GAME_MODE_ORDER[currentModeIndex + 1] ?? null}
+              onContinue={() =>
+                continueToMode(GAME_MODE_ORDER[currentModeIndex + 1] ?? null)
+              }
+              onCompletionShown={() => setIsAwaitingContinue(true)}
+            />
+          ) : currentMode === "CUE" && attempt && gameSession.dayLevel ? (
+            <CueMode
+              sessionId={gameSession.id}
+              dayLevel={gameSession.dayLevel}
+              verseText={gameSession.verse.translationText}
+              attempt={attempt}
+              nextMode={GAME_MODE_ORDER[currentModeIndex + 1] ?? null}
+              onContinue={() =>
+                continueToMode(GAME_MODE_ORDER[currentModeIndex + 1] ?? null)
+              }
+              onCompletionShown={() => setIsAwaitingContinue(true)}
+            />
+          ) : currentMode === "FILL" && attempt && gameSession.dayLevel && gameSession.waypoint ? (
+            <FillMode
+              sessionId={gameSession.id}
+              dayLevel={gameSession.dayLevel}
+              waypointNumber={gameSession.waypoint.number}
+              verseReference={gameSession.verse.reference}
+              verseText={gameSession.verse.translationText}
+              attempt={attempt}
+              nextMode={null}
+              onContinue={() => continueToMode(null)}
+              onWaypointContinue={continueToTrail}
+              onCompletionShown={() => setIsAwaitingContinue(true)}
             />
           ) : (
             <div className="my-auto flex flex-col items-center">
@@ -243,22 +416,18 @@ export function GameShell({
           )}
         </div>
 
-        <footer className="border-t border-border px-5 py-4 dark:border-white/10 sm:px-8">
-          <Button
-            type="button"
-            variant="ghost"
-            className="min-h-11 w-full justify-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground dark:hover:bg-white/10 dark:hover:text-white"
-            disabled
-            title={
-              hintsAllowed
-                ? "Hint System arrives in Phase 18."
-                : "Hints are unavailable at this Journey Stage."
-            }
-          >
-            <LightbulbIcon data-icon="inline-start" aria-hidden="true" />
-            {hintsAllowed ? "Hints arrive in Phase 18" : "Hints unavailable at this stage"}
-          </Button>
-        </footer>
+        {hintsAllowed && (currentMode || testReplayMode) && (
+          <footer className="border-t border-border px-5 py-4 dark:border-white/10 sm:px-8">
+            <HintButton
+              sessionId={gameSession.id}
+              initialBalance={gameSession.hintBalance}
+              disabled={isAwaitingContinue}
+              isTestReplay={Boolean(testReplayMode)}
+              testReference={gameSession.verse.reference}
+              testVerseText={gameSession.verse.translationText}
+            />
+          </footer>
+        )}
       </section>
     </main>
   );

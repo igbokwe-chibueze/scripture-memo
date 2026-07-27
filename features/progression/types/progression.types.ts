@@ -23,3 +23,9 @@ export type CompleteDayResult = {
   caughtUp: boolean;
 };
 
+/** Safe outcomes for an administrator overriding their own active cooldown. */
+export type OverrideCooldownResult =
+  | { status: "overridden" }
+  | { status: "already-ready" }
+  | { status: "unavailable" };
+
