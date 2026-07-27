@@ -32,6 +32,7 @@ export type GameplaySessionData = {
   completedModes: GameMode[];
   currentMode: GameMode | null;
   audioEnabled: boolean;
+  hintBalance: number;
 };
 
 /** One server-created attempt and its optional authoritative deadline. */

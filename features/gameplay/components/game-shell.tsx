@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Clock3Icon,
-  LightbulbIcon,
   PlayIcon,
   ShieldCheckIcon,
   Volume2Icon,
@@ -30,6 +29,7 @@ import type {
   GameplaySessionData,
 } from "@/features/gameplay/types/game-session.types";
 import type { GameMode } from "@/lib/generated/prisma/enums";
+import { HintButton } from "@/features/hints/components/hint-button";
 
 const GAME_MODE_LABELS = {
   DRAG_DROP: "Drag & Drop",
@@ -112,6 +112,13 @@ export function GameShell({
       return;
     }
     router.refresh();
+  };
+
+  /** Leaves the Radiance milestone for the newly refreshed trail state. */
+  const continueToTrail = (): void => {
+    setAttempt(null);
+    setIsAwaitingContinue(false);
+    router.push("/game/map");
   };
 
   /** Restores the live attempt after a client-only administrator replay. */
@@ -300,15 +307,18 @@ export function GameShell({
               onCompletionShown={() => setIsAwaitingContinue(true)}
               onTestReplayExit={exitTestReplay}
             />
-          ) : testReplayMode === "FILL" && gameSession.dayLevel ? (
+          ) : testReplayMode === "FILL" && gameSession.dayLevel && gameSession.waypoint ? (
             <FillMode
               sessionId={gameSession.id}
               dayLevel={gameSession.dayLevel}
+              waypointNumber={gameSession.waypoint.number}
+              verseReference={gameSession.verse.reference}
               verseText={gameSession.verse.translationText}
               attempt={null}
               isTestReplay
               nextMode={currentMode}
               onContinue={exitTestReplay}
+              onWaypointContinue={continueToTrail}
               onCompletionShown={() => setIsAwaitingContinue(true)}
               onTestReplayExit={exitTestReplay}
             />
@@ -360,14 +370,17 @@ export function GameShell({
               }
               onCompletionShown={() => setIsAwaitingContinue(true)}
             />
-          ) : currentMode === "FILL" && attempt && gameSession.dayLevel ? (
+          ) : currentMode === "FILL" && attempt && gameSession.dayLevel && gameSession.waypoint ? (
             <FillMode
               sessionId={gameSession.id}
               dayLevel={gameSession.dayLevel}
+              waypointNumber={gameSession.waypoint.number}
+              verseReference={gameSession.verse.reference}
               verseText={gameSession.verse.translationText}
               attempt={attempt}
               nextMode={null}
               onContinue={() => continueToMode(null)}
+              onWaypointContinue={continueToTrail}
               onCompletionShown={() => setIsAwaitingContinue(true)}
             />
           ) : (
@@ -403,22 +416,18 @@ export function GameShell({
           )}
         </div>
 
-        <footer className="border-t border-border px-5 py-4 dark:border-white/10 sm:px-8">
-          <Button
-            type="button"
-            variant="ghost"
-            className="min-h-11 w-full justify-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground dark:hover:bg-white/10 dark:hover:text-white"
-            disabled
-            title={
-              hintsAllowed
-                ? "Hint System arrives in Phase 18."
-                : "Hints are unavailable at this Journey Stage."
-            }
-          >
-            <LightbulbIcon data-icon="inline-start" aria-hidden="true" />
-            {hintsAllowed ? "Hints arrive in Phase 18" : "Hints unavailable at this stage"}
-          </Button>
-        </footer>
+        {hintsAllowed && (currentMode || testReplayMode) && (
+          <footer className="border-t border-border px-5 py-4 dark:border-white/10 sm:px-8">
+            <HintButton
+              sessionId={gameSession.id}
+              initialBalance={gameSession.hintBalance}
+              disabled={isAwaitingContinue}
+              isTestReplay={Boolean(testReplayMode)}
+              testReference={gameSession.verse.reference}
+              testVerseText={gameSession.verse.translationText}
+            />
+          </footer>
+        )}
       </section>
     </main>
   );

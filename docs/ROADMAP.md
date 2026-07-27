@@ -961,7 +961,10 @@ outside the fields. A correct answer uses the authenticated fifth-mode
 completion action, which proves the ordered session and atomically completes the
 day, schedules the next-day cooldown, or completes Day 3 and unlocks the next
 published waypoint. The completion screen waits for Continue, then returns to
-Day Selection. Administrator Test Replay performs no writes. Per the approved
+Day Selection. After Radiance, Continue first opens a dedicated Waypoint
+Complete milestone with three flames, the completed verse, the persisted
+next-waypoint or caught-up outcome, and a distinct fanfare; its explicit action
+returns to the trail map. Administrator Test Replay performs no writes. Per the approved
 roadmap resolution, no Glow Point, streak, or badge outcome is claimed before
 its dedicated phase.
 
@@ -1049,6 +1052,23 @@ Continue transition.
 - Hint count decrements correctly and persists.
 - Using hints when the count is zero returns a helpful error toast.
 - Hint modal shows the correct translation.
+
+### Implementation Status
+
+**Implemented; manual browser acceptance pending — 2026-07-27.** Learn and
+Recall gameplay sessions show a touch-friendly Hint button with the persisted
+free balance; Strengthen and Master render no control. The validated action
+derives learner identity from the session, while the repository locks hint
+consumption and rechecks session ownership, active campaign state, Journey
+Stage, current mode, canonical session translation, and remaining balance
+inside one transaction. Successful use creates `HintUsage`, increments
+`totalHintsUsed`, opens the full-verse modal, and reports the remaining count.
+The modal displays a six-second top progress bar and closes automatically;
+reduced-motion users receive a static state and duration notice. Normal admin
+campaign play consumes real hints, while Admin Test Replay provides unlimited
+non-persisting **Test hint** access. Phase 20 grants the configured five
+free hints; purchased hint entitlements remain explicitly deferred to Phase 22,
+where shop products will gain an unambiguous hint quantity.
 
 ---
 

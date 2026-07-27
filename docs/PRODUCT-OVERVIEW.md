@@ -743,6 +743,12 @@ published waypoint atomically. Glow Point awards, streak updates, and badge
 evaluation are added by their dedicated roadmap phases and must not be claimed
 by the UI before those systems are implemented.
 
+After Radiance, the normal day-reward completion screen is followed by a
+separate learner-controlled **Waypoint Complete** milestone. It shows three
+kindled flames, the completed waypoint and verse, the next unlocked waypoint or
+caught-up state, plays the waypoint fanfare, and returns to the refreshed trail
+map. Glimmer and Glow do not show this second milestone.
+
 ---
 
 ## 11. The Hint System
@@ -753,6 +759,9 @@ The Hint System is a separate gameplay assistance mechanism that is independent 
 
 - Each user receives a free hint allowance (default configurable by Super Admin).
 - Users may purchase additional hints from the Oil Shop using Glow Points.
+- Until the Oil Shop phase defines explicit hint-pack quantities, the balance
+  consists only of the configured free allowance. Generic purchases must never
+  be guessed to represent hint credits.
 - **Hints are only available during the Learn and Recall Journey Stages.**
 - Hints are completely disabled during the Strengthen and Master Journey Stages, regardless of the game mode being played.
 - Using a hint is recorded in `HintUsage`.
@@ -762,9 +771,16 @@ The Hint System is a separate gameplay assistance mechanism that is independent 
 
 - A Hint button is visible in the game shell when hints are available for the current Journey Stage.
 - Clicking the Hint button opens a modal showing the full verse text.
+- The modal remains visible for six seconds, shows a top progress bar filling
+  across that interval, and then closes automatically. It may still be closed
+  manually. Reduced-motion users receive a static progress state and duration
+  notice instead of the filling animation.
 - A Sonner toast fires confirming "Hint used. X hints remaining."
 - The Hint button becomes disabled and shows a count of zero when no hints remain.
 - When the Journey Stage is Strengthen or Master, the Hint button is not rendered at all.
+- Administrators consume real hints during normal campaign gameplay. During
+  Admin Test Replay, an unlimited **Test hint** uses the same modal without
+  creating `HintUsage`, reducing balance, or changing profile statistics.
 
 ---
 

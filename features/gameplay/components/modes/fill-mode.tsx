@@ -9,6 +9,7 @@ import { showActionError } from "@/lib/errors/show-action-error";
 import { completeGameModeAction } from "@/features/gameplay/actions/complete-game-mode.action";
 import { ConfettiCelebration } from "@/features/gameplay/components/confetti-celebration";
 import { ModeCompletionScreen } from "@/features/gameplay/components/mode-completion-screen";
+import { WaypointCompletionScreen } from "@/features/gameplay/components/waypoint-completion-screen";
 import { useAudioFeedback } from "@/features/gameplay/hooks/use-audio-feedback";
 import {
   limitGameplayWordInput,
@@ -41,21 +42,27 @@ type InputFeedback = Readonly<Record<number, "correct" | "incorrect">>;
 export function FillMode({
   sessionId,
   dayLevel,
+  waypointNumber,
+  verseReference,
   verseText,
   attempt,
   isTestReplay = false,
   nextMode,
   onContinue,
+  onWaypointContinue,
   onCompletionShown,
   onTestReplayExit,
 }: {
   sessionId: string;
   dayLevel: DayLevel;
+  waypointNumber: number;
+  verseReference: string;
   verseText: string;
   attempt: GameModeAttemptData | null;
   isTestReplay?: boolean;
   nextMode: GameModeAttemptData["gameMode"] | null;
   onContinue: () => void;
+  onWaypointContinue: () => void;
   onCompletionShown: () => void;
   onTestReplayExit?: () => void;
 }): React.ReactNode {
@@ -65,8 +72,13 @@ export function FillMode({
   const [inputFeedback, setInputFeedback] = useState<InputFeedback>({});
   const [showConfetti, setShowConfetti] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
+  const [showWaypointCompletion, setShowWaypointCompletion] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [earnedReward, setEarnedReward] = useState<DayRewardResult | null>(null);
+  const [waypointOutcome, setWaypointOutcome] = useState<{
+    unlockedWaypointNumber: number | null;
+    caughtUp: boolean;
+  } | null>(null);
   const [isPending, startTransition] = useTransition();
   const seed = `${sessionId}:${dayLevel}:FILL`;
   const tokens = useMemo(() => tokenizeVerse(verseText), [verseText]);
@@ -169,17 +181,15 @@ export function FillMode({
           { duration: 4_000 },
         );
         if (completion.dayCompletion.unlockedWaypoint) {
-          toast.success(
-            `Waypoint complete! Waypoint ${completion.dayCompletion.unlockedWaypoint.number} is now unlocked.`,
-            { duration: 4_000 },
-          );
+          setWaypointOutcome({
+            unlockedWaypointNumber: completion.dayCompletion.unlockedWaypoint.number,
+            caughtUp: false,
+          });
         } else if (
           completion.dayCompletion.completedDay === "RADIANCE" &&
           completion.dayCompletion.caughtUp
         ) {
-          toast.success("Waypoint complete! You are caught up with the trail.", {
-            duration: 4_000,
-          });
+          setWaypointOutcome({ unlockedWaypointNumber: null, caughtUp: true });
         } else if (completion.dayCompletion.nextDayUnlocksAt) {
           toast.info("The next challenge day is now on cooldown.", {
             duration: 4_000,
@@ -200,7 +210,9 @@ export function FillMode({
     setIsComplete(false);
     setShowConfetti(false);
     setShowCompletion(false);
+    setShowWaypointCompletion(false);
     setEarnedReward(null);
+    setWaypointOutcome(null);
   };
 
   return (
@@ -214,9 +226,22 @@ export function FillMode({
           reward={earnedReward}
           onContinue={() => {
             if (isTestReplay) onTestReplayExit?.();
-            else onContinue();
+            else if (waypointOutcome) {
+              setShowCompletion(false);
+              setShowWaypointCompletion(true);
+              playAudio("waypoint-complete");
+            } else onContinue();
           }}
           onReplay={isTestReplay ? replayTestMode : undefined}
+        />
+      )}
+      {showWaypointCompletion && waypointOutcome && (
+        <WaypointCompletionScreen
+          waypointNumber={waypointNumber}
+          verseReference={verseReference}
+          unlockedWaypointNumber={waypointOutcome.unlockedWaypointNumber}
+          caughtUp={waypointOutcome.caughtUp}
+          onContinue={onWaypointContinue}
         />
       )}
       <section className="w-full max-w-2xl text-left" aria-labelledby="fill-title">

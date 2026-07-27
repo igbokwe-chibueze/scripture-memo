@@ -1,6 +1,6 @@
 # Scripture Memo Project Log
 
-**Last updated:** 2026-07-26
+**Last updated:** 2026-07-27
 **Purpose:** Concise continuity backup and current-status summary for Codex
 development sessions.
 
@@ -61,12 +61,13 @@ long-term verse difficulty. Glow Points are the only currency.
 - Completed-day administrator Test Replay entry and audited self-testing
   cooldown overrides are implemented.
 - Phase 19 Glow Points and Rewards is complete and manually accepted.
+- Phase 20 Hint System is implemented and awaiting manual browser acceptance.
 
 ## Current Roadmap Position
 
 Phases 0–18 are complete and manually accepted.
 Phases 0–19 are complete and manually accepted.
-Phase 20 — Hint System is next.
+Phase 20 — Hint System is implemented and awaiting manual browser acceptance.
 
 ## Completed Work
 
@@ -115,11 +116,13 @@ Phase 20 — Hint System is next.
 
 ## Current Task
 
-Prepare Phase 20 — Hint System implementation.
+Manually verify Phase 20 hints in Learn/Recall and their absence in
+Strengthen/Master.
 
 ## Exact Next Task
 
-Commit the accepted Phase 19 changes, then begin Phase 20 — Hint System.
+After Phase 20 manual acceptance, mark it complete and begin Phase 21 — Streak
+System.
 
 ## Important Decisions
 
@@ -300,6 +303,32 @@ Commit the accepted Phase 19 changes, then begin Phase 20 — Hint System.
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-27 — Phase 20 Hint System implemented
+
+- Added a five-hint free balance derived from persisted `HintUsage` records.
+- Added a validated authenticated action and transaction-locked repository
+  consumption flow that rechecks session ownership, active state, Journey
+  Stage, current mode, canonical translation, and remaining balance.
+- Successful consumption creates `HintUsage` and increments
+  `UserProfile.totalHintsUsed` atomically before revealing the verse.
+- Added the shared Hint button, accurate remaining-count feedback, and a calm
+  full-verse modal. Strengthen/Master sessions render no hint control, and
+  the modal now shows a six-second progress bar before closing itself.
+- Normal admin campaign play consumes real hints for end-to-end verification;
+  Admin Test Replay exposes unlimited non-persisting **Test hint** access.
+- Purchased hint credit is deliberately deferred to Phase 22 because the
+  current generic shop schema does not yet define hint quantities.
+- Hint balance tests, ESLint, strict TypeScript, and the production build pass.
+- Corrected the shared mode-completion overlay to lock background document
+  scrolling while open. Only the overlay scrolls when its card exceeds the
+  viewport, eliminating the duplicate scrollbar and preventing hidden gameplay
+  content from moving behind the success screen.
+- Added the distinct Radiance-only Waypoint Complete milestone after the normal
+  day-reward screen. It animates three flames, shows the completed waypoint and
+  verse plus the server-returned next-waypoint/caught-up result, plays a
+  dedicated fanfare, locks background scrolling, and returns to the trail map
+  only after the learner presses Continue.
 
 ### 2026-07-26 — Phase 19 Glow Points and Rewards implemented
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   ArrowRightIcon,
@@ -42,6 +43,22 @@ export function ModeCompletionScreen({
   reward?: DayRewardResult | null;
 }): React.ReactNode {
   const shouldReduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousRootOverflow = document.documentElement.style.overflow;
+    // WHY: The fixed completion surface owns scrolling while it is visible.
+    // Locking both scrolling roots prevents the obscured gameplay page from
+    // moving and removes the confusing second scrollbar without clipping a
+    // completion card that is taller than a small mobile viewport.
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousRootOverflow;
+    };
+  }, []);
 
   return (
     <motion.div
