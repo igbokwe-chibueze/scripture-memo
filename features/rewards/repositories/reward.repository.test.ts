@@ -50,7 +50,12 @@ test(
           "GLIMMER",
         ),
       );
-      assert.deepEqual(first, { dayLevel: "GLIMMER", amount: 100, balance: 100 });
+      assert.deepEqual(first, {
+        dayLevel: "GLIMMER",
+        amount: 100,
+        balance: 100,
+        waypointRewardTotal: 100,
+      });
 
       await assert.rejects(
         prisma.$transaction((transaction) =>

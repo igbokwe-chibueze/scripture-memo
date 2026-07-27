@@ -39,7 +39,22 @@ export async function awardDayCompletionRewardInTransaction(
     data: { totalGlowPoints: { increment: amount } },
     select: { totalGlowPoints: true },
   });
-  return { dayLevel, amount, balance: profile.totalGlowPoints };
+  const waypointRewards = await transaction.rewardLedger.aggregate({
+    where: {
+      userId,
+      eventType: RewardEventType.DAY_COMPLETE,
+      idempotencyKey: {
+        startsWith: `day-complete:${userId}:${waypointId}:`,
+      },
+    },
+    _sum: { amount: true },
+  });
+  return {
+    dayLevel,
+    amount,
+    balance: profile.totalGlowPoints,
+    waypointRewardTotal: waypointRewards._sum.amount ?? 0,
+  };
 }
 
 /** Read-only reward queries used by balances and future Vault history views. */

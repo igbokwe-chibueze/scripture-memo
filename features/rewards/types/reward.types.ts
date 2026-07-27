@@ -5,6 +5,7 @@ export type DayRewardResult = {
   dayLevel: DayLevel;
   amount: number;
   balance: number;
+  waypointRewardTotal: number;
 };
 
 /** Cursor pagination input for immutable reward history reads. */

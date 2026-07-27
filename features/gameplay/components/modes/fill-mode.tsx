@@ -78,6 +78,8 @@ export function FillMode({
   const [waypointOutcome, setWaypointOutcome] = useState<{
     unlockedWaypointNumber: number | null;
     caughtUp: boolean;
+    waypointRewardTotal: number;
+    totalBalance: number;
   } | null>(null);
   const [isPending, startTransition] = useTransition();
   const seed = `${sessionId}:${dayLevel}:FILL`;
@@ -184,12 +186,19 @@ export function FillMode({
           setWaypointOutcome({
             unlockedWaypointNumber: completion.dayCompletion.unlockedWaypoint.number,
             caughtUp: false,
+            waypointRewardTotal: completion.dayCompletion.reward.waypointRewardTotal,
+            totalBalance: completion.dayCompletion.reward.balance,
           });
         } else if (
           completion.dayCompletion.completedDay === "RADIANCE" &&
           completion.dayCompletion.caughtUp
         ) {
-          setWaypointOutcome({ unlockedWaypointNumber: null, caughtUp: true });
+          setWaypointOutcome({
+            unlockedWaypointNumber: null,
+            caughtUp: true,
+            waypointRewardTotal: completion.dayCompletion.reward.waypointRewardTotal,
+            totalBalance: completion.dayCompletion.reward.balance,
+          });
         } else if (completion.dayCompletion.nextDayUnlocksAt) {
           toast.info("The next challenge day is now on cooldown.", {
             duration: 4_000,
@@ -229,7 +238,6 @@ export function FillMode({
             else if (waypointOutcome) {
               setShowCompletion(false);
               setShowWaypointCompletion(true);
-              playAudio("waypoint-complete");
             } else onContinue();
           }}
           onReplay={isTestReplay ? replayTestMode : undefined}
@@ -241,6 +249,8 @@ export function FillMode({
           verseReference={verseReference}
           unlockedWaypointNumber={waypointOutcome.unlockedWaypointNumber}
           caughtUp={waypointOutcome.caughtUp}
+          waypointRewardTotal={waypointOutcome.waypointRewardTotal}
+          totalBalance={waypointOutcome.totalBalance}
           onContinue={onWaypointContinue}
         />
       )}

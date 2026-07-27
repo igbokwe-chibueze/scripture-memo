@@ -329,6 +329,22 @@ System.
   verse plus the server-returned next-waypoint/caught-up result, plays a
   dedicated fanfare, locks background scrolling, and returns to the trail map
   only after the learner presses Continue.
+- Added a reusable **Preview Waypoint Complete** control to `/ui-foundation`.
+  It opens the real production milestone with fixed display-only sample data,
+  plays its fanfare, changes no database or game state, and can be repeated
+  indefinitely for visual and audio acceptance testing.
+- Smoothed the three-flame mobile entrance by replacing three concurrent spring
+  animations with one short GPU-friendly group transition. The milestone now
+  shows the persisted rewards earned for that waypoint and the learner's total
+  Glow Point balance; the UI Foundation preview reflects both values.
+- Refined the approved milestone sequence: after the screen enters, each flame
+  pops in separately with small particles and synchronized interaction audio,
+  then Waypoint Rewards drops into position followed by Total Balance. The
+  sequence uses short transform-only tweens for mobile smoothness and removes
+  staged movement and particles when reduced motion is enabled.
+- Increased the flame stagger to roughly half a second between arrivals and
+  delayed both Glow Point cards until the third flame finishes, making each
+  milestone beat easier to perceive.
 
 ### 2026-07-26 — Phase 19 Glow Points and Rewards implemented
 

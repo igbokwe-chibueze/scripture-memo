@@ -746,8 +746,13 @@ by the UI before those systems are implemented.
 After Radiance, the normal day-reward completion screen is followed by a
 separate learner-controlled **Waypoint Complete** milestone. It shows three
 kindled flames, the completed waypoint and verse, the next unlocked waypoint or
-caught-up state, plays the waypoint fanfare, and returns to the refreshed trail
-map. Glimmer and Glow do not show this second milestone.
+caught-up state, the persisted Glow Points earned across that waypoint, and the
+learner's total balance. It plays the waypoint fanfare and returns to the
+refreshed trail map. Glimmer and Glow do not show this second milestone.
+After the screen enters, the three flames pop in sequentially with lightweight
+particles and synchronized sound. The Waypoint Rewards card then drops into
+place, followed by the Total Balance card. Reduced-motion preferences render
+the same information immediately without staged movement or particles.
 
 ---
 
