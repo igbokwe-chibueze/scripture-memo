@@ -345,6 +345,23 @@ System.
 - Increased the flame stagger to roughly half a second between arrivals and
   delayed both Glow Point cards until the third flame finishes, making each
   milestone beat easier to perceive.
+- Replaced the Glow Point cards' top-edge drop with a depth-based release. Each
+  card now begins close to the camera on the positive Z-axis, moves away through
+  a perspective scene, and settles with a small downward motion and subtle
+  three-dimensional rotation. Waypoint Rewards lands before Total Balance;
+  reduced-motion behavior remains immediate.
+- Increased the cards' initial face tilt and opposing rotational angles, with a
+  slightly stronger counter-rotation before both settle flat on the board.
+- Added a weighted landing phase to both cards: accelerating depth movement,
+  contact compression, downward overshoot, short rebound, and synchronized
+  impact audio now replace the previous floaty single-ease settlement.
+- After Total Balance lands, its number now begins at the persisted waypoint
+  reward total, counts to the learner's persisted overall balance, and performs
+  one enlarge-and-settle pulse. Values use localized thousands separators;
+  reduced-motion mode shows the final value immediately.
+- Added a half-second pause between the Total Balance card settling and its
+  count-up, then changed the final-value emphasis to three enlarge-and-settle
+  pulses.
 
 ### 2026-07-26 — Phase 19 Glow Points and Rewards implemented
 

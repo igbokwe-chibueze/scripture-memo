@@ -753,6 +753,10 @@ After the screen enters, the three flames pop in sequentially with lightweight
 particles and synchronized sound. The Waypoint Rewards card then drops into
 place, followed by the Total Balance card. Reduced-motion preferences render
 the same information immediately without staged movement or particles.
+After the Total Balance card settles, its number starts at the waypoint reward
+total, counts to the learner's persisted overall balance, and briefly enlarges
+before returning to its normal size. Reduced-motion mode shows the final value
+immediately without counting or pulsing.
 
 ---
 

@@ -1,18 +1,84 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRightIcon, FlameIcon, MapIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAudioFeedback } from "@/features/gameplay/hooks/use-audio-feedback";
 
 const FLAME_DELAYS_MS = [420, 900, 1_380] as const;
+const REWARD_CARD_DELAY_MS = 1_850;
+const BALANCE_CARD_DELAY_MS = 2_180;
+const CARD_IMPACT_OFFSET_MS = 590;
+const CARD_ANIMATION_DURATION_MS = 720;
+const BALANCE_COUNT_PAUSE_MS = 500;
+const BALANCE_COUNT_DURATION_MS = 900;
 const PARTICLE_OFFSETS = [
   { x: -18, y: -18 },
   { x: 18, y: -16 },
   { x: -20, y: 12 },
   { x: 20, y: 13 },
 ] as const;
+
+/** Counts the total after card impact, then pulses once to confirm settlement. */
+function AnimatedBalanceValue({
+  startingValue,
+  finalValue,
+}: {
+  startingValue: number;
+  finalValue: number;
+}): React.ReactNode {
+  const shouldReduceMotion = useReducedMotion();
+  const [displayValue, setDisplayValue] = useState(
+    shouldReduceMotion ? finalValue : startingValue,
+  );
+  const [isComplete, setIsComplete] = useState(Boolean(shouldReduceMotion));
+  const frameRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (shouldReduceMotion) return;
+    const delayTimer = window.setTimeout(() => {
+      const startedAt = performance.now();
+      const animateCount = (now: number): void => {
+        const progress = Math.min(
+          1,
+          (now - startedAt) / BALANCE_COUNT_DURATION_MS,
+        );
+        const easedProgress = 1 - (1 - progress) ** 3;
+        setDisplayValue(
+          Math.round(startingValue + (finalValue - startingValue) * easedProgress),
+        );
+        if (progress < 1) {
+          frameRef.current = window.requestAnimationFrame(animateCount);
+        } else {
+          setIsComplete(true);
+        }
+      };
+      frameRef.current = window.requestAnimationFrame(animateCount);
+    }, BALANCE_CARD_DELAY_MS + CARD_ANIMATION_DURATION_MS + BALANCE_COUNT_PAUSE_MS);
+
+    return () => {
+      window.clearTimeout(delayTimer);
+      if (frameRef.current !== null) {
+        window.cancelAnimationFrame(frameRef.current);
+      }
+    };
+  }, [finalValue, shouldReduceMotion, startingValue]);
+
+  return (
+    <motion.p
+      className="mt-1 font-heading text-2xl font-black"
+      animate={
+        isComplete && !shouldReduceMotion
+          ? { scale: [1, 1.3, 1, 1.3, 1, 1.3, 1] }
+          : { scale: 1 }
+      }
+      transition={{ duration: shouldReduceMotion ? 0 : 1.1, ease: "easeOut" }}
+    >
+      {displayValue.toLocaleString()}
+    </motion.p>
+  );
+}
 
 /** Dedicated milestone celebration shown only after Radiance completes a waypoint. */
 export function WaypointCompletionScreen({
@@ -54,6 +120,16 @@ export function WaypointCompletionScreen({
       window.setTimeout(
         () => playAudio("waypoint-complete"),
         shouldReduceMotion ? 0 : 1_700,
+      ),
+    );
+    timers.push(
+      window.setTimeout(
+        () => playAudio("drop"),
+        shouldReduceMotion ? 0 : REWARD_CARD_DELAY_MS + CARD_IMPACT_OFFSET_MS,
+      ),
+      window.setTimeout(
+        () => playAudio("drop"),
+        shouldReduceMotion ? 0 : BALANCE_CARD_DELAY_MS + CARD_IMPACT_OFFSET_MS,
       ),
     );
     return () => timers.forEach((timer) => window.clearTimeout(timer));
@@ -141,36 +217,89 @@ export function WaypointCompletionScreen({
             </p>
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-3">
+          <div className="mt-4 grid grid-cols-2 gap-3 [perspective:1200px]">
             <motion.div
               className="transform-gpu rounded-2xl bg-orange-100 p-4 will-change-transform dark:bg-orange-400/10"
-              initial={shouldReduceMotion ? false : { opacity: 0, y: -72, rotate: -2 }}
-              animate={{ opacity: 1, y: [-72, 7, 0], rotate: [-2, 1, 0] }}
+              style={{ transformStyle: "preserve-3d" }}
+              initial={
+                shouldReduceMotion
+                  ? false
+                  : {
+                      opacity: 0,
+                      z: 260,
+                      scale: 1.08,
+                      y: -6,
+                      rotateX: -13,
+                      rotateZ: -7,
+                    }
+              }
+              animate={{
+                opacity: [0, 1, 1, 1],
+                z: [260, 55, 0, 0],
+                scale: [1.08, 1.01, 0.96, 1],
+                y: [-6, 3, 13, 0],
+                rotateX: [-13, -3, 5, 0],
+                rotateZ: [-7, -2, 2, 0],
+              }}
               transition={
                 shouldReduceMotion
                   ? { duration: 0 }
-                  : { duration: 0.48, delay: 1.85, ease: [0.22, 1, 0.36, 1] }
+                  : {
+                      duration: 0.72,
+                      delay: REWARD_CARD_DELAY_MS / 1_000,
+                      times: [0, 0.68, 0.84, 1],
+                      ease: ["easeIn", "easeIn", [0.22, 1, 0.36, 1]],
+                    }
               }
             >
               <p className="text-xs font-black tracking-wide text-orange-700 uppercase dark:text-orange-300">
                 Waypoint rewards
               </p>
-              <p className="mt-1 font-heading text-2xl font-black">+{waypointRewardTotal}</p>
+              <p className="mt-1 font-heading text-2xl font-black">
+                +{waypointRewardTotal.toLocaleString()}
+              </p>
             </motion.div>
             <motion.div
               className="transform-gpu rounded-2xl bg-violet-100 p-4 will-change-transform dark:bg-violet-400/10"
-              initial={shouldReduceMotion ? false : { opacity: 0, y: -72, rotate: 2 }}
-              animate={{ opacity: 1, y: [-72, 7, 0], rotate: [2, -1, 0] }}
+              style={{ transformStyle: "preserve-3d" }}
+              initial={
+                shouldReduceMotion
+                  ? false
+                  : {
+                      opacity: 0,
+                      z: 260,
+                      scale: 1.08,
+                      y: -6,
+                      rotateX: -13,
+                      rotateZ: 7,
+                    }
+              }
+              animate={{
+                opacity: [0, 1, 1, 1],
+                z: [260, 55, 0, 0],
+                scale: [1.08, 1.01, 0.96, 1],
+                y: [-6, 3, 13, 0],
+                rotateX: [-13, -3, 5, 0],
+                rotateZ: [7, 2, -2, 0],
+              }}
               transition={
                 shouldReduceMotion
                   ? { duration: 0 }
-                  : { duration: 0.48, delay: 2.15, ease: [0.22, 1, 0.36, 1] }
+                  : {
+                      duration: 0.72,
+                      delay: BALANCE_CARD_DELAY_MS / 1_000,
+                      times: [0, 0.68, 0.84, 1],
+                      ease: ["easeIn", "easeIn", [0.22, 1, 0.36, 1]],
+                    }
               }
             >
               <p className="text-xs font-black tracking-wide text-violet-700 uppercase dark:text-violet-300">
                 Total balance
               </p>
-              <p className="mt-1 font-heading text-2xl font-black">{totalBalance}</p>
+              <AnimatedBalanceValue
+                startingValue={waypointRewardTotal}
+                finalValue={totalBalance}
+              />
             </motion.div>
           </div>
 
