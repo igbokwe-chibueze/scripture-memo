@@ -5,6 +5,8 @@ import { FlameIcon, MapIcon } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { LogoutButton } from "@/features/auth/components/logout-button";
 import { authRepository } from "@/features/auth/repositories/auth.repository";
+import { getStreakDisplay } from "@/features/progression/lib/streak-utils";
+import { userRepository } from "@/features/users/repositories/user.repository";
 import { requireServerSession } from "@/lib/auth/session";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +24,7 @@ export async function AuthenticatedHomePlaceholderView(): Promise<React.ReactNod
   if (!(await authRepository.hasSelectedTranslation(session.user.id))) {
     redirect("/select-translation");
   }
+  const profile = await userRepository.getProfileSummary(session.user.id);
 
   return (
     <main className="flex min-h-svh items-center justify-center bg-linear-to-b from-amber-100/70 via-background to-primary/10 px-4 text-center dark:from-amber-950/30">
@@ -34,6 +37,12 @@ export async function AuthenticatedHomePlaceholderView(): Promise<React.ReactNod
           <p className="mt-2 text-muted-foreground">
             Your account is ready. The full Game Home arrives in its roadmap phase.
           </p>
+        </div>
+        <div
+          className="mx-auto flex min-h-11 w-fit items-center rounded-full border border-orange-400/35 bg-orange-100 px-5 font-bold text-orange-800 shadow-sm dark:bg-orange-400/10 dark:text-orange-200"
+          aria-label={`Current streak: ${profile?.currentStreak ?? 0} days`}
+        >
+          {getStreakDisplay(profile?.currentStreak ?? 0)}
         </div>
         <div className="flex flex-col justify-center gap-3 sm:flex-row">
           <Link

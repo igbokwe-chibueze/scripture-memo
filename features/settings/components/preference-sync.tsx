@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
+import { detectTimeZoneAction } from "@/features/settings/actions/detect-time-zone.action";
 
 export type PreferenceSyncProps = {
   theme: "light" | "dark" | "system";
   reducedMotion: boolean;
   audioEnabled: boolean;
+  hasConfiguredTimeZone: boolean;
 };
 
 /**
@@ -18,7 +21,9 @@ export function PreferenceSync({
   theme,
   reducedMotion,
   audioEnabled,
+  hasConfiguredTimeZone,
 }: PreferenceSyncProps): null {
+  const router = useRouter();
   const { setTheme } = useTheme();
 
   useEffect(() => {
@@ -31,6 +36,18 @@ export function PreferenceSync({
       delete document.documentElement.dataset.audioEnabled;
     };
   }, [audioEnabled, reducedMotion, setTheme, theme]);
+
+  useEffect(() => {
+    if (hasConfiguredTimeZone) return;
+    const detectedTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (detectedTimeZone) {
+      // Background detection intentionally has no toast: it is a one-time
+      // preference default, not an interaction requiring user feedback.
+      void detectTimeZoneAction({ timeZone: detectedTimeZone }).then((result) => {
+        if (result.success) router.refresh();
+      });
+    }
+  }, [hasConfiguredTimeZone, router]);
 
   return null;
 }

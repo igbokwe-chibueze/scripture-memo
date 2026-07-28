@@ -28,6 +28,7 @@ const countryOptions = [
   { value: "", label: "Not selected" },
   ...COUNTRY_OPTIONS.map((country) => ({ value: country.code, label: country.name })),
 ];
+const timeZoneOptions = ["UTC", ...Intl.supportedValuesOf("timeZone")];
 
 /** Editable profile and preference form with immediate local theme application. */
 export function SettingsForm({ initialValues }: SettingsFormProps): React.ReactNode {
@@ -147,6 +148,30 @@ export function SettingsForm({ initialValues }: SettingsFormProps): React.ReactN
                 </Field>
               )}
             />
+
+            <Field data-invalid={Boolean(form.formState.errors.timeZone)}>
+              <FieldLabel htmlFor="calendar-timezone">Calendar timezone</FieldLabel>
+              <Input
+                id="calendar-timezone"
+                list="calendar-timezone-options"
+                autoComplete="off"
+                disabled={isPending}
+                aria-invalid={Boolean(form.formState.errors.timeZone)}
+                {...form.register("timeZone")}
+              />
+              <datalist id="calendar-timezone-options">
+                {timeZoneOptions.map((timeZone) => (
+                  <option key={timeZone} value={timeZone}>
+                    {timeZone.replaceAll("_", " ")}
+                  </option>
+                ))}
+              </datalist>
+              <FieldDescription>
+                Detected automatically. Change it here if your calendar day
+                should follow another location.
+              </FieldDescription>
+              <FieldError>{form.formState.errors.timeZone?.message}</FieldError>
+            </Field>
 
             <Controller
               control={form.control}

@@ -835,6 +835,11 @@ A streak tracks the number of consecutive days on which a user completes at leas
 
 - Streak increments when the user completes meaningful gameplay activity on a given calendar day.
 - Streak calculation must use the user's configured timezone where possible, falling back to UTC.
+- The authenticated shell detects the browser's IANA timezone on first use.
+  Learners may explicitly change it in Settings, and later devices must not
+  silently overwrite the stored selection.
+- The first server-verified mode completion on a local calendar day updates the
+  streak. Further mode completions that day do not increment it again.
 - Missing a full calendar day resets the streak to zero.
 - The user's current streak and all-time best streak are stored separately.
 - Streaks are displayed on the game home screen, the user profile, and the leaderboard.

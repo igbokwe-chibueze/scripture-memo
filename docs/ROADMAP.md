@@ -1088,7 +1088,9 @@ both the rendered shell and the server-owned action/repository checks.
 1. Create `streak-utils.ts` in `features/progression/lib/`:
    - `updateStreak(userId, activityDate)` — increments streak if consecutive day, resets if gap detected
    - `getStreakDisplay(streak: UserStreak): string` — returns "🔥 14-day streak"
-2. Call `updateStreak` inside `completeDayAction` after a day is successfully completed.
+2. Call `updateStreak` after each server-verified game-mode completion. The
+   first mode completed on a learner-local calendar day updates the streak;
+   later modes on that same day are idempotent.
 3. Display streak in the game home screen header and on the user profile/vault.
 4. Store both `currentStreak` and `longestStreak` in `UserStreak`.
 5. Comment timezone handling: use user's stored timezone when determining calendar day boundaries; fall back to UTC.
@@ -1098,6 +1100,27 @@ both the rendered shell and the server-owned action/repository checks.
 - Streak increments correctly on consecutive daily completions.
 - Streak resets to 1 (not 0) on the day of activity after a missed day.
 - Longest streak is retained even after a reset.
+
+### Implementation Status
+
+**Complete and manually accepted — 2026-07-28.** The first server-verified
+game-mode completion on each learner-local calendar day updates the streak
+inside the existing gameplay transaction. A per-user PostgreSQL
+advisory lock makes concurrent completions safe, later modes on the same day are
+idempotent, missed days reset the current value to one, and the best value never
+regresses. User settings now persist a validated IANA timezone with a UTC
+fallback. Current streak appears on Game Home, while current and best values
+remain visible on Profile & Settings; the fuller Vault surface remains owned by
+its dedicated roadmap phase. The protected shell automatically detects and
+persists the browser's IANA timezone once, while Settings provides a validated
+manual override without allowing a later device to replace that choice.
+
+**Acceptance note:** The project owner verified automatic timezone detection,
+manual timezone changes, first-day streak creation, same-day idempotency, and
+the learner-facing displays. Observing a natural next-calendar-day increment is
+deferred to the final regression pass because it requires waiting; deterministic
+tests already cover consecutive local days, timezone boundaries, missed-day
+reset, and best-streak retention.
 
 ---
 

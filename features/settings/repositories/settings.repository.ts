@@ -7,6 +7,8 @@ export type UserSettingsValues = {
   audioEnabled: boolean;
   reducedMotion: boolean;
   theme: "light" | "dark" | "system";
+  timeZone: string;
+  hasConfiguredTimeZone: boolean;
 };
 
 /** Persistence operations owned by the user-settings feature. */
@@ -23,6 +25,8 @@ export const settingsRepository = {
         settings.theme === "light" || settings.theme === "dark"
           ? settings.theme
           : "system",
+      timeZone: settings.timeZone,
+      hasConfiguredTimeZone: settings.hasConfiguredTimeZone,
     };
   },
 
@@ -58,6 +62,8 @@ export const settingsRepository = {
           audioEnabled: input.audioEnabled,
           reducedMotion: input.reducedMotion,
           theme: input.theme,
+          timeZone: input.timeZone,
+          hasConfiguredTimeZone: true,
           hasSelectedTranslation: true,
         },
         create: {
@@ -66,6 +72,8 @@ export const settingsRepository = {
           audioEnabled: input.audioEnabled,
           reducedMotion: input.reducedMotion,
           theme: input.theme,
+          timeZone: input.timeZone,
+          hasConfiguredTimeZone: true,
           hasSelectedTranslation: true,
         },
       }),
@@ -87,5 +95,30 @@ export const settingsRepository = {
       update: { theme },
       create: { userId, theme },
     });
+  },
+
+  /**
+   * Stores browser detection only until any timezone has been configured.
+   *
+   * A conditional update is intentionally used instead of a read-then-write so
+   * two devices cannot race and overwrite the first accepted preference.
+   */
+  async configureDetectedTimeZone(
+    userId: string,
+    timeZone: string,
+  ): Promise<void> {
+    const updated = await prisma.userSettings.updateMany({
+      where: { userId, hasConfiguredTimeZone: false },
+      data: { timeZone, hasConfiguredTimeZone: true },
+    });
+    if (updated.count === 0) {
+      // Missing legacy settings rows are created, while an existing configured
+      // row receives an empty update and therefore retains the learner's choice.
+      await prisma.userSettings.upsert({
+        where: { userId },
+        update: {},
+        create: { userId, timeZone, hasConfiguredTimeZone: true },
+      });
+    }
   },
 } as const;
