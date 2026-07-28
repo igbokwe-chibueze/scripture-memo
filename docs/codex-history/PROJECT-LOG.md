@@ -61,13 +61,14 @@ long-term verse difficulty. Glow Points are the only currency.
 - Completed-day administrator Test Replay entry and audited self-testing
   cooldown overrides are implemented.
 - Phase 19 Glow Points and Rewards is complete and manually accepted.
-- Phase 20 Hint System is implemented and awaiting manual browser acceptance.
+- Phase 20 Hint System is complete and manually accepted. The longer
+  Strengthen/Master end-to-end progression scenario is recorded for the final
+  regression pass; both UI omission and server-side rejection are implemented.
 
 ## Current Roadmap Position
 
-Phases 0–18 are complete and manually accepted.
-Phases 0–19 are complete and manually accepted.
-Phase 20 — Hint System is implemented and awaiting manual browser acceptance.
+Phases 0–20 are complete and manually accepted.
+Phase 21 — Streak System is next.
 
 ## Completed Work
 
@@ -116,13 +117,12 @@ Phase 20 — Hint System is implemented and awaiting manual browser acceptance.
 
 ## Current Task
 
-Manually verify Phase 20 hints in Learn/Recall and their absence in
-Strengthen/Master.
+Begin Phase 21 — Streak System.
 
 ## Exact Next Task
 
-After Phase 20 manual acceptance, mark it complete and begin Phase 21 — Streak
-System.
+Implement Phase 21 streak persistence, server-owned consecutive-day updates,
+display treatment, and automated verification.
 
 ## Important Decisions
 

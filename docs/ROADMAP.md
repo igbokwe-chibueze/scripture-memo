@@ -1055,9 +1055,9 @@ Continue transition.
 
 ### Implementation Status
 
-**Implemented; manual browser acceptance pending — 2026-07-27.** Learn and
-Recall gameplay sessions show a touch-friendly Hint button with the persisted
-free balance; Strengthen and Master render no control. The validated action
+**Complete and manually accepted — 2026-07-28.** Learn and Recall gameplay
+sessions show a touch-friendly Hint button with the persisted free balance;
+Strengthen and Master render no control. The validated action
 derives learner identity from the session, while the repository locks hint
 consumption and rechecks session ownership, active campaign state, Journey
 Stage, current mode, canonical session translation, and remaining balance
@@ -1069,6 +1069,13 @@ campaign play consumes real hints, while Admin Test Replay provides unlimited
 non-persisting **Test hint** access. Phase 20 grants the configured five
 free hints; purchased hint entitlements remain explicitly deferred to Phase 22,
 where shop products will gain an unambiguous hint quantity.
+
+**Acceptance note:** The project owner manually verified the available hint
+flow, persisted consumption, modal content, timed self-closing behavior, and
+administrator test access. A full Strengthen/Master gameplay run is deferred to
+the final end-to-end regression pass because reaching those stages requires
+substantial progression; their prohibition remains independently enforced by
+both the rendered shell and the server-owned action/repository checks.
 
 ---
 
