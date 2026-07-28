@@ -21,6 +21,7 @@ import {
   prepareDayForGameplayInTransaction,
 } from "@/features/progression/repositories/progression.repository";
 import { awardDayCompletionRewardInTransaction } from "@/features/rewards/repositories/reward.repository";
+import { updateStreakInTransaction } from "@/features/progression/repositories/streak.repository";
 import { calculateHintBalance } from "@/features/hints/lib/hint-balance";
 import type {
   CompleteModeResult,
@@ -447,6 +448,25 @@ export const gameplayRepository = {
           score: 100,
         },
       });
+      // WHY: A streak represents the first meaningful mode completion on a
+      // learner-local calendar day. The transaction-owned updater makes later
+      // modes idempotent and excludes client claims and non-persisting replays.
+      const streak = await updateStreakInTransaction(
+        transaction,
+        userId,
+        completedAt,
+      );
+      const streakResult = {
+        status: streak.status,
+        currentStreak: streak.currentStreak,
+        bestStreak: streak.bestStreak,
+        isNewBest: streak.isNewBest,
+        previousBestStreak: streak.previousBestStreak,
+        levelName: streak.level.name,
+        reachedNewLevel: streak.reachedNewLevel,
+        forecast: streak.forecast,
+        nextLevel: streak.nextLevel,
+      } as const;
       const completedAfterSubmission = [...completedModes, requestedMode];
       const nextMode = getCurrentMode(completedAfterSubmission);
       if (nextMode) {
@@ -455,6 +475,7 @@ export const gameplayRepository = {
           gameMode: requestedMode,
           nextMode,
           dayCompletion: null,
+          streak: streakResult,
         };
       }
 
@@ -480,6 +501,7 @@ export const gameplayRepository = {
         gameMode: requestedMode,
         nextMode: null,
         dayCompletion: { ...dayCompletion, reward },
+        streak: streakResult,
       };
     }, gameplayTransactionOptions);
   },

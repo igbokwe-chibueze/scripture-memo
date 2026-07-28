@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isValidTimeZone } from "@/features/progression/lib/streak-utils";
 
 /** Validates every editable profile and preference field at the server boundary. */
 export const updateUserSettingsSchema = z.object({
@@ -19,6 +20,10 @@ export const updateUserSettingsSchema = z.object({
   audioEnabled: z.boolean(),
   reducedMotion: z.boolean(),
   theme: z.enum(["light", "dark", "system"]),
+  timeZone: z
+    .string()
+    .trim()
+    .refine(isValidTimeZone, "Select a valid timezone."),
 });
 
 export type UpdateUserSettingsInput = z.infer<typeof updateUserSettingsSchema>;

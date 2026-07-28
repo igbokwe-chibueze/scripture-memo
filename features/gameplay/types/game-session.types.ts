@@ -9,6 +9,29 @@ import type {
 import type { CompleteDayResult } from "@/features/progression/types/progression.types";
 import type { DayRewardResult } from "@/features/rewards/types/reward.types";
 
+export type StreakCompletionResult = {
+  status: "unchanged" | "started" | "increased" | "reset";
+  currentStreak: number;
+  bestStreak: number;
+  isNewBest: boolean;
+  previousBestStreak: number;
+  levelName: string;
+  reachedNewLevel: boolean;
+  forecast: Array<{
+    dateKey: string;
+    label: string;
+    streakDays: number;
+    state: "today" | "upcoming" | "milestone";
+  }>;
+  nextLevel: {
+    name: string;
+    minimumDays: number;
+    daysRemaining: number;
+    projectedDateKey: string;
+    projectedDateLabel: string;
+  } | null;
+};
+
 export type GameplayConflictCode =
   | "SESSION_UNAVAILABLE"
   | "MODE_OUT_OF_ORDER"
@@ -56,10 +79,12 @@ export type CompleteModeResult =
       gameMode: GameMode;
       nextMode: GameMode;
       dayCompletion: null;
+      streak: StreakCompletionResult;
     }
   | {
       status: "day-complete";
       gameMode: GameMode;
       nextMode: null;
       dayCompletion: CompleteDayResult & { reward: DayRewardResult };
+      streak: StreakCompletionResult;
     };

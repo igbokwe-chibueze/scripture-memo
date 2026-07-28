@@ -38,6 +38,7 @@ export async function getSettingsPageData(): Promise<SettingsPageData> {
       audioEnabled: settings.audioEnabled,
       reducedMotion: settings.reducedMotion,
       theme: settings.theme,
+      timeZone: settings.timeZone,
     },
     stats: {
       totalGlowPoints: profile.totalGlowPoints,

@@ -64,11 +64,13 @@ long-term verse difficulty. Glow Points are the only currency.
 - Phase 20 Hint System is complete and manually accepted. The longer
   Strengthen/Master end-to-end progression scenario is recorded for the final
   regression pass; both UI omission and server-side rejection are implemented.
+- Phase 21 Streak System is complete and manually accepted. A natural
+  next-calendar-day increment remains recorded for the final regression pass.
 
 ## Current Roadmap Position
 
-Phases 0–20 are complete and manually accepted.
-Phase 21 — Streak System is next.
+Phases 0–21 are complete and manually accepted.
+Phase 22 — Badge System is next.
 
 ## Completed Work
 
@@ -117,12 +119,12 @@ Phase 21 — Streak System is next.
 
 ## Current Task
 
-Begin Phase 21 — Streak System.
+Begin Phase 22 — Badge System.
 
 ## Exact Next Task
 
-Implement Phase 21 streak persistence, server-owned consecutive-day updates,
-display treatment, and automated verification.
+Implement Phase 22 badge definitions, event-driven evaluation, collection UI,
+and Glow Point rewards.
 
 ## Important Decisions
 
@@ -303,6 +305,87 @@ display treatment, and automated verification.
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-28 — Phase 21 Streak System implemented
+
+- Resolved the supporting-document trigger conflict with project-owner approval:
+  the first server-verified mode completion on a learner-local day counts as
+  meaningful streak activity; completing all five modes is not required.
+- Added pure timezone-aware calendar arithmetic with an invalid-zone UTC
+  fallback. Local year/month/day parts are compared independently of elapsed
+  hours so daylight-saving transitions cannot create false gaps.
+- Added a transaction-aware streak repository with a per-user PostgreSQL
+  advisory lock, same-day idempotency, consecutive-day increments, missed-day
+  reset to one, and permanent best-streak retention.
+- Integrated streak updates directly after a correct persisted mode attempt,
+  inside the existing gameplay transaction. Failed, expired, and Admin Test
+  Replay attempts cannot alter streaks.
+- Added a validated IANA timezone preference to learner settings, applied the
+  additive `20260728120000_add_user_timezone` migration, and regenerated Prisma
+  Client. Existing learners safely default to UTC.
+- Added a game-style streak pill to Game Home. Profile & Settings continues to
+  show current and best streak values; Vault integration remains assigned to
+  the Vault roadmap phase.
+- Added focused unit coverage for first activity, same-day replay, consecutive
+  days, missed-day reset, best retention, timezone boundaries, invalid-zone
+  fallback, and learner-facing display text.
+- Replaced the oversized timezone combobox after manual testing showed that its
+  trigger scrolled without presenting a usable popup. The authenticated shell
+  now detects and persists the browser timezone once, refreshes the active view,
+  and Settings exposes a native searchable timezone override. A dedicated
+  configuration flag prevents another device from overwriting either the
+  detected value or a deliberate manual choice.
+- Manual acceptance passed for timezone detection and override, first-day
+  streak creation, same-day idempotency, and streak displays. The project owner
+  will observe the natural next-day increment later; the equivalent consecutive
+  local-day behavior already passes deterministic automated coverage.
+- Reversed the combined mode/streak completion treatment after project-owner
+  review. Standard mode success now remains unchanged and is followed, only
+  when applicable, by a separate learner-controlled Streak Complete screen.
+  The dedicated milestone has space for the animated flame, current count,
+  new-best feedback, and a Share action using the native share sheet with a
+  clipboard fallback.
+- Sequenced all five modes as standard success → optional streak milestone →
+  normal mode/day/waypoint continuation. Admin Test Replay and unchanged
+  same-day streaks skip the new screen.
+- Added independent repeatable Mode Completion and Streak Celebration previews
+  to `/ui-foundation`, both backed by their production components and fixed
+  display-only data.
+- Added the approved named streak ladder: Spark, Kindling, Steady Flame,
+  Beacon, Blaze, Inferno, Supernova, and Eternal Light. Threshold crossings use
+  a larger multi-stage flame surge, three expanding ember rings, and a springing
+  level medallion; ordinary daily streaks retain the calmer motion.
+- Reworked the seven-day strip to match the project owner's intended forecast:
+  it begins at the current streak day, projects the next six learner-local
+  dates, marks an in-range level threshold, and always shows the exact days
+  remaining and projected date for the next named level. The copy explicitly
+  conditions the projection on keeping the streak alive.
+- Added a low-volume synthesized flame ambience with filtered burn noise and
+  intermittent crackles. It obeys the persisted audio preference, needs no
+  unlicensed sample, and tears down its Web Audio graph when the screen closes.
+  Reset celebrations continue to show the preserved previous best and a
+  fresh-start message instead of the new-best card.
+- Expanded `/ui-foundation` streak controls to preview Daily, New level, and
+  Reset states independently. Glow Point rewards for streak milestones remain
+  assigned to Phase 22 badge awards rather than this display layer.
+- Corrected the New Level flame surge after browser testing exposed Motion's
+  two-keyframe limit for spring animations. The five-stage overshoot now uses a
+  timed keyframe transition with matched scale/rotation frames, preserving the
+  approved weighted surge without a runtime exception.
+- Refined the next-level forecast markers after visual review. Today's active
+  streak now uses the custom flame SVG held static with no circular badge; the
+  target uses the standard flame glyph without the former yellow circle/star.
+  When a target is more than six days away, the seventh tile jumps to that
+  projected local date so the next-level flame is always visible.
+- Sequenced Streak Complete audio so its success cue plays immediately on
+  entrance and the burning-flame ambience starts 1.3 seconds later. Closing the
+  screen during that interval cancels the delayed ambience, and both treatments
+  continue to respect the learner's audio preference.
+- The project owner manually accepted the complete expanded streak experience:
+  Daily, New Level, and Reset variants; named-level animation; forward calendar
+  and always-visible target flame; previous-best reset messaging; sharing; and
+  the ordered success/ambience audio treatment. Only the natural next-day
+  increment remains deferred to the final regression pass.
 
 ### 2026-07-27 — Phase 20 Hint System implemented
 

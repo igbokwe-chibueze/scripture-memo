@@ -9,6 +9,7 @@ import { showActionError } from "@/lib/errors/show-action-error";
 import { completeGameModeAction } from "@/features/gameplay/actions/complete-game-mode.action";
 import { ConfettiCelebration } from "@/features/gameplay/components/confetti-celebration";
 import { ModeCompletionScreen } from "@/features/gameplay/components/mode-completion-screen";
+import { StreakCompletionScreen } from "@/features/gameplay/components/streak-completion-screen";
 import { WaypointCompletionScreen } from "@/features/gameplay/components/waypoint-completion-screen";
 import { useAudioFeedback } from "@/features/gameplay/hooks/use-audio-feedback";
 import {
@@ -25,7 +26,10 @@ import {
   getSessionHiddenPercent,
 } from "@/features/gameplay/lib/hidden-word-generator";
 import { tokenizeVerse } from "@/features/gameplay/lib/verse-tokenizer";
-import type { GameModeAttemptData } from "@/features/gameplay/types/game-session.types";
+import type {
+  GameModeAttemptData,
+  StreakCompletionResult,
+} from "@/features/gameplay/types/game-session.types";
 import type { DayRewardResult } from "@/features/rewards/types/reward.types";
 import { cn } from "@/lib/utils";
 import type { DayLevel } from "@/lib/generated/prisma/enums";
@@ -72,6 +76,8 @@ export function FillMode({
   const [inputFeedback, setInputFeedback] = useState<InputFeedback>({});
   const [showConfetti, setShowConfetti] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
+  const [showStreakCompletion, setShowStreakCompletion] = useState(false);
+  const [streak, setStreak] = useState<StreakCompletionResult | null>(null);
   const [showWaypointCompletion, setShowWaypointCompletion] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [earnedReward, setEarnedReward] = useState<DayRewardResult | null>(null);
@@ -176,6 +182,12 @@ export function FillMode({
       playAudio("correct");
 
       const completion = result.data;
+      setStreak(
+        completion?.status === "mode-complete" ||
+          completion?.status === "day-complete"
+          ? completion.streak
+          : null,
+      );
       if (completion?.status === "day-complete") {
         setEarnedReward(completion.dayCompletion.reward);
         toast.success(
@@ -219,6 +231,7 @@ export function FillMode({
     setIsComplete(false);
     setShowConfetti(false);
     setShowCompletion(false);
+    setShowStreakCompletion(false);
     setShowWaypointCompletion(false);
     setEarnedReward(null);
     setWaypointOutcome(null);
@@ -235,12 +248,25 @@ export function FillMode({
           reward={earnedReward}
           onContinue={() => {
             if (isTestReplay) onTestReplayExit?.();
-            else if (waypointOutcome) {
+            else if (streak && streak.status !== "unchanged") {
+              setShowCompletion(false);
+              setShowStreakCompletion(true);
+            } else if (waypointOutcome) {
               setShowCompletion(false);
               setShowWaypointCompletion(true);
             } else onContinue();
           }}
           onReplay={isTestReplay ? replayTestMode : undefined}
+        />
+      )}
+      {showStreakCompletion && streak && (
+        <StreakCompletionScreen
+          streak={streak}
+          onContinue={() => {
+            setShowStreakCompletion(false);
+            if (waypointOutcome) setShowWaypointCompletion(true);
+            else onContinue();
+          }}
         />
       )}
       {showWaypointCompletion && waypointOutcome && (
