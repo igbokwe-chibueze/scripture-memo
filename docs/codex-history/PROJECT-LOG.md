@@ -1,5 +1,22 @@
 # Scripture Memo Project Log
 
+### 2026-07-28 — Trail waypoint shadows removed
+
+- Removed the dark pedestal crescents, oval ground-contact shadows, and lower
+  inset shade from Map A waypoint nodes after visual review.
+- Kept the waypoint control separate from shared buttons, using only its face
+  gradient and scale-based hover/press response.
+
+### 2026-07-28 — Trail waypoint controls separated and grounded
+
+- Extracted Map A's interactive node into a dedicated
+  `TrailWaypointButton`, independent of the shared application Button primitive.
+- Replaced generic floating shadows with status-colored pedestal layers and
+  soft oval ground-contact shadows so nodes appear to rise from the illustrated
+  trail.
+- Added face-only hover and press movement: pressing lowers the face toward its
+  stationary pedestal while preserving the current node's progress treatment.
+
 ### 2026-07-28 — Gameplay menu runtime correction
 
 - Wrapped both dropdown labels and their related items in the Base UI menu group
