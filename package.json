@@ -17,6 +17,7 @@
     "test:rewards": "tsx --test features/rewards/lib/day-reward.test.ts",
     "test:rewards:integration": "tsx --conditions=react-server --test features/rewards/repositories/reward.repository.test.ts",
     "test:hints": "tsx --test features/hints/lib/hint-balance.test.ts",
+    "test:badges": "tsx --test features/badges/data/badge-catalog.test.ts",
     "test:day-selection": "tsx --test features/waypoints/lib/day-selection.test.ts",
     "test:map": "tsx --test features/map/data/map-themes.test.ts features/map/lib/map-positioner.test.ts features/map/lib/map-utils.test.ts features/map/lib/map-variant.test.ts",
     "test:integration": "tsx --conditions=react-server --test features/waypoints/repositories/waypoint.repository.test.ts",

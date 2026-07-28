@@ -245,7 +245,8 @@ export function useAudioFeedback(): (name: AudioFeedbackName) => void {
       name === "drop" ||
       name === "error" ||
       name === "correct" ||
-      name === "waypoint-complete"
+      name === "waypoint-complete" ||
+      name === "badge-unlock"
     ) {
       const AudioContextConstructor = getAudioContextConstructor();
       if (!AudioContextConstructor) return;
@@ -253,7 +254,9 @@ export function useAudioFeedback(): (name: AudioFeedbackName) => void {
         const context = new AudioContextConstructor();
         if (name === "pick" || name === "drop") playInteractionTone(context, name);
         else if (name === "error") playErrorTone(context);
-        else if (name === "waypoint-complete") playBrightFanfare(context);
+        else if (name === "waypoint-complete" || name === "badge-unlock") {
+          playBrightFanfare(context);
+        }
         else playVictorySound(context);
       } catch {
         // WHY: Feedback audio must never interrupt or invalidate gameplay.

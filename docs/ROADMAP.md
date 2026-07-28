@@ -1145,6 +1145,27 @@ marker, success-to-flame audio sequence, and native-share/clipboard behavior.
 
 **Goal:** Implement the complete badge achievement system.
 
+**Implementation status (2026-07-28):** Complete and manually accepted. The
+bootstrap catalogue contains all 27 currently documented badges. Criteria owned
+by later roadmap features (Vault, Fellowships, and Leaderboards) are seeded but
+remain dormant until those trusted events exist. The SUPER_ADMIN manual-award
+flow remains a recorded deferred check until a second test account is available.
+
+**Approved rarity rewards:** Common 50, Uncommon 100, Rare 200, Epic 350, and
+Legendary 500 Glow Points.
+
+Administrators can create and edit badge definitions only against the controlled
+criterion catalogue. Criteria backed by the current server engine may be
+activated immediately. Criteria owned by later features are clearly labeled,
+may be saved for planning, and are forced to remain paused until their trusted
+events exist. Pausing stops future progress and unlocks but never removes an
+already-earned badge or reverses its reward.
+
+An administrator may permanently delete a badge only while its completed unlock
+count is zero. Deletion removes any partial progress in the same transaction and
+writes an audit record. Once any player unlocks a badge, deletion is permanently
+blocked and pausing is the only available retirement control.
+
 ### Tasks
 
 1. Create `features/badges/` with full structure.

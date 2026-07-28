@@ -8,6 +8,7 @@ import type {
 } from "@/lib/generated/prisma/enums";
 import type { CompleteDayResult } from "@/features/progression/types/progression.types";
 import type { DayRewardResult } from "@/features/rewards/types/reward.types";
+import type { BadgeUnlockResult } from "@/features/badges/types/badge.types";
 
 export type StreakCompletionResult = {
   status: "unchanged" | "started" | "increased" | "reset";
@@ -80,6 +81,7 @@ export type CompleteModeResult =
       nextMode: GameMode;
       dayCompletion: null;
       streak: StreakCompletionResult;
+      badgeUnlocks: BadgeUnlockResult[];
     }
   | {
       status: "day-complete";
@@ -87,4 +89,5 @@ export type CompleteModeResult =
       nextMode: null;
       dayCompletion: CompleteDayResult & { reward: DayRewardResult };
       streak: StreakCompletionResult;
+      badgeUnlocks: BadgeUnlockResult[];
     };

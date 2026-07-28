@@ -29,6 +29,7 @@ import type {
   GameplayConflictCode,
   GameplaySessionData,
 } from "@/features/gameplay/types/game-session.types";
+import { evaluateBadgeProgressInTransaction } from "@/features/badges/repositories/badge.repository";
 
 const gameplayTransactionOptions = { maxWait: 10_000, timeout: 60_000 } as const;
 
@@ -469,6 +470,12 @@ export const gameplayRepository = {
       } as const;
       const completedAfterSubmission = [...completedModes, requestedMode];
       const nextMode = getCurrentMode(completedAfterSubmission);
+      const modeBadgeUnlocks = await evaluateBadgeProgressInTransaction(
+        transaction,
+        userId,
+        { type: "MODE_COMPLETED", currentStreak: streak.currentStreak },
+        completedAt,
+      );
       if (nextMode) {
         return {
           status: "mode-complete",
@@ -476,6 +483,7 @@ export const gameplayRepository = {
           nextMode,
           dayCompletion: null,
           streak: streakResult,
+          badgeUnlocks: modeBadgeUnlocks,
         };
       }
 
@@ -496,12 +504,28 @@ export const gameplayRepository = {
         where: { id: sessionId },
         data: { status: CompletionStatus.COMPLETED, completedAt },
       });
+      const dayBadgeUnlocks = await evaluateBadgeProgressInTransaction(
+        transaction,
+        userId,
+        { type: "DAY_COMPLETED" },
+        completedAt,
+      );
+      const finalReward =
+        dayBadgeUnlocks.length > 0
+          ? {
+              ...reward,
+              balance:
+                dayBadgeUnlocks[dayBadgeUnlocks.length - 1]?.balance ??
+                reward.balance,
+            }
+          : reward;
       return {
         status: "day-complete",
         gameMode: requestedMode,
         nextMode: null,
-        dayCompletion: { ...dayCompletion, reward },
+        dayCompletion: { ...dayCompletion, reward: finalReward },
         streak: streakResult,
+        badgeUnlocks: [...modeBadgeUnlocks, ...dayBadgeUnlocks],
       };
     }, gameplayTransactionOptions);
   },

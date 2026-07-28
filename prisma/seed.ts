@@ -24,6 +24,10 @@ import {
   seedWaypointPlaceholders,
 } from "@/features/waypoints/repositories/waypoint-seed.repository";
 import type { WaypointSeedData } from "@/features/waypoints/types/waypoint.types";
+import {
+  disconnectBadgeSeedRepository,
+  seedBadgeCatalog,
+} from "@/features/badges/repositories/badge-seed.repository";
 
 const WAYPOINT_COUNT = 220;
 
@@ -38,9 +42,12 @@ function buildWaypointPlaceholders(): WaypointSeedData[] {
 
 /** Runs the idempotent waypoint seed and reports only aggregate, non-sensitive output. */
 async function main(): Promise<void> {
-  const insertedCount = await seedWaypointPlaceholders(buildWaypointPlaceholders());
+  const [insertedCount, synchronizedBadges] = await Promise.all([
+    seedWaypointPlaceholders(buildWaypointPlaceholders()),
+    seedBadgeCatalog(),
+  ]);
   process.stdout.write(
-    `Waypoint seed complete: inserted ${insertedCount}; preserved ${WAYPOINT_COUNT - insertedCount}.\n`,
+    `Seed complete: inserted ${insertedCount} waypoints and synchronized ${synchronizedBadges} badges; preserved existing progress.\n`,
   );
 }
 
@@ -60,7 +67,10 @@ async function runSeed(): Promise<void> {
     process.stderr.write(`Waypoint seed failed (${errorCode}): ${message}\n`);
     process.exitCode = 1;
   } finally {
-    await disconnectWaypointSeedRepository();
+    await Promise.all([
+      disconnectWaypointSeedRepository(),
+      disconnectBadgeSeedRepository(),
+    ]);
   }
 }
 
