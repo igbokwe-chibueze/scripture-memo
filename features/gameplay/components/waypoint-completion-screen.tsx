@@ -119,7 +119,7 @@ export function WaypointCompletionScreen({
     timers.push(
       window.setTimeout(
         () => playAudio("waypoint-complete"),
-        shouldReduceMotion ? 0 : 1_700,
+        0,
       ),
     );
     timers.push(

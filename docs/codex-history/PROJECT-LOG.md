@@ -362,6 +362,9 @@ System.
 - Added a half-second pause between the Total Balance card settling and its
   count-up, then changed the final-value emphasis to three enlarge-and-settle
   pulses.
+- Moved the waypoint-complete fanfare to the start of the milestone entrance so
+  it is always the first sound, before the individual flame and card-impact
+  cues.
 
 ### 2026-07-26 — Phase 19 Glow Points and Rewards implemented
 
