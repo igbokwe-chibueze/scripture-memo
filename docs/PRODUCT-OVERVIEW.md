@@ -1079,6 +1079,27 @@ Badge progress is always calculated automatically by the badge engine. Admins sh
 
 ## 15. Feature Pages and Navigation
 
+### 15.0 Game Experience Direction
+
+Scripture Memo is a game, not a conventional web application with game features
+attached. Every player-facing screen, page, transition, and interaction must
+reinforce that identity through immersive composition, tactile controls, strong
+progress feedback, responsive motion, purposeful audio, and satisfying
+celebration. Generic dashboard cards, plain form flows, and default component
+library styling are foundations only—not finished player experiences.
+
+The visual treatment should remain calm, devotional, readable, accessible, and
+mobile-first while still feeling polished and alive. Desktop layouts expand the
+same game world rather than converting it into a SaaS dashboard. Administrative
+surfaces may prioritize operational clarity, but should remain visually
+consistent with the product and provide previews for player-facing experiences.
+
+Buttons and equivalent tactile controls must communicate physical response:
+hover-capable devices receive a subtle lift and stronger depth, while pointer
+and touch activation visibly press the control toward the surface. Disabled
+controls remain still, keyboard focus remains explicit, and reduced-motion
+preferences remove transform-based feedback without weakening usability.
+
 ### 15.1 Game Home
 
 The landing page after login. Shows:

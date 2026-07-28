@@ -46,6 +46,8 @@ import type {
   StreakCompletionResult,
 } from "@/features/gameplay/types/game-session.types";
 import type { DayLevel } from "@/lib/generated/prisma/enums";
+import { DRAG_OVERLAY_TILE_BEVEL } from "@/features/gameplay/constants/draggable-tile-styles";
+import { cn } from "@/lib/utils";
 
 type SlotFeedback = Readonly<Record<number, "correct" | "incorrect">>;
 
@@ -295,7 +297,10 @@ export function DragDropMode({
           >
             {tokens.map((token) =>
               hiddenTokenSet.has(token.index) ? (
-                <span key={token.index} className="mx-0.5 inline-flex items-center">
+                <span
+                  key={token.index}
+                  className="mx-1 my-1.5 inline-flex items-center align-middle"
+                >
                   {token.leadingPunctuation}
                   <BlankSlot
                     slotIndex={token.index}
@@ -376,7 +381,12 @@ export function DragDropMode({
         </section>
         <DragOverlay>
           {activeDragTokenIndex === null ? null : (
-            <span className="rounded-xl border border-amber-300 bg-amber-300 px-3 py-2 font-bold text-slate-950 shadow-2xl">
+            <span
+              className={cn(
+                "rounded-xl px-3 py-2 font-bold",
+                DRAG_OVERLAY_TILE_BEVEL,
+              )}
+            >
               {tokens[activeDragTokenIndex]?.wordText}
             </span>
           )}

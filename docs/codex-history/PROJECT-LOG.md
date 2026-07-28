@@ -1,5 +1,28 @@
 # Scripture Memo Project Log
 
+### 2026-07-28 — Interactive sentence spacing hardened
+
+- Added explicit horizontal and vertical margins around every interactive token
+  in Fill, Swap, Cue, and Drag & Drop sentence flows.
+- Consecutive blanks and movable words now retain separation when adjacent and
+  when wrapping onto a new line, without breaking the verse's sentence layout.
+
+### 2026-07-28 — Drag overflow corrected
+
+- Stopped translating the original bank tile while its dedicated drag overlay
+  follows the pointer.
+- This prevents transformed source tiles from expanding the word or phrase
+  bank's scrollable overflow area and exposing scrollbars during dragging.
+- The original tile remains dimmed in place until the drag ends, preserving a
+  clear indication of where the game piece came from.
+
+### 2026-07-28 — Draggable tile depth simplified
+
+- Removed every inset and displaced shadow, including the remaining light bevel
+  strip, from selected, unselected, and pointer-following word-bank pieces.
+- Retained only scale-based Z-axis hover and press movement; selection is now
+  communicated solely through color and border changes.
+
 **Last updated:** 2026-07-28
 **Purpose:** Concise continuity backup and current-status summary for Codex
 development sessions.
@@ -131,6 +154,40 @@ implement the private progress archive and mastered-verse replay flow.
 
 ## Important Decisions
 
+- Scripture Memo is fundamentally a game, not a regular web application.
+  Player-facing screens, pages, transitions, controls, feedback, audio, and
+  celebrations must feel intentionally game-like, immersive, tactile, and
+  mobile-first rather than resembling a generic dashboard. This is a continuing
+  design requirement for every remaining phase.
+- Shared buttons use a consistent tactile interaction language: subtle hover
+  lift and depth, visible press-down translation and compression, still disabled
+  states, clear keyboard focus, and transform-free reduced-motion behavior.
+- Standard buttons now render as weighted game controls with a persistent
+  four-pixel lower edge and ambient shadow. Hover increases the perceived depth;
+  pressing moves the face downward and collapses the edge to one pixel. Ghost
+  and link treatments remain intentionally lighter.
+- Dark-theme weighted buttons use a subtle light lower rim above a stronger
+  dark ambient shadow, preserving the same obvious physical depth visible
+  against light surfaces without flattening into the dark background.
+- Replaced the generic global/protected route spinner with a theme-aware game
+  transition: the animated Scripture Memo flame, ambient embers, a tactile
+  trail-progress card, game-world loading language, and complete reduced-motion
+  behavior. Feature-specific layout skeletons remain in place where useful.
+- Added an exact full-screen loading-transition launcher to `/ui-foundation`.
+  It supports repeated visual testing without network throttling, locks
+  background scrolling, and remains visible until the tester closes it.
+- Word-bank and Puzzle phrase-bank draggable pieces now use a shared top-bevel
+  treatment rather than button-style lower extrusion. Inset highlights, lower
+  face shading, ambient lift, selected amber bevels, and raised drag overlays
+  preserve physical weight in both themes and reduced-motion mode.
+- Refined draggable bevel color after visual review: removed the contrasting
+  white highlight and derived each depth layer from a darker shade of the
+  piece's own violet or selected amber surface.
+- Reworked only the unselected draggable treatment after further review. Its
+  depth is now a dark four-sided inset bevel contained within the tile face,
+  with a centered ambient halo and scale-based Z-axis hover response rather
+  than a light layer displaced below it. The accepted amber selected treatment
+  remains unchanged.
 - Player-accessible replay from completed map challenge cards is deferred to
   Post-Roadmap Extras. It will use individual mode selection, remain
   non-progressing and reward-free by default, and coexist with organized Vault
