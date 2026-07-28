@@ -662,20 +662,22 @@ cue on failed Check, and a randomized victory-pool sound on full success.
 
 ### 10.3 Game Mode 2 — Puzzle
 
-**Concept:** Instead of individual words, the verse is broken into phrase chunks of 3–6 words. Users arrange the phrase chunks in correct order.
+**Concept:** Instead of individual words, the verse is broken into balanced
+phrase chunks of normally 2–4 words. Users arrange the phrase chunks in correct
+order.
 
 **Interaction:**
 - Same drag/tap mechanics as Drag & Drop but operating on phrase tiles instead of single words.
 - The verse remains one flowing sentence: visible phrases and inline phrase
   blanks share the same verse area and wrap naturally across screen sizes.
 - Phrase bank shows shuffled phrase chunks.
-- Difficulty scaling: Day 1 removes 20–35% of phrases; Day 2 removes 40–60%; Day 3 removes 70–100%.
-- Short-verse testing exception: when a verse has six words or fewer, Puzzle
-  may use chunks smaller than three words so the exercise never collapses into
-  one trivial tile. Glimmer creates up to two chunks and moves one; Glow creates
-  up to three chunks and moves at least two; Radiance creates up to three chunks
-  and moves all of them. Longer verses retain the normal 3–6-word chunks and
-  percentage ranges.
+- Difficulty scaling retains the standard percentage ranges, with useful
+  minimums: Glimmer removes at least two phrases, Glow at least three, and
+  Radiance removes all available phrases. Counts clamp to the number of phrases
+  when a very short verse cannot supply the desired minimum.
+- Four- and five-word verses produce two balanced chunks. Verses of six or more
+  words target at least three chunks. The generator avoids one-word fragments
+  whenever the verse length permits.
 - Phrase tiles are visually larger and more distinct than individual word tiles.
 - On all correct: confetti, success toast, Continue button.
 

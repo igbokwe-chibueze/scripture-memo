@@ -66,7 +66,7 @@ test("day difficulty percentage is stable and remains within its product range",
   assert.equal(first >= 20 && first <= 35, true);
 });
 
-test("phrase boundaries remain deterministic and avoid tiny trailing chunks", () => {
+test("phrase boundaries remain deterministic and balanced without trailing orphans", () => {
   const tokens = tokenizeVerse(
     "one two three four five six seven eight nine ten eleven twelve thirteen fourteen",
   );
@@ -76,19 +76,56 @@ test("phrase boundaries remain deterministic and avoid tiny trailing chunks", ()
   assert.deepEqual(first, retry);
   assert.equal(first.every((phrase) => {
     const size = phrase.endTokenIndex - phrase.startTokenIndex + 1;
-    return size >= 3 && size <= 6;
+    return size >= 2 && size <= 4;
   }), true);
+  assert.equal(first.length, 5);
 });
 
-test("short Puzzle verses gain day-specific chunks instead of one trivial tile", () => {
+test("short Puzzle verses use the most useful balanced count their length permits", () => {
   const tokens = tokenizeVerse("Love is patient and kind");
   const glimmer = generateVersePhrases(tokens, "short-verse", "GLIMMER");
   const glow = generateVersePhrases(tokens, "short-verse", "GLOW");
   const radiance = generateVersePhrases(tokens, "short-verse", "RADIANCE");
 
-  assert.deepEqual(glimmer.map(({ text }) => text), ["Love is patient", "and kind"]);
-  assert.deepEqual(glow.map(({ text }) => text), ["Love is", "patient", "and kind"]);
-  assert.deepEqual(radiance, glow);
+  assert.equal(glimmer.length, 2);
+  assert.equal(glow.length, 2);
+  assert.equal(radiance.length, 2);
+  for (const phrases of [glimmer, glow, radiance]) {
+    assert.deepEqual(
+      phrases.flatMap(({ text }) => text.split(" ")),
+      ["Love", "is", "patient", "and", "kind"],
+    );
+    assert.equal(
+      phrases.every((phrase) => {
+        const size = phrase.endTokenIndex - phrase.startTokenIndex + 1;
+        return size >= 2 && size <= 3;
+      }),
+      true,
+    );
+  }
+});
+
+test("medium Puzzle verses produce at least three readable pieces", () => {
+  const nineWords = generateVersePhrases(
+    tokenizeVerse("one two three four five six seven eight nine"),
+    "nine-word-verse",
+    "GLIMMER",
+  );
+  const tenWords = generateVersePhrases(
+    tokenizeVerse("one two three four five six seven eight nine ten"),
+    "ten-word-verse",
+    "GLOW",
+  );
+
+  assert.equal(nineWords.length, 3);
+  assert.equal(tenWords.length, 3);
+  assert.equal(
+    [...nineWords, ...tenWords].every((phrase) => {
+      const size = phrase.endTokenIndex - phrase.startTokenIndex + 1;
+      return size >= 2 && size <= 4;
+    }),
+    true,
+  );
 });
 
 test("swap generation tracks duplicate words by position and can be restored", () => {

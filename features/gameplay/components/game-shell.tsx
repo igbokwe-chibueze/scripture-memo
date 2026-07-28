@@ -1,18 +1,30 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
+  ChevronDownIcon,
   Clock3Icon,
+  EllipsisVerticalIcon,
+  LogOutIcon,
   PlayIcon,
+  RotateCcwIcon,
   ShieldCheckIcon,
   Volume2Icon,
   VolumeXIcon,
-  XIcon,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { CountdownTimer } from "@/components/shared/countdown-timer";
 import { JourneyStageBadge } from "@/components/shared/journey-stage-badge";
 import { showActionError } from "@/lib/errors/show-action-error";
@@ -67,6 +79,9 @@ export function GameShell({
   const hintsAllowed =
     gameSession.waypoint?.journeyStage === "LEARN" ||
     gameSession.waypoint?.journeyStage === "RECALL";
+  const completedReplayModes = GAME_MODE_ORDER.filter((mode) =>
+    gameSession.completedModes.includes(mode),
+  );
 
   const beginMode = (): void => {
     if (!currentMode) return;
@@ -132,39 +147,61 @@ export function GameShell({
       <section className="mx-auto flex min-h-[calc(100svh-2.5rem)] max-w-3xl flex-col overflow-hidden rounded-[2rem] border border-border bg-card/95 shadow-2xl shadow-foreground/15 dark:border-white/10 dark:bg-slate-900/90 dark:shadow-black/40 sm:min-h-[calc(100svh-4rem)]">
         <header className="border-b border-border px-5 py-5 dark:border-white/10 sm:px-8">
           <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-xs font-black tracking-[0.16em] text-amber-700 uppercase dark:text-amber-300">
+            <div className="min-w-0">
+              <p className="whitespace-nowrap text-xs font-black tracking-[0.12em] text-amber-700 uppercase dark:text-amber-300 sm:tracking-[0.16em]">
                 {gameSession.dayLevel} · Waypoint {gameSession.waypoint?.number}
               </p>
               <h1 className="mt-1 font-heading text-2xl font-black sm:text-3xl">
                 {gameSession.verse.reference}
               </h1>
             </div>
-            <div className="flex items-center gap-1">
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-lg"
-                className="min-h-11 min-w-11 rounded-xl text-foreground hover:bg-muted hover:text-foreground dark:text-white dark:hover:bg-white/10 dark:hover:text-white"
-                aria-label={audioEnabled ? "Mute audio feedback" : "Enable audio feedback"}
-                onClick={toggleAudio}
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-background text-foreground shadow-sm transition hover:bg-muted focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:outline-none dark:border-white/15 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
+                aria-label="Open game menu"
               >
-                {audioEnabled ? <Volume2Icon aria-hidden="true" /> : <VolumeXIcon aria-hidden="true" />}
-              </Button>
-              {gameSession.waypointId && (
-                <Link
-                  href={`/game/waypoints/${gameSession.waypointId}`}
-                  aria-label="Exit gameplay and return to challenge days"
-                  className={buttonVariants({
-                    variant: "ghost",
-                    size: "icon-lg",
-                    className: "min-h-11 min-w-11 rounded-xl text-foreground hover:bg-muted hover:text-foreground dark:text-white dark:hover:bg-white/10 dark:hover:text-white",
-                  })}
-                >
-                  <XIcon aria-hidden="true" />
-                </Link>
-              )}
-            </div>
+                <EllipsisVerticalIcon className="size-5" aria-hidden="true" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="w-64 rounded-xl border border-border p-2 dark:border-white/10"
+              >
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel className="px-2 py-1.5 font-black text-foreground">
+                    Game menu
+                  </DropdownMenuLabel>
+                  <DropdownMenuItem
+                    className="min-h-11 cursor-pointer gap-3 rounded-lg px-3 py-2 font-bold"
+                    onClick={toggleAudio}
+                  >
+                    {audioEnabled ? (
+                      <Volume2Icon aria-hidden="true" />
+                    ) : (
+                      <VolumeXIcon aria-hidden="true" />
+                    )}
+                    Sound
+                    <DropdownMenuShortcut>
+                      {audioEnabled ? "On" : "Off"}
+                    </DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                {gameSession.waypointId && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      variant="destructive"
+                      className="min-h-11 cursor-pointer gap-3 rounded-lg px-3 py-2 font-bold"
+                      onClick={() =>
+                        router.push(`/game/waypoints/${gameSession.waypointId}`)
+                      }
+                    >
+                      <LogOutIcon aria-hidden="true" />
+                      Exit gameplay
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
@@ -197,46 +234,55 @@ export function GameShell({
           </ol>
 
           {isAdmin && gameSession.completedModes.length > 0 && (
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-sky-400/25 bg-sky-100/70 px-3 py-2.5 dark:border-sky-300/20 dark:bg-sky-300/8">
+            <div className="mt-4 flex flex-col items-stretch gap-3 rounded-xl border border-sky-400/25 bg-sky-100/70 p-3 dark:border-sky-300/20 dark:bg-sky-300/8 sm:flex-row sm:items-center sm:justify-between">
               <span className="inline-flex items-center gap-2 text-xs font-bold text-sky-800 dark:text-sky-200">
-                <ShieldCheckIcon className="size-4" aria-hidden="true" />
-                Admin testing · no progress changes
+                <ShieldCheckIcon className="size-4 shrink-0" aria-hidden="true" />
+                {testReplayMode
+                  ? `Testing ${GAME_MODE_LABELS[testReplayMode]} · no progress changes`
+                  : "Admin testing · no progress changes"}
               </span>
-              <div className="flex flex-wrap justify-end gap-1">
-                {testReplayMode ? (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="min-h-9 rounded-lg text-sky-800 hover:bg-sky-200/70 hover:text-sky-950 dark:text-sky-100 dark:hover:bg-sky-300/15 dark:hover:text-white"
-                    onClick={() => setTestReplayMode(null)}
+              {testReplayMode ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="min-h-11 w-full rounded-lg border-sky-500/30 bg-background/70 text-sky-800 hover:bg-sky-200/70 hover:text-sky-950 dark:bg-slate-950/30 dark:text-sky-100 dark:hover:bg-sky-300/15 dark:hover:text-white sm:w-auto"
+                  onClick={() => setTestReplayMode(null)}
+                >
+                  <RotateCcwIcon data-icon="inline-start" aria-hidden="true" />
+                  Return to current mode
+                </Button>
+              ) : (
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-sky-500/30 bg-background/70 px-4 text-sm font-black text-sky-900 transition hover:bg-sky-200/70 focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none dark:bg-slate-950/30 dark:text-sky-100 dark:hover:bg-sky-300/15 sm:w-auto">
+                    <RotateCcwIcon className="size-4" aria-hidden="true" />
+                    Replay completed mode
+                    <ChevronDownIcon className="size-4" aria-hidden="true" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    className="w-64 rounded-xl border border-sky-500/20 p-2"
                   >
-                    Return to current mode
-                  </Button>
-                ) : (
-                  gameSession.completedModes
-                    .filter(
-                      (mode) =>
-                        mode === "DRAG_DROP" ||
-                        mode === "PUZZLE" ||
-                        mode === "SWAP" ||
-                        mode === "CUE" ||
-                        mode === "FILL",
-                    )
-                    .map((mode) => (
-                      <Button
-                        key={mode}
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="min-h-9 rounded-lg text-sky-800 hover:bg-sky-200/70 hover:text-sky-950 dark:text-sky-100 dark:hover:bg-sky-300/15 dark:hover:text-white"
-                        onClick={() => setTestReplayMode(mode)}
-                      >
-                        Test {GAME_MODE_LABELS[mode]} again
-                      </Button>
-                    ))
-                )}
-              </div>
+                    <DropdownMenuGroup>
+                      <DropdownMenuLabel className="px-2 py-1.5 font-black text-foreground">
+                        Choose a completed mode
+                      </DropdownMenuLabel>
+                      {completedReplayModes.map((mode) => (
+                        <DropdownMenuItem
+                          key={mode}
+                          className="min-h-11 cursor-pointer gap-3 rounded-lg px-3 py-2 font-bold"
+                          onClick={() => setTestReplayMode(mode)}
+                        >
+                          <span className="grid size-6 place-items-center rounded-md bg-sky-500/15 text-xs font-black text-sky-700 dark:text-sky-200">
+                            {GAME_MODE_ORDER.indexOf(mode) + 1}
+                          </span>
+                          {GAME_MODE_LABELS[mode]}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </div>
           )}
         </header>

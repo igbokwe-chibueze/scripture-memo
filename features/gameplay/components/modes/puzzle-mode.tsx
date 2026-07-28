@@ -108,16 +108,15 @@ export function PuzzleMode({
   );
   const hiddenPhraseIndexes = useMemo(() => {
     const hiddenPercent = getSessionHiddenPercent(dayLevel, seed);
-    const shortVerseMinimum =
-      tokens.length <= 6
-        ? dayLevel === "GLIMMER"
-          ? 1
-          : dayLevel === "GLOW"
-            ? 2
-            : phrases.length
-        : 1;
-    return generateHiddenPhraseIndexes(phrases, hiddenPercent, seed, shortVerseMinimum);
-  }, [dayLevel, phrases, seed, tokens.length]);
+    const minimumHiddenCount =
+      dayLevel === "RADIANCE" ? phrases.length : dayLevel === "GLOW" ? 3 : 2;
+    return generateHiddenPhraseIndexes(
+      phrases,
+      hiddenPercent,
+      seed,
+      minimumHiddenCount,
+    );
+  }, [dayLevel, phrases, seed]);
   const phraseBankOrder = useMemo(
     () => createPuzzlePhraseBank(hiddenPhraseIndexes, seed),
     [hiddenPhraseIndexes, seed],

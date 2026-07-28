@@ -70,7 +70,7 @@ test("incomplete puzzle reconstruction cannot match the canonical verse", () => 
   );
 });
 
-test("short-verse minimums make Glow and Radiance progressively substantial", () => {
+test("Puzzle minimums keep early days substantial and Radiance fully hidden", () => {
   const phrases = generateVersePhrases(
     tokenizeVerse("Love is patient and kind"),
     "short-boundaries",
@@ -78,11 +78,15 @@ test("short-verse minimums make Glow and Radiance progressively substantial", ()
   );
 
   assert.equal(
-    generateHiddenPhraseIndexes(phrases, 40, "short-glow", 2).length,
-    2,
+    generateHiddenPhraseIndexes(phrases, 25, "short-glimmer", 2).length,
+    Math.min(2, phrases.length),
+  );
+  assert.equal(
+    generateHiddenPhraseIndexes(phrases, 40, "short-glow", 3).length,
+    Math.min(3, phrases.length),
   );
   assert.equal(
     generateHiddenPhraseIndexes(phrases, 70, "short-radiance", phrases.length).length,
-    3,
+    phrases.length,
   );
 });

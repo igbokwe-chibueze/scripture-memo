@@ -1,5 +1,33 @@
 # Scripture Memo Project Log
 
+### 2026-07-28 — Gameplay menu runtime correction
+
+- Wrapped both dropdown labels and their related items in the Base UI menu group
+  context required by the installed component primitives.
+- Replaced the gameplay header's hamburger icon with a compact vertical
+  three-dot action control.
+
+### 2026-07-28 — Gameplay mobile controls consolidated
+
+- Kept the day and complete waypoint label together in the gameplay eyebrow,
+  preventing the waypoint number from dropping onto a separate line.
+- Replaced separate sound and exit icons with one accessible game menu containing
+  labeled Sound and Exit gameplay actions.
+- Replaced the wrapping collection of administrator replay buttons with one
+  ordered replay selector. Active test replays now show only their mode name,
+  no-progress assurance, and a focused Return to current mode action.
+
+### 2026-07-28 — Puzzle phrase balancing revised
+
+- Replaced variable 3–6-word Puzzle chunks with deterministic, balanced
+  2–4-word chunks.
+- Four- and five-word verses now yield two pieces, and verses of six or more
+  words target at least three without creating one-word fragments.
+- Glimmer now hides at least two pieces, Glow at least three, and Radiance all
+  available pieces, with safe clamping for exceptionally short verses.
+- Updated gameplay tests, the product specification, and the Phase 15 roadmap
+  record to make the revised behavior authoritative.
+
 ### 2026-07-28 — Interactive sentence spacing hardened
 
 - Added explicit horizontal and vertical margins around every interactive token
