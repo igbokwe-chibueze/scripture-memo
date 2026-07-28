@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRightIcon, FlameIcon, MapIcon } from "lucide-react";
+import { ArrowRightIcon, MapIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AnimatedFlame } from "@/features/gameplay/components/animated-flame";
 import { useAudioFeedback } from "@/features/gameplay/hooks/use-audio-feedback";
 
 const FLAME_DELAYS_MS = [420, 900, 1_380] as const;
@@ -159,7 +160,7 @@ export function WaypointCompletionScreen({
             {[0, 1, 2].map((flame) => (
               <motion.span
                 key={flame}
-                className="relative grid size-20 transform-gpu place-items-center rounded-full bg-linear-to-br from-amber-300 to-orange-600 text-white shadow-lg shadow-orange-500/20 will-change-transform"
+                className="relative grid size-20 transform-gpu place-items-center drop-shadow-lg will-change-transform"
                 initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.55, y: 12 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={
@@ -191,7 +192,7 @@ export function WaypointCompletionScreen({
                       }}
                     />
                   ))}
-                <FlameIcon className="size-10 fill-current" aria-hidden="true" />
+                <AnimatedFlame reducedMotion={Boolean(shouldReduceMotion)} />
               </motion.span>
             ))}
           </div>

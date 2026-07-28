@@ -750,8 +750,11 @@ caught-up state, the persisted Glow Points earned across that waypoint, and the
 learner's total balance. It plays the waypoint fanfare and returns to the
 refreshed trail map. Glimmer and Glow do not show this second milestone.
 After the screen enters, the three flames pop in sequentially with lightweight
-particles and synchronized sound. The Waypoint Rewards card then drops into
-place, followed by the Total Balance card. Reduced-motion preferences render
+particles and synchronized sound. Each uses a transparent two-layer vector fire
+whose outer silhouette flickers faster than its calmer inner flame, with small
+embers occasionally escaping upward. Reduced-motion users receive the same crisp
+vector flame without continuous movement. The Waypoint Rewards card then drops
+into place, followed by the Total Balance card. Reduced-motion preferences render
 the same information immediately without staged movement or particles.
 After the Total Balance card settles, its number starts at the waypoint reward
 total, counts to the learner's persisted overall balance, and briefly enlarges

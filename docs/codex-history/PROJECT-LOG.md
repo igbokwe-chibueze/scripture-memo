@@ -365,6 +365,15 @@ System.
 - Moved the waypoint-complete fanfare to the start of the milestone entrance so
   it is always the first sound, before the individual flame and card-impact
   cues.
+- Used the supplied 16-frame fire GIF as the visual reference, then replaced
+  the interim raster treatment with a purpose-built transparent animated SVG.
+  Its traced outer and inner silhouettes morph on offset loops with gradient
+  colour and a restrained glow; reduced-motion users see the same vector flame
+  held on its resting shape.
+- Accelerated the vector flame while deliberately making the outer silhouette
+  flicker faster than the inner flame, then added two offset upward ember
+  trajectories. The original reference GIF remains in the project as a retained
+  asset for future use, but the milestone continues to render the SVG.
 
 ### 2026-07-26 — Phase 19 Glow Points and Rewards implemented
 
