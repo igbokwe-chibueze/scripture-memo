@@ -662,20 +662,22 @@ cue on failed Check, and a randomized victory-pool sound on full success.
 
 ### 10.3 Game Mode 2 — Puzzle
 
-**Concept:** Instead of individual words, the verse is broken into phrase chunks of 3–6 words. Users arrange the phrase chunks in correct order.
+**Concept:** Instead of individual words, the verse is broken into balanced
+phrase chunks of normally 2–4 words. Users arrange the phrase chunks in correct
+order.
 
 **Interaction:**
 - Same drag/tap mechanics as Drag & Drop but operating on phrase tiles instead of single words.
 - The verse remains one flowing sentence: visible phrases and inline phrase
   blanks share the same verse area and wrap naturally across screen sizes.
 - Phrase bank shows shuffled phrase chunks.
-- Difficulty scaling: Day 1 removes 20–35% of phrases; Day 2 removes 40–60%; Day 3 removes 70–100%.
-- Short-verse testing exception: when a verse has six words or fewer, Puzzle
-  may use chunks smaller than three words so the exercise never collapses into
-  one trivial tile. Glimmer creates up to two chunks and moves one; Glow creates
-  up to three chunks and moves at least two; Radiance creates up to three chunks
-  and moves all of them. Longer verses retain the normal 3–6-word chunks and
-  percentage ranges.
+- Difficulty scaling retains the standard percentage ranges, with useful
+  minimums: Glimmer removes at least two phrases, Glow at least three, and
+  Radiance removes all available phrases. Counts clamp to the number of phrases
+  when a very short verse cannot supply the desired minimum.
+- Four- and five-word verses produce two balanced chunks. Verses of six or more
+  words target at least three chunks. The generator avoids one-word fragments
+  whenever the verse length permits.
 - Phrase tiles are visually larger and more distinct than individual word tiles.
 - On all correct: confetti, success toast, Continue button.
 
@@ -1078,6 +1080,27 @@ Badge progress is always calculated automatically by the badge engine. Admins sh
 ---
 
 ## 15. Feature Pages and Navigation
+
+### 15.0 Game Experience Direction
+
+Scripture Memo is a game, not a conventional web application with game features
+attached. Every player-facing screen, page, transition, and interaction must
+reinforce that identity through immersive composition, tactile controls, strong
+progress feedback, responsive motion, purposeful audio, and satisfying
+celebration. Generic dashboard cards, plain form flows, and default component
+library styling are foundations only—not finished player experiences.
+
+The visual treatment should remain calm, devotional, readable, accessible, and
+mobile-first while still feeling polished and alive. Desktop layouts expand the
+same game world rather than converting it into a SaaS dashboard. Administrative
+surfaces may prioritize operational clarity, but should remain visually
+consistent with the product and provide previews for player-facing experiences.
+
+Buttons and equivalent tactile controls must communicate physical response:
+hover-capable devices receive a subtle lift and stronger depth, while pointer
+and touch activation visibly press the control toward the surface. Disabled
+controls remain still, keyboard focus remains explicit, and reduced-motion
+preferences remove transform-based feedback without weakening usability.
 
 ### 15.1 Game Home
 

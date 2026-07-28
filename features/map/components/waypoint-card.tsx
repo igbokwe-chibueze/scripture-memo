@@ -14,6 +14,7 @@ import {
   PlayIcon,
 } from "lucide-react";
 import { FlameIndicator } from "@/components/shared/flame-indicator";
+import { TrailWaypointButton } from "@/features/map/components/trail-waypoint-button";
 import type { MapWaypoint } from "@/features/map/types/map.types";
 import { WaypointStatus } from "@/lib/generated/prisma/enums";
 import { cn } from "@/lib/utils";
@@ -85,8 +86,6 @@ export function WaypointCard({
   waypoint: MapWaypoint;
   onSelect: (waypoint: MapWaypoint) => void;
 }): React.ReactNode {
-  const isLocked = waypoint.status === WaypointStatus.LOCKED;
-  const isCompleted = waypoint.status === WaypointStatus.COMPLETED;
   const presentation = statusPresentation[waypoint.status];
   const StatusIcon = presentation.icon;
 
@@ -117,36 +116,17 @@ export function WaypointCard({
           />
         )}
         <WaypointProgressRing count={waypoint.flameCount} />
-        <button
-          type="button"
-          aria-disabled={isLocked}
-          aria-label={`Waypoint ${waypoint.number}, ${presentation.label}, ${waypoint.flameCount} of 3 days complete`}
+        <TrailWaypointButton
+          status={waypoint.status}
+          isCurrent={waypoint.isCurrent}
+          ariaLabel={`Waypoint ${waypoint.number}, ${presentation.label}, ${waypoint.flameCount} of 3 days complete`}
           onClick={() => onSelect(waypoint)}
-          className={cn(
-            "group relative grid size-16 place-items-center rounded-full border-[3px] text-base font-black shadow-[0_5px_0_0_rgb(0_0_0/0.16),0_8px_16px_rgb(0_0_0/0.14)] outline-none transition duration-200 focus-visible:ring-4 focus-visible:ring-ring/50 active:translate-y-1 active:shadow-[0_2px_0_0_rgb(0_0_0/0.16)] sm:size-20 sm:border-4 sm:text-xl sm:shadow-[0_7px_0_0_rgb(0_0_0/0.16),0_12px_22px_rgb(0_0_0/0.14)] sm:active:shadow-[0_3px_0_0_rgb(0_0_0/0.16)] motion-reduce:transition-none",
-            isLocked &&
-              "border-zinc-300 bg-zinc-200 text-zinc-500 shadow-[0_7px_0_0_rgb(113_113_122/0.35),0_12px_20px_rgb(0_0_0/0.08)] dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-300",
-            !isLocked && !isCompleted &&
-              "border-emerald-300 bg-linear-to-b from-emerald-400 to-emerald-600 text-white shadow-[0_7px_0_0_rgb(4_120_87/0.8),0_12px_24px_rgb(16_185_129/0.28)] hover:from-emerald-300 hover:to-emerald-500",
-            isCompleted &&
-              "border-sky-300 bg-linear-to-b from-sky-400 to-sky-600 text-white shadow-[0_7px_0_0_rgb(3_105_161/0.75),0_12px_24px_rgb(14_165_233/0.24)] hover:from-sky-300 hover:to-sky-500",
-            waypoint.status === WaypointStatus.COOLDOWN &&
-              // Cooldown retains a playable base but gets distinct timing color;
-              // class order intentionally lets this override the green gradient.
-              "border-violet-300 from-violet-400 to-violet-600 shadow-[0_7px_0_0_rgb(109_40_217/0.75),0_12px_24px_rgb(139_92_246/0.25)]",
-            waypoint.isCurrent &&
-              "size-18 border-amber-200 ring-3 ring-amber-400/35 sm:size-24 sm:ring-4",
-          )}
         >
           <span className="flex flex-col items-center leading-none">
             <StatusIcon className="mb-0.5 size-4 sm:mb-1 sm:size-5" aria-hidden={true} />
             <span>{waypoint.number}</span>
           </span>
-          <span
-            aria-hidden="true"
-            className="absolute inset-x-3 top-2 h-2 rounded-full bg-white/25 blur-[0.5px]"
-          />
-        </button>
+        </TrailWaypointButton>
       </div>
 
       <div className="mt-2 flex flex-col items-center text-center sm:mt-4">

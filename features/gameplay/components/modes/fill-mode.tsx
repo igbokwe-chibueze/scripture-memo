@@ -333,7 +333,10 @@ export function FillMode({
 
             const feedback = inputFeedback[token.index] ?? null;
             return (
-              <span key={token.index} className="mx-0.5 inline-flex items-center">
+              <span
+                key={token.index}
+                className="mx-1 my-1.5 inline-flex items-center align-middle"
+              >
                 {token.leadingPunctuation}
                 <label
                   className={cn(

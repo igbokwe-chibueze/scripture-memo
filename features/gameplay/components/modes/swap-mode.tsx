@@ -257,7 +257,10 @@ export function SwapMode({
 
             const feedback = positionFeedback[token.position] ?? null;
             return (
-              <span key={token.position} className="mx-0.5 inline-flex items-center">
+              <span
+                key={token.position}
+                className="mx-1 my-1.5 inline-flex items-center align-middle"
+              >
                 {canonicalToken.leadingPunctuation}
                 <button
                   type="button"

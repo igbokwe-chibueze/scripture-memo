@@ -687,7 +687,7 @@ learner can complete Glimmer through real gameplay.
 3. Create `features/gameplay/lib/`:
    - `verse-tokenizer.ts` — splits verse text into word tokens with index positions
    - `hidden-word-generator.ts` — selects which tokens to hide based on percentage; comments must explain the selection algorithm
-   - `phrase-generator.ts` — splits verse into 3–6 word phrase chunks deterministically
+   - `phrase-generator.ts` — splits verses into balanced 2–4-word phrase chunks deterministically
    - `swap-generator.ts` — selects and swaps word tokens by position, not text; handles duplicate words; comments must explain position-based tracking
    - `answer-validator.ts` — normalizes both the user input and the correct answer before comparing; comments must explain why normalization is necessary
 4. Create the game shell (`features/gameplay/components/game-shell.tsx`):
@@ -810,9 +810,10 @@ from restoring an older database theme after a browser-only switch.
 
 ### Implementation Status
 
-**Complete and manually accepted — 2026-07-26.** Puzzle uses stable 3–6-word
-phrase boundaries and applies
-the Glimmer, Glow, and Radiance hidden-percentage ranges at phrase level. Phrase
+**Complete and manually accepted — 2026-07-26; phrase balancing revised
+2026-07-28.** Puzzle uses stable, balanced 2–4-word phrase boundaries and
+applies the Glimmer, Glow, and Radiance hidden-percentage ranges at phrase level.
+Phrase
 occurrences retain their original indexes, so duplicate text remains safe during
 shuffle, placement, feedback, reconstruction, and validation. Mouse, touch,
 keyboard drag, and mobile select-and-tap workflows share one state model.
@@ -823,12 +824,12 @@ server-authoritative ordered-attempt action before confetti, toast feedback, and
 the animated Continue interstitial. Completed Puzzle modes are available to
 administrators through the non-progressing Test Replay controls.
 
-Verses of six words or fewer use the approved short-verse testing exception:
-Glimmer produces up to two chunks and moves one, Glow produces up to three
-smaller chunks and moves at least two, and Radiance moves all available chunks.
-This prevents short test content from producing the same one-tile Puzzle on
-every day. Normal verses continue using deterministic 3–6-word chunks and the
-standard day percentages.
+Four- and five-word verses produce two balanced chunks, while verses of six or
+more words target at least three. Glimmer moves at least two chunks, Glow at
+least three, and Radiance moves every available chunk; all minimums clamp to the
+available phrase count. This prevents medium verses from collapsing into one or
+two oversized movable pieces while avoiding one-word fragments whenever the
+verse length permits.
 
 ---
 

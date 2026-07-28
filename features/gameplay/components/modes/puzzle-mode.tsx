@@ -45,6 +45,8 @@ import type {
   StreakCompletionResult,
 } from "@/features/gameplay/types/game-session.types";
 import type { DayLevel } from "@/lib/generated/prisma/enums";
+import { DRAG_OVERLAY_TILE_BEVEL } from "@/features/gameplay/constants/draggable-tile-styles";
+import { cn } from "@/lib/utils";
 
 type SlotFeedback = Readonly<Record<number, "correct" | "incorrect">>;
 
@@ -106,16 +108,15 @@ export function PuzzleMode({
   );
   const hiddenPhraseIndexes = useMemo(() => {
     const hiddenPercent = getSessionHiddenPercent(dayLevel, seed);
-    const shortVerseMinimum =
-      tokens.length <= 6
-        ? dayLevel === "GLIMMER"
-          ? 1
-          : dayLevel === "GLOW"
-            ? 2
-            : phrases.length
-        : 1;
-    return generateHiddenPhraseIndexes(phrases, hiddenPercent, seed, shortVerseMinimum);
-  }, [dayLevel, phrases, seed, tokens.length]);
+    const minimumHiddenCount =
+      dayLevel === "RADIANCE" ? phrases.length : dayLevel === "GLOW" ? 3 : 2;
+    return generateHiddenPhraseIndexes(
+      phrases,
+      hiddenPercent,
+      seed,
+      minimumHiddenCount,
+    );
+  }, [dayLevel, phrases, seed]);
   const phraseBankOrder = useMemo(
     () => createPuzzlePhraseBank(hiddenPhraseIndexes, seed),
     [hiddenPhraseIndexes, seed],
@@ -398,7 +399,12 @@ export function PuzzleMode({
         </section>
         <DragOverlay>
           {activeDragPhraseIndex === null ? null : (
-            <span className="flex max-w-sm items-center gap-2 rounded-2xl border border-amber-300 bg-amber-300 px-4 py-3 font-bold text-slate-950 shadow-2xl">
+            <span
+              className={cn(
+                "flex max-w-sm items-center gap-2 rounded-2xl px-4 py-3 font-bold",
+                DRAG_OVERLAY_TILE_BEVEL,
+              )}
+            >
               <GripVerticalIcon className="size-5 shrink-0 opacity-60" aria-hidden="true" />
               {phrases[activeDragPhraseIndex]?.text}
             </span>

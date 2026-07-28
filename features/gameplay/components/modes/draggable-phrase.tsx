@@ -1,9 +1,12 @@
 "use client";
 
 import { useDraggable } from "@dnd-kit/core";
-import { CSS } from "@dnd-kit/utilities";
 import { GripVerticalIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  DRAGGABLE_TILE_BEVEL,
+  SELECTED_TILE_BEVEL,
+} from "@/features/gameplay/constants/draggable-tile-styles";
 
 /** Position-identified phrase tile supporting pointer, keyboard, and tap play. */
 export function DraggablePhrase({
@@ -19,7 +22,7 @@ export function DraggablePhrase({
   disabled: boolean;
   onSelect: () => void;
 }): React.ReactNode {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `phrase-${phraseIndex}`,
     disabled,
     data: { phraseIndex },
@@ -29,12 +32,11 @@ export function DraggablePhrase({
     <button
       ref={setNodeRef}
       type="button"
-      style={{ transform: CSS.Translate.toString(transform) }}
       className={cn(
-        "flex min-h-14 w-full touch-none items-center gap-3 rounded-2xl border border-violet-400/35 bg-violet-100 px-4 py-3 text-left font-bold text-violet-950 shadow-sm transition sm:w-auto sm:min-w-56",
-        "hover:border-violet-500/70 hover:bg-violet-200 focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none dark:border-violet-300/30 dark:bg-violet-500/15 dark:text-violet-50 dark:hover:border-violet-300/70 dark:hover:bg-violet-500/25",
-        selected && "border-amber-300 bg-amber-300 text-slate-950 ring-2 ring-amber-300/30",
-        isDragging && "z-20 scale-[1.02] opacity-70 shadow-xl",
+        "flex min-h-14 w-full touch-none items-center gap-3 rounded-2xl border px-4 py-3 text-left font-bold text-violet-950 focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none dark:text-violet-50 sm:w-auto sm:min-w-56",
+        DRAGGABLE_TILE_BEVEL,
+        selected && SELECTED_TILE_BEVEL,
+        isDragging && "z-20 opacity-35",
       )}
       disabled={disabled}
       {...listeners}
