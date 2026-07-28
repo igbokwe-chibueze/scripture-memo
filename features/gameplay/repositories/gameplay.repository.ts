@@ -451,7 +451,22 @@ export const gameplayRepository = {
       // WHY: A streak represents the first meaningful mode completion on a
       // learner-local calendar day. The transaction-owned updater makes later
       // modes idempotent and excludes client claims and non-persisting replays.
-      await updateStreakInTransaction(transaction, userId, completedAt);
+      const streak = await updateStreakInTransaction(
+        transaction,
+        userId,
+        completedAt,
+      );
+      const streakResult = {
+        status: streak.status,
+        currentStreak: streak.currentStreak,
+        bestStreak: streak.bestStreak,
+        isNewBest: streak.isNewBest,
+        previousBestStreak: streak.previousBestStreak,
+        levelName: streak.level.name,
+        reachedNewLevel: streak.reachedNewLevel,
+        forecast: streak.forecast,
+        nextLevel: streak.nextLevel,
+      } as const;
       const completedAfterSubmission = [...completedModes, requestedMode];
       const nextMode = getCurrentMode(completedAfterSubmission);
       if (nextMode) {
@@ -460,6 +475,7 @@ export const gameplayRepository = {
           gameMode: requestedMode,
           nextMode,
           dayCompletion: null,
+          streak: streakResult,
         };
       }
 
@@ -485,6 +501,7 @@ export const gameplayRepository = {
         gameMode: requestedMode,
         nextMode: null,
         dayCompletion: { ...dayCompletion, reward },
+        streak: streakResult,
       };
     }, gameplayTransactionOptions);
   },

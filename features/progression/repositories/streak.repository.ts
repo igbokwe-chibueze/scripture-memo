@@ -2,8 +2,16 @@ import type { Prisma } from "@/lib/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import {
   calculateStreakUpdate,
+  getStreakForecast,
+  type NextStreakLevel,
+  type StreakForecastDay,
   type StreakUpdate,
 } from "@/features/progression/lib/streak-utils";
+
+export type PersistedStreakUpdate = StreakUpdate & {
+  forecast: StreakForecastDay[];
+  nextLevel: NextStreakLevel | null;
+};
 
 /** Serializes streak activity across different concurrent gameplay sessions. */
 async function lockUserStreak(
@@ -23,7 +31,7 @@ export async function updateStreakInTransaction(
   transaction: Prisma.TransactionClient,
   userId: string,
   activityDate: Date,
-): Promise<StreakUpdate> {
+): Promise<PersistedStreakUpdate> {
   await lockUserStreak(transaction, userId);
   const [streak, settings] = await Promise.all([
     transaction.userStreak.findUnique({ where: { userId } }),
@@ -41,28 +49,41 @@ export async function updateStreakInTransaction(
     activityDate,
     settings?.timeZone ?? "UTC",
   );
-  if (!update.changed) return update;
+  if (update.changed) {
+    await transaction.userStreak.upsert({
+      where: { userId },
+      update: {
+        currentStreak: update.currentStreak,
+        bestStreak: update.bestStreak,
+        lastActiveAt: update.lastActiveAt,
+      },
+      create: {
+        userId,
+        currentStreak: update.currentStreak,
+        bestStreak: update.bestStreak,
+        lastActiveAt: update.lastActiveAt,
+      },
+    });
+  }
 
-  await transaction.userStreak.upsert({
-    where: { userId },
-    update: {
-      currentStreak: update.currentStreak,
-      bestStreak: update.bestStreak,
-      lastActiveAt: update.lastActiveAt,
-    },
-    create: {
-      userId,
-      currentStreak: update.currentStreak,
-      bestStreak: update.bestStreak,
-      lastActiveAt: update.lastActiveAt,
-    },
-  });
-  return update;
+  const forecast = getStreakForecast(
+    activityDate,
+    settings?.timeZone ?? "UTC",
+    update.currentStreak,
+  );
+  return {
+    ...update,
+    forecast: forecast.days,
+    nextLevel: forecast.nextLevel,
+  };
 }
 
 /** Standalone repository facade retained for maintenance and focused tests. */
 export const streakRepository = {
-  async updateStreak(userId: string, activityDate: Date): Promise<StreakUpdate> {
+  async updateStreak(
+    userId: string,
+    activityDate: Date,
+  ): Promise<PersistedStreakUpdate> {
     return prisma.$transaction((transaction) =>
       updateStreakInTransaction(transaction, userId, activityDate),
     );

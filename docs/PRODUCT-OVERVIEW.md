@@ -843,6 +843,26 @@ A streak tracks the number of consecutive days on which a user completes at leas
 - Missing a full calendar day resets the streak to zero.
 - The user's current streak and all-time best streak are stored separately.
 - Streaks are displayed on the game home screen, the user profile, and the leaderboard.
+- After the standard mode-completion screen, a separate learner-controlled
+  streak celebration appears only when that completion starts, increments, or
+  resets the learner's local-day streak. It includes native sharing with a
+  clipboard fallback. Same-day completions and Admin Test Replay do not show it.
+- Streak presentation uses named levels: Spark (1–2), Kindling (3–6), Steady
+  Flame (7–13), Beacon (14–29), Blaze (30–59), Inferno (60–99), Supernova
+  (100–364), and Eternal Light (365+). Entering a new level receives a stronger
+  flame surge, expanding ember rings, medallion entrance, and glow emphasis.
+- The streak celebration includes a timezone-derived forward seven-day strip
+  beginning today. It shows the potential streak count for each day, marks the
+  exact next-level day when it falls in view, and always states the remaining
+  days and projected local date. Forecast wording is conditional on maintaining
+  the streak and never claims future progress.
+- A quiet synthesized burning-flame ambience plays only while this screen is
+  visible, respects the persisted audio preference, and stops on dismissal. A
+  success cue plays first; the flame ambience fades in only after that opening
+  cue finishes.
+- A reset celebration preserves and displays the previous best instead of
+  claiming a new personal best. One-time Glow Point milestone rewards remain
+  owned by the Badge System and must not be awarded directly by streak display.
 
 ---
 

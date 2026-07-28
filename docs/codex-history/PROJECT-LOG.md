@@ -339,6 +339,53 @@ and Glow Point rewards.
   streak creation, same-day idempotency, and streak displays. The project owner
   will observe the natural next-day increment later; the equivalent consecutive
   local-day behavior already passes deterministic automated coverage.
+- Reversed the combined mode/streak completion treatment after project-owner
+  review. Standard mode success now remains unchanged and is followed, only
+  when applicable, by a separate learner-controlled Streak Complete screen.
+  The dedicated milestone has space for the animated flame, current count,
+  new-best feedback, and a Share action using the native share sheet with a
+  clipboard fallback.
+- Sequenced all five modes as standard success → optional streak milestone →
+  normal mode/day/waypoint continuation. Admin Test Replay and unchanged
+  same-day streaks skip the new screen.
+- Added independent repeatable Mode Completion and Streak Celebration previews
+  to `/ui-foundation`, both backed by their production components and fixed
+  display-only data.
+- Added the approved named streak ladder: Spark, Kindling, Steady Flame,
+  Beacon, Blaze, Inferno, Supernova, and Eternal Light. Threshold crossings use
+  a larger multi-stage flame surge, three expanding ember rings, and a springing
+  level medallion; ordinary daily streaks retain the calmer motion.
+- Reworked the seven-day strip to match the project owner's intended forecast:
+  it begins at the current streak day, projects the next six learner-local
+  dates, marks an in-range level threshold, and always shows the exact days
+  remaining and projected date for the next named level. The copy explicitly
+  conditions the projection on keeping the streak alive.
+- Added a low-volume synthesized flame ambience with filtered burn noise and
+  intermittent crackles. It obeys the persisted audio preference, needs no
+  unlicensed sample, and tears down its Web Audio graph when the screen closes.
+  Reset celebrations continue to show the preserved previous best and a
+  fresh-start message instead of the new-best card.
+- Expanded `/ui-foundation` streak controls to preview Daily, New level, and
+  Reset states independently. Glow Point rewards for streak milestones remain
+  assigned to Phase 22 badge awards rather than this display layer.
+- Corrected the New Level flame surge after browser testing exposed Motion's
+  two-keyframe limit for spring animations. The five-stage overshoot now uses a
+  timed keyframe transition with matched scale/rotation frames, preserving the
+  approved weighted surge without a runtime exception.
+- Refined the next-level forecast markers after visual review. Today's active
+  streak now uses the custom flame SVG held static with no circular badge; the
+  target uses the standard flame glyph without the former yellow circle/star.
+  When a target is more than six days away, the seventh tile jumps to that
+  projected local date so the next-level flame is always visible.
+- Sequenced Streak Complete audio so its success cue plays immediately on
+  entrance and the burning-flame ambience starts 1.3 seconds later. Closing the
+  screen during that interval cancels the delayed ambience, and both treatments
+  continue to respect the learner's audio preference.
+- The project owner manually accepted the complete expanded streak experience:
+  Daily, New Level, and Reset variants; named-level animation; forward calendar
+  and always-visible target flame; previous-best reset messaging; sharing; and
+  the ordered success/ambience audio treatment. Only the natural next-day
+  increment remains deferred to the final regression pass.
 
 ### 2026-07-27 — Phase 20 Hint System implemented
 

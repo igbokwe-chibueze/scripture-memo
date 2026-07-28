@@ -1114,6 +1114,20 @@ remain visible on Profile & Settings; the fuller Vault surface remains owned by
 its dedicated roadmap phase. The protected shell automatically detects and
 persists the browser's IANA timezone once, while Settings provides a validated
 manual override without allowing a later device to replace that choice.
+The transaction-owned streak outcome drives a separate celebration after the
+standard mode-completion dialog only for started, increased, or reset streaks.
+The milestone includes native sharing with a clipboard fallback. Standard mode
+success and streak celebration are independently repeatable in
+`/ui-foundation`; unchanged same-day completions and Admin Test Replay skip the
+streak milestone.
+Named streak levels range from Spark through Eternal Light. Crossing a level
+threshold adds a stronger flame surge, expanding ember rings, and medallion
+entrance. The screen also renders a server-derived forward seven-day level
+forecast, exact days remaining, and projected learner-local milestone date.
+It plays a synthesized burning-flame ambience while visible when audio is
+enabled. After a reset, it replaces new-best treatment with the preserved
+previous best. Any one-time Glow Point milestone rewards remain deferred to
+Phase 22's idempotent badge-award transaction.
 
 **Acceptance note:** The project owner verified automatic timezone detection,
 manual timezone changes, first-day streak creation, same-day idempotency, and
@@ -1121,6 +1135,9 @@ the learner-facing displays. Observing a natural next-calendar-day increment is
 deferred to the final regression pass because it requires waiting; deterministic
 tests already cover consecutive local days, timezone boundaries, missed-day
 reset, and best-streak retention.
+The project owner also manually accepted the separate Daily, New Level, and
+Reset celebration states, forward next-level forecast, always-visible target
+marker, success-to-flame audio sequence, and native-share/clipboard behavior.
 
 ---
 

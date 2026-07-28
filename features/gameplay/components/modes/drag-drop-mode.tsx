@@ -24,6 +24,7 @@ import { BlankSlot } from "@/features/gameplay/components/modes/blank-slot";
 import { WordBank } from "@/features/gameplay/components/modes/word-bank";
 import { ConfettiCelebration } from "@/features/gameplay/components/confetti-celebration";
 import { ModeCompletionScreen } from "@/features/gameplay/components/mode-completion-screen";
+import { StreakCompletionScreen } from "@/features/gameplay/components/streak-completion-screen";
 import { useAudioFeedback } from "@/features/gameplay/hooks/use-audio-feedback";
 import {
   createDragDropWordBank,
@@ -38,7 +39,10 @@ import {
   getSessionHiddenPercent,
 } from "@/features/gameplay/lib/hidden-word-generator";
 import { tokenizeVerse } from "@/features/gameplay/lib/verse-tokenizer";
-import type { GameModeAttemptData } from "@/features/gameplay/types/game-session.types";
+import type {
+  GameModeAttemptData,
+  StreakCompletionResult,
+} from "@/features/gameplay/types/game-session.types";
 import type { DayLevel } from "@/lib/generated/prisma/enums";
 
 type SlotFeedback = Readonly<Record<number, "correct" | "incorrect">>;
@@ -87,6 +91,8 @@ export function DragDropMode({
   const [slotFeedback, setSlotFeedback] = useState<SlotFeedback>({});
   const [showConfetti, setShowConfetti] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
+  const [showStreakCompletion, setShowStreakCompletion] = useState(false);
+  const [streak, setStreak] = useState<StreakCompletionResult | null>(null);
   const [isComplete, setIsComplete] = useState(false);
   const [isPending, startTransition] = useTransition();
   const seed = `${sessionId}:DRAG_DROP`;
@@ -184,6 +190,12 @@ export function DragDropMode({
         return;
       }
 
+      setStreak(
+        result.data?.status === "mode-complete" ||
+          result.data?.status === "day-complete"
+          ? result.data.streak
+          : null,
+      );
       setIsComplete(true);
       setShowConfetti(true);
       setShowCompletion(true);
@@ -216,10 +228,16 @@ export function DragDropMode({
           isTestReplay={isTestReplay}
           onContinue={() => {
             if (isTestReplay) onTestReplayExit?.();
-            else onContinue();
+            else if (streak && streak.status !== "unchanged") {
+              setShowCompletion(false);
+              setShowStreakCompletion(true);
+            } else onContinue();
           }}
           onReplay={isTestReplay ? replayTestMode : undefined}
         />
+      )}
+      {showStreakCompletion && streak && (
+        <StreakCompletionScreen streak={streak} onContinue={onContinue} />
       )}
       <DndContext
         id={`drag-drop-${attempt?.id ?? `test-${sessionId}`}`}

@@ -9,6 +9,7 @@ import { showActionError } from "@/lib/errors/show-action-error";
 import { completeGameModeAction } from "@/features/gameplay/actions/complete-game-mode.action";
 import { ConfettiCelebration } from "@/features/gameplay/components/confetti-celebration";
 import { ModeCompletionScreen } from "@/features/gameplay/components/mode-completion-screen";
+import { StreakCompletionScreen } from "@/features/gameplay/components/streak-completion-screen";
 import { useAudioFeedback } from "@/features/gameplay/hooks/use-audio-feedback";
 import { getSessionHiddenPercent } from "@/features/gameplay/lib/hidden-word-generator";
 import {
@@ -20,7 +21,10 @@ import {
   type SwapToken,
 } from "@/features/gameplay/lib/swap-generator";
 import { tokenizeVerse } from "@/features/gameplay/lib/verse-tokenizer";
-import type { GameModeAttemptData } from "@/features/gameplay/types/game-session.types";
+import type {
+  GameModeAttemptData,
+  StreakCompletionResult,
+} from "@/features/gameplay/types/game-session.types";
 import { cn } from "@/lib/utils";
 import type { DayLevel } from "@/lib/generated/prisma/enums";
 
@@ -66,6 +70,8 @@ export function SwapMode({
   const [positionFeedback, setPositionFeedback] = useState<PositionFeedback>({});
   const [showConfetti, setShowConfetti] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
+  const [showStreakCompletion, setShowStreakCompletion] = useState(false);
+  const [streak, setStreak] = useState<StreakCompletionResult | null>(null);
   const [isComplete, setIsComplete] = useState(false);
   const [isPending, startTransition] = useTransition();
 
@@ -145,6 +151,12 @@ export function SwapMode({
         return;
       }
 
+      setStreak(
+        result.data?.status === "mode-complete" ||
+          result.data?.status === "day-complete"
+          ? result.data.streak
+          : null,
+      );
       setIsComplete(true);
       setShowConfetti(true);
       setShowCompletion(true);
@@ -177,10 +189,16 @@ export function SwapMode({
           isTestReplay={isTestReplay}
           onContinue={() => {
             if (isTestReplay) onTestReplayExit?.();
-            else onContinue();
+            else if (streak && streak.status !== "unchanged") {
+              setShowCompletion(false);
+              setShowStreakCompletion(true);
+            } else onContinue();
           }}
           onReplay={isTestReplay ? replayTestMode : undefined}
         />
+      )}
+      {showStreakCompletion && streak && (
+        <StreakCompletionScreen streak={streak} onContinue={onContinue} />
       )}
       <section className="w-full max-w-2xl text-left" aria-labelledby="swap-title">
         <div className="text-center">
