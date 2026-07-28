@@ -5,6 +5,8 @@ import { CheckIcon, RotateCcwIcon, ShuffleIcon } from "lucide-react";
 import { toast } from "sonner";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { Button } from "@/components/ui/button";
+import { BadgeUnlockSequence } from "@/features/badges/components/badge-unlock-screen";
+import type { BadgeUnlockResult } from "@/features/badges/types/badge.types";
 import { showActionError } from "@/lib/errors/show-action-error";
 import { completeGameModeAction } from "@/features/gameplay/actions/complete-game-mode.action";
 import { ConfettiCelebration } from "@/features/gameplay/components/confetti-celebration";
@@ -70,6 +72,8 @@ export function SwapMode({
   const [positionFeedback, setPositionFeedback] = useState<PositionFeedback>({});
   const [showConfetti, setShowConfetti] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
+  const [badgeUnlocks, setBadgeUnlocks] = useState<BadgeUnlockResult[]>([]);
+  const [badgeUnlockIndex, setBadgeUnlockIndex] = useState(0);
   const [showStreakCompletion, setShowStreakCompletion] = useState(false);
   const [streak, setStreak] = useState<StreakCompletionResult | null>(null);
   const [isComplete, setIsComplete] = useState(false);
@@ -157,9 +161,16 @@ export function SwapMode({
           ? result.data.streak
           : null,
       );
+      const unlocks =
+        result.data?.status === "mode-complete" ||
+        result.data?.status === "day-complete"
+          ? result.data.badgeUnlocks
+          : [];
+      setBadgeUnlocks(unlocks);
+      setBadgeUnlockIndex(0);
       setIsComplete(true);
       setShowConfetti(true);
-      setShowCompletion(true);
+      setShowCompletion(unlocks.length === 0);
       onCompletionShown();
       playAudio("correct");
       toast.success("Swap complete!", { duration: 4_000 });
@@ -177,11 +188,27 @@ export function SwapMode({
     setIsComplete(false);
     setShowConfetti(false);
     setShowCompletion(false);
+    setBadgeUnlocks([]);
+    setBadgeUnlockIndex(0);
   };
 
   return (
     <>
       <ConfettiCelebration show={showConfetti} />
+      {badgeUnlocks[badgeUnlockIndex] && !showCompletion && (
+        <BadgeUnlockSequence
+          badges={badgeUnlocks}
+          index={badgeUnlockIndex}
+          onAdvance={() => {
+            if (badgeUnlockIndex + 1 < badgeUnlocks.length) {
+              setBadgeUnlockIndex((current) => current + 1);
+            } else {
+              setBadgeUnlocks([]);
+              setShowCompletion(true);
+            }
+          }}
+        />
+      )}
       {showCompletion && (
         <ModeCompletionScreen
           completedMode="SWAP"

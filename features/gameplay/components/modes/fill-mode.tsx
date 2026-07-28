@@ -5,6 +5,8 @@ import { CheckIcon, KeyboardIcon, RotateCcwIcon } from "lucide-react";
 import { toast } from "sonner";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { Button } from "@/components/ui/button";
+import { BadgeUnlockSequence } from "@/features/badges/components/badge-unlock-screen";
+import type { BadgeUnlockResult } from "@/features/badges/types/badge.types";
 import { showActionError } from "@/lib/errors/show-action-error";
 import { completeGameModeAction } from "@/features/gameplay/actions/complete-game-mode.action";
 import { ConfettiCelebration } from "@/features/gameplay/components/confetti-celebration";
@@ -76,6 +78,8 @@ export function FillMode({
   const [inputFeedback, setInputFeedback] = useState<InputFeedback>({});
   const [showConfetti, setShowConfetti] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
+  const [badgeUnlocks, setBadgeUnlocks] = useState<BadgeUnlockResult[]>([]);
+  const [badgeUnlockIndex, setBadgeUnlockIndex] = useState(0);
   const [showStreakCompletion, setShowStreakCompletion] = useState(false);
   const [streak, setStreak] = useState<StreakCompletionResult | null>(null);
   const [showWaypointCompletion, setShowWaypointCompletion] = useState(false);
@@ -182,6 +186,14 @@ export function FillMode({
       playAudio("correct");
 
       const completion = result.data;
+      const unlocks =
+        completion?.status === "mode-complete" ||
+        completion?.status === "day-complete"
+          ? completion.badgeUnlocks
+          : [];
+      setBadgeUnlocks(unlocks);
+      setBadgeUnlockIndex(0);
+      setShowCompletion(unlocks.length === 0);
       setStreak(
         completion?.status === "mode-complete" ||
           completion?.status === "day-complete"
@@ -231,6 +243,8 @@ export function FillMode({
     setIsComplete(false);
     setShowConfetti(false);
     setShowCompletion(false);
+    setBadgeUnlocks([]);
+    setBadgeUnlockIndex(0);
     setShowStreakCompletion(false);
     setShowWaypointCompletion(false);
     setEarnedReward(null);
@@ -240,6 +254,20 @@ export function FillMode({
   return (
     <>
       <ConfettiCelebration show={showConfetti} />
+      {badgeUnlocks[badgeUnlockIndex] && !showCompletion && (
+        <BadgeUnlockSequence
+          badges={badgeUnlocks}
+          index={badgeUnlockIndex}
+          onAdvance={() => {
+            if (badgeUnlockIndex + 1 < badgeUnlocks.length) {
+              setBadgeUnlockIndex((current) => current + 1);
+            } else {
+              setBadgeUnlocks([]);
+              setShowCompletion(true);
+            }
+          }}
+        />
+      )}
       {showCompletion && (
         <ModeCompletionScreen
           completedMode="FILL"

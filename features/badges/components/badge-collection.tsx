@@ -1,0 +1,154 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { CheckIcon, HelpCircleIcon, LockIcon, SparklesIcon } from "lucide-react";
+import type { BadgeCollectionItem } from "@/features/badges/types/badge.types";
+import type { BadgeCategory, BadgeRarity } from "@/lib/generated/prisma/enums";
+import { cn } from "@/lib/utils";
+
+type CollectionFilter = "ALL" | "COMPLETED" | "IN_PROGRESS" | "LOCKED";
+
+const RARITY_RING = {
+  COMMON: "border-slate-300 dark:border-slate-600",
+  UNCOMMON: "border-emerald-400",
+  RARE: "border-sky-400",
+  EPIC: "border-violet-400",
+  LEGENDARY: "border-amber-400 shadow-amber-400/20",
+} as const;
+
+/** Filters the complete player collection without obscuring live progress. */
+export function BadgeCollection({
+  badges,
+}: {
+  badges: BadgeCollectionItem[];
+}): React.ReactNode {
+  const [filter, setFilter] = useState<CollectionFilter>("ALL");
+  const [category, setCategory] = useState<BadgeCategory | "ALL">("ALL");
+  const [rarity, setRarity] = useState<BadgeRarity | "ALL">("ALL");
+  const visibleBadges = useMemo(
+    () =>
+      badges.filter((badge) => {
+        if (category !== "ALL" && badge.category !== category) return false;
+        if (rarity !== "ALL" && badge.rarity !== rarity) return false;
+        if (filter === "ALL") return true;
+        if (filter === "COMPLETED") return badge.status === "COMPLETED";
+        if (filter === "IN_PROGRESS") return badge.status === "IN_PROGRESS";
+        return badge.status === "NOT_STARTED";
+      }),
+    [badges, category, filter, rarity],
+  );
+
+  return (
+    <>
+      <div className="flex gap-2 overflow-x-auto pb-2" aria-label="Badge status filters">
+        {(["ALL", "COMPLETED", "IN_PROGRESS", "LOCKED"] as const).map((option) => (
+          <button
+            key={option}
+            type="button"
+            className={cn(
+              "min-h-11 shrink-0 rounded-full border px-4 text-xs font-black tracking-wide",
+              filter === option
+                ? "border-amber-400 bg-amber-400 text-slate-950"
+                : "border-border bg-card text-muted-foreground",
+            )}
+            aria-pressed={filter === option}
+            onClick={() => setFilter(option)}
+          >
+            {option.replace("_", " ")}
+          </button>
+        ))}
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <label className="grid gap-1 text-xs font-black tracking-wide uppercase">
+          Category
+          <select
+            className="min-h-11 rounded-xl border border-input bg-background px-3 text-sm font-semibold normal-case"
+            value={category}
+            onChange={(event) => setCategory(event.currentTarget.value as BadgeCategory | "ALL")}
+          >
+            <option value="ALL">All categories</option>
+            {["LEARNING", "STREAK", "MASTERY", "INDEPENDENCE", "SPEED", "EXPLORATION"].map((value) => (
+              <option key={value} value={value}>{value}</option>
+            ))}
+          </select>
+        </label>
+        <label className="grid gap-1 text-xs font-black tracking-wide uppercase">
+          Rarity
+          <select
+            className="min-h-11 rounded-xl border border-input bg-background px-3 text-sm font-semibold normal-case"
+            value={rarity}
+            onChange={(event) => setRarity(event.currentTarget.value as BadgeRarity | "ALL")}
+          >
+            <option value="ALL">All rarities</option>
+            {["COMMON", "UNCOMMON", "RARE", "EPIC", "LEGENDARY"].map((value) => (
+              <option key={value} value={value}>{value}</option>
+            ))}
+          </select>
+        </label>
+      </div>
+
+      {visibleBadges.length === 0 ? (
+        <div className="rounded-3xl border border-dashed border-border bg-card p-8 text-center">
+          <SparklesIcon className="mx-auto size-8 text-muted-foreground" aria-hidden="true" />
+          <p className="mt-3 font-black">No badges match this filter yet.</p>
+        </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {visibleBadges.map((badge) => {
+            const unlocked = badge.status === "COMPLETED";
+            const secret = badge.isHidden && !unlocked;
+            const progressPercent = Math.min(
+              100,
+              Math.round((badge.progress / badge.targetValue) * 100),
+            );
+            return (
+              <article
+                key={badge.id}
+                className={cn(
+                  "rounded-3xl border-2 bg-card p-5 shadow-sm",
+                  RARITY_RING[badge.rarity],
+                  unlocked && badge.rarity === "LEGENDARY" && "shadow-xl",
+                )}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <span className="grid size-16 place-items-center rounded-2xl bg-muted text-3xl">
+                    {secret ? <HelpCircleIcon aria-hidden="true" /> : (badge.icon ?? "🏅")}
+                  </span>
+                  <span className="rounded-full bg-muted px-3 py-1 text-[0.65rem] font-black tracking-wider uppercase">
+                    {badge.rarity}
+                  </span>
+                </div>
+                <h2 className="mt-4 font-heading text-xl font-black">
+                  {secret ? "Secret Badge" : badge.name}
+                </h2>
+                <p className="mt-1 min-h-10 text-sm text-muted-foreground">
+                  {secret
+                    ? "Unlock this achievement to discover it."
+                    : badge.description}
+                </p>
+                <div className="mt-4 h-2 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full rounded-full bg-amber-400 transition-[width]"
+                    style={{ width: `${progressPercent}%` }}
+                  />
+                </div>
+                <div className="mt-2 flex items-center justify-between text-xs font-bold text-muted-foreground">
+                  <span>{badge.progress} / {badge.targetValue}</span>
+                  <span className="inline-flex items-center gap-1">
+                    {unlocked ? <CheckIcon className="size-3.5" /> : <LockIcon className="size-3.5" />}
+                    {unlocked ? "Earned" : `+${badge.rewardAmount} Glow`}
+                  </span>
+                </div>
+                {unlocked && badge.unlockedAt && (
+                  <p className="mt-3 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+                    Unlocked {new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(badge.unlockedAt)}
+                  </p>
+                )}
+              </article>
+            );
+          })}
+        </div>
+      )}
+    </>
+  );
+}

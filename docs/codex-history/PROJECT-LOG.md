@@ -1,6 +1,6 @@
 # Scripture Memo Project Log
 
-**Last updated:** 2026-07-27
+**Last updated:** 2026-07-28
 **Purpose:** Concise continuity backup and current-status summary for Codex
 development sessions.
 
@@ -29,8 +29,8 @@ long-term verse difficulty. Glow Points are the only currency.
 
 ## Current Project State
 
-- Branch: `puzzle-mode`.
-- Current committed HEAD at this update: `5a4eeeb`.
+- Branch: `badge-system`.
+- Current committed HEAD at this update: `4cebadf`.
 - Phases 0–9 are complete and manually accepted, including bulk CSV import,
   dynamic verse-list search, and admin pack management.
 - The public landing page and internal UI-foundation preview are implemented.
@@ -66,11 +66,14 @@ long-term verse difficulty. Glow Points are the only currency.
   regression pass; both UI omission and server-side rejection are implemented.
 - Phase 21 Streak System is complete and manually accepted. A natural
   next-calendar-day increment remains recorded for the final regression pass.
+- Phase 22 Badge System is complete and manually accepted. The SUPER_ADMIN
+  manual-award flow remains recorded for later testing when a second account is
+  available.
 
 ## Current Roadmap Position
 
-Phases 0–21 are complete and manually accepted.
-Phase 22 — Badge System is next.
+Phases 0–22 are complete and manually accepted.
+Phase 23 — Vault is next.
 
 ## Completed Work
 
@@ -119,12 +122,12 @@ Phase 22 — Badge System is next.
 
 ## Current Task
 
-Begin Phase 22 — Badge System.
+Begin Phase 23 — Vault.
 
 ## Exact Next Task
 
-Implement Phase 22 badge definitions, event-driven evaluation, collection UI,
-and Glow Point rewards.
+Inspect the Phase 23 Vault requirements and current replay infrastructure, then
+implement the private progress archive and mastered-verse replay flow.
 
 ## Important Decisions
 
@@ -285,10 +288,10 @@ and Glow Point rewards.
 
 ## Outstanding Tasks
 
-- Commit and merge the manually accepted Phase 12 changes.
+- Commit and merge the manually accepted Phase 22 changes.
 - Select an email delivery provider before implementing verification or password
   reset.
-- Phases 13–32 remain pending in roadmap order.
+- Phases 23–32 remain pending in roadmap order.
 - `.env.example` remains absent and is required by the security checklist.
 - Before upgrading to `pg` 9, update the configured database SSL mode explicitly
   to `verify-full` to preserve the current certificate-verification behavior.
@@ -305,6 +308,71 @@ and Glow Point rewards.
   archive of what occurred, not a live instruction source.
 
 ## Dated Session Updates
+
+### 2026-07-28 — Phase 22 accepted
+
+- The project owner confirmed all currently available badge-system manual tests
+  pass.
+- Phase 22 is complete. The only deferred check is SUPER_ADMIN manual awarding,
+  which requires a second test account and remains recorded for the final
+  regression pass.
+- Phase 23 — Vault is next.
+
+### 2026-07-28 — Phase 22 Badge System implemented
+
+- Added and applied migrations
+  `20260728170000_add_badge_criteria_key` and
+  `20260728173000_drop_badge_criteria_default`, then synchronized all 27
+  documented badge definitions without replacing learner progress.
+- Approved rarity rewards are Common 50, Uncommon 100, Rare 200, Epic 350, and
+  Legendary 500 Glow Points. Streak badges use the approved Spark through
+  Eternal Light level names and thresholds.
+- Added server-derived, event-driven badge progress evaluation inside the
+  existing gameplay transaction. Per-user advisory locking, the unique progress
+  constraint, and reward-ledger idempotency prevent duplicate unlock rewards.
+- Assistance-free, accuracy, Journey Stage, timed-stage, mastered-verse, and
+  streak progress are derived from persisted history. Later-feature Vault,
+  Fellowship, and Leaderboard criteria are seeded but dormant until their
+  trusted events are implemented.
+- Added queued Common-through-Legendary unlock celebrations with confetti,
+  synthesized badge audio, Glow reward/balance display, reduced-motion support,
+  scroll locking, and explicit player-controlled dismissal.
+- Added the private `/vault/badges` collection with status, category, and rarity
+  filters, progress, dates, rewards, and repository-level secret-badge masking.
+- Added `/admin/badges` availability controls plus SUPER_ADMIN-only, audited,
+  idempotent manual awards. Administrators can create and edit definitions
+  against controlled criteria, see unlock counts, and cannot activate criteria
+  whose trusted events belong to later roadmap phases.
+- Paused badges no longer receive progress or unlocks, but previously earned
+  instances remain visible permanently in their owners' collections. Future
+  feature definitions were explicitly paused by migration
+  `20260728190000_pause_future_badge_criteria`.
+- Added all five rarity unlock previews to `/ui-foundation`.
+- Added accessible administration tooltips for Target, criterion, category,
+  rarity, and reward. Target is explicitly defined as the server metric value
+  required before the badge unlocks.
+- Corrected opaque badge editor validation feedback. Persisted definitions were
+  verified against the schema, client and server validation remain aligned, and
+  the editor now shows an accessible inline summary, field names, specific
+  correction messages, and invalid-field borders instead of only “Review the
+  badge details.”
+- New administrator-created badges now start paused by default. Added immediate
+  badge-management search across name, description, category, rarity, and
+  criterion, including result count and an empty-search state.
+- Added confirmed badge deletion: administrators may delete only when zero
+  players have unlocked the badge. Partial progress is removed atomically, the
+  deletion is audited, and earned badges remain permanently undeletable.
+- Corrected mobile badge-management card overflow. Action controls use a
+  two-column small-screen grid with Delete on its own row, then return to a
+  three-control layout at wider breakpoints, preserving equal outer margins.
+- Prisma validation/generation, TypeScript, ESLint, badge tests, gameplay tests,
+  streak tests, database migration/seed, and the production build passed.
+- Project-owner manual acceptance passed, including the expanded five-rarity
+  preview, badge collection, responsive management cards, controlled
+  create/edit, search, pause, and deletion flows.
+- The SUPER_ADMIN manual-award flow remains deferred until a second test account
+  exists; its validation, authorization, idempotency, transaction, and audit
+  protections passed automated verification.
 
 ### 2026-07-28 — Phase 21 Streak System implemented
 

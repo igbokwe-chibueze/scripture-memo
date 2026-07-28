@@ -141,13 +141,15 @@ The server and database are the only sources of truth for all security-sensitive
 
 | # | Check | Risk | Status | Notes |
 |---|---|---|---|---|
-| 7.1 | Badge progress is always calculated server-side by the badge engine | 🔴 Critical | ☐ Pending | Client cannot send badge unlock requests |
-| 7.2 | Badge unlock fires exactly once per badge per user — prevented by unique constraint | 🔴 Critical | ☐ Pending | `(userId, badgeId)` must have a unique constraint with `unlocked: true` |
-| 7.3 | Glow Points from badge unlock are awarded through the same reward transaction | 🟠 High | ☐ Pending | Same ledger rules as day completion |
-| 7.4 | Manual badge award (`awardBadgeManuallyAction`) requires SUPER_ADMIN role | 🔴 Critical | ☐ Pending | Role check enforced at action level |
-| 7.5 | Every manual badge award is recorded in `AuditLog` | 🟠 High | ☐ Pending | Accountability for administrative privilege use |
-| 7.6 | Disabled badges cannot be unlocked by players | 🟡 Medium | ☐ Pending | Badge engine checks `isActive` before evaluating |
-| 7.7 | Hidden badges are not revealed in API responses until unlocked | 🟡 Medium | ☐ Pending | Badge name and description omitted for hidden+locked badges |
+| 7.1 | Badge progress is always calculated server-side by the badge engine | 🔴 Critical | ✅ Complete | Absolute metrics are derived from trusted session, waypoint, streak, attempt, and assistance history |
+| 7.2 | Badge unlock fires exactly once per badge per user — prevented by unique constraint | 🔴 Critical | ✅ Complete | Unique `(userId, badgeId)`, advisory locking, and ledger idempotency jointly protect retries |
+| 7.3 | Glow Points from badge unlock are awarded through the same reward transaction | 🟠 High | ✅ Complete | Progress, ledger entry, and profile balance commit atomically with gameplay completion |
+| 7.4 | Manual badge award (`awardBadgeAction`) requires SUPER_ADMIN role | 🔴 Critical | ✅ Complete | Validation, authentication, and role checks run inside the Server Action |
+| 7.5 | Every manual badge award is recorded in `AuditLog` | 🟠 High | ✅ Complete | Grant and actor-linked audit row share one transaction |
+| 7.6 | Disabled badges cannot be unlocked by players | 🟡 Medium | ✅ Complete | Evaluation queries only active badge definitions |
+| 7.7 | Hidden badges are not revealed in API responses until unlocked | 🟡 Medium | ✅ Complete | Repository masks name, slug, description, and icon before client delivery |
+| 7.8 | Administrator-created badges use controlled criteria and audited writes | 🟠 High | ✅ Complete | Unsupported future criteria are forced paused; definition create/edit and status changes write actor-linked audit records |
+| 7.9 | Earned badges cannot be deleted | 🔴 Critical | ✅ Complete | Repository transaction rechecks completed unlock count; unearned deletion removes partial progress and writes an audit record |
 
 ---
 

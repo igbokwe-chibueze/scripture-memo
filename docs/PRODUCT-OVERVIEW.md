@@ -969,6 +969,19 @@ Examples:
 | 🟣 Epic | Purple | Difficult achievements requiring high dedication |
 | 🟡 Legendary | Gold | Highest-level accomplishments representing exceptional commitment |
 
+Badge unlocks award Glow Points by rarity:
+
+| Rarity | Glow Points |
+|---|---:|
+| Common | 50 |
+| Uncommon | 100 |
+| Rare | 200 |
+| Epic | 350 |
+| Legendary | 500 |
+
+These values are server-owned catalogue data. A client never supplies either
+the rarity reward or the balance change.
+
 Higher rarity badges should have increasingly elaborate unlock animations. Legendary badge unlocks receive the most dramatic celebration.
 
 ### 14.5 Hidden Badges
@@ -1046,6 +1059,16 @@ Admin capabilities:
 - Change badge rarity
 - Preview badge icon and unlock animation
 - View badge statistics (how many players have unlocked each badge)
+- Delete a badge only while no player has unlocked it. Any partial progress is
+  removed atomically with the badge and the deletion is audited.
+
+Creation and editing use a controlled criterion catalogue rather than
+administrator-authored executable rules. Criteria with a currently implemented
+trusted server metric may be activated. Definitions for future Vault,
+Fellowship, Leaderboard, or other unavailable events remain paused until their
+owning feature is implemented. Pausing a badge prevents new progress and
+unlocks; players who already earned it retain the badge and its Glow Points
+permanently.
 
 Super Admin additional capabilities:
 - Award a badge manually to a specific user (emergency use only, logged in audit trail)

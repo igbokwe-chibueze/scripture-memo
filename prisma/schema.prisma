@@ -408,6 +408,7 @@ model Badge {
   icon         String?
   category     BadgeCategory
   rarity       BadgeRarity
+  criteriaKey  String
   targetValue  Int
   rewardAmount Int                 @default(0)
   isHidden     Boolean             @default(false)
@@ -419,6 +420,7 @@ model Badge {
   userProgress UserBadgeProgress[]
 
   @@index([category, isActive])
+  @@index([criteriaKey, isActive])
 }
 
 model UserBadgeProgress {
