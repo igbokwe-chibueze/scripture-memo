@@ -5,16 +5,19 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   BookHeartIcon,
+  BookOpenIcon,
   BookOpenCheckIcon,
   FilterIcon,
   HeartIcon,
   MapPinIcon,
   PlayIcon,
+  StickyNoteIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { showActionError } from "@/lib/errors/show-action-error";
+import { cn } from "@/lib/utils";
 import { startVaultReplayAction } from "@/features/vault/actions/start-vault-replay.action";
 import type {
   VaultLibraryData,
@@ -59,7 +62,20 @@ function VerseCard({
           </p>
           <h3 className="mt-1 font-heading text-xl font-black">{verse.reference}</h3>
         </div>
-        {verse.isFavorite && <HeartIcon className="size-5 fill-rose-500 text-rose-500" aria-label="Favorite" />}
+        <div className="flex items-center gap-2">
+          {verse.hasPersonalNote && (
+            <StickyNoteIcon
+              className="size-5 text-violet-500"
+              aria-label="Private note saved"
+            />
+          )}
+          {verse.isFavorite && (
+            <HeartIcon
+              className="size-5 fill-rose-500 text-rose-500"
+              aria-label="Favorite"
+            />
+          )}
+        </div>
       </div>
       <p className="mt-4 line-clamp-3 text-sm leading-6 text-muted-foreground">
         {verse.text}
@@ -69,17 +85,32 @@ function VerseCard({
           {verse.packNames.join(" · ")}
         </p>
       )}
-      {canReplay && (
+      <div className="mt-3 flex flex-wrap gap-1.5" aria-label="Completed Journey Stages">
+        {verse.completedStages.map((stage) => (
+          <span key={stage} className="rounded-full bg-violet-500/10 px-2.5 py-1 text-[0.65rem] font-black tracking-wide text-violet-700 uppercase dark:text-violet-300">
+            {stage}
+          </span>
+        ))}
+      </div>
+      <div className={cn("mt-5 grid gap-2", canReplay && "grid-cols-2")}>
+        <Link
+          href={`/sanctuary/${verse.verseId}`}
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-violet-300/40 bg-background px-3 text-sm font-black hover:bg-violet-50 dark:hover:bg-violet-950/30"
+        >
+          <BookHeartIcon className="size-4" aria-hidden="true" /> Sanctuary
+        </Link>
+        {canReplay && (
         <Button
           type="button"
-          className="mt-5 min-h-11 w-full rounded-xl bg-violet-600 font-black text-white hover:bg-violet-500"
+          className="min-h-11 rounded-xl bg-violet-600 font-black text-white hover:bg-violet-500"
           disabled={isPending}
           onClick={replay}
         >
           <PlayIcon data-icon="inline-start" aria-hidden="true" />
           {isPending ? "Opening…" : "Replay from Vault"}
         </Button>
-      )}
+        )}
+      </div>
     </article>
   );
 }
@@ -102,6 +133,11 @@ export function VaultLibrary({ data }: { data: VaultLibraryData }): React.ReactN
     // The local filters and immutable server payload fully determine this list.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [data.masteredVerses, pack, translation],
+  );
+  const completed = useMemo(
+    () => filterVerses(data.completedVerses),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [data.completedVerses, pack, translation],
   );
   const favorites = useMemo(
     () => filterVerses(data.favoriteVerses),
@@ -144,6 +180,32 @@ export function VaultLibrary({ data }: { data: VaultLibraryData }): React.ReactN
             </select>
           </label>
         </div>
+      </section>
+
+      <section aria-labelledby="completed-heading">
+        <div className="flex items-center gap-3">
+          <BookOpenIcon className="size-7 text-violet-500" aria-hidden="true" />
+          <h2 id="completed-heading" className="font-heading text-2xl font-black">Completed verses</h2>
+        </div>
+        {completed.length > 0 ? (
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            {completed.map((verse) => (
+              <VerseCard
+                key={verse.verseId}
+                verse={verse}
+                canReplay={data.masteredVerses.some((masteredVerse) => masteredVerse.verseId === verse.verseId)}
+              />
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            className="mt-4"
+            variant={data.completedVerses.length ? "default" : "mascot"}
+            icon={data.completedVerses.length ? <BookOpenIcon /> : undefined}
+            title={data.completedVerses.length ? "No completed verses match" : "Completed verses will gather here"}
+            description={data.completedVerses.length ? "Try another filter." : "Kindle all three flames at a waypoint."}
+          />
+        )}
       </section>
 
       <section aria-labelledby="mastered-heading">
@@ -208,7 +270,7 @@ export function VaultLibrary({ data }: { data: VaultLibraryData }): React.ReactN
             variant={data.favoriteVerses.length ? "default" : "mascot"}
             icon={data.favoriteVerses.length ? <HeartIcon /> : undefined}
             title={data.favoriteVerses.length ? "No favorites match these filters" : "No favorite verses yet"}
-            description={data.favoriteVerses.length ? "Try another translation or pack." : "Favorite controls arrive with the Sanctuary in Phase 24."}
+            description={data.favoriteVerses.length ? "Try another translation or pack." : "Favorite verses will appear here."}
           />
         )}
       </section>

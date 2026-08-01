@@ -1161,7 +1161,7 @@ For a selected waypoint:
 
 ### 15.4 Sanctuary (🕊️)
 
-Reflection space shown after completing a day or as a standalone destination.
+Reflection space shown after completing Radiance or as a standalone destination.
 - Full verse displayed with the user's preferred translation
 - Reflection question and study note
 - Private notes: user can write and save a personal note about the verse

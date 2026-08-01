@@ -42,6 +42,8 @@ function mapVerse(
     translations: Array<{ translation: TranslationCode; text: string }>;
     packs: Array<{ pack: { name: string; slug: string } }>;
     favorites: Array<{ userId: string }>;
+    notes: Array<{ content: string }>;
+    waypoints: Array<{ journeyStage: JourneyStage }>;
   },
   preferred: TranslationCode,
 ): VaultVerseItem | null {
@@ -56,6 +58,8 @@ function mapVerse(
     packSlugs: verse.packs.map(({ pack }) => pack.slug),
     packNames: verse.packs.map(({ pack }) => pack.name),
     isFavorite: verse.favorites.length > 0,
+    hasPersonalNote: Boolean(verse.notes[0]?.content.trim()),
+    completedStages: verse.waypoints.map(({ journeyStage }) => journeyStage),
   };
 }
 
@@ -73,6 +77,20 @@ const vaultVerseSelect = (userId: string) => ({
   favorites: {
     where: { userId },
     select: { userId: true },
+  },
+  notes: {
+    where: { userId },
+    select: { content: true },
+    take: 1,
+  },
+  waypoints: {
+    where: {
+      userProgress: {
+        some: { userId, status: WaypointStatus.COMPLETED },
+      },
+    },
+    select: { journeyStage: true },
+    orderBy: { number: "asc" as const },
   },
 }) satisfies Prisma.VerseSelect;
 
@@ -164,19 +182,21 @@ export const vaultRepository = {
       stagesByVerse.set(waypoint.verseId, existing);
     });
 
-    const masteredVerses = [...stagesByVerse.values()]
-      .filter(({ stages }) => hasCompletedEveryJourneyStage(stages))
+    const completedVerses = [...stagesByVerse.values()]
       .flatMap(({ verse }) => {
         const item = mapVerse(verse, preferred);
         return item ? [item] : [];
       })
       .sort((left, right) => left.reference.localeCompare(right.reference));
+    const masteredVerses = completedVerses.filter((verse) =>
+      hasCompletedEveryJourneyStage(new Set(verse.completedStages)),
+    );
     const favoriteVerses = favorites.flatMap(({ verse }) => {
       const item = mapVerse(verse, preferred);
       return item ? [item] : [];
     });
     const packs = new Map<string, string>();
-    [...masteredVerses, ...favoriteVerses].forEach((verse) => {
+    [...completedVerses, ...favoriteVerses].forEach((verse) => {
       verse.packSlugs.forEach((slug, index) => {
         packs.set(slug, verse.packNames[index] ?? slug);
       });
@@ -193,6 +213,7 @@ export const vaultRepository = {
         hintsRemaining: calculateHintBalance(totalHintsUsed),
         totalHintsUsed,
       },
+      completedVerses,
       masteredVerses,
       favoriteVerses,
       inProgressWaypoints: activeProgress.flatMap(({ waypointId, status, waypoint }) =>
@@ -208,7 +229,7 @@ export const vaultRepository = {
           : [],
       ),
       availableTranslations: [...new Set(
-        [...masteredVerses, ...favoriteVerses].flatMap(
+        [...completedVerses, ...favoriteVerses].flatMap(
           ({ availableTranslations }) => availableTranslations,
         ),
       )].sort(),

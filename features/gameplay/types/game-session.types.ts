@@ -51,6 +51,7 @@ export type GameplaySessionData = {
   translation: TranslationCode;
   waypoint: { number: number; journeyStage: JourneyStage } | null;
   verse: {
+    id: string;
     reference: string;
     translationText: string;
   };

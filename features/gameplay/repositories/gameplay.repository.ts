@@ -169,6 +169,7 @@ export const gameplayRepository = {
           waypoint: { select: { number: true, journeyStage: true } },
           verse: {
             select: {
+              id: true,
               reference: true,
               translations: {
                 select: { translation: true, text: true },
@@ -209,6 +210,7 @@ export const gameplayRepository = {
       isVaultReplay: session.isVaultReplay,
       waypoint: session.waypoint,
       verse: {
+        id: session.verse.id,
         reference: session.verse.reference,
         translationText: translation.text,
       },

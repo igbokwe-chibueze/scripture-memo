@@ -1231,6 +1231,7 @@ blocked and pausing is the only available retirement control.
    - Favorite verses section
    - Link to Badge Collection (`/vault/badges`)
    - Filters: by translation, by pack
+   - Completed verses section showing the Journey Stages completed for each verse
 4. Add empty states for each section.
 5. Allow replaying a mastered verse from the Vault (creates a new session without affecting progression).
 
@@ -1244,6 +1245,7 @@ blocked and pausing is the only available retirement control.
 
 **Complete and accepted — 2026-08-01.** The private Vault includes summary
 statistics, mastered verses, active waypoints, favorites, badge navigation,
+completed verse history with Journey Stage markers,
 translation and pack filters, and intentional empty states. Mastery requires
 completed Learn, Recall, Strengthen, and Master waypoint records for the same
 verse.
@@ -1271,14 +1273,21 @@ test learner has not yet mastered one verse across all four Journey Stages.
 2. Show completed verse in full with user's preferred translation.
 3. Display verse reflection and study note.
 4. Build private notes: user can write, save, and edit a personal note for each verse (stored in DB per user per verse).
-5. Favorite toggle: marks/unmarks a verse as favorite, updates `UserProfile`.
+5. Favorite toggle: marks/unmarks a verse through the explicit
+   `UserFavoriteVerse` relation.
 6. Show Sonner toast on note save and favorite toggle.
 7. Accessible from: automatic redirect after Day 3 completion, and as a standalone destination from the Vault.
+
+**Implementation status (2026-08-01):** Complete pending project-owner manual
+acceptance. Access is proven from the authenticated learner's completed waypoint
+history on every read and mutation. The existing `UserVerseNote` and
+`UserFavoriteVerse` constraints required no schema migration.
 
 ### Acceptance Criteria
 
 - Private notes are visible only to the note's owner.
 - Favorite toggles persist correctly.
+
 - Sanctuary is calm and devotional — no game elements visible.
 
 ---
