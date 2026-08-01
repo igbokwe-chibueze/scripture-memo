@@ -47,6 +47,7 @@ export type GameplaySessionData = {
   waypointId: string | null;
   dayLevel: DayLevel | null;
   status: CompletionStatus;
+  isVaultReplay: boolean;
   translation: TranslationCode;
   waypoint: { number: number; journeyStage: JourneyStage } | null;
   verse: {
@@ -80,7 +81,15 @@ export type CompleteModeResult =
       gameMode: GameMode;
       nextMode: GameMode;
       dayCompletion: null;
-      streak: StreakCompletionResult;
+      streak: StreakCompletionResult | null;
+      badgeUnlocks: BadgeUnlockResult[];
+    }
+  | {
+      status: "vault-complete";
+      gameMode: GameMode;
+      nextMode: null;
+      dayCompletion: null;
+      streak: null;
       badgeUnlocks: BadgeUnlockResult[];
     }
   | {

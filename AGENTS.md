@@ -619,6 +619,14 @@ Scripture Memo is a mobile-first game experience, not a conventional dashboard-s
 - Gameplay screens must prioritize the active challenge and minimize dashboard chrome, dense tables, and administrative visual patterns.
 - Progress, streaks, Glow Points, flames, Journey Stages, cooldowns, badges, and completion states must receive strong visual treatment rather than appearing as plain text fields.
 - Shared components must support the visual language of a mobile game; do not accept generic shadcn defaults as the finished product design.
+- Maintain one coherent application color system across every feature. Build
+  pages from the shared semantic theme tokens and established game palette;
+  never introduce an unrelated page-specific palette merely to make a screen
+  look distinctive.
+- Feature identity should come from composition, illustration, iconography, and
+  restrained accent use—not wholesale changes to surfaces, text, controls, or
+  feedback colors. Light and dark themes must remain recognizable variants of
+  the same Scripture Memo visual system.
 - Desktop layouts should expand the game experience without turning it into a conventional SaaS dashboard.
 - Animation, audio, color, and celebration must never compromise accessibility, reduced-motion preferences, readability, or devotional tone.
 

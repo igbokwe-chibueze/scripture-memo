@@ -132,6 +132,17 @@ async function getEventMetricValues(
   if (event.type === "MODE_COMPLETED") {
     return { STREAK_DAYS: event.currentStreak };
   }
+  if (event.type === "VAULT_REPLAY_COMPLETED") {
+    return {
+      VAULT_REPLAYS: await transaction.gameSession.count({
+        where: {
+          userId,
+          isVaultReplay: true,
+          status: CompletionStatus.COMPLETED,
+        },
+      }),
+    };
+  }
   return getDayMetricValues(transaction, userId);
 }
 

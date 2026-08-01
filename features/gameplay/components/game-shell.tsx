@@ -122,6 +122,10 @@ export function GameShell({
     setAttempt(null);
     setCurrentMode(nextMode);
     setIsAwaitingContinue(false);
+    if (!nextMode && gameSession.isVaultReplay) {
+      router.push("/vault");
+      return;
+    }
     if (!nextMode && gameSession.waypointId) {
       router.push(`/game/waypoints/${gameSession.waypointId}`);
       return;
@@ -149,7 +153,9 @@ export function GameShell({
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
               <p className="whitespace-nowrap text-xs font-black tracking-[0.12em] text-amber-700 uppercase dark:text-amber-300 sm:tracking-[0.16em]">
-                {gameSession.dayLevel} · Waypoint {gameSession.waypoint?.number}
+                {gameSession.isVaultReplay
+                  ? "Vault replay · Radiance"
+                  : `${gameSession.dayLevel} · Waypoint ${gameSession.waypoint?.number}`}
               </p>
               <h1 className="mt-1 font-heading text-2xl font-black sm:text-3xl">
                 {gameSession.verse.reference}
@@ -185,14 +191,18 @@ export function GameShell({
                     </DropdownMenuShortcut>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
-                {gameSession.waypointId && (
+                {(gameSession.waypointId || gameSession.isVaultReplay) && (
                   <>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       variant="destructive"
                       className="min-h-11 cursor-pointer gap-3 rounded-lg px-3 py-2 font-bold"
                       onClick={() =>
-                        router.push(`/game/waypoints/${gameSession.waypointId}`)
+                        router.push(
+                          gameSession.isVaultReplay
+                            ? "/vault"
+                            : `/game/waypoints/${gameSession.waypointId}`,
+                        )
                       }
                     >
                       <LogOutIcon aria-hidden="true" />
@@ -353,11 +363,11 @@ export function GameShell({
               onCompletionShown={() => setIsAwaitingContinue(true)}
               onTestReplayExit={exitTestReplay}
             />
-          ) : testReplayMode === "FILL" && gameSession.dayLevel && gameSession.waypoint ? (
+          ) : testReplayMode === "FILL" && gameSession.dayLevel ? (
             <FillMode
               sessionId={gameSession.id}
               dayLevel={gameSession.dayLevel}
-              waypointNumber={gameSession.waypoint.number}
+              waypointNumber={gameSession.waypoint?.number ?? 0}
               verseReference={gameSession.verse.reference}
               verseText={gameSession.verse.translationText}
               attempt={null}
@@ -374,6 +384,7 @@ export function GameShell({
               dayLevel={gameSession.dayLevel}
               verseText={gameSession.verse.translationText}
               attempt={attempt}
+              isVaultReplay={gameSession.isVaultReplay}
               nextMode={GAME_MODE_ORDER[currentModeIndex + 1] ?? null}
               onContinue={() =>
                 continueToMode(GAME_MODE_ORDER[currentModeIndex + 1] ?? null)
@@ -386,6 +397,7 @@ export function GameShell({
               dayLevel={gameSession.dayLevel}
               verseText={gameSession.verse.translationText}
               attempt={attempt}
+              isVaultReplay={gameSession.isVaultReplay}
               nextMode={GAME_MODE_ORDER[currentModeIndex + 1] ?? null}
               onContinue={() =>
                 continueToMode(GAME_MODE_ORDER[currentModeIndex + 1] ?? null)
@@ -398,6 +410,7 @@ export function GameShell({
               dayLevel={gameSession.dayLevel}
               verseText={gameSession.verse.translationText}
               attempt={attempt}
+              isVaultReplay={gameSession.isVaultReplay}
               nextMode={GAME_MODE_ORDER[currentModeIndex + 1] ?? null}
               onContinue={() =>
                 continueToMode(GAME_MODE_ORDER[currentModeIndex + 1] ?? null)
@@ -410,20 +423,22 @@ export function GameShell({
               dayLevel={gameSession.dayLevel}
               verseText={gameSession.verse.translationText}
               attempt={attempt}
+              isVaultReplay={gameSession.isVaultReplay}
               nextMode={GAME_MODE_ORDER[currentModeIndex + 1] ?? null}
               onContinue={() =>
                 continueToMode(GAME_MODE_ORDER[currentModeIndex + 1] ?? null)
               }
               onCompletionShown={() => setIsAwaitingContinue(true)}
             />
-          ) : currentMode === "FILL" && attempt && gameSession.dayLevel && gameSession.waypoint ? (
+          ) : currentMode === "FILL" && attempt && gameSession.dayLevel ? (
             <FillMode
               sessionId={gameSession.id}
               dayLevel={gameSession.dayLevel}
-              waypointNumber={gameSession.waypoint.number}
+              waypointNumber={gameSession.waypoint?.number ?? 0}
               verseReference={gameSession.verse.reference}
               verseText={gameSession.verse.translationText}
               attempt={attempt}
+              isVaultReplay={gameSession.isVaultReplay}
               nextMode={null}
               onContinue={() => continueToMode(null)}
               onWaypointContinue={continueToTrail}

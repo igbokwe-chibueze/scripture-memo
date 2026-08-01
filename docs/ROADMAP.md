@@ -1240,6 +1240,25 @@ blocked and pausing is the only available retirement control.
 - Vault replay does not re-award Glow Points or affect main progression.
 - Replaying a verse from the Vault triggers Vault Explorer badge evaluation.
 
+### Implementation Status
+
+**Complete and accepted — 2026-08-01.** The private Vault includes summary
+statistics, mastered verses, active waypoints, favorites, badge navigation,
+translation and pack filters, and intentional empty states. Mastery requires
+completed Learn, Recall, Strengthen, and Master waypoint records for the same
+verse.
+
+Vault replay uses Radiance content across all five ordered modes with no timer
+and no hints. Session ownership, mastery, mode order, and submitted answers are
+validated server-side. The isolated replay branch writes no campaign progress,
+day reward, streak, hint, or cooldown state. Only terminal replay completion and
+Vault Explorer badge evaluation persist.
+
+**Acceptance note:** The project owner accepted every currently reachable Vault
+flow. The mastered-verse replay manual test does not block phase completion and
+remains explicitly deferred to the Phase 30 regression pass because the current
+test learner has not yet mastered one verse across all four Journey Stages.
+
 ---
 
 ## Phase 24 — Sanctuary
@@ -1418,10 +1437,18 @@ blocked and pausing is the only available retirement control.
 13. **Leaderboard privacy**: View leaderboard as any user → inspect all data → confirm no email addresses are visible.
 14. **Private notes**: User A creates a note → User B logs in → User B cannot access User A's note.
 15. **Mobile gameplay**: Run full mode flow on a mobile device or emulator → confirm tap-to-place works in all applicable modes.
+16. **Vault replay**: After one verse has been completed across Learn, Recall,
+    Strengthen, and Master, replay it from the Vault → confirm all five
+    Radiance-level modes run without a timer or hints, completion returns to the
+    Vault, campaign progression/rewards/streaks/cooldowns remain unchanged, and
+    Vault Explorer progress is evaluated once.
+
+**Deferred test note:** Vault replay remains on the final regression checklist
+until a test learner has mastered the same verse across all four Journey Stages.
 
 ### Acceptance Criteria
 
-- All 15 test flows pass.
+- All 16 test flows pass.
 - No known critical or high security issue remains unresolved.
 
 ---

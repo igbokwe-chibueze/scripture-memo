@@ -1,5 +1,53 @@
 # Scripture Memo Project Log
 
+### 2026-08-01 — Phase 23 completed and accepted
+
+- Marked Phase 23 Vault complete after project-owner acceptance of every
+  currently reachable flow.
+- Kept the mastered-verse replay manual test on the Phase 30 regression list;
+  the missing four-stage mastered test fixture does not block Phase 24.
+
+### 2026-08-01 — Unified game palette made authoritative
+
+- Expanded the root visual-direction rules to require one shared semantic color
+  system across all pages and features.
+- Clarified that feature identity should come from composition, illustration,
+  iconography, and restrained accents rather than unrelated page-level palettes.
+- Required light and dark themes to remain recognizable variants of the same
+  Scripture Memo game identity.
+
+### 2026-08-01 — Vault hint balance made actionable
+
+- Replaced the Vault's primary **Hints used** statistic with **Hints left**,
+  derived from the same persisted hint usage and shared balance calculation used
+  by gameplay.
+- Kept lifetime hint usage as supporting context beneath the remaining balance.
+
+### 2026-08-01 — Vault replay manual test deferred
+
+- Added the complete Vault replay flow to the Phase 30 final regression
+  checklist. It will be tested after a learner has mastered the same verse
+  across Learn, Recall, Strengthen, and Master.
+- The later check covers the five ordered Radiance-level modes, the absence of
+  timers and hints, return navigation, isolation from campaign progression and
+  rewards, and trusted Vault Explorer evaluation.
+
+### 2026-07-28 — Phase 23 Vault implemented
+
+- Added the private `/vault` archive with game-styled summary statistics,
+  mastered verses, in-progress waypoints, favorites, badge navigation, filters,
+  loading treatment, and section-specific empty states.
+- Mastered verse reads and replay starts require the authenticated learner to
+  have completed all four distinct Journey Stages for the same verse.
+- Added server-created, server-validated Vault replay sessions using approved
+  Radiance content, all five modes, no timer, and no hints.
+- Isolated Vault completion from campaign progression, rewards, streaks,
+  cooldowns, hints, and waypoint history. Only the completed replay record and
+  trusted Vault Explorer badge evaluation persist.
+- Activated Vault Explorer through a data migration and updated the seed
+  synchronizer, product specification, roadmap, and security checklist.
+- Applied migration `20260728210000_activate_vault_explorer_badge`.
+
 ### 2026-07-28 — Trail waypoint shadows removed
 
 - Removed the dark pedestal crescents, oval ground-contact shadows, and lower

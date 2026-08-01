@@ -45,6 +45,7 @@ export function SwapMode({
   verseText,
   attempt,
   isTestReplay = false,
+  isVaultReplay = false,
   nextMode,
   onContinue,
   onCompletionShown,
@@ -55,6 +56,7 @@ export function SwapMode({
   verseText: string;
   attempt: GameModeAttemptData | null;
   isTestReplay?: boolean;
+  isVaultReplay?: boolean;
   nextMode: GameModeAttemptData["gameMode"] | null;
   onContinue: () => void;
   onCompletionShown: () => void;
@@ -157,13 +159,15 @@ export function SwapMode({
 
       setStreak(
         result.data?.status === "mode-complete" ||
-          result.data?.status === "day-complete"
+          result.data?.status === "day-complete" ||
+          result.data?.status === "vault-complete"
           ? result.data.streak
           : null,
       );
       const unlocks =
         result.data?.status === "mode-complete" ||
-        result.data?.status === "day-complete"
+        result.data?.status === "day-complete" ||
+        result.data?.status === "vault-complete"
           ? result.data.badgeUnlocks
           : [];
       setBadgeUnlocks(unlocks);
@@ -214,6 +218,7 @@ export function SwapMode({
           completedMode="SWAP"
           nextMode={nextMode}
           isTestReplay={isTestReplay}
+          isVaultReplay={isVaultReplay}
           onContinue={() => {
             if (isTestReplay) onTestReplayExit?.();
             else if (streak && streak.status !== "unchanged") {
