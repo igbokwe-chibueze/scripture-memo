@@ -1,5 +1,75 @@
 # Scripture Memo Project Log
 
+### 2026-08-01 — Badge reward count-up added
+
+- Animated the persisted Glow Points earned value from zero to the awarded
+  amount after the badge-unlock card settles.
+- Kept the server-returned balance static so the animation cannot imply a
+  client-side reward calculation or second balance update.
+- Reduced-motion users receive the final reward value immediately.
+
+### 2026-08-01 — Compact celebration sharing added
+
+- Placed Continue and Share on one row in the streak celebration to shorten the
+  mobile card while preserving Continue as the flexible primary action.
+- Added the same compact Share action to badge-unlock celebrations.
+- Extracted native-share and clipboard fallback behavior into a shared,
+  touch-friendly achievement button with safe public copy and Sonner feedback.
+
+### 2026-08-01 — Luna added to Mode Complete
+
+- Replaced the Mode Complete check medallion with Luna's approved celebration
+  pose and retained a spring entrance for the mascot.
+- Kept all existing completion copy, rewards, audio, confetti, scroll locking,
+  and player-controlled progression behavior unchanged.
+- The live result remains directly replayable from `/ui-foundation`.
+
+### 2026-08-01 — Celebration card springs slowed
+
+- Reduced spring stiffness and increased perceived mass across the four
+  completion and celebration card entrances so their overshoot and settling
+  motion remains visible longer.
+- Kept waypoint, Legendary badge, and new streak-level cards slightly heavier
+  than ordinary mode and daily-streak celebrations.
+
+### 2026-08-01 — Celebration cards given tactile spring entrances
+
+- Strengthened the card-level entrance animation for mode completion, badge
+  unlock, waypoint completion, and streak celebration screens.
+- Replaced the badge card's tween entrance with a true spring and tuned stronger
+  milestone screens with slightly more mass and bounce.
+- Preserved every screen's existing content, audio, particles, rewards, and
+  player-controlled dismissal behavior; Luna was not added.
+- Retained immediate, movement-free presentation for reduced-motion users.
+
+### 2026-08-01 — Luna reward-screen proposals rejected and removed
+
+- Removed the review-only Luna comparisons for mode completion, badge unlock,
+  waypoint completion, and streak celebration from `/ui-foundation`.
+- Confirmed Luna will not be added to these four established celebration
+  screens; their existing production designs remain unchanged.
+
+### 2026-08-01 — Luna learning and guidance approved and promoted
+
+- Promoted the approved Luna hint treatment into the self-closing hint modal
+  while preserving its canonical verse content and progress timer.
+- Turned challenge cooldown cards into a guided waiting state without changing
+  server-authoritative unlock enforcement or the administrator override.
+- Promoted one shared mode-ready treatment for timed and untimed Journey Stages;
+  timed modes now state their exact limit and when the clock begins.
+- Removed the approved comparison batch from `/ui-foundation`.
+
+### 2026-08-01 — Luna learning and guidance comparisons added
+
+- Added one review-only Learning & Guidance batch to `/ui-foundation` covering
+  the existing hint modal, challenge cooldown, and mode-ready experience.
+- Included Before/After comparisons only for surfaces that already exist.
+- Consolidated the proposed timed-stage introduction into the existing
+  mode-ready experience and added an Untimed/Timed preview control instead of
+  inventing a duplicate screen.
+- Left all live hint, waypoint, and gameplay components unchanged pending
+  project-owner approval.
+
 ### 2026-08-01 — Luna timed-expiry recovery approved and promoted
 
 - Replaced the generic post-expiry mode-ready state with the approved dedicated

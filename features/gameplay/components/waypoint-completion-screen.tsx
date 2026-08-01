@@ -148,12 +148,17 @@ export function WaypointCompletionScreen({
       <div className="flex min-h-full w-full justify-center py-4 sm:py-8">
         <motion.section
           className="my-auto w-full max-w-md overflow-hidden rounded-[2rem] border border-orange-300/35 bg-linear-to-b from-amber-50 via-white to-orange-50 p-6 text-center text-slate-950 shadow-2xl shadow-orange-950/35 dark:from-slate-800 dark:via-slate-900 dark:to-orange-950 dark:text-white sm:p-8"
-          initial={shouldReduceMotion ? false : { opacity: 0, y: 50, scale: 0.9 }}
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 48, scale: 0.76 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={
             shouldReduceMotion
               ? { duration: 0 }
-              : { type: "spring", stiffness: 240, damping: 20 }
+              : {
+                  type: "spring",
+                  stiffness: 190,
+                  damping: 15,
+                  mass: 1.15,
+                }
           }
         >
           <div className="flex justify-center gap-3" aria-label="Three flames kindled">
