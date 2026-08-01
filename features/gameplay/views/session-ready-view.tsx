@@ -25,7 +25,11 @@ export async function SessionReadyView({
     session.user.id,
     sessionId,
   );
-  if (!gameSession?.waypointId || !gameSession.dayLevel || !gameSession.waypoint) {
+  if (
+    !gameSession ||
+    (!gameSession.isVaultReplay &&
+      (!gameSession.waypointId || !gameSession.dayLevel || !gameSession.waypoint))
+  ) {
     notFound();
   }
 

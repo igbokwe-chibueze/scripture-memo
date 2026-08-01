@@ -75,4 +75,7 @@ export type BadgeEvent =
     }
   | {
       type: "DAY_COMPLETED";
+    }
+  | {
+      type: "VAULT_REPLAY_COMPLETED";
     };

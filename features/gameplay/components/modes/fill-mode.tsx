@@ -53,6 +53,7 @@ export function FillMode({
   verseText,
   attempt,
   isTestReplay = false,
+  isVaultReplay = false,
   nextMode,
   onContinue,
   onWaypointContinue,
@@ -66,6 +67,7 @@ export function FillMode({
   verseText: string;
   attempt: GameModeAttemptData | null;
   isTestReplay?: boolean;
+  isVaultReplay?: boolean;
   nextMode: GameModeAttemptData["gameMode"] | null;
   onContinue: () => void;
   onWaypointContinue: () => void;
@@ -188,7 +190,8 @@ export function FillMode({
       const completion = result.data;
       const unlocks =
         completion?.status === "mode-complete" ||
-        completion?.status === "day-complete"
+        completion?.status === "day-complete" ||
+        completion?.status === "vault-complete"
           ? completion.badgeUnlocks
           : [];
       setBadgeUnlocks(unlocks);
@@ -196,7 +199,8 @@ export function FillMode({
       setShowCompletion(unlocks.length === 0);
       setStreak(
         completion?.status === "mode-complete" ||
-          completion?.status === "day-complete"
+          completion?.status === "day-complete" ||
+          completion?.status === "vault-complete"
           ? completion.streak
           : null,
       );
@@ -273,6 +277,7 @@ export function FillMode({
           completedMode="FILL"
           nextMode={nextMode}
           isTestReplay={isTestReplay}
+          isVaultReplay={isVaultReplay}
           reward={earnedReward}
           onContinue={() => {
             if (isTestReplay) onTestReplayExit?.();

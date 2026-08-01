@@ -31,6 +31,7 @@ export function ModeCompletionScreen({
   completedMode,
   nextMode,
   isTestReplay,
+  isVaultReplay = false,
   onContinue,
   onReplay,
   reward = null,
@@ -38,6 +39,7 @@ export function ModeCompletionScreen({
   completedMode: GameMode;
   nextMode: GameMode | null;
   isTestReplay: boolean;
+  isVaultReplay?: boolean;
   onContinue: () => void;
   onReplay?: () => void;
   reward?: DayRewardResult | null;
@@ -102,7 +104,11 @@ export function ModeCompletionScreen({
           </motion.div>
 
           <p className="mt-5 text-xs font-black tracking-[0.18em] text-emerald-700 uppercase dark:text-emerald-300 sm:mt-6">
-            {isTestReplay ? "Admin test replay" : "Mode restored"}
+            {isTestReplay
+              ? "Admin test replay"
+              : isVaultReplay
+                ? "Vault replay"
+                : "Mode restored"}
           </p>
           <h2 id="mode-complete-title" className="mt-2 font-heading text-4xl font-black">
             Beautiful work!
@@ -116,6 +122,10 @@ export function ModeCompletionScreen({
             <p className="mt-2 text-sm font-semibold text-muted-foreground dark:text-slate-300">
               {isTestReplay
                 ? "Testing complete. No progress, rewards, or cooldowns were changed."
+                : isVaultReplay
+                  ? nextMode
+                    ? `${MODE_LABELS[nextMode]} is ready. This replay remains reward-free and untimed.`
+                    : "The mastered verse replay is complete. Campaign progress, rewards, streaks, and cooldowns were unchanged."
                 : nextMode
                   ? `${MODE_LABELS[nextMode]} is ready when you are.`
                   : "Every mode in this challenge day is complete."}
@@ -141,7 +151,13 @@ export function ModeCompletionScreen({
               className="min-h-12 rounded-xl bg-emerald-400 font-black text-slate-950 hover:bg-emerald-300"
               onClick={onContinue}
             >
-              {isTestReplay ? "Return to current mode" : nextMode ? `Continue to ${MODE_LABELS[nextMode]}` : "Continue"}
+              {isTestReplay
+                ? "Return to current mode"
+                : nextMode
+                  ? `Continue to ${MODE_LABELS[nextMode]}`
+                  : isVaultReplay
+                    ? "Return to Vault"
+                    : "Continue"}
               <ArrowRightIcon data-icon="inline-end" aria-hidden="true" />
             </Button>
             {isTestReplay && onReplay && (

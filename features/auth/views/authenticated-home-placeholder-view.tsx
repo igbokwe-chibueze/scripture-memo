@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { FlameIcon, MapIcon } from "lucide-react";
+import { FlameIcon, MapIcon, VaultIcon } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { LogoutButton } from "@/features/auth/components/logout-button";
 import { authRepository } from "@/features/auth/repositories/auth.repository";
@@ -51,6 +51,16 @@ export async function AuthenticatedHomePlaceholderView(): Promise<React.ReactNod
           >
             <MapIcon aria-hidden="true" />
             Open game map
+          </Link>
+          <Link
+            href="/vault"
+            className={cn(
+              buttonVariants({ variant: "outline", size: "lg" }),
+              "min-h-11 gap-2 px-4",
+            )}
+          >
+            <VaultIcon aria-hidden="true" />
+            Open Vault
           </Link>
           <LogoutButton />
         </div>

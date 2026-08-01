@@ -53,6 +53,13 @@ test("future-feature catalogue badges are seeded as paused", () => {
   });
 });
 
+test("Vault Explorer activates with the trusted Phase 23 replay metric", () => {
+  const vaultExplorer = BADGE_CATALOG.find(({ slug }) => slug === "vault-explorer");
+  assert.ok(vaultExplorer);
+  assert.equal(isBadgeCriterionAvailable(vaultExplorer.criteriaKey), true);
+  assert.notEqual(vaultExplorer.isActive, false);
+});
+
 test("administrator badge names produce stable safe slugs", () => {
   assert.equal(createBadgeSlug("  Keeper's Light!  "), "keeper-s-light");
   assert.equal(createBadgeSlug("Éternal   Flame"), "eternal-flame");

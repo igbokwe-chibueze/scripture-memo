@@ -35,6 +35,7 @@ export async function seedBadgeCatalog(): Promise<number> {
           targetValue: definition.targetValue,
           rewardAmount: definition.rewardAmount,
           isHidden: definition.isHidden ?? false,
+          isActive: definition.isActive ?? true,
         },
         create: {
           ...definition,

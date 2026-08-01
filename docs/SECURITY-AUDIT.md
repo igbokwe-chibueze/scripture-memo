@@ -167,6 +167,7 @@ The server and database are the only sources of truth for all security-sensitive
 | 8.8 | Hint balance is enforced server-side — free allowance + purchased hints only | 🟡 Medium | ☐ Pending | Client cannot inflate the hint count |
 | 8.9 | Hint usage is recorded in `HintUsage` with session reference | 🟡 Medium | ☐ Pending | Auditability |
 | 8.10 | `CUE` mode is distinct from the Hint System — Cue Mode inputs are never blocked by hint count | 🟡 Medium | ☐ Pending | Cue Mode is a game mode; Hint System is a separate assistance feature |
+| 8.11 | Vault replay is ownership-checked, mastery-gated, ordered, and isolated from campaign side effects | 🔴 Critical | ✅ Complete | Server-created Radiance replay sessions validate all five modes; no rewards, streaks, hints, cooldowns, or waypoint progression are written |
 
 ---
 

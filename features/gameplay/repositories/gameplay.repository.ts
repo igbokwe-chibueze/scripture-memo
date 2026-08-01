@@ -158,13 +158,14 @@ export const gameplayRepository = {
   ): Promise<GameplaySessionData | null> {
     const [session, settings, usedHintCount] = await Promise.all([
       prisma.gameSession.findFirst({
-        where: { id: sessionId, userId, isVaultReplay: false },
+        where: { id: sessionId, userId },
         select: {
           id: true,
           waypointId: true,
           dayLevel: true,
           translation: true,
           status: true,
+          isVaultReplay: true,
           waypoint: { select: { number: true, journeyStage: true } },
           verse: {
             select: {
@@ -205,6 +206,7 @@ export const gameplayRepository = {
       dayLevel: session.dayLevel,
       translation: session.translation,
       status: session.status,
+      isVaultReplay: session.isVaultReplay,
       waypoint: session.waypoint,
       verse: {
         reference: session.verse.reference,
@@ -235,10 +237,10 @@ export const gameplayRepository = {
         where: {
           id: sessionId,
           userId,
-          isVaultReplay: false,
           status: CompletionStatus.IN_PROGRESS,
         },
         select: {
+          isVaultReplay: true,
           waypoint: { select: { journeyStage: true } },
           attempts: {
             select: {
@@ -252,7 +254,7 @@ export const gameplayRepository = {
           },
         },
       });
-      if (!session?.waypoint) {
+      if (!session || (!session.isVaultReplay && !session.waypoint)) {
         throw new GameplayConflictError("SESSION_UNAVAILABLE");
       }
 
@@ -274,7 +276,7 @@ export const gameplayRepository = {
           attempt.gameMode === currentMode &&
           attempt.status === GameModeAttemptStatus.IN_PROGRESS,
       );
-      const activeExpiry = activeAttempt
+      const activeExpiry = activeAttempt && session.waypoint && !session.isVaultReplay
         ? getAttemptExpiry(session.waypoint.journeyStage, activeAttempt.startedAt)
         : null;
       if (activeAttempt && (!activeExpiry || startedAt <= activeExpiry)) {
@@ -311,10 +313,10 @@ export const gameplayRepository = {
         attemptNumber: attempt.attemptNumber,
         status: attempt.status,
         startedAt: attempt.startedAt,
-        expiresAt: getAttemptExpiry(
-          session.waypoint.journeyStage,
-          attempt.startedAt,
-        ),
+        expiresAt:
+          session.waypoint && !session.isVaultReplay
+            ? getAttemptExpiry(session.waypoint.journeyStage, attempt.startedAt)
+            : null,
       };
     }, gameplayTransactionOptions);
   },
@@ -340,13 +342,13 @@ export const gameplayRepository = {
         where: {
           id: sessionId,
           userId,
-          isVaultReplay: false,
           status: CompletionStatus.IN_PROGRESS,
         },
         select: {
           waypointId: true,
           dayLevel: true,
           translation: true,
+          isVaultReplay: true,
           waypoint: { select: { journeyStage: true } },
           verse: {
             select: {
@@ -366,7 +368,11 @@ export const gameplayRepository = {
           },
         },
       });
-      if (!session?.waypointId || !session.dayLevel || !session.waypoint) {
+      if (
+        !session ||
+        (!session.isVaultReplay &&
+          (!session.waypointId || !session.dayLevel || !session.waypoint))
+      ) {
         throw new GameplayConflictError("SESSION_UNAVAILABLE");
       }
 
@@ -396,10 +402,10 @@ export const gameplayRepository = {
         0,
         completedAt.getTime() - attempt.startedAt.getTime(),
       );
-      const expiresAt = getAttemptExpiry(
-        session.waypoint.journeyStage,
-        attempt.startedAt,
-      );
+      const expiresAt =
+        session.waypoint && !session.isVaultReplay
+          ? getAttemptExpiry(session.waypoint.journeyStage, attempt.startedAt)
+          : null;
       if (expiresAt && completedAt > expiresAt) {
         await transaction.gameModeAttempt.update({
           where: { id: attempt.id },
@@ -449,6 +455,43 @@ export const gameplayRepository = {
           score: 100,
         },
       });
+      const completedAfterSubmission = [...completedModes, requestedMode];
+      const nextMode = getCurrentMode(completedAfterSubmission);
+
+      // WHY: Vault replay attempts prove real answers and ordered completion,
+      // but never touch campaign progression, streaks, rewards, hints, or
+      // cooldowns. Only the terminal replay session and its badge metric persist.
+      if (session.isVaultReplay) {
+        if (nextMode) {
+          return {
+            status: "mode-complete",
+            gameMode: requestedMode,
+            nextMode,
+            dayCompletion: null,
+            streak: null,
+            badgeUnlocks: [],
+          };
+        }
+        await transaction.gameSession.update({
+          where: { id: sessionId },
+          data: { status: CompletionStatus.COMPLETED, completedAt },
+        });
+        const badgeUnlocks = await evaluateBadgeProgressInTransaction(
+          transaction,
+          userId,
+          { type: "VAULT_REPLAY_COMPLETED" },
+          completedAt,
+        );
+        return {
+          status: "vault-complete",
+          gameMode: requestedMode,
+          nextMode: null,
+          dayCompletion: null,
+          streak: null,
+          badgeUnlocks,
+        };
+      }
+
       // WHY: A streak represents the first meaningful mode completion on a
       // learner-local calendar day. The transaction-owned updater makes later
       // modes idempotent and excludes client claims and non-persisting replays.
@@ -468,8 +511,6 @@ export const gameplayRepository = {
         forecast: streak.forecast,
         nextLevel: streak.nextLevel,
       } as const;
-      const completedAfterSubmission = [...completedModes, requestedMode];
-      const nextMode = getCurrentMode(completedAfterSubmission);
       const modeBadgeUnlocks = await evaluateBadgeProgressInTransaction(
         transaction,
         userId,
@@ -487,18 +528,23 @@ export const gameplayRepository = {
         };
       }
 
+      const campaignWaypointId = session.waypointId;
+      const campaignDayLevel = session.dayLevel;
+      if (!campaignWaypointId || !campaignDayLevel) {
+        throw new GameplayConflictError("SESSION_UNAVAILABLE");
+      }
       const dayCompletion = await markDayCompleteInTransaction(
         transaction,
         userId,
-        session.waypointId,
-        session.dayLevel,
+        campaignWaypointId,
+        campaignDayLevel,
         completedAt,
       );
       const reward = await awardDayCompletionRewardInTransaction(
         transaction,
         userId,
-        session.waypointId,
-        session.dayLevel,
+        campaignWaypointId,
+        campaignDayLevel,
       );
       await transaction.gameSession.update({
         where: { id: sessionId },

@@ -1179,6 +1179,12 @@ The user's complete progress library.
 - Full badge collection (link to `/vault/badges`)
 - Filter by translation, pack, completion status
 
+Vault replay uses Radiance-level content across all five ordered modes. It is
+untimed and hints are unavailable. Every answer and mode transition is validated
+by the server, but replay sessions never change campaign progression, streaks,
+cooldowns, waypoint history, or Glow Points. Completing all five modes records
+one Vault replay and evaluates the Vault Explorer badge from that trusted total.
+
 ### 15.6 Oil Shop (🛢️)
 
 Marketplace for spending Glow Points.

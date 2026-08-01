@@ -77,6 +77,9 @@ export async function completeGameModeAction(
     // client tree immediately and skip that intentional success pause.
     if (result.status === "day-complete") {
       revalidatePath("/game/map");
+    } else if (result.status === "vault-complete") {
+      revalidatePath("/vault");
+      revalidatePath("/vault/badges");
     }
     return {
       success: true,
