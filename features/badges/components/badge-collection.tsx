@@ -1,7 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CheckIcon, HelpCircleIcon, LockIcon, SparklesIcon } from "lucide-react";
+import { CheckIcon, HelpCircleIcon, LockIcon, RotateCcwIcon, SparklesIcon } from "lucide-react";
+import { EmptyState } from "@/components/shared/empty-state";
+import { Button } from "@/components/ui/button";
 import type { BadgeCollectionItem } from "@/features/badges/types/badge.types";
 import type { BadgeCategory, BadgeRarity } from "@/lib/generated/prisma/enums";
 import { cn } from "@/lib/utils";
@@ -37,6 +39,11 @@ export function BadgeCollection({
       }),
     [badges, category, filter, rarity],
   );
+  const clearFilters = (): void => {
+    setFilter("ALL");
+    setCategory("ALL");
+    setRarity("ALL");
+  };
 
   return (
     <>
@@ -88,10 +95,18 @@ export function BadgeCollection({
       </div>
 
       {visibleBadges.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-border bg-card p-8 text-center">
-          <SparklesIcon className="mx-auto size-8 text-muted-foreground" aria-hidden="true" />
-          <p className="mt-3 font-black">No badges match this filter yet.</p>
-        </div>
+        <EmptyState
+          variant="compact"
+          icon={<SparklesIcon />}
+          title="No badges match these filters"
+          description="Clear the filters to bring every available badge back into view."
+          action={
+            <Button type="button" variant="outline" size="sm" onClick={clearFilters}>
+              <RotateCcwIcon aria-hidden="true" />
+              Clear filters
+            </Button>
+          }
+        />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {visibleBadges.map((badge) => {

@@ -36,6 +36,7 @@ import { DragDropMode } from "@/features/gameplay/components/modes/drag-drop-mod
 import { FillMode } from "@/features/gameplay/components/modes/fill-mode";
 import { PuzzleMode } from "@/features/gameplay/components/modes/puzzle-mode";
 import { SwapMode } from "@/features/gameplay/components/modes/swap-mode";
+import { TimedAttemptExpired } from "@/features/gameplay/components/timed-attempt-expired";
 import type {
   GameModeAttemptData,
   GameplaySessionData,
@@ -71,6 +72,7 @@ export function GameShell({
   const [currentMode, setCurrentMode] = useState<GameMode | null>(
     gameSession.currentMode,
   );
+  const [expiredMode, setExpiredMode] = useState<GameMode | null>(null);
   const [isAwaitingContinue, setIsAwaitingContinue] = useState(false);
   const [isPending, startTransition] = useTransition();
   const currentModeIndex = currentMode
@@ -94,7 +96,10 @@ export function GameShell({
         showActionError(result);
         return;
       }
-      if (result.data) setAttempt(result.data);
+      if (result.data) {
+        setAttempt(result.data);
+        setExpiredMode(null);
+      }
       toast.success(result.message, { duration: 4_000 });
     });
   };
@@ -120,6 +125,7 @@ export function GameShell({
    */
   const continueToMode = (nextMode: GameMode | null): void => {
     setAttempt(null);
+    setExpiredMode(null);
     setCurrentMode(nextMode);
     setIsAwaitingContinue(false);
     if (!nextMode && gameSession.isVaultReplay) {
@@ -136,6 +142,7 @@ export function GameShell({
   /** Leaves the Radiance milestone for the newly refreshed trail state. */
   const continueToTrail = (): void => {
     setAttempt(null);
+    setExpiredMode(null);
     setIsAwaitingContinue(false);
     router.push("/game/map");
   };
@@ -309,7 +316,7 @@ export function GameShell({
                 label="Attempt time remaining"
                 onExpire={() => {
                   setAttempt(null);
-                  toast.error("Time expired. Start a fresh attempt.", { duration: Infinity });
+                  setExpiredMode(currentMode);
                 }}
               />
             </div>
@@ -443,6 +450,12 @@ export function GameShell({
               onContinue={() => continueToMode(null)}
               onWaypointContinue={continueToTrail}
               onCompletionShown={() => setIsAwaitingContinue(true)}
+            />
+          ) : expiredMode && currentMode === expiredMode ? (
+            <TimedAttemptExpired
+              modeLabel={GAME_MODE_LABELS[expiredMode]}
+              isPending={isPending}
+              onRetry={beginMode}
             />
           ) : (
             <div className="my-auto flex flex-col items-center">

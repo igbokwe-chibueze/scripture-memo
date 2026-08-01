@@ -1,5 +1,71 @@
 # Scripture Memo Project Log
 
+### 2026-08-01 — Luna timed-expiry recovery approved and promoted
+
+- Replaced the generic post-expiry mode-ready state with the approved dedicated
+  Luna recovery treatment.
+- Client countdown expiry now identifies the expired mode, clears only that
+  attempt, reassures the learner that completed modes remain saved, and starts a
+  fresh server-timed attempt through the existing action on retry.
+- Retained all incorrect-answer feedback unchanged and removed the approved
+  gameplay recovery comparison from `/ui-foundation`.
+
+### 2026-08-01 — Gameplay recovery audit and expiry comparison added
+
+- Audited all five incorrect-answer flows and retained their current precise
+  position feedback, error sound, and persistent count-specific toast; Luna is
+  intentionally not proposed for every incorrect Check.
+- Added a Before/After timed-attempt expiry comparison to `/ui-foundation`.
+  The Luna candidate explicitly reassures learners that completed modes remain
+  saved and offers a fresh attempt for the expired mode.
+- Left the live expiry behavior unchanged pending project-owner approval.
+
+### 2026-08-01 — Vault and Badge empty states approved and promoted
+
+- Applied the Luna mascot empty state to genuinely empty Vault mastery,
+  in-progress, and favorite sections while keeping filter-only misses restrained.
+- Replaced the Badge Collection's custom filter-empty markup with the shared
+  compact state and a working **Clear filters** action that resets status,
+  category, and rarity together.
+- Removed the approved Before/After empty-state comparison from
+  `/ui-foundation`; the shared variants remain represented by their live uses.
+
+### 2026-08-01 — Vault and Badge empty-state comparisons added
+
+- Added backward-compatible `mascot` and `compact` variants to the shared
+  `EmptyState` component; existing callers retain the unchanged default style.
+- Added side-by-side Vault mastery-shelf and Badge filter-empty comparisons to
+  `/ui-foundation`.
+- Proposed Luna guidance for genuinely empty Vault content and a smaller shared
+  recovery state with **Clear filters** for Badge filter results. Live Vault and
+  Badge components remain unchanged pending project-owner approval.
+
+### 2026-08-01 — Luna recoverable error approved and promoted
+
+- Promoted the approved Luna retry treatment into the production `GlobalError`
+  while preserving safe exception redaction and Next.js recovery behavior.
+- Removed the previous generic error presentation and deleted the temporary Luna
+  candidate.
+- Simplified `/ui-foundation` to one preview of the live Luna error screen and
+  removed the obsolete Before/After controls.
+
+### 2026-08-01 — Luna error candidate copy simplified
+
+- Replaced the recoverable-error candidate copy with **Oops we hit a snag** and
+  **Luna could not load this. Try again.**
+- Removed the additional eyebrow so the candidate retains only the requested
+  message and recovery action.
+
+### 2026-08-01 — Luna recoverable-error comparison added
+
+- Added a full-screen **Before: current** preview of the exact live recoverable
+  error boundary and a separate **After: with Luna** candidate in
+  `/ui-foundation`.
+- The Luna candidate preserves safe error redaction and the single retry action
+  while adding the approved retry pose, shared game palette, and reduced-motion
+  treatment.
+- Left the production `GlobalError` component unchanged pending visual approval.
+
 ### 2026-08-01 — Luna loading screen approved and promoted
 
 - Promoted the approved Luna loading treatment into the production
