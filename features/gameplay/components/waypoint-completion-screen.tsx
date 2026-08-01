@@ -314,7 +314,7 @@ export function WaypointCompletionScreen({
             className="mt-7 min-h-12 w-full rounded-xl bg-orange-500 font-black text-white hover:bg-orange-400"
             onClick={onContinue}
           >
-            Continue to trail
+            Enter Sanctuary
             <ArrowRightIcon data-icon="inline-end" aria-hidden="true" />
           </Button>
         </motion.section>

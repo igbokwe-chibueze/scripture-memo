@@ -4,6 +4,7 @@ import type {
   JourneyStage,
   TranslationCode,
 } from "@/lib/generated/prisma/enums";
+import type { StudyAccessState } from "@/features/sanctuary/lib/study-access";
 
 export type DaySelectionStatus = "LOCKED" | "COOLDOWN" | "READY" | "COMPLETE";
 
@@ -18,11 +19,13 @@ export type DayProgressSnapshot = {
 /** Authenticated, serializable data displayed by the Day Selection screen. */
 export type DaySelectionData = {
   waypointId: string;
+  verseId: string;
   waypointNumber: number;
   reference: string;
   journeyStage: JourneyStage;
   translation: TranslationCode;
   translationText: string;
+  studyAccess: Exclude<StudyAccessState, "UNAVAILABLE">;
   dayProgress: DayProgressSnapshot[];
 };
 

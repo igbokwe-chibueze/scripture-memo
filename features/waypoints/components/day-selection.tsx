@@ -1,10 +1,13 @@
 "use client";
 
-import { AlertTriangleIcon, Clock3Icon, ShieldOffIcon } from "lucide-react";
+import Link from "next/link";
+import { AlertTriangleIcon, BookHeartIcon, Clock3Icon, LockKeyholeIcon, ShieldOffIcon } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
 import { JourneyStageBadge } from "@/components/shared/journey-stage-badge";
 import { DayCard } from "@/features/waypoints/components/day-card";
 import type { DayCardData, DaySelectionData } from "@/features/waypoints/types/day-selection.types";
 import { JourneyStage } from "@/lib/generated/prisma/enums";
+import { cn } from "@/lib/utils";
 
 /** Mobile-first interactive composition for one waypoint's three-day challenge. */
 export function DaySelection({
@@ -41,9 +44,25 @@ export function DaySelection({
         <p className="mt-1 text-xs font-bold tracking-wide text-muted-foreground uppercase">
           {data.translation}
         </p>
-        <blockquote className="mt-5 border-l-4 border-amber-400 pl-4 text-base leading-7 font-medium text-foreground/90 sm:text-lg">
-          {data.translationText}
-        </blockquote>
+        {data.studyAccess === "PRE_STUDY" && (
+          <blockquote className="mt-5 border-l-4 border-amber-400 pl-4 text-base leading-7 font-medium text-foreground/90 sm:text-lg">
+            {data.translationText}
+          </blockquote>
+        )}
+        <div className="mt-5">
+          {data.studyAccess === "LOCKED" ? (
+            <span className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-violet-300/40 bg-background/70 px-4 text-sm font-bold text-violet-700 dark:text-violet-300">
+              <LockKeyholeIcon className="size-4" aria-hidden="true" /> Study reopens after Radiance
+            </span>
+          ) : (
+            <Link
+              href={`/sanctuary/${data.verseId}`}
+              className={cn(buttonVariants({ variant: "outline" }), "min-h-11 rounded-xl px-4 font-black")}
+            >
+              <BookHeartIcon aria-hidden="true" /> Study verse
+            </Link>
+          )}
+        </div>
       </section>
 
       {(hintsUnavailable || timeNotice) && (

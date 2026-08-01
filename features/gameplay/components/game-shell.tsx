@@ -147,12 +147,12 @@ export function GameShell({
     router.refresh();
   };
 
-  /** Leaves the Radiance milestone for the newly refreshed trail state. */
-  const continueToTrail = (): void => {
+  /** Leaves the Radiance milestone for the completed verse's private Sanctuary. */
+  const continueToSanctuary = (): void => {
     setAttempt(null);
     setExpiredMode(null);
     setIsAwaitingContinue(false);
-    router.push("/game/map");
+    router.push(`/sanctuary/${gameSession.verse.id}`);
   };
 
   /** Restores the live attempt after a client-only administrator replay. */
@@ -389,7 +389,7 @@ export function GameShell({
               isTestReplay
               nextMode={currentMode}
               onContinue={exitTestReplay}
-              onWaypointContinue={continueToTrail}
+              onWaypointContinue={continueToSanctuary}
               onCompletionShown={() => setIsAwaitingContinue(true)}
               onTestReplayExit={exitTestReplay}
             />
@@ -456,7 +456,7 @@ export function GameShell({
               isVaultReplay={gameSession.isVaultReplay}
               nextMode={null}
               onContinue={() => continueToMode(null)}
-              onWaypointContinue={continueToTrail}
+              onWaypointContinue={continueToSanctuary}
               onCompletionShown={() => setIsAwaitingContinue(true)}
             />
           ) : expiredMode && currentMode === expiredMode ? (

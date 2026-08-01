@@ -7,6 +7,7 @@ import {
 } from "@/lib/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import type { DaySelectionData } from "@/features/waypoints/types/day-selection.types";
+import { getStudyAccessState } from "@/features/sanctuary/lib/study-access";
 
 /** Read-only database boundary for one learner's Day Selection screen. */
 export const daySelectionRepository = {
@@ -32,6 +33,7 @@ export const daySelectionRepository = {
         journeyStage: true,
         verse: {
           select: {
+            id: true,
             reference: true,
             translations: {
               select: { translation: true, text: true },
@@ -85,11 +87,15 @@ export const daySelectionRepository = {
 
     return {
       waypointId: waypoint.id,
+      verseId: waypoint.verse.id,
       waypointNumber: waypoint.number,
       reference: waypoint.verse.reference,
       journeyStage: waypoint.journeyStage,
       translation: selectedTranslation.translation,
       translationText: selectedTranslation.text,
+      studyAccess: getStudyAccessState([
+        { number: waypoint.number, status: progress.status },
+      ]) as DaySelectionData["studyAccess"],
       dayProgress: waypoint.dayProgress.map(({ gameSessions, ...progressItem }) => ({
         ...progressItem,
         completedSessionId: gameSessions[0]?.id ?? null,

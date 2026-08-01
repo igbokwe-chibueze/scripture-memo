@@ -1,5 +1,62 @@
 # Scripture Memo Project Log
 
+### 2026-08-01 — Phase 24 accepted
+
+- Recorded successful project-owner mobile testing of the Sanctuary and its
+  study-access lifecycle.
+- Marked Phase 24 complete and accepted; the project is ready to proceed to
+  Phase 25, the Oil Shop.
+
+### 2026-08-01 — Server-authoritative study lifecycle implemented
+
+- Added one shared policy for the approved pre-study, active-practice lock, and
+  permanent post-Radiance Sanctuary lifecycle.
+- The waypoint page now shows the full preview and Study Verse before Glimmer,
+  hides the verse after Glimmer starts, and restores Study Verse after Radiance.
+- Direct Sanctuary URLs show a content-free locked state during practice;
+  unauthorized verses remain indistinguishable Not Found responses.
+- Vault cards suppress verse text, Sanctuary access, and replay while a later
+  occurrence of that verse is active, including Recall, Strengthen, and Master.
+- Added deterministic policy tests covering unlock, practice, cooldown,
+  completion, later-stage precedence, and harmless locked future records.
+
+### 2026-08-01 — Vault private-note indicator added
+
+- Added a note icon to Vault verse cards when the authenticated learner has
+  saved non-empty private Sanctuary text for that verse.
+- Kept empty note records visually silent and derived the indicator only from
+  the learner-scoped relation returned by the Vault repository.
+- Confirmed completed verses remain alphabetically sorted pending the project
+  owner's decision on switching to newest-completed-first ordering.
+
+### 2026-08-01 — Missing Vault completed-verses shelf restored
+
+- Fixed the Vault omission that exposed only fully mastered, favorite, and
+  in-progress content even though completed waypoint history was already read.
+- Added a Completed Verses shelf containing every verse with at least one
+  completed waypoint and visible Journey Stage markers.
+- Kept Vault replay restricted to verses with all four stages complete; every
+  completed verse can enter its authorized Sanctuary.
+- Included completed verses in Vault filters and pack/translation option data.
+
+### 2026-08-01 — Phase 24 Sanctuary implemented
+
+- Added the protected, private Sanctuary route for learner-completed verses with
+  preferred-translation text, reflection, safe Markdown study notes, and a calm
+  visual-first composition without game mechanics.
+- Added validated, authenticated note-save and favorite-toggle actions backed
+  exclusively by the Sanctuary repository. Every read and mutation proves the
+  learner owns completed progress for the requested verse.
+- Added private note editing with a 5,000-character server limit, explicit save,
+  pending state, and Sonner feedback; favorite changes immediately revalidate
+  both Sanctuary and Vault.
+- Added Sanctuary entry from mastered and favorite Vault cards and changed the
+  player-controlled Radiance milestone continuation to enter Sanctuary.
+- Added a route-specific loading skeleton and private noindex metadata. No
+  Prisma migration was required because both relation models already existed.
+- Aligned product and roadmap wording with the approved post-Radiance entry and
+  explicit `UserFavoriteVerse` relation. Phase 24 awaits manual acceptance.
+
 ### 2026-08-01 — Mobile button press feedback strengthened
 
 - Increased shared button touch compression from `0.99` to `0.97` while
