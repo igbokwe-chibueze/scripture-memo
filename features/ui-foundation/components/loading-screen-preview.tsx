@@ -46,7 +46,7 @@ export function LoadingScreenPreview(): React.ReactNode {
           onClick={() => setIsOpen(true)}
         >
           <PlayIcon aria-hidden="true" />
-          Preview loading screen
+          Preview Luna loading screen
         </Button>
       </div>
 
@@ -55,7 +55,7 @@ export function LoadingScreenPreview(): React.ReactNode {
           className="fixed inset-0 z-70 overflow-y-auto"
           role="dialog"
           aria-modal="true"
-          aria-label="Loading screen preview"
+          aria-label="Luna loading screen preview"
         >
           <GlobalLoading />
           <Button

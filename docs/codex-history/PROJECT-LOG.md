@@ -1,5 +1,32 @@
 # Scripture Memo Project Log
 
+### 2026-08-01 — Luna loading screen approved and promoted
+
+- Promoted the approved Luna loading treatment into the production
+  `GlobalLoading` component used by root and protected route boundaries.
+- Removed the previous flame-only loading implementation and deleted the
+  temporary Luna comparison candidate.
+- Simplified `/ui-foundation` back to one preview action showing the live Luna
+  loading screen; the obsolete Before preview is no longer available.
+
+### 2026-08-01 — Luna loading candidate simplified
+
+- Restored the current loading screen's small rising ember particles in the Luna
+  comparison candidate while retaining reduced-motion behavior.
+- Removed the redundant Scripture Memo eyebrow and supporting sentence so Luna,
+  the loading title, and trail progress remain the visual focus.
+
+### 2026-08-01 — Luna UI integration previews started
+
+- Added a shared typed `LunaMascot` component that restricts callers to approved
+  poses, preserves intrinsic aspect ratios, and requires explicit decorative or
+  meaningful accessibility treatment.
+- Added the complete Luna production gallery to `/ui-foundation` without a
+  redundant before-and-after state for the new asset family.
+- Added separate **Before: current** and **After: with Luna** full-screen loading
+  previews. The production `GlobalLoading` route remains unchanged until the
+  Luna candidate receives project-owner approval.
+
 ### 2026-08-01 — Compact Luna notification portraits added
 
 - Added square head-and-shoulders worried, disappointed, and angry/determined

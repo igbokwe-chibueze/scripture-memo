@@ -15,6 +15,7 @@ import { ModeCompletionPreview } from "@/features/ui-foundation/components/mode-
 import { StreakCompletionPreview } from "@/features/ui-foundation/components/streak-completion-preview";
 import { BadgeUnlockPreview } from "@/features/ui-foundation/components/badge-unlock-preview";
 import { LoadingScreenPreview } from "@/features/ui-foundation/components/loading-screen-preview";
+import { LunaMascotPreview } from "@/features/ui-foundation/components/luna-mascot-preview";
 
 export const metadata: Metadata = {
   title: "UI Foundation Preview | Scripture Memo",
@@ -61,6 +62,7 @@ export function UiFoundationView(): React.ReactNode {
         </div>
 
         <FoundationControls />
+        <LunaMascotPreview />
         <LoadingScreenPreview />
         <ModeCompletionPreview />
         <StreakCompletionPreview />
