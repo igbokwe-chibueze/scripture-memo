@@ -1,5 +1,33 @@
 # Scripture Memo Project Log
 
+### 2026-08-01 — Compact Luna notification portraits added
+
+- Added square head-and-shoulders worried, disappointed, and angry/determined
+  Luna portraits designed specifically for notification and widget scale.
+- Preserved the existing full-body emotional poses for larger in-app surfaces
+  and documented the correct compact-versus-full-body usage boundary.
+- Corrected the urgent portrait framing so both ears remain within safe margins
+  for circular and rounded-square masks.
+
+### 2026-08-01 — Luna favicon and reminder expressions added
+
+- Replaced the root application favicon with a close-up Luna portrait containing
+  native 16, 32, 48, and 64-pixel frames.
+- Added worried, disappointed, and angry/determined transparent Luna poses for
+  escalating streak reminders, notifications, and future widgets.
+- Documented an emotionally safe escalation model: caring warning, urgent
+  determination, then compassionate reset acknowledgement without shaming the
+  learner.
+
+### 2026-08-01 — Luna mascot production set created
+
+- Established Luna as Scripture Memo's upright sheep guide with cream wool,
+  warm charcoal features, amber eyes, and a golden flame pendant.
+- Added six transparent production poses for guidance, celebration,
+  encouragement, loading, gentle retry feedback, and reward presentation.
+- Preserved the chroma-key generation sources, added a documented local removal
+  workflow, and recorded identity and usage rules beside the assets.
+
 ### 2026-08-01 — Phase 23 completed and accepted
 
 - Marked Phase 23 Vault complete after project-owner acceptance of every
