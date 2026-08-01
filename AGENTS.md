@@ -629,6 +629,11 @@ Scripture Memo is a mobile-first game experience, not a conventional dashboard-s
   the same Scripture Memo visual system.
 - Desktop layouts should expand the game experience without turning it into a conventional SaaS dashboard.
 - Animation, audio, color, and celebration must never compromise accessibility, reduced-motion preferences, readability, or devotional tone.
+- Prefer visual communication over explanatory copy. Use composition, imagery,
+  icons, motion, color, progress indicators, and short labels before adding
+  paragraphs. Keep player-facing text concise, remove redundant headings and
+  instructions, and include supporting prose only when it prevents genuine
+  confusion, communicates an important rule, or is required for accessibility.
 
 ### 9.4B Tailwind Canonical Syntax
 

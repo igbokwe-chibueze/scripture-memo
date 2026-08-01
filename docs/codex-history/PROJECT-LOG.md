@@ -1,5 +1,22 @@
 # Scripture Memo Project Log
 
+### 2026-08-01 — Mobile button press feedback strengthened
+
+- Increased shared button touch compression from `0.99` to `0.97` while
+  retaining the 3px downward travel and compressed lower edge.
+- Shortened touch-down transition timing and enabled manipulation-focused touch
+  handling so mobile presses respond more immediately without relying on hover.
+- Preserved reduced-motion behavior and left global sound/haptics for a future
+  settings-aware feedback system.
+
+### 2026-08-01 — Visual-first copy rule established
+
+- Added a durable UI rule that Scripture Memo should communicate primarily
+  through visuals, hierarchy, icons, motion, color, and concise labels.
+- Player-facing paragraphs and repeated instructions must be minimized; prose
+  remains only where it prevents confusion, communicates an important rule, or
+  supports accessibility.
+
 ### 2026-08-01 — Badge reward count-up added
 
 - Animated the persisted Glow Points earned value from zero to the awarded
