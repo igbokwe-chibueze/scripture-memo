@@ -1,8 +1,8 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { BookOpenIcon, SparklesIcon } from "lucide-react";
-import { AnimatedFlame } from "@/features/gameplay/components/animated-flame";
+import { SparklesIcon } from "lucide-react";
+import { LunaMascot } from "@/components/shared/luna-mascot";
 
 const TRAIL_STEPS = [0, 1, 2, 3, 4] as const;
 const EMBERS = [
@@ -24,11 +24,11 @@ export function GlobalLoading(): React.ReactNode {
 
   return (
     <main
-      className="relative isolate flex min-h-dvh items-center justify-center overflow-hidden bg-linear-to-b from-amber-50 via-orange-50 to-violet-100 px-5 py-10 text-slate-950 dark:from-slate-950 dark:via-[#150d20] dark:to-[#27123c] dark:text-white"
+      className="relative isolate flex min-h-dvh items-center justify-center overflow-hidden bg-linear-to-b from-amber-50 via-orange-50 to-violet-100 px-5 py-8 text-slate-950 dark:from-slate-950 dark:via-[#150d20] dark:to-[#27123c] dark:text-white"
       aria-label="Preparing Scripture Memo"
     >
       <div
-        className="absolute -top-32 left-1/2 size-96 -translate-x-1/2 rounded-full bg-amber-300/30 blur-3xl dark:bg-orange-500/15"
+        className="absolute -top-28 left-1/2 size-96 -translate-x-1/2 rounded-full bg-amber-300/30 blur-3xl dark:bg-orange-500/15"
         aria-hidden="true"
       />
       <div
@@ -63,38 +63,37 @@ export function GlobalLoading(): React.ReactNode {
         role="status"
         aria-live="polite"
       >
-        <div className="relative mx-auto size-36 sm:size-40">
+        <div className="relative mx-auto h-64 w-56 sm:h-72 sm:w-64">
           <motion.div
-            className="absolute inset-4 rounded-full border border-orange-400/30 bg-white/55 shadow-[0_0_55px_rgb(249_115_22/0.28)] backdrop-blur-md dark:border-amber-300/20 dark:bg-white/5 dark:shadow-[0_0_65px_rgb(249_115_22/0.22)]"
+            className="absolute inset-x-4 bottom-3 h-28 rounded-full bg-amber-300/30 blur-3xl dark:bg-orange-500/20"
             animate={
               shouldReduceMotion
                 ? undefined
-                : { scale: [1, 1.06, 1], opacity: [0.75, 1, 0.75] }
+                : { scale: [0.9, 1.06, 0.9], opacity: [0.55, 0.9, 0.55] }
             }
             transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
             aria-hidden="true"
           />
           <motion.div
-            className="absolute inset-0"
-            animate={shouldReduceMotion ? undefined : { y: [0, -4, 0] }}
-            transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+            className="relative h-full"
+            animate={shouldReduceMotion ? undefined : { y: [0, -5, 0] }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
           >
-            <AnimatedFlame reducedMotion={shouldReduceMotion} />
+            <LunaMascot
+              pose="loading"
+              decorative
+              priority
+              sizes="(max-width: 640px) 224px, 256px"
+              className="h-full w-full"
+            />
           </motion.div>
         </div>
 
-        <p className="mt-2 inline-flex items-center gap-2 text-xs font-black tracking-[0.22em] text-orange-700 uppercase dark:text-amber-300">
-          <BookOpenIcon className="size-4" aria-hidden="true" />
-          Scripture Memo
-        </p>
-        <h1 className="mt-3 font-heading text-4xl leading-tight font-black tracking-tight sm:text-5xl">
-          Preparing your journey
+        <h1 className="font-heading text-4xl leading-tight font-black tracking-tight sm:text-5xl">
+          Luna is lighting the way
         </h1>
-        <p className="mx-auto mt-3 max-w-sm text-sm leading-6 font-semibold text-slate-600 dark:text-slate-300">
-          Gathering your verses and lighting the trail ahead.
-        </p>
 
-        <div className="mx-auto mt-8 max-w-xs rounded-[1.5rem] border border-white/70 bg-white/65 p-5 shadow-[0_8px_0_rgb(91_33_182/0.15),0_18px_45px_rgb(76_29_149/0.14)] backdrop-blur-xl dark:border-white/10 dark:bg-white/6 dark:shadow-[0_8px_0_rgb(255_255_255/0.08),0_20px_50px_rgb(0_0_0/0.4)]">
+        <div className="mx-auto mt-7 max-w-xs rounded-[1.5rem] border border-white/70 bg-white/65 p-5 shadow-[0_8px_0_rgb(91_33_182/0.15),0_18px_45px_rgb(76_29_149/0.14)] backdrop-blur-xl dark:border-white/10 dark:bg-white/6 dark:shadow-[0_8px_0_rgb(255_255_255/0.08),0_20px_50px_rgb(0_0_0/0.4)]">
           <div className="relative flex items-center justify-between" aria-hidden="true">
             <span className="absolute right-3 left-3 top-1/2 h-1 -translate-y-1/2 rounded-full bg-violet-200 dark:bg-white/10" />
             <motion.span
@@ -133,7 +132,7 @@ export function GlobalLoading(): React.ReactNode {
           </p>
         </div>
 
-        <span className="sr-only">Loading Scripture Memo.</span>
+        <span className="sr-only">Loading Scripture Memo with Luna.</span>
       </motion.section>
     </main>
   );

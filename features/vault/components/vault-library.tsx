@@ -161,7 +161,8 @@ export function VaultLibrary({ data }: { data: VaultLibraryData }): React.ReactN
         ) : (
           <EmptyState
             className="mt-4"
-            icon={<BookOpenCheckIcon />}
+            variant={data.masteredVerses.length ? "default" : "mascot"}
+            icon={data.masteredVerses.length ? <BookOpenCheckIcon /> : undefined}
             title={data.masteredVerses.length ? "No verses match these filters" : "Your mastery shelf is waiting"}
             description={data.masteredVerses.length ? "Try another translation or pack." : "Complete Learn, Recall, Strengthen, and Master for a verse to place it here."}
           />
@@ -188,7 +189,7 @@ export function VaultLibrary({ data }: { data: VaultLibraryData }): React.ReactN
             ))}
           </div>
         ) : (
-          <EmptyState className="mt-4" icon={<MapPinIcon />} title="No active waypoint" description="Your next unlocked trail challenge will appear here." />
+          <EmptyState className="mt-4" variant="mascot" title="No active waypoint" description="Your next unlocked trail challenge will appear here." />
         )}
       </section>
 
@@ -202,7 +203,13 @@ export function VaultLibrary({ data }: { data: VaultLibraryData }): React.ReactN
             {favorites.map((verse) => <VerseCard key={verse.verseId} verse={verse} canReplay={false} />)}
           </div>
         ) : (
-          <EmptyState className="mt-4" icon={<HeartIcon />} title={data.favoriteVerses.length ? "No favorites match these filters" : "No favorite verses yet"} description={data.favoriteVerses.length ? "Try another translation or pack." : "Favorite controls arrive with the Sanctuary in Phase 24."} />
+          <EmptyState
+            className="mt-4"
+            variant={data.favoriteVerses.length ? "default" : "mascot"}
+            icon={data.favoriteVerses.length ? <HeartIcon /> : undefined}
+            title={data.favoriteVerses.length ? "No favorites match these filters" : "No favorite verses yet"}
+            description={data.favoriteVerses.length ? "Try another translation or pack." : "Favorite controls arrive with the Sanctuary in Phase 24."}
+          />
         )}
       </section>
     </div>

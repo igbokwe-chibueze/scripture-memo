@@ -2,11 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { PlayIcon, XIcon } from "lucide-react";
+import { GlobalError } from "@/components/shared/global-error";
 import { Button } from "@/components/ui/button";
-import { GlobalLoading } from "@/components/shared/global-loading";
 
-/** Replays the exact production route-loading scene without artificial latency. */
-export function LoadingScreenPreview(): React.ReactNode {
+/** Replays the exact production recoverable-error boundary safely. */
+export function ErrorScreenPreview(): React.ReactNode {
   const [isOpen, setIsOpen] = useState(false);
   const launchButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -31,13 +31,15 @@ export function LoadingScreenPreview(): React.ReactNode {
     };
   }, [isOpen]);
 
+  const closePreview = (): void => setIsOpen(false);
+
   return (
     <section className="rounded-2xl border bg-card p-5 shadow-sm">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="font-heading text-xl font-bold">Loading transition</h2>
+          <h2 className="font-heading text-xl font-bold">Recoverable error</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Open the exact global and protected-route loading experience.
+            Open the exact production Luna recovery experience.
           </p>
         </div>
         <Button
@@ -46,7 +48,7 @@ export function LoadingScreenPreview(): React.ReactNode {
           onClick={() => setIsOpen(true)}
         >
           <PlayIcon aria-hidden="true" />
-          Preview Luna loading screen
+          Preview Luna error screen
         </Button>
       </div>
 
@@ -55,17 +57,17 @@ export function LoadingScreenPreview(): React.ReactNode {
           className="fixed inset-0 z-70 overflow-y-auto"
           role="dialog"
           aria-modal="true"
-          aria-label="Luna loading screen preview"
+          aria-label="Luna recoverable error preview"
         >
-          <GlobalLoading />
+          <GlobalError error={new Error("UI preview only")} unstable_retry={closePreview} />
           <Button
             ref={closeButtonRef}
             type="button"
             variant="outline"
             size="icon-lg"
             className="fixed top-4 right-4 z-80 rounded-full bg-background/85 backdrop-blur-md sm:top-6 sm:right-6"
-            aria-label="Close loading screen preview"
-            onClick={() => setIsOpen(false)}
+            aria-label="Close recoverable error preview"
+            onClick={closePreview}
           >
             <XIcon aria-hidden="true" />
           </Button>

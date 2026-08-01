@@ -10,6 +10,7 @@ import {
   PlayIcon,
   RotateCcwIcon,
   ShieldCheckIcon,
+  SparklesIcon,
   Volume2Icon,
   VolumeXIcon,
 } from "lucide-react";
@@ -27,8 +28,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { CountdownTimer } from "@/components/shared/countdown-timer";
 import { JourneyStageBadge } from "@/components/shared/journey-stage-badge";
+import { LunaMascot } from "@/components/shared/luna-mascot";
 import { showActionError } from "@/lib/errors/show-action-error";
-import { GAME_MODE_ORDER } from "@/lib/constants";
+import { GAME_MODE_ORDER, JOURNEY_STAGE_MODE_TIME_LIMIT_SECONDS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { startGameModeAction } from "@/features/gameplay/actions/start-game-mode.action";
 import { CueMode } from "@/features/gameplay/components/modes/cue-mode";
@@ -36,6 +38,7 @@ import { DragDropMode } from "@/features/gameplay/components/modes/drag-drop-mod
 import { FillMode } from "@/features/gameplay/components/modes/fill-mode";
 import { PuzzleMode } from "@/features/gameplay/components/modes/puzzle-mode";
 import { SwapMode } from "@/features/gameplay/components/modes/swap-mode";
+import { TimedAttemptExpired } from "@/features/gameplay/components/timed-attempt-expired";
 import type {
   GameModeAttemptData,
   GameplaySessionData,
@@ -71,6 +74,7 @@ export function GameShell({
   const [currentMode, setCurrentMode] = useState<GameMode | null>(
     gameSession.currentMode,
   );
+  const [expiredMode, setExpiredMode] = useState<GameMode | null>(null);
   const [isAwaitingContinue, setIsAwaitingContinue] = useState(false);
   const [isPending, startTransition] = useTransition();
   const currentModeIndex = currentMode
@@ -82,6 +86,12 @@ export function GameShell({
   const completedReplayModes = GAME_MODE_ORDER.filter((mode) =>
     gameSession.completedModes.includes(mode),
   );
+  const modeTimeLimitSeconds = gameSession.waypoint
+    ? JOURNEY_STAGE_MODE_TIME_LIMIT_SECONDS[gameSession.waypoint.journeyStage]
+    : null;
+  const modeTimeLimitMinutes = modeTimeLimitSeconds
+    ? Math.ceil(modeTimeLimitSeconds / 60)
+    : null;
 
   const beginMode = (): void => {
     if (!currentMode) return;
@@ -94,7 +104,10 @@ export function GameShell({
         showActionError(result);
         return;
       }
-      if (result.data) setAttempt(result.data);
+      if (result.data) {
+        setAttempt(result.data);
+        setExpiredMode(null);
+      }
       toast.success(result.message, { duration: 4_000 });
     });
   };
@@ -120,6 +133,7 @@ export function GameShell({
    */
   const continueToMode = (nextMode: GameMode | null): void => {
     setAttempt(null);
+    setExpiredMode(null);
     setCurrentMode(nextMode);
     setIsAwaitingContinue(false);
     if (!nextMode && gameSession.isVaultReplay) {
@@ -136,6 +150,7 @@ export function GameShell({
   /** Leaves the Radiance milestone for the newly refreshed trail state. */
   const continueToTrail = (): void => {
     setAttempt(null);
+    setExpiredMode(null);
     setIsAwaitingContinue(false);
     router.push("/game/map");
   };
@@ -309,7 +324,7 @@ export function GameShell({
                 label="Attempt time remaining"
                 onExpire={() => {
                   setAttempt(null);
-                  toast.error("Time expired. Start a fresh attempt.", { duration: Infinity });
+                  setExpiredMode(currentMode);
                 }}
               />
             </div>
@@ -444,28 +459,42 @@ export function GameShell({
               onWaypointContinue={continueToTrail}
               onCompletionShown={() => setIsAwaitingContinue(true)}
             />
+          ) : expiredMode && currentMode === expiredMode ? (
+            <TimedAttemptExpired
+              modeLabel={GAME_MODE_LABELS[expiredMode]}
+              isPending={isPending}
+              onRetry={beginMode}
+            />
           ) : (
-            <div className="my-auto flex flex-col items-center">
-              <span className="grid size-16 place-items-center rounded-2xl bg-violet-500/15 text-violet-700 dark:bg-violet-500/20 dark:text-violet-200">
-                <PlayIcon className="size-8" aria-hidden="true" />
-              </span>
+            <div className="my-auto flex w-full max-w-xl items-end gap-2 overflow-hidden rounded-[2rem] border border-violet-300/45 bg-linear-to-br from-card via-card to-violet-100/80 p-6 dark:to-violet-950/40 sm:gap-5 sm:p-8">
+              <div className="relative z-10 flex min-h-72 min-w-0 flex-1 flex-col items-start">
               <p className="mt-5 text-xs font-black tracking-[0.16em] text-violet-700 uppercase dark:text-violet-300">
-                Current mode
+                Up next
               </p>
               <h2 className="mt-2 font-heading text-3xl font-black">
                 {currentMode ? GAME_MODE_LABELS[currentMode] : "Day complete"}
               </h2>
-              <p className="mt-5 max-w-md text-sm leading-6 text-muted-foreground">
-                {attempt
-                  ? "This mode arrives in its dedicated gameplay phase."
-                  : "Begin when ready. Completed earlier modes remain saved if a timed attempt expires."}
-              </p>
+              {!attempt && currentMode && (
+                <div className="mt-5 rounded-2xl border border-violet-300/40 bg-background/75 p-4">
+                  {modeTimeLimitMinutes ? (
+                    <>
+                      <p className="inline-flex items-center gap-2 font-black"><Clock3Icon className="size-5 text-violet-600" aria-hidden="true" />{modeTimeLimitMinutes}-minute challenge</p>
+                      <p className="mt-1 text-sm text-muted-foreground">The clock starts only when you press Begin.</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="inline-flex items-center gap-2 font-black"><SparklesIcon className="size-5 text-amber-500" aria-hidden="true" />Learn at your pace</p>
+                      <p className="mt-1 text-sm text-muted-foreground">There is no timer for this challenge.</p>
+                    </>
+                  )}
+                </div>
+              )}
 
               {currentMode && !attempt && (
                 <Button
                   type="button"
                   size="lg"
-                  className="mt-7 min-h-12 rounded-xl bg-amber-400 px-7 font-black text-slate-950 hover:bg-amber-300"
+                  className="mt-auto min-h-12 rounded-xl bg-amber-400 px-7 font-black text-slate-950 hover:bg-amber-300"
                   disabled={isPending}
                   onClick={beginMode}
                 >
@@ -473,6 +502,8 @@ export function GameShell({
                   {isPending ? "Starting…" : `Begin ${GAME_MODE_LABELS[currentMode]}`}
                 </Button>
               )}
+              </div>
+              <LunaMascot pose={modeTimeLimitMinutes ? "encourage" : "guide"} decorative className="-mr-12 w-32 shrink-0 sm:-mr-9 sm:w-44" sizes="176px" />
             </div>
           )}
         </div>

@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { CountdownTimer } from "@/components/shared/countdown-timer";
+import { LunaMascot } from "@/components/shared/luna-mascot";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -98,7 +99,7 @@ export function DayCard({
   return (
     <Card
       className={cn(
-        "relative border py-0 shadow-lg shadow-foreground/5",
+        "relative overflow-hidden border py-0 shadow-lg shadow-foreground/5",
         card.status === "READY" && "border-amber-400/60 ring-2 ring-amber-300/20",
         card.status === "COMPLETE" && "border-emerald-400/45 bg-emerald-50/70 dark:bg-emerald-950/20",
         (card.status === "LOCKED" || card.status === "COOLDOWN") && "bg-card/75",
@@ -148,15 +149,17 @@ export function DayCard({
         )}
 
         {card.status === "COOLDOWN" && card.unlocksAt && (
-          <div className="space-y-2 rounded-xl border border-violet-300/35 bg-violet-50/70 p-3 dark:bg-violet-950/20">
-            <p className="text-xs font-bold tracking-wide text-violet-800 uppercase dark:text-violet-200">
-              Ready in
-            </p>
-            <CountdownTimer
-              targetDate={card.unlocksAt}
-              label={`${card.name} unlocks in`}
-              onExpire={() => router.refresh()}
-            />
+          <div className="relative -mx-1 flex min-h-44 overflow-hidden rounded-2xl border border-violet-300/40 bg-linear-to-br from-background via-violet-50/80 to-violet-100/90 p-4 dark:via-violet-950/30 dark:to-violet-950/60">
+            <div className="relative z-10 min-w-0 flex-1">
+              <p className="text-xs font-black tracking-[0.14em] text-violet-700 uppercase dark:text-violet-300">Rest the flame</p>
+              <p className="mt-1 font-heading text-lg font-black">{card.name} is preparing</p>
+              <p className="mt-1 max-w-56 text-xs leading-5 text-muted-foreground">Luna will keep your place. Return when the next challenge is ready.</p>
+              <div className="mt-3 w-fit rounded-xl border border-violet-300/40 bg-background/80 px-3 py-2 shadow-sm">
+                <p className="text-[0.6rem] font-black tracking-wide text-violet-700 uppercase dark:text-violet-300">Ready in</p>
+                <CountdownTimer targetDate={card.unlocksAt} label={`${card.name} unlocks in`} className="mt-1" onExpire={() => router.refresh()} />
+              </div>
+            </div>
+            <LunaMascot pose="guide" decorative className="-mr-10 mt-auto w-28 shrink-0 self-end sm:-mr-7 sm:w-36" sizes="144px" />
           </div>
         )}
       </CardContent>

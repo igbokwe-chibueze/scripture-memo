@@ -5,10 +5,9 @@ import { motion, useReducedMotion } from "framer-motion";
 import {
   ArrowRightIcon,
   FlameIcon,
-  Share2Icon,
   SparklesIcon,
 } from "lucide-react";
-import { toast } from "sonner";
+import { ShareAchievementButton } from "@/components/shared/share-achievement-button";
 import { Button } from "@/components/ui/button";
 import { AnimatedFlame } from "@/features/gameplay/components/animated-flame";
 import { useFlameAmbience } from "@/features/gameplay/hooks/use-flame-ambience";
@@ -51,24 +50,6 @@ export function StreakCompletionScreen({
     };
   }, []);
 
-  const shareStreak = async (): Promise<void> => {
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: "My Scripture Memo streak",
-          text: shareText,
-          url: window.location.origin,
-        });
-        return;
-      }
-      await navigator.clipboard.writeText(`${shareText} ${window.location.origin}`);
-      toast.success("Streak message copied.");
-    } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") return;
-      toast.error("Unable to share your streak.", { duration: Infinity });
-    }
-  };
-
   return (
     <motion.div
       className="fixed inset-0 z-40 overflow-y-auto bg-orange-950/75 px-4 backdrop-blur-md"
@@ -81,12 +62,17 @@ export function StreakCompletionScreen({
       <div className="flex min-h-full w-full justify-center py-4 sm:py-8">
         <motion.section
           className="relative my-auto w-full max-w-md overflow-hidden rounded-[2rem] border border-orange-300/45 bg-linear-to-b from-amber-50 via-orange-50 to-white p-6 text-center text-slate-950 shadow-2xl shadow-orange-950/45 dark:from-orange-950 dark:via-slate-900 dark:to-slate-950 dark:text-white sm:p-8"
-          initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.82, y: 36 }}
+          initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.74, y: 44 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={
             shouldReduceMotion
               ? { duration: 0 }
-              : { type: "spring", stiffness: 240, damping: 19 }
+              : {
+                  type: "spring",
+                  stiffness: streak.reachedNewLevel ? 180 : 210,
+                  damping: streak.reachedNewLevel ? 14 : 16,
+                  mass: streak.reachedNewLevel ? 1.15 : 1,
+                }
           }
         >
           <div className="pointer-events-none absolute inset-x-0 top-0 h-36 bg-linear-to-b from-orange-300/30 to-transparent" />
@@ -262,7 +248,7 @@ export function StreakCompletionScreen({
             </motion.div>
           )}
 
-          <div className="relative mt-6 grid gap-3">
+          <div className="relative mt-6 grid grid-cols-[minmax(0,1fr)_auto] gap-3">
             <Button
               type="button"
               className="min-h-12 rounded-xl bg-orange-500 font-black text-white hover:bg-orange-400"
@@ -271,15 +257,11 @@ export function StreakCompletionScreen({
               Continue
               <ArrowRightIcon data-icon="inline-end" aria-hidden="true" />
             </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="min-h-12 rounded-xl border-orange-300/60 bg-white/60 font-bold hover:bg-orange-100 dark:bg-white/5 dark:hover:bg-white/10"
-              onClick={() => void shareStreak()}
-            >
-              <Share2Icon data-icon="inline-start" aria-hidden="true" />
-              Share streak
-            </Button>
+            <ShareAchievementButton
+              title="My Scripture Memo streak"
+              text={shareText}
+              className="border-orange-300/60 bg-white/60 hover:bg-orange-100 dark:bg-white/5 dark:hover:bg-white/10"
+            />
           </div>
         </motion.section>
       </div>

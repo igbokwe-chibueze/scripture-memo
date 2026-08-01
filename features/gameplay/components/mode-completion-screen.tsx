@@ -4,10 +4,10 @@ import { useEffect } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   ArrowRightIcon,
-  CheckIcon,
   RotateCcwIcon,
   SparklesIcon,
 } from "lucide-react";
+import { LunaMascot } from "@/components/shared/luna-mascot";
 import { Button } from "@/components/ui/button";
 import type { GameMode } from "@/lib/generated/prisma/enums";
 import type { DayRewardResult } from "@/features/rewards/types/reward.types";
@@ -81,29 +81,39 @@ export function ModeCompletionScreen({
       <div className="flex min-h-full w-full justify-center py-4 sm:py-8">
         <motion.section
           className="my-auto w-full max-w-md overflow-hidden rounded-[2rem] border border-emerald-500/25 bg-linear-to-b from-white to-emerald-50 p-5 text-center text-foreground shadow-2xl shadow-emerald-950/25 dark:border-emerald-300/25 dark:from-slate-800 dark:to-slate-950 dark:text-white dark:shadow-emerald-950/60 sm:p-8"
-          initial={shouldReduceMotion ? false : { opacity: 0, y: 48, scale: 0.9 }}
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 46, scale: 0.78 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={
             shouldReduceMotion
               ? { duration: 0 }
-              : { type: "spring", stiffness: 260, damping: 22, delay: 0.08 }
+              : {
+                  type: "spring",
+                  stiffness: 210,
+                  damping: 16,
+                  mass: 1,
+                  delay: 0.08,
+                }
           }
         >
           <motion.div
-            className="relative mx-auto grid size-24 place-items-center rounded-full bg-linear-to-br from-emerald-300 to-emerald-600 text-slate-950 shadow-xl shadow-emerald-500/25 sm:size-28"
-            initial={shouldReduceMotion ? false : { scale: 0, rotate: -35 }}
-            animate={{ scale: 1, rotate: 0 }}
+            className="relative mx-auto flex h-36 w-36 items-end justify-center sm:h-44 sm:w-44"
+            initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.55, rotate: -8 }}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
             transition={
               shouldReduceMotion
                 ? { duration: 0 }
                 : { type: "spring", stiffness: 320, damping: 18, delay: 0.2 }
             }
           >
-            <span className="absolute inset-2 rounded-full border border-white/35" />
-            <CheckIcon className="size-12 stroke-3 sm:size-14" aria-hidden="true" />
+            <LunaMascot
+              pose="celebrate"
+              decorative
+              className="max-h-full w-auto"
+              sizes="176px"
+            />
           </motion.div>
 
-          <p className="mt-5 text-xs font-black tracking-[0.18em] text-emerald-700 uppercase dark:text-emerald-300 sm:mt-6">
+          <p className="mt-2 text-xs font-black tracking-[0.18em] text-emerald-700 uppercase dark:text-emerald-300 sm:mt-3">
             {isTestReplay
               ? "Admin test replay"
               : isVaultReplay

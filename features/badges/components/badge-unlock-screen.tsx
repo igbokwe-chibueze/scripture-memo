@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRightIcon, SparklesIcon } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { ShareAchievementButton } from "@/components/shared/share-achievement-button";
 import { ConfettiCelebration } from "@/features/gameplay/components/confetti-celebration";
 import { useAudioFeedback } from "@/features/gameplay/hooks/use-audio-feedback";
 import type { BadgeUnlockResult } from "@/features/badges/types/badge.types";
@@ -16,6 +17,49 @@ const RARITY_STYLES = {
   EPIC: "from-violet-100 to-fuchsia-200 text-violet-800 dark:from-violet-800 dark:to-fuchsia-950 dark:text-violet-100",
   LEGENDARY: "from-amber-100 via-yellow-200 to-orange-200 text-amber-900 dark:from-amber-700 dark:via-orange-800 dark:to-amber-950 dark:text-amber-50",
 } as const;
+
+/** Counts a persisted badge reward without implying the balance is client-authored. */
+function AnimatedBadgeReward({
+  amount,
+  reducedMotion,
+}: {
+  amount: number;
+  reducedMotion: boolean;
+}): React.ReactNode {
+  const [displayAmount, setDisplayAmount] = useState(0);
+
+  useEffect(() => {
+    if (reducedMotion) return;
+
+    let frameId = 0;
+    let startTime: number | null = null;
+    const delayMs = 450;
+    const durationMs = 900;
+
+    // WHY: The animation only interpolates the server-returned display value.
+    // It never changes the persisted reward or balance and is cancelled when a
+    // badge sequence advances, preventing stale frames from updating the next badge.
+    const updateCount = (timestamp: number): void => {
+      startTime ??= timestamp;
+      const elapsed = timestamp - startTime;
+      if (elapsed < delayMs) {
+        setDisplayAmount(0);
+        frameId = window.requestAnimationFrame(updateCount);
+        return;
+      }
+
+      const progress = Math.min((elapsed - delayMs) / durationMs, 1);
+      const easedProgress = 1 - Math.pow(1 - progress, 3);
+      setDisplayAmount(Math.round(amount * easedProgress));
+      if (progress < 1) frameId = window.requestAnimationFrame(updateCount);
+    };
+
+    frameId = window.requestAnimationFrame(updateCount);
+    return () => window.cancelAnimationFrame(frameId);
+  }, [amount, reducedMotion]);
+
+  return <>{(reducedMotion ? amount : displayAmount).toLocaleString()}</>;
+}
 
 /** Presents one persisted badge unlock and waits for explicit player dismissal. */
 export function BadgeUnlockScreen({
@@ -62,13 +106,24 @@ export function BadgeUnlockScreen({
             initial={
               shouldReduceMotion
                 ? false
-                : { opacity: 0, scale: isLegendary ? 0.72 : 0.84, rotate: -5 }
+                : {
+                    opacity: 0,
+                    y: 44,
+                    scale: isLegendary ? 0.68 : 0.76,
+                    rotate: -5,
+                  }
             }
             animate={{ opacity: 1, scale: 1, rotate: 0 }}
-            transition={{
-              duration: shouldReduceMotion ? 0 : isLegendary ? 0.75 : 0.48,
-              ease: [0.22, 1, 0.36, 1],
-            }}
+            transition={
+              shouldReduceMotion
+                ? { duration: 0 }
+                : {
+                    type: "spring",
+                    stiffness: isLegendary ? 180 : 210,
+                    damping: isLegendary ? 14 : 16,
+                    mass: isLegendary ? 1.15 : 1,
+                  }
+            }
           >
             <SparklesIcon className="absolute top-6 left-6 size-5 opacity-60" aria-hidden="true" />
             <SparklesIcon className="absolute top-10 right-7 size-4 opacity-50" aria-hidden="true" />
@@ -100,18 +155,27 @@ export function BadgeUnlockScreen({
               <p className="text-xs font-black tracking-[0.14em] uppercase">
                 Glow Points earned
               </p>
-              <p className="mt-1 font-heading text-3xl font-black">+{badge.rewardAmount}</p>
+              <p className="mt-1 font-heading text-3xl font-black" aria-label={`${badge.rewardAmount} Glow Points earned`}>
+                +<AnimatedBadgeReward amount={badge.rewardAmount} reducedMotion={Boolean(shouldReduceMotion)} />
+              </p>
               <p className="text-xs font-bold opacity-70">New balance: {badge.balance}</p>
             </div>
 
-            <Button
-              type="button"
-              className="mt-6 min-h-12 w-full rounded-xl bg-slate-950 font-black text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100"
-              onClick={onContinue}
-            >
-              Continue
-              <ArrowRightIcon data-icon="inline-end" aria-hidden="true" />
-            </Button>
+            <div className="mt-6 grid grid-cols-[minmax(0,1fr)_auto] gap-3">
+              <Button
+                type="button"
+                className="min-h-12 rounded-xl bg-slate-950 font-black text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100"
+                onClick={onContinue}
+              >
+                Continue
+                <ArrowRightIcon data-icon="inline-end" aria-hidden="true" />
+              </Button>
+              <ShareAchievementButton
+                title={`I unlocked ${badge.name}`}
+                text={`I unlocked the ${badge.name} badge in Scripture Memo!`}
+                className="border-current/25 bg-white/35 hover:bg-white/55 dark:bg-black/15 dark:hover:bg-black/25"
+              />
+            </div>
           </motion.section>
         </div>
       </motion.div>

@@ -1,5 +1,213 @@
 # Scripture Memo Project Log
 
+### 2026-08-01 — Mobile button press feedback strengthened
+
+- Increased shared button touch compression from `0.99` to `0.97` while
+  retaining the 3px downward travel and compressed lower edge.
+- Shortened touch-down transition timing and enabled manipulation-focused touch
+  handling so mobile presses respond more immediately without relying on hover.
+- Preserved reduced-motion behavior and left global sound/haptics for a future
+  settings-aware feedback system.
+
+### 2026-08-01 — Visual-first copy rule established
+
+- Added a durable UI rule that Scripture Memo should communicate primarily
+  through visuals, hierarchy, icons, motion, color, and concise labels.
+- Player-facing paragraphs and repeated instructions must be minimized; prose
+  remains only where it prevents confusion, communicates an important rule, or
+  supports accessibility.
+
+### 2026-08-01 — Badge reward count-up added
+
+- Animated the persisted Glow Points earned value from zero to the awarded
+  amount after the badge-unlock card settles.
+- Kept the server-returned balance static so the animation cannot imply a
+  client-side reward calculation or second balance update.
+- Reduced-motion users receive the final reward value immediately.
+
+### 2026-08-01 — Compact celebration sharing added
+
+- Placed Continue and Share on one row in the streak celebration to shorten the
+  mobile card while preserving Continue as the flexible primary action.
+- Added the same compact Share action to badge-unlock celebrations.
+- Extracted native-share and clipboard fallback behavior into a shared,
+  touch-friendly achievement button with safe public copy and Sonner feedback.
+
+### 2026-08-01 — Luna added to Mode Complete
+
+- Replaced the Mode Complete check medallion with Luna's approved celebration
+  pose and retained a spring entrance for the mascot.
+- Kept all existing completion copy, rewards, audio, confetti, scroll locking,
+  and player-controlled progression behavior unchanged.
+- The live result remains directly replayable from `/ui-foundation`.
+
+### 2026-08-01 — Celebration card springs slowed
+
+- Reduced spring stiffness and increased perceived mass across the four
+  completion and celebration card entrances so their overshoot and settling
+  motion remains visible longer.
+- Kept waypoint, Legendary badge, and new streak-level cards slightly heavier
+  than ordinary mode and daily-streak celebrations.
+
+### 2026-08-01 — Celebration cards given tactile spring entrances
+
+- Strengthened the card-level entrance animation for mode completion, badge
+  unlock, waypoint completion, and streak celebration screens.
+- Replaced the badge card's tween entrance with a true spring and tuned stronger
+  milestone screens with slightly more mass and bounce.
+- Preserved every screen's existing content, audio, particles, rewards, and
+  player-controlled dismissal behavior; Luna was not added.
+- Retained immediate, movement-free presentation for reduced-motion users.
+
+### 2026-08-01 — Luna reward-screen proposals rejected and removed
+
+- Removed the review-only Luna comparisons for mode completion, badge unlock,
+  waypoint completion, and streak celebration from `/ui-foundation`.
+- Confirmed Luna will not be added to these four established celebration
+  screens; their existing production designs remain unchanged.
+
+### 2026-08-01 — Luna learning and guidance approved and promoted
+
+- Promoted the approved Luna hint treatment into the self-closing hint modal
+  while preserving its canonical verse content and progress timer.
+- Turned challenge cooldown cards into a guided waiting state without changing
+  server-authoritative unlock enforcement or the administrator override.
+- Promoted one shared mode-ready treatment for timed and untimed Journey Stages;
+  timed modes now state their exact limit and when the clock begins.
+- Removed the approved comparison batch from `/ui-foundation`.
+
+### 2026-08-01 — Luna learning and guidance comparisons added
+
+- Added one review-only Learning & Guidance batch to `/ui-foundation` covering
+  the existing hint modal, challenge cooldown, and mode-ready experience.
+- Included Before/After comparisons only for surfaces that already exist.
+- Consolidated the proposed timed-stage introduction into the existing
+  mode-ready experience and added an Untimed/Timed preview control instead of
+  inventing a duplicate screen.
+- Left all live hint, waypoint, and gameplay components unchanged pending
+  project-owner approval.
+
+### 2026-08-01 — Luna timed-expiry recovery approved and promoted
+
+- Replaced the generic post-expiry mode-ready state with the approved dedicated
+  Luna recovery treatment.
+- Client countdown expiry now identifies the expired mode, clears only that
+  attempt, reassures the learner that completed modes remain saved, and starts a
+  fresh server-timed attempt through the existing action on retry.
+- Retained all incorrect-answer feedback unchanged and removed the approved
+  gameplay recovery comparison from `/ui-foundation`.
+
+### 2026-08-01 — Gameplay recovery audit and expiry comparison added
+
+- Audited all five incorrect-answer flows and retained their current precise
+  position feedback, error sound, and persistent count-specific toast; Luna is
+  intentionally not proposed for every incorrect Check.
+- Added a Before/After timed-attempt expiry comparison to `/ui-foundation`.
+  The Luna candidate explicitly reassures learners that completed modes remain
+  saved and offers a fresh attempt for the expired mode.
+- Left the live expiry behavior unchanged pending project-owner approval.
+
+### 2026-08-01 — Vault and Badge empty states approved and promoted
+
+- Applied the Luna mascot empty state to genuinely empty Vault mastery,
+  in-progress, and favorite sections while keeping filter-only misses restrained.
+- Replaced the Badge Collection's custom filter-empty markup with the shared
+  compact state and a working **Clear filters** action that resets status,
+  category, and rarity together.
+- Removed the approved Before/After empty-state comparison from
+  `/ui-foundation`; the shared variants remain represented by their live uses.
+
+### 2026-08-01 — Vault and Badge empty-state comparisons added
+
+- Added backward-compatible `mascot` and `compact` variants to the shared
+  `EmptyState` component; existing callers retain the unchanged default style.
+- Added side-by-side Vault mastery-shelf and Badge filter-empty comparisons to
+  `/ui-foundation`.
+- Proposed Luna guidance for genuinely empty Vault content and a smaller shared
+  recovery state with **Clear filters** for Badge filter results. Live Vault and
+  Badge components remain unchanged pending project-owner approval.
+
+### 2026-08-01 — Luna recoverable error approved and promoted
+
+- Promoted the approved Luna retry treatment into the production `GlobalError`
+  while preserving safe exception redaction and Next.js recovery behavior.
+- Removed the previous generic error presentation and deleted the temporary Luna
+  candidate.
+- Simplified `/ui-foundation` to one preview of the live Luna error screen and
+  removed the obsolete Before/After controls.
+
+### 2026-08-01 — Luna error candidate copy simplified
+
+- Replaced the recoverable-error candidate copy with **Oops we hit a snag** and
+  **Luna could not load this. Try again.**
+- Removed the additional eyebrow so the candidate retains only the requested
+  message and recovery action.
+
+### 2026-08-01 — Luna recoverable-error comparison added
+
+- Added a full-screen **Before: current** preview of the exact live recoverable
+  error boundary and a separate **After: with Luna** candidate in
+  `/ui-foundation`.
+- The Luna candidate preserves safe error redaction and the single retry action
+  while adding the approved retry pose, shared game palette, and reduced-motion
+  treatment.
+- Left the production `GlobalError` component unchanged pending visual approval.
+
+### 2026-08-01 — Luna loading screen approved and promoted
+
+- Promoted the approved Luna loading treatment into the production
+  `GlobalLoading` component used by root and protected route boundaries.
+- Removed the previous flame-only loading implementation and deleted the
+  temporary Luna comparison candidate.
+- Simplified `/ui-foundation` back to one preview action showing the live Luna
+  loading screen; the obsolete Before preview is no longer available.
+
+### 2026-08-01 — Luna loading candidate simplified
+
+- Restored the current loading screen's small rising ember particles in the Luna
+  comparison candidate while retaining reduced-motion behavior.
+- Removed the redundant Scripture Memo eyebrow and supporting sentence so Luna,
+  the loading title, and trail progress remain the visual focus.
+
+### 2026-08-01 — Luna UI integration previews started
+
+- Added a shared typed `LunaMascot` component that restricts callers to approved
+  poses, preserves intrinsic aspect ratios, and requires explicit decorative or
+  meaningful accessibility treatment.
+- Added the complete Luna production gallery to `/ui-foundation` without a
+  redundant before-and-after state for the new asset family.
+- Added separate **Before: current** and **After: with Luna** full-screen loading
+  previews. The production `GlobalLoading` route remains unchanged until the
+  Luna candidate receives project-owner approval.
+
+### 2026-08-01 — Compact Luna notification portraits added
+
+- Added square head-and-shoulders worried, disappointed, and angry/determined
+  Luna portraits designed specifically for notification and widget scale.
+- Preserved the existing full-body emotional poses for larger in-app surfaces
+  and documented the correct compact-versus-full-body usage boundary.
+- Corrected the urgent portrait framing so both ears remain within safe margins
+  for circular and rounded-square masks.
+
+### 2026-08-01 — Luna favicon and reminder expressions added
+
+- Replaced the root application favicon with a close-up Luna portrait containing
+  native 16, 32, 48, and 64-pixel frames.
+- Added worried, disappointed, and angry/determined transparent Luna poses for
+  escalating streak reminders, notifications, and future widgets.
+- Documented an emotionally safe escalation model: caring warning, urgent
+  determination, then compassionate reset acknowledgement without shaming the
+  learner.
+
+### 2026-08-01 — Luna mascot production set created
+
+- Established Luna as Scripture Memo's upright sheep guide with cream wool,
+  warm charcoal features, amber eyes, and a golden flame pendant.
+- Added six transparent production poses for guidance, celebration,
+  encouragement, loading, gentle retry feedback, and reward presentation.
+- Preserved the chroma-key generation sources, added a documented local removal
+  workflow, and recorded identity and usage rules beside the assets.
+
 ### 2026-08-01 — Phase 23 completed and accepted
 
 - Marked Phase 23 Vault complete after project-owner acceptance of every
