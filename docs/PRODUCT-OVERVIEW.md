@@ -1162,6 +1162,10 @@ For a selected waypoint:
 ### 15.4 Sanctuary (🕊️)
 
 Reflection space shown after completing Radiance or as a standalone destination.
+- The same Sanctuary opens before Glimmer for an unlocked waypoint, locks from
+  the first Glimmer session through Radiance, and permanently reopens after
+  Radiance. The lock is server-enforced across direct URLs, Vault actions, and
+  waypoint navigation; active-practice screens never serialize the verse text.
 - Full verse displayed with the user's preferred translation
 - Reflection question and study note
 - Private notes: user can write and save a personal note about the verse

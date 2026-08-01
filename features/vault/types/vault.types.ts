@@ -17,12 +17,13 @@ export type VaultVerseItem = {
   verseId: string;
   reference: string;
   translation: TranslationCode;
-  text: string;
+  text: string | null;
   availableTranslations: TranslationCode[];
   packSlugs: string[];
   packNames: string[];
   isFavorite: boolean;
   hasPersonalNote: boolean;
+  studyAccess: "AVAILABLE" | "LOCKED";
   completedStages: JourneyStage[];
 };
 

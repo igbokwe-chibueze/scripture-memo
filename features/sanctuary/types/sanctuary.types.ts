@@ -1,4 +1,5 @@
 import type { TranslationCode } from "@/lib/generated/prisma/enums";
+import type { StudyAccessState } from "@/features/sanctuary/lib/study-access";
 
 /** Private, learner-authorized data rendered by one Sanctuary page. */
 export type SanctuaryData = {
@@ -11,3 +12,8 @@ export type SanctuaryData = {
   personalNote: string;
   isFavorite: boolean;
 };
+
+/** Distinguishes a temporary practice lock from an unauthorized verse URL. */
+export type SanctuaryReadResult =
+  | { status: "available"; access: Exclude<StudyAccessState, "LOCKED" | "UNAVAILABLE">; data: SanctuaryData }
+  | { status: "locked"; verseId: string; reference: string };

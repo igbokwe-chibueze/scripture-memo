@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { requireServerSession } from "@/lib/auth/session";
 import { SanctuarySpace } from "@/features/sanctuary/components/sanctuary-space";
+import { SanctuaryLocked } from "@/features/sanctuary/components/sanctuary-locked";
 import { sanctuaryRepository } from "@/features/sanctuary/repositories/sanctuary.repository";
 
 export const metadata: Metadata = {
@@ -18,7 +19,14 @@ export async function SanctuaryView({
 }): Promise<React.ReactNode> {
   const session = await requireServerSession();
   const { verseId } = await params;
-  const data = await sanctuaryRepository.getSanctuary(session.user.id, verseId);
-  if (!data) notFound();
-  return <SanctuarySpace data={data} />;
+  const result = await sanctuaryRepository.getSanctuary(session.user.id, verseId);
+  if (!result) notFound();
+  if (result.status === "locked") {
+    const waypointId = await sanctuaryRepository.getActiveWaypointId(
+      session.user.id,
+      verseId,
+    );
+    return <SanctuaryLocked reference={result.reference} waypointId={waypointId} />;
+  }
+  return <SanctuarySpace data={result.data} />;
 }

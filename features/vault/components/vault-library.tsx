@@ -9,6 +9,7 @@ import {
   BookOpenCheckIcon,
   FilterIcon,
   HeartIcon,
+  LockKeyholeIcon,
   MapPinIcon,
   PlayIcon,
   StickyNoteIcon,
@@ -77,9 +78,15 @@ function VerseCard({
           )}
         </div>
       </div>
-      <p className="mt-4 line-clamp-3 text-sm leading-6 text-muted-foreground">
-        {verse.text}
-      </p>
+      {verse.studyAccess === "LOCKED" ? (
+        <div className="mt-4 flex min-h-18 items-center justify-center gap-2 rounded-2xl border border-dashed border-violet-300/50 bg-violet-500/5 text-sm font-bold text-violet-700 dark:text-violet-300">
+          <LockKeyholeIcon className="size-4" aria-hidden="true" /> Practice in progress
+        </div>
+      ) : (
+        <p className="mt-4 line-clamp-3 text-sm leading-6 text-muted-foreground">
+          {verse.text}
+        </p>
+      )}
       {verse.packNames.length > 0 && (
         <p className="mt-3 text-xs font-bold text-muted-foreground">
           {verse.packNames.join(" · ")}
@@ -92,14 +99,20 @@ function VerseCard({
           </span>
         ))}
       </div>
-      <div className={cn("mt-5 grid gap-2", canReplay && "grid-cols-2")}>
-        <Link
-          href={`/sanctuary/${verse.verseId}`}
-          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-violet-300/40 bg-background px-3 text-sm font-black hover:bg-violet-50 dark:hover:bg-violet-950/30"
-        >
-          <BookHeartIcon className="size-4" aria-hidden="true" /> Sanctuary
-        </Link>
-        {canReplay && (
+      <div className={cn("mt-5 grid gap-2", canReplay && verse.studyAccess === "AVAILABLE" && "grid-cols-2")}>
+        {verse.studyAccess === "AVAILABLE" ? (
+          <Link
+            href={`/sanctuary/${verse.verseId}`}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-violet-300/40 bg-background px-3 text-sm font-black hover:bg-violet-50 dark:hover:bg-violet-950/30"
+          >
+            <BookHeartIcon className="size-4" aria-hidden="true" /> Sanctuary
+          </Link>
+        ) : (
+          <Button type="button" variant="outline" className="min-h-11 rounded-xl" disabled>
+            <LockKeyholeIcon aria-hidden="true" /> Study locked
+          </Button>
+        )}
+        {canReplay && verse.studyAccess === "AVAILABLE" && (
         <Button
           type="button"
           className="min-h-11 rounded-xl bg-violet-600 font-black text-white hover:bg-violet-500"

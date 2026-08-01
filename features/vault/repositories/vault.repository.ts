@@ -15,6 +15,7 @@ import type {
 import { VAULT_REPLAY_DAY_LEVEL } from "@/features/vault/constants/vault-replay-rules";
 import { hasCompletedEveryJourneyStage } from "@/features/vault/lib/vault-mastery";
 import { calculateHintBalance } from "@/features/hints/lib/hint-balance";
+import { getStudyAccessState, isStudyAvailable } from "@/features/sanctuary/lib/study-access";
 
 const vaultTransactionOptions = { maxWait: 10_000, timeout: 60_000 } as const;
 
@@ -43,23 +44,38 @@ function mapVerse(
     packs: Array<{ pack: { name: string; slug: string } }>;
     favorites: Array<{ userId: string }>;
     notes: Array<{ content: string }>;
-    waypoints: Array<{ journeyStage: JourneyStage }>;
+    waypoints: Array<{
+      number: number;
+      journeyStage: JourneyStage;
+      userProgress: Array<{ status: WaypointStatus }>;
+    }>;
   },
   preferred: TranslationCode,
 ): VaultVerseItem | null {
   const selected = selectTranslation(verse.translations, preferred);
   if (!selected) return null;
+  const studyState = getStudyAccessState(
+    verse.waypoints.flatMap((waypoint) =>
+      waypoint.userProgress[0]
+        ? [{ number: waypoint.number, status: waypoint.userProgress[0].status }]
+        : [],
+    ),
+  );
+  const studyAvailable = isStudyAvailable(studyState);
   return {
     verseId: verse.id,
     reference: verse.reference,
     translation: selected.translation,
-    text: selected.text,
+    text: studyAvailable ? selected.text : null,
     availableTranslations: verse.translations.map(({ translation }) => translation),
     packSlugs: verse.packs.map(({ pack }) => pack.slug),
     packNames: verse.packs.map(({ pack }) => pack.name),
     isFavorite: verse.favorites.length > 0,
     hasPersonalNote: Boolean(verse.notes[0]?.content.trim()),
-    completedStages: verse.waypoints.map(({ journeyStage }) => journeyStage),
+    completedStages: verse.waypoints.flatMap(({ journeyStage, userProgress }) =>
+      userProgress[0]?.status === WaypointStatus.COMPLETED ? [journeyStage] : [],
+    ),
+    studyAccess: studyAvailable ? "AVAILABLE" : "LOCKED",
   };
 }
 
@@ -86,10 +102,18 @@ const vaultVerseSelect = (userId: string) => ({
   waypoints: {
     where: {
       userProgress: {
-        some: { userId, status: WaypointStatus.COMPLETED },
+        some: { userId },
       },
     },
-    select: { journeyStage: true },
+    select: {
+      number: true,
+      journeyStage: true,
+      userProgress: {
+        where: { userId },
+        select: { status: true },
+        take: 1,
+      },
+    },
     orderBy: { number: "asc" as const },
   },
 }) satisfies Prisma.VerseSelect;
@@ -250,16 +274,27 @@ export const vaultRepository = {
     startedAt: Date,
   ): Promise<string | null> {
     return prisma.$transaction(async (transaction) => {
-      const completedStages = await transaction.userWaypointProgress.findMany({
+      const verseProgress = await transaction.userWaypointProgress.findMany({
         where: {
           userId,
-          status: WaypointStatus.COMPLETED,
           waypoint: { verseId },
         },
-        select: { waypoint: { select: { journeyStage: true } } },
+        select: {
+          status: true,
+          waypoint: { select: { number: true, journeyStage: true } },
+        },
       });
+      const studyAccess = getStudyAccessState(
+        verseProgress.map(({ status, waypoint }) => ({
+          status,
+          number: waypoint.number,
+        })),
+      );
+      if (!isStudyAvailable(studyAccess)) return null;
       const stages = new Set(
-        completedStages.map(({ waypoint }) => waypoint.journeyStage),
+        verseProgress.flatMap(({ status, waypoint }) =>
+          status === WaypointStatus.COMPLETED ? [waypoint.journeyStage] : [],
+        ),
       );
       if (!hasCompletedEveryJourneyStage(stages)) return null;
 

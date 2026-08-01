@@ -1277,11 +1277,14 @@ test learner has not yet mastered one verse across all four Journey Stages.
    `UserFavoriteVerse` relation.
 6. Show Sonner toast on note save and favorite toggle.
 7. Accessible from: automatic redirect after Day 3 completion, and as a standalone destination from the Vault.
+8. Use the same server-authoritative study lifecycle everywhere: pre-study is
+   open before Glimmer starts, content and replay lock during Glimmer through
+   Radiance, and Sanctuary permanently reopens after Radiance.
 
-**Implementation status (2026-08-01):** Complete pending project-owner manual
-acceptance. Access is proven from the authenticated learner's completed waypoint
-history on every read and mutation. The existing `UserVerseNote` and
-`UserFavoriteVerse` constraints required no schema migration.
+**Implementation status (2026-08-01):** Complete and accepted after project-owner
+manual mobile testing. Access is proven from the authenticated learner's
+completed waypoint history on every read and mutation. The existing
+`UserVerseNote` and `UserFavoriteVerse` constraints required no schema migration.
 
 ### Acceptance Criteria
 

@@ -1,5 +1,25 @@
 # Scripture Memo Project Log
 
+### 2026-08-01 — Phase 24 accepted
+
+- Recorded successful project-owner mobile testing of the Sanctuary and its
+  study-access lifecycle.
+- Marked Phase 24 complete and accepted; the project is ready to proceed to
+  Phase 25, the Oil Shop.
+
+### 2026-08-01 — Server-authoritative study lifecycle implemented
+
+- Added one shared policy for the approved pre-study, active-practice lock, and
+  permanent post-Radiance Sanctuary lifecycle.
+- The waypoint page now shows the full preview and Study Verse before Glimmer,
+  hides the verse after Glimmer starts, and restores Study Verse after Radiance.
+- Direct Sanctuary URLs show a content-free locked state during practice;
+  unauthorized verses remain indistinguishable Not Found responses.
+- Vault cards suppress verse text, Sanctuary access, and replay while a later
+  occurrence of that verse is active, including Recall, Strengthen, and Master.
+- Added deterministic policy tests covering unlock, practice, cooldown,
+  completion, later-stage precedence, and harmless locked future records.
+
 ### 2026-08-01 — Vault private-note indicator added
 
 - Added a note icon to Vault verse cards when the authenticated learner has
