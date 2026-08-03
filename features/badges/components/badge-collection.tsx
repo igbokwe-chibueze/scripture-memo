@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { CheckIcon, HelpCircleIcon, LockIcon, RotateCcwIcon, SparklesIcon } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,8 @@ export function BadgeCollection({
 }: {
   badges: BadgeCollectionItem[];
 }): React.ReactNode {
+  const t = useTranslations("Badges");
+  const locale = useLocale();
   const [filter, setFilter] = useState<CollectionFilter>("ALL");
   const [category, setCategory] = useState<BadgeCategory | "ALL">("ALL");
   const [rarity, setRarity] = useState<BadgeRarity | "ALL">("ALL");
@@ -47,7 +50,7 @@ export function BadgeCollection({
 
   return (
     <>
-      <div className="flex gap-2 overflow-x-auto pb-2" aria-label="Badge status filters">
+      <div className="flex gap-2 overflow-x-auto pb-2" aria-label={t("statusFilters")}>
         {(["ALL", "COMPLETED", "IN_PROGRESS", "LOCKED"] as const).map((option) => (
           <button
             key={option}
@@ -61,32 +64,32 @@ export function BadgeCollection({
             aria-pressed={filter === option}
             onClick={() => setFilter(option)}
           >
-            {option.replace("_", " ")}
+            {t(`filters.${option}`)}
           </button>
         ))}
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="grid gap-1 text-xs font-black tracking-wide uppercase">
-          Category
+          {t("category")}
           <select
             className="min-h-11 rounded-xl border border-input bg-background px-3 text-sm font-semibold normal-case"
             value={category}
             onChange={(event) => setCategory(event.currentTarget.value as BadgeCategory | "ALL")}
           >
-            <option value="ALL">All categories</option>
+            <option value="ALL">{t("allCategories")}</option>
             {["LEARNING", "STREAK", "MASTERY", "INDEPENDENCE", "SPEED", "EXPLORATION"].map((value) => (
               <option key={value} value={value}>{value}</option>
             ))}
           </select>
         </label>
         <label className="grid gap-1 text-xs font-black tracking-wide uppercase">
-          Rarity
+          {t("rarity")}
           <select
             className="min-h-11 rounded-xl border border-input bg-background px-3 text-sm font-semibold normal-case"
             value={rarity}
             onChange={(event) => setRarity(event.currentTarget.value as BadgeRarity | "ALL")}
           >
-            <option value="ALL">All rarities</option>
+            <option value="ALL">{t("allRarities")}</option>
             {["COMMON", "UNCOMMON", "RARE", "EPIC", "LEGENDARY"].map((value) => (
               <option key={value} value={value}>{value}</option>
             ))}
@@ -98,12 +101,12 @@ export function BadgeCollection({
         <EmptyState
           variant="compact"
           icon={<SparklesIcon />}
-          title="No badges match these filters"
-          description="Clear the filters to bring every available badge back into view."
+          title={t("noMatch")}
+          description={t("clearPrompt")}
           action={
             <Button type="button" variant="outline" size="sm" onClick={clearFilters}>
               <RotateCcwIcon aria-hidden="true" />
-              Clear filters
+              {t("clearFilters")}
             </Button>
           }
         />
@@ -134,11 +137,11 @@ export function BadgeCollection({
                   </span>
                 </div>
                 <h2 className="mt-4 font-heading text-xl font-black">
-                  {secret ? "Secret Badge" : badge.name}
+                  {secret ? t("secretBadge") : badge.name}
                 </h2>
                 <p className="mt-1 min-h-10 text-sm text-muted-foreground">
                   {secret
-                    ? "Unlock this achievement to discover it."
+                    ? t("secretDescription")
                     : badge.description}
                 </p>
                 <div className="mt-4 h-2 overflow-hidden rounded-full bg-muted">
@@ -151,12 +154,12 @@ export function BadgeCollection({
                   <span>{badge.progress} / {badge.targetValue}</span>
                   <span className="inline-flex items-center gap-1">
                     {unlocked ? <CheckIcon className="size-3.5" /> : <LockIcon className="size-3.5" />}
-                    {unlocked ? "Earned" : `+${badge.rewardAmount} Glow`}
+                    {unlocked ? t("earned") : t("rewardShort", { points: badge.rewardAmount })}
                   </span>
                 </div>
                 {unlocked && badge.unlockedAt && (
                   <p className="mt-3 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
-                    Unlocked {new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(badge.unlockedAt)}
+                    {t("unlockedOn", { date: new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(badge.unlockedAt) })}
                   </p>
                 )}
               </article>

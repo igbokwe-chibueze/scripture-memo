@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   ArrowRightIcon,
@@ -11,14 +12,6 @@ import { LunaMascot } from "@/components/shared/luna-mascot";
 import { Button } from "@/components/ui/button";
 import type { GameMode } from "@/lib/generated/prisma/enums";
 import type { DayRewardResult } from "@/features/rewards/types/reward.types";
-
-const MODE_LABELS = {
-  DRAG_DROP: "Drag & Drop",
-  PUZZLE: "Puzzle",
-  SWAP: "Swap",
-  CUE: "Cue",
-  FILL: "Fill",
-} as const;
 
 /**
  * Pauses progression on a celebratory, explicit learner-controlled transition.
@@ -44,6 +37,11 @@ export function ModeCompletionScreen({
   onReplay?: () => void;
   reward?: DayRewardResult | null;
 }): React.ReactNode {
+  const t = useTranslations("Completion");
+  const gameT = useTranslations("Gameplay");
+  const modeLabels: Record<GameMode, string> = {
+    DRAG_DROP: gameT("dragDrop"), PUZZLE: gameT("puzzle"), SWAP: gameT("swap"), CUE: gameT("cue"), FILL: gameT("fill"),
+  };
   const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
@@ -115,41 +113,41 @@ export function ModeCompletionScreen({
 
           <p className="mt-2 text-xs font-black tracking-[0.18em] text-emerald-700 uppercase dark:text-emerald-300 sm:mt-3">
             {isTestReplay
-              ? "Admin test replay"
+              ? t("adminReplay")
               : isVaultReplay
-                ? "Vault replay"
-                : "Mode restored"}
+                ? t("vaultReplay")
+                : t("modeRestored")}
           </p>
           <h2 id="mode-complete-title" className="mt-2 font-heading text-4xl font-black">
-            Beautiful work!
+            {t("beautifulWork")}
           </h2>
           <p className="mt-3 text-lg font-bold text-foreground/80 dark:text-slate-200">
-            {MODE_LABELS[completedMode]} complete
+            {t("modeComplete", { mode: modeLabels[completedMode] })}
           </p>
 
           <div className="mt-5 rounded-2xl border border-amber-400/30 bg-amber-100/70 p-4 dark:border-amber-300/20 dark:bg-amber-300/8 sm:mt-7">
             <SparklesIcon className="mx-auto size-6 text-amber-600 dark:text-amber-300" aria-hidden="true" />
             <p className="mt-2 text-sm font-semibold text-muted-foreground dark:text-slate-300">
               {isTestReplay
-                ? "Testing complete. No progress, rewards, or cooldowns were changed."
+                ? t("testingComplete")
                 : isVaultReplay
                   ? nextMode
-                    ? `${MODE_LABELS[nextMode]} is ready. This replay remains reward-free and untimed.`
-                    : "The mastered verse replay is complete. Campaign progress, rewards, streaks, and cooldowns were unchanged."
+                    ? t("vaultNextReady", { mode: modeLabels[nextMode] })
+                    : t("vaultComplete")
                 : nextMode
-                  ? `${MODE_LABELS[nextMode]} is ready when you are.`
-                  : "Every mode in this challenge day is complete."}
+                  ? t("nextReady", { mode: modeLabels[nextMode] })
+                  : t("dayComplete")}
             </p>
             {!isTestReplay && reward && (
               <div className="mt-3">
                 <p className="text-xs font-black tracking-[0.14em] text-amber-700 uppercase dark:text-amber-300">
-                  Glow Points earned
+                  {t("glowEarned")}
                 </p>
                 <p className="font-heading text-3xl font-black text-amber-700 dark:text-amber-300">
                   +{reward.amount}
                 </p>
                 <p className="text-xs font-semibold text-muted-foreground dark:text-slate-300">
-                  New balance: {reward.balance}
+                  {t("newBalance", { balance: reward.balance })}
                 </p>
               </div>
             )}
@@ -162,12 +160,12 @@ export function ModeCompletionScreen({
               onClick={onContinue}
             >
               {isTestReplay
-                ? "Return to current mode"
+                ? t("returnCurrent")
                 : nextMode
-                  ? `Continue to ${MODE_LABELS[nextMode]}`
+                  ? t("continueTo", { mode: modeLabels[nextMode] })
                   : isVaultReplay
-                    ? "Return to Vault"
-                    : "Continue"}
+                    ? t("returnVault")
+                    : t("continueJourney")}
               <ArrowRightIcon data-icon="inline-end" aria-hidden="true" />
             </Button>
             {isTestReplay && onReplay && (

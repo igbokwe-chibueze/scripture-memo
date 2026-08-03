@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState, useTransition } from "react";
 import { motion } from "framer-motion";
+import { useLocale, useTranslations } from "next-intl";
 import { GemIcon, GiftIcon, LightbulbIcon, PackageOpenIcon, ShoppingBagIcon, SparklesIcon, XIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -83,6 +84,8 @@ export function PurchaseCelebrationDialog({
   celebration: PurchaseCelebration | null;
   onClose: () => void;
 }): React.ReactNode {
+  const t = useTranslations("Shop");
+  const common = useTranslations("Common");
   const playAudio = useAudioFeedback();
 
   useEffect(() => {
@@ -99,7 +102,7 @@ export function PurchaseCelebrationDialog({
             transition={{ type: "spring", duration: 0.75, bounce: 0.28 }}
             className="relative grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] gap-3 px-4 pb-4 pt-5 text-center min-[390px]:px-5 min-[390px]:pb-5 min-[390px]:pt-7"
           >
-            <Button type="button" variant="outline" size="icon-lg" onClick={onClose} aria-label="Close purchase celebration" className="absolute right-3 top-3 z-20 size-11 rounded-2xl border-violet-200/35 bg-[#25163b]! text-white hover:bg-violet-800! dark:bg-[#25163b]!">
+            <Button type="button" variant="outline" size="icon-lg" onClick={onClose} aria-label={common("close")} className="absolute right-3 top-3 z-20 size-11 rounded-2xl border-violet-200/35 bg-[#25163b]! text-white hover:bg-violet-800! dark:bg-[#25163b]!">
               <XIcon className="size-5" aria-hidden="true" />
             </Button>
             <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
@@ -114,8 +117,8 @@ export function PurchaseCelebrationDialog({
               ))}
             </div>
             <div className="px-12">
-              <p className="text-[0.6rem] font-black tracking-[0.2em] text-amber-300 uppercase min-[390px]:text-xs">Purchase complete</p>
-              <h2 className="mt-1 font-heading text-3xl font-black min-[390px]:text-4xl">Trail supplied!</h2>
+              <p className="text-[0.6rem] font-black tracking-[0.2em] text-amber-300 uppercase min-[390px]:text-xs">{t("purchaseComplete")}</p>
+              <h2 className="mt-1 font-heading text-3xl font-black min-[390px]:text-4xl">{t("trailSupplied")}</h2>
             </div>
             <div className="relative mx-auto h-full min-h-0 w-full max-w-sm">
               <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -126,7 +129,7 @@ export function PurchaseCelebrationDialog({
                 />
                 <div className="absolute left-1/2 top-1/2 size-[68%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-200/18 blur-[3.5rem]" />
               </div>
-              <Image src="/images/mascot/luna/luna-reward.png" alt="Luna celebrating your purchase" fill className="z-10 object-contain" sizes="384px" />
+              <Image src="/images/mascot/luna/luna-reward.png" alt={t("celebrationAlt")} fill className="z-10 object-contain" sizes="384px" />
               <motion.div
                 initial={{ x: 30, scale: 0.4, rotate: 12 }}
                 animate={{ x: 0, scale: 1, rotate: -4 }}
@@ -137,7 +140,7 @@ export function PurchaseCelebrationDialog({
               </motion.div>
             </div>
             <div className="mx-auto grid w-full max-w-sm grid-cols-[1fr_auto] items-center gap-3 rounded-2xl border border-violet-300/25 bg-white/5 p-3 text-left min-[390px]:p-4">
-              <div><p className="font-heading text-lg font-black min-[390px]:text-xl">{celebration.item.name}</p><p className="text-xs text-violet-200 min-[390px]:text-sm">+{celebration.item.hintQuantity} hints</p></div>
+              <div><p className="font-heading text-lg font-black min-[390px]:text-xl">{celebration.item.name}</p><p className="text-xs text-violet-200 min-[390px]:text-sm">{t("receivedHints", { count: celebration.item.hintQuantity })}</p></div>
               <PurchasedHintBalance
                 previousValue={celebration.previousHintBalance}
                 newValue={celebration.newHintBalance}
@@ -152,6 +155,9 @@ export function PurchaseCelebrationDialog({
 
 /** Visual-first, tactile hint-pack storefront with server-owned purchase values. */
 export function OilShop({ initialData }: { initialData: OilShopData }): React.ReactNode {
+  const t = useTranslations("Shop");
+  const common = useTranslations("Common");
+  const locale = useLocale();
   const [data, setData] = useState(initialData);
   const [selected, setSelected] = useState<OilShopItem | null>(initialData.items[0] ?? null);
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
@@ -186,22 +192,22 @@ export function OilShop({ initialData }: { initialData: OilShopData }): React.Re
 
   return (
     <>
-      <section className="grid grid-cols-2 gap-3" aria-label="Oil Shop balances">
+      <section className="grid grid-cols-2 gap-3" aria-label={t("balances")}>
         <div className="rounded-3xl border border-amber-400/40 bg-slate-950/90 p-4 text-white shadow-[inset_0_0_20px_rgb(245_158_11/0.1)]">
           <GemIcon className="size-6 text-amber-300" aria-hidden="true" />
-          <p className="mt-3 text-[0.65rem] font-black tracking-wider text-amber-300 uppercase">Glow balance</p>
-          <p className="font-heading text-3xl font-black">{data.balance.toLocaleString()}</p>
+          <p className="mt-3 text-[0.65rem] font-black tracking-wider text-amber-300 uppercase">{t("glowBalance")}</p>
+          <p className="font-heading text-3xl font-black">{data.balance.toLocaleString(locale)}</p>
         </div>
         <div className="rounded-3xl border border-violet-400/40 bg-slate-950/90 p-4 text-white shadow-[inset_0_0_20px_rgb(139_92_246/0.12)]">
           <LightbulbIcon className="size-6 text-violet-300" aria-hidden="true" />
-          <p className="mt-3 text-[0.65rem] font-black tracking-wider text-violet-300 uppercase">Hints available</p>
+          <p className="mt-3 text-[0.65rem] font-black tracking-wider text-violet-300 uppercase">{t("hintsAvailable")}</p>
           <p className="font-heading text-3xl font-black">{data.hintsRemaining}</p>
         </div>
       </section>
 
       <div className="mt-5 lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-5 xl:grid-cols-[minmax(0,1fr)_26rem]">
       <section className="overflow-hidden rounded-[2rem] border border-violet-400/30 bg-slate-950/95 text-white shadow-xl">
-        <div className="grid grid-cols-2 border-b border-violet-300/20" role="tablist" aria-label="Shop categories">
+        <div className="grid grid-cols-2 border-b border-violet-300/20" role="tablist" aria-label={t("categories")}>
           <button
             type="button"
             role="tab"
@@ -209,7 +215,7 @@ export function OilShop({ initialData }: { initialData: OilShopData }): React.Re
             onClick={() => setActiveTab("hints")}
             className={`relative flex min-h-14 items-center justify-center gap-2 px-3 text-sm font-black transition-all ${activeTab === "hints" ? "z-10 -mb-px rounded-t-2xl bg-amber-500/15 text-amber-300 shadow-[inset_0_8px_18px_rgb(245_158_11/0.06),0_-5px_16px_rgb(245_158_11/0.08)]" : "border-r border-violet-300/15 text-slate-400 hover:bg-white/5 hover:text-white"}`}
           >
-            <ShoppingBagIcon className="size-5" aria-hidden="true" /> Hint packs
+            <ShoppingBagIcon className="size-5" aria-hidden="true" /> {t("hintPacks")}
             {activeTab === "hints" && <span className="absolute inset-x-5 bottom-0 h-1 rounded-t-full bg-amber-400 shadow-[0_0_12px_rgb(251_191_36/0.7)]" />}
           </button>
           <button
@@ -219,17 +225,17 @@ export function OilShop({ initialData }: { initialData: OilShopData }): React.Re
             onClick={() => setActiveTab("donations")}
             className={`relative flex min-h-14 items-center justify-center gap-2 px-3 text-sm font-black transition-all ${activeTab === "donations" ? "z-10 -mb-px rounded-t-2xl bg-violet-500/15 text-violet-200 shadow-[inset_0_8px_18px_rgb(139_92_246/0.07),0_-5px_16px_rgb(139_92_246/0.1)]" : "text-slate-400 hover:bg-white/5 hover:text-white"}`}
           >
-            <GiftIcon className="size-5" aria-hidden="true" /> Donations
+            <GiftIcon className="size-5" aria-hidden="true" /> {t("donations")}
             {activeTab === "donations" && <span className="absolute inset-x-5 bottom-0 h-1 rounded-t-full bg-violet-400 shadow-[0_0_12px_rgb(167_139_250/0.7)]" />}
           </button>
         </div>
         {activeTab === "donations" ? (
           <div role="tabpanel" className="px-5 py-12 text-center">
             <span className="mx-auto grid size-16 place-items-center rounded-3xl border border-violet-300/25 bg-violet-400/10"><GiftIcon className="size-8 text-violet-300" aria-hidden="true" /></span>
-            <h2 className="mt-4 font-heading text-2xl font-black">Donations coming later</h2>
+            <h2 className="mt-4 font-heading text-2xl font-black">{t("donationsSoon")}</h2>
           </div>
         ) : data.items.length === 0 ? (
-          <div className="p-10 text-center"><PackageOpenIcon className="mx-auto size-12 text-violet-300" /><h2 className="mt-4 font-heading text-2xl font-black">Shelves restocking</h2></div>
+          <div className="p-10 text-center"><PackageOpenIcon className="mx-auto size-12 text-violet-300" /><h2 className="mt-4 font-heading text-2xl font-black">{t("restocking")}</h2></div>
         ) : (
           <div role="tabpanel" className="space-y-3 p-3 sm:p-4">
             {data.items.map((item) => (
@@ -244,7 +250,7 @@ export function OilShop({ initialData }: { initialData: OilShopData }): React.Re
                 </button>
                 <div className="col-start-2 grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 sm:col-start-3 sm:flex sm:flex-col sm:items-stretch">
                   <span className="inline-flex min-h-9 min-w-0 items-center justify-center gap-1 rounded-xl bg-black/30 px-2 font-black text-amber-300"><GemIcon className="size-4" />{item.cost}</span>
-                  <Button onClick={() => previewItem(item)} className="min-h-10 bg-amber-400 px-3 font-black text-slate-950 hover:bg-amber-300 sm:px-5">View</Button>
+                  <Button onClick={() => previewItem(item)} className="min-h-10 bg-amber-400 px-3 font-black text-slate-950 hover:bg-amber-300 sm:px-5">{common("view")}</Button>
                 </div>
               </article>
             ))}
@@ -252,14 +258,14 @@ export function OilShop({ initialData }: { initialData: OilShopData }): React.Re
         )}
       </section>
 
-      <aside className="sticky top-6 hidden overflow-hidden rounded-[2rem] border border-violet-400/35 bg-linear-to-b from-[#211335] to-[#090817] p-5 text-white shadow-[0_18px_45px_rgb(5_4_15/0.35)] lg:block" aria-label="Selected shop item">
+      <aside className="sticky top-6 hidden overflow-hidden rounded-[2rem] border border-violet-400/35 bg-linear-to-b from-[#211335] to-[#090817] p-5 text-white shadow-[0_18px_45px_rgb(5_4_15/0.35)] lg:block" aria-label={t("selectedItem")}>
         {activeTab === "donations" ? (
           <div className="grid min-h-96 place-items-center text-center">
-            <div><span className="mx-auto grid size-20 place-items-center rounded-3xl bg-violet-400/10"><GiftIcon className="size-10 text-violet-300" /></span><h2 className="mt-5 font-heading text-2xl font-black">Donations coming later</h2></div>
+            <div><span className="mx-auto grid size-20 place-items-center rounded-3xl bg-violet-400/10"><GiftIcon className="size-10 text-violet-300" /></span><h2 className="mt-5 font-heading text-2xl font-black">{t("donationsSoon")}</h2></div>
           </div>
         ) : selected ? (
           <div>
-            <p className="text-xs font-black tracking-[0.2em] text-violet-300 uppercase">Hint pack</p>
+            <p className="text-xs font-black tracking-[0.2em] text-violet-300 uppercase">{t("hintPack")}</p>
             <div className="relative mx-auto mt-4 aspect-square w-full max-w-72 overflow-hidden rounded-[2rem] border-2 border-violet-400/60 shadow-[0_0_35px_rgb(168_85_247/0.3)]">
               <Image src={getItemArt(selected)} alt={selected.name} fill className="object-cover" sizes="288px" />
               <span className="absolute right-3 top-3 grid size-12 place-items-center rounded-full border-[3px] border-violet-200 bg-violet-700 text-xl font-black ring-[3px] ring-violet-950 shadow-[0_5px_0_rgb(67_20_122),0_9px_16px_rgb(0_0_0/0.5),0_0_20px_rgb(168_85_247/0.6)]">{selected.hintQuantity}</span>
@@ -268,7 +274,7 @@ export function OilShop({ initialData }: { initialData: OilShopData }): React.Re
             <p className="mt-2 min-h-12 text-violet-200">{selected.description}</p>
             <div className="mt-6 grid grid-cols-[1fr_1.25fr] gap-3 rounded-2xl border border-violet-300/25 bg-black/20 p-3">
               <span className="flex items-center justify-center gap-2 text-xl font-black text-amber-300"><GemIcon />{selected.cost}</span>
-              <Button size="lg" className="min-h-12 bg-amber-400 text-base font-black text-slate-950 hover:bg-amber-300" disabled={isPending || data.balance < selected.cost} onClick={purchase}><SparklesIcon />{isPending ? "Purchasing…" : data.balance < selected.cost ? "More Glow" : "Buy"}</Button>
+              <Button size="lg" className="min-h-12 bg-amber-400 text-base font-black text-slate-950 hover:bg-amber-300" disabled={isPending || data.balance < selected.cost} onClick={purchase}><SparklesIcon />{isPending ? t("purchasing") : data.balance < selected.cost ? t("moreGlow") : t("buy")}</Button>
             </div>
           </div>
         ) : null}
@@ -278,7 +284,7 @@ export function OilShop({ initialData }: { initialData: OilShopData }): React.Re
       <Dialog open={mobilePreviewOpen && selected !== null} onOpenChange={(open) => !open && !isPending && setMobilePreviewOpen(false)}>
         <DialogContent showCloseButton={false} className="overflow-hidden rounded-[2rem] border-2 border-violet-400/50 bg-linear-to-b from-[#211335] to-[#090817] p-5 text-white sm:max-w-md">
           {selected && <>
-            <Button type="button" variant="outline" size="icon-lg" onClick={() => !isPending && setMobilePreviewOpen(false)} disabled={isPending} aria-label="Close item preview" className="absolute right-3 top-3 z-20 size-11 rounded-2xl border-violet-200/35 bg-[#25163b]! text-white hover:bg-violet-800! dark:bg-[#25163b]!">
+            <Button type="button" variant="outline" size="icon-lg" onClick={() => !isPending && setMobilePreviewOpen(false)} disabled={isPending} aria-label={common("close")} className="absolute right-3 top-3 z-20 size-11 rounded-2xl border-violet-200/35 bg-[#25163b]! text-white hover:bg-violet-800! dark:bg-[#25163b]!">
               <XIcon className="size-5" aria-hidden="true" />
             </Button>
             <DialogHeader className="items-center text-center">
@@ -288,7 +294,7 @@ export function OilShop({ initialData }: { initialData: OilShopData }): React.Re
             </DialogHeader>
             <div className="mt-2 grid grid-cols-[1fr_1.25fr] gap-3 rounded-2xl border border-violet-300/25 bg-black/20 p-3">
               <span className="flex items-center justify-center gap-2 text-xl font-black text-amber-300"><GemIcon />{selected.cost}</span>
-              <Button size="lg" className="min-h-12 bg-amber-400 text-base font-black text-slate-950 hover:bg-amber-300" disabled={isPending || data.balance < selected.cost} onClick={purchase}><SparklesIcon />{isPending ? "Purchasing…" : data.balance < selected.cost ? "More Glow needed" : "Buy"}</Button>
+              <Button size="lg" className="min-h-12 bg-amber-400 text-base font-black text-slate-950 hover:bg-amber-300" disabled={isPending || data.balance < selected.cost} onClick={purchase}><SparklesIcon />{isPending ? t("purchasing") : data.balance < selected.cost ? t("moreGlowNeeded") : t("buy")}</Button>
             </div>
           </>}
         </DialogContent>

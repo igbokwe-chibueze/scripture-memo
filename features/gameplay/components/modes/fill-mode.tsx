@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { CheckIcon, KeyboardIcon, RotateCcwIcon } from "lucide-react";
 import { toast } from "sonner";
 import { LoadingButton } from "@/components/shared/loading-button";
@@ -74,6 +75,7 @@ export function FillMode({
   onCompletionShown: () => void;
   onTestReplayExit?: () => void;
 }): React.ReactNode {
+  const t = useTranslations("Gameplay");
   const playAudio = useAudioFeedback();
   const inputRefs = useRef(new Map<number, HTMLInputElement>());
   const [answers, setAnswers] = useState<FillAnswers>({});
@@ -316,10 +318,10 @@ export function FillMode({
       <section className="w-full max-w-2xl text-left" aria-labelledby="fill-title">
         <div className="text-center">
           <p className="text-xs font-black tracking-[0.16em] text-violet-700 uppercase dark:text-violet-300">
-            Complete the missing words
+            {t("completeMissing")}
           </p>
           <h2 id="fill-title" className="mt-2 font-heading text-3xl font-black">
-            Fill
+            {t("fill")}
           </h2>
         </div>
 
@@ -391,10 +393,9 @@ export function FillMode({
               <KeyboardIcon className="size-5" aria-hidden="true" />
             </span>
             <div>
-              <h3 className="text-sm font-black text-foreground">Full recall</h3>
+              <h3 className="text-sm font-black text-foreground">{t("fullRecall")}</h3>
               <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                Type each complete missing word without a letter cue. Reaching
-                its exact length moves focus to the next blank.
+                {t("fillHelp")}
               </p>
             </div>
           </div>
@@ -411,17 +412,17 @@ export function FillMode({
             onClick={resetAnswers}
           >
             <RotateCcwIcon data-icon="inline-start" aria-hidden="true" />
-            Reset
+            {t("reset")}
           </Button>
           <LoadingButton
             isPending={isPending}
-            pendingLabel="Checking"
+            pendingLabel={t("checking")}
             className="min-h-12 rounded-xl bg-amber-400 font-black text-slate-950 hover:bg-amber-300"
             disabled={isComplete}
             onClick={checkAnswer}
           >
             <CheckIcon aria-hidden="true" />
-            Check
+            {t("check")}
           </LoadingButton>
         </div>
       </section>

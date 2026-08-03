@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ArrowRightIcon, SparklesIcon } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
+import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { ShareAchievementButton } from "@/components/shared/share-achievement-button";
 import { ConfettiCelebration } from "@/features/gameplay/components/confetti-celebration";
@@ -69,6 +70,9 @@ export function BadgeUnlockScreen({
   badge: BadgeUnlockResult;
   onContinue: () => void;
 }): React.ReactNode {
+  const t = useTranslations("Badges");
+  const common = useTranslations("Common");
+  const locale = useLocale();
   const shouldReduceMotion = useReducedMotion();
   const playAudio = useAudioFeedback();
 
@@ -141,7 +145,7 @@ export function BadgeUnlockScreen({
             </motion.div>
 
             <p className="mt-6 text-xs font-black tracking-[0.2em] uppercase">
-              Badge unlocked
+              {t("unlocked")}
             </p>
             <h2 id="badge-unlock-title" className="mt-2 font-heading text-4xl font-black">
               {badge.name}
@@ -153,12 +157,12 @@ export function BadgeUnlockScreen({
 
             <div className="mt-6 rounded-2xl border border-current/15 bg-white/45 p-4 dark:bg-black/15">
               <p className="text-xs font-black tracking-[0.14em] uppercase">
-                Glow Points earned
+                {t("pointsEarned")}
               </p>
               <p className="mt-1 font-heading text-3xl font-black" aria-label={`${badge.rewardAmount} Glow Points earned`}>
                 +<AnimatedBadgeReward amount={badge.rewardAmount} reducedMotion={Boolean(shouldReduceMotion)} />
               </p>
-              <p className="text-xs font-bold opacity-70">New balance: {badge.balance}</p>
+              <p className="text-xs font-bold opacity-70">{t("newBalance", { balance: badge.balance.toLocaleString(locale) })}</p>
             </div>
 
             <div className="mt-6 grid grid-cols-[minmax(0,1fr)_auto] gap-3">
@@ -167,12 +171,12 @@ export function BadgeUnlockScreen({
                 className="min-h-12 rounded-xl bg-slate-950 font-black text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100"
                 onClick={onContinue}
               >
-                Continue
+                {common("continue")}
                 <ArrowRightIcon data-icon="inline-end" aria-hidden="true" />
               </Button>
               <ShareAchievementButton
-                title={`I unlocked ${badge.name}`}
-                text={`I unlocked the ${badge.name} badge in Scripture Memo!`}
+                title={t("shareTitle", { name: badge.name })}
+                text={t("shareText", { name: badge.name })}
                 className="border-current/25 bg-white/35 hover:bg-white/55 dark:bg-black/15 dark:hover:bg-black/25"
               />
             </div>

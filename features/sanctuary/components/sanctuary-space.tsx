@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -45,6 +46,7 @@ function StudyNote({ children }: { children: string }): React.ReactNode {
 
 /** Calm private reflection surface with explicit save and favorite feedback. */
 export function SanctuarySpace({ data }: { data: SanctuaryData }): React.ReactNode {
+  const t = useTranslations("Sanctuary");
   const [note, setNote] = useState(data.personalNote);
   const [isFavorite, setIsFavorite] = useState(data.isFavorite);
   const [isSaving, startSaving] = useTransition();
@@ -76,14 +78,14 @@ export function SanctuarySpace({ data }: { data: SanctuaryData }): React.ReactNo
   return (
     <main className="min-h-dvh bg-linear-to-b from-violet-50 via-background to-emerald-50 px-4 py-5 text-foreground dark:from-violet-950 dark:via-slate-950 dark:to-emerald-950 sm:px-6 sm:py-9">
       <div className="mx-auto max-w-4xl">
-        <nav className="flex items-center justify-between gap-3" aria-label="Sanctuary navigation">
+        <nav className="flex items-center justify-between gap-3" aria-label={t("navigation")}>
           <Link href="/vault" className={cn(buttonVariants({ variant: "ghost" }), "min-h-11 rounded-xl")}>
-            <ArrowLeftIcon aria-hidden="true" /> Vault
+            <ArrowLeftIcon aria-hidden="true" /> {t("backToVault")}
           </Link>
           <LoadingButton
             variant="outline"
             isPending={isFavoriting}
-            pendingLabel="Updating"
+            pendingLabel={t("updating")}
             className={cn(
               "rounded-xl px-4",
               isFavorite && "border-rose-300 bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-200",
@@ -91,7 +93,7 @@ export function SanctuarySpace({ data }: { data: SanctuaryData }): React.ReactNo
             onClick={toggleFavorite}
           >
             <HeartIcon className={cn(isFavorite && "fill-current")} aria-hidden="true" />
-            {isFavorite ? "Favorited" : "Favorite"}
+            {isFavorite ? t("favorited") : t("favorite")}
           </LoadingButton>
         </nav>
 
@@ -108,14 +110,14 @@ export function SanctuarySpace({ data }: { data: SanctuaryData }): React.ReactNo
             {data.reflection && (
               <section className="rounded-3xl border border-emerald-200/70 bg-emerald-50/70 p-5 dark:border-emerald-300/15 dark:bg-emerald-950/20">
                 <BookHeartIcon className="size-6 text-emerald-600 dark:text-emerald-300" aria-hidden="true" />
-                <h2 className="mt-4 font-heading text-xl font-black">Reflect</h2>
+                <h2 className="mt-4 font-heading text-xl font-black">{t("reflection")}</h2>
                 <p className="mt-3 leading-7 text-foreground/75">{data.reflection}</p>
               </section>
             )}
             {data.studyNote && (
               <section className="rounded-3xl border border-violet-200/70 bg-violet-50/70 p-5 dark:border-violet-300/15 dark:bg-violet-950/20">
                 <FeatherIcon className="size-6 text-violet-600 dark:text-violet-300" aria-hidden="true" />
-                <h2 className="mt-4 font-heading text-xl font-black">Study</h2>
+                <h2 className="mt-4 font-heading text-xl font-black">{t("studyNote")}</h2>
                 <div className="mt-3 leading-7 text-foreground/75"><StudyNote>{data.studyNote}</StudyNote></div>
               </section>
             )}
@@ -123,7 +125,7 @@ export function SanctuarySpace({ data }: { data: SanctuaryData }): React.ReactNo
 
           <section className="border-t border-border/70 p-4 sm:p-6" aria-labelledby="private-note-title">
             <div className="flex items-center justify-between gap-3">
-              <div><h2 id="private-note-title" className="font-heading text-xl font-black">Private note</h2><p className="text-xs text-muted-foreground">Only you can see this.</p></div>
+              <div><h2 id="private-note-title" className="font-heading text-xl font-black">{t("yourNotes")}</h2><p className="text-xs text-muted-foreground">{t("privateOnly")}</p></div>
               <span className="text-xs font-bold text-muted-foreground">{note.length}/5000</span>
             </div>
             <Textarea
@@ -131,11 +133,11 @@ export function SanctuarySpace({ data }: { data: SanctuaryData }): React.ReactNo
               maxLength={5_000}
               rows={6}
               className="mt-4 min-h-40 resize-y rounded-2xl bg-background/80 p-4 leading-7"
-              placeholder="Write what you want to remember…"
+              placeholder={t("notePlaceholder")}
               onChange={(event) => setNote(event.currentTarget.value)}
             />
-            <LoadingButton isPending={isSaving} pendingLabel="Saving" className="mt-4 min-h-12 w-full rounded-xl bg-violet-600 font-black text-white hover:bg-violet-500" onClick={saveNote}>
-              <SaveIcon aria-hidden="true" /> Save note
+            <LoadingButton isPending={isSaving} pendingLabel={t("saving")} className="mt-4 min-h-12 w-full rounded-xl bg-violet-600 font-black text-white hover:bg-violet-500" onClick={saveNote}>
+              <SaveIcon aria-hidden="true" /> {t("saveNote")}
             </LoadingButton>
           </section>
         </article>

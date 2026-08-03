@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { DraggablePhrase } from "@/features/gameplay/components/modes/draggable-phrase";
 import type { VersePhrase } from "@/features/gameplay/lib/phrase-generator";
 
@@ -17,16 +19,17 @@ export function PhraseBank({
   disabled: boolean;
   onSelect: (phraseIndex: number) => void;
 }): React.ReactNode {
+  const t = useTranslations("Gameplay");
   return (
     <section
       aria-labelledby="phrase-bank-title"
       className="rounded-2xl bg-muted/70 p-4 dark:bg-black/20"
     >
       <h3 id="phrase-bank-title" className="text-sm font-black text-foreground">
-        Phrase bank
+        {t("phraseBank")}
       </h3>
       <p className="mt-1 text-xs text-muted-foreground">
-        Drag a phrase, or select it and tap an open position.
+        {t("phraseInstruction")}
       </p>
       <div className="mt-3 flex max-h-64 flex-col gap-2 overflow-y-auto sm:flex-row sm:flex-wrap">
         {phraseIndexes.map((phraseIndex) => (
@@ -41,7 +44,7 @@ export function PhraseBank({
         ))}
         {phraseIndexes.length === 0 && (
           <p className="py-2 text-sm font-semibold text-emerald-700 dark:text-emerald-300">
-            Every phrase has been placed. Check the order.
+            {t("allPhrasesPlaced")}
           </p>
         )}
       </div>

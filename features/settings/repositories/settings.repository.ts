@@ -1,9 +1,11 @@
 import type { TranslationCode } from "@/lib/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import type { UpdateUserSettingsInput } from "@/features/settings/schemas/update-user-settings.schema";
+import type { AppLocale } from "@/i18n/config";
 
 export type UserSettingsValues = {
   preferredTranslation: TranslationCode;
+  locale: AppLocale;
   audioEnabled: boolean;
   reducedMotion: boolean;
   theme: "light" | "dark" | "system";
@@ -19,6 +21,7 @@ export const settingsRepository = {
 
     return {
       preferredTranslation: settings.preferredTranslation,
+      locale: settings.locale === "es" ? "es" : "en",
       audioEnabled: settings.audioEnabled,
       reducedMotion: settings.reducedMotion,
       theme:
@@ -59,6 +62,7 @@ export const settingsRepository = {
         where: { userId },
         update: {
           preferredTranslation: input.preferredTranslation,
+          locale: input.locale,
           audioEnabled: input.audioEnabled,
           reducedMotion: input.reducedMotion,
           theme: input.theme,
@@ -69,6 +73,7 @@ export const settingsRepository = {
         create: {
           userId,
           preferredTranslation: input.preferredTranslation,
+          locale: input.locale,
           audioEnabled: input.audioEnabled,
           reducedMotion: input.reducedMotion,
           theme: input.theme,

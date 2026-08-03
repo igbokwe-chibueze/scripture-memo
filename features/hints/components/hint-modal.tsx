@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { motion, useReducedMotion } from "framer-motion";
 import { LunaMascot } from "@/components/shared/luna-mascot";
 import {
@@ -25,6 +26,7 @@ export function HintModal({
   verseText: string;
   onOpenChange: (open: boolean) => void;
 }): React.ReactNode {
+  const t = useTranslations("Gameplay");
   const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
@@ -63,13 +65,13 @@ export function HintModal({
           <div className="relative z-10 min-w-0 flex-1">
             <DialogHeader className="text-left">
               <p className="text-xs font-black tracking-[0.16em] text-amber-700 uppercase dark:text-amber-300">
-                Luna&apos;s light
+                {t("lunaLight")}
               </p>
               <DialogTitle className="font-heading text-2xl font-black">
                 {reference}
               </DialogTitle>
               <DialogDescription>
-                Read it slowly. You already know more than you think.
+                {t("hintEncouragement")}
               </DialogDescription>
             </DialogHeader>
             <blockquote className="mt-5 rounded-2xl border border-amber-300/35 bg-background/85 p-4 text-base leading-7 font-bold text-foreground shadow-inner sm:text-lg sm:leading-8">
@@ -79,7 +81,7 @@ export function HintModal({
           <LunaMascot pose="encourage" decorative className="-mr-10 w-28 shrink-0 sm:-mr-8 sm:w-40" sizes="160px" />
         </div>
         <p className="text-center text-xs font-bold text-muted-foreground">
-          Closes automatically after {HINT_DISPLAY_SECONDS} seconds
+          {t("hintCloses", { seconds: HINT_DISPLAY_SECONDS })}
         </p>
       </DialogContent>
     </Dialog>

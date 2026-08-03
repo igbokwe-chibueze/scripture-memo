@@ -1,5 +1,31 @@
 # Scripture Memo Project Log
 
+### 2026-08-03 — Map markers and Settings statistics localized
+
+- Moved the winding trail's current-map badge, current-position callout, trail
+  headings, waypoint ranges, return control, and accessible waypoint status into
+  the shared English/Spanish message catalogues.
+- Localized all four Settings summary cards and the statistics-region label,
+  including the best-streak supporting value.
+- Re-ran locale message parity, TypeScript, and focused ESLint validation.
+
+### 2026-08-03 — English/Spanish localization foundation completed
+
+- Added `next-intl` request configuration, English and Spanish message
+  catalogues, document language metadata, and shared client/server providers.
+- Added a persisted interface-language setting and applied migration
+  `20260803101105_add_interface_locale`; verified the configured PostgreSQL
+  database reports all 13 migrations applied.
+- Locale resolution now uses account preference, then secure cookie, then
+  browser language, with English as the safe fallback. Private player URLs stay
+  stable and locale-neutral.
+- Localized the principal player shell, settings, Home, map and day selection,
+  gameplay modes, hints, completion and streak celebrations, Vault, Sanctuary,
+  badge collection/unlock, and Oil Shop interface. Bible translations and
+  admin-authored content remain explicitly separate from interface locale.
+- Added `docs/LOCALIZATION.md` and `npm run test:i18n` to document and enforce
+  the extension path for future languages. Admin screens remain English-only.
+
 ### 2026-08-03 — Phase 25 accepted and contextual panel deferred
 
 - Marked the Oil Shop phase complete after implementation and project-owner

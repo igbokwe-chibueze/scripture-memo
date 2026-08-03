@@ -159,6 +159,7 @@ model UserSettings {
   audioEnabled           Boolean         @default(true)
   reducedMotion          Boolean         @default(false)
   theme                  String          @default("system")
+  locale                 String          @default("en")
   timeZone               String          @default("UTC")
   hasConfiguredTimeZone  Boolean         @default(false)
   createdAt              DateTime        @default(now())

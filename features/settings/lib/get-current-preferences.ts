@@ -8,6 +8,7 @@ export async function getCurrentPreferences(): Promise<{
   theme: "light" | "dark" | "system";
   reducedMotion: boolean;
   audioEnabled: boolean;
+  locale: "en" | "es";
   hasConfiguredTimeZone: boolean;
 }> {
   const session = await requireServerSession();
@@ -17,6 +18,7 @@ export async function getCurrentPreferences(): Promise<{
     theme: settings?.theme ?? "system",
     reducedMotion: settings?.reducedMotion ?? false,
     audioEnabled: settings?.audioEnabled ?? true,
+    locale: settings?.locale ?? "en",
     hasConfiguredTimeZone: settings?.hasConfiguredTimeZone ?? false,
   };
 }

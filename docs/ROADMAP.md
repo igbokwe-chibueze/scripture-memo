@@ -1330,6 +1330,20 @@ reward-ledger entry. Purchased hints extend every server-derived hint balance.
 
 ## Phase 26 — Fellowships
 
+### Pre-Phase 26 localization foundation (2026-08-03)
+
+- Added English and Spanish player-interface locales with account preference,
+  secure cookie, browser detection, and English fallback.
+- Kept private gameplay URLs locale-neutral; public SEO pages may use locale
+  prefixes when localized marketing content is introduced.
+- Kept interface language independent from preferred Bible translation.
+- Added a shared message contract and automated locale-parity test so later
+  languages can be layered in without redesigning routes or features.
+- Administrative screens remain English-only for this foundation pass.
+
+**Implementation status:** Complete; manual English/Spanish responsive review
+remains required before Phase 26 begins.
+
 **Goal:** Implement social group features.
 
 ### Tasks

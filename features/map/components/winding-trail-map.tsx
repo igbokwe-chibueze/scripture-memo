@@ -10,6 +10,7 @@
  */
 
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import {
   useEffect,
   useLayoutEffect,
@@ -68,6 +69,7 @@ export function WindingTrailMap({
   waypoints: MapWaypoint[];
   onSelectWaypoint: (waypoint: MapWaypoint) => void;
 }): React.ReactNode {
+  const t = useTranslations("Map");
   const trailRef = useRef<HTMLDivElement>(null);
   const topSentinelRef = useRef<HTMLDivElement>(null);
   const bottomSentinelRef = useRef<HTMLDivElement>(null);
@@ -208,8 +210,8 @@ export function WindingTrailMap({
       <div className="fixed right-4 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-40 flex items-center gap-2 sm:right-6">
         <Button
           type="button"
-          aria-label="Back to current trail"
-          title="Back to current trail"
+          aria-label={t("backToCurrent")}
+          title={t("backToCurrent")}
           variant="outline"
           size="icon-lg"
           onClick={() => navigateToGroup(currentGroupIndex)}
@@ -240,19 +242,19 @@ export function WindingTrailMap({
                 <div>
                   <p className="flex items-center gap-1.5 text-[0.65rem] font-black tracking-[0.16em] text-emerald-700 uppercase dark:text-emerald-300">
                     <MapIcon className="size-3.5" aria-hidden="true" />
-                    Trail {group.index + 1}
+                    {t("trail", { number: group.index + 1 })}
                   </p>
                   <h2
                     id={`trail-map-heading-${group.index}`}
                     className="font-heading text-lg font-black"
                   >
-                    Waypoints {group.startNumber}–{group.endNumber}
+                    {t("waypoints", { start: group.startNumber, end: group.endNumber })}
                   </h2>
                 </div>
                 {group.index === currentGroupIndex && (
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/60 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-900 shadow-sm dark:border-amber-500/30 dark:bg-amber-950/80 dark:text-amber-200">
                     <FlagIcon className="size-3.5" aria-hidden="true" />
-                    Current map
+                    {t("currentMap")}
                   </span>
                 )}
               </div>

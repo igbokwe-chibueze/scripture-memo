@@ -1236,6 +1236,8 @@ User settings:
 - Display name
 - Country (used for country leaderboard)
 - Preferred Bible translation (NIV / ESV / KJV)
+- Preferred interface language (English / Spanish initially; independently
+  expandable without changing the player's Bible translation)
 - Audio effects on/off
 - Reduced motion preference
 - Theme preference (light/dark/system)

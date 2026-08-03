@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   ArrowRightIcon,
@@ -22,11 +23,18 @@ export function StreakCompletionScreen({
   streak: StreakCompletionResult;
   onContinue: () => void;
 }): React.ReactNode {
+  const t = useTranslations("Streak");
+  const commonT = useTranslations("Common");
+  const locale = useLocale();
   const shouldReduceMotion = useReducedMotion();
   const playAudio = useAudioFeedback();
   const [ambienceStarted, setAmbienceStarted] = useState(false);
   useFlameAmbience(ambienceStarted);
-  const shareText = `I reached a ${streak.currentStreak}-day ${streak.levelName} streak in Scripture Memo! 🔥`;
+  const levelKey = ({ Spark: "spark", Kindling: "kindling", "Steady Flame": "steadyFlame", Beacon: "beacon", Blaze: "blaze", Inferno: "inferno", Supernova: "supernova", "Eternal Light": "eternalLightLevel" } as const)[streak.levelName as "Spark" | "Kindling" | "Steady Flame" | "Beacon" | "Blaze" | "Inferno" | "Supernova" | "Eternal Light"];
+  const levelName = levelKey ? t(levelKey) : streak.levelName;
+  const nextLevelKey = streak.nextLevel ? ({ Spark: "spark", Kindling: "kindling", "Steady Flame": "steadyFlame", Beacon: "beacon", Blaze: "blaze", Inferno: "inferno", Supernova: "supernova", "Eternal Light": "eternalLightLevel" } as const)[streak.nextLevel.name as "Spark" | "Kindling" | "Steady Flame" | "Beacon" | "Blaze" | "Inferno" | "Supernova" | "Eternal Light"] : null;
+  const nextLevelName = nextLevelKey ? t(nextLevelKey) : streak.nextLevel?.name;
+  const shareText = t("shareText", { count: streak.currentStreak, level: levelName });
 
   useEffect(() => {
     playAudio("correct");
@@ -127,18 +135,18 @@ export function StreakCompletionScreen({
 
           <p className="relative mt-3 text-xs font-black tracking-[0.2em] text-orange-700 uppercase dark:text-orange-300">
             {streak.reachedNewLevel
-              ? "New streak level reached"
+              ? t("newLevel")
               : streak.status === "reset"
-                ? "A fresh rhythm begins"
-                : "Daily rhythm kindled"}
+                ? t("freshRhythm")
+                : t("dailyRhythm")}
           </p>
           <h2 id="streak-complete-title" className="relative mt-2 font-heading text-5xl font-black">
-            {streak.currentStreak}-day streak!
+            {t("dayStreak", { count: streak.currentStreak })}
           </h2>
           <p className="relative mt-3 text-lg font-bold text-slate-700 dark:text-slate-200">
             {streak.status === "increased"
-              ? "You returned and kept the flame alive."
-              : "Today begins a new rhythm in Scripture."}
+              ? t("keptAlive")
+              : t("newRhythm")}
           </p>
 
           <motion.div
@@ -156,28 +164,27 @@ export function StreakCompletionScreen({
                   }
             }
           >
-            {streak.levelName}
+            {levelName}
           </motion.div>
 
           <div className="relative mt-6 rounded-2xl border border-orange-300/35 bg-white/65 p-3 dark:bg-white/5">
             <p className="text-xs font-black tracking-[0.12em] text-orange-700 uppercase dark:text-orange-300">
-              Next streak level
+              {t("nextStreakLevel")}
             </p>
             {streak.nextLevel ? (
               <>
                 <p className="mt-2 font-heading text-xl font-black">
-                  {streak.nextLevel.name}
+                  {nextLevelName}
                 </p>
                 <p className="mt-1 text-sm font-semibold text-muted-foreground dark:text-slate-300">
-                  {streak.nextLevel.daysRemaining}{" "}
-                  {streak.nextLevel.daysRemaining === 1 ? "day" : "days"} remaining
+                  {t("daysRemaining", { count: streak.nextLevel.daysRemaining })}
                   {" · "}
-                  {streak.nextLevel.projectedDateLabel}
+                  {new Intl.DateTimeFormat(locale, { month: "short", day: "numeric" }).format(new Date(`${streak.nextLevel.projectedDateKey}T12:00:00Z`))}
                 </p>
               </>
             ) : (
               <p className="mt-2 font-heading text-xl font-black">
-                Highest streak level reached
+                {t("highestReached")}
               </p>
             )}
             <div className="mt-3 grid grid-cols-7 gap-1.5">
@@ -215,15 +222,15 @@ export function StreakCompletionScreen({
                         : day.streakDays}
                   </div>
                   <p className="mt-1 text-[0.65rem] font-bold text-muted-foreground dark:text-slate-300">
-                    {day.label}
+                    {new Intl.DateTimeFormat(locale, { weekday: "short" }).format(new Date(`${day.dateKey}T12:00:00Z`))}
                   </p>
                 </div>
               ))}
             </div>
             <p className="mt-3 text-xs font-semibold text-orange-800/75 dark:text-orange-100/75">
               {streak.nextLevel
-                ? `Keep your streak alive to reach ${streak.nextLevel.name}.`
-                : "Keep the Eternal Light burning one day at a time."}
+                ? t("nextLevel", { level: nextLevelName ?? "" })
+                : t("eternalLight")}
             </p>
           </div>
 
@@ -237,12 +244,12 @@ export function StreakCompletionScreen({
               <SparklesIcon className="mx-auto size-6 text-amber-600 dark:text-amber-300" aria-hidden="true" />
               <p className="mt-2 font-black text-amber-800 dark:text-amber-200">
                 {streak.status === "reset"
-                  ? `Previous best: ${streak.previousBestStreak} days`
-                  : "New personal best"}
+                  ? t("previousBest", { count: streak.previousBestStreak })
+                  : t("personalBest")}
               </p>
               {streak.status === "reset" && (
                 <p className="mt-1 text-sm font-semibold text-amber-900/70 dark:text-amber-100/70">
-                  Today begins a new flame.
+                  {t("newFlame")}
                 </p>
               )}
             </motion.div>
@@ -254,11 +261,11 @@ export function StreakCompletionScreen({
               className="min-h-12 rounded-xl bg-orange-500 font-black text-white hover:bg-orange-400"
               onClick={onContinue}
             >
-              Continue
+              {commonT("continue")}
               <ArrowRightIcon data-icon="inline-end" aria-hidden="true" />
             </Button>
             <ShareAchievementButton
-              title="My Scripture Memo streak"
+              title={t("shareTitle")}
               text={shareText}
               className="border-orange-300/60 bg-white/60 hover:bg-orange-100 dark:bg-white/5 dark:hover:bg-white/10"
             />
