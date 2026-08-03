@@ -1,5 +1,94 @@
 # Scripture Memo Project Log
 
+### 2026-08-03 — Oil Shop mobile hero and tab seam refined
+
+- Widened the mobile hero copy region, reduced its smallest typography and
+  tracking, and kept the three short labels intact instead of squeezing them
+  into unnecessary line breaks.
+- Removed the selected category tab's outline that produced a short vertical
+  seam, retaining depth through its rounded surface, inset light, and outer glow.
+
+### 2026-08-03 — Oil Shop active tab raised
+
+- Rounded both upper edges of the selected category tab and added a subtle
+  raised border, overlap, and glow so it sits visually above adjacent tabs.
+
+### 2026-08-03 — Oil Shop category tabs and tactile details added
+
+- Added accessible Hint Packs and Donations category tabs so the storefront can
+  expand without restructuring; Donations currently shows a concise coming-soon
+  state and performs no purchase or payment behavior.
+- Increased the hint-quantity medallions' rim, lower edge, glow, and depth in
+  both product rows and previews.
+- Replaced the plain journey-home link with the shared tactile button treatment.
+
+### 2026-08-03 — Mobile navbar divider restored
+
+- Restored the subtle top border that separates mobile navigation from page
+  content while retaining the opaque raised active tab that masks the divider.
+
+### 2026-08-03 — Mobile navbar active-tab seam removed
+
+- Removed the navbar's continuous top border and made the raised active tab
+  opaque, preventing the bar edge from showing through the elevated control.
+- Retained the surrounding shadow and amber active glow so the navbar still
+  separates clearly from page content without a visible seam.
+
+### 2026-08-03 — Shared mobile game navigation and shop overflow fix
+
+- Added a shared five-tab mobile navbar for Home, Map, Vault, Shop, and Settings
+  across protected player screens, with a raised glowing active state and safe-
+  area-aware spacing. Active gameplay sessions intentionally remain distraction-
+  free and continue using their explicit exit control.
+- Associated waypoint routes with Map and Sanctuary routes with Vault so the
+  mobile active state remains meaningful beyond each destination's root URL.
+- Fixed narrow Oil Shop cards with shrink-safe grid columns, smaller responsive
+  artwork, wrapping product names, and bounded price/action controls.
+- Repositioned the shopkeeper hero on narrow screens so Luna and the live title
+  remain visible without horizontal overflow.
+
+### 2026-08-03 — Oil Shop game-art redesign implemented
+
+- Rebuilt the shop from a generic card grid into a visual-first game store with
+  compact illustrated product rows, tactile controls, a richer item preview,
+  and a persistent learner-controlled purchase celebration.
+- Added an identity-matched Luna shopkeeper hero plus dedicated Single Spark,
+  Traveler Pack, and Lantern Pack artwork in the shared Scripture Memo palette.
+- Added Luna to the successful-purchase moment with particles, spring entrances,
+  the purchased item, granted hint quantity, and updated available balance.
+- Preserved light/dark support, reduced copy, responsive mobile-first layout,
+  accessible HTML labels, and the existing server-authoritative transaction.
+
+### 2026-08-03 — Oil Shop hint balance label clarified
+
+- Renamed “Hints ready” to “Hints available” so the shop clearly communicates
+  the learner's current usable hint balance, including purchased entitlement.
+
+### 2026-08-03 — Oil Shop stale development client diagnosed
+
+- Confirmed the reported unknown `ShopItem.grantQuantity` field came from the
+  already-running Next development process retaining the pre-migration Prisma
+  runtime model.
+- Verified the regenerated Prisma client contains the new shop and entitlement
+  fields and the production build compiles the `/oil-shop` route successfully.
+- No application query change was required; development must be restarted after
+  schema generation so the server process loads the current Prisma client.
+
+### 2026-08-03 — Phase 25 Oil Shop implemented
+
+- Added the protected, private Oil Shop route with a visual-first hint-pack
+  catalogue, prominent Glow and hint balances, item previews, purchase pending
+  states, insufficient-balance feedback, loading skeleton, and journey-home link.
+- Added 1-, 3-, and 5-hint products priced at 50, 125, and 200 Glow Points to
+  the idempotent bootstrap catalogue.
+- Added a server-authoritative purchase action and repository transaction that
+  locks per learner, conditionally deducts the persisted balance, snapshots the
+  entitlement, records the purchase, and inserts a negative immutable ledger row.
+- Extended hint balances in gameplay, Vault, hint consumption, and the shop with
+  purchased entitlement totals; added unit coverage for purchased hints.
+- Applied the Oil Shop entitlement migration and regenerated Prisma Client.
+  Phase 25 awaits project-owner manual acceptance.
+
 ### 2026-08-01 — Phase 24 accepted
 
 - Recorded successful project-owner mobile testing of the Sanctuary and its

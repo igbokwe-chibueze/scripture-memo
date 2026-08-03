@@ -1320,6 +1320,12 @@ completed waypoint history on every read and mutation. The existing
 - A user's balance cannot go negative.
 - Hint pack purchases increase `HintUsage` allowance.
 
+**Implementation status (2026-08-03):** Complete pending project-owner manual
+acceptance. The initial catalogue contains 1-, 3-, and 5-hint consumables priced
+at 50, 125, and 200 Glow Points. Purchases use a per-user transaction lock,
+guarded balance deduction, immutable purchase entitlement snapshot, and negative
+reward-ledger entry. Purchased hints extend every server-derived hint balance.
+
 ---
 
 ## Phase 26 — Fellowships

@@ -1193,11 +1193,18 @@ one Vault replay and evaluates the Vault Explorer badge from that trusted total.
 
 Marketplace for spending Glow Points.
 - Current Glow Points balance displayed prominently at top
-- Grid of available shop items (extra hints, profile themes, map cosmetics, flame styles)
+- The MVP catalogue begins with consumable hint packs: 1 hint for 50 Glow
+  Points, 3 hints for 125, and 5 hints for 200. Profile themes, map cosmetics,
+  flame styles, and other visual inventory remain deferred.
+- Grid of available shop items, beginning with extra hints
 - Clicking an item opens a preview modal with description and cost
 - Purchase button deducts Glow Points via a server-side transaction
 - On success: Sonner toast "Purchased [item name]!" and balance updates
 - On insufficient Glow Points: error Sonner toast
+- Purchased hint quantities are snapshotted on each purchase and extend the
+  same server-authoritative allowance used by gameplay, the Vault, and the shop.
+- A purchase deducts Glow Points, records the immutable negative reward-ledger
+  row, and grants its hint entitlement in one locked database transaction.
 
 ### 15.7 Fellowships (👥)
 

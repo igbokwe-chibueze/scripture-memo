@@ -131,9 +131,9 @@ The server and database are the only sources of truth for all security-sensitive
 | 6.4 | Duplicate reward claims are prevented by unique DB constraint + transaction | 🔴 Critical | ☐ Pending | The `(userId, waypointId, dayLevel)` constraint is the final guard |
 | 6.5 | Badge Glow Point rewards are awarded server-side via the badge engine | 🟠 High | ☐ Pending | Same rules as day completion rewards |
 | 6.6 | No XP system exists — Glow Points is the only currency | 🟢 Low | ☐ Pending | Code and comments must not reference XP or experience points |
-| 6.7 | Oil Shop purchases use a database transaction — balance + inventory + ledger updated atomically | 🔴 Critical | ☐ Pending | Partial purchase state must be impossible |
-| 6.8 | Oil Shop purchase prevents negative Glow Points balance | 🔴 Critical | ☐ Pending | Check balance before deducting; reject if insufficient |
-| 6.9 | Users cannot purchase inactive or non-existent shop items | 🟡 Medium | ☐ Pending | Server validates item existence and active status |
+| 6.7 | Oil Shop purchases use a database transaction — balance + inventory + ledger updated atomically | 🔴 Critical | ✅ Complete | Per-user advisory lock, purchase snapshot, guarded deduction, and negative ledger row commit together |
+| 6.8 | Oil Shop purchase prevents negative Glow Points balance | 🔴 Critical | ✅ Complete | Conditional profile update requires the persisted balance to cover the server-owned item cost |
+| 6.9 | Users cannot purchase inactive or non-existent shop items | 🟡 Medium | ✅ Complete | Transaction re-reads active item type, cost, and grant quantity; the client supplies no reward values |
 
 ---
 
