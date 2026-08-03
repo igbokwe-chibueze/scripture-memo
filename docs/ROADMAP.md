@@ -1320,8 +1320,8 @@ completed waypoint history on every read and mutation. The existing
 - A user's balance cannot go negative.
 - Hint pack purchases increase `HintUsage` allowance.
 
-**Implementation status (2026-08-03):** Complete pending project-owner manual
-acceptance. The initial catalogue contains 1-, 3-, and 5-hint consumables priced
+**Implementation status (2026-08-03):** Complete and project-owner accepted.
+The initial catalogue contains 1-, 3-, and 5-hint consumables priced
 at 50, 125, and 200 Glow Points. Purchases use a per-user transaction lock,
 guarded balance deduction, immutable purchase entitlement snapshot, and negative
 reward-ledger entry. Purchased hints extend every server-derived hint balance.
@@ -1529,6 +1529,18 @@ until a test learner has mastered the same verse across all four Journey Stages.
 ---
 
 ## Post-Roadmap Extras
+
+### Large-Screen Contextual Player Panel
+
+- Consider an optional right-side contextual panel for sufficiently wide player
+  screens while preserving the focused single-column mobile and tablet layouts.
+- Keep the shell consistent, but adapt its primary content to the current route:
+  current journey action on Home and Map, verse context in Vault and Sanctuary,
+  selected product in the Oil Shop, and selected achievement in Badges.
+- Reuse existing systems such as Glow balance, available hints, streak progress,
+  cooldowns, badges, and Luna reactions rather than inventing filler systems.
+- Prioritize one visual action card and minimal supporting information so the
+  result still feels like a game rather than a conventional SaaS dashboard.
 
 ### Player Map Replay
 

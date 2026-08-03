@@ -1,5 +1,12 @@
 # Scripture Memo Project Log
 
+### 2026-08-03 — Phase 25 accepted and contextual panel deferred
+
+- Marked the Oil Shop phase complete after implementation and project-owner
+  review of its responsive catalogue, previews, purchasing, and celebration.
+- Recorded the optional large-screen contextual player panel under post-roadmap
+  extras so it can be designed later without delaying the normal phase flow.
+
 ### 2026-08-03 — Oil Shop close controls made opaque
 
 - Forced the pack-preview and purchase-celebration close buttons to retain the
