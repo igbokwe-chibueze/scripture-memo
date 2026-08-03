@@ -1,5 +1,30 @@
 # Scripture Memo Project Log
 
+### 2026-08-03 — Oil Shop close controls made opaque
+
+- Forced the pack-preview and purchase-celebration close buttons to retain the
+  solid shop-purple surface in light and dark themes instead of inheriting the
+  translucent outline-variant background.
+
+### 2026-08-03 — Oil Shop desktop dashboard completed
+
+- Expanded the large-screen shop to a dashboard composition with catalogue and
+  category tabs on the left and a persistent sticky selected-item panel on the
+  right, matching the approved game-store direction.
+- Desktop item selection updates the detail panel without opening an overlay;
+  mobile and tablet continue using the compact preview modal.
+- Kept the server-owned Buy action, balance checks, pending lock, success sound,
+  and purchase celebration identical across responsive presentations.
+
+### 2026-08-03 — Shared desktop player shell added
+
+- Extended the protected player navigation into a persistent desktop rail for
+  Home, Map, Vault, Shop, and Settings while retaining the approved mobile bar.
+- Added a compact Luna-flame brand control, tactile active destinations, and a
+  bottom-anchored Settings entry without converting the game into a SaaS shell.
+- Active gameplay sessions continue to hide global navigation so the timed and
+  focused challenge experience remains unchanged.
+
 ### 2026-08-03 — Purchase hint balance count-up added
 
 - Passed the learner's pre-purchase and post-purchase hint balances into the

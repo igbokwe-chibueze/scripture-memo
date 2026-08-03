@@ -99,7 +99,7 @@ export function PurchaseCelebrationDialog({
             transition={{ type: "spring", duration: 0.75, bounce: 0.28 }}
             className="relative grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] gap-3 px-4 pb-4 pt-5 text-center min-[390px]:px-5 min-[390px]:pb-5 min-[390px]:pt-7"
           >
-            <Button type="button" variant="outline" size="icon-lg" onClick={onClose} aria-label="Close purchase celebration" className="absolute right-3 top-3 z-20 size-11 rounded-2xl border-violet-200/35 bg-[#25163b] text-white hover:bg-violet-800">
+            <Button type="button" variant="outline" size="icon-lg" onClick={onClose} aria-label="Close purchase celebration" className="absolute right-3 top-3 z-20 size-11 rounded-2xl border-violet-200/35 bg-[#25163b]! text-white hover:bg-violet-800! dark:bg-[#25163b]!">
               <XIcon className="size-5" aria-hidden="true" />
             </Button>
             <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
@@ -153,10 +153,19 @@ export function PurchaseCelebrationDialog({
 /** Visual-first, tactile hint-pack storefront with server-owned purchase values. */
 export function OilShop({ initialData }: { initialData: OilShopData }): React.ReactNode {
   const [data, setData] = useState(initialData);
-  const [selected, setSelected] = useState<OilShopItem | null>(null);
+  const [selected, setSelected] = useState<OilShopItem | null>(initialData.items[0] ?? null);
+  const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
   const [celebration, setCelebration] = useState<PurchaseCelebration | null>(null);
   const [activeTab, setActiveTab] = useState<"hints" | "donations">("hints");
   const [isPending, startTransition] = useTransition();
+
+  /** Selects the desktop detail card or opens the compact-screen modal. */
+  function previewItem(item: OilShopItem): void {
+    setSelected(item);
+    if (!window.matchMedia("(min-width: 1024px)").matches) {
+      setMobilePreviewOpen(true);
+    }
+  }
 
   function purchase(): void {
     if (!selected || isPending) return;
@@ -169,7 +178,7 @@ export function OilShop({ initialData }: { initialData: OilShopData }): React.Re
         return;
       }
       setData((current) => ({ ...current, balance: result.data!.balance, hintsRemaining: result.data!.hintsRemaining, purchasedHints: result.data!.purchasedHints }));
-      setSelected(null);
+      setMobilePreviewOpen(false);
       setCelebration({ item, previousHintBalance, newHintBalance: result.data.hintsRemaining });
       toast.success(result.message);
     });
@@ -190,7 +199,8 @@ export function OilShop({ initialData }: { initialData: OilShopData }): React.Re
         </div>
       </section>
 
-      <section className="mt-5 overflow-hidden rounded-[2rem] border border-violet-400/30 bg-slate-950/95 text-white shadow-xl">
+      <div className="mt-5 lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-5 xl:grid-cols-[minmax(0,1fr)_26rem]">
+      <section className="overflow-hidden rounded-[2rem] border border-violet-400/30 bg-slate-950/95 text-white shadow-xl">
         <div className="grid grid-cols-2 border-b border-violet-300/20" role="tablist" aria-label="Shop categories">
           <button
             type="button"
@@ -224,17 +234,17 @@ export function OilShop({ initialData }: { initialData: OilShopData }): React.Re
           <div role="tabpanel" className="space-y-3 p-3 sm:p-4">
             {data.items.map((item) => (
               <article key={item.id} className="grid min-w-0 grid-cols-[4.75rem_minmax(0,1fr)] gap-2.5 overflow-hidden rounded-3xl border border-violet-300/20 bg-white/5 p-3 min-[390px]:grid-cols-[5.5rem_minmax(0,1fr)] sm:grid-cols-[7rem_minmax(0,1fr)_auto] sm:items-center sm:gap-3">
-                <button type="button" onClick={() => setSelected(item)} className="relative row-span-2 aspect-square min-w-0 overflow-hidden rounded-2xl border border-violet-400/50 transition-transform hover:scale-[1.03] active:scale-95 sm:row-span-1">
+                <button type="button" onClick={() => previewItem(item)} className="relative row-span-2 aspect-square min-w-0 overflow-hidden rounded-2xl border border-violet-400/50 transition-transform hover:scale-[1.03] active:scale-95 sm:row-span-1">
                   <Image src={getItemArt(item)} alt={item.name} fill className="object-cover" sizes="112px" />
                   <span className="absolute right-1 top-1 grid size-9 place-items-center rounded-full border-2 border-violet-200 bg-violet-700 font-black ring-2 ring-violet-950 shadow-[0_4px_0_rgb(67_20_122),0_7px_12px_rgb(0_0_0/0.45),0_0_16px_rgb(168_85_247/0.55)]">{item.hintQuantity}</span>
                 </button>
-                <button type="button" onClick={() => setSelected(item)} className="min-w-0 self-end overflow-hidden text-left sm:self-center">
+                <button type="button" onClick={() => previewItem(item)} className="min-w-0 self-end overflow-hidden text-left sm:self-center">
                   <h2 className="text-wrap font-heading text-base font-black leading-tight min-[390px]:text-lg sm:text-xl">{item.name}</h2>
                   <p className="mt-1 line-clamp-2 text-xs text-violet-200 sm:text-sm">{item.description}</p>
                 </button>
                 <div className="col-start-2 grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 sm:col-start-3 sm:flex sm:flex-col sm:items-stretch">
                   <span className="inline-flex min-h-9 min-w-0 items-center justify-center gap-1 rounded-xl bg-black/30 px-2 font-black text-amber-300"><GemIcon className="size-4" />{item.cost}</span>
-                  <Button onClick={() => setSelected(item)} className="min-h-10 bg-amber-400 px-3 font-black text-slate-950 hover:bg-amber-300 sm:px-5">View</Button>
+                  <Button onClick={() => previewItem(item)} className="min-h-10 bg-amber-400 px-3 font-black text-slate-950 hover:bg-amber-300 sm:px-5">View</Button>
                 </div>
               </article>
             ))}
@@ -242,10 +252,33 @@ export function OilShop({ initialData }: { initialData: OilShopData }): React.Re
         )}
       </section>
 
-      <Dialog open={selected !== null} onOpenChange={(open) => !open && !isPending && setSelected(null)}>
+      <aside className="sticky top-6 hidden overflow-hidden rounded-[2rem] border border-violet-400/35 bg-linear-to-b from-[#211335] to-[#090817] p-5 text-white shadow-[0_18px_45px_rgb(5_4_15/0.35)] lg:block" aria-label="Selected shop item">
+        {activeTab === "donations" ? (
+          <div className="grid min-h-96 place-items-center text-center">
+            <div><span className="mx-auto grid size-20 place-items-center rounded-3xl bg-violet-400/10"><GiftIcon className="size-10 text-violet-300" /></span><h2 className="mt-5 font-heading text-2xl font-black">Donations coming later</h2></div>
+          </div>
+        ) : selected ? (
+          <div>
+            <p className="text-xs font-black tracking-[0.2em] text-violet-300 uppercase">Hint pack</p>
+            <div className="relative mx-auto mt-4 aspect-square w-full max-w-72 overflow-hidden rounded-[2rem] border-2 border-violet-400/60 shadow-[0_0_35px_rgb(168_85_247/0.3)]">
+              <Image src={getItemArt(selected)} alt={selected.name} fill className="object-cover" sizes="288px" />
+              <span className="absolute right-3 top-3 grid size-12 place-items-center rounded-full border-[3px] border-violet-200 bg-violet-700 text-xl font-black ring-[3px] ring-violet-950 shadow-[0_5px_0_rgb(67_20_122),0_9px_16px_rgb(0_0_0/0.5),0_0_20px_rgb(168_85_247/0.6)]">{selected.hintQuantity}</span>
+            </div>
+            <h2 className="mt-5 font-heading text-3xl font-black">{selected.name}</h2>
+            <p className="mt-2 min-h-12 text-violet-200">{selected.description}</p>
+            <div className="mt-6 grid grid-cols-[1fr_1.25fr] gap-3 rounded-2xl border border-violet-300/25 bg-black/20 p-3">
+              <span className="flex items-center justify-center gap-2 text-xl font-black text-amber-300"><GemIcon />{selected.cost}</span>
+              <Button size="lg" className="min-h-12 bg-amber-400 text-base font-black text-slate-950 hover:bg-amber-300" disabled={isPending || data.balance < selected.cost} onClick={purchase}><SparklesIcon />{isPending ? "Purchasing…" : data.balance < selected.cost ? "More Glow" : "Buy"}</Button>
+            </div>
+          </div>
+        ) : null}
+      </aside>
+      </div>
+
+      <Dialog open={mobilePreviewOpen && selected !== null} onOpenChange={(open) => !open && !isPending && setMobilePreviewOpen(false)}>
         <DialogContent showCloseButton={false} className="overflow-hidden rounded-[2rem] border-2 border-violet-400/50 bg-linear-to-b from-[#211335] to-[#090817] p-5 text-white sm:max-w-md">
           {selected && <>
-            <Button type="button" variant="outline" size="icon-lg" onClick={() => !isPending && setSelected(null)} disabled={isPending} aria-label="Close item preview" className="absolute right-3 top-3 z-20 size-11 rounded-2xl border-violet-200/35 bg-[#25163b] text-white hover:bg-violet-800">
+            <Button type="button" variant="outline" size="icon-lg" onClick={() => !isPending && setMobilePreviewOpen(false)} disabled={isPending} aria-label="Close item preview" className="absolute right-3 top-3 z-20 size-11 rounded-2xl border-violet-200/35 bg-[#25163b]! text-white hover:bg-violet-800! dark:bg-[#25163b]!">
               <XIcon className="size-5" aria-hidden="true" />
             </Button>
             <DialogHeader className="items-center text-center">
