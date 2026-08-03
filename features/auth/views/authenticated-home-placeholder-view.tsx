@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { FlameIcon, MapIcon, VaultIcon } from "lucide-react";
+import { FlameIcon, MapIcon, ShoppingBagIcon, VaultIcon } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { LogoutButton } from "@/features/auth/components/logout-button";
 import { authRepository } from "@/features/auth/repositories/auth.repository";
@@ -61,6 +61,16 @@ export async function AuthenticatedHomePlaceholderView(): Promise<React.ReactNod
           >
             <VaultIcon aria-hidden="true" />
             Open Vault
+          </Link>
+          <Link
+            href="/oil-shop"
+            className={cn(
+              buttonVariants({ variant: "outline", size: "lg" }),
+              "min-h-11 gap-2 px-4",
+            )}
+          >
+            <ShoppingBagIcon aria-hidden="true" />
+            Oil Shop
           </Link>
           <LogoutButton />
         </div>

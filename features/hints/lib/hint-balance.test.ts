@@ -13,3 +13,9 @@ test("invalid persisted usage counts are rejected", () => {
   assert.throws(() => calculateHintBalance(-1), RangeError);
   assert.throws(() => calculateHintBalance(1.5), RangeError);
 });
+
+test("purchased hint entitlements extend the consumable balance", () => {
+  assert.equal(calculateHintBalance(5, 3), 3);
+  assert.equal(calculateHintBalance(6, 5), 4);
+  assert.throws(() => calculateHintBalance(0, -1), RangeError);
+});

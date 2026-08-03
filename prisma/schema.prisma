@@ -88,6 +88,7 @@ enum RewardEventType {
   DAY_COMPLETE
   BADGE_UNLOCK
   MANUAL_ADMIN_AWARD
+  SHOP_PURCHASE
 }
 
 // Better Auth owns identity and credential lifecycle fields on this table.
@@ -471,33 +472,35 @@ model FellowshipMember {
 }
 
 model ShopItem {
-  id          String             @id @default(cuid())
-  name        String
-  slug        String             @unique
-  description String
-  itemType    String
-  cost        Int
-  isActive    Boolean            @default(true)
-  createdById String?
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
-  createdBy   User?              @relation("ShopItemCreator", fields: [createdById], references: [id], onDelete: SetNull)
-  purchases   UserShopPurchase[]
+  id            String             @id @default(cuid())
+  name          String
+  slug          String             @unique
+  description   String
+  itemType      String
+  grantQuantity Int                @default(0)
+  cost          Int
+  isActive      Boolean            @default(true)
+  createdById   String?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  createdBy     User?              @relation("ShopItemCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  purchases     UserShopPurchase[]
 
   @@index([isActive, itemType])
 }
 
 model UserShopPurchase {
-  id             String   @id @default(cuid())
-  userId         String
-  shopItemId     String
-  quantity       Int      @default(1)
-  unitCost       Int
-  totalCost      Int
-  idempotencyKey String   @unique
-  purchasedAt    DateTime @default(now())
-  user           User     @relation(fields: [userId], references: [id], onDelete: Restrict)
-  shopItem       ShopItem @relation(fields: [shopItemId], references: [id], onDelete: Restrict)
+  id                  String   @id @default(cuid())
+  userId              String
+  shopItemId          String
+  quantity            Int      @default(1)
+  unitCost            Int
+  totalCost           Int
+  entitlementQuantity Int
+  idempotencyKey      String   @unique
+  purchasedAt         DateTime @default(now())
+  user                User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  shopItem            ShopItem @relation(fields: [shopItemId], references: [id], onDelete: Restrict)
 
   @@index([userId, purchasedAt(sort: Desc)])
   @@index([shopItemId])

@@ -121,7 +121,7 @@ const vaultVerseSelect = (userId: string) => ({
 /** Database boundary for private Vault reads and isolated replay creation. */
 export const vaultRepository = {
   async getLibrary(userId: string): Promise<VaultLibraryData> {
-    const [profile, streak, settings, completedProgress, favorites, activeProgress] =
+    const [profile, streak, settings, completedProgress, purchasedHints, favorites, activeProgress] =
       await Promise.all([
         prisma.userProfile.findUnique({
           where: { userId },
@@ -150,6 +150,10 @@ export const vaultRepository = {
               },
             },
           },
+        }),
+        prisma.userShopPurchase.aggregate({
+          where: { userId, shopItem: { itemType: "HINT_PACK" } },
+          _sum: { entitlementQuantity: true },
         }),
         prisma.userFavoriteVerse.findMany({
           where: { userId },
@@ -234,7 +238,10 @@ export const vaultRepository = {
         glowPoints: profile?.totalGlowPoints ?? 0,
         currentStreak: streak?.currentStreak ?? 0,
         bestStreak: streak?.bestStreak ?? 0,
-        hintsRemaining: calculateHintBalance(totalHintsUsed),
+        hintsRemaining: calculateHintBalance(
+          totalHintsUsed,
+          purchasedHints._sum.entitlementQuantity ?? 0,
+        ),
         totalHintsUsed,
       },
       completedVerses,

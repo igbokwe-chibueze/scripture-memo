@@ -39,8 +39,14 @@ export const hintRepository = {
    * guessed to be hint credits.
    */
   async getHintBalance(userId: string): Promise<number> {
-    const usedHints = await prisma.hintUsage.count({ where: { userId } });
-    return calculateHintBalance(usedHints);
+    const [usedHints, purchased] = await Promise.all([
+      prisma.hintUsage.count({ where: { userId } }),
+      prisma.userShopPurchase.aggregate({
+        where: { userId, shopItem: { itemType: "HINT_PACK" } },
+        _sum: { entitlementQuantity: true },
+      }),
+    ]);
+    return calculateHintBalance(usedHints, purchased._sum.entitlementQuantity ?? 0);
   },
 
   /**
@@ -85,8 +91,17 @@ export const hintRepository = {
         throw new HintConflictError("STAGE_DISALLOWS_HINTS");
       }
 
-      const usedHints = await transaction.hintUsage.count({ where: { userId } });
-      const remainingBeforeUse = calculateHintBalance(usedHints);
+      const [usedHints, purchased] = await Promise.all([
+        transaction.hintUsage.count({ where: { userId } }),
+        transaction.userShopPurchase.aggregate({
+          where: { userId, shopItem: { itemType: "HINT_PACK" } },
+          _sum: { entitlementQuantity: true },
+        }),
+      ]);
+      const remainingBeforeUse = calculateHintBalance(
+        usedHints,
+        purchased._sum.entitlementQuantity ?? 0,
+      );
       if (remainingBeforeUse <= 0) {
         throw new HintConflictError("NO_HINTS_REMAINING");
       }

@@ -156,7 +156,7 @@ export const gameplayRepository = {
     userId: string,
     sessionId: string,
   ): Promise<GameplaySessionData | null> {
-    const [session, settings, usedHintCount] = await Promise.all([
+    const [session, settings, usedHintCount, purchasedHints] = await Promise.all([
       prisma.gameSession.findFirst({
         where: { id: sessionId, userId },
         select: {
@@ -188,6 +188,10 @@ export const gameplayRepository = {
         select: { audioEnabled: true },
       }),
       prisma.hintUsage.count({ where: { userId } }),
+      prisma.userShopPurchase.aggregate({
+        where: { userId, shopItem: { itemType: "HINT_PACK" } },
+        _sum: { entitlementQuantity: true },
+      }),
     ]);
     if (!session) return null;
 
@@ -217,7 +221,10 @@ export const gameplayRepository = {
       completedModes,
       currentMode: getCurrentMode(completedModes),
       audioEnabled: settings?.audioEnabled ?? true,
-      hintBalance: calculateHintBalance(usedHintCount),
+      hintBalance: calculateHintBalance(
+        usedHintCount,
+        purchasedHints._sum.entitlementQuantity ?? 0,
+      ),
     };
   },
 

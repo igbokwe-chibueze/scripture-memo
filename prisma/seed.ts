@@ -28,6 +28,10 @@ import {
   disconnectBadgeSeedRepository,
   seedBadgeCatalog,
 } from "@/features/badges/repositories/badge-seed.repository";
+import {
+  disconnectOilShopSeedRepository,
+  seedHintShopCatalog,
+} from "@/features/oil-shop/repositories/oil-shop-seed.repository";
 
 const WAYPOINT_COUNT = 220;
 
@@ -42,12 +46,13 @@ function buildWaypointPlaceholders(): WaypointSeedData[] {
 
 /** Runs the idempotent waypoint seed and reports only aggregate, non-sensitive output. */
 async function main(): Promise<void> {
-  const [insertedCount, synchronizedBadges] = await Promise.all([
+  const [insertedCount, synchronizedBadges, synchronizedShopItems] = await Promise.all([
     seedWaypointPlaceholders(buildWaypointPlaceholders()),
     seedBadgeCatalog(),
+    seedHintShopCatalog(),
   ]);
   process.stdout.write(
-    `Seed complete: inserted ${insertedCount} waypoints and synchronized ${synchronizedBadges} badges; preserved existing progress.\n`,
+    `Seed complete: inserted ${insertedCount} waypoints, synchronized ${synchronizedBadges} badges and ${synchronizedShopItems} shop items; preserved existing progress.\n`,
   );
 }
 
@@ -70,6 +75,7 @@ async function runSeed(): Promise<void> {
     await Promise.all([
       disconnectWaypointSeedRepository(),
       disconnectBadgeSeedRepository(),
+      disconnectOilShopSeedRepository(),
     ]);
   }
 }
