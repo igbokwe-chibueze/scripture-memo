@@ -1,8 +1,8 @@
 # Localization
 
-Scripture Memo currently ships its player experience in English (`en`) and
-Spanish (`es`). Administrative tools remain English-only until their product
-copy and operational terminology receive a separate translation review.
+Scripture Memo currently ships its player experience in English (`en`), Spanish
+(`es`), and French (`fr`). Administrative tools remain English-only until their
+product copy and operational terminology receive a separate translation review.
 
 ## Locale resolution
 
@@ -49,5 +49,7 @@ be machine-translated at render time.
 6. Verify pluralization, number/date formatting, overflow, screen-reader labels,
    and gameplay instructions with a native reviewer.
 
-The message-contract test rejects missing or extra keys, making incomplete
-locale files fail before release.
+The message-contract test rejects missing or extra keys in each effective
+catalogue. French uses the English catalogue as a release-safe base and overrides
+it with reviewed French strings, so a newly introduced key cannot crash the game
+while its French wording is being prepared.

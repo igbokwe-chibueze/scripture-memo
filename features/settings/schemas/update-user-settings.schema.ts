@@ -17,7 +17,7 @@ export const updateUserSettingsSchema = z.object({
     z.string().regex(/^[A-Z]{2}$/, "Select a valid country."),
   ]),
   preferredTranslation: z.enum(["NIV", "ESV", "KJV"]),
-  locale: z.enum(["en", "es"]),
+  locale: z.enum(["en", "es", "fr"]),
   audioEnabled: z.boolean(),
   reducedMotion: z.boolean(),
   theme: z.enum(["light", "dark", "system"]),

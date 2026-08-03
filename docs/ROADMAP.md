@@ -1332,7 +1332,7 @@ reward-ledger entry. Purchased hints extend every server-derived hint balance.
 
 ### Pre-Phase 26 localization foundation (2026-08-03)
 
-- Added English and Spanish player-interface locales with account preference,
+- Added English, Spanish, and French player-interface locales with account preference,
   secure cookie, browser detection, and English fallback.
 - Kept private gameplay URLs locale-neutral; public SEO pages may use locale
   prefixes when localized marketing content is introduced.

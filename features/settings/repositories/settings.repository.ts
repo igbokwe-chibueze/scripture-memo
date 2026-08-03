@@ -1,7 +1,7 @@
 import type { TranslationCode } from "@/lib/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import type { UpdateUserSettingsInput } from "@/features/settings/schemas/update-user-settings.schema";
-import type { AppLocale } from "@/i18n/config";
+import { DEFAULT_LOCALE, isSupportedLocale, type AppLocale } from "@/i18n/config";
 
 export type UserSettingsValues = {
   preferredTranslation: TranslationCode;
@@ -21,7 +21,7 @@ export const settingsRepository = {
 
     return {
       preferredTranslation: settings.preferredTranslation,
-      locale: settings.locale === "es" ? "es" : "en",
+      locale: isSupportedLocale(settings.locale) ? settings.locale : DEFAULT_LOCALE,
       audioEnabled: settings.audioEnabled,
       reducedMotion: settings.reducedMotion,
       theme:

@@ -13,6 +13,7 @@ import {
 const messageLoaders: Record<AppLocale, () => Promise<Record<string, unknown>>> = {
   en: async () => (await import("@/messages/en.json")).default,
   es: async () => (await import("@/messages/es.json")).default,
+  fr: async () => (await import("@/messages/fr")).default,
 };
 
 /**

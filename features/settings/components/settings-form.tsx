@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
-import { AccessibilityIcon, Volume2Icon } from "lucide-react";
+import { AccessibilityIcon, SaveIcon, Volume2Icon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -104,7 +104,7 @@ export function SettingsForm({ initialValues }: SettingsFormProps): React.ReactN
                 <FieldLabel>{t("interfaceLanguage")}</FieldLabel>
                 <Select value={field.value} onValueChange={field.onChange}>
                   <SelectTrigger className="min-h-11 w-full"><SelectValue /></SelectTrigger>
-                  <SelectContent><SelectItem value="en">{t("english")}</SelectItem><SelectItem value="es">{t("spanish")}</SelectItem></SelectContent>
+                  <SelectContent><SelectItem value="en">{t("english")}</SelectItem><SelectItem value="es">{t("spanish")}</SelectItem><SelectItem value="fr">{t("french")}</SelectItem></SelectContent>
                 </Select>
                 <FieldDescription>{t("interfaceLanguageDescription")}</FieldDescription>
               </Field>
@@ -159,6 +159,7 @@ export function SettingsForm({ initialValues }: SettingsFormProps): React.ReactN
 
       <FormError message={form.formState.errors.root?.message} />
       <LoadingButton type="submit" size="lg" className="w-full sm:w-auto" isPending={isPending} pendingLabel={t("savingSettings")} disabled={!form.formState.isDirty}>
+        <SaveIcon aria-hidden="true" />
         {t("saveSettings")}
       </LoadingButton>
     </form>

@@ -1,5 +1,21 @@
 # Scripture Memo Project Log
 
+### 2026-08-03 — Settings save action given a visual icon
+
+- Added a save icon to the localized Settings submit button while preserving its
+  pending and disabled behavior.
+
+### 2026-08-03 — French interface support added
+
+- Added French to the persisted Settings selector, locale schema, authenticated
+  preference synchronization, request catalogue loader, and browser-language
+  detection, including regional variants such as `fr-CA` and `fr-FR`.
+- Added French player-interface messages across navigation, Settings, map,
+  gameplay, celebrations, Vault, Sanctuary, Oil Shop, badges, authentication,
+  and recoverable errors. New untranslated keys safely inherit English instead
+  of breaking a request.
+- Extended locale tests and localization documentation for the third language.
+
 ### 2026-08-03 — Map markers and Settings statistics localized
 
 - Moved the winding trail's current-map badge, current-position callout, trail

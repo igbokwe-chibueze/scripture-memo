@@ -9,7 +9,7 @@ export type PreferenceSyncProps = {
   theme: "light" | "dark" | "system";
   reducedMotion: boolean;
   audioEnabled: boolean;
-  locale: "en" | "es";
+  locale: "en" | "es" | "fr";
   hasConfiguredTimeZone: boolean;
 };
 

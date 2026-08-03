@@ -21,16 +21,20 @@ function flattenKeys(value: unknown, prefix = ""): string[] {
   );
 }
 
-test("browser language detection respects supported Spanish variants", () => {
+test("browser language detection respects supported regional variants and quality", () => {
   assert.equal(localeFromAcceptLanguage("es-MX,es;q=0.9,en;q=0.7"), "es");
-  assert.equal(localeFromAcceptLanguage("fr-FR,en;q=0.8"), "en");
+  assert.equal(localeFromAcceptLanguage("fr-CA,fr;q=0.9,en;q=0.7"), "fr");
+  assert.equal(localeFromAcceptLanguage("fr-FR,en;q=0.8"), "fr");
+  assert.equal(localeFromAcceptLanguage("es;q=0.4,fr;q=0.9,en;q=0.7"), "fr");
   assert.equal(localeFromAcceptLanguage(null), "en");
 });
 
 test("all shipped locale files expose the English message contract", async () => {
   const directory = fileURLToPath(new URL("../messages/", import.meta.url));
   const load = async (locale: string): Promise<unknown> =>
-    JSON.parse(await readFile(`${directory}${locale}.json`, "utf8")) as unknown;
+    locale === "fr"
+      ? (await import("../messages/fr")).default
+      : JSON.parse(await readFile(`${directory}${locale}.json`, "utf8")) as unknown;
   const expected = flattenKeys(await load("en")).sort();
 
   for (const locale of SUPPORTED_LOCALES) {

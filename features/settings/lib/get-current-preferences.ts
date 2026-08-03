@@ -8,7 +8,7 @@ export async function getCurrentPreferences(): Promise<{
   theme: "light" | "dark" | "system";
   reducedMotion: boolean;
   audioEnabled: boolean;
-  locale: "en" | "es";
+  locale: "en" | "es" | "fr";
   hasConfiguredTimeZone: boolean;
 }> {
   const session = await requireServerSession();
