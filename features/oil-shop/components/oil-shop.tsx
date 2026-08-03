@@ -1,14 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { motion } from "framer-motion";
-import { GemIcon, GiftIcon, LightbulbIcon, PackageOpenIcon, ShoppingBagIcon, SparklesIcon } from "lucide-react";
+import { GemIcon, GiftIcon, LightbulbIcon, PackageOpenIcon, ShoppingBagIcon, SparklesIcon, XIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { purchaseShopItemAction } from "@/features/oil-shop/actions/purchase-shop-item.action";
 import type { OilShopData, OilShopItem } from "@/features/oil-shop/types/oil-shop.types";
+import { useAudioFeedback } from "@/features/gameplay/hooks/use-audio-feedback";
 
 const itemArt: Record<number, string> = {
   1: "/images/oil-shop/single-spark.png",
@@ -16,7 +17,58 @@ const itemArt: Record<number, string> = {
   5: "/images/oil-shop/lantern-pack.png",
 };
 
-type PurchaseCelebration = { item: OilShopItem; newHintBalance: number };
+export type PurchaseCelebration = {
+  item: OilShopItem;
+  previousHintBalance: number;
+  newHintBalance: number;
+};
+
+/** Counts one trusted purchased-hint balance after the earlier effects settle. */
+function PurchasedHintBalance({
+  previousValue,
+  newValue,
+}: {
+  previousValue: number;
+  newValue: number;
+}): React.ReactNode {
+  const [displayedValue, setDisplayedValue] = useState(previousValue);
+
+  useEffect(() => {
+    let animationFrame = 0;
+    // WHY: The balance is deliberately the final celebration beat. Waiting for
+    // the modal, Luna, particles, and item to settle prevents competing motion.
+    const startTimer = window.setTimeout(() => {
+      if (document.documentElement.dataset.reducedMotion === "true") {
+        setDisplayedValue(newValue);
+        return;
+      }
+      const startedAt = performance.now();
+      const durationMs = 850;
+      const step = (timestamp: number): void => {
+        const progress = Math.min(1, (timestamp - startedAt) / durationMs);
+        setDisplayedValue(Math.floor(previousValue + (newValue - previousValue) * progress));
+        if (progress < 1) animationFrame = window.requestAnimationFrame(step);
+      };
+      animationFrame = window.requestAnimationFrame(step);
+    }, 1_500);
+    return () => {
+      window.clearTimeout(startTimer);
+      window.cancelAnimationFrame(animationFrame);
+    };
+  }, [newValue, previousValue]);
+
+  return (
+    <motion.div
+      key={displayedValue}
+      initial={{ scale: 0.94 }}
+      animate={{ scale: 1 }}
+      className="rounded-xl bg-violet-400/15 px-3 py-2 text-center"
+    >
+      <LightbulbIcon className="mx-auto size-5 text-violet-300" />
+      <strong>{displayedValue}</strong>
+    </motion.div>
+  );
+}
 
 /** Returns approved game art for each server-defined hint quantity. */
 function getItemArt(item: OilShopItem): string {
@@ -24,23 +76,32 @@ function getItemArt(item: OilShopItem): string {
 }
 
 /** Animated purchase acknowledgement that remains open until the learner closes it. */
-function PurchaseCelebrationDialog({
+export function PurchaseCelebrationDialog({
   celebration,
   onClose,
 }: {
   celebration: PurchaseCelebration | null;
   onClose: () => void;
 }): React.ReactNode {
+  const playAudio = useAudioFeedback();
+
+  useEffect(() => {
+    if (celebration) playAudio("shop-purchase");
+  }, [celebration, playAudio]);
+
   return (
     <Dialog open={celebration !== null} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="overflow-hidden rounded-[2rem] border-2 border-violet-400/50 bg-[radial-gradient(circle_at_50%_22%,color-mix(in_oklch,var(--primary),transparent_70%),transparent_48%),linear-gradient(160deg,#17112d,#090817)] p-0 text-white sm:max-w-lg">
+      <DialogContent showCloseButton={false} className="h-[calc(100dvh-1rem)] max-h-[46rem] overflow-hidden rounded-[2rem] border-2 border-violet-400/50 bg-[radial-gradient(circle_at_50%_22%,color-mix(in_oklch,var(--primary),transparent_70%),transparent_48%),linear-gradient(160deg,#17112d,#090817)] p-0 text-white sm:max-w-lg">
         {celebration && (
           <motion.div
             initial={{ opacity: 0, scale: 0.82 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ type: "spring", duration: 0.75, bounce: 0.28 }}
-            className="relative px-5 pb-6 pt-9 text-center"
+            className="relative grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] gap-3 px-4 pb-4 pt-5 text-center min-[390px]:px-5 min-[390px]:pb-5 min-[390px]:pt-7"
           >
+            <Button type="button" variant="outline" size="icon-lg" onClick={onClose} aria-label="Close purchase celebration" className="absolute right-3 top-3 z-20 size-11 rounded-2xl border-violet-200/35 bg-[#25163b] text-white hover:bg-violet-800">
+              <XIcon className="size-5" aria-hidden="true" />
+            </Button>
             <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
               {Array.from({ length: 12 }, (_, index) => (
                 <motion.span
@@ -52,24 +113,36 @@ function PurchaseCelebrationDialog({
                 />
               ))}
             </div>
-            <p className="text-xs font-black tracking-[0.24em] text-amber-300 uppercase">Purchase complete</p>
-            <h2 className="mt-2 font-heading text-4xl font-black">Trail supplied!</h2>
-            <div className="relative mx-auto mt-3 h-64 max-w-sm">
-              <Image src="/images/mascot/luna/luna-reward.png" alt="Luna celebrating your purchase" fill className="object-contain" sizes="384px" />
+            <div className="px-12">
+              <p className="text-[0.6rem] font-black tracking-[0.2em] text-amber-300 uppercase min-[390px]:text-xs">Purchase complete</p>
+              <h2 className="mt-1 font-heading text-3xl font-black min-[390px]:text-4xl">Trail supplied!</h2>
+            </div>
+            <div className="relative mx-auto h-full min-h-0 w-full max-w-sm">
+              <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+                <motion.div
+                  className="absolute left-1/2 top-1/2 aspect-square w-[120%] -translate-x-1/2 -translate-y-1/2 bg-[repeating-conic-gradient(from_0deg,transparent_0deg_11deg,rgb(251_191_36/0.12)_11deg_17deg,transparent_17deg_30deg)] [mask-image:radial-gradient(circle,black_0%,rgb(0_0_0/0.88)_34%,rgb(0_0_0/0.38)_62%,transparent_88%)]"
+                  animate={{ rotate: 360, scale: [0.98, 1.04, 0.98] }}
+                  transition={{ rotate: { duration: 28, repeat: Infinity, ease: "linear" }, scale: { duration: 3.6, repeat: Infinity, ease: "easeInOut" } }}
+                />
+                <div className="absolute left-1/2 top-1/2 size-[68%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-200/18 blur-[3.5rem]" />
+              </div>
+              <Image src="/images/mascot/luna/luna-reward.png" alt="Luna celebrating your purchase" fill className="z-10 object-contain" sizes="384px" />
               <motion.div
                 initial={{ x: 30, scale: 0.4, rotate: 12 }}
                 animate={{ x: 0, scale: 1, rotate: -4 }}
                 transition={{ type: "spring", delay: 0.3, duration: 0.8 }}
-                className="absolute bottom-2 right-1 size-28 overflow-hidden rounded-3xl border-2 border-violet-300/70 shadow-[0_0_30px_rgb(168_85_247/0.5)]"
+                className="absolute bottom-1 right-1 z-20 size-24 overflow-hidden rounded-3xl border-2 border-violet-300/70 shadow-[0_0_30px_rgb(168_85_247/0.5)] min-[390px]:size-28"
               >
                 <Image src={getItemArt(celebration.item)} alt="" fill className="object-cover" sizes="112px" />
               </motion.div>
             </div>
-            <div className="mx-auto grid max-w-sm grid-cols-[1fr_auto] items-center gap-3 rounded-2xl border border-violet-300/25 bg-white/5 p-4 text-left">
-              <div><p className="font-heading text-xl font-black">{celebration.item.name}</p><p className="text-sm text-violet-200">+{celebration.item.hintQuantity} hints</p></div>
-              <div className="rounded-xl bg-violet-400/15 px-3 py-2 text-center"><LightbulbIcon className="mx-auto size-5 text-violet-300" /><strong>{celebration.newHintBalance}</strong></div>
+            <div className="mx-auto grid w-full max-w-sm grid-cols-[1fr_auto] items-center gap-3 rounded-2xl border border-violet-300/25 bg-white/5 p-3 text-left min-[390px]:p-4">
+              <div><p className="font-heading text-lg font-black min-[390px]:text-xl">{celebration.item.name}</p><p className="text-xs text-violet-200 min-[390px]:text-sm">+{celebration.item.hintQuantity} hints</p></div>
+              <PurchasedHintBalance
+                previousValue={celebration.previousHintBalance}
+                newValue={celebration.newHintBalance}
+              />
             </div>
-            <Button onClick={onClose} size="lg" className="mt-5 min-h-12 w-full bg-amber-400 text-base font-black text-slate-950 hover:bg-amber-300">Awesome!</Button>
           </motion.div>
         )}
       </DialogContent>
@@ -88,6 +161,7 @@ export function OilShop({ initialData }: { initialData: OilShopData }): React.Re
   function purchase(): void {
     if (!selected || isPending) return;
     const item = selected;
+    const previousHintBalance = data.hintsRemaining;
     startTransition(async () => {
       const result = await purchaseShopItemAction({ itemId: item.id, idempotencyKey: crypto.randomUUID() });
       if (!result.success || !result.data) {
@@ -96,7 +170,7 @@ export function OilShop({ initialData }: { initialData: OilShopData }): React.Re
       }
       setData((current) => ({ ...current, balance: result.data!.balance, hintsRemaining: result.data!.hintsRemaining, purchasedHints: result.data!.purchasedHints }));
       setSelected(null);
-      setCelebration({ item, newHintBalance: result.data.hintsRemaining });
+      setCelebration({ item, previousHintBalance, newHintBalance: result.data.hintsRemaining });
       toast.success(result.message);
     });
   }
@@ -169,8 +243,11 @@ export function OilShop({ initialData }: { initialData: OilShopData }): React.Re
       </section>
 
       <Dialog open={selected !== null} onOpenChange={(open) => !open && !isPending && setSelected(null)}>
-        <DialogContent className="overflow-hidden rounded-[2rem] border-2 border-violet-400/50 bg-linear-to-b from-[#211335] to-[#090817] p-5 text-white sm:max-w-md">
+        <DialogContent showCloseButton={false} className="overflow-hidden rounded-[2rem] border-2 border-violet-400/50 bg-linear-to-b from-[#211335] to-[#090817] p-5 text-white sm:max-w-md">
           {selected && <>
+            <Button type="button" variant="outline" size="icon-lg" onClick={() => !isPending && setSelected(null)} disabled={isPending} aria-label="Close item preview" className="absolute right-3 top-3 z-20 size-11 rounded-2xl border-violet-200/35 bg-[#25163b] text-white hover:bg-violet-800">
+              <XIcon className="size-5" aria-hidden="true" />
+            </Button>
             <DialogHeader className="items-center text-center">
               <div className="relative mt-3 aspect-square w-52 overflow-hidden rounded-[2rem] border-2 border-violet-400/60 shadow-[0_0_35px_rgb(168_85_247/0.3)]"><Image src={getItemArt(selected)} alt={selected.name} fill className="object-cover" sizes="208px" /><span className="absolute right-3 top-3 grid size-12 place-items-center rounded-full border-[3px] border-violet-200 bg-violet-700 text-xl font-black ring-[3px] ring-violet-950 shadow-[0_5px_0_rgb(67_20_122),0_9px_16px_rgb(0_0_0/0.5),0_0_20px_rgb(168_85_247/0.6)]">{selected.hintQuantity}</span></div>
               <DialogTitle className="mt-4 font-heading text-3xl font-black">{selected.name}</DialogTitle>

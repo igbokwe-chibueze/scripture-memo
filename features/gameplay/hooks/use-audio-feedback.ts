@@ -9,7 +9,8 @@ export type AudioFeedbackName =
   | "correct"
   | "day-complete"
   | "waypoint-complete"
-  | "badge-unlock";
+  | "badge-unlock"
+  | "shop-purchase";
 
 type VictorySound = "triumphant-chord" | "bright-fanfare" | "crowd-cheer";
 
@@ -246,7 +247,8 @@ export function useAudioFeedback(): (name: AudioFeedbackName) => void {
       name === "error" ||
       name === "correct" ||
       name === "waypoint-complete" ||
-      name === "badge-unlock"
+      name === "badge-unlock" ||
+      name === "shop-purchase"
     ) {
       const AudioContextConstructor = getAudioContextConstructor();
       if (!AudioContextConstructor) return;
@@ -254,7 +256,11 @@ export function useAudioFeedback(): (name: AudioFeedbackName) => void {
         const context = new AudioContextConstructor();
         if (name === "pick" || name === "drop") playInteractionTone(context, name);
         else if (name === "error") playErrorTone(context);
-        else if (name === "waypoint-complete" || name === "badge-unlock") {
+        else if (
+          name === "waypoint-complete" ||
+          name === "badge-unlock" ||
+          name === "shop-purchase"
+        ) {
           playBrightFanfare(context);
         }
         else playVictorySound(context);

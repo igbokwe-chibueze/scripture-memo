@@ -1,5 +1,42 @@
 # Scripture Memo Project Log
 
+### 2026-08-03 — Purchase hint balance count-up added
+
+- Passed the learner's pre-purchase and post-purchase hint balances into the
+  success screen and initially displays the earlier total.
+- Delayed the discrete count-up until the modal, Luna, particles, rays, and item
+  entrances have settled, making the new available total the final visual beat.
+- Reduced-motion preferences skip stepped animation and reveal the trusted final
+  balance after the same sequencing delay.
+
+### 2026-08-03 — Purchase celebration depth layers corrected
+
+- Separated God rays into a dedicated background layer so its mask no longer
+  clips Luna or the purchased item artwork.
+- Kept the item above both Luna and the light treatment with explicit depth
+  layers, and lengthened the ray mask into a gradual transparent falloff.
+- Reduced ray opacity and softened the central amber bloom so the effect fades
+  naturally into the modal rather than ending at a hard circular edge.
+
+### 2026-08-03 — Oil Shop celebration space and light refined
+
+- Removed the redundant Awesome button from the purchase celebration; the
+  tactile close control, backdrop dismissal, and Escape key remain available.
+- Added a slowly rotating, softly pulsing radial God-ray glow behind Luna while
+  preserving reduced-motion handling through Motion's application settings.
+- Replaced the pack-preview modal's plain close glyph with the same tactile,
+  disabled-during-purchase close button used by the celebration.
+
+### 2026-08-03 — Purchase celebration fitted, sounded, and previewed
+
+- Rebuilt the Oil Shop success modal around a bounded mobile viewport grid so
+  its illustration stage contracts on short screens and the entire celebration
+  remains visible without scrolling.
+- Added a tactile shared-button close control, retained the explicit Awesome
+  action, and added settings-aware purchase-success audio.
+- Added the real production purchase celebration to `/ui-foundation` with fixed
+  preview data and no balance, entitlement, ledger, or purchase mutation.
+
 ### 2026-08-03 — Oil Shop mobile hero and tab seam refined
 
 - Widened the mobile hero copy region, reduced its smallest typography and

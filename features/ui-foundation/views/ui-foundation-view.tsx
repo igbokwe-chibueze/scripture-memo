@@ -17,6 +17,7 @@ import { BadgeUnlockPreview } from "@/features/ui-foundation/components/badge-un
 import { LoadingScreenPreview } from "@/features/ui-foundation/components/loading-screen-preview";
 import { LunaMascotPreview } from "@/features/ui-foundation/components/luna-mascot-preview";
 import { ErrorScreenPreview } from "@/features/ui-foundation/components/error-screen-preview";
+import { OilShopPurchasePreview } from "@/features/ui-foundation/components/oil-shop-purchase-preview";
 
 export const metadata: Metadata = {
   title: "UI Foundation Preview | Scripture Memo",
@@ -69,6 +70,7 @@ export function UiFoundationView(): React.ReactNode {
         <ModeCompletionPreview />
         <StreakCompletionPreview />
         <BadgeUnlockPreview />
+        <OilShopPurchasePreview />
         <WaypointCompletionPreview />
         <FoundationTable />
 
