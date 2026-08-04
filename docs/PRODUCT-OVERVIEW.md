@@ -1232,7 +1232,8 @@ Marketplace for spending Glow Points.
 
 Social group system.
 - View fellowships the user belongs to
-- Browse/search public fellowships to join
+- Browse/search public and private fellowships. Private results disclose only
+  their public identity and clearly require leader approval.
 - Create a fellowship (name, description, public/private setting)
 - Select one of twelve curated fellowship insignias; uploaded insignias are not
   supported, and the server accepts only fixed catalogue keys.
@@ -1244,11 +1245,19 @@ Social group system.
   should expire, not in the everyday sharing panel.
 - View fellowship members and their progress
 - Fellowship-specific leaderboard
-- Join via invite code or public listing
+- Public fellowships join immediately from the directory or a shared code.
+- Private directory and shared-code access create an individual pending request;
+  membership is created only after the fellowship leader approves it.
+- Learners can cancel their pending request. Leaders can approve or reject each
+  identified applicant and review resolved request history without receiving
+  private email addresses or raw account identifiers.
 - Shared invitations use a public `/join/[inviteCode]` landing page. Opening the
-  page never mutates membership: authenticated players explicitly accept, while
+  page never mutates membership: authenticated players explicitly join or
+  request access and may decline, while
   signed-out and new players resume the same invitation after Better Auth login,
   registration, and required translation onboarding.
+- A share URL/code identifies the invitation source, not a recipient. A person
+  appears in fellowship management only after submitting a private join request.
 - Rotated, malformed, or unknown invitation codes show a recoverable expired
   state and disclose no private membership data.
 - Leave a fellowship

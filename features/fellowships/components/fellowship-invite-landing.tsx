@@ -3,12 +3,13 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { LogInIcon, ShieldCheckIcon, SparklesIcon, UserPlusIcon, UsersRoundIcon } from "lucide-react";
+import { Clock3Icon, LogInIcon, ShieldCheckIcon, SparklesIcon, UserPlusIcon, UsersRoundIcon, XIcon } from "lucide-react";
 import { toast } from "sonner";
 import { BadgeUnlockSequence } from "@/features/badges/components/badge-unlock-screen";
 import { NavigationButton } from "@/components/shared/navigation-button";
 import { Button } from "@/components/ui/button";
 import { joinFellowshipByInviteAction } from "@/features/fellowships/actions/join-fellowship-by-invite.action";
+import { cancelFellowshipJoinRequestAction } from "@/features/fellowships/actions/cancel-fellowship-join-request.action";
 import { FellowshipInsignia } from "@/features/fellowships/components/fellowship-insignia";
 import { getFellowshipInsignia } from "@/features/fellowships/constants/fellowship-insignias";
 import type { FellowshipInvitePreview } from "@/features/fellowships/types/fellowship.types";
@@ -37,6 +38,10 @@ export function FellowshipInviteLanding({ inviteCode, fellowship, isAuthenticate
       return;
     }
     toast.success(result.message);
+    if (result.data.outcome === "REQUESTED") {
+      router.refresh();
+      return;
+    }
     if (result.data.badgeUnlocks.length > 0) {
       setUnlocks(result.data.badgeUnlocks);
       setUnlockIndex(0);
@@ -56,6 +61,16 @@ export function FellowshipInviteLanding({ inviteCode, fellowship, isAuthenticate
     router.refresh();
   };
 
+  const cancelRequest = (): void => {
+    if (!fellowship.requestId) return;
+    startTransition(async () => {
+      const result = await cancelFellowshipJoinRequestAction({ requestId: fellowship.requestId });
+      if (!result.success) { toast.error(result.message, { duration: Infinity }); return; }
+      toast.success(result.message);
+      router.refresh();
+    });
+  };
+
   return (
     <main className="dark relative grid min-h-svh place-items-center overflow-hidden bg-linear-to-b from-violet-950 via-slate-950 to-amber-950 px-4 py-10 text-white">
       <SparklesIcon className="absolute -top-10 left-1/2 size-64 -translate-x-1/2 text-amber-300/10" aria-hidden="true" />
@@ -67,7 +82,7 @@ export function FellowshipInviteLanding({ inviteCode, fellowship, isAuthenticate
         <p className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/8 px-4 py-2 font-black"><UsersRoundIcon />{t("members", { count: fellowship.memberCount })}</p>
 
         <div className="mt-7 grid gap-3">
-          {fellowship.isMember ? <NavigationButton href={`/fellowships/${fellowship.slug}`} pendingLabel={t("opening")} size="lg"><ShieldCheckIcon />{t("open")}</NavigationButton> : isAuthenticated ? <Button size="lg" disabled={isPending} onClick={join}><UserPlusIcon />{isPending ? t("joining") : t("acceptInvite")}</Button> : <><NavigationButton href={`/login?next=${encodedReturnPath}`} pendingLabel={t("opening")} size="lg"><LogInIcon />{t("loginToJoin")}</NavigationButton><NavigationButton href={`/register?next=${encodedReturnPath}`} pendingLabel={t("opening")} variant="outline" size="lg"><UserPlusIcon />{t("createToJoin")}</NavigationButton></>}
+          {fellowship.isMember ? <NavigationButton href={`/fellowships/${fellowship.slug}`} pendingLabel={t("opening")} size="lg"><ShieldCheckIcon />{t("open")}</NavigationButton> : isAuthenticated && fellowship.requestStatus === "PENDING" ? <><div className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-violet-400/10 px-4 font-black text-violet-200"><Clock3Icon />{t("requestPending")}</div><Button variant="outline" size="lg" disabled={isPending} onClick={cancelRequest}><XIcon />{t("cancelRequest")}</Button></> : isAuthenticated ? <><Button size="lg" disabled={isPending} onClick={join}><UserPlusIcon />{isPending ? t("joining") : fellowship.isPublic ? t("acceptInvite") : t("requestToJoin")}</Button><NavigationButton href="/fellowships" pendingLabel={t("opening")} variant="outline" size="lg"><XIcon />{t("declineInvite")}</NavigationButton></> : <><NavigationButton href={`/login?next=${encodedReturnPath}`} pendingLabel={t("opening")} size="lg"><LogInIcon />{t("loginToJoin")}</NavigationButton><NavigationButton href={`/register?next=${encodedReturnPath}`} pendingLabel={t("opening")} variant="outline" size="lg"><UserPlusIcon />{t("createToJoin")}</NavigationButton><NavigationButton href="/" pendingLabel={t("opening")} variant="ghost" size="lg"><XIcon />{t("cancel")}</NavigationButton></>}
         </div>
       </section>
       {unlocks.length > 0 && <BadgeUnlockSequence badges={unlocks} index={unlockIndex} onAdvance={finishBadges} />}

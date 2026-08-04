@@ -52,5 +52,10 @@ fr.Fellowships.createToJoin = "Créer un compte";
 fr.Fellowships.inviteExpiredTitle = "Cette invitation s’est éteinte";
 fr.Fellowships.inviteExpiredDescription = "Le lien est peut-être ancien, remplacé ou incomplet.";
 fr.Fellowships.findFellowships = "Trouver des communautés";
+Object.assign(fr.Fellowships, {
+  publicShort: "Publique", privateShort: "Privée", requestToJoin: "Demander à rejoindre", requestSubmitted: "Demande envoyée au responsable.", requestPending: "Demande en attente", cancelRequest: "Annuler la demande", requestCancelled: "Demande annulée.", declineInvite: "Refuser l’invitation", noFellowships: "Aucune communauté ne correspond.", leaderTools: "Outils du responsable", joinRequests: "Demandes d’adhésion", pendingCount: "{count, plural, =1 {1 en attente} other {# en attente}}", fromInvite: "Demande depuis une invitation", fromDirectory: "Demande depuis l’annuaire", approve: "Accepter", reject: "Refuser", requestApproved: "Demande acceptée.", requestRejected: "Demande refusée.", noPendingRequests: "Aucune demande à examiner.", requestHistory: "Historique des demandes",
+  requestStatuses: { APPROVED: "Acceptée", REJECTED: "Refusée", CANCELLED: "Annulée", PENDING: "En attente" },
+  requestErrors: { REQUEST_PENDING: "Votre demande est déjà en attente.", REQUEST_NOT_FOUND: "Cette demande est introuvable.", REQUEST_NOT_PENDING: "Cette demande a déjà été traitée." },
+});
 
 export default fr;

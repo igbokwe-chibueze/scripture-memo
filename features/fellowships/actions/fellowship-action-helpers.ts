@@ -9,18 +9,19 @@ import type { ActionResult } from "@/types/api";
 
 export async function fellowshipConflictMessage(error: FellowshipConflictError): Promise<string> {
   const t = await getTranslations("Fellowships");
+  if (error.code.startsWith("REQUEST_")) return t(`requestErrors.${error.code}`);
   return t(`errors.${error.code}`);
 }
 
-/** Completes post-membership badge evaluation from a trusted repository result. */
-export async function completeFellowshipJoin(userId: string, operation: () => Promise<{ slug: string }>): Promise<ActionResult<FellowshipMutationData>> {
+/** Completes either immediate public membership or a private access request. */
+export async function completeFellowshipJoin(userId: string, operation: () => Promise<{ slug: string; joined: boolean }>): Promise<ActionResult<FellowshipMutationData>> {
   const t = await getTranslations("Fellowships");
   try {
     const fellowship = await operation();
-    const badgeUnlocks = await evaluateBadgeProgress(userId, { type: "FELLOWSHIP_JOINED" });
+    const badgeUnlocks = fellowship.joined ? await evaluateBadgeProgress(userId, { type: "FELLOWSHIP_JOINED" }) : [];
     revalidatePath("/fellowships");
     revalidatePath(`/fellowships/${fellowship.slug}`);
-    return { success: true, message: t("joined"), data: { ...fellowship, badgeUnlocks } };
+    return { success: true, message: t(fellowship.joined ? "joined" : "requestSubmitted"), data: { slug: fellowship.slug, outcome: fellowship.joined ? "JOINED" : "REQUESTED", badgeUnlocks } };
   } catch (error) {
     if (error instanceof FellowshipConflictError) return { success: false, message: await fellowshipConflictMessage(error) };
     logger.error("Fellowship join failed.", { error, userId });

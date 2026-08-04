@@ -8,6 +8,22 @@ export type FellowshipSummary = {
   isMember: boolean;
   isLeader: boolean;
   insigniaKey: string;
+  requestStatus: FellowshipJoinRequestStatus | null;
+  requestId: string | null;
+};
+
+export type FellowshipJoinRequestStatus = "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
+
+export type FellowshipJoinRequestItem = {
+  id: string;
+  displayName: string;
+  countryCode: string | null;
+  waypointsCompleted: number;
+  glowPoints: number;
+  source: "DIRECTORY" | "INVITE";
+  status: FellowshipJoinRequestStatus;
+  requestedAt: Date;
+  resolvedAt: Date | null;
 };
 
 export type FellowshipMemberRanking = {
@@ -22,12 +38,13 @@ export type FellowshipMemberRanking = {
 
 export type FellowshipDirectoryData = {
   memberships: FellowshipSummary[];
-  publicFellowships: FellowshipSummary[];
+  discoverableFellowships: FellowshipSummary[];
 };
 
 export type FellowshipDetailData = FellowshipSummary & {
   inviteCode: string | null;
   members: FellowshipMemberRanking[];
+  joinRequests: FellowshipJoinRequestItem[];
 };
 
 export type FellowshipEditData = Pick<
@@ -38,10 +55,11 @@ export type FellowshipEditData = Pick<
 export type FellowshipInvitePreview = Pick<
   FellowshipSummary,
   "slug" | "name" | "description" | "memberCount" | "insigniaKey"
-> & { isMember: boolean };
+> & { isMember: boolean; isPublic: boolean; requestStatus: FellowshipJoinRequestStatus | null; requestId: string | null };
 
 export type FellowshipMutationData = {
   slug: string;
+  outcome?: "JOINED" | "REQUESTED";
   badgeUnlocks: import("@/features/badges/types/badge.types").BadgeUnlockResult[];
 };
 
@@ -52,4 +70,7 @@ export type FellowshipConflictCode =
   | "NOT_MEMBER"
   | "LEADER_CANNOT_LEAVE"
   | "CREATION_LIMIT"
-  | "NOT_LEADER";
+  | "NOT_LEADER"
+  | "REQUEST_PENDING"
+  | "REQUEST_NOT_FOUND"
+  | "REQUEST_NOT_PENDING";

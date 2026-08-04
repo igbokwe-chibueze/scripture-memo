@@ -1,5 +1,17 @@
 # Scripture Memo Project Log
 
+### 2026-08-04 — Private Fellowships gained approval-based access
+
+- Made public and private Fellowships discoverable together while clearly
+  labelling their access model; public groups still join immediately.
+- Added durable private join requests from both directory cards and shared
+  invitation links, including learner cancellation and duplicate prevention.
+- Added a leader-only request queue with approve/reject decisions and bounded
+  resolved history. Approval creates membership transactionally and triggers
+  trusted Fellowship badge evaluation for the accepted learner.
+- Added the Prisma request lifecycle, migration, server authorization, localized
+  English/Spanish/French feedback, and updated product/security documentation.
+
 ### 2026-08-04 — Dedicated UI/UX implementation guide established
 
 - Added `docs/UI-UX-GUIDE.md` as the practical design reference beneath the

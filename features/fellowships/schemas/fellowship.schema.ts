@@ -17,6 +17,11 @@ export const updateFellowshipSchema = createFellowshipSchema.extend({
 
 export const joinFellowshipSchema = z.object({ fellowshipId: z.string().cuid() });
 export const joinByInviteSchema = z.object({ inviteCode: z.string().trim().min(8).max(64) });
+export const cancelJoinRequestSchema = z.object({ requestId: z.string().cuid() });
+export const resolveJoinRequestSchema = z.object({
+  requestId: z.string().cuid(),
+  decision: z.enum(["APPROVE", "REJECT"]),
+});
 export const leaveFellowshipSchema = z.object({ fellowshipId: z.string().cuid() });
 export const regenerateFellowshipInviteSchema = z.object({ fellowshipId: z.string().cuid() });
 

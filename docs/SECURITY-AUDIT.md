@@ -213,7 +213,8 @@ The server and database are the only sources of truth for all security-sensitive
 | 11.4 | Game completion submissions are protected against rapid repeated calls | 🟡 Medium | ☐ Pending | Unique constraint handles duplicates, but rate limiting adds defense in depth |
 | 11.5 | Hint usage action is rate-limited or guarded against rapid fire requests | 🟢 Low | ☐ Pending | Unique constraint prevents duplicate deduction |
 | 11.6 | Fellowship creation is rate-limited per user | 🟡 Medium | ☑ Implemented | Per-user advisory locking and a maximum of three creations per rolling 24 hours prevent rapid spam |
-| 11.7 | Admin bulk actions are confirmation-gated in the UI | 🟡 Medium | ☐ Pending | Prevent accidental destructive actions |
+| 11.7 | Private Fellowship requests are unique and leader-authorized | 🟠 High | ☑ Implemented | One durable request per learner/fellowship prevents duplicate pending requests; repository ownership checks and locked transactions protect approval and membership creation |
+| 11.8 | Admin bulk actions are confirmation-gated in the UI | 🟡 Medium | ☐ Pending | Prevent accidental destructive actions |
 
 ---
 

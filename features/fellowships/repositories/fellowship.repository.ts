@@ -24,12 +24,15 @@ export const fellowshipRepository = {
     const fellowship = await prisma.fellowship.findUnique({
       where: { inviteCode },
       select: {
+        id: true,
         slug: true,
         name: true,
         description: true,
+        isPublic: true,
         insigniaKey: true,
         _count: { select: { members: true } },
         ...(userId ? { members: { where: { userId }, select: { id: true }, take: 1 } } : {}),
+        ...(userId ? { joinRequests: { where: { userId }, select: { id: true, status: true }, take: 1 } } : {}),
       },
     });
     if (!fellowship) return null;
@@ -40,40 +43,45 @@ export const fellowshipRepository = {
       insigniaKey: fellowship.insigniaKey,
       memberCount: fellowship._count.members,
       isMember: "members" in fellowship && fellowship.members.length > 0,
+      isPublic: fellowship.isPublic,
+      requestStatus: "joinRequests" in fellowship ? (fellowship.joinRequests[0]?.status ?? null) : null,
+      requestId: "joinRequests" in fellowship ? (fellowship.joinRequests[0]?.id ?? null) : null,
     };
   },
 
   async getDirectory(userId: string, search = ""): Promise<FellowshipDirectoryData> {
     const normalizedSearch = search.trim().slice(0, 50);
-    const [memberships, publicFellowships] = await Promise.all([
+    const [memberships, discoverableFellowships] = await Promise.all([
       prisma.fellowship.findMany({
         where: { members: { some: { userId } } },
         orderBy: { name: "asc" },
         include: { _count: { select: { members: true } } },
       }),
       prisma.fellowship.findMany({
-        where: { isPublic: true, members: { none: { userId } }, ...(normalizedSearch ? { name: { contains: normalizedSearch, mode: "insensitive" } } : {}) },
+        where: { members: { none: { userId } }, ...(normalizedSearch ? { name: { contains: normalizedSearch, mode: "insensitive" } } : {}) },
         orderBy: [{ members: { _count: "desc" } }, { name: "asc" }],
         take: 50,
-        include: { _count: { select: { members: true } } },
+        include: { _count: { select: { members: true } }, joinRequests: { where: { userId }, select: { id: true, status: true }, take: 1 } },
       }),
     ]);
-    const map = (item: (typeof memberships)[number], isMember: boolean) => ({ id: item.id, slug: item.slug, name: item.name, description: item.description, isPublic: item.isPublic, memberCount: item._count.members, isMember, isLeader: item.createdById === userId, insigniaKey: item.insigniaKey });
-    return { memberships: memberships.map((item) => map(item, true)), publicFellowships: publicFellowships.map((item) => map(item, false)) };
+    const memberMap = (item: (typeof memberships)[number]) => ({ id: item.id, slug: item.slug, name: item.name, description: item.description, isPublic: item.isPublic, memberCount: item._count.members, isMember: true, isLeader: item.createdById === userId, insigniaKey: item.insigniaKey, requestStatus: null, requestId: null });
+    const discoveryMap = (item: (typeof discoverableFellowships)[number]) => ({ id: item.id, slug: item.slug, name: item.name, description: item.description, isPublic: item.isPublic, memberCount: item._count.members, isMember: false, isLeader: false, insigniaKey: item.insigniaKey, requestStatus: item.joinRequests[0]?.status ?? null, requestId: item.joinRequests[0]?.id ?? null });
+    return { memberships: memberships.map(memberMap), discoverableFellowships: discoverableFellowships.map(discoveryMap) };
   },
 
   async getDetail(userId: string, slug: string): Promise<FellowshipDetailData | null> {
     const fellowship = await prisma.fellowship.findUnique({
       where: { slug },
-      include: { members: { orderBy: { joinedAt: "asc" }, include: { user: { select: { id: true, profile: { select: { displayName: true, countryCode: true, totalWaypointsCompleted: true, totalGlowPoints: true } } } } } }, _count: { select: { members: true } } },
+      include: { members: { orderBy: { joinedAt: "asc" }, include: { user: { select: { id: true, profile: { select: { displayName: true, countryCode: true, totalWaypointsCompleted: true, totalGlowPoints: true } } } } } }, joinRequests: { orderBy: { requestedAt: "desc" }, take: 50, include: { user: { select: { profile: { select: { displayName: true, countryCode: true, totalWaypointsCompleted: true, totalGlowPoints: true } } } } } }, _count: { select: { members: true } } },
     });
     if (!fellowship) return null;
     const isMember = fellowship.members.some((member) => member.userId === userId);
     if (!fellowship.isPublic && !isMember) return null;
     const ranked = [...fellowship.members].sort((left, right) => (right.user.profile?.totalWaypointsCompleted ?? 0) - (left.user.profile?.totalWaypointsCompleted ?? 0) || (right.user.profile?.totalGlowPoints ?? 0) - (left.user.profile?.totalGlowPoints ?? 0) || left.joinedAt.getTime() - right.joinedAt.getTime());
     return {
-      id: fellowship.id, slug: fellowship.slug, name: fellowship.name, description: fellowship.description, isPublic: fellowship.isPublic, memberCount: fellowship._count.members, isMember, isLeader: fellowship.createdById === userId, insigniaKey: fellowship.insigniaKey, inviteCode: fellowship.createdById === userId ? fellowship.inviteCode : null,
+      id: fellowship.id, slug: fellowship.slug, name: fellowship.name, description: fellowship.description, isPublic: fellowship.isPublic, memberCount: fellowship._count.members, isMember, isLeader: fellowship.createdById === userId, insigniaKey: fellowship.insigniaKey, inviteCode: fellowship.createdById === userId ? fellowship.inviteCode : null, requestStatus: null, requestId: null,
       members: ranked.map((member, index) => ({ rank: index + 1, displayName: member.user.profile?.displayName ?? "Player", countryCode: member.user.profile?.countryCode ?? null, waypointsCompleted: member.user.profile?.totalWaypointsCompleted ?? 0, glowPoints: member.user.profile?.totalGlowPoints ?? 0, joinedAt: member.joinedAt, isLeader: member.userId === fellowship.createdById })),
+      joinRequests: fellowship.createdById === userId ? fellowship.joinRequests.map((request) => ({ id: request.id, displayName: request.user.profile?.displayName ?? "Player", countryCode: request.user.profile?.countryCode ?? null, waypointsCompleted: request.user.profile?.totalWaypointsCompleted ?? 0, glowPoints: request.user.profile?.totalGlowPoints ?? 0, source: request.source, status: request.status, requestedAt: request.requestedAt, resolvedAt: request.resolvedAt })) : [],
     };
   },
 
@@ -132,6 +140,7 @@ export const fellowshipRepository = {
       const exists = await transaction.fellowshipMember.findUnique({ where: { fellowshipId_userId: { fellowshipId, userId } }, select: { id: true } });
       if (exists) throw new FellowshipConflictError("ALREADY_MEMBER");
       await transaction.fellowshipMember.create({ data: { fellowshipId, userId } });
+      await transaction.fellowshipJoinRequest.updateMany({ where: { fellowshipId, userId }, data: { status: "APPROVED", resolvedAt: new Date(), reviewedById: null } });
       return { slug: fellowship.slug };
     }, transactionOptions);
   },
@@ -151,10 +160,53 @@ export const fellowshipRepository = {
     }, transactionOptions);
   },
 
-  async joinByInvite(userId: string, inviteCode: string): Promise<{ slug: string }> {
-    const fellowship = await prisma.fellowship.findUnique({ where: { inviteCode }, select: { id: true } });
+  async joinByInvite(userId: string, inviteCode: string): Promise<{ slug: string; joined: boolean }> {
+    const fellowship = await prisma.fellowship.findUnique({ where: { inviteCode }, select: { id: true, slug: true, isPublic: true } });
     if (!fellowship) throw new FellowshipConflictError("NOT_FOUND");
-    return this.joinById(userId, fellowship.id);
+    if (fellowship.isPublic) return { ...(await this.joinById(userId, fellowship.id)), joined: true };
+    return { ...(await this.requestJoin(userId, fellowship.id, "INVITE")), joined: false };
+  },
+
+  /** Creates or renews one learner-owned request for a private fellowship. */
+  async requestJoin(userId: string, fellowshipId: string, source: "DIRECTORY" | "INVITE"): Promise<{ slug: string }> {
+    return prisma.$transaction(async (transaction) => {
+      await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('scripture-memo-fellowship-request'), hashtext(${`${fellowshipId}:${userId}`}))`;
+      const fellowship = await transaction.fellowship.findFirst({ where: { id: fellowshipId, isPublic: false }, select: { slug: true } });
+      if (!fellowship) throw new FellowshipConflictError("NOT_FOUND");
+      const membership = await transaction.fellowshipMember.findUnique({ where: { fellowshipId_userId: { fellowshipId, userId } }, select: { id: true } });
+      if (membership) throw new FellowshipConflictError("ALREADY_MEMBER");
+      const existing = await transaction.fellowshipJoinRequest.findUnique({ where: { fellowshipId_userId: { fellowshipId, userId } }, select: { status: true } });
+      if (existing?.status === "PENDING") throw new FellowshipConflictError("REQUEST_PENDING");
+      await transaction.fellowshipJoinRequest.upsert({
+        where: { fellowshipId_userId: { fellowshipId, userId } },
+        create: { fellowshipId, userId, source },
+        update: { source, status: "PENDING", requestedAt: new Date(), resolvedAt: null, reviewedById: null },
+      });
+      return fellowship;
+    }, transactionOptions);
+  },
+
+  /** Cancels only the authenticated learner's own pending request. */
+  async cancelJoinRequest(userId: string, requestId: string): Promise<{ slug: string }> {
+    return prisma.$transaction(async (transaction) => {
+      const request = await transaction.fellowshipJoinRequest.findFirst({ where: { id: requestId, userId, status: "PENDING" }, select: { id: true, fellowship: { select: { slug: true } } } });
+      if (!request) throw new FellowshipConflictError("REQUEST_NOT_FOUND");
+      await transaction.fellowshipJoinRequest.update({ where: { id: request.id }, data: { status: "CANCELLED", resolvedAt: new Date(), reviewedById: null } });
+      return request.fellowship;
+    }, transactionOptions);
+  },
+
+  /** Lets only the fellowship leader resolve a pending request. */
+  async resolveJoinRequest(leaderId: string, requestId: string, decision: "APPROVE" | "REJECT"): Promise<{ slug: string; applicantUserId: string; joined: boolean }> {
+    return prisma.$transaction(async (transaction) => {
+      await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('scripture-memo-fellowship-request-resolve'), hashtext(${requestId}))`;
+      const request = await transaction.fellowshipJoinRequest.findFirst({ where: { id: requestId, status: "PENDING", fellowship: { createdById: leaderId } }, select: { id: true, userId: true, fellowshipId: true, fellowship: { select: { slug: true } } } });
+      if (!request) throw new FellowshipConflictError("REQUEST_NOT_PENDING");
+      const approved = decision === "APPROVE";
+      if (approved) await transaction.fellowshipMember.create({ data: { fellowshipId: request.fellowshipId, userId: request.userId } });
+      await transaction.fellowshipJoinRequest.update({ where: { id: request.id }, data: { status: approved ? "APPROVED" : "REJECTED", resolvedAt: new Date(), reviewedById: leaderId } });
+      return { slug: request.fellowship.slug, applicantUserId: request.userId, joined: approved };
+    }, transactionOptions);
   },
 
   async joinById(userId: string, fellowshipId: string): Promise<{ slug: string }> {
@@ -165,6 +217,7 @@ export const fellowshipRepository = {
       const exists = await transaction.fellowshipMember.findUnique({ where: { fellowshipId_userId: { fellowshipId, userId } }, select: { id: true } });
       if (exists) throw new FellowshipConflictError("ALREADY_MEMBER");
       await transaction.fellowshipMember.create({ data: { fellowshipId, userId } });
+      await transaction.fellowshipJoinRequest.updateMany({ where: { fellowshipId, userId }, data: { status: "APPROVED", resolvedAt: new Date(), reviewedById: null } });
       return fellowship;
     }, transactionOptions);
   },

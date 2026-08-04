@@ -1384,6 +1384,14 @@ description, public/private discovery status, and one of twelve curated
 insignias. Insignias are server-validated catalogue keys backed by an app-owned
 sprite atlas; arbitrary uploads and external image URLs are rejected.
 
+**Private-access extension (2026-08-04):** Public and private fellowships are
+both discoverable. Public membership remains immediate; private directory and
+shared-link access create a durable learner-owned request. Leaders can approve
+or reject individual applicants, learners can cancel pending requests, and
+resolved decisions remain visible as bounded management history. Repository
+authorization, advisory locks, unique request identity, and transactional
+approval prevent forged decisions and duplicate membership.
+
 ---
 
 ## Phase 27 — Leaderboard (The Great Beacon)

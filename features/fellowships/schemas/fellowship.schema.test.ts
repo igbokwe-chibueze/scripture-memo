@@ -1,7 +1,7 @@
 /** Validates the public Fellowship input boundary without touching a database. */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createFellowshipSchema, joinByInviteSchema, regenerateFellowshipInviteSchema } from "./fellowship.schema";
+import { cancelJoinRequestSchema, createFellowshipSchema, joinByInviteSchema, regenerateFellowshipInviteSchema, resolveJoinRequestSchema } from "./fellowship.schema";
 
 test("fellowship creation accepts constrained multilingual names", () => {
   assert.equal(createFellowshipSchema.safeParse({ name: "Grâce & Vérité", description: "Un cercle accueillant.", isPublic: true, insigniaKey: "good-shepherd" }).success, true);
@@ -24,4 +24,11 @@ test("private invite codes require a constrained non-empty value", () => {
 test("invite rotation accepts only a valid Fellowship identifier", () => {
   assert.equal(regenerateFellowshipInviteSchema.safeParse({ fellowshipId: "cm12345678901234567890123" }).success, true);
   assert.equal(regenerateFellowshipInviteSchema.safeParse({ fellowshipId: "not-an-id" }).success, false);
+});
+
+test("join-request decisions accept only explicit leader outcomes", () => {
+  const requestId = "cm12345678901234567890123";
+  assert.equal(resolveJoinRequestSchema.safeParse({ requestId, decision: "APPROVE" }).success, true);
+  assert.equal(resolveJoinRequestSchema.safeParse({ requestId, decision: "DELETE" }).success, false);
+  assert.equal(cancelJoinRequestSchema.safeParse({ requestId }).success, true);
 });
