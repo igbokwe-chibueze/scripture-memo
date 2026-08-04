@@ -1,5 +1,22 @@
 # Scripture Memo Project Log
 
+### 2026-08-04 — Phase 26 completed
+
+- The project owner accepted the final mobile-first Fellowship detail layout.
+- Phase 26 functional, responsive, invitation, membership, management, and
+  private-access work is now marked complete in the roadmap.
+- Independently authored insignia assets remain a documented end-of-project
+  enhancement and do not block phase completion.
+
+### 2026-08-04 — Fellowship detail rebuilt mobile-first
+
+- Stacked the insignia, fellowship identity, membership count, and actions at
+  375px so long names retain comfortable reading space.
+- Simplified the mobile tab controls by prioritizing labels and restoring their
+  decorative icons only when wider screens provide sufficient room.
+- Made leaderboard metrics equal-width mobile controls beneath each member and
+  reformatted the full component into documented, readable multiline code.
+
 ### 2026-08-04 — Mobile-first and maintainability rules strengthened
 
 - Promoted the 375px mobile composition from a general direction to the primary

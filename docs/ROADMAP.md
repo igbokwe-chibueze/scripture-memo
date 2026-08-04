@@ -1372,11 +1372,12 @@ remains required before Phase 26 begins.
 - Fellowship leaderboard shows member rankings without exposing emails.
 - Badge evaluations fire correctly on join and create.
 
-**Implementation status (2026-08-03):** Implemented; project-owner manual
-acceptance pending. Public discovery, private invite-code joining, creation,
-member-safe detail views, fellowship ranking, leaving, localized feedback, and
-trusted Community Member/Faith Builder badge events are in place. A fellowship
-creator cannot leave until a future leadership-transfer flow exists.
+**Implementation status (2026-08-04): Complete.** Public discovery, private
+invite-code joining, creation, member-safe detail views, fellowship ranking,
+leaving, localized feedback, and trusted Community Member/Faith Builder badge
+events are in place. The project owner completed functional and mobile manual
+acceptance. A fellowship creator cannot leave until a future
+leadership-transfer flow exists.
 
 **Identity extension (2026-08-04):** Member cards now expose one route action
 instead of duplicate View/Open controls. Leaders can edit the fellowship name,
