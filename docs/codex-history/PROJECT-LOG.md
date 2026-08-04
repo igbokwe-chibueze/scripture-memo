@@ -1,5 +1,14 @@
 # Scripture Memo Project Log
 
+### 2026-08-04 — Fellowship detail content organized into tabs
+
+- Kept fellowship identity, invitation, and leader settings actions visible in
+  the hero while moving Members, leader-only Requests, and About content into a
+  compact responsive tab surface.
+- Added a pending-request badge and opens the Requests tab first for leaders
+  whenever an applicant needs attention; otherwise Members remains the default.
+- Added localized English, Spanish, and French labels and access explanations.
+
 ### 2026-08-04 — Private Fellowships gained approval-based access
 
 - Made public and private Fellowships discoverable together while clearly

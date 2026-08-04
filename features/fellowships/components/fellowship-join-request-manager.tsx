@@ -25,7 +25,7 @@ export function FellowshipJoinRequestManager({ requests }: { requests: Fellowshi
   });
 
   return (
-    <section className="mt-8 rounded-[2rem] border bg-card p-5 shadow-lg sm:p-7" aria-labelledby="join-requests-title">
+    <section className="rounded-[2rem] border bg-card p-5 shadow-lg sm:p-7" aria-labelledby="join-requests-title">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div><p className="text-xs font-black tracking-[0.16em] text-violet-600 uppercase dark:text-violet-300">{t("leaderTools")}</p><h2 id="join-requests-title" className="mt-1 font-heading text-2xl font-black">{t("joinRequests")}</h2></div>
         <span className="inline-flex items-center gap-2 rounded-full bg-violet-500/10 px-4 py-2 font-black"><Clock3Icon className="size-4" />{t("pendingCount", { count: pendingRequests.length })}</span>
