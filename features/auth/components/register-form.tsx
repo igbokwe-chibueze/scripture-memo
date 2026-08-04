@@ -23,7 +23,7 @@ const fields = [
 ] as const;
 
 /** Registers a player with matching client and server validation. */
-export function RegisterForm(): React.ReactNode {
+export function RegisterForm({ nextPath }: { nextPath: string }): React.ReactNode {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const form = useForm<RegisterInput>({
@@ -63,7 +63,8 @@ export function RegisterForm(): React.ReactNode {
       }
 
       toast.success(result.message);
-      router.push(result.data?.redirectTo ?? "/select-translation");
+      const onboardingPath = result.data?.redirectTo ?? "/select-translation";
+      router.push(`${onboardingPath}?next=${encodeURIComponent(nextPath)}`);
       router.refresh();
     });
   }

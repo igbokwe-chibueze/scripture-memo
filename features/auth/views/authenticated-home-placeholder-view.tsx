@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { FlameIcon, MapIcon, ShoppingBagIcon, VaultIcon } from "lucide-react";
@@ -20,6 +21,7 @@ export const metadata: Metadata = {
  * It proves session protection and logout without implementing progression early.
  */
 export async function AuthenticatedHomePlaceholderView(): Promise<React.ReactNode> {
+  const t = await getTranslations("Home");
   const session = await requireServerSession();
   if (!(await authRepository.hasSelectedTranslation(session.user.id))) {
     redirect("/select-translation");
@@ -33,14 +35,14 @@ export async function AuthenticatedHomePlaceholderView(): Promise<React.ReactNod
           <FlameIcon className="size-10" aria-hidden="true" />
         </span>
         <div>
-          <h1 className="text-3xl font-bold">Welcome, {session.user.name}</h1>
+          <h1 className="text-3xl font-bold">{t("welcome", { name: session.user.name ?? "" })}</h1>
           <p className="mt-2 text-muted-foreground">
-            Your account is ready. The full Game Home arrives in its roadmap phase.
+            {t("ready")}
           </p>
         </div>
         <div
           className="mx-auto flex min-h-11 w-fit items-center rounded-full border border-orange-400/35 bg-orange-100 px-5 font-bold text-orange-800 shadow-sm dark:bg-orange-400/10 dark:text-orange-200"
-          aria-label={`Current streak: ${profile?.currentStreak ?? 0} days`}
+          aria-label={t("currentStreak", { count: profile?.currentStreak ?? 0 })}
         >
           {getStreakDisplay(profile?.currentStreak ?? 0)}
         </div>
@@ -50,7 +52,7 @@ export async function AuthenticatedHomePlaceholderView(): Promise<React.ReactNod
             className={cn(buttonVariants({ size: "lg" }), "min-h-11 gap-2 px-4")}
           >
             <MapIcon aria-hidden="true" />
-            Open game map
+            {t("openMap")}
           </Link>
           <Link
             href="/vault"
@@ -60,7 +62,7 @@ export async function AuthenticatedHomePlaceholderView(): Promise<React.ReactNod
             )}
           >
             <VaultIcon aria-hidden="true" />
-            Open Vault
+            {t("openVault")}
           </Link>
           <Link
             href="/oil-shop"
@@ -70,7 +72,7 @@ export async function AuthenticatedHomePlaceholderView(): Promise<React.ReactNod
             )}
           >
             <ShoppingBagIcon aria-hidden="true" />
-            Oil Shop
+            {t("oilShop")}
           </Link>
           <LogoutButton />
         </div>

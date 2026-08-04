@@ -20,7 +20,7 @@ const translations: Array<{
 ];
 
 /** Saves the player's required first-login translation preference. */
-export function TranslationSelectionForm(): React.ReactNode {
+export function TranslationSelectionForm({ nextPath }: { nextPath: string }): React.ReactNode {
   const router = useRouter();
   const [selection, setSelection] = useState<SelectTranslationInput["translation"]>("NIV");
   const [isPending, startTransition] = useTransition();
@@ -39,7 +39,7 @@ export function TranslationSelectionForm(): React.ReactNode {
           // WHY: A single replace avoids overlapping a route navigation with an
           // immediate refresh. The previous push-plus-refresh pair could leave
           // React's transition pending even after the database save completed.
-          router.replace(result.data?.redirectTo ?? "/game");
+          router.replace(nextPath || result.data?.redirectTo || "/game");
         });
       }}
       className="space-y-6"

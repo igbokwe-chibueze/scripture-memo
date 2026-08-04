@@ -35,6 +35,7 @@ export async function getSettingsPageData(): Promise<SettingsPageData> {
       displayName: profile.displayName,
       countryCode: profile.countryCode ?? "",
       preferredTranslation: settings.preferredTranslation,
+      locale: settings.locale,
       audioEnabled: settings.audioEnabled,
       reducedMotion: settings.reducedMotion,
       theme: settings.theme,

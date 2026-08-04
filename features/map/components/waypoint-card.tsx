@@ -13,6 +13,7 @@ import {
   LockKeyholeIcon,
   PlayIcon,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { FlameIndicator } from "@/components/shared/flame-indicator";
 import { TrailWaypointButton } from "@/features/map/components/trail-waypoint-button";
 import type { MapWaypoint } from "@/features/map/types/map.types";
@@ -86,6 +87,7 @@ export function WaypointCard({
   waypoint: MapWaypoint;
   onSelect: (waypoint: MapWaypoint) => void;
 }): React.ReactNode {
+  const t = useTranslations("Map");
   const presentation = statusPresentation[waypoint.status];
   const StatusIcon = presentation.icon;
 
@@ -98,7 +100,7 @@ export function WaypointCard({
     >
       {waypoint.isCurrent && (
         <span className="absolute -top-9 left-1/2 z-20 -translate-x-1/2 rounded-lg border border-amber-300/70 bg-amber-50 px-2 py-1 text-center text-[0.55rem] font-black tracking-[0.1em] whitespace-nowrap text-amber-900 uppercase shadow-lg shadow-amber-500/15 sm:-top-12 sm:rounded-xl sm:px-3 sm:py-1.5 sm:text-[0.65rem] sm:tracking-[0.14em] dark:border-amber-500/35 dark:bg-amber-950/90 dark:text-amber-200">
-          Continue here
+          {t("continueHere")}
           <span
             aria-hidden="true"
             className="absolute top-5 left-1/2 size-2 -translate-x-1/2 rotate-45 border-r border-b border-amber-300/70 bg-amber-50 sm:top-7 sm:size-2.5 dark:border-amber-500/35 dark:bg-amber-950"
@@ -119,7 +121,11 @@ export function WaypointCard({
         <TrailWaypointButton
           status={waypoint.status}
           isCurrent={waypoint.isCurrent}
-          ariaLabel={`Waypoint ${waypoint.number}, ${presentation.label}, ${waypoint.flameCount} of 3 days complete`}
+          ariaLabel={t("waypointAria", {
+            number: waypoint.number,
+            status: t(`statuses.${waypoint.status}`),
+            count: waypoint.flameCount,
+          })}
           onClick={() => onSelect(waypoint)}
         >
           <span className="flex flex-col items-center leading-none">

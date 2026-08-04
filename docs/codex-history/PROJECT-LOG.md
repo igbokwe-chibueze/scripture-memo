@@ -1,5 +1,272 @@
 # Scripture Memo Project Log
 
+### 2026-08-04 — Prisma Compute clean-install failure repaired
+
+- Regenerated `package-lock.json` with npm 10.9.8, matching the package manager
+  version reported by Prisma Compute rather than relying on npm 11 resolution.
+- Added the nested `@swc/helpers@0.5.23` lock entry required by `next-intl` while
+  preserving Next.js's direct `@swc/helpers@0.5.15` dependency.
+- Reproduced the original failure locally with npm 10, then confirmed the
+  repaired lockfile passes `npm ci --dry-run` with that exact npm version.
+
+### 2026-08-04 — Phase 26 completed
+
+- The project owner accepted the final mobile-first Fellowship detail layout.
+- Phase 26 functional, responsive, invitation, membership, management, and
+  private-access work is now marked complete in the roadmap.
+- Independently authored insignia assets remain a documented end-of-project
+  enhancement and do not block phase completion.
+
+### 2026-08-04 — Fellowship detail rebuilt mobile-first
+
+- Stacked the insignia, fellowship identity, membership count, and actions at
+  375px so long names retain comfortable reading space.
+- Simplified the mobile tab controls by prioritizing labels and restoring their
+  decorative icons only when wider screens provide sufficient room.
+- Made leaderboard metrics equal-width mobile controls beneath each member and
+  reformatted the full component into documented, readable multiline code.
+
+### 2026-08-04 — Mobile-first and maintainability rules strengthened
+
+- Promoted the 375px mobile composition from a general direction to the primary
+  implementation order: mobile must be completed before breakpoint enhancements.
+- Added authoritative multiline formatting requirements so JSX, functions,
+  repository queries, and object structures remain easy to review and debug.
+- Expanded the commenting standard to require novice-friendly documentation and
+  useful inline explanations around non-obvious implementation stages.
+- Mirrored the responsive implementation order in the UI/UX guide.
+
+### 2026-08-04 — Mobile fellowship leaderboard compacted
+
+- Reworked member rows into compact mobile-first cards that keep each player's
+  progress directly beneath their identity instead of in a detached table row.
+- Hid the desktop column header on small screens and retained the wider table
+  presentation from the `sm` breakpoint upward.
+
+### 2026-08-04 — Fellowship settings show current invite access
+
+- Added the leader-only current invite code to the Invite Access settings card.
+- Kept the displayed value synchronized when the leader rotates the code, so
+  the replacement appears immediately without a page reload.
+
+### 2026-08-04 — Completed-waypoint summaries reconciled
+
+- Fixed the server-verified Radiance completion transaction so it increments
+  the indexed `UserProfile.totalWaypointsCompleted` summary exactly once.
+- Added and applied a data migration that reconstructs every existing profile
+  total from authoritative completed `UserWaypointProgress` records, correcting
+  the shared zero shown in the Vault, settings, and Fellowship rankings.
+- Separated Fellowship member progress metrics into distinct touch targets with
+  formatted values, accessible labels, and explanatory tooltips.
+
+### 2026-08-04 — Fellowship detail content organized into tabs
+
+- Kept fellowship identity, invitation, and leader settings actions visible in
+  the hero while moving Members, leader-only Requests, and About content into a
+  compact responsive tab surface.
+- Added a pending-request badge and opens the Requests tab first for leaders
+  whenever an applicant needs attention; otherwise Members remains the default.
+- Added localized English, Spanish, and French labels and access explanations.
+
+### 2026-08-04 — Private Fellowships gained approval-based access
+
+- Made public and private Fellowships discoverable together while clearly
+  labelling their access model; public groups still join immediately.
+- Added durable private join requests from both directory cards and shared
+  invitation links, including learner cancellation and duplicate prevention.
+- Added a leader-only request queue with approve/reject decisions and bounded
+  resolved history. Approval creates membership transactionally and triggers
+  trusted Fellowship badge evaluation for the accepted learner.
+- Added the Prisma request lifecycle, migration, server authorization, localized
+  English/Spanish/French feedback, and updated product/security documentation.
+
+### 2026-08-04 — Dedicated UI/UX implementation guide established
+
+- Added `docs/UI-UX-GUIDE.md` as the practical design reference beneath the
+  authoritative root instructions, consolidating theme integrity, palette,
+  surfaces, buttons, navigation, drawers, motion, Luna, responsive behavior,
+  accessibility, and required interaction states.
+- Added a lightweight manual light/dark/mobile/desktop acceptance checklist and
+  explicitly deferred automated screenshot regression testing until primary
+  functionality stabilizes.
+- Linked the guide from `AGENTS.md` and the product UI/UX requirements so future
+  player-interface work must consult one current reference rather than infer
+  decisions from project history.
+
+### 2026-08-04 — Invitation theme scope corrected
+
+- Corrected the real cause of inconsistent invitation buttons: the page painted
+  a dark surface while resolving light-theme button tokens and inherited text.
+- Scoped both valid and expired invitation surfaces to the dark token set, so
+  their normal Button and NavigationButton variants now match other dark pages
+  without any button-specific styling override.
+
+### 2026-08-04 — Invitation button overrides removed
+
+- Removed invitation-page color, border, typography, height, and interaction
+  overrides. Its actions now select only the shared default/outline variants and
+  large size, matching normal buttons without local restyling.
+
+### 2026-08-04 — Navigation and action buttons unified visually
+
+- Made NavigationButton use the identical variant and Tailwind merge path as the
+  normal Button while retaining Link semantics and route-pending feedback.
+- Removed the invitation-only depth workaround. Button, LoadingButton, and
+  NavigationButton now share one source for color, bevel, and interaction motion.
+
+### 2026-08-04 — Invitation actions matched established button depth locally
+
+- Applied the approved UI Foundation lower-bevel and pressed-depth treatment to
+  the invitation page's Open, Join, Login, and Create Account controls only.
+- Left existing shared button styling unchanged and recorded the scope rule that
+  new screens must reuse approved visuals without redesigning older surfaces.
+
+### 2026-08-04 — Fellowship invitations survive authentication and onboarding
+
+- Replaced directory-prefill share URLs with a dedicated public
+  `/join/[inviteCode]` experience that previews minimal Fellowship identity and
+  requires an explicit Join action.
+- Preserved validated internal return paths through Better Auth login, account
+  registration, and first-time translation selection. Existing and new players
+  now return to the same invitation after authentication/onboarding.
+- Added a recoverable expired-invitation screen for malformed, unknown, and
+  rotated codes, plus tests protecting the return flow from open redirects.
+
+### 2026-08-04 — Fellowship invitation interaction refined
+
+- Added a true bottom-drawer entrance and exit on mobile while retaining the
+  centered modal presentation on larger screens.
+- Moved invite-code rotation out of the sharing panel and into leader settings.
+- Promoted opaque, tactile 44-pixel close controls into the shared Dialog and
+  Sheet primitives, and changed Fellowship back navigation from ghost links to
+  visible shared navigation buttons.
+
+### 2026-08-04 — Fellowship invitations moved into a responsive panel
+
+- Replaced the permanently visible invite code on the Fellowship page with one
+  leader-only Invite button. It opens as a bottom drawer on mobile and a centered
+  modal on larger screens.
+- Added native sharing, copy-link, and copy-code actions. Shared links prefill
+  the directory invite field so recipients do not need to transcribe the code.
+- Added secure leader-only invite rotation under a repository-owned advisory
+  lock; rotating immediately invalidates the previous secret.
+
+### 2026-08-04 — Fellowship insignia artwork correction deferred
+
+- Project-owner review confirmed that atlas-derived insignias remain visually
+  off-center despite cell isolation and painted-bound trimming.
+- Recorded a Post-Roadmap Extra to replace the atlas with twelve independently
+  authored square insignia assets after the main game is complete. Existing
+  insignia keys will remain stable so Fellowship data needs no migration.
+- The current assets remain temporary; the earlier centering claim below did
+  not meet visual acceptance and must not be treated as final artwork approval.
+
+### 2026-08-04 — Insignia cropping and navigation feedback corrected
+
+- Replaced fractional CSS atlas sampling with twelve physically cropped WebP
+  assets, eliminating off-center insignias and neighboring-cell bleed.
+- Follow-up visual validation now trims each medallion to its actual painted
+  bounds and reapplies identical square padding, so generated artwork that was
+  uneven inside its atlas cell is genuinely centered in every background.
+- Added a documented deterministic atlas-slicing script so future source art can
+  regenerate the same safe catalogue without manual crop drift.
+- Added the shared `NavigationButton`, whose required pending label gives
+  immediate loading feedback for button-styled links. Applied it across
+  Fellowship Open, View, Create, Manage, and back navigation.
+- Promoted pending navigation feedback into the root implementation rules.
+
+### 2026-08-04 — Fellowship identity and leader settings added
+
+- Removed the duplicate View/Open destination from membership cards; members
+  now receive one clear Open action while public non-members retain View + Join.
+- Generated an original 12-insignia Scripture Memo atlas from the supplied
+  visual references and added a touch-friendly fixed-catalogue picker to create
+  and edit flows. Arbitrary image paths and uploads are rejected by Zod.
+- Added a leader-only settings route for name, description, public/private
+  discovery, and insignia changes while preserving the stable fellowship slug.
+- Added and applied migration `20260804094500_add_fellowship_insignia`, owner-
+  scoped repository locking, localized English/Spanish/French UI, and tests.
+
+### 2026-08-04 — Fellowship invitations gained native sharing
+
+- Added a touch-friendly Share action beside Copy on member-visible fellowship
+  invite codes. Supported devices open their native share sheet with the
+  fellowship name, private code, and fellowship entry route.
+- Browsers without native sharing copy the complete invitation instead, while
+  cancellation remains silent and operational failures use persistent Sonner.
+- Added matching English, Spanish, and French interface messages.
+
+### 2026-08-03 — Better Auth password recovery implemented
+
+- Added localized forgot-password and reset-password routes, forms, Zod
+  validation, Sonner feedback, and a recovery link from the login form.
+- Better Auth remains responsible for reset-token creation and validation,
+  one-hour expiry, password hashing, and revocation of existing sessions.
+- Added the named `LIGHT_DEV` and `PROD` delivery boundary. Light Dev downloads
+  a request-scoped text file containing the reset URL, persists no token, and is
+  forbidden when `NODE_ENV=production`; the production email adapter remains a
+  focused seam for a future provider.
+- Added application and Better Auth rate limits for reset requests and attempts,
+  generic account-enumeration-safe responses, and noindex recovery metadata.
+- TypeScript and focused ESLint validation passed. Manual browser acceptance of
+  download, callback, password replacement, and session revocation remains.
+
+### 2026-08-03 — Phase 26 Fellowships implemented
+
+- Added protected, localized Fellowship directory, creation, public joining,
+  private invite-code joining, member detail, invite sharing, leaving, and a
+  member-only progress ranking without emails or raw user IDs.
+- Added locked repository transactions for create/join/leave, safe name and
+  description validation, a three-per-day creation limit, unique invite codes,
+  and a creator-leader leave guard.
+- Added server-derived Fellowship badge metrics and activated Community Member
+  and Faith Builder through migration `20260803143000_activate_fellowship_badges`.
+- Added persistent player navigation, route loading UI, English/Spanish/French
+  messages, schema tests, badge tests, and locale-contract coverage.
+- Phase 26 implementation is ready for project-owner manual acceptance.
+
+### 2026-08-03 — Settings save action given a visual icon
+
+- Added a save icon to the localized Settings submit button while preserving its
+  pending and disabled behavior.
+
+### 2026-08-03 — French interface support added
+
+- Added French to the persisted Settings selector, locale schema, authenticated
+  preference synchronization, request catalogue loader, and browser-language
+  detection, including regional variants such as `fr-CA` and `fr-FR`.
+- Added French player-interface messages across navigation, Settings, map,
+  gameplay, celebrations, Vault, Sanctuary, Oil Shop, badges, authentication,
+  and recoverable errors. New untranslated keys safely inherit English instead
+  of breaking a request.
+- Extended locale tests and localization documentation for the third language.
+
+### 2026-08-03 — Map markers and Settings statistics localized
+
+- Moved the winding trail's current-map badge, current-position callout, trail
+  headings, waypoint ranges, return control, and accessible waypoint status into
+  the shared English/Spanish message catalogues.
+- Localized all four Settings summary cards and the statistics-region label,
+  including the best-streak supporting value.
+- Re-ran locale message parity, TypeScript, and focused ESLint validation.
+
+### 2026-08-03 — English/Spanish localization foundation completed
+
+- Added `next-intl` request configuration, English and Spanish message
+  catalogues, document language metadata, and shared client/server providers.
+- Added a persisted interface-language setting and applied migration
+  `20260803101105_add_interface_locale`; verified the configured PostgreSQL
+  database reports all 13 migrations applied.
+- Locale resolution now uses account preference, then secure cookie, then
+  browser language, with English as the safe fallback. Private player URLs stay
+  stable and locale-neutral.
+- Localized the principal player shell, settings, Home, map and day selection,
+  gameplay modes, hints, completion and streak celebrations, Vault, Sanctuary,
+  badge collection/unlock, and Oil Shop interface. Bible translations and
+  admin-authored content remain explicitly separate from interface locale.
+- Added `docs/LOCALIZATION.md` and `npm run test:i18n` to document and enforce
+  the extension path for future languages. Admin screens remain English-only.
+
 ### 2026-08-03 — Phase 25 accepted and contextual panel deferred
 
 - Marked the Oil Shop phase complete after implementation and project-owner

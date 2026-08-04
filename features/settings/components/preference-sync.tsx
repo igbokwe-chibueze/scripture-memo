@@ -9,6 +9,7 @@ export type PreferenceSyncProps = {
   theme: "light" | "dark" | "system";
   reducedMotion: boolean;
   audioEnabled: boolean;
+  locale: "en" | "es" | "fr";
   hasConfiguredTimeZone: boolean;
 };
 
@@ -21,6 +22,7 @@ export function PreferenceSync({
   theme,
   reducedMotion,
   audioEnabled,
+  locale,
   hasConfiguredTimeZone,
 }: PreferenceSyncProps): null {
   const router = useRouter();
@@ -30,12 +32,13 @@ export function PreferenceSync({
     setTheme(theme);
     document.documentElement.classList.toggle("reduce-motion", reducedMotion);
     document.documentElement.dataset.audioEnabled = String(audioEnabled);
+    document.documentElement.lang = locale;
 
     return () => {
       document.documentElement.classList.remove("reduce-motion");
       delete document.documentElement.dataset.audioEnabled;
     };
-  }, [audioEnabled, reducedMotion, setTheme, theme]);
+  }, [audioEnabled, locale, reducedMotion, setTheme, theme]);
 
   useEffect(() => {
     if (hasConfiguredTimeZone) return;

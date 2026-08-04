@@ -10,6 +10,7 @@
  */
 
 import { useSyncExternalStore } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Grid2X2Icon, MapIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -76,6 +77,7 @@ function subscribeToMapVariant(onStoreChange: () => void): () => void {
  * The preference is presentation-only and never writes learner progression.
  */
 export function GameMap({ waypoints }: { waypoints: MapWaypoint[] }): React.ReactNode {
+  const t = useTranslations("Map");
   const router = useRouter();
   // The fixed server snapshot produces deterministic SSR output. Hydrated React
   // then safely resolves URL/storage preference through the external store.
@@ -110,8 +112,8 @@ export function GameMap({ waypoints }: { waypoints: MapWaypoint[] }): React.Reac
         .at(-1)?.number;
       toast.info(
         previousNumber
-          ? `Complete Waypoint ${previousNumber} to unlock this.`
-          : "Complete the previous waypoint to unlock this.",
+          ? t("completeWaypoint", { number: previousNumber })
+          : t("completePrevious"),
         { duration: 4_000 },
       );
       return;
@@ -123,9 +125,9 @@ export function GameMap({ waypoints }: { waypoints: MapWaypoint[] }): React.Reac
   }
 
   return (
-    <section aria-label="Game map comparison" className="space-y-5">
+    <section aria-label={t("comparison")} className="space-y-5">
       <div className="mx-auto max-w-md rounded-2xl border bg-card/85 p-1.5 shadow-lg shadow-foreground/5 backdrop-blur-sm">
-        <div role="group" aria-label="Choose a game map" className="grid grid-cols-2 gap-1.5">
+        <div role="group" aria-label={t("chooseMap")} className="grid grid-cols-2 gap-1.5">
           {mapVariants.map((option) => {
             const Icon = option.icon;
             const isSelected = variant === option.value;
@@ -145,9 +147,9 @@ export function GameMap({ waypoints }: { waypoints: MapWaypoint[] }): React.Reac
               >
                 <Icon className="size-5" aria-hidden={true} />
                 <span>
-                  <span className="block text-sm font-bold leading-tight">{option.label}</span>
+                  <span className="block text-sm font-bold leading-tight">{t(option.value === "a" ? "mapA" : "mapB")}</span>
                   <span className="block text-[0.65rem] leading-tight opacity-75">
-                    {option.description}
+                    {t(option.value === "a" ? "trailView" : "gridView")}
                   </span>
                 </span>
               </button>

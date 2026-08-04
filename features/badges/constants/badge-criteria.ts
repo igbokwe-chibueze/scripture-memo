@@ -37,6 +37,8 @@ export const ACTIVE_BADGE_CRITERIA_VALUES = [
   "MASTER_HINT_FREE",
   "TIMED_STAGES",
   "VAULT_REPLAYS",
+  "FELLOWSHIP_JOIN",
+  "FELLOWSHIP_CREATE",
 ] as const satisfies readonly BadgeCriteriaKey[];
 
 const ACTIVE_BADGE_CRITERIA = new Set<BadgeCriteriaKey>(

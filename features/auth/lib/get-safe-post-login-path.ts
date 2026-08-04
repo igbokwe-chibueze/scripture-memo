@@ -1,5 +1,7 @@
 import { PROTECTED_PATH_PREFIXES } from "../constants/protected-paths";
 
+const PUBLIC_RETURN_PATH_PREFIXES = ["/join"] as const;
+
 /**
  * Accepts only known internal protected paths as post-login destinations.
  * Absolute URLs, protocol-relative URLs, backslashes, and unknown paths fall
@@ -17,7 +19,7 @@ export function getSafePostLoginPath(candidate: unknown): string {
   }
 
   const pathname = candidate.split(/[?#]/, 1)[0];
-  const isAllowed = PROTECTED_PATH_PREFIXES.some(
+  const isAllowed = [...PROTECTED_PATH_PREFIXES, ...PUBLIC_RETURN_PATH_PREFIXES].some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
 

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeftIcon } from "lucide-react";
@@ -24,6 +25,7 @@ export async function DaySelectionView({
 }: {
   params: Promise<{ waypointId: string }>;
 }): Promise<React.ReactNode> {
+  const t = await getTranslations("DaySelection");
   const session = await requireServerSession();
   const { waypointId } = await params;
   const data = await daySelectionRepository.getDaySelectionData(session.user.id, waypointId);
@@ -45,7 +47,7 @@ export async function DaySelectionView({
           })}
         >
           <ArrowLeftIcon className="size-4" aria-hidden="true" />
-          Back to map
+          {t("backToMap")}
         </Link>
         <DaySelection
           data={data}

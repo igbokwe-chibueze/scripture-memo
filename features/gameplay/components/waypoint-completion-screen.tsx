@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRightIcon, MapIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -99,6 +100,7 @@ export function WaypointCompletionScreen({
   totalBalance: number;
   onContinue: () => void;
 }): React.ReactNode {
+  const t = useTranslations("Completion");
   const shouldReduceMotion = useReducedMotion();
   const playAudio = useAudioFeedback();
 
@@ -161,7 +163,7 @@ export function WaypointCompletionScreen({
                 }
           }
         >
-          <div className="flex justify-center gap-3" aria-label="Three flames kindled">
+          <div className="flex justify-center gap-3" aria-label={t("threeKindled")}>
             {[0, 1, 2].map((flame) => (
               <motion.span
                 key={flame}
@@ -203,10 +205,10 @@ export function WaypointCompletionScreen({
           </div>
 
           <p className="mt-6 text-xs font-black tracking-[0.18em] text-orange-700 uppercase dark:text-orange-300">
-            Three flames kindled
+            {t("threeKindled")}
           </p>
           <h2 id="waypoint-complete-title" className="mt-2 font-heading text-4xl font-black">
-            Waypoint {waypointNumber} complete!
+            {t("waypointNumberComplete", { number: waypointNumber })}
           </h2>
           <p className="mt-3 text-lg font-bold text-foreground/75 dark:text-slate-200">
             {verseReference}
@@ -216,10 +218,10 @@ export function WaypointCompletionScreen({
             <MapIcon className="mx-auto size-7 text-orange-600 dark:text-orange-300" aria-hidden="true" />
             <p className="mt-2 font-bold">
               {unlockedWaypointNumber
-                ? `Waypoint ${unlockedWaypointNumber} is now unlocked.`
+                ? t("waypointUnlocked", { number: unlockedWaypointNumber })
                 : caughtUp
-                  ? "You are caught up with the trail."
-                  : "Your trail progress has been saved."}
+                  ? t("caughtUp")
+                  : t("progressSaved")}
             </p>
           </div>
 
@@ -259,7 +261,7 @@ export function WaypointCompletionScreen({
               }
             >
               <p className="text-xs font-black tracking-wide text-orange-700 uppercase dark:text-orange-300">
-                Waypoint rewards
+                {t("waypointRewards")}
               </p>
               <p className="mt-1 font-heading text-2xl font-black">
                 +{waypointRewardTotal.toLocaleString()}
@@ -300,7 +302,7 @@ export function WaypointCompletionScreen({
               }
             >
               <p className="text-xs font-black tracking-wide text-violet-700 uppercase dark:text-violet-300">
-                Total balance
+                {t("totalBalance")}
               </p>
               <AnimatedBalanceValue
                 startingValue={waypointRewardTotal}
@@ -314,7 +316,7 @@ export function WaypointCompletionScreen({
             className="mt-7 min-h-12 w-full rounded-xl bg-orange-500 font-black text-white hover:bg-orange-400"
             onClick={onContinue}
           >
-            Enter Sanctuary
+            {t("enterSanctuary")}
             <ArrowRightIcon data-icon="inline-end" aria-hidden="true" />
           </Button>
         </motion.section>

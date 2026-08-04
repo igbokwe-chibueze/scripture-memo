@@ -290,6 +290,17 @@ Confirm the following before proceeding:
 - Translation selection persists to the database.
 - Forms show validation errors inline and show loading state during submission.
 
+### Post-phase password recovery extension (2026-08-03)
+
+- Better Auth now owns forgot-password requests, one-hour reset tokens, password
+  replacement, and existing-session revocation.
+- Local testing uses the guarded `LIGHT_DEV` delivery mode, which downloads a
+  request-scoped text file containing the reset URL and cannot run in production.
+- `PROD` is the stable future email-delivery seam. A transactional provider can
+  be connected there without replacing Better Auth or changing the recovery UI.
+- Manual browser acceptance remains required for the request, file download,
+  reset-link callback, new password, and old-session invalidation flow.
+
 ---
 
 ## Phase 6 — User Profile and Settings
@@ -1330,6 +1341,20 @@ reward-ledger entry. Purchased hints extend every server-derived hint balance.
 
 ## Phase 26 — Fellowships
 
+### Pre-Phase 26 localization foundation (2026-08-03)
+
+- Added English, Spanish, and French player-interface locales with account preference,
+  secure cookie, browser detection, and English fallback.
+- Kept private gameplay URLs locale-neutral; public SEO pages may use locale
+  prefixes when localized marketing content is introduced.
+- Kept interface language independent from preferred Bible translation.
+- Added a shared message contract and automated locale-parity test so later
+  languages can be layered in without redesigning routes or features.
+- Administrative screens remain English-only for this foundation pass.
+
+**Implementation status:** Complete; manual English/Spanish responsive review
+remains required before Phase 26 begins.
+
 **Goal:** Implement social group features.
 
 ### Tasks
@@ -1346,6 +1371,27 @@ reward-ledger entry. Purchased hints extend every server-derived hint balance.
 - Users can create, join, and leave fellowships.
 - Fellowship leaderboard shows member rankings without exposing emails.
 - Badge evaluations fire correctly on join and create.
+
+**Implementation status (2026-08-04): Complete.** Public discovery, private
+invite-code joining, creation, member-safe detail views, fellowship ranking,
+leaving, localized feedback, and trusted Community Member/Faith Builder badge
+events are in place. The project owner completed functional and mobile manual
+acceptance. A fellowship creator cannot leave until a future
+leadership-transfer flow exists.
+
+**Identity extension (2026-08-04):** Member cards now expose one route action
+instead of duplicate View/Open controls. Leaders can edit the fellowship name,
+description, public/private discovery status, and one of twelve curated
+insignias. Insignias are server-validated catalogue keys backed by an app-owned
+sprite atlas; arbitrary uploads and external image URLs are rejected.
+
+**Private-access extension (2026-08-04):** Public and private fellowships are
+both discoverable. Public membership remains immediate; private directory and
+shared-link access create a durable learner-owned request. Leaders can approve
+or reject individual applicants, learners can cancel pending requests, and
+resolved decisions remain visible as bounded management history. Repository
+authorization, advisory locks, unique request identity, and transactional
+approval prevent forged decisions and duplicate membership.
 
 ---
 
@@ -1529,6 +1575,19 @@ until a test learner has mastered the same verse across all four Journey Stages.
 ---
 
 ## Post-Roadmap Extras
+
+### Independently Authored Fellowship Insignias
+
+- Replace the current atlas-derived Fellowship insignias after the main game is
+  complete. The atlas crops remain visually inconsistent because each painted
+  medallion has different internal bounds even when its grid cell is centered.
+- Create and export all twelve insignias as independent square assets with the
+  medallion centered during composition, consistent transparent or approved
+  game-background padding, and no neighboring artwork in the source file.
+- Preserve the existing stable insignia keys so replacing the artwork requires
+  no database migration and does not change existing Fellowship selections.
+- Validate every replacement in the picker, Fellowship cards, and detail header
+  at mobile and large-screen sizes before removing the atlas workflow.
 
 ### Large-Screen Contextual Player Panel
 

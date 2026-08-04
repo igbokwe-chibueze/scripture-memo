@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { CompassIcon, MapPinnedIcon } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ResponsiveContainer } from "@/components/shared/responsive-container";
@@ -24,6 +25,7 @@ export const metadata: Metadata = {
  * route-level loading and error files handle those other cases.
  */
 export async function GameMapView(): Promise<React.ReactNode> {
+  const t = await getTranslations("Map");
   const waypoints = await getGameMapData();
 
   return (
@@ -34,21 +36,21 @@ export async function GameMapView(): Promise<React.ReactNode> {
             <MapPinnedIcon className="size-7" aria-hidden="true" />
           </span>
           <p className="text-xs font-black tracking-[0.2em] text-emerald-700 uppercase dark:text-emerald-300">
-            Your Scripture journey
+            {t("eyebrow")}
           </p>
           <h1 className="mt-1 font-heading text-3xl font-black tracking-tight sm:text-4xl">
-            Follow the path
+            {t("title")}
           </h1>
           <p className="mt-2 max-w-lg text-sm leading-6 text-muted-foreground sm:text-base">
-            Complete each three-day challenge, kindle every flame, and unlock the next waypoint.
+            {t("description")}
           </p>
         </header>
 
         {waypoints.length === 0 ? (
           <EmptyState
             icon={<CompassIcon aria-hidden="true" />}
-            title="The trail is being prepared"
-            description="No published waypoints are available yet. Please return after an administrator publishes the first curriculum waypoint."
+            title={t("emptyTitle")}
+            description={t("emptyDescription")}
           />
         ) : (
           <GameMap waypoints={waypoints} />

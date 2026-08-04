@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { LoadingButton } from "@/components/shared/loading-button";
@@ -8,6 +9,7 @@ import { logoutAction } from "@/features/auth/actions/logout.action";
 
 /** Invalidates the current session and returns the player to the public home. */
 export function LogoutButton(): React.ReactNode {
+  const t = useTranslations("Home");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -15,7 +17,7 @@ export function LogoutButton(): React.ReactNode {
     <LoadingButton
       variant="outline"
       isPending={isPending}
-      pendingLabel="Logging out"
+      pendingLabel={t("loggingOut")}
       onClick={() => {
         startTransition(async () => {
           const result = await logoutAction();
@@ -29,7 +31,7 @@ export function LogoutButton(): React.ReactNode {
         });
       }}
     >
-      Log out
+      {t("logOut")}
     </LoadingButton>
   );
 }

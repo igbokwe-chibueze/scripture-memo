@@ -47,6 +47,28 @@ These two systems are independent but complementary. A user always plays the ful
 
 Do not use API routes unless explicitly required for third-party webhooks, auth provider callbacks, or file upload provider requirements.
 
+### 2.1 Password recovery delivery modes
+
+Password recovery is implemented with Better Auth. Better Auth is the sole
+owner of reset-token generation, one-hour expiry, validation, password hashing,
+and revocation of existing sessions after a successful reset. Application code
+must never create or persist a parallel reset token.
+
+The delivery boundary supports two explicit modes through
+`PASSWORD_RESET_DELIVERY_MODE`:
+
+- `LIGHT_DEV` downloads a request-scoped text file containing the Better Auth
+  reset URL. It exists only for local testing, keeps no token in application
+  storage, and must throw if enabled while `NODE_ENV=production`.
+- `PROD` delegates the Better Auth URL to the production transactional-email
+  adapter. That adapter is intentionally unconfigured until an email provider is
+  selected; selecting a provider must not alter the recovery screens or token
+  lifecycle.
+
+When the environment variable is omitted, non-production environments default
+to `LIGHT_DEV` and production defaults to `PROD`. Recovery responses remain
+generic so the public UI does not confirm whether an email address is registered.
+
 ---
 
 ## 3. Architecture Rules
@@ -1210,12 +1232,39 @@ Marketplace for spending Glow Points.
 
 Social group system.
 - View fellowships the user belongs to
-- Browse/search public fellowships to join
+- Browse/search public and private fellowships. Private results disclose only
+  their public identity and clearly require leader approval.
 - Create a fellowship (name, description, public/private setting)
+- Select one of twelve curated fellowship insignias; uploaded insignias are not
+  supported, and the server accepts only fixed catalogue keys.
+- Fellowship leaders can later edit the name, description, discovery status,
+  and insignia. The stable fellowship URL does not change when its name changes.
+- Invite secrets are not permanently exposed in the Fellowship header. The
+  leader opens a responsive Invite panel to share or copy the prefilled joining
+  link/code. Code rotation belongs in leader settings when an older invitation
+  should expire, not in the everyday sharing panel.
 - View fellowship members and their progress
 - Fellowship-specific leaderboard
-- Join via invite code or public listing
+- Public fellowships join immediately from the directory or a shared code.
+- Private directory and shared-code access create an individual pending request;
+  membership is created only after the fellowship leader approves it.
+- Learners can cancel their pending request. Leaders can approve or reject each
+  identified applicant and review resolved request history without receiving
+  private email addresses or raw account identifiers.
+- Shared invitations use a public `/join/[inviteCode]` landing page. Opening the
+  page never mutates membership: authenticated players explicitly join or
+  request access and may decline, while
+  signed-out and new players resume the same invitation after Better Auth login,
+  registration, and required translation onboarding.
+- A share URL/code identifies the invitation source, not a recipient. A person
+  appears in fellowship management only after submitting a private join request.
+- Rotated, malformed, or unknown invitation codes show a recoverable expired
+  state and disclose no private membership data.
 - Leave a fellowship
+- Fellowship creators remain leaders and cannot leave until leadership is
+  transferred; leadership transfer and dissolution are deferred moderation work.
+- Creation is limited to three fellowships per account per rolling 24 hours to
+  reduce spam at the server boundary.
 
 ### 15.8 The Great Beacon (🌟) — Leaderboard
 
@@ -1236,6 +1285,8 @@ User settings:
 - Display name
 - Country (used for country leaderboard)
 - Preferred Bible translation (NIV / ESV / KJV)
+- Preferred interface language (English / Spanish / French initially; independently
+  expandable without changing the player's Bible translation)
 - Audio effects on/off
 - Reduced motion preference
 - Theme preference (light/dark/system)
@@ -1468,6 +1519,7 @@ campaign or award Glow Points.
 
 ### Fellowship Actions
 - `createFellowshipAction`
+- `updateFellowshipAction` (leader only)
 - `joinFellowshipAction`
 - `leaveFellowshipAction`
 
@@ -1488,6 +1540,10 @@ campaign or award Glow Points.
 ---
 
 ## 19. UI/UX Requirements
+
+Implementation details for these requirements are consolidated in
+`docs/UI-UX-GUIDE.md`. Agents and developers must read that guide before
+changing player-facing UI; `/ui-foundation` remains the living visual reference.
 
 ### 19.1 Required States
 

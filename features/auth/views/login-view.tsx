@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "@/lib/auth/session";
 import { AuthCard } from "@/features/auth/components/auth-card";
 import { LoginForm } from "@/features/auth/components/login-form";
+import { getSafePostLoginPath } from "@/features/auth/lib/get-safe-post-login-path";
 
 export const metadata: Metadata = {
   title: "Log in | Scripture Memo",
@@ -18,16 +19,17 @@ export type LoginViewProps = {
 export async function LoginView({ searchParams }: LoginViewProps): Promise<React.ReactNode> {
   const next = (await searchParams).next;
   const nextPath = typeof next === "string" ? next : undefined;
-  if (await getServerSession()) redirect("/game");
+  const safeNextPath = getSafePostLoginPath(nextPath);
+  if (await getServerSession()) redirect(safeNextPath);
   return (
     <AuthCard
       title="Welcome back"
       description="Continue building Scripture into lasting memory."
       alternatePrompt="New to Scripture Memo?"
       alternateLabel="Create an account"
-      alternateHref="/register"
+      alternateHref={`/register?next=${encodeURIComponent(safeNextPath)}`}
     >
-      <LoginForm nextPath={nextPath} />
+      <LoginForm nextPath={safeNextPath} />
     </AuthCard>
   );
 }

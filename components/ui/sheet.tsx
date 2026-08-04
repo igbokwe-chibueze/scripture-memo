@@ -70,9 +70,9 @@ function SheetContent({
             data-slot="sheet-close"
             render={
               <Button
-                variant="ghost"
-                className="absolute top-3 right-3"
-                size="icon-sm"
+                variant="outline"
+                className="absolute top-3 right-3 size-11 rounded-xl border-border bg-popover text-foreground shadow-[0_4px_0_rgb(0_0_0/0.25),0_8px_14px_rgb(0_0_0/0.16)] hover:bg-muted dark:bg-slate-900 dark:shadow-[0_4px_0_rgb(255_255_255/0.18),0_8px_14px_rgb(0_0_0/0.45)]"
+                size="icon-lg"
               />
             }
           >

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { AlertTriangleIcon, BookHeartIcon, Clock3Icon, LockKeyholeIcon, ShieldOffIcon } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { JourneyStageBadge } from "@/components/shared/journey-stage-badge";
@@ -19,14 +20,15 @@ export function DaySelection({
   cards: DayCardData[];
   isAdmin: boolean;
 }): React.ReactNode {
+  const t = useTranslations("DaySelection");
   const hintsUnavailable =
     data.journeyStage === JourneyStage.STRENGTHEN ||
     data.journeyStage === JourneyStage.MASTER;
   const timeNotice = {
     [JourneyStage.LEARN]: null,
-    [JourneyStage.RECALL]: "A generous time limit applies during gameplay.",
-    [JourneyStage.STRENGTHEN]: "A shorter time limit applies during gameplay.",
-    [JourneyStage.MASTER]: "A strict time limit applies during gameplay.",
+    [JourneyStage.RECALL]: t("recallTime"),
+    [JourneyStage.STRENGTHEN]: t("strengthenTime"),
+    [JourneyStage.MASTER]: t("masterTime"),
   }[data.journeyStage];
 
   return (
@@ -34,7 +36,7 @@ export function DaySelection({
       <section className="overflow-hidden rounded-[2rem] border border-sky-300/35 bg-linear-to-br from-sky-100 via-card to-amber-100/70 p-5 shadow-xl dark:from-sky-950/50 dark:via-card dark:to-amber-950/25 sm:p-7">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs font-black tracking-[0.18em] text-sky-700 uppercase dark:text-sky-300">
-            Waypoint {data.waypointNumber}
+            {t("waypoint", { number: data.waypointNumber })}
           </p>
           <JourneyStageBadge stage={data.journeyStage} className="h-8 px-3" />
         </div>
@@ -52,27 +54,27 @@ export function DaySelection({
         <div className="mt-5">
           {data.studyAccess === "LOCKED" ? (
             <span className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-violet-300/40 bg-background/70 px-4 text-sm font-bold text-violet-700 dark:text-violet-300">
-              <LockKeyholeIcon className="size-4" aria-hidden="true" /> Study reopens after Radiance
+              <LockKeyholeIcon className="size-4" aria-hidden="true" /> {t("studyReopens")}
             </span>
           ) : (
             <Link
               href={`/sanctuary/${data.verseId}`}
               className={cn(buttonVariants({ variant: "outline" }), "min-h-11 rounded-xl px-4 font-black")}
             >
-              <BookHeartIcon aria-hidden="true" /> Study verse
+              <BookHeartIcon aria-hidden="true" /> {t("studyVerse")}
             </Link>
           )}
         </div>
       </section>
 
       {(hintsUnavailable || timeNotice) && (
-        <section aria-label="Journey Stage rules" className="grid gap-3 sm:grid-cols-2">
+        <section aria-label={t("stageRules")} className="grid gap-3 sm:grid-cols-2">
           {hintsUnavailable && (
             <div className="flex min-h-20 items-center gap-3 rounded-2xl border border-amber-300/40 bg-amber-50/70 p-4 text-amber-950 dark:bg-amber-950/20 dark:text-amber-100">
               <ShieldOffIcon className="size-6 shrink-0" aria-hidden="true" />
               <div>
-                <p className="font-bold">No hints available</p>
-                <p className="text-xs opacity-80">This Journey Stage relies on memory alone.</p>
+                <p className="font-bold">{t("noHints")}</p>
+                <p className="text-xs opacity-80">{t("memoryAlone")}</p>
               </div>
             </div>
           )}
@@ -80,7 +82,7 @@ export function DaySelection({
             <div className="flex min-h-20 items-center gap-3 rounded-2xl border border-violet-300/40 bg-violet-50/70 p-4 text-violet-950 dark:bg-violet-950/20 dark:text-violet-100">
               <Clock3Icon className="size-6 shrink-0" aria-hidden="true" />
               <div>
-                <p className="font-bold">Timed challenge</p>
+                <p className="font-bold">{t("timedChallenge")}</p>
                 <p className="text-xs opacity-80">{timeNotice}</p>
               </div>
             </div>
@@ -92,10 +94,10 @@ export function DaySelection({
         <div>
           <p className="flex items-center gap-2 text-xs font-black tracking-[0.16em] text-amber-700 uppercase dark:text-amber-300">
             <AlertTriangleIcon className="size-4" aria-hidden="true" />
-            Three-Day Challenge
+            {t("threeDayChallenge")}
           </p>
           <h2 id="challenge-days-heading" className="mt-1 font-heading text-2xl font-black">
-            Choose today’s challenge
+            {t("chooseChallenge")}
           </h2>
         </div>
         <div className="grid gap-4 lg:grid-cols-3">

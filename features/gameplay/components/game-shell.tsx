@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import {
   ChevronDownIcon,
@@ -46,14 +47,6 @@ import type {
 import type { GameMode } from "@/lib/generated/prisma/enums";
 import { HintButton } from "@/features/hints/components/hint-button";
 
-const GAME_MODE_LABELS = {
-  DRAG_DROP: "Drag & Drop",
-  PUZZLE: "Puzzle",
-  SWAP: "Swap",
-  CUE: "Cue",
-  FILL: "Fill",
-} as const;
-
 /**
  * Shared mobile-first frame used by every gameplay mode.
  *
@@ -67,7 +60,19 @@ export function GameShell({
   gameSession: GameplaySessionData;
   isAdmin: boolean;
 }): React.ReactNode {
+  const t = useTranslations("Gameplay");
+  const dayT = useTranslations("DaySelection");
   const router = useRouter();
+  const modeLabels: Record<GameMode, string> = {
+    DRAG_DROP: t("dragDrop"),
+    PUZZLE: t("puzzle"),
+    SWAP: t("swap"),
+    CUE: t("cue"),
+    FILL: t("fill"),
+  };
+  const dayLabel = gameSession.dayLevel
+    ? dayT(gameSession.dayLevel.toLowerCase() as "glimmer" | "glow" | "radiance")
+    : "";
   const [attempt, setAttempt] = useState<GameModeAttemptData | null>(null);
   const [audioEnabled, setAudioEnabled] = useState(gameSession.audioEnabled);
   const [testReplayMode, setTestReplayMode] = useState<GameMode | null>(null);
@@ -118,8 +123,8 @@ export function GameShell({
     document.documentElement.dataset.audioEnabled = String(nextEnabled);
     toast.info(
       nextEnabled
-        ? "Audio feedback enabled for this session."
-        : "Audio feedback muted for this session.",
+        ? t("audioOn")
+        : t("audioOff"),
       { duration: 4_000 },
     );
   };
@@ -169,8 +174,8 @@ export function GameShell({
             <div className="min-w-0">
               <p className="whitespace-nowrap text-xs font-black tracking-[0.12em] text-amber-700 uppercase dark:text-amber-300 sm:tracking-[0.16em]">
                 {gameSession.isVaultReplay
-                  ? "Vault replay · Radiance"
-                  : `${gameSession.dayLevel} · Waypoint ${gameSession.waypoint?.number}`}
+                  ? t("vaultReplay")
+                  : t("dayWaypoint", { day: dayLabel, number: gameSession.waypoint?.number ?? 0 })}
               </p>
               <h1 className="mt-1 font-heading text-2xl font-black sm:text-3xl">
                 {gameSession.verse.reference}
@@ -179,7 +184,7 @@ export function GameShell({
             <DropdownMenu>
               <DropdownMenuTrigger
                 className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-background text-foreground shadow-sm transition hover:bg-muted focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:outline-none dark:border-white/15 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
-                aria-label="Open game menu"
+                aria-label={t("openMenu")}
               >
                 <EllipsisVerticalIcon className="size-5" aria-hidden="true" />
               </DropdownMenuTrigger>
@@ -189,7 +194,7 @@ export function GameShell({
               >
                 <DropdownMenuGroup>
                   <DropdownMenuLabel className="px-2 py-1.5 font-black text-foreground">
-                    Game menu
+                    {t("gameMenu")}
                   </DropdownMenuLabel>
                   <DropdownMenuItem
                     className="min-h-11 cursor-pointer gap-3 rounded-lg px-3 py-2 font-bold"
@@ -200,9 +205,9 @@ export function GameShell({
                     ) : (
                       <VolumeXIcon aria-hidden="true" />
                     )}
-                    Sound
+                    {t("sound")}
                     <DropdownMenuShortcut>
-                      {audioEnabled ? "On" : "Off"}
+                      {audioEnabled ? t("on") : t("off")}
                     </DropdownMenuShortcut>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
@@ -221,7 +226,7 @@ export function GameShell({
                       }
                     >
                       <LogOutIcon aria-hidden="true" />
-                      Exit gameplay
+                      {t("exitGameplay")}
                     </DropdownMenuItem>
                   </>
                 )}
@@ -234,11 +239,11 @@ export function GameShell({
               <JourneyStageBadge stage={gameSession.waypoint.journeyStage} />
             )}
             <p className="text-sm font-bold text-muted-foreground">
-              Mode {Math.min(currentModeIndex + 1, GAME_MODE_ORDER.length)} of {GAME_MODE_ORDER.length}
+              {t("modeProgress", { current: Math.min(currentModeIndex + 1, GAME_MODE_ORDER.length), total: GAME_MODE_ORDER.length })}
             </p>
           </div>
 
-          <ol className="mt-4 grid grid-cols-5 gap-1.5" aria-label="Game mode progress">
+          <ol className="mt-4 grid grid-cols-5 gap-1.5" aria-label={t("progress")}>
             {GAME_MODE_ORDER.map((mode, index) => (
               <li
                 key={mode}
@@ -247,12 +252,12 @@ export function GameShell({
                   index < currentModeIndex && "bg-emerald-400",
                   index === currentModeIndex && "bg-amber-400",
                 )}
-                aria-label={`${GAME_MODE_LABELS[mode]}: ${
+                aria-label={`${modeLabels[mode]}: ${
                   index < currentModeIndex
-                    ? "complete"
+                    ? t("completeState")
                     : index === currentModeIndex
-                      ? "current"
-                      : "upcoming"
+                      ? t("currentState")
+                      : t("upcomingState")
                 }`}
               />
             ))}
@@ -263,8 +268,8 @@ export function GameShell({
               <span className="inline-flex items-center gap-2 text-xs font-bold text-sky-800 dark:text-sky-200">
                 <ShieldCheckIcon className="size-4 shrink-0" aria-hidden="true" />
                 {testReplayMode
-                  ? `Testing ${GAME_MODE_LABELS[testReplayMode]} · no progress changes`
-                  : "Admin testing · no progress changes"}
+                  ? t("testingMode", { mode: modeLabels[testReplayMode] })
+                  : t("adminTesting")}
               </span>
               {testReplayMode ? (
                 <Button
@@ -275,13 +280,13 @@ export function GameShell({
                   onClick={() => setTestReplayMode(null)}
                 >
                   <RotateCcwIcon data-icon="inline-start" aria-hidden="true" />
-                  Return to current mode
+                  {t("returnCurrent")}
                 </Button>
               ) : (
                 <DropdownMenu>
                   <DropdownMenuTrigger className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-sky-500/30 bg-background/70 px-4 text-sm font-black text-sky-900 transition hover:bg-sky-200/70 focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none dark:bg-slate-950/30 dark:text-sky-100 dark:hover:bg-sky-300/15 sm:w-auto">
                     <RotateCcwIcon className="size-4" aria-hidden="true" />
-                    Replay completed mode
+                    {t("replayCompleted")}
                     <ChevronDownIcon className="size-4" aria-hidden="true" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
@@ -290,7 +295,7 @@ export function GameShell({
                   >
                     <DropdownMenuGroup>
                       <DropdownMenuLabel className="px-2 py-1.5 font-black text-foreground">
-                        Choose a completed mode
+                        {t("chooseCompleted")}
                       </DropdownMenuLabel>
                       {completedReplayModes.map((mode) => (
                         <DropdownMenuItem
@@ -301,7 +306,7 @@ export function GameShell({
                           <span className="grid size-6 place-items-center rounded-md bg-sky-500/15 text-xs font-black text-sky-700 dark:text-sky-200">
                             {GAME_MODE_ORDER.indexOf(mode) + 1}
                           </span>
-                          {GAME_MODE_LABELS[mode]}
+                          {modeLabels[mode]}
                         </DropdownMenuItem>
                       ))}
                     </DropdownMenuGroup>
@@ -317,11 +322,11 @@ export function GameShell({
             <div className="mb-6 flex flex-col items-center gap-2">
               <span className="inline-flex items-center gap-2 text-sm font-bold text-amber-700 dark:text-amber-200">
                 <Clock3Icon className="size-4" aria-hidden="true" />
-                Attempt time remaining
+                {t("timeRemaining")}
               </span>
               <CountdownTimer
                 targetDate={attempt.expiresAt}
-                label="Attempt time remaining"
+                label={t("timeRemaining")}
                 onExpire={() => {
                   setAttempt(null);
                   setExpiredMode(currentMode);
@@ -461,7 +466,7 @@ export function GameShell({
             />
           ) : expiredMode && currentMode === expiredMode ? (
             <TimedAttemptExpired
-              modeLabel={GAME_MODE_LABELS[expiredMode]}
+              modeLabel={modeLabels[expiredMode]}
               isPending={isPending}
               onRetry={beginMode}
             />
@@ -469,22 +474,22 @@ export function GameShell({
             <div className="my-auto flex w-full max-w-xl items-end gap-2 overflow-hidden rounded-[2rem] border border-violet-300/45 bg-linear-to-br from-card via-card to-violet-100/80 p-6 dark:to-violet-950/40 sm:gap-5 sm:p-8">
               <div className="relative z-10 flex min-h-72 min-w-0 flex-1 flex-col items-start">
               <p className="mt-5 text-xs font-black tracking-[0.16em] text-violet-700 uppercase dark:text-violet-300">
-                Up next
+                {t("upNext")}
               </p>
               <h2 className="mt-2 font-heading text-3xl font-black">
-                {currentMode ? GAME_MODE_LABELS[currentMode] : "Day complete"}
+                {currentMode ? modeLabels[currentMode] : t("dayComplete")}
               </h2>
               {!attempt && currentMode && (
                 <div className="mt-5 rounded-2xl border border-violet-300/40 bg-background/75 p-4">
                   {modeTimeLimitMinutes ? (
                     <>
-                      <p className="inline-flex items-center gap-2 font-black"><Clock3Icon className="size-5 text-violet-600" aria-hidden="true" />{modeTimeLimitMinutes}-minute challenge</p>
-                      <p className="mt-1 text-sm text-muted-foreground">The clock starts only when you press Begin.</p>
+                      <p className="inline-flex items-center gap-2 font-black"><Clock3Icon className="size-5 text-violet-600" aria-hidden="true" />{t("minuteChallenge", { minutes: modeTimeLimitMinutes })}</p>
+                      <p className="mt-1 text-sm text-muted-foreground">{t("clockStarts")}</p>
                     </>
                   ) : (
                     <>
-                      <p className="inline-flex items-center gap-2 font-black"><SparklesIcon className="size-5 text-amber-500" aria-hidden="true" />Learn at your pace</p>
-                      <p className="mt-1 text-sm text-muted-foreground">There is no timer for this challenge.</p>
+                      <p className="inline-flex items-center gap-2 font-black"><SparklesIcon className="size-5 text-amber-500" aria-hidden="true" />{t("learnPace")}</p>
+                      <p className="mt-1 text-sm text-muted-foreground">{t("noTimer")}</p>
                     </>
                   )}
                 </div>
@@ -499,7 +504,7 @@ export function GameShell({
                   onClick={beginMode}
                 >
                   <PlayIcon data-icon="inline-start" aria-hidden="true" />
-                  {isPending ? "Starting…" : `Begin ${GAME_MODE_LABELS[currentMode]}`}
+                  {isPending ? t("starting") : t("beginMode", { mode: modeLabels[currentMode] })}
                 </Button>
               )}
               </div>

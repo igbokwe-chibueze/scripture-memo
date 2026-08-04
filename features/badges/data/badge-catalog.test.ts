@@ -60,6 +60,15 @@ test("Vault Explorer activates with the trusted Phase 23 replay metric", () => {
   assert.notEqual(vaultExplorer.isActive, false);
 });
 
+test("Fellowship badges activate with trusted Phase 26 membership metrics", () => {
+  for (const slug of ["community-member", "faith-builder"]) {
+    const badge = BADGE_CATALOG.find((candidate) => candidate.slug === slug);
+    assert.ok(badge);
+    assert.equal(isBadgeCriterionAvailable(badge.criteriaKey), true);
+    assert.notEqual(badge.isActive, false);
+  }
+});
+
 test("administrator badge names produce stable safe slugs", () => {
   assert.equal(createBadgeSlug("  Keeper's Light!  "), "keeper-s-light");
   assert.equal(createBadgeSlug("Éternal   Flame"), "eternal-flame");

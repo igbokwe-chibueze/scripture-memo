@@ -91,6 +91,18 @@ enum RewardEventType {
   SHOP_PURCHASE
 }
 
+enum FellowshipJoinRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum FellowshipJoinRequestSource {
+  DIRECTORY
+  INVITE
+}
+
 // Better Auth owns identity and credential lifecycle fields on this table.
 // Product state is kept in one-to-one profile/settings/streak records, while
 // authorization and suspension fields remain here for efficient server checks.
@@ -107,27 +119,29 @@ model User {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  sessions              Session[]
-  accounts              Account[]
-  profile               UserProfile?
-  settings              UserSettings?
-  waypointProgress      UserWaypointProgress[]
-  dayProgress           UserDayProgress[]
-  gameSessions          GameSession[]
-  gameModeAttempts      GameModeAttempt[]
-  hintUsages            HintUsage[]
-  rewardLedgerEntries   RewardLedger[]
-  streak                UserStreak?
-  badgeProgress         UserBadgeProgress[]
-  fellowshipMemberships FellowshipMember[]
-  fellowshipsCreated    Fellowship[]           @relation("FellowshipCreator")
-  shopPurchases         UserShopPurchase[]
-  verseNotes            UserVerseNote[]
-  favoriteVerses        UserFavoriteVerse[]
-  versesCreated         Verse[]                @relation("VerseCreator")
-  badgesCreated         Badge[]                @relation("BadgeCreator")
-  shopItemsCreated      ShopItem[]             @relation("ShopItemCreator")
-  auditLogs             AuditLog[]             @relation("AuditActor")
+  sessions                   Session[]
+  accounts                   Account[]
+  profile                    UserProfile?
+  settings                   UserSettings?
+  waypointProgress           UserWaypointProgress[]
+  dayProgress                UserDayProgress[]
+  gameSessions               GameSession[]
+  gameModeAttempts           GameModeAttempt[]
+  hintUsages                 HintUsage[]
+  rewardLedgerEntries        RewardLedger[]
+  streak                     UserStreak?
+  badgeProgress              UserBadgeProgress[]
+  fellowshipMemberships      FellowshipMember[]
+  fellowshipJoinRequests     FellowshipJoinRequest[] @relation("FellowshipJoinRequester")
+  fellowshipRequestsReviewed FellowshipJoinRequest[] @relation("FellowshipJoinReviewer")
+  fellowshipsCreated         Fellowship[]            @relation("FellowshipCreator")
+  shopPurchases              UserShopPurchase[]
+  verseNotes                 UserVerseNote[]
+  favoriteVerses             UserFavoriteVerse[]
+  versesCreated              Verse[]                 @relation("VerseCreator")
+  badgesCreated              Badge[]                 @relation("BadgeCreator")
+  shopItemsCreated           ShopItem[]              @relation("ShopItemCreator")
+  auditLogs                  AuditLog[]              @relation("AuditActor")
 
   @@index([role])
   @@index([suspendedAt])
@@ -159,6 +173,7 @@ model UserSettings {
   audioEnabled           Boolean         @default(true)
   reducedMotion          Boolean         @default(false)
   theme                  String          @default("system")
+  locale                 String          @default("en")
   timeZone               String          @default("UTC")
   hasConfiguredTimeZone  Boolean         @default(false)
   createdAt              DateTime        @default(now())
@@ -442,20 +457,43 @@ model UserBadgeProgress {
 }
 
 model Fellowship {
-  id          String             @id @default(cuid())
-  name        String
-  slug        String             @unique
-  description String?
-  isPublic    Boolean            @default(true)
-  inviteCode  String             @unique
-  createdById String
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
-  createdBy   User               @relation("FellowshipCreator", fields: [createdById], references: [id], onDelete: Restrict)
-  members     FellowshipMember[]
+  id           String                  @id @default(cuid())
+  name         String
+  slug         String                  @unique
+  description  String?
+  isPublic     Boolean                 @default(true)
+  insigniaKey  String                  @default("word-star")
+  inviteCode   String                  @unique
+  createdById  String
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @updatedAt
+  createdBy    User                    @relation("FellowshipCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  members      FellowshipMember[]
+  joinRequests FellowshipJoinRequest[]
 
   @@index([isPublic, name])
   @@index([createdById])
+}
+
+model FellowshipJoinRequest {
+  id           String                      @id @default(cuid())
+  fellowshipId String
+  userId       String
+  source       FellowshipJoinRequestSource
+  status       FellowshipJoinRequestStatus @default(PENDING)
+  requestedAt  DateTime                    @default(now())
+  resolvedAt   DateTime?
+  reviewedById String?
+  fellowship   Fellowship                  @relation(fields: [fellowshipId], references: [id], onDelete: Cascade)
+  user         User                        @relation("FellowshipJoinRequester", fields: [userId], references: [id], onDelete: Cascade)
+  reviewedBy   User?                       @relation("FellowshipJoinReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  // WHY: One durable row per learner and fellowship prevents duplicate pending
+  // requests while retaining the latest approval, rejection, or cancellation.
+  @@unique([fellowshipId, userId])
+  @@index([fellowshipId, status, requestedAt])
+  @@index([userId, status, requestedAt])
+  @@index([reviewedById])
 }
 
 model FellowshipMember {

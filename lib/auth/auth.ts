@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "@/lib/prisma";
 import { nextCookies } from "better-auth/next-js";
+import { deliverPasswordReset } from "@/features/auth/lib/password-reset-delivery";
 
 
 export const auth = betterAuth({
@@ -10,6 +11,14 @@ export const auth = betterAuth({
     }),
     emailAndPassword: {
         enabled: true,
+        resetPasswordTokenExpiresIn: 60 * 60,
+        revokeSessionsOnPasswordReset: true,
+        // WHY: Better Auth remains the sole owner of token creation, expiry,
+        // validation, password hashing, and session revocation. The delivery
+        // adapter receives only Better Auth's ready-to-use reset URL.
+        sendResetPassword: async ({ user, url }) => {
+            await deliverPasswordReset(user.email, url);
+        },
     },
     user: {
         additionalFields: {
@@ -32,6 +41,8 @@ export const auth = betterAuth({
         customRules: {
             "/sign-in/email": { window: 15 * 60, max: 10 },
             "/sign-up/email": { window: 60 * 60, max: 5 },
+            "/request-password-reset": { window: 15 * 60, max: 5 },
+            "/reset-password": { window: 15 * 60, max: 10 },
         },
     },
     session: {
