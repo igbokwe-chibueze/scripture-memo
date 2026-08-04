@@ -106,7 +106,7 @@ export const fellowshipRepository = {
   async getEditable(userId: string, slug: string): Promise<FellowshipEditData | null> {
     return prisma.fellowship.findFirst({
       where: { slug, createdById: userId },
-      select: { id: true, slug: true, name: true, description: true, isPublic: true, insigniaKey: true },
+      select: { id: true, slug: true, name: true, description: true, isPublic: true, insigniaKey: true, inviteCode: true },
     });
   },
 

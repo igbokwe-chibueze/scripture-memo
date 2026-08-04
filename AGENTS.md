@@ -1,6 +1,6 @@
 # AGENTS.md — Scripture Memo
 
-**Version:** 3.0
+**Version:** 3.1
 **Authority:** This repository-root file is the single authoritative instruction
 document for every AI agent working in this codebase. Read it completely before
 writing code. When any supporting document conflicts with this file, this root
@@ -275,6 +275,28 @@ Use clear, intention-revealing function names:
 - Use discriminated unions for complex state.
 - Use enums or const maps for fixed value sets.
 - Always validate `unknown` external input through Zod before using it.
+
+### 5.1 Human-Readable Formatting — Non-Negotiable
+
+Code in this repository must be written for a human maintainer first. Do not
+compress JSX, object literals, conditionals, function bodies, or sequences of
+statements onto one long line merely because the formatter or compiler accepts
+it.
+
+- Put JSX elements on separate, indented lines when they contain children,
+  conditional rendering, multiple props, or nested components.
+- Split long function signatures, object types, arrays, repository selections,
+  and action results across multiple lines.
+- Use one statement per line. Keep related steps in short logical blocks with
+  whitespace between them.
+- Extract a named component or helper when nesting makes the main render path
+  difficult to scan.
+- Prefer descriptive intermediate variables over dense inline expressions when
+  they make the data flow easier for a novice to follow.
+- Existing one-line code touched by a task must be reformatted when it overlaps
+  the changed logic. Do not perform unrelated whole-repository formatting.
+- A task is not complete when its code is technically correct but needlessly
+  difficult for a human to read, review, debug, or maintain.
 
 ### Standard Action Response Pattern
 
@@ -636,6 +658,18 @@ Use `@dnd-kit/core` — it natively handles both mouse and touch events.
 Scripture Memo is a mobile-first game experience, not a conventional dashboard-style web application. Every component, page, and view must feel intentionally designed for a polished mobile game while preserving the calm, devotional identity of the product.
 
 - Design for a 375px mobile viewport first, then enhance the layout for tablets and desktops.
+- Mobile is the primary composition, not a later responsive correction. Build
+  and reason about the base layout at 375px before adding any `sm:`, `md:`,
+  `lg:`, or wider-screen enhancement.
+- Base Tailwind classes must describe the intended mobile experience. Breakpoint
+  classes may progressively enhance that experience; they must not be used to
+  repair a desktop-first layout that was allowed to break on mobile.
+- Before considering a player-facing UI implementation complete, inspect the
+  375px structure for hierarchy, spacing, wrapping, touch targets, clipping,
+  overflow, and content order. Only after the mobile composition is sound may
+  tablet and desktop layouts be finalized.
+- When mobile and desktop needs conflict, preserve the clear, playable mobile
+  experience first, then create a deliberate larger-screen variant.
 - Use clear visual hierarchy, immersive full-screen compositions, tactile controls, progression maps, reward feedback, game-state indicators, and satisfying transitions where appropriate.
 - Buttons and interactive targets must feel touch-friendly and game-like, with a minimum usable target size of 44×44 CSS pixels.
 - Gameplay screens must prioritize the active challenge and minimize dashboard chrome, dense tables, and administrative visual patterns.
@@ -706,7 +740,29 @@ SEO completion is part of each relevant page's definition of done, not a final c
 
 ## 10. Comments and Documentation Rules
 
-Comment scripts extensively. Every file, every exported function, and every non-obvious logic block must have a comment explaining **why** the decision was made.
+Comment application code and scripts extensively enough that a novice developer
+can follow the purpose, data flow, important decisions, and risks without first
+reverse-engineering the implementation. Every file, every exported function,
+and every non-obvious logic block must have a useful comment explaining **why**
+the decision was made.
+
+- Add a file-level or leading context comment when a file's responsibility is
+  not immediately obvious from its name.
+- Document every exported component, function, hook, action, repository method,
+  schema, and non-trivial type with its purpose and important constraints.
+- Use inline comments before meaningful implementation stages such as input
+  normalization, authorization boundaries, transactions, state transitions,
+  animation sequencing, responsive layout decisions, and error recovery.
+- In components, comment non-obvious responsive choices so a future maintainer
+  understands which markup is mobile-first and why the larger-screen variant
+  differs.
+- Comments must explain intent, inputs, outputs, side effects, security or data
+  integrity concerns, and safe failure behavior where relevant.
+- Do not leave a long function as an uncommented wall of code. Divide it into
+  readable logical sections and annotate the important transitions.
+- Inline comments are required where they materially help a novice understand
+  the flow, but do not add comments that merely repeat an obvious assignment or
+  JSX label.
 
 ### Required comment locations:
 

@@ -1,5 +1,38 @@
 # Scripture Memo Project Log
 
+### 2026-08-04 — Mobile-first and maintainability rules strengthened
+
+- Promoted the 375px mobile composition from a general direction to the primary
+  implementation order: mobile must be completed before breakpoint enhancements.
+- Added authoritative multiline formatting requirements so JSX, functions,
+  repository queries, and object structures remain easy to review and debug.
+- Expanded the commenting standard to require novice-friendly documentation and
+  useful inline explanations around non-obvious implementation stages.
+- Mirrored the responsive implementation order in the UI/UX guide.
+
+### 2026-08-04 — Mobile fellowship leaderboard compacted
+
+- Reworked member rows into compact mobile-first cards that keep each player's
+  progress directly beneath their identity instead of in a detached table row.
+- Hid the desktop column header on small screens and retained the wider table
+  presentation from the `sm` breakpoint upward.
+
+### 2026-08-04 — Fellowship settings show current invite access
+
+- Added the leader-only current invite code to the Invite Access settings card.
+- Kept the displayed value synchronized when the leader rotates the code, so
+  the replacement appears immediately without a page reload.
+
+### 2026-08-04 — Completed-waypoint summaries reconciled
+
+- Fixed the server-verified Radiance completion transaction so it increments
+  the indexed `UserProfile.totalWaypointsCompleted` summary exactly once.
+- Added and applied a data migration that reconstructs every existing profile
+  total from authoritative completed `UserWaypointProgress` records, correcting
+  the shared zero shown in the Vault, settings, and Fellowship rankings.
+- Separated Fellowship member progress metrics into distinct touch targets with
+  formatted values, accessible labels, and explanatory tooltips.
+
 ### 2026-08-04 — Fellowship detail content organized into tabs
 
 - Kept fellowship identity, invitation, and leader settings actions visible in

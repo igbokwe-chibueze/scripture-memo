@@ -225,6 +225,12 @@ Never leave a blank, frozen, silently failing, or repeatedly clickable interface
 ## 13. Responsive and Accessibility Baseline
 
 - Start at 375px, then test tablet and large desktop.
+- Treat unprefixed layout utilities as the finished mobile composition. Add
+  breakpoint-prefixed utilities only after the 375px hierarchy, spacing,
+  wrapping, touch targets, and content order are correct.
+- Never design the desktop arrangement first and rely on later overrides to
+  squeeze it onto a phone. When the layouts need different structures, favor
+  the mobile reading order and progressively enhance it for larger screens.
 - Minimum interactive target: 44×44 CSS pixels.
 - Support keyboard navigation and visible focus.
 - Supply accessible names for icon-only controls.
@@ -276,4 +282,3 @@ suite for only the highest-risk shared surfaces. Start with theme foundations,
 buttons, gameplay shell, invitation/authentication, completion screens, and
 mobile navigation. Baselines must be approved by the project owner and should
 not be updated merely to silence a failed test.
-

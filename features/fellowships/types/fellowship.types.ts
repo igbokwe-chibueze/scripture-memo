@@ -50,7 +50,7 @@ export type FellowshipDetailData = FellowshipSummary & {
 export type FellowshipEditData = Pick<
   FellowshipSummary,
   "id" | "slug" | "name" | "description" | "isPublic" | "insigniaKey"
->;
+> & { inviteCode: string };
 
 export type FellowshipInvitePreview = Pick<
   FellowshipSummary,

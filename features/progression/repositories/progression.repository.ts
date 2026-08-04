@@ -296,6 +296,14 @@ export async function markDayCompleteInTransaction(
     where: { userId_waypointId: { userId, waypointId } },
     data: { status: WaypointStatus.COMPLETED, completedAt },
   });
+  // WHY: UserProfile is the indexed summary used by the Vault, Fellowships,
+  // settings, and future leaderboards. Increment it only in this guarded
+  // Radiance transaction, after the day-complete check has proved this
+  // waypoint was not previously completed, so retries cannot double-count it.
+  await transaction.userProfile.update({
+    where: { userId },
+    data: { totalWaypointsCompleted: { increment: 1 } },
+  });
   const unlockedWaypoint = await unlockNextWaypointInTransaction(
     transaction,
     userId,
