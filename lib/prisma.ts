@@ -2,6 +2,7 @@ import "server-only";
 
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "./generated/prisma/client";
+import { normalizePostgresSslUrl } from "./database/normalize-postgres-ssl-url";
 
 // WHY: Next.js development hot reloading evaluates modules repeatedly. Keeping
 // the client on globalThis allows every evaluation to reuse one connection pool
@@ -23,7 +24,7 @@ if (!connectionString) {
 // owns the PostgreSQL connection pool, while Prisma Client provides the generated,
 // type-safe query API for the schema in prisma/schema.prisma.
 const adapter = new PrismaPg({
-  connectionString,
+  connectionString: normalizePostgresSslUrl(connectionString),
 });
 
 // WHY: Production modules are evaluated once per process, while development uses

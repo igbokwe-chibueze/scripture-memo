@@ -1,5 +1,6 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/lib/generated/prisma/client";
+import { normalizePostgresSslUrl } from "@/lib/database/normalize-postgres-ssl-url";
 import { BADGE_CATALOG } from "@/features/badges/data/badge-catalog";
 
 const connectionString = process.env.DATABASE_URL;
@@ -10,7 +11,9 @@ const connectionString = process.env.DATABASE_URL;
 if (!connectionString) throw new Error("DATABASE_URL is required to seed badges.");
 
 const badgeSeedClient = new PrismaClient({
-  adapter: new PrismaPg({ connectionString }),
+  adapter: new PrismaPg({
+    connectionString: normalizePostgresSslUrl(connectionString),
+  }),
 });
 
 /**

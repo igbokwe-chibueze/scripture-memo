@@ -39,6 +39,7 @@ export const ACTIVE_BADGE_CRITERIA_VALUES = [
   "VAULT_REPLAYS",
   "FELLOWSHIP_JOIN",
   "FELLOWSHIP_CREATE",
+  "LEADERBOARD_TOP_100",
 ] as const satisfies readonly BadgeCriteriaKey[];
 
 const ACTIVE_BADGE_CRITERIA = new Set<BadgeCriteriaKey>(

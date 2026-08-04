@@ -149,6 +149,12 @@ async function getEventMetricValues(
   if (event.type === "FELLOWSHIP_CREATED") {
     return { FELLOWSHIP_CREATE: await transaction.fellowship.count({ where: { createdById: userId } }) };
   }
+  if (event.type === "LEADERBOARD_VIEWED") {
+    // WHY: The rank came from the server-owned leaderboard repository. The
+    // badge engine converts that trusted position into an absolute criterion
+    // value rather than accepting a client claim that the learner reached 100.
+    return { LEADERBOARD_TOP_100: event.globalRank <= 100 ? 1 : 0 };
+  }
   return getDayMetricValues(transaction, userId);
 }
 

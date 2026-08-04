@@ -1,5 +1,6 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/lib/generated/prisma/client";
+import { normalizePostgresSslUrl } from "@/lib/database/normalize-postgres-ssl-url";
 import type { WaypointSeedData } from "@/features/waypoints/types/waypoint.types";
 
 const connectionString = process.env.DATABASE_URL;
@@ -8,7 +9,11 @@ const connectionString = process.env.DATABASE_URL;
 // owns a short-lived client instead of importing the server-only runtime singleton.
 if (!connectionString) throw new Error("DATABASE_URL is required to seed waypoints.");
 
-const seedClient = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
+const seedClient = new PrismaClient({
+  adapter: new PrismaPg({
+    connectionString: normalizePostgresSslUrl(connectionString),
+  }),
+});
 
 /** Inserts missing slots without changing existing curriculum assignments. */
 export async function seedWaypointPlaceholders(rows: WaypointSeedData[]): Promise<number> {

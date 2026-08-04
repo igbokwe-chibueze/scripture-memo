@@ -177,7 +177,7 @@ The server and database are the only sources of truth for all security-sensitive
 
 | # | Check | Risk | Status | Notes |
 |---|---|---|---|---|
-| 9.1 | Leaderboard queries never return user email addresses | 🔴 Critical | ☐ Pending | Only display name, country, and stats |
+| 9.1 | Leaderboard queries never return user email addresses | 🔴 Critical | ☑ Implemented | Phase 27 repository maps internal rows to display name, country, rank, and game statistics; raw IDs become an `isCurrentUser` boolean before leaving the repository |
 | 9.2 | Fellowship member lists never expose user emails | 🔴 Critical | ☑ Implemented | Fellowship DTOs return display name, country, and game statistics only; no email or raw user ID |
 | 9.3 | Public profile data is limited to display name, country, and game stats | 🟠 High | ☐ Pending | No email, no internal IDs in public responses |
 | 9.4 | Private Sanctuary notes are visible only to the note's owner | 🔴 Critical | ☐ Pending | Ownership check: `note.userId === session.user.id` |
@@ -229,7 +229,7 @@ The server and database are the only sources of truth for all security-sensitive
 | 12.5 | Foreign key relations are defined and enforced in the Prisma schema | 🟠 High | ☐ Pending | Data integrity |
 | 12.6 | Cascading deletes are explicitly reviewed — no accidental data loss | 🟠 High | ☐ Pending | Deleting a verse must not silently delete user progress |
 | 12.7 | Indexes exist on `(userId, waypointId)` for progress queries | 🟡 Medium | ☐ Pending | Performance |
-| 12.8 | Indexes exist on `(totalGlowPoints DESC)` and `(currentStreak DESC)` for leaderboard queries | 🟡 Medium | ☐ Pending | Performance |
+| 12.8 | Indexes exist on `(totalGlowPoints DESC)` and `(currentStreak DESC)` for leaderboard queries | 🟡 Medium | ☑ Implemented | `UserProfile` and `UserStreak` include descending leaderboard indexes; country also has a composite ranking index |
 | 12.9 | Database transactions are used for all multi-write operations | 🔴 Critical | ☐ Pending | Day completion, reward award, shop purchase, waypoint unlock |
 | 12.10 | The database user in `DATABASE_URL` has only the permissions needed (not superuser) | 🟠 High | ☐ Pending | Principle of least privilege |
 | 12.11 | `prisma migrate dev` is never run against the production database | 🔴 Critical | ☐ Pending | Use `prisma migrate deploy` in production |

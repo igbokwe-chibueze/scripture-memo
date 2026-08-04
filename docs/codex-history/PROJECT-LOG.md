@@ -1,5 +1,48 @@
 # Scripture Memo Project Log
 
+### 2026-08-04 — PostgreSQL SSL mode made upgrade-safe
+
+- Added one credential-safe connection URL normalizer that converts pg’s
+  ambiguous `prefer`, `require`, and `verify-ca` aliases to explicit
+  `sslmode=verify-full` while respecting intentional libpq compatibility.
+- Applied the same normalization to the application Prisma singleton, Prisma
+  CLI configuration, and every standalone seed repository.
+- Added tests for legacy modes, explicit compatibility, and secret-safe invalid
+  URL errors; TypeScript, targeted ESLint, Prisma validation, and diff checks
+  pass.
+- Verified the configured `DATABASE_URL` initializes PrismaPg without emitting
+  the pg-connection-string security warning.
+
+### 2026-08-04 — Stale next-intl development cache cleared
+
+- Confirmed `next.config.ts` correctly registers the installed next-intl plugin
+  against `i18n/request.ts`; no configuration code change was required.
+- Removed the generated `.next` cache because the active development server had
+  started before the plugin configuration was loaded.
+- Verified a fresh Next.js 16 development process serves `/login` with HTTP 200
+  and resolves `getLocale()` and `getMessages()` without the config-file error.
+
+### 2026-08-04 — Phase 27 Great Beacon implemented
+
+- Built privacy-safe Global, Country, and Fellowship rankings ordered by
+  completed waypoints, Glow Points, current streak, and stable server-only
+  tie-breakers.
+- Added an animated mobile-first podium, paginated positions four and below,
+  a highlighted pinned current-player row, scope controls, empty states, and a
+  route skeleton in English, Spanish, and French.
+- Kept emails and raw user IDs out of the leaderboard response contract and
+  documented the implemented privacy and index controls in the security audit.
+- Connected the hidden Beacon Challenger badge to a fresh authenticated
+  server-derived global rank through a Server Action, with an idempotent badge
+  transaction and an included activation migration.
+- Added a Great Beacon entry point to the authenticated game home without
+  squeezing the existing six-item mobile navigation bar.
+- TypeScript, targeted ESLint, badge tests, localization contract tests, and
+  diff checks pass. The production build reached compilation but the sandbox
+  could not download the project’s existing Google-hosted Geist fonts.
+- Applied migration `20260804163000_activate_leaderboard_badge` successfully to
+  the configured PostgreSQL database; Prisma reports all migrations applied.
+
 ### 2026-08-04 — Prisma Compute clean-install failure repaired
 
 - Regenerated `package-lock.json` with npm 10.9.8, matching the package manager
