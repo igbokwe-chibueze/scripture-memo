@@ -1,5 +1,14 @@
 # Scripture Memo Project Log
 
+### 2026-08-04 — Prisma Compute clean-install failure repaired
+
+- Regenerated `package-lock.json` with npm 10.9.8, matching the package manager
+  version reported by Prisma Compute rather than relying on npm 11 resolution.
+- Added the nested `@swc/helpers@0.5.23` lock entry required by `next-intl` while
+  preserving Next.js's direct `@swc/helpers@0.5.15` dependency.
+- Reproduced the original failure locally with npm 10, then confirmed the
+  repaired lockfile passes `npm ci --dry-run` with that exact npm version.
+
 ### 2026-08-04 — Phase 26 completed
 
 - The project owner accepted the final mobile-first Fellowship detail layout.
