@@ -527,6 +527,11 @@ Always use database transactions when awarding Glow Points. Always insert a `Rew
 
 ## 9. UI/UX Rules
 
+Before implementing or changing any player-facing UI, read
+`docs/UI-UX-GUIDE.md`. It is the practical application guide for the mandatory
+rules in this section and `/ui-foundation` is its living component reference.
+Neither source overrides this `AGENTS.md` file.
+
 ### 9.1 Required States — Non-Negotiable
 
 Every interactive feature must handle all of these states:
@@ -546,6 +551,19 @@ Never leave a blank, frozen, or unresponsive UI during any async operation.
 Button-styled route changes must use the shared `<NavigationButton>` rather than
 combining `Link` with `buttonVariants` directly. Its required `pendingLabel`
 provides immediate tap feedback before the destination loading boundary renders.
+
+New screens must visually reuse the established game-button treatment already
+approved in `/ui-foundation`, including its visible lower bevel and pressed
+depth. Do not redesign or globally modify previously approved shared buttons to
+solve a mismatch on one new screen unless the project owner explicitly requests
+a global change. Scope the correction to the new surface or request approval for
+a shared migration.
+
+`Button`, `LoadingButton`, and `NavigationButton` may differ only in behavior.
+They must resolve the same shared `buttonVariants` with the same class-merging
+path and therefore render identical colors, bevel, shadows, hover/press motion,
+focus, disabled, and reduced-motion states for matching variant and size props.
+Never add a separate visual-effects implementation to `NavigationButton`.
 
 ### 9.2 Sonner Toast Usage — Mandatory for All Feedback
 

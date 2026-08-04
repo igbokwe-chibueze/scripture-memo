@@ -62,6 +62,7 @@ export async function loginAction(input: unknown): Promise<ActionResult<LoginRes
     });
     const hasSelectedTranslation =
       await authRepository.hasSelectedTranslation(result.user.id);
+    const safeNextPath = getSafePostLoginPath(parsed.data.nextPath);
 
     return {
       success: true,
@@ -70,8 +71,8 @@ export async function loginAction(input: unknown): Promise<ActionResult<LoginRes
         // WHY: Translation onboarding always takes precedence. Returning users
         // resume only a validated internal destination from the login URL.
         redirectTo: hasSelectedTranslation
-          ? getSafePostLoginPath(parsed.data.nextPath)
-          : "/select-translation",
+          ? safeNextPath
+          : `/select-translation?next=${encodeURIComponent(safeNextPath)}`,
       },
     };
   } catch {

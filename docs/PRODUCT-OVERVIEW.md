@@ -1245,6 +1245,12 @@ Social group system.
 - View fellowship members and their progress
 - Fellowship-specific leaderboard
 - Join via invite code or public listing
+- Shared invitations use a public `/join/[inviteCode]` landing page. Opening the
+  page never mutates membership: authenticated players explicitly accept, while
+  signed-out and new players resume the same invitation after Better Auth login,
+  registration, and required translation onboarding.
+- Rotated, malformed, or unknown invitation codes show a recoverable expired
+  state and disclose no private membership data.
 - Leave a fellowship
 - Fellowship creators remain leaders and cannot leave until leadership is
   transferred; leadership transfer and dissolution are deferred moderation work.
@@ -1525,6 +1531,10 @@ campaign or award Glow Points.
 ---
 
 ## 19. UI/UX Requirements
+
+Implementation details for these requirements are consolidated in
+`docs/UI-UX-GUIDE.md`. Agents and developers must read that guide before
+changing player-facing UI; `/ui-foundation` remains the living visual reference.
 
 ### 19.1 Required States
 

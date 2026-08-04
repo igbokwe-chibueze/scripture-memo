@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { authRepository } from "@/features/auth/repositories/auth.repository";
 import { TranslationSelectionForm } from "@/features/auth/components/translation-selection-form";
 import { requireServerSession } from "@/lib/auth/session";
+import { getSafePostLoginPath } from "@/features/auth/lib/get-safe-post-login-path";
 
 export const metadata: Metadata = {
   title: "Choose your Bible translation | Scripture Memo",
@@ -12,9 +13,11 @@ export const metadata: Metadata = {
 };
 
 /** Protected one-time onboarding view for the preferred Bible translation. */
-export async function TranslationSelectionView(): Promise<React.ReactNode> {
+export async function TranslationSelectionView({ searchParams }: { searchParams: Promise<{ next?: string | string[] }> }): Promise<React.ReactNode> {
   const session = await requireServerSession();
-  if (await authRepository.hasSelectedTranslation(session.user.id)) redirect("/game");
+  const next = (await searchParams).next;
+  const nextPath = getSafePostLoginPath(typeof next === "string" ? next : undefined);
+  if (await authRepository.hasSelectedTranslation(session.user.id)) redirect(nextPath);
 
   return (
     <main className="flex min-h-svh items-center justify-center bg-linear-to-b from-primary/10 via-background to-amber-100/50 px-4 py-10 dark:to-amber-950/20">
@@ -28,7 +31,7 @@ export async function TranslationSelectionView(): Promise<React.ReactNode> {
             This will be your default throughout the journey. You can change it later in Settings.
           </p>
         </CardHeader>
-        <CardContent><TranslationSelectionForm /></CardContent>
+        <CardContent><TranslationSelectionForm nextPath={nextPath} /></CardContent>
       </Card>
     </main>
   );

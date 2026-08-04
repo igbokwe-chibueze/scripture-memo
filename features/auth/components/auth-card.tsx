@@ -7,7 +7,7 @@ export type AuthCardProps = {
   description: string;
   alternatePrompt: string;
   alternateLabel: string;
-  alternateHref: "/login" | "/register" | "/forgot-password";
+  alternateHref: string;
   children: React.ReactNode;
 };
 

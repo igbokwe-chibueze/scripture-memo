@@ -35,6 +35,11 @@ export type FellowshipEditData = Pick<
   "id" | "slug" | "name" | "description" | "isPublic" | "insigniaKey"
 >;
 
+export type FellowshipInvitePreview = Pick<
+  FellowshipSummary,
+  "slug" | "name" | "description" | "memberCount" | "insigniaKey"
+> & { isMember: boolean };
+
 export type FellowshipMutationData = {
   slug: string;
   badgeUnlocks: import("@/features/badges/types/badge.types").BadgeUnlockResult[];

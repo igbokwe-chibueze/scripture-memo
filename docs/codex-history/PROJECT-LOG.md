@@ -1,5 +1,57 @@
 # Scripture Memo Project Log
 
+### 2026-08-04 — Dedicated UI/UX implementation guide established
+
+- Added `docs/UI-UX-GUIDE.md` as the practical design reference beneath the
+  authoritative root instructions, consolidating theme integrity, palette,
+  surfaces, buttons, navigation, drawers, motion, Luna, responsive behavior,
+  accessibility, and required interaction states.
+- Added a lightweight manual light/dark/mobile/desktop acceptance checklist and
+  explicitly deferred automated screenshot regression testing until primary
+  functionality stabilizes.
+- Linked the guide from `AGENTS.md` and the product UI/UX requirements so future
+  player-interface work must consult one current reference rather than infer
+  decisions from project history.
+
+### 2026-08-04 — Invitation theme scope corrected
+
+- Corrected the real cause of inconsistent invitation buttons: the page painted
+  a dark surface while resolving light-theme button tokens and inherited text.
+- Scoped both valid and expired invitation surfaces to the dark token set, so
+  their normal Button and NavigationButton variants now match other dark pages
+  without any button-specific styling override.
+
+### 2026-08-04 — Invitation button overrides removed
+
+- Removed invitation-page color, border, typography, height, and interaction
+  overrides. Its actions now select only the shared default/outline variants and
+  large size, matching normal buttons without local restyling.
+
+### 2026-08-04 — Navigation and action buttons unified visually
+
+- Made NavigationButton use the identical variant and Tailwind merge path as the
+  normal Button while retaining Link semantics and route-pending feedback.
+- Removed the invitation-only depth workaround. Button, LoadingButton, and
+  NavigationButton now share one source for color, bevel, and interaction motion.
+
+### 2026-08-04 — Invitation actions matched established button depth locally
+
+- Applied the approved UI Foundation lower-bevel and pressed-depth treatment to
+  the invitation page's Open, Join, Login, and Create Account controls only.
+- Left existing shared button styling unchanged and recorded the scope rule that
+  new screens must reuse approved visuals without redesigning older surfaces.
+
+### 2026-08-04 — Fellowship invitations survive authentication and onboarding
+
+- Replaced directory-prefill share URLs with a dedicated public
+  `/join/[inviteCode]` experience that previews minimal Fellowship identity and
+  requires an explicit Join action.
+- Preserved validated internal return paths through Better Auth login, account
+  registration, and first-time translation selection. Existing and new players
+  now return to the same invitation after authentication/onboarding.
+- Added a recoverable expired-invitation screen for malformed, unknown, and
+  rotated codes, plus tests protecting the return flow from open redirects.
+
 ### 2026-08-04 — Fellowship invitation interaction refined
 
 - Added a true bottom-drawer entrance and exit on mobile while retaining the

@@ -44,5 +44,13 @@ const fr = {
 // namespace spread continues to provide safe fallback coverage for new keys.
 fr.Fellowships.inviteSettingsTitle = "Accès par invitation";
 fr.Fellowships.inviteSettingsDescription = "Remplacez le code si une ancienne invitation ne doit plus fonctionner.";
+fr.Fellowships.invitedEyebrow = "Vous êtes invité";
+fr.Fellowships.acceptInvite = "Rejoindre la communauté";
+fr.Fellowships.joining = "Connexion";
+fr.Fellowships.loginToJoin = "Se connecter pour rejoindre";
+fr.Fellowships.createToJoin = "Créer un compte";
+fr.Fellowships.inviteExpiredTitle = "Cette invitation s’est éteinte";
+fr.Fellowships.inviteExpiredDescription = "Le lien est peut-être ancien, remplacé ou incomplet.";
+fr.Fellowships.findFellowships = "Trouver des communautés";
 
 export default fr;

@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import type { CreateFellowshipInput, UpdateFellowshipInput } from "@/features/fellowships/schemas/fellowship.schema";
-import type { FellowshipConflictCode, FellowshipDetailData, FellowshipDirectoryData, FellowshipEditData } from "@/features/fellowships/types/fellowship.types";
+import type { FellowshipConflictCode, FellowshipDetailData, FellowshipDirectoryData, FellowshipEditData, FellowshipInvitePreview } from "@/features/fellowships/types/fellowship.types";
 
 const transactionOptions = { maxWait: 10_000, timeout: 30_000 } as const;
 
@@ -19,6 +19,30 @@ function slugify(value: string): string {
 
 /** Owns all Fellowship reads and locked membership mutations. */
 export const fellowshipRepository = {
+  /** Resolves only the minimal, non-sensitive identity needed by a public invitation landing page. */
+  async getInvitePreview(inviteCode: string, userId?: string): Promise<FellowshipInvitePreview | null> {
+    const fellowship = await prisma.fellowship.findUnique({
+      where: { inviteCode },
+      select: {
+        slug: true,
+        name: true,
+        description: true,
+        insigniaKey: true,
+        _count: { select: { members: true } },
+        ...(userId ? { members: { where: { userId }, select: { id: true }, take: 1 } } : {}),
+      },
+    });
+    if (!fellowship) return null;
+    return {
+      slug: fellowship.slug,
+      name: fellowship.name,
+      description: fellowship.description,
+      insigniaKey: fellowship.insigniaKey,
+      memberCount: fellowship._count.members,
+      isMember: "members" in fellowship && fellowship.members.length > 0,
+    };
+  },
+
   async getDirectory(userId: string, search = ""): Promise<FellowshipDirectoryData> {
     const normalizedSearch = search.trim().slice(0, 50);
     const [memberships, publicFellowships] = await Promise.all([

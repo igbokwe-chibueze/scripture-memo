@@ -17,7 +17,7 @@ export function FellowshipInvitePanel({ fellowshipName, initialInviteCode }: Fel
   const t = useTranslations("Fellowships");
   const inviteCode = initialInviteCode;
 
-  const invitationUrl = (): string => `${window.location.origin}/fellowships?invite=${encodeURIComponent(inviteCode)}`;
+  const invitationUrl = (): string => `${window.location.origin}/join/${encodeURIComponent(inviteCode)}`;
   const copy = async (value: string, message: string): Promise<void> => {
     try {
       await navigator.clipboard.writeText(value);

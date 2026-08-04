@@ -36,8 +36,12 @@ export function NavigationButton({
   return (
     <Link
       {...props}
+      data-slot="button"
       aria-busy={isPending}
-      className={cn(buttonVariants({ variant, size }), className)}
+      // WHY: Navigation differs from Button only semantically. Passing all
+      // visual inputs through the exact Button merge path guarantees identical
+      // color, bevel, hover, press, focus, and reduced-motion behavior.
+      className={cn(buttonVariants({ variant, size, className }))}
       onClick={(event) => {
         onClick?.(event);
         if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
