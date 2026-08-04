@@ -448,6 +448,7 @@ model Fellowship {
   slug        String             @unique
   description String?
   isPublic    Boolean            @default(true)
+  insigniaKey String             @default("word-star")
   inviteCode  String             @unique
   createdById String
   createdAt   DateTime           @default(now())

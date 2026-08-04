@@ -57,10 +57,11 @@ The server and database are the only sources of truth for all security-sensitive
 | 2.4 | Passwords are hashed by the auth provider — never stored in plaintext | 🔴 Critical | ☐ Pending | Must use bcrypt or equivalent with minimum cost factor 12 |
 | 2.5 | Login errors use generic messages — do not reveal whether an email exists | 🟡 Medium | ☐ Pending | Account enumeration prevention |
 | 2.6 | Logout correctly destroys the server-side session | 🟠 High | ☐ Pending | Session must be invalidated on the server, not just cleared client-side |
-| 2.7 | Password reset tokens expire within a reasonable time window | 🟠 High | ☐ Pending | If implemented; recommend 1-hour expiry |
+| 2.7 | Password reset tokens expire within a reasonable time window | 🟠 High | ✅ Implemented | Better Auth reset tokens expire after 1 hour |
 | 2.8 | Email verification is enforced for email/password registrations | 🟡 Medium | ☐ Pending | If implemented by the auth provider |
-| 2.9 | After a password change, all existing sessions for that user are invalidated | 🟠 High | ☐ Pending | Prevents session fixation after credential compromise |
+| 2.9 | After a password change, all existing sessions for that user are invalidated | 🟠 High | ✅ Implemented | Better Auth revokes sessions after successful reset |
 | 2.10 | OAuth tokens are never stored in plaintext in the database | 🔴 Critical | ☐ Pending | Delegate token storage entirely to the auth provider |
+| 2.11 | Development reset-link delivery cannot run in production | 🔴 Critical | ✅ Implemented | `LIGHT_DEV` throws under `NODE_ENV=production`; production requires the dedicated delivery adapter |
 
 ---
 
@@ -80,6 +81,7 @@ The server and database are the only sources of truth for all security-sensitive
 | 3.10 | Regular admins cannot call `overrideCooldownAction` for other admins | 🟠 High | ☐ Pending | Cooldown override must be role-gated and audit-logged |
 | 3.11 | Users cannot update another user's profile, settings, or progress | 🟠 High | ☐ Pending | Always derive userId from `session.user.id` — never trust client-provided userId |
 | 3.12 | Fellowship admin actions check that the requestor is the fellowship LEADER | 🟠 High | ☐ Pending | Kicking members, editing details, dissolving group |
+| 3.13 | Fellowship identity updates are leader-only and insignias use a fixed server-validated catalogue | 🟠 High | ✅ Implemented | Repository ownership filter and Zod enum reject non-leaders, uploads, and external image paths |
 
 ---
 
@@ -93,7 +95,7 @@ The server and database are the only sources of truth for all security-sensitive
 | 4.4 | Journey Stage values are enum-validated (LEARN/RECALL/STRENGTHEN/MASTER) | 🟠 High | ☐ Pending | Invalid stage values would break gameplay rules |
 | 4.5 | Game mode values are enum-validated using the GameMode enum | 🟠 High | ☐ Pending | `CUE` is a valid value; `HINT` is not |
 | 4.6 | Waypoint numbers are range-validated (1–220 for current curriculum) | 🟠 High | ☐ Pending | Prevent out-of-range waypoint manipulation |
-| 4.7 | Fellowship names and descriptions are length-limited | 🟡 Medium | ☐ Pending | Prevent storage abuse and UI breakage |
+| 4.7 | Fellowship names and descriptions are length-limited | 🟡 Medium | ☑ Implemented | Zod constrains names to 3–50 safe characters and descriptions to 280 characters |
 | 4.8 | User display names are length-limited and sanitized | 🟡 Medium | ☐ Pending | Prevent UI abuse and XSS |
 | 4.9 | Private notes (Sanctuary) are length-limited | 🟡 Medium | ☐ Pending | Prevent storage abuse |
 | 4.10 | Shop item IDs in purchase requests are validated server-side | 🟠 High | ☐ Pending | Prevent purchasing non-existent or inactive items |
@@ -176,7 +178,7 @@ The server and database are the only sources of truth for all security-sensitive
 | # | Check | Risk | Status | Notes |
 |---|---|---|---|---|
 | 9.1 | Leaderboard queries never return user email addresses | 🔴 Critical | ☐ Pending | Only display name, country, and stats |
-| 9.2 | Fellowship member lists never expose user emails | 🔴 Critical | ☐ Pending | Display name only |
+| 9.2 | Fellowship member lists never expose user emails | 🔴 Critical | ☑ Implemented | Fellowship DTOs return display name, country, and game statistics only; no email or raw user ID |
 | 9.3 | Public profile data is limited to display name, country, and game stats | 🟠 High | ☐ Pending | No email, no internal IDs in public responses |
 | 9.4 | Private Sanctuary notes are visible only to the note's owner | 🔴 Critical | ☐ Pending | Ownership check: `note.userId === session.user.id` |
 | 9.5 | Admin user management list is accessible only to SUPER_ADMIN | 🔴 Critical | ☐ Pending | Regular admins cannot see the full user list with emails |
@@ -191,8 +193,8 @@ The server and database are the only sources of truth for all security-sensitive
 
 | # | Check | Risk | Status | Notes |
 |---|---|---|---|---|
-| 10.1 | Fellowship names are sanitized and escaped before rendering in the UI | 🟡 Medium | ☐ Pending | Prevent XSS |
-| 10.2 | Fellowship descriptions are sanitized and escaped before rendering | 🟡 Medium | ☐ Pending | Prevent XSS |
+| 10.1 | Fellowship names are sanitized and escaped before rendering in the UI | 🟡 Medium | ☑ Implemented | Zod allow-list validation plus React text rendering prevents markup execution |
+| 10.2 | Fellowship descriptions are sanitized and escaped before rendering | 🟡 Medium | ☑ Implemented | Length-limited plain text is rendered only through escaped React text nodes |
 | 10.3 | User display names are sanitized and escaped before rendering | 🟡 Medium | ☐ Pending | Prevent XSS |
 | 10.4 | Sanctuary private notes are sanitized and escaped before rendering | 🟡 Medium | ☐ Pending | Prevent XSS |
 | 10.5 | Markdown or HTML rendering is never applied to user-generated content unless sanitized | 🟠 High | ☐ Pending | If markdown rendering is added, use a sanitization library like DOMPurify |
@@ -210,7 +212,7 @@ The server and database are the only sources of truth for all security-sensitive
 | 11.3 | Password reset requests are rate-limited per email | 🟠 High | ☐ Pending | Prevent email flooding |
 | 11.4 | Game completion submissions are protected against rapid repeated calls | 🟡 Medium | ☐ Pending | Unique constraint handles duplicates, but rate limiting adds defense in depth |
 | 11.5 | Hint usage action is rate-limited or guarded against rapid fire requests | 🟢 Low | ☐ Pending | Unique constraint prevents duplicate deduction |
-| 11.6 | Fellowship creation is rate-limited per user | 🟡 Medium | ☐ Pending | Prevent fellowship spam |
+| 11.6 | Fellowship creation is rate-limited per user | 🟡 Medium | ☑ Implemented | Per-user advisory locking and a maximum of three creations per rolling 24 hours prevent rapid spam |
 | 11.7 | Admin bulk actions are confirmation-gated in the UI | 🟡 Medium | ☐ Pending | Prevent accidental destructive actions |
 
 ---

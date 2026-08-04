@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
-import { FlameIcon, HomeIcon, MapIcon, SettingsIcon, ShoppingCartIcon, VaultIcon } from "lucide-react";
+import { FlameIcon, HomeIcon, MapIcon, SettingsIcon, ShoppingCartIcon, UsersRoundIcon, VaultIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navigationItems = [
   { href: "/game", labelKey: "home", icon: HomeIcon, exact: true },
   { href: "/game/map", labelKey: "map", icon: MapIcon, exact: false },
   { href: "/vault", labelKey: "vault", icon: VaultIcon, exact: false },
+  { href: "/fellowships", labelKey: "fellowships", icon: UsersRoundIcon, exact: false },
   { href: "/oil-shop", labelKey: "shop", icon: ShoppingCartIcon, exact: false },
   { href: "/settings", labelKey: "settings", icon: SettingsIcon, exact: false },
 ] as const;
@@ -47,7 +48,7 @@ export function MobileGameNavigation({
                   (href === "/game/map" && pathname.startsWith("/game/waypoints/")) ||
                   (href === "/vault" && pathname.startsWith("/sanctuary/"));
               return (
-                <li key={href} className={label === "Settings" ? "mt-auto" : undefined}>
+                <li key={href} className={href === "/settings" ? "mt-auto" : undefined}>
                   <Link href={href} aria-current={active ? "page" : undefined} className={cn(
                     "flex min-h-16 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[0.68rem] font-black text-slate-400 transition-all hover:bg-white/5 hover:text-white active:translate-y-0.5 active:scale-95",
                     active && "border border-amber-300/45 bg-linear-to-b from-amber-500/25 to-orange-800/20 text-amber-300 shadow-[0_0_22px_rgb(245_158_11/0.18),0_4px_0_rgb(76_37_8/0.7)]",
@@ -66,7 +67,7 @@ export function MobileGameNavigation({
         aria-label={t("playerNavigation")}
         className="fixed inset-x-0 bottom-0 z-40 border-t border-violet-300/20 bg-[#090817]/98 px-1.5 pb-[max(0.45rem,env(safe-area-inset-bottom))] pt-2 text-white shadow-[0_-10px_30px_rgb(5_4_15/0.4)] backdrop-blur-xl md:hidden"
       >
-        <ul className="mx-auto grid max-w-lg grid-cols-5 gap-1">
+        <ul className="mx-auto grid max-w-lg grid-cols-6 gap-1">
           {navigationItems.map(({ href, labelKey, icon: Icon, exact }) => {
             const label = t(labelKey);
             const active = exact

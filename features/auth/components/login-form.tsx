@@ -3,6 +3,8 @@
 import { useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -21,6 +23,7 @@ export type LoginFormProps = { nextPath?: string };
 
 /** Collects credentials and surfaces validated Server Action results. */
 export function LoginForm({ nextPath }: LoginFormProps): React.ReactNode {
+  const t = useTranslations("Auth");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const form = useForm<LoginInput>({
@@ -55,7 +58,7 @@ export function LoginForm({ nextPath }: LoginFormProps): React.ReactNode {
     <form onSubmit={form.handleSubmit(submit)} noValidate>
       <FieldGroup>
         <Field data-invalid={Boolean(form.formState.errors.email)}>
-          <FieldLabel htmlFor="login-email">Email</FieldLabel>
+          <FieldLabel htmlFor="login-email">{t("email")}</FieldLabel>
           <Input
             id="login-email"
             type="email"
@@ -80,7 +83,15 @@ export function LoginForm({ nextPath }: LoginFormProps): React.ReactNode {
           <FieldError>{form.formState.errors.email?.message}</FieldError>
         </Field>
         <Field data-invalid={Boolean(form.formState.errors.password)}>
-          <FieldLabel htmlFor="login-password">Password</FieldLabel>
+          <div className="flex items-center justify-between gap-3">
+            <FieldLabel htmlFor="login-password">{t("password")}</FieldLabel>
+            <Link
+              href="/forgot-password"
+              className="rounded-md px-1 py-2 text-sm font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              {t("forgotPassword")}
+            </Link>
+          </div>
           <PasswordInput
             id="login-password"
             autoComplete="current-password"
@@ -95,9 +106,9 @@ export function LoginForm({ nextPath }: LoginFormProps): React.ReactNode {
           size="lg"
           className="w-full"
           isPending={isPending}
-          pendingLabel="Opening your journey"
+          pendingLabel={t("loggingIn")}
         >
-          Log in
+          {t("login")}
         </LoadingButton>
       </FieldGroup>
     </form>

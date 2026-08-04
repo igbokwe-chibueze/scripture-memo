@@ -78,4 +78,7 @@ export type BadgeEvent =
     }
   | {
       type: "VAULT_REPLAY_COMPLETED";
+    }
+  | {
+      type: "FELLOWSHIP_JOINED" | "FELLOWSHIP_CREATED";
     };

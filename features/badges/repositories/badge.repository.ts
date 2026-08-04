@@ -143,6 +143,12 @@ async function getEventMetricValues(
       }),
     };
   }
+  if (event.type === "FELLOWSHIP_JOINED") {
+    return { FELLOWSHIP_JOIN: await transaction.fellowshipMember.count({ where: { userId } }) };
+  }
+  if (event.type === "FELLOWSHIP_CREATED") {
+    return { FELLOWSHIP_CREATE: await transaction.fellowship.count({ where: { createdById: userId } }) };
+  }
   return getDayMetricValues(transaction, userId);
 }
 

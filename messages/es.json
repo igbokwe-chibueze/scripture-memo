@@ -18,6 +18,7 @@
     "vault": "Bóveda",
     "shop": "Tienda",
     "settings": "Ajustes",
+    "fellowships": "Comunidades",
     "playerNavigation": "Navegación del jugador",
     "desktopPlayerNavigation": "Navegación de escritorio del jugador",
     "scriptureMemoHome": "Inicio de Scripture Memo"
@@ -439,7 +440,31 @@
     "chooseTranslation": "Elige tu traducción bíblica",
     "translationDescription": "Será tu opción predeterminada durante el viaje. Puedes cambiarla más tarde en Ajustes.",
     "saveTranslation": "Guardar traducción",
-    "savingTranslation": "Guardando traducción"
+    "savingTranslation": "Guardando traducción",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "forgotPasswordTitle": "Encuentra el camino de vuelta",
+    "forgotPasswordDescription": "Introduce el correo de tu cuenta para preparar un enlace seguro.",
+    "rememberPassword": "¿Recuerdas tu contraseña?",
+    "backToLogin": "Volver al inicio de sesión",
+    "prepareReset": "Preparar enlace",
+    "preparingReset": "Preparando enlace",
+    "downloadResetAgain": "Descargar de nuevo",
+    "resetPasswordTitle": "Elige una nueva contraseña",
+    "resetPasswordDescription": "Crea una contraseña segura para tu viaje.",
+    "newPassword": "Nueva contraseña",
+    "confirmPassword": "Confirmar contraseña",
+    "resetPassword": "Restablecer contraseña",
+    "resettingPassword": "Restableciendo",
+    "resetLinkInvalidTitle": "Este enlace se ha apagado",
+    "resetLinkInvalidDescription": "El enlace no es válido, está incompleto o ha caducado.",
+    "requestNewReset": "Preparar otro enlace"
+  },
+  "Fellowships": {
+    "eyebrow": "Caminen juntos", "title": "Comunidades", "description": "Encuentra una pequeña comunidad, anímense y crezcan juntos en el sendero.",
+    "yourFellowships": "Tus comunidades", "discover": "Descubrir comunidades", "create": "Crear comunidad", "createTitle": "Crea una comunidad", "createDescription": "Crea un lugar acogedor para recorrer juntos el camino.", "creating": "Creando", "name": "Nombre de la comunidad", "descriptionLabel": "Descripción", "publicFellowship": "Comunidad pública", "publicDescription": "Cualquiera puede encontrarla y unirse. Las privadas requieren un código.", "public": "Comunidad pública", "private": "Comunidad privada", "members": "{count, plural, =1 {1 miembro} other {# miembros}}", "member": "Miembro", "leader": "Líder de la comunidad", "globalMember": "Miembro global", "progress": "Progreso", "leaderboard": "Clasificación de la comunidad", "viewFellowship": "Ver", "open": "Abrir", "join": "Unirse", "joined": "¡Te uniste a la comunidad!", "left": "Saliste de la comunidad.", "leave": "Salir", "created": "¡Comunidad creada!", "noDescription": "Aún no hay descripción.", "noneYet": "Tu círculo te espera", "nonePrompt": "Únete a una comunidad pública, usa un código o crea la tuya.", "noPublic": "Ninguna comunidad pública coincide.", "search": "Buscar comunidades públicas", "haveInvite": "¿Tienes una invitación?", "invitePrompt": "Introduce el código privado compartido por un miembro.", "invite": "Invitar", "inviteTitle": "Invitar jugadores", "invitePanelDescription": "Invita a alguien a tu comunidad.", "inviteCode": "Código de invitación", "joinWithCode": "Unirse con código", "inviteCopied": "Código copiado.", "inviteLinkCopied": "Enlace copiado.", "inviteCopyFailed": "No se pudo copiar la invitación.", "copy": "Copiar", "copyCode": "Código", "copyLink": "Enlace", "shareInvite": "Compartir", "inviteShareTitle": "Únete a {name}", "inviteShareText": "Únete a mi comunidad de Scripture Memo con el código {code}.", "inviteSharedFallback": "Invitación copiada.", "inviteShareFailed": "No se pudo compartir la invitación.", "regenerateInvite": "Crear un código nuevo", "regenerateWarning": "La invitación actual dejará de funcionar.", "regenerating": "Creando", "confirm": "Confirmar", "cancel": "Cancelar", "inviteRegenerated": "El nuevo código está listo.", "back": "Volver a comunidades",
+    "inviteSettingsTitle": "Acceso por invitación", "inviteSettingsDescription": "Cambia el código si una invitación anterior ya no debe funcionar.", "manage": "Gestionar", "opening": "Abriendo", "openingSettings": "Abriendo ajustes", "editTitle": "Define tu comunidad", "editDescription": "Actualiza su identidad y cómo la encuentran otros jugadores.", "backToFellowship": "Volver a la comunidad", "chooseInsignia": "Elige una insignia", "insigniaDescription": "Elige un símbolo para tu comunidad.", "saveChanges": "Guardar cambios", "saving": "Guardando", "updated": "Comunidad actualizada.",
+    "insignias": { "wordStar": "Palabra y estrella", "goodShepherd": "Buen Pastor", "prayer": "Oración", "fishers": "Pescadores", "beacon": "Faro de fuego", "ark": "Arca de la promesa", "covenant": "Tablas del pacto", "crownedWord": "Palabra coronada", "lighthouse": "Faro", "livingWater": "Agua viva", "calvary": "Calvario", "shield": "Escudo de fe" },
+    "errors": { "NAME_TAKEN": "Ese nombre no está disponible.", "NOT_FOUND": "No se encontró esa comunidad.", "ALREADY_MEMBER": "Ya perteneces a esa comunidad.", "NOT_MEMBER": "No eres miembro de esa comunidad.", "LEADER_CANNOT_LEAVE": "El líder no puede salir. La transferencia de liderazgo llegará más adelante.", "CREATION_LIMIT": "Alcanzaste el límite diario de creación.", "NOT_LEADER": "Solo el líder puede cambiar estos ajustes.", "UNKNOWN": "No se pudo completar la acción." }
   },
   "Errors": {
     "snag": "Vaya, encontramos un problema",

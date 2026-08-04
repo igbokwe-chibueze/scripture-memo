@@ -543,6 +543,10 @@ Every interactive feature must handle all of these states:
 
 Never leave a blank, frozen, or unresponsive UI during any async operation.
 
+Button-styled route changes must use the shared `<NavigationButton>` rather than
+combining `Link` with `buttonVariants` directly. Its required `pendingLabel`
+provides immediate tap feedback before the destination loading boundary renders.
+
 ### 9.2 Sonner Toast Usage — Mandatory for All Feedback
 
 Sonner is the only toast system. Never use `alert()`. Never fail silently.

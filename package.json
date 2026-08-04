@@ -23,6 +23,7 @@
     "test:day-selection": "tsx --test features/waypoints/lib/day-selection.test.ts",
     "test:map": "tsx --test features/map/data/map-themes.test.ts features/map/lib/map-positioner.test.ts features/map/lib/map-utils.test.ts features/map/lib/map-variant.test.ts",
     "test:i18n": "tsx --test i18n/config.test.ts",
+    "test:fellowships": "tsx --test features/fellowships/schemas/fellowship.schema.test.ts",
     "test:integration": "tsx --conditions=react-server --test features/waypoints/repositories/waypoint.repository.test.ts",
     "test:progression:integration": "tsx --conditions=react-server --test features/progression/repositories/progression.repository.test.ts"
   },

@@ -1,5 +1,98 @@
 # Scripture Memo Project Log
 
+### 2026-08-04 — Fellowship invitation interaction refined
+
+- Added a true bottom-drawer entrance and exit on mobile while retaining the
+  centered modal presentation on larger screens.
+- Moved invite-code rotation out of the sharing panel and into leader settings.
+- Promoted opaque, tactile 44-pixel close controls into the shared Dialog and
+  Sheet primitives, and changed Fellowship back navigation from ghost links to
+  visible shared navigation buttons.
+
+### 2026-08-04 — Fellowship invitations moved into a responsive panel
+
+- Replaced the permanently visible invite code on the Fellowship page with one
+  leader-only Invite button. It opens as a bottom drawer on mobile and a centered
+  modal on larger screens.
+- Added native sharing, copy-link, and copy-code actions. Shared links prefill
+  the directory invite field so recipients do not need to transcribe the code.
+- Added secure leader-only invite rotation under a repository-owned advisory
+  lock; rotating immediately invalidates the previous secret.
+
+### 2026-08-04 — Fellowship insignia artwork correction deferred
+
+- Project-owner review confirmed that atlas-derived insignias remain visually
+  off-center despite cell isolation and painted-bound trimming.
+- Recorded a Post-Roadmap Extra to replace the atlas with twelve independently
+  authored square insignia assets after the main game is complete. Existing
+  insignia keys will remain stable so Fellowship data needs no migration.
+- The current assets remain temporary; the earlier centering claim below did
+  not meet visual acceptance and must not be treated as final artwork approval.
+
+### 2026-08-04 — Insignia cropping and navigation feedback corrected
+
+- Replaced fractional CSS atlas sampling with twelve physically cropped WebP
+  assets, eliminating off-center insignias and neighboring-cell bleed.
+- Follow-up visual validation now trims each medallion to its actual painted
+  bounds and reapplies identical square padding, so generated artwork that was
+  uneven inside its atlas cell is genuinely centered in every background.
+- Added a documented deterministic atlas-slicing script so future source art can
+  regenerate the same safe catalogue without manual crop drift.
+- Added the shared `NavigationButton`, whose required pending label gives
+  immediate loading feedback for button-styled links. Applied it across
+  Fellowship Open, View, Create, Manage, and back navigation.
+- Promoted pending navigation feedback into the root implementation rules.
+
+### 2026-08-04 — Fellowship identity and leader settings added
+
+- Removed the duplicate View/Open destination from membership cards; members
+  now receive one clear Open action while public non-members retain View + Join.
+- Generated an original 12-insignia Scripture Memo atlas from the supplied
+  visual references and added a touch-friendly fixed-catalogue picker to create
+  and edit flows. Arbitrary image paths and uploads are rejected by Zod.
+- Added a leader-only settings route for name, description, public/private
+  discovery, and insignia changes while preserving the stable fellowship slug.
+- Added and applied migration `20260804094500_add_fellowship_insignia`, owner-
+  scoped repository locking, localized English/Spanish/French UI, and tests.
+
+### 2026-08-04 — Fellowship invitations gained native sharing
+
+- Added a touch-friendly Share action beside Copy on member-visible fellowship
+  invite codes. Supported devices open their native share sheet with the
+  fellowship name, private code, and fellowship entry route.
+- Browsers without native sharing copy the complete invitation instead, while
+  cancellation remains silent and operational failures use persistent Sonner.
+- Added matching English, Spanish, and French interface messages.
+
+### 2026-08-03 — Better Auth password recovery implemented
+
+- Added localized forgot-password and reset-password routes, forms, Zod
+  validation, Sonner feedback, and a recovery link from the login form.
+- Better Auth remains responsible for reset-token creation and validation,
+  one-hour expiry, password hashing, and revocation of existing sessions.
+- Added the named `LIGHT_DEV` and `PROD` delivery boundary. Light Dev downloads
+  a request-scoped text file containing the reset URL, persists no token, and is
+  forbidden when `NODE_ENV=production`; the production email adapter remains a
+  focused seam for a future provider.
+- Added application and Better Auth rate limits for reset requests and attempts,
+  generic account-enumeration-safe responses, and noindex recovery metadata.
+- TypeScript and focused ESLint validation passed. Manual browser acceptance of
+  download, callback, password replacement, and session revocation remains.
+
+### 2026-08-03 — Phase 26 Fellowships implemented
+
+- Added protected, localized Fellowship directory, creation, public joining,
+  private invite-code joining, member detail, invite sharing, leaving, and a
+  member-only progress ranking without emails or raw user IDs.
+- Added locked repository transactions for create/join/leave, safe name and
+  description validation, a three-per-day creation limit, unique invite codes,
+  and a creator-leader leave guard.
+- Added server-derived Fellowship badge metrics and activated Community Member
+  and Faith Builder through migration `20260803143000_activate_fellowship_badges`.
+- Added persistent player navigation, route loading UI, English/Spanish/French
+  messages, schema tests, badge tests, and locale-contract coverage.
+- Phase 26 implementation is ready for project-owner manual acceptance.
+
 ### 2026-08-03 — Settings save action given a visual icon
 
 - Added a save icon to the localized Settings submit button while preserving its

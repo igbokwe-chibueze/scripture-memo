@@ -18,6 +18,7 @@
     "vault": "Vault",
     "shop": "Shop",
     "settings": "Settings",
+    "fellowships": "Fellowships",
     "playerNavigation": "Player navigation",
     "desktopPlayerNavigation": "Desktop player navigation",
     "scriptureMemoHome": "Scripture Memo home"
@@ -439,7 +440,31 @@
     "chooseTranslation": "Choose your Bible translation",
     "translationDescription": "This will be your default throughout the journey. You can change it later in Settings.",
     "saveTranslation": "Save translation",
-    "savingTranslation": "Saving translation"
+    "savingTranslation": "Saving translation",
+    "forgotPassword": "Forgot password?",
+    "forgotPasswordTitle": "Find your way back",
+    "forgotPasswordDescription": "Enter your account email to prepare a secure reset link.",
+    "rememberPassword": "Remember your password?",
+    "backToLogin": "Back to login",
+    "prepareReset": "Prepare reset link",
+    "preparingReset": "Preparing link",
+    "downloadResetAgain": "Download reset file again",
+    "resetPasswordTitle": "Choose a new password",
+    "resetPasswordDescription": "Create a strong password for your journey.",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "resetPassword": "Reset password",
+    "resettingPassword": "Resetting password",
+    "resetLinkInvalidTitle": "This link has faded",
+    "resetLinkInvalidDescription": "The reset link is invalid, incomplete, or expired.",
+    "requestNewReset": "Prepare a new link"
+  },
+  "Fellowships": {
+    "eyebrow": "Journey together", "title": "Fellowships", "description": "Find a small community, encourage one another, and grow along the trail.",
+    "yourFellowships": "Your fellowships", "discover": "Discover fellowships", "create": "Create fellowship", "createTitle": "Build a fellowship", "createDescription": "Create a welcoming place for learners to journey together.", "creating": "Creating", "name": "Fellowship name", "descriptionLabel": "Description", "publicFellowship": "Public fellowship", "publicDescription": "Anyone can discover and join it. Private fellowships require an invite code.", "public": "Public fellowship", "private": "Private fellowship", "members": "{count, plural, =1 {1 member} other {# members}}", "member": "Member", "leader": "Fellowship leader", "globalMember": "Global member", "progress": "Progress", "leaderboard": "Fellowship leaderboard", "viewFellowship": "View", "open": "Open", "join": "Join", "joined": "Fellowship joined!", "left": "You left the fellowship.", "leave": "Leave", "created": "Fellowship created!", "noDescription": "No description yet.", "noneYet": "Your circle is waiting", "nonePrompt": "Join a public fellowship, use an invite code, or create your own.", "noPublic": "No public fellowships match this search.", "search": "Search public fellowships", "haveInvite": "Have an invite?", "invitePrompt": "Enter the private code shared by a fellowship member.", "invite": "Invite", "inviteTitle": "Invite players", "invitePanelDescription": "Bring someone into your fellowship.", "inviteCode": "Invite code", "joinWithCode": "Join with code", "inviteCopied": "Invite code copied.", "inviteLinkCopied": "Invite link copied.", "inviteCopyFailed": "Unable to copy this invitation.", "copy": "Copy", "copyCode": "Code", "copyLink": "Link", "shareInvite": "Share", "inviteShareTitle": "Join {name}", "inviteShareText": "Join my Scripture Memo fellowship with code {code}.", "inviteSharedFallback": "Invitation copied.", "inviteShareFailed": "Unable to share this invitation.", "regenerateInvite": "Create a new code", "regenerateWarning": "The current invite will stop working.", "regenerating": "Creating", "confirm": "Confirm", "cancel": "Cancel", "inviteRegenerated": "A new invite code is ready.", "back": "Back to fellowships",
+    "inviteSettingsTitle": "Invite access", "inviteSettingsDescription": "Replace the joining code if an old invitation should no longer work.", "manage": "Manage", "opening": "Opening", "openingSettings": "Opening settings", "editTitle": "Shape your fellowship", "editDescription": "Update its identity and how learners discover it.", "backToFellowship": "Back to fellowship", "chooseInsignia": "Choose an insignia", "insigniaDescription": "Pick one symbol for your fellowship.", "saveChanges": "Save changes", "saving": "Saving", "updated": "Fellowship updated.",
+    "insignias": { "wordStar": "Word and star", "goodShepherd": "Good Shepherd", "prayer": "Prayer", "fishers": "Fishers", "beacon": "Beacon", "ark": "Ark of promise", "covenant": "Covenant tablets", "crownedWord": "Crowned Word", "lighthouse": "Lighthouse", "livingWater": "Living water", "calvary": "Calvary", "shield": "Shield of faith" },
+    "errors": { "NAME_TAKEN": "That fellowship name is unavailable.", "NOT_FOUND": "That fellowship could not be found.", "ALREADY_MEMBER": "You already belong to that fellowship.", "NOT_MEMBER": "You are not a member of that fellowship.", "LEADER_CANNOT_LEAVE": "The fellowship leader cannot leave. Leadership transfer will arrive in a later phase.", "CREATION_LIMIT": "You have reached today’s fellowship creation limit.", "NOT_LEADER": "Only the fellowship leader can change these settings.", "UNKNOWN": "The fellowship action could not be completed." }
   },
   "Errors": {
     "snag": "Oops, we hit a snag",
