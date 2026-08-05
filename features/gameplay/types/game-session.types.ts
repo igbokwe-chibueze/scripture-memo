@@ -9,6 +9,7 @@ import type {
 import type { CompleteDayResult } from "@/features/progression/types/progression.types";
 import type { DayRewardResult } from "@/features/rewards/types/reward.types";
 import type { BadgeUnlockResult } from "@/features/badges/types/badge.types";
+import type { BeaconProgressionResult } from "@/features/beacon/types/beacon.types";
 
 export type StreakCompletionResult = {
   status: "unchanged" | "started" | "increased" | "reset";
@@ -59,6 +60,12 @@ export type GameplaySessionData = {
   currentMode: GameMode | null;
   audioEnabled: boolean;
   hintBalance: number;
+  beaconProgress: {
+    lifetimeXp: number;
+    level: number;
+    currentLevelStartXp: number;
+    nextLevelXp: number;
+  };
 };
 
 /** One server-created attempt and its optional authoritative deadline. */
@@ -84,6 +91,7 @@ export type CompleteModeResult =
       dayCompletion: null;
       streak: StreakCompletionResult | null;
       badgeUnlocks: BadgeUnlockResult[];
+      beaconProgression: BeaconProgressionResult | null;
     }
   | {
       status: "vault-complete";
@@ -100,4 +108,5 @@ export type CompleteModeResult =
       dayCompletion: CompleteDayResult & { reward: DayRewardResult };
       streak: StreakCompletionResult;
       badgeUnlocks: BadgeUnlockResult[];
+      beaconProgression: BeaconProgressionResult;
     };

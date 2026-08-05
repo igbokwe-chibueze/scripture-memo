@@ -139,6 +139,16 @@ The server and database are the only sources of truth for all security-sensitive
 
 ---
 
+### Beacon progression security addendum
+
+- Glow Points are the only spendable currency. Beacon XP and Crowns are
+  non-spendable progression values and must never be accepted from the client.
+- Every Beacon XP award uses a server-owned amount, immutable idempotency key,
+  per-user transaction lock, and the same transaction as verified completion.
+- Weekly placement uses the server completion timestamp and the global Monday
+  00:00 UTC boundary; client clocks and displayed local time are informational.
+- Replays, Vault review, admin testing, and failed attempts never create XP.
+
 ## Section 7 — Badge System Security
 
 | # | Check | Risk | Status | Notes |

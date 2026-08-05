@@ -8,6 +8,7 @@ import { LoadingButton } from "@/components/shared/loading-button";
 import { Button } from "@/components/ui/button";
 import { BadgeUnlockSequence } from "@/features/badges/components/badge-unlock-screen";
 import type { BadgeUnlockResult } from "@/features/badges/types/badge.types";
+import type { BeaconProgressionResult } from "@/features/beacon/types/beacon.types";
 import { showActionError } from "@/lib/errors/show-action-error";
 import { completeGameModeAction } from "@/features/gameplay/actions/complete-game-mode.action";
 import { ConfettiCelebration } from "@/features/gameplay/components/confetti-celebration";
@@ -80,6 +81,8 @@ export function SwapMode({
   const [badgeUnlockIndex, setBadgeUnlockIndex] = useState(0);
   const [showStreakCompletion, setShowStreakCompletion] = useState(false);
   const [streak, setStreak] = useState<StreakCompletionResult | null>(null);
+  const [beaconProgression, setBeaconProgression] =
+    useState<BeaconProgressionResult | null>(null);
   const [isComplete, setIsComplete] = useState(false);
   const [isPending, startTransition] = useTransition();
 
@@ -166,6 +169,12 @@ export function SwapMode({
           ? result.data.streak
           : null,
       );
+      setBeaconProgression(
+        result.data?.status === "mode-complete" ||
+          result.data?.status === "day-complete"
+          ? result.data.beaconProgression
+          : null,
+      );
       const unlocks =
         result.data?.status === "mode-complete" ||
         result.data?.status === "day-complete" ||
@@ -221,6 +230,7 @@ export function SwapMode({
           nextMode={nextMode}
           isTestReplay={isTestReplay}
           isVaultReplay={isVaultReplay}
+          beaconProgression={beaconProgression}
           onContinue={() => {
             if (isTestReplay) onTestReplayExit?.();
             else if (streak && streak.status !== "unchanged") {

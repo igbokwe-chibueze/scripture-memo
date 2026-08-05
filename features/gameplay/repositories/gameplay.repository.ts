@@ -2,10 +2,10 @@ import "server-only";
 
 import {
   CompletionStatus,
+  DayLevel,
   GameModeAttemptStatus,
   Prisma,
   TranslationCode,
-  type DayLevel,
   type GameMode,
   type JourneyStage,
 } from "@/lib/generated/prisma/client";
@@ -21,6 +21,13 @@ import {
   prepareDayForGameplayInTransaction,
 } from "@/features/progression/repositories/progression.repository";
 import { awardDayCompletionRewardInTransaction } from "@/features/rewards/repositories/reward.repository";
+import { beaconRepository } from "@/features/beacon/repositories/beacon.repository";
+import {
+  BEACON_DAY_BONUS_XP,
+  BEACON_MODE_XP,
+  BEACON_WAYPOINT_BONUS_XP,
+  beaconLevelStartXp,
+} from "@/features/beacon/constants/beacon-progression";
 import { updateStreakInTransaction } from "@/features/progression/repositories/streak.repository";
 import { calculateHintBalance } from "@/features/hints/lib/hint-balance";
 import type {
@@ -156,7 +163,7 @@ export const gameplayRepository = {
     userId: string,
     sessionId: string,
   ): Promise<GameplaySessionData | null> {
-    const [session, settings, usedHintCount, purchasedHints] = await Promise.all([
+    const [session, settings, usedHintCount, purchasedHints, profile] = await Promise.all([
       prisma.gameSession.findFirst({
         where: { id: sessionId, userId },
         select: {
@@ -192,6 +199,10 @@ export const gameplayRepository = {
         where: { userId, shopItem: { itemType: "HINT_PACK" } },
         _sum: { entitlementQuantity: true },
       }),
+      prisma.userProfile.findUnique({
+        where: { userId },
+        select: { beaconXp: true, beaconLevel: true },
+      }),
     ]);
     if (!session) return null;
 
@@ -225,6 +236,12 @@ export const gameplayRepository = {
         usedHintCount,
         purchasedHints._sum.entitlementQuantity ?? 0,
       ),
+      beaconProgress: {
+        lifetimeXp: profile?.beaconXp ?? 0,
+        level: profile?.beaconLevel ?? 1,
+        currentLevelStartXp: beaconLevelStartXp(profile?.beaconLevel ?? 1),
+        nextLevelXp: beaconLevelStartXp((profile?.beaconLevel ?? 1) + 1),
+      },
     };
   },
 
@@ -479,6 +496,7 @@ export const gameplayRepository = {
             dayCompletion: null,
             streak: null,
             badgeUnlocks: [],
+            beaconProgression: null,
           };
         }
         await transaction.gameSession.update({
@@ -527,6 +545,17 @@ export const gameplayRepository = {
         completedAt,
       );
       if (nextMode) {
+        const beaconProgression = await beaconRepository.awardInTransaction(
+          transaction,
+          {
+            userId,
+            amount: BEACON_MODE_XP,
+            reason: `Completed ${requestedMode} mode`,
+            idempotencyKey: `mode:${attempt.id}`,
+            earnedAt: completedAt,
+            waypointCompleted: false,
+          },
+        );
         return {
           status: "mode-complete",
           gameMode: requestedMode,
@@ -534,6 +563,7 @@ export const gameplayRepository = {
           dayCompletion: null,
           streak: streakResult,
           badgeUnlocks: modeBadgeUnlocks,
+          beaconProgression,
         };
       }
 
@@ -554,6 +584,23 @@ export const gameplayRepository = {
         userId,
         campaignWaypointId,
         campaignDayLevel,
+      );
+      const waypointCompleted = campaignDayLevel === DayLevel.RADIANCE;
+      const beaconProgression = await beaconRepository.awardInTransaction(
+        transaction,
+        {
+          userId,
+          amount:
+            BEACON_MODE_XP +
+            BEACON_DAY_BONUS_XP[campaignDayLevel] +
+            (waypointCompleted ? BEACON_WAYPOINT_BONUS_XP : 0),
+          reason: waypointCompleted
+            ? `Completed ${campaignDayLevel} and waypoint`
+            : `Completed ${campaignDayLevel}`,
+          idempotencyKey: `mode:${attempt.id}`,
+          earnedAt: completedAt,
+          waypointCompleted,
+        },
       );
       await transaction.gameSession.update({
         where: { id: sessionId },
@@ -581,6 +628,7 @@ export const gameplayRepository = {
         dayCompletion: { ...dayCompletion, reward: finalReward },
         streak: streakResult,
         badgeUnlocks: [...modeBadgeUnlocks, ...dayBadgeUnlocks],
+        beaconProgression,
       };
     }, gameplayTransactionOptions);
   },

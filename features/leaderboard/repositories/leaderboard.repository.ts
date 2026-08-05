@@ -1,10 +1,18 @@
 import { Prisma } from "@/lib/generated/prisma/client";
+import { BeaconLeague } from "@/lib/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
+import {
+  BEACON_DEMOTION_COUNT,
+  BEACON_PROMOTION_COUNT,
+} from "@/features/beacon/constants/beacon-progression";
+import { beaconRepository } from "@/features/beacon/repositories/beacon.repository";
+import { getBeaconWeekWindow } from "@/features/beacon/lib/beacon-week";
 import type {
   LeaderboardEntry,
   LeaderboardFellowshipOption,
   LeaderboardPageData,
   LeaderboardRanking,
+  LeaderboardScope,
   UserScopeRanks,
 } from "@/features/leaderboard/types/leaderboard.types";
 
@@ -15,30 +23,32 @@ type RawLeaderboardEntry = {
   userId: string;
   displayName: string;
   countryCode: string | null;
-  waypointsCompleted: number;
-  glowPoints: number;
-  currentStreak: number;
+  weeklyXp: number;
+  waypointsCompletedThisWeek: number;
+  beaconXp: number;
+  beaconLevel: number;
+  crowns: number;
+  league: BeaconLeague;
   rank: bigint;
   totalPlayers: bigint;
 };
 
-type RankingFilter = {
+type RankingQuery = {
   join: Prisma.Sql;
   where: Prisma.Sql;
+  order: Prisma.Sql;
 };
 
-/** Normalizes untrusted page values before they become SQL offsets. */
 function normalizePage(page: number): number {
   return Number.isSafeInteger(page) && page > 0 ? page : 1;
 }
 
-/** Keeps page sizes bounded so one request cannot force an excessive result. */
 function normalizeLimit(limit: number): number {
   if (!Number.isSafeInteger(limit)) return DEFAULT_PAGE_SIZE;
   return Math.min(50, Math.max(5, limit));
 }
 
-/** Converts one internal SQL row into the public-safe response contract. */
+/** Removes internal identity immediately after the raw ranking query. */
 function toLeaderboardEntry(
   row: RawLeaderboardEntry,
   currentUserId: string,
@@ -47,270 +57,215 @@ function toLeaderboardEntry(
     rank: Number(row.rank),
     displayName: row.displayName,
     countryCode: row.countryCode,
-    waypointsCompleted: row.waypointsCompleted,
-    glowPoints: row.glowPoints,
-    currentStreak: row.currentStreak,
+    weeklyXp: row.weeklyXp,
+    waypointsCompletedThisWeek: row.waypointsCompletedThisWeek,
+    beaconXp: row.beaconXp,
+    beaconLevel: row.beaconLevel,
+    crowns: row.crowns,
+    league: row.league,
     isCurrentUser: row.userId === currentUserId,
   };
 }
 
-/**
- * Executes one stable PostgreSQL window ranking for any authorized scope.
- *
- * WHY: `ROW_NUMBER()` gives every learner a deterministic position while the
- * final profile creation and user-ID tie breakers prevent pagination drift.
- * Raw user IDs exist only inside this repository and are converted immediately
- * into `isCurrentUser`; they are never returned to a view or client component.
- */
-async function getRanking(
-  currentUserId: string,
-  page: number,
-  limit: number,
-  filter: RankingFilter,
-): Promise<LeaderboardRanking> {
-  const safePage = normalizePage(page);
-  const safeLimit = normalizeLimit(limit);
-  const pageStart = FIRST_PAGINATED_RANK + (safePage - 1) * safeLimit;
-  const pageEnd = pageStart + safeLimit - 1;
-
+/** Executes one privacy-safe weekly or lifetime ranking window. */
+async function getRanking(input: {
+  currentUserId: string;
+  weekId: string;
+  page: number;
+  limit: number;
+  query: RankingQuery;
+}): Promise<LeaderboardRanking> {
+  const page = normalizePage(input.page);
+  const limit = normalizeLimit(input.limit);
+  const pageStart = FIRST_PAGINATED_RANK + (page - 1) * limit;
+  const pageEnd = pageStart + limit - 1;
   const rows = await prisma.$queryRaw<RawLeaderboardEntry[]>(Prisma.sql`
     WITH ranked AS (
       SELECT
         profile."userId" AS "userId",
         profile."displayName" AS "displayName",
         profile."countryCode" AS "countryCode",
-        profile."totalWaypointsCompleted" AS "waypointsCompleted",
-        profile."totalGlowPoints" AS "glowPoints",
-        COALESCE(streak."currentStreak", 0) AS "currentStreak",
-        ROW_NUMBER() OVER (
-          ORDER BY
-            profile."totalWaypointsCompleted" DESC,
-            profile."totalGlowPoints" DESC,
-            COALESCE(streak."currentStreak", 0) DESC,
-            profile."createdAt" ASC,
-            profile."userId" ASC
-        ) AS rank,
+        COALESCE(score.points, 0) AS "weeklyXp",
+        COALESCE(score."waypointsCompleted", 0) AS "waypointsCompletedThisWeek",
+        profile."beaconXp" AS "beaconXp",
+        profile."beaconLevel" AS "beaconLevel",
+        profile."beaconCrowns" AS crowns,
+        COALESCE(league_membership.league, 'TRAVELER'::"BeaconLeague") AS league,
+        ROW_NUMBER() OVER (ORDER BY ${input.query.order}) AS rank,
         COUNT(*) OVER () AS "totalPlayers"
       FROM "UserProfile" profile
       INNER JOIN "user" account ON account.id = profile."userId"
-      LEFT JOIN "UserStreak" streak ON streak."userId" = profile."userId"
-      ${filter.join}
+      LEFT JOIN "BeaconWeeklyScore" score
+        ON score."userId" = profile."userId" AND score."weekId" = ${input.weekId}
+      LEFT JOIN "BeaconLeagueMembership" league_membership
+        ON league_membership."userId" = profile."userId"
+        AND league_membership."weekId" = ${input.weekId}
+      ${input.query.join}
       WHERE account."suspendedAt" IS NULL
-      ${filter.where}
+      ${input.query.where}
     )
-    SELECT *
-    FROM ranked
-    WHERE
-      rank <= 3
+    SELECT * FROM ranked
+    WHERE rank <= 3
       OR rank BETWEEN ${pageStart} AND ${pageEnd}
-      OR "userId" = ${currentUserId}
+      OR "userId" = ${input.currentUserId}
     ORDER BY rank ASC
   `);
-
-  const entries = rows.map((row) => toLeaderboardEntry(row, currentUserId));
-  const totalPlayers = Number(rows[0]?.totalPlayers ?? 0);
-  const paginatedEntries = entries.filter(
-    (entry) => entry.rank >= pageStart && entry.rank <= pageEnd,
+  const entries = rows.map((row) =>
+    toLeaderboardEntry(row, input.currentUserId),
   );
-  const currentUser = entries.find((entry) => entry.isCurrentUser) ?? null;
+  const totalPlayers = Number(rows[0]?.totalPlayers ?? 0);
 
   return {
     podium: entries.filter((entry) => entry.rank <= 3),
-    entries: paginatedEntries,
-    currentUser,
-    page: safePage,
-    totalPages: Math.max(
-      1,
-      Math.ceil(Math.max(0, totalPlayers - 3) / safeLimit),
+    entries: entries.filter(
+      (entry) => entry.rank >= pageStart && entry.rank <= pageEnd,
     ),
+    currentUser: entries.find((entry) => entry.isCurrentUser) ?? null,
+    page,
+    totalPages: Math.max(1, Math.ceil(Math.max(0, totalPlayers - 3) / limit)),
     totalPlayers,
   };
 }
 
-/** Database boundary for every privacy-safe Great Beacon ranking. */
+const weeklyOrder = Prisma.sql`
+  COALESCE(score.points, 0) DESC,
+  COALESCE(score."waypointsCompleted", 0) DESC,
+  score."lastScoredAt" ASC NULLS LAST,
+  profile."createdAt" ASC,
+  profile."userId" ASC
+`;
+
+const lifetimeOrder = Prisma.sql`
+  profile."beaconLevel" DESC,
+  profile."beaconXp" DESC,
+  profile."createdAt" ASC,
+  profile."userId" ASC
+`;
+
+/** Database boundary for Great Beacon competition and recognition views. */
 export const leaderboardRepository = {
-  /** Returns the global ranking in the canonical curriculum-first order. */
-  async getGlobalRanking(
-    page: number,
-    limit: number,
-    currentUserId: string,
-  ): Promise<LeaderboardRanking> {
-    return getRanking(currentUserId, page, limit, {
-      join: Prisma.empty,
-      where: Prisma.empty,
-    });
-  },
-
-  /** Returns only profiles whose saved country matches the requested scope. */
-  async getCountryRanking(
-    countryCode: string,
-    page: number,
-    limit: number,
-    currentUserId: string,
-  ): Promise<LeaderboardRanking> {
-    return getRanking(currentUserId, page, limit, {
-      join: Prisma.empty,
-      where: Prisma.sql`AND profile."countryCode" = ${countryCode}`,
-    });
-  },
-
-  /**
-   * Returns a fellowship ranking only after proving the current learner is a
-   * member. This prevents private-group membership from leaking through IDs.
-   */
-  async getFellowshipRanking(
-    fellowshipId: string,
-    page: number,
-    limit: number,
-    currentUserId: string,
-  ): Promise<LeaderboardRanking | null> {
-    const membership = await prisma.fellowshipMember.findUnique({
-      where: {
-        fellowshipId_userId: {
-          fellowshipId,
-          userId: currentUserId,
-        },
-      },
-      select: { id: true },
-    });
-
-    if (!membership) return null;
-
-    return getRanking(currentUserId, page, limit, {
-      join: Prisma.sql`
-        INNER JOIN "FellowshipMember" membership
-          ON membership."userId" = profile."userId"
-      `,
-      where: Prisma.sql`AND membership."fellowshipId" = ${fellowshipId}`,
-    });
-  },
-
-  /** Returns only the fellowships the learner may use as ranking scopes. */
   async getUserFellowships(
     userId: string,
   ): Promise<LeaderboardFellowshipOption[]> {
     const memberships = await prisma.fellowshipMember.findMany({
       where: { userId },
-      select: {
-        fellowship: {
-          select: { id: true, name: true },
-        },
-      },
+      select: { fellowship: { select: { id: true, name: true } } },
       orderBy: { fellowship: { name: "asc" } },
     });
-
     return memberships.map(({ fellowship }) => fellowship);
   },
 
-  /** Loads the learner's country without exposing any other profile fields. */
   async getUserCountryCode(userId: string): Promise<string | null> {
-    const profile = await prisma.userProfile.findUnique({
-      where: { userId },
-      select: { countryCode: true },
-    });
-
-    return profile?.countryCode ?? null;
+    return (
+      await prisma.userProfile.findUnique({
+        where: { userId },
+        select: { countryCode: true },
+      })
+    )?.countryCode ?? null;
   },
 
-  /**
-   * Composes one authorized page response. Invalid fellowship IDs fall back to
-   * the global scope instead of revealing whether a private fellowship exists.
-   */
   async getPageData(input: {
     userId: string;
-    scope: "global" | "country" | "fellowship";
+    scope: LeaderboardScope;
     fellowshipId: string | null;
     page: number;
   }): Promise<LeaderboardPageData> {
-    const [countryCode, fellowships] = await Promise.all([
+    const now = new Date();
+    const [competition, countryCode, fellowships] = await Promise.all([
+      beaconRepository.getCurrentMembership(input.userId, now),
       this.getUserCountryCode(input.userId),
       this.getUserFellowships(input.userId),
     ]);
-
+    if (!competition) {
+      const week = getBeaconWeekWindow(now);
+      return {
+        scope: input.scope,
+        countryCode,
+        fellowships,
+        activeFellowshipId: null,
+        activeFellowshipName: null,
+        league: BeaconLeague.TRAVELER,
+        weekStartsAt: week.startsAt.toISOString(),
+        weekEndsAt: week.endsAt.toISOString(),
+        promotionCount: BEACON_PROMOTION_COUNT,
+        demotionCount: BEACON_DEMOTION_COUNT,
+        needsEnrollment: true,
+        podium: [],
+        entries: [],
+        currentUser: null,
+        page: 1,
+        totalPages: 1,
+        totalPlayers: 0,
+      };
+    }
     let scope = input.scope;
     let activeFellowship =
       fellowships.find((item) => item.id === input.fellowshipId) ?? null;
-    let ranking: LeaderboardRanking;
+    let query: RankingQuery;
 
-    if (scope === "country") {
-      ranking = countryCode
-        ? await this.getCountryRanking(
-            countryCode,
-            input.page,
-            DEFAULT_PAGE_SIZE,
-            input.userId,
-          )
-        : {
-            podium: [],
-            entries: [],
-            currentUser: null,
-            page: 1,
-            totalPages: 1,
-            totalPlayers: 0,
-          };
+    if (scope === "country" && countryCode) {
+      query = {
+        join: Prisma.empty,
+        where: Prisma.sql`AND profile."countryCode" = ${countryCode}`,
+        order: weeklyOrder,
+      };
     } else if (scope === "fellowship" && activeFellowship) {
-      ranking =
-        (await this.getFellowshipRanking(
-          activeFellowship.id,
-          input.page,
-          DEFAULT_PAGE_SIZE,
-          input.userId,
-        )) ??
-        (await this.getGlobalRanking(
-          input.page,
-          DEFAULT_PAGE_SIZE,
-          input.userId,
-        ));
-    } else {
-      scope = "global";
+      query = {
+        join: Prisma.sql`
+          INNER JOIN "FellowshipMember" fellowship_member
+            ON fellowship_member."userId" = profile."userId"
+        `,
+        where: Prisma.sql`
+          AND fellowship_member."fellowshipId" = ${activeFellowship.id}
+        `,
+        order: weeklyOrder,
+      };
+    } else if (scope === "all-time") {
       activeFellowship = null;
-      ranking = await this.getGlobalRanking(
-        input.page,
-        DEFAULT_PAGE_SIZE,
-        input.userId,
-      );
+      query = { join: Prisma.empty, where: Prisma.empty, order: lifetimeOrder };
+    } else {
+      scope = "league";
+      activeFellowship = null;
+      query = {
+        join: Prisma.empty,
+        where: Prisma.sql`
+          AND league_membership."cohortId" = ${competition.cohortId}
+        `,
+        order: weeklyOrder,
+      };
     }
 
+    const ranking = await getRanking({
+      currentUserId: input.userId,
+      weekId: competition.weekId,
+      page: input.page,
+      limit: DEFAULT_PAGE_SIZE,
+      query,
+    });
     return {
       ...ranking,
+      needsEnrollment: false,
       scope,
       countryCode,
       fellowships,
       activeFellowshipId: activeFellowship?.id ?? null,
       activeFellowshipName: activeFellowship?.name ?? null,
+      league: competition.league,
+      weekStartsAt: competition.startsAt.toISOString(),
+      weekEndsAt: competition.endsAt.toISOString(),
+      promotionCount: BEACON_PROMOTION_COUNT,
+      demotionCount: BEACON_DEMOTION_COUNT,
     };
   },
 
-  /** Returns the learner's current position in every authorized scope. */
+  /** Retains the badge engine's permanent global top-100 lookup. */
   async getUserRank(userId: string): Promise<UserScopeRanks> {
-    const [countryCode, fellowships, global] = await Promise.all([
-      this.getUserCountryCode(userId),
-      this.getUserFellowships(userId),
-      this.getGlobalRanking(1, 5, userId),
-    ]);
-    const country = countryCode
-      ? await this.getCountryRanking(countryCode, 1, 5, userId)
-      : null;
-    const fellowshipRanks = await Promise.all(
-      fellowships.map(async (fellowship) => {
-        const ranking = await this.getFellowshipRanking(
-          fellowship.id,
-          1,
-          5,
-          userId,
-        );
-        return {
-          fellowshipId: fellowship.id,
-          fellowshipName: fellowship.name,
-          rank: ranking?.currentUser?.rank ?? null,
-        };
-      }),
-    );
-
-    return {
-      global: global.currentUser?.rank ?? null,
-      country: country?.currentUser?.rank ?? null,
-      fellowships: fellowshipRanks,
-    };
+    const data = await this.getPageData({
+      userId,
+      scope: "all-time",
+      fellowshipId: null,
+      page: 1,
+    });
+    return { global: data.currentUser?.rank ?? null, country: null, fellowships: [] };
   },
 } as const;

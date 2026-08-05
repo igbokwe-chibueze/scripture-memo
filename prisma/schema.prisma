@@ -103,6 +103,18 @@ enum FellowshipJoinRequestSource {
   INVITE
 }
 
+enum BeaconLeague {
+  TRAVELER
+  DISCIPLE
+  MESSENGER
+  WATCHMAN
+  TEACHER
+  SHEPHERD
+  ELDER
+  SCRIBE
+  SAINT
+}
+
 // Better Auth owns identity and credential lifecycle fields on this table.
 // Product state is kept in one-to-one profile/settings/streak records, while
 // authorization and suspension fields remain here for efficient server checks.
@@ -132,16 +144,19 @@ model User {
   streak                     UserStreak?
   badgeProgress              UserBadgeProgress[]
   fellowshipMemberships      FellowshipMember[]
-  fellowshipJoinRequests     FellowshipJoinRequest[] @relation("FellowshipJoinRequester")
-  fellowshipRequestsReviewed FellowshipJoinRequest[] @relation("FellowshipJoinReviewer")
-  fellowshipsCreated         Fellowship[]            @relation("FellowshipCreator")
+  fellowshipJoinRequests     FellowshipJoinRequest[]  @relation("FellowshipJoinRequester")
+  fellowshipRequestsReviewed FellowshipJoinRequest[]  @relation("FellowshipJoinReviewer")
+  fellowshipsCreated         Fellowship[]             @relation("FellowshipCreator")
   shopPurchases              UserShopPurchase[]
   verseNotes                 UserVerseNote[]
   favoriteVerses             UserFavoriteVerse[]
-  versesCreated              Verse[]                 @relation("VerseCreator")
-  badgesCreated              Badge[]                 @relation("BadgeCreator")
-  shopItemsCreated           ShopItem[]              @relation("ShopItemCreator")
-  auditLogs                  AuditLog[]              @relation("AuditActor")
+  versesCreated              Verse[]                  @relation("VerseCreator")
+  badgesCreated              Badge[]                  @relation("BadgeCreator")
+  shopItemsCreated           ShopItem[]               @relation("ShopItemCreator")
+  auditLogs                  AuditLog[]               @relation("AuditActor")
+  beaconXpEntries            BeaconXpLedger[]
+  beaconWeeklyScores         BeaconWeeklyScore[]
+  beaconLeagueMemberships    BeaconLeagueMembership[]
 
   @@index([role])
   @@index([suspendedAt])
@@ -156,6 +171,9 @@ model UserProfile {
   totalGlowPoints         Int      @default(0)
   totalWaypointsCompleted Int      @default(0)
   totalHintsUsed          Int      @default(0)
+  beaconXp                Int      @default(0)
+  beaconLevel             Int      @default(1)
+  beaconCrowns            Int      @default(0)
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
   user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -163,6 +181,7 @@ model UserProfile {
   @@index([totalWaypointsCompleted(sort: Desc), totalGlowPoints(sort: Desc)])
   @@index([totalGlowPoints(sort: Desc)])
   @@index([countryCode, totalWaypointsCompleted(sort: Desc), totalGlowPoints(sort: Desc)])
+  @@index([beaconLevel(sort: Desc), beaconXp(sort: Desc)])
 }
 
 model UserSettings {
@@ -401,6 +420,79 @@ model RewardLedger {
 
   @@index([userId, createdAt(sort: Desc)])
   @@index([eventType, createdAt])
+}
+
+// Beacon XP is permanent progression, not spendable currency. Every entry is
+// immutable and idempotent so lifetime XP and weekly competition can be audited.
+model BeaconXpLedger {
+  id             String   @id @default(cuid())
+  userId         String
+  amount         Int
+  reason         String
+  idempotencyKey String   @unique
+  earnedAt       DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([userId, earnedAt(sort: Desc)])
+}
+
+model BeaconWeek {
+  id          String                   @id @default(cuid())
+  startsAt    DateTime                 @unique
+  endsAt      DateTime                 @unique
+  createdAt   DateTime                 @default(now())
+  scores      BeaconWeeklyScore[]
+  cohorts     BeaconLeagueCohort[]
+  memberships BeaconLeagueMembership[]
+}
+
+model BeaconWeeklyScore {
+  id                 String     @id @default(cuid())
+  weekId             String
+  userId             String
+  points             Int        @default(0)
+  modesCompleted     Int        @default(0)
+  waypointsCompleted Int        @default(0)
+  lastScoredAt       DateTime?
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+  week               BeaconWeek @relation(fields: [weekId], references: [id], onDelete: Cascade)
+  user               User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([weekId, userId])
+  @@index([weekId, points(sort: Desc), waypointsCompleted(sort: Desc), lastScoredAt])
+}
+
+model BeaconLeagueCohort {
+  id          String                   @id @default(cuid())
+  weekId      String
+  league      BeaconLeague
+  groupNumber Int
+  createdAt   DateTime                 @default(now())
+  week        BeaconWeek               @relation(fields: [weekId], references: [id], onDelete: Cascade)
+  memberships BeaconLeagueMembership[]
+
+  @@unique([weekId, league, groupNumber])
+  @@index([weekId, league])
+}
+
+model BeaconLeagueMembership {
+  id             String             @id @default(cuid())
+  weekId         String
+  cohortId       String
+  userId         String
+  league         BeaconLeague
+  previousLeague BeaconLeague?
+  finalRank      Int?
+  crownAward     Int                @default(0)
+  createdAt      DateTime           @default(now())
+  week           BeaconWeek         @relation(fields: [weekId], references: [id], onDelete: Cascade)
+  cohort         BeaconLeagueCohort @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([weekId, userId])
+  @@index([cohortId, userId])
+  @@index([userId, createdAt(sort: Desc)])
 }
 
 model UserStreak {

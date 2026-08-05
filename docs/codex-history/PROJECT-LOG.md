@@ -1,5 +1,30 @@
 # Scripture Memo Project Log
 
+### 2026-08-04 — Great Beacon weekly leagues and progression
+
+- Added permanent Beacon XP and Levels, resettable Weekly Beacon XP, nine
+  promotion leagues, and lifetime Saint Crowns while retaining Glow Points as
+  the only spendable currency.
+- Added transaction-safe gameplay awards, UTC Monday competition windows,
+  30-player cohorts, promotion/demotion decisions, and an immutable XP ledger.
+- Reworked leaderboard meanings to My League, Country, Fellowship, and All Time
+  and added league/reset context plus promotion and demotion zones.
+- Added post-mode XP progress and level-up feedback, localized in English,
+  Spanish, and French, together with pure progression and week-boundary tests.
+- Applied migration `20260804190000_add_beacon_leagues`. TypeScript, targeted
+  lint, five Beacon progression tests, localization checks, and diff checks
+  pass; project-owner gameplay and responsive acceptance remain pending.
+
+### 2026-08-04 — Navigation pending lifecycle corrected
+
+- Replaced `NavigationButton`'s permanent click-state flag with React transition
+  state around the internal Next.js router navigation.
+- Pending feedback now ends when the destination pathname or query-string view
+  commits, fixing Great Beacon scope buttons that remained on “Opening.”
+- Prevented same-destination clicks from entering pending and retained native
+  browser behavior for modifier clicks and external destinations.
+- TypeScript, targeted ESLint, and diff validation pass.
+
 ### 2026-08-04 — PostgreSQL SSL mode made upgrade-safe
 
 - Added one credential-safe connection URL normalizer that converts pg’s

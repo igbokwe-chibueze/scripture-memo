@@ -97,6 +97,19 @@ export function GameShell({
   const modeTimeLimitMinutes = modeTimeLimitSeconds
     ? Math.ceil(modeTimeLimitSeconds / 60)
     : null;
+  const beaconLevelRange =
+    gameSession.beaconProgress.nextLevelXp -
+    gameSession.beaconProgress.currentLevelStartXp;
+  const beaconLevelProgress = Math.min(
+    100,
+    Math.max(
+      0,
+      ((gameSession.beaconProgress.lifetimeXp -
+        gameSession.beaconProgress.currentLevelStartXp) /
+        beaconLevelRange) *
+        100,
+    ),
+  );
 
   const beginMode = (): void => {
     if (!currentMode) return;
@@ -262,6 +275,28 @@ export function GameShell({
               />
             ))}
           </ol>
+
+          <div className="mt-4 rounded-2xl border border-violet-400/20 bg-violet-500/8 p-3">
+            <div className="flex items-center justify-between gap-3 text-xs font-black">
+              <span>{t("beaconLevel", { level: gameSession.beaconProgress.level })}</span>
+              <span className="text-violet-700 dark:text-violet-300">
+                {t("beaconXp", { count: gameSession.beaconProgress.lifetimeXp })}
+              </span>
+            </div>
+            <div
+              className="mt-2 h-2.5 overflow-hidden rounded-full bg-violet-950/15 dark:bg-black/35"
+              role="progressbar"
+              aria-label={t("beaconProgress")}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={Math.round(beaconLevelProgress)}
+            >
+              <div
+                className="h-full rounded-full bg-linear-to-r from-violet-500 to-fuchsia-400"
+                style={{ width: `${beaconLevelProgress}%` }}
+              />
+            </div>
+          </div>
 
           {isAdmin && gameSession.completedModes.length > 0 && (
             <div className="mt-4 flex flex-col items-stretch gap-3 rounded-xl border border-sky-400/25 bg-sky-100/70 p-3 dark:border-sky-300/20 dark:bg-sky-300/8 sm:flex-row sm:items-center sm:justify-between">

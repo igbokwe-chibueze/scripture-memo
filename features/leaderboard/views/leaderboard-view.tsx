@@ -19,9 +19,17 @@ type LeaderboardSearchParameters = {
 };
 
 /** Narrows URL input to one supported ranking scope. */
-function parseScope(value: string | undefined): "global" | "country" | "fellowship" {
-  if (value === "country" || value === "fellowship") return value;
-  return "global";
+function parseScope(
+  value: string | undefined,
+): "league" | "country" | "fellowship" | "all-time" {
+  if (
+    value === "country" ||
+    value === "fellowship" ||
+    value === "all-time"
+  ) {
+    return value;
+  }
+  return "league";
 }
 
 /** Prevents malformed page input from reaching repository offsets. */

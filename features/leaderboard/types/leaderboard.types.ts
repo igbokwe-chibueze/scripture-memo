@@ -1,27 +1,30 @@
-/** Ranking scopes supported by the Great Beacon screen. */
-export type LeaderboardScope = "global" | "country" | "fellowship";
+import type { BeaconLeague } from "@/lib/generated/prisma/enums";
 
-/**
- * Public-safe ranking row. Identity keys and email addresses deliberately never
- * cross the repository boundary.
- */
+export type LeaderboardScope =
+  | "league"
+  | "country"
+  | "fellowship"
+  | "all-time";
+
+/** Public-safe ranking row; identity keys and emails never leave repositories. */
 export type LeaderboardEntry = {
   rank: number;
   displayName: string;
   countryCode: string | null;
-  waypointsCompleted: number;
-  glowPoints: number;
-  currentStreak: number;
+  weeklyXp: number;
+  waypointsCompletedThisWeek: number;
+  beaconXp: number;
+  beaconLevel: number;
+  crowns: number;
+  league: BeaconLeague;
   isCurrentUser: boolean;
 };
 
-/** Minimal fellowship identity used only to build authorized scope tabs. */
 export type LeaderboardFellowshipOption = {
   id: string;
   name: string;
 };
 
-/** One paginated ranking result with the signed-in learner pinned separately. */
 export type LeaderboardRanking = {
   podium: LeaderboardEntry[];
   entries: LeaderboardEntry[];
@@ -31,16 +34,20 @@ export type LeaderboardRanking = {
   totalPlayers: number;
 };
 
-/** Complete server-owned data required to render one leaderboard scope. */
 export type LeaderboardPageData = LeaderboardRanking & {
+  needsEnrollment: boolean;
   scope: LeaderboardScope;
   countryCode: string | null;
   fellowships: LeaderboardFellowshipOption[];
   activeFellowshipId: string | null;
   activeFellowshipName: string | null;
+  league: BeaconLeague;
+  weekStartsAt: string;
+  weekEndsAt: string;
+  promotionCount: number;
+  demotionCount: number;
 };
 
-/** Rank summary required by later contextual game surfaces. */
 export type UserScopeRanks = {
   global: number | null;
   country: number | null;

@@ -1279,6 +1279,22 @@ Display:
 - The logged-in user's own row is always highlighted and pinned visible even when scrolling
 - No email addresses are ever displayed — only display name, country flag, and stats
 
+#### Great Beacon league refinement
+
+- **Beacon XP** is permanent, non-spendable progression and fills an escalating
+  Beacon Level bar. Weekly Beacon XP records eligible XP inside one global
+  Monday 00:00 UTC competition week.
+- Game modes award 10 XP. Glimmer, Glow, and Radiance completion add 25, 40,
+  and 60 XP; waypoint completion adds another 100 XP. Failed attempts, admin
+  tests, Vault review, and replays award no XP.
+- Leagues are Traveler, Disciple, Messenger, Watchman, Teacher, Shepherd,
+  Elder, Scribe, and Saint. Cohorts hold up to 30 players; top 7 promote and
+  bottom 5 demote when at least 10 players competed.
+- Saint never promotes. Ranks 1, 2, and 3 earn 5, 3, and 2 lifetime Crowns;
+  ranks 4 through 10 earn one. Crowns cannot be spent.
+- My League shows the weekly cohort. Country and Fellowship are recognition
+  rankings by Weekly Beacon XP. All Time uses permanent Beacon Level and XP.
+
 ### 15.9 Settings
 
 User settings:

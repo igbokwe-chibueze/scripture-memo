@@ -30,14 +30,10 @@ export async function evaluateLeaderboardBadgeAction(): Promise<
   }
 
   try {
-    // Fetch only the global scope needed by this badge. Fellowship and country
-    // rankings are intentionally skipped to keep the background check small.
-    const ranking = await leaderboardRepository.getGlobalRanking(
-      1,
-      5,
-      session.user.id,
-    );
-    const globalRank = ranking.currentUser?.rank ?? null;
+    // Beacon Challenger remains tied to the permanent all-time global board,
+    // not the player's 30-person weekly league cohort.
+    const ranks = await leaderboardRepository.getUserRank(session.user.id);
+    const globalRank = ranks.global;
 
     if (globalRank === null || globalRank > 100) {
       return {

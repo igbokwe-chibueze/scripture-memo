@@ -8,6 +8,7 @@ import { LoadingButton } from "@/components/shared/loading-button";
 import { Button } from "@/components/ui/button";
 import { BadgeUnlockSequence } from "@/features/badges/components/badge-unlock-screen";
 import type { BadgeUnlockResult } from "@/features/badges/types/badge.types";
+import type { BeaconProgressionResult } from "@/features/beacon/types/beacon.types";
 import { showActionError } from "@/lib/errors/show-action-error";
 import { completeGameModeAction } from "@/features/gameplay/actions/complete-game-mode.action";
 import { ConfettiCelebration } from "@/features/gameplay/components/confetti-celebration";
@@ -89,6 +90,8 @@ export function FillMode({
   const [showWaypointCompletion, setShowWaypointCompletion] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [earnedReward, setEarnedReward] = useState<DayRewardResult | null>(null);
+  const [beaconProgression, setBeaconProgression] =
+    useState<BeaconProgressionResult | null>(null);
   const [waypointOutcome, setWaypointOutcome] = useState<{
     unlockedWaypointNumber: number | null;
     caughtUp: boolean;
@@ -206,6 +209,12 @@ export function FillMode({
           ? completion.streak
           : null,
       );
+      setBeaconProgression(
+        completion?.status === "mode-complete" ||
+          completion?.status === "day-complete"
+          ? completion.beaconProgression
+          : null,
+      );
       if (completion?.status === "day-complete") {
         setEarnedReward(completion.dayCompletion.reward);
         toast.success(
@@ -281,6 +290,7 @@ export function FillMode({
           isTestReplay={isTestReplay}
           isVaultReplay={isVaultReplay}
           reward={earnedReward}
+          beaconProgression={beaconProgression}
           onContinue={() => {
             if (isTestReplay) onTestReplayExit?.();
             else if (streak && streak.status !== "unchanged") {
