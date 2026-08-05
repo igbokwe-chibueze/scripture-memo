@@ -87,7 +87,7 @@ function RankPlate({
   return (
     <span
       className={cn(
-        "grid min-h-14 grid-cols-[auto_auto] place-content-center gap-1 rounded-xl border px-1.5 font-heading text-lg font-black shadow-[0_3px_0_rgb(0_0_0/0.18)] sm:min-h-16 sm:rounded-2xl sm:px-2 sm:text-xl",
+        "grid min-h-12 grid-cols-[auto_auto] place-content-center gap-0.5 rounded-lg border px-1 font-heading text-base font-black shadow-[0_3px_0_rgb(0_0_0/0.18)] sm:min-h-16 sm:gap-1 sm:rounded-2xl sm:px-2 sm:text-xl",
         position === 1 &&
           "border-yellow-500 bg-linear-to-br from-yellow-200 via-amber-300 to-yellow-500 text-amber-950",
         position === 2 &&
@@ -103,7 +103,7 @@ function RankPlate({
       )}
     >
       <span>{position}</span>
-      {isPodium && <RankCrownIcon className="size-4 sm:size-5" />}
+      {isPodium && <RankCrownIcon className="size-3.5 sm:size-5" />}
     </span>
   );
 }
@@ -126,6 +126,9 @@ function RankingRow({
 }): React.ReactNode {
   const t = useTranslations("Leaderboard");
   const isRival = entry.kind === "RIVAL";
+  const visibleDisplayName = entry.isCurrentUser
+    ? t("you")
+    : entry.displayName;
 
   return (
     <article
@@ -141,7 +144,7 @@ function RankingRow({
         }
       }}
       className={cn(
-        "grid min-h-24 w-full grid-cols-[3.25rem_2.75rem_minmax(0,1fr)_auto] items-center gap-x-2 border-b px-3 py-4 text-left last:border-0 hover:bg-muted/45 focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-primary sm:min-h-28 sm:grid-cols-[4rem_3.5rem_minmax(0,1fr)_auto] sm:gap-x-3 sm:px-4 sm:py-5",
+        "grid min-h-24 w-full grid-cols-[2.75rem_2.75rem_minmax(0,1fr)_auto] items-center gap-x-2 border-b px-3 py-4 text-left last:border-0 hover:bg-muted/45 focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-primary sm:min-h-28 sm:grid-cols-[4rem_3.5rem_minmax(0,1fr)_auto] sm:gap-x-3 sm:px-4 sm:py-5",
         entry.isCurrentUser &&
           "bg-violet-500/10 text-violet-950 dark:text-violet-100",
         pinned && "rounded-2xl border border-violet-400/40 bg-violet-500/10",
@@ -156,7 +159,7 @@ function RankingRow({
       <PlayerAvatar
         avatarKey={entry.avatarKey}
         frameKey={entry.avatarFrameKey}
-        displayName={entry.displayName}
+        displayName={visibleDisplayName}
         size="sm"
         className="size-11 sm:size-14"
         isOnline={entry.isOnline}
@@ -164,7 +167,7 @@ function RankingRow({
       />
       <div className="min-w-0">
         <p className="truncate text-sm font-black sm:text-lg">
-          {entry.displayName}
+          {visibleDisplayName}
           {isRival && (
             <Tooltip>
               <TooltipTrigger
@@ -176,11 +179,6 @@ function RankingRow({
               </TooltipTrigger>
               <TooltipContent>{t("trailRivalExplanation")}</TooltipContent>
             </Tooltip>
-          )}
-          {entry.isCurrentUser && (
-            <span className="ml-2 text-xs text-violet-700 dark:text-violet-300">
-              {t("you")}
-            </span>
           )}
         </p>
         <CountryFlag
@@ -444,9 +442,9 @@ export function LeaderboardBoard({
       </nav>
 
       {isWeeklyScope && (
-        <section className="mt-4 overflow-hidden rounded-3xl border border-violet-400/25 bg-linear-to-br from-card via-card to-violet-500/10 p-4 shadow-lg sm:p-6">
-          <div className="grid grid-cols-[6.5rem_minmax(0,1fr)] items-center gap-3 sm:grid-cols-[9rem_minmax(0,1fr)_auto] sm:gap-5">
-            <div className="grid aspect-square place-items-center">
+        <section className="mt-4 overflow-hidden rounded-3xl border border-violet-400/25 bg-linear-to-br from-card via-card to-violet-500/10 p-3 shadow-lg sm:p-6">
+          <div className="grid grid-cols-[5rem_minmax(0,1fr)] items-center gap-2.5 sm:grid-cols-[9rem_minmax(0,1fr)_auto] sm:gap-5">
+            <div className="grid size-20 place-items-center sm:size-auto sm:aspect-square">
               {data.scope === "league" ? (
                 <LeagueEmblem
                   league={data.league}
@@ -462,12 +460,12 @@ export function LeaderboardBoard({
               )}
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-black tracking-[0.16em] text-violet-700 uppercase dark:text-violet-300">
+              <p className="text-[0.6875rem] font-black tracking-[0.14em] text-violet-700 uppercase dark:text-violet-300 sm:text-xs sm:tracking-[0.16em]">
                 {data.scope === "league"
                   ? t("leagueCompetition")
                   : t("weeklyCompetition")}
               </p>
-              <p className="mt-1 truncate font-heading text-2xl font-black sm:text-3xl">
+              <p className="mt-1 font-heading text-xl leading-tight font-black sm:text-3xl">
                 {data.scope === "league"
                   ? t("leagueName", { league: t(`leagues.${data.league}`) })
                   : data.activeFellowshipName ?? t("country")}
@@ -476,28 +474,28 @@ export function LeaderboardBoard({
                 {t("players", { count: data.totalPlayers })}
               </p>
             </div>
-            <div className="col-span-2 flex flex-wrap items-center justify-between gap-2 sm:col-span-1 sm:flex-col sm:items-end">
+            <div className="col-span-2 mt-1 grid grid-cols-[auto_minmax(0,1fr)] items-stretch gap-2 sm:col-span-1 sm:mt-0 sm:flex sm:flex-col sm:items-end">
               {data.scope === "league" && (
                 <LeagueJourneyDialog currentLeague={data.league} />
               )}
-              <div className="rounded-2xl bg-violet-500/10 px-3 py-2 text-right">
-              <p className="text-xs font-bold text-muted-foreground">
-                {t("weekEnds")}
-              </p>
-              <p className="text-sm font-black">
-                {new Intl.DateTimeFormat(undefined, {
-                  weekday: "short",
-                  month: "short",
-                  day: "numeric",
-                  hour: "numeric",
-                  minute: "2-digit",
-                }).format(new Date(data.weekEndsAt))}
-              </p>
+              <div className="grid content-center rounded-xl bg-violet-500/10 px-2.5 py-1.5 text-center sm:rounded-2xl sm:px-3 sm:py-2 sm:text-right">
+                <p className="text-[0.6875rem] font-bold leading-tight text-muted-foreground sm:text-xs">
+                  {t("weekEnds")}
+                </p>
+                <p className="mt-0.5 text-xs leading-tight font-black sm:text-sm">
+                  {new Intl.DateTimeFormat(undefined, {
+                    weekday: "short",
+                    month: "short",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit",
+                  }).format(new Date(data.weekEndsAt))}
+                </p>
               </div>
             </div>
           </div>
           {data.scope === "league" && (
-            <div className="mt-5 rounded-2xl border bg-background/65 p-3">
+            <div className="mt-4 rounded-2xl border bg-background/65 p-3 sm:mt-5">
               <div className="grid grid-cols-3 text-center text-[0.65rem] font-black sm:text-xs">
                 <span className="text-emerald-700 dark:text-emerald-300">{t("promote")}</span>
                 <span>{t("stay")}</span>
@@ -579,13 +577,20 @@ export function LeaderboardBoard({
               <h2 id="rankings-title" className="font-heading text-2xl font-black">
                 {t("rankings")}
               </h2>
-              <span className="text-sm font-bold text-muted-foreground">
-                {t("players", { count: data.totalPlayers })}
-              </span>
+              {/*
+               * Temporarily hidden while the live leaderboard population is
+               * small. Keep the localized count nearby so it can be restored
+               * without rebuilding the heading when participation grows.
+               */}
+              {/*
+                <span className="text-sm font-bold text-muted-foreground">
+                  {t("players", { count: data.totalPlayers })}
+                </span>
+              */}
             </div>
             {visibleEntries.length > 0 ? (
               <div className="mt-4 overflow-hidden rounded-3xl border bg-card shadow-lg">
-                <div className="grid min-h-14 grid-cols-[3.25rem_2.75rem_minmax(0,1fr)_auto] items-center gap-x-2 border-b bg-muted/45 px-3 py-3 text-[0.6875rem] font-black tracking-wide text-muted-foreground uppercase sm:min-h-16 sm:grid-cols-[4rem_3.5rem_minmax(0,1fr)_auto] sm:gap-x-3 sm:px-4 sm:text-xs">
+                <div className="grid min-h-14 grid-cols-[2.75rem_2.75rem_minmax(0,1fr)_auto] items-center gap-x-2 border-b bg-muted/45 px-3 py-3 text-[0.6875rem] font-black tracking-wide text-muted-foreground uppercase sm:min-h-16 sm:grid-cols-[4rem_3.5rem_minmax(0,1fr)_auto] sm:gap-x-3 sm:px-4 sm:text-xs">
                   <span>{t("rankHeader")}</span>
                   <span className="col-span-2">{t("playerHeader")}</span>
                   <span className="max-w-20 text-center leading-tight">

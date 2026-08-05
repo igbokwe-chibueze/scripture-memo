@@ -1,5 +1,36 @@
 # Scripture Memo Project Log
 
+### 2026-08-05 — Compact leaderboard help label
+
+- Shortened the league-header help control to `Rank info`, with equally compact
+  Spanish and French labels, while retaining the full explanatory drawer title.
+
+### 2026-08-05 — Leaderboard help and extra-small header control
+
+- Reframed the league browser as `How rankings work` with a question-mark icon
+  and equal height beside the weekly reset card.
+- Below 360px, the accessible control becomes icon-only so the reset date keeps
+  enough width to remain readable.
+- Expanded the league drawer with compact translated rules for earning points,
+  weekly resets, promotion and demotion, Saint Crowns, and the full league path.
+
+### 2026-08-05 — Compact mobile league header
+
+- Rebalanced the weekly league header for 375px with a smaller emblem, tighter
+  spacing, and compact type while preserving the larger desktop composition.
+- Removed mobile title truncation so localized league names can wrap cleanly.
+- Placed the league browser and weekly reset information in one efficient row,
+  reducing vertical travel without shrinking either control below touch size.
+
+### 2026-08-05 — Leaderboard learner label and mobile spacing
+
+- Replaced the signed-in learner's leaderboard display name plus appended
+  qualifier with the single localized label `You`.
+- Reduced rank plate width, height, type, and crown size at the 375px baseline;
+  the established larger proportions still return from the `sm` breakpoint.
+- Commented out the rankings-heading player count until the live leaderboard
+  population grows, while retaining the localized markup for easy restoration.
+
 ### 2026-08-05 — Leaderboard hydration and LCP correction
 
 - Removed hydration-unsafe per-row Framer Motion state. Server rendering had
