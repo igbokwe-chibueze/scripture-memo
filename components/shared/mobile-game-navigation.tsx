@@ -42,7 +42,13 @@ export function MobileGameNavigation({
   return (
     <div className="min-h-dvh bg-background pb-[calc(5.75rem+env(safe-area-inset-bottom))] md:pb-0 md:pl-24 xl:pl-28">
       <PresenceHeartbeat />
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-24 flex-col border-r border-violet-300/15 bg-[#090817] px-2 py-5 text-white shadow-[12px_0_30px_rgb(5_4_15/0.16)] md:flex xl:w-28" aria-label={t("desktopPlayerNavigation")}>
+      {/*
+       * WHY: This restrained shadow separates the persistent rail from page
+       * content without making it look like a heavy modal. Casting it toward
+       * the centre creates the same raised-navigation language used by the
+       * mobile bar below.
+       */}
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-24 flex-col border-r border-violet-300/15 bg-[#090817] px-2 py-5 text-white shadow-[8px_0_20px_-10px_rgb(0_0_0/0.34)] md:flex xl:w-28" aria-label={t("desktopPlayerNavigation")}>
         <Link href="/game" className="mx-auto grid size-14 place-items-center rounded-2xl bg-amber-400/10 text-amber-300 shadow-[inset_0_0_18px_rgb(251_191_36/0.1)]" aria-label={t("scriptureMemoHome")}>
           <FlameIcon className="size-8" aria-hidden="true" />
         </Link>
@@ -74,7 +80,7 @@ export function MobileGameNavigation({
       <div className="min-w-0">{children}</div>
       <nav
         aria-label={t("playerNavigation")}
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-violet-300/20 bg-[#090817]/98 px-1.5 pb-[max(0.45rem,env(safe-area-inset-bottom))] pt-2 text-white shadow-[0_-10px_30px_rgb(5_4_15/0.4)] backdrop-blur-xl md:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-violet-300/20 bg-[#090817]/98 px-1.5 pb-[max(0.45rem,env(safe-area-inset-bottom))] pt-2 text-white shadow-[0_-7px_20px_-10px_rgb(0_0_0/0.42)] backdrop-blur-xl md:hidden"
       >
         <ul className="mx-auto grid max-w-lg grid-cols-6 gap-1">
           {navigationItems.map(({ href, labelKey, icon: Icon, exact }) => {

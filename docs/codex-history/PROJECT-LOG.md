@@ -2323,3 +2323,11 @@ implement the private progress archive and mastered-verse replay flow.
 - Recovered the prior development transcript into the codex-history archive.
 - Completed project bootstrap and global UI foundation work.
 - Added the landing page, theme system, shared components, and UI preview.
+
+### 2026-08-06 — Shared navigation elevation
+
+- Refined the persistent player navigation elevation so the desktop side rail
+  casts a subtle shadow toward the centre content and the mobile bottom bar
+  casts the matching restrained shadow upward.
+- Kept the treatment on the shared navigation component so every protected
+  game page receives the same visual separation automatically.
