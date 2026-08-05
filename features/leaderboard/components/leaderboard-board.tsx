@@ -22,6 +22,7 @@ import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { initializeBeaconLeagueAction } from "@/features/beacon/actions/initialize-beacon-league.action";
 import { LeagueEmblem } from "@/features/beacon/components/league-emblem";
 import { LeagueJourneyDialog } from "@/features/beacon/components/league-journey-dialog";
+import { BEACON_COHORT_SIZE } from "@/features/beacon/constants/beacon-progression";
 import type {
   LeaderboardEntry,
   LeaderboardPageData,
@@ -46,6 +47,48 @@ import {
 type LeaderboardBoardProps = {
   data: LeaderboardPageData;
 };
+
+/**
+ * Shows a compact league deadline without making the server-rendered markup
+ * depend on the device clock. The placeholder is identical during SSR and the
+ * first client render; the real value appears immediately after hydration.
+ */
+function LeagueRemainingTime({ endsAt }: { endsAt: string }): React.ReactNode {
+  const t = useTranslations("Leaderboard");
+  const [remainingMs, setRemainingMs] = useState<number | null>(null);
+
+  useEffect(() => {
+    const deadline = new Date(endsAt).getTime();
+
+    const updateRemainingTime = (): void => {
+      setRemainingMs(Math.max(0, deadline - Date.now()));
+    };
+
+    updateRemainingTime();
+    const intervalId = window.setInterval(updateRemainingTime, 60_000);
+
+    return () => window.clearInterval(intervalId);
+  }, [endsAt]);
+
+  if (remainingMs === null) {
+    return <>{t("leagueEndsSoon")}</>;
+  }
+
+  const totalMinutes = Math.max(0, Math.ceil(remainingMs / 60_000));
+  const days = Math.floor(totalMinutes / (24 * 60));
+  const hours = Math.floor((totalMinutes % (24 * 60)) / 60);
+  const minutes = totalMinutes % 60;
+
+  if (days > 0) {
+    return <>{t("leagueEndsInDays", { days, hours })}</>;
+  }
+
+  if (hours > 0) {
+    return <>{t("leagueEndsInHours", { hours, minutes })}</>;
+  }
+
+  return <>{t("leagueEndsInMinutes", { minutes })}</>;
+}
 
 /** Builds a stable URL for one server-rendered scope and page. */
 function leaderboardHref(
@@ -443,8 +486,8 @@ export function LeaderboardBoard({
 
       {isWeeklyScope && (
         <section className="mt-4 overflow-hidden rounded-3xl border border-violet-400/25 bg-linear-to-br from-card via-card to-violet-500/10 p-3 shadow-lg sm:p-6">
-          <div className="grid grid-cols-[5rem_minmax(0,1fr)] items-center gap-2.5 sm:grid-cols-[9rem_minmax(0,1fr)_auto] sm:gap-5">
-            <div className="grid size-20 place-items-center sm:size-auto sm:aspect-square">
+          <div className="grid grid-cols-[5.75rem_minmax(0,1fr)] items-center gap-2.5 max-[359px]:grid-cols-[5rem_minmax(0,1fr)] sm:grid-cols-[10.5rem_minmax(0,1fr)_auto] sm:gap-5">
+            <div className="grid size-[5.75rem] place-items-center max-[359px]:size-20 sm:size-auto sm:aspect-square">
               {data.scope === "league" ? (
                 <LeagueEmblem
                   league={data.league}
@@ -465,13 +508,13 @@ export function LeaderboardBoard({
                   ? t("leagueCompetition")
                   : t("weeklyCompetition")}
               </p>
-              <p className="mt-1 font-heading text-xl leading-tight font-black sm:text-3xl">
+              <p className="mt-1 font-heading text-xl leading-tight font-black max-[359px]:text-lg max-[359px]:whitespace-nowrap sm:text-3xl">
                 {data.scope === "league"
                   ? t("leagueName", { league: t(`leagues.${data.league}`) })
                   : data.activeFellowshipName ?? t("country")}
               </p>
               <p className="mt-1 text-xs font-bold text-muted-foreground sm:text-sm">
-                {t("players", { count: data.totalPlayers })}
+                <LeagueRemainingTime endsAt={data.weekEndsAt} />
               </p>
             </div>
             <div className="col-span-2 mt-1 grid grid-cols-[auto_minmax(0,1fr)] items-stretch gap-2 sm:col-span-1 sm:mt-0 sm:flex sm:flex-col sm:items-end">
@@ -497,19 +540,33 @@ export function LeaderboardBoard({
           {data.scope === "league" && (
             <div className="mt-4 rounded-2xl border bg-background/65 p-3 sm:mt-5">
               <div className="grid grid-cols-3 text-center text-[0.65rem] font-black sm:text-xs">
-                <span className="text-emerald-700 dark:text-emerald-300">{t("promote")}</span>
-                <span>{t("stay")}</span>
-                <span className="text-rose-700 dark:text-rose-300">{t("demote")}</span>
+                <span className="grid gap-0.5 text-emerald-700 dark:text-emerald-300">
+                  <span>{t("promote")}</span>
+                  <span>{t("topCount", { count: data.promotionCount })}</span>
+                </span>
+                <span className="self-start">{t("stay")}</span>
+                <span className="grid gap-0.5 text-rose-700 dark:text-rose-300">
+                  <span>{t("demote")}</span>
+                  <span>{t("bottomCount", { count: data.demotionCount })}</span>
+                </span>
               </div>
-              <div className="relative mt-2 flex h-3 overflow-visible rounded-full bg-muted">
+              <div className="relative mt-2 flex h-3 overflow-visible rounded-full">
                 <span
                   className="rounded-l-full bg-emerald-500"
-                  style={{ width: `${Math.min(100, (data.promotionCount / Math.max(1, data.totalPlayers)) * 100)}%` }}
+                  style={{ flex: data.promotionCount }}
                 />
-                <span className="min-w-3 flex-1 bg-muted" />
+                <span
+                  className="bg-slate-300 dark:bg-slate-600"
+                  style={{
+                    flex:
+                      BEACON_COHORT_SIZE -
+                      data.promotionCount -
+                      data.demotionCount,
+                  }}
+                />
                 <span
                   className="rounded-r-full bg-rose-400"
-                  style={{ width: `${data.totalPlayers >= 10 ? (data.demotionCount / data.totalPlayers) * 100 : 0}%` }}
+                  style={{ flex: data.demotionCount }}
                 />
                 {data.currentUser && (
                   <span
@@ -520,7 +577,7 @@ export function LeaderboardBoard({
                         Math.max(
                           2,
                           (((data.currentUser.rank ?? 1) - 0.5) /
-                            Math.max(1, data.totalPlayers)) *
+                            BEACON_COHORT_SIZE) *
                             100,
                         ),
                       )}%`,
@@ -532,16 +589,6 @@ export function LeaderboardBoard({
                     {data.currentUser.rank ?? 1}
                   </span>
                 )}
-              </div>
-              <div className="mt-3 grid grid-cols-2 gap-2 text-center text-xs font-black">
-                <span className="rounded-xl bg-emerald-500/12 px-2 py-2 text-emerald-700 dark:text-emerald-300">
-                  {t("promotionZone", { count: data.promotionCount })}
-                </span>
-                <span className="rounded-xl bg-rose-500/12 px-2 py-2 text-rose-700 dark:text-rose-300">
-                  {data.totalPlayers >= 10
-                    ? t("demotionZone", { count: data.demotionCount })
-                    : t("noDemotion")}
-                </span>
               </div>
             </div>
           )}

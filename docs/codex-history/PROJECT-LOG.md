@@ -1,5 +1,36 @@
 # Scripture Memo Project Log
 
+### 2026-08-05 — Extra-small league title fit
+
+- Preserved the prominent 92px mobile emblem from 360px upward while returning
+  it to 80px below 360px, where the larger asset squeezed the title column.
+- Reduced only the extra-small league-title type and kept it on one line; the
+  168px larger-screen emblem remains unchanged.
+
+### 2026-08-05 — More prominent league emblem
+
+- Increased the weekly league emblem from 80px to 92px at the mobile baseline
+  and from 144px to 168px on larger screens.
+- Expanded the matching grid columns so the emblem gains hierarchy without
+  overlapping or compressing the adjacent league information.
+
+### 2026-08-05 — Live league deadline summary
+
+- Replaced the league-header player count with a compact live deadline such as
+  `Ends in 3d 12h`, while retaining the exact UTC reset date beside it.
+- The countdown initializes after hydration to avoid server/device-clock markup
+  differences and refreshes once per minute without reloading leaderboard data.
+- Added compact deadline copy for English, Spanish, and French.
+
+### 2026-08-05 — Three-zone league position bar
+
+- Divided the weekly league bar into persistent promotion, stay, and demotion
+  colours using the approved 30-player structure: 7, 18, and 5 places.
+- Added compact `Top 7` and `Bottom 5` labels beneath the outer zone headings
+  and removed the redundant status blocks below the bar.
+- Positioned the learner marker against the full cohort scale so it corresponds
+  to the same zone boundaries shown visually.
+
 ### 2026-08-05 — Compact leaderboard help label
 
 - Shortened the league-header help control to `Rank info`, with equally compact
