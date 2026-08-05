@@ -19,6 +19,7 @@ import type {
   LeaderboardScope,
   UserScopeRanks,
 } from "@/features/leaderboard/types/leaderboard.types";
+import { createTrailRivals } from "@/features/leaderboard/data/trail-rivals";
 
 const FIRST_PAGINATED_RANK = 4;
 const DEFAULT_PAGE_SIZE = 20;
@@ -37,6 +38,7 @@ type RawLeaderboardEntry = {
   league: BeaconLeague;
   rank: bigint;
   totalPlayers: bigint;
+  lastSeenAt: Date | null;
 };
 
 type RankingQuery = {
@@ -58,8 +60,10 @@ function normalizeLimit(limit: number): number {
 function toLeaderboardEntry(
   row: RawLeaderboardEntry,
   currentUserId: string,
+  now: Date,
 ): LeaderboardEntry {
   return {
+    kind: "PLAYER",
     rank: Number(row.rank),
     displayName: row.displayName,
     avatarKey: normalizeAvatarKey(row.avatarKey),
@@ -72,6 +76,12 @@ function toLeaderboardEntry(
     crowns: row.crowns,
     league: row.league,
     isCurrentUser: row.userId === currentUserId,
+    // The requesting learner is necessarily online while this server-rendered
+    // page is being produced; other accounts use the coarse heartbeat window.
+    isOnline:
+      row.userId === currentUserId ||
+      (row.lastSeenAt !== null &&
+        row.lastSeenAt.getTime() >= now.getTime() - (5 * 60 * 1000)),
   };
 }
 
@@ -82,6 +92,7 @@ async function getRanking(input: {
   page: number;
   limit: number;
   query: RankingQuery;
+  now: Date;
 }): Promise<LeaderboardRanking> {
   const page = normalizePage(input.page);
   const limit = normalizeLimit(input.limit);
@@ -95,6 +106,7 @@ async function getRanking(input: {
         profile."avatarKey" AS "avatarKey",
         profile."avatarFrameKey" AS "avatarFrameKey",
         profile."countryCode" AS "countryCode",
+        profile."lastSeenAt" AS "lastSeenAt",
         COALESCE(score.points, 0) AS "weeklyXp",
         COALESCE(score."waypointsCompleted", 0) AS "waypointsCompletedThisWeek",
         profile."beaconXp" AS "beaconXp",
@@ -121,16 +133,22 @@ async function getRanking(input: {
     ORDER BY rank ASC
   `);
   const entries = rows.map((row) =>
-    toLeaderboardEntry(row, input.currentUserId),
+    toLeaderboardEntry(row, input.currentUserId, input.now),
   );
   const totalPlayers = Number(rows[0]?.totalPlayers ?? 0);
 
   return {
-    podium: entries.filter((entry) => entry.rank <= 3),
+    podium: entries.filter(
+      (entry) => entry.rank !== null && entry.rank <= 3,
+    ),
     entries: entries.filter(
-      (entry) => entry.rank >= pageStart && entry.rank <= pageEnd,
+      (entry) =>
+        entry.rank !== null &&
+        entry.rank >= pageStart &&
+        entry.rank <= pageEnd,
     ),
     currentUser: entries.find((entry) => entry.isCurrentUser) ?? null,
+    rivals: [],
     page,
     totalPages: Math.max(1, Math.ceil(Math.max(0, totalPlayers - 3) / limit)),
     totalPlayers,
@@ -203,6 +221,7 @@ export const leaderboardRepository = {
         podium: [],
         entries: [],
         currentUser: null,
+        rivals: [],
         page: 1,
         totalPages: 1,
         totalPlayers: 0,
@@ -251,9 +270,23 @@ export const leaderboardRepository = {
       page: input.page,
       limit: DEFAULT_PAGE_SIZE,
       query,
+      now,
     });
+    const rivals =
+      scope === "league" || scope === "country"
+        ? createTrailRivals({
+            viewerId: input.userId,
+            scope,
+            countryCode,
+            league: competition.league,
+            weekStartsAt: competition.startsAt,
+            now,
+            realVisibleCount: ranking.podium.length + ranking.entries.length,
+          })
+        : [];
     return {
       ...ranking,
+      rivals,
       needsEnrollment: false,
       scope,
       countryCode,

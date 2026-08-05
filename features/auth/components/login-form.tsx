@@ -55,7 +55,7 @@ export function LoginForm({ nextPath }: LoginFormProps): React.ReactNode {
   }
 
   return (
-    <form onSubmit={form.handleSubmit(submit)} noValidate>
+    <form method="post" onSubmit={form.handleSubmit(submit)} noValidate>
       <FieldGroup>
         <Field data-invalid={Boolean(form.formState.errors.email)}>
           <FieldLabel htmlFor="login-email">{t("email")}</FieldLabel>

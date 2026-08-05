@@ -1507,6 +1507,26 @@ campaign or award Glow Points.
   premium frames in the browser is not an authorization boundary.
 - The same composed portrait and frame appear in profile settings and every
   leaderboard scope.
+- Leaderboard portraits show country through packaged SVG flags without
+  repeating its country code or depending on operating-system emoji support. A
+  green dot means the real account reported protected-route activity in
+  the previous five minutes; exact last-seen timestamps are never exposed.
+- League and Country views may be filled with viewer-specific Trail Rivals.
+  Rivals use deterministic weekly schedules with idle days and discrete scoring
+  sessions. Every displayed row receives an easy-to-read table position, while
+  a compass beside a rival's name explains that its position is presentational
+  and never affects official promotion, demotion, rewards, Crowns, or progression.
+- Leaderboard rows show only the scope-relevant Beacon Points. Selecting a row
+  opens a compact detail dialog for the player's secondary Beacon statistics.
+- The leaderboard list has Rank, Player, and Beacon Points headers. Displayed
+  positions one through three receive custom crown marks and metallic gold,
+  silver, and bronze rank plates; the signed-in learner receives a violet row
+  and rank treatment so their position is immediately recognizable.
+- At the 375px foundation width, compact rank plates, portraits, gaps, and score
+  pills reserve most flexible width for the player's name. Comfortable row
+  padding provides breathing room without enlarging fixed controls.
+- Trail Rivals never appear in Fellowship or All Time views and are not stored as
+  users, profiles, progression records, or presence records.
 
 ### Admin Verse Actions (ADMIN+)
 - `createVerseAction`

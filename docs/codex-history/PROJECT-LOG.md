@@ -1,5 +1,63 @@
 # Scripture Memo Project Log
 
+### 2026-08-05 — Leaderboard hydration and LCP correction
+
+- Removed hydration-unsafe per-row Framer Motion state. Server rendering had
+  emitted translated rows while a reduced-motion phone hydrated them without a
+  transform, producing mismatched inline styles across the full leaderboard.
+- Leaderboard rows now render as stable semantic articles on server and client.
+- Added explicit eager loading for the first three leaderboard portraits and
+  retained lazy loading below the fold, resolving Next.js's avatar LCP warning.
+
+### 2026-08-05 — Safe physical-device authentication testing
+
+- Added one development-only origin source shared by Next.js asset protection
+  and Better Auth trusted-origin validation for LAN device testing.
+- Allowed `http://192.168.100.11:3000` by default, with a documented
+  `DEV_ALLOWED_ORIGINS` override for DHCP address changes.
+- Changed the login form's no-JavaScript fallback to POST so blocked client
+  assets can never place credentials in the URL or access logs again.
+
+### 2026-08-05 — Mobile-first leaderboard proportions
+
+- Corrected the 375px leaderboard after oversized fixed columns squeezed player
+  names. Rank plates, portraits, gaps, flags, and score pills are compact first.
+- Preserved visual breathing room through row height and padding rather than
+  consuming the flexible identity column; desktop enhances those proportions.
+
+### 2026-08-05 — Podium rank plates and leaderboard headers
+
+- Added aligned Rank, Player, and Beacon Points headers to the leaderboard list.
+- Added custom filled crown icons and metallic gold, silver, and bronze rank
+  plates for displayed positions one through three.
+- Changed the signed-in learner's row and non-podium rank plate to violet so
+  their current position remains visually distinct without extra explanatory text.
+
+### 2026-08-05 — Leaderboard row clarity and player details
+
+- Replaced the mixed crown/compass position column with sequential visible
+  positions for real players and Trail Rivals; rivals retain a compass beside
+  their name so the simulation remains transparent.
+- Reduced each row to its scope-relevant Beacon Points. Selecting a row now
+  opens a compact dialog with secondary Beacon statistics.
+- Replaced Unicode regional-indicator flags with packaged SVG assets so Windows
+  cannot expose their underlying two-letter country symbols.
+- Added distinct visual icons to the weekly points, Beacon Level, lifetime
+  points, and Crowns cards in the player-details dialog.
+
+### 2026-08-05 — Presence, country flags, and Trail Rivals
+
+- Simplified player location to a visual country flag and added a throttled,
+  server-timed five-minute online indicator around real leaderboard portraits.
+- Added viewer-specific Trail Rivals to sparse League and Country boards only.
+  Their deterministic weekly simulation includes idle days and discrete play
+  sessions so scores can remain stagnant or rise naturally between refreshes.
+- Kept all official ranking math isolated from Rivals: they use a compass marker,
+  have no user/progression records, and cannot affect promotions, demotions,
+  Crowns, rewards, Fellowship rankings, or permanent history.
+- Added presence and rival simulation tests and applied the additive presence
+  migration without exposing exact last-seen timestamps.
+
 ### 2026-08-05 — Player portraits and Partner frames
 
 - Added twelve independent transparent animal portraits: lion, dove, deer,

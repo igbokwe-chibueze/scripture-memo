@@ -195,6 +195,7 @@ The server and database are the only sources of truth for all security-sensitive
 | 9.6 | Audit logs are readable only by SUPER_ADMIN | 🟠 High | ☐ Pending | Audit logs contain sensitive operational history |
 | 9.7 | Production error messages do not reveal stack traces, schema details, or Prisma errors | 🟠 High | ☐ Pending | Catch and sanitize all errors before returning to client |
 | 9.8 | Server logs never contain passwords, session tokens, or secret values | 🔴 Critical | ☐ Pending | Review all `logger.ts` calls |
+| 9.8A | Auth forms use POST as their native fallback so missing client JavaScript cannot place credentials in URLs or access logs | 🔴 Critical | ✅ Implemented | Login remains a Better Auth-backed Server Action after hydration |
 | 9.9 | Hidden badge names and descriptions are omitted from API responses for locked+hidden badges | 🟡 Medium | ☐ Pending | Only reveal badge identity on unlock |
 
 ---

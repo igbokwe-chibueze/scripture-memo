@@ -1,8 +1,9 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
 import {
   CrownIcon,
+  CompassIcon,
+  FlameIcon,
   MapPinCheckIcon,
   MedalIcon,
   SparklesIcon,
@@ -28,23 +29,23 @@ import type {
 } from "@/features/leaderboard/types/leaderboard.types";
 import { cn } from "@/lib/utils";
 import { PlayerAvatar } from "@/features/profile/components/player-avatar";
+import { CountryFlag } from "@/components/shared/country-flag";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 type LeaderboardBoardProps = {
   data: LeaderboardPageData;
 };
-
-/** Converts an ISO country code into a compact flag without exposing location data. */
-function countryFlag(countryCode: string | null): string {
-  // A textual fallback avoids relying on an emoji font that may not be
-  // available in embedded browsers or older mobile WebViews.
-  if (!countryCode || !/^[A-Z]{2}$/.test(countryCode)) return "--";
-
-  return String.fromCodePoint(
-    ...countryCode
-      .split("")
-      .map((character) => 127397 + character.charCodeAt(0)),
-  );
-}
 
 /** Builds a stable URL for one server-rendered scope and page. */
 function leaderboardHref(
@@ -57,80 +58,237 @@ function leaderboardHref(
   return `/leaderboard?${parameters.toString()}`;
 }
 
+/** A compact filled crown designed specifically for the top-three rank plates. */
+function RankCrownIcon({ className }: { className?: string }): React.ReactNode {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      aria-hidden="true"
+    >
+      <path
+        fill="currentColor"
+        d="m3.2 7.2 4.3 3.1L12 4l4.5 6.3 4.3-3.1-1.7 9.1H4.9L3.2 7.2Zm2.1 10.6h13.4v2H5.3v-2Z"
+      />
+    </svg>
+  );
+}
+
+/** Gives podium places and the signed-in player distinct, game-like rank plates. */
+function RankPlate({
+  position,
+  isCurrentUser,
+}: {
+  position: number;
+  isCurrentUser: boolean;
+}): React.ReactNode {
+  const isPodium = position <= 3;
+
+  return (
+    <span
+      className={cn(
+        "grid min-h-14 grid-cols-[auto_auto] place-content-center gap-1 rounded-xl border px-1.5 font-heading text-lg font-black shadow-[0_3px_0_rgb(0_0_0/0.18)] sm:min-h-16 sm:rounded-2xl sm:px-2 sm:text-xl",
+        position === 1 &&
+          "border-yellow-500 bg-linear-to-br from-yellow-200 via-amber-300 to-yellow-500 text-amber-950",
+        position === 2 &&
+          "border-slate-400 bg-linear-to-br from-white via-slate-200 to-slate-400 text-slate-800",
+        position === 3 &&
+          "border-orange-600 bg-linear-to-br from-orange-200 via-amber-500 to-orange-700 text-orange-950",
+        !isPodium &&
+          !isCurrentUser &&
+          "border-border bg-muted/55 text-foreground",
+        !isPodium &&
+          isCurrentUser &&
+          "border-violet-500 bg-linear-to-br from-violet-500 to-purple-800 text-white",
+      )}
+    >
+      <span>{position}</span>
+      {isPodium && <RankCrownIcon className="size-4 sm:size-5" />}
+    </span>
+  );
+}
+
 /** Compact mobile-first row used for rank four and below. */
 function RankingRow({
   entry,
+  displayedPosition,
+  onSelect,
   pinned = false,
   scope,
   zone = "steady",
 }: {
   entry: LeaderboardEntry;
+  displayedPosition: number;
+  onSelect: (entry: LeaderboardEntry) => void;
   pinned?: boolean;
   scope: LeaderboardScope;
   zone?: "promotion" | "steady" | "demotion";
 }): React.ReactNode {
   const t = useTranslations("Leaderboard");
-  const reduceMotion = useReducedMotion();
+  const isRival = entry.kind === "RIVAL";
 
   return (
-    <motion.article
-      initial={{ opacity: 0, x: reduceMotion ? 0 : -14 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: reduceMotion ? 0 : 0.28, delay: Math.min(entry.rank, 8) * 0.035 }}
+    <article
+      role="button"
+      tabIndex={0}
+      onClick={() => onSelect(entry)}
+      onKeyDown={(event) => {
+        // Rows behave like one large touch target while remaining operable for
+        // keyboard players without nesting interactive buttons inside buttons.
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onSelect(entry);
+        }
+      }}
       className={cn(
-        "grid grid-cols-[2.5rem_3rem_minmax(0,1fr)] gap-x-3 border-b p-4 last:border-0 sm:grid-cols-[3rem_3.5rem_minmax(0,1fr)_auto] sm:items-center",
-        entry.isCurrentUser && "bg-amber-400/10",
-        pinned && "rounded-2xl border border-amber-400/35 bg-amber-400/12",
+        "grid min-h-24 w-full grid-cols-[3.25rem_2.75rem_minmax(0,1fr)_auto] items-center gap-x-2 border-b px-3 py-4 text-left last:border-0 hover:bg-muted/45 focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-primary sm:min-h-28 sm:grid-cols-[4rem_3.5rem_minmax(0,1fr)_auto] sm:gap-x-3 sm:px-4 sm:py-5",
+        entry.isCurrentUser &&
+          "bg-violet-500/10 text-violet-950 dark:text-violet-100",
+        pinned && "rounded-2xl border border-violet-400/40 bg-violet-500/10",
         zone === "promotion" && "border-l-4 border-l-emerald-500",
         zone === "demotion" && "border-l-4 border-l-rose-500",
-        entry.rank === 1 && "bg-amber-400/12",
-        entry.rank === 2 && "bg-slate-400/10",
-        entry.rank === 3 && "bg-orange-500/10",
       )}
     >
-      <span className="grid size-10 place-items-center rounded-2xl bg-muted font-heading font-black">
-        {entry.rank <= 3 ? (
-          <span className="relative">
-            <CrownIcon className="size-5" aria-hidden="true" />
-            <span className="sr-only">{entry.rank}</span>
-          </span>
-        ) : entry.rank}
-      </span>
+      <RankPlate
+        position={displayedPosition}
+        isCurrentUser={entry.isCurrentUser}
+      />
       <PlayerAvatar
         avatarKey={entry.avatarKey}
         frameKey={entry.avatarFrameKey}
         displayName={entry.displayName}
         size="sm"
-        className="sm:size-14"
+        className="size-11 sm:size-14"
+        isOnline={entry.isOnline}
+        loading={displayedPosition <= 3 ? "eager" : "lazy"}
       />
       <div className="min-w-0">
-        <p className="truncate font-black">
+        <p className="truncate text-sm font-black sm:text-lg">
           {entry.displayName}
+          {isRival && (
+            <Tooltip>
+              <TooltipTrigger
+                aria-label={t("trailRival")}
+                className="ml-2 inline-grid size-6 place-items-center rounded-full bg-violet-500/10 align-middle text-violet-600 dark:text-violet-300"
+                onClick={(event) => event.stopPropagation()}
+              >
+                <CompassIcon className="size-4" aria-hidden="true" />
+              </TooltipTrigger>
+              <TooltipContent>{t("trailRivalExplanation")}</TooltipContent>
+            </Tooltip>
+          )}
           {entry.isCurrentUser && (
-            <span className="ml-2 text-xs text-amber-700 dark:text-amber-300">
+            <span className="ml-2 text-xs text-violet-700 dark:text-violet-300">
               {t("you")}
             </span>
           )}
         </p>
-        <p className="text-xs text-muted-foreground">
-          {countryFlag(entry.countryCode)} {entry.countryCode ?? t("globalPlayer")}
-        </p>
+        <CountryFlag
+          countryCode={entry.countryCode}
+          label={entry.countryCode ? t("countryFlag") : t("globalPlayer")}
+          className="mt-1.5 h-5 w-7 sm:h-6 sm:w-9"
+        />
       </div>
-      <div className="col-start-3 mt-3 flex flex-wrap gap-3 text-xs font-black sm:col-start-auto sm:mt-0">
-        <span className="inline-flex items-center gap-1">
-          <SparklesIcon className="size-4" aria-hidden="true" />
+      <div className="text-sm font-black sm:text-lg">
+        <span className="inline-flex min-h-10 items-center gap-1 rounded-xl bg-primary/10 px-2 py-2 text-primary sm:min-h-12 sm:gap-2 sm:rounded-2xl sm:px-4 sm:py-3">
+          <SparklesIcon className="size-4 shrink-0 sm:size-5" aria-hidden="true" />
           {(scope === "all-time" ? entry.beaconXp : entry.weeklyXp).toLocaleString()}
         </span>
-        <span className="inline-flex items-center gap-1 text-amber-700 dark:text-amber-300">
-          <TrophyIcon className="size-4" aria-hidden="true" />
-          {entry.beaconLevel.toLocaleString()}
-        </span>
-        <span className="inline-flex items-center gap-1">
-          <CrownIcon className="size-4" aria-hidden="true" />
-          {entry.crowns.toLocaleString()}
-        </span>
       </div>
-    </motion.article>
+    </article>
+  );
+}
+
+/** Shows secondary stats only after the player explicitly asks for details. */
+function PlayerDetailsDialog({
+  entry,
+  onOpenChange,
+}: {
+  entry: LeaderboardEntry | null;
+  onOpenChange: (open: boolean) => void;
+}): React.ReactNode {
+  const t = useTranslations("Leaderboard");
+
+  return (
+    <Dialog open={entry !== null} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md rounded-3xl p-6">
+        {entry && (
+          <>
+            <DialogHeader className="items-center pr-10 text-center">
+              <PlayerAvatar
+                avatarKey={entry.avatarKey}
+                frameKey={entry.avatarFrameKey}
+                displayName={entry.displayName}
+                size="lg"
+                isOnline={entry.isOnline}
+              />
+              <DialogTitle className="text-2xl font-black">
+                {entry.displayName}
+              </DialogTitle>
+              <DialogDescription>
+                {entry.kind === "RIVAL"
+                  ? t("trailRivalExplanation")
+                  : t("playerDetailsDescription")}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-2xl border bg-muted/50 p-4">
+                <SparklesIcon
+                  className="mb-3 size-6 text-violet-500"
+                  aria-hidden="true"
+                />
+                <p className="text-xs font-bold text-muted-foreground">
+                  {t("weeklyBeaconPoints")}
+                </p>
+                <p className="mt-1 text-xl font-black">
+                  {entry.weeklyXp.toLocaleString()}
+                </p>
+              </div>
+              {entry.kind === "PLAYER" && (
+                <>
+                  <div className="rounded-2xl border bg-muted/50 p-4">
+                    <TrophyIcon
+                      className="mb-3 size-6 text-amber-500"
+                      aria-hidden="true"
+                    />
+                    <p className="text-xs font-bold text-muted-foreground">
+                      {t("beaconLevel")}
+                    </p>
+                    <p className="mt-1 text-xl font-black">
+                      {entry.beaconLevel.toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border bg-muted/50 p-4">
+                    <FlameIcon
+                      className="mb-3 size-6 text-orange-500"
+                      aria-hidden="true"
+                    />
+                    <p className="text-xs font-bold text-muted-foreground">
+                      {t("lifetimeBeaconPoints")}
+                    </p>
+                    <p className="mt-1 text-xl font-black">
+                      {entry.beaconXp.toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border bg-muted/50 p-4">
+                    <CrownIcon
+                      className="mb-3 size-6 text-yellow-500"
+                      aria-hidden="true"
+                    />
+                    <p className="text-xs font-bold text-muted-foreground">
+                      {t("crownsLabel")}
+                    </p>
+                    <p className="mt-1 text-xl font-black">
+                      {entry.crowns.toLocaleString()}
+                    </p>
+                  </div>
+                </>
+              )}
+            </div>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -146,12 +304,21 @@ export function LeaderboardBoard({
   const evaluationStarted = useRef(false);
   const enrollmentStarted = useRef(false);
   const [badgeUnlocks, setBadgeUnlocks] = useState<BadgeUnlockResult[]>([]);
-  const visibleEntries = [...data.podium, ...data.entries]
+  const [selectedEntry, setSelectedEntry] = useState<LeaderboardEntry | null>(null);
+  const realVisibleEntries = [...data.podium, ...data.entries]
     .filter(
       (entry, index, allEntries) =>
         allEntries.findIndex((candidate) => candidate.rank === entry.rank) === index,
-    )
-    .toSorted((left, right) => left.rank - right.rank);
+    );
+  const visibleEntries = [...realVisibleEntries, ...data.rivals].toSorted(
+    (left, right) => {
+      if (data.scope === "all-time") {
+        return (left.rank ?? Number.MAX_SAFE_INTEGER) -
+          (right.rank ?? Number.MAX_SAFE_INTEGER);
+      }
+      return right.weeklyXp - left.weeklyXp;
+    },
+  );
   const currentUserAlreadyVisible = [...data.podium, ...data.entries].some(
     (entry) => entry.isCurrentUser,
   );
@@ -161,6 +328,7 @@ export function LeaderboardBoard({
   const rankZone = (
     entry: LeaderboardEntry,
   ): "promotion" | "steady" | "demotion" => {
+    if (entry.kind === "RIVAL" || entry.rank === null) return "steady";
     if (data.scope !== "league") return "steady";
     if (entry.rank <= data.promotionCount) return "promotion";
     if (
@@ -184,6 +352,15 @@ export function LeaderboardBoard({
       toast.error(result.message, { duration: Infinity });
     });
   }, [data.needsEnrollment, router]);
+
+  useEffect(() => {
+    if (data.scope !== "league" && data.scope !== "country") return;
+
+    // Periodic refresh reveals completed rival sessions and updated real-player
+    // presence without presenting continuously fabricated score movement.
+    const refreshId = window.setInterval(() => router.refresh(), 3 * 60 * 1000);
+    return () => window.clearInterval(refreshId);
+  }, [data.scope, router]);
 
   useEffect(() => {
     // Only the global view can earn Beacon Challenger. The ref prevents React
@@ -231,7 +408,11 @@ export function LeaderboardBoard({
             variant={data.scope === "country" ? "default" : "outline"}
             className="min-h-11"
           >
-            {countryFlag(data.countryCode)} {t("country")}
+            <CountryFlag
+              countryCode={data.countryCode}
+              label={t("countryFlag")}
+            />
+            {t("country")}
           </NavigationButton>
           {data.fellowships.map((fellowship) => (
             <NavigationButton
@@ -335,10 +516,22 @@ export function LeaderboardBoard({
                 {data.currentUser && (
                   <span
                     className="absolute top-1/2 grid size-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-xl bg-violet-600 font-heading text-xs font-black text-white shadow-lg ring-2 ring-white dark:ring-slate-950"
-                    style={{ left: `${Math.min(98, Math.max(2, ((data.currentUser.rank - 0.5) / Math.max(1, data.totalPlayers)) * 100))}%` }}
-                    aria-label={t("yourRankNumber", { rank: data.currentUser.rank })}
+                    style={{
+                      left: `${Math.min(
+                        98,
+                        Math.max(
+                          2,
+                          (((data.currentUser.rank ?? 1) - 0.5) /
+                            Math.max(1, data.totalPlayers)) *
+                            100,
+                        ),
+                      )}%`,
+                    }}
+                    aria-label={t("yourRankNumber", {
+                      rank: data.currentUser.rank ?? 1,
+                    })}
                   >
-                    {data.currentUser.rank}
+                    {data.currentUser.rank ?? 1}
                   </span>
                 )}
               </div>
@@ -392,10 +585,23 @@ export function LeaderboardBoard({
             </div>
             {visibleEntries.length > 0 ? (
               <div className="mt-4 overflow-hidden rounded-3xl border bg-card shadow-lg">
-                {visibleEntries.map((entry) => (
+                <div className="grid min-h-14 grid-cols-[3.25rem_2.75rem_minmax(0,1fr)_auto] items-center gap-x-2 border-b bg-muted/45 px-3 py-3 text-[0.6875rem] font-black tracking-wide text-muted-foreground uppercase sm:min-h-16 sm:grid-cols-[4rem_3.5rem_minmax(0,1fr)_auto] sm:gap-x-3 sm:px-4 sm:text-xs">
+                  <span>{t("rankHeader")}</span>
+                  <span className="col-span-2">{t("playerHeader")}</span>
+                  <span className="max-w-20 text-center leading-tight">
+                    {t("beaconPointsHeader")}
+                  </span>
+                </div>
+                {visibleEntries.map((entry, index) => (
                   <RankingRow
-                    key={entry.rank}
+                    key={
+                      entry.kind === "RIVAL"
+                        ? `rival-${entry.displayName}-${entry.avatarKey}-${index}`
+                        : `player-${entry.rank}`
+                    }
                     entry={entry}
+                    displayedPosition={index + 1}
+                    onSelect={setSelectedEntry}
                     scope={data.scope}
                     zone={rankZone(entry)}
                   />
@@ -448,6 +654,8 @@ export function LeaderboardBoard({
               </p>
               <RankingRow
                 entry={data.currentUser}
+                displayedPosition={data.currentUser.rank ?? 1}
+                onSelect={setSelectedEntry}
                 scope={data.scope}
                 zone={rankZone(data.currentUser)}
                 pinned
@@ -464,6 +672,13 @@ export function LeaderboardBoard({
           onAdvance={() => window.location.reload()}
         />
       )}
+
+      <PlayerDetailsDialog
+        entry={selectedEntry}
+        onOpenChange={(open) => {
+          if (!open) setSelectedEntry(null);
+        }}
+      />
     </>
   );
 }

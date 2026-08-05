@@ -164,27 +164,29 @@ model User {
 }
 
 model UserProfile {
-  id                      String   @id @default(cuid())
-  userId                  String   @unique
+  id                      String    @id @default(cuid())
+  userId                  String    @unique
   displayName             String
   countryCode             String?
-  totalGlowPoints         Int      @default(0)
-  totalWaypointsCompleted Int      @default(0)
-  totalHintsUsed          Int      @default(0)
-  beaconXp                Int      @default(0)
-  beaconLevel             Int      @default(1)
-  beaconCrowns            Int      @default(0)
-  avatarKey               String   @default("lion")
-  avatarFrameKey          String   @default("default")
-  isPartner               Boolean  @default(false)
-  createdAt               DateTime @default(now())
-  updatedAt               DateTime @updatedAt
-  user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  totalGlowPoints         Int       @default(0)
+  totalWaypointsCompleted Int       @default(0)
+  totalHintsUsed          Int       @default(0)
+  beaconXp                Int       @default(0)
+  beaconLevel             Int       @default(1)
+  beaconCrowns            Int       @default(0)
+  avatarKey               String    @default("lion")
+  avatarFrameKey          String    @default("default")
+  isPartner               Boolean   @default(false)
+  lastSeenAt              DateTime?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([totalWaypointsCompleted(sort: Desc), totalGlowPoints(sort: Desc)])
   @@index([totalGlowPoints(sort: Desc)])
   @@index([countryCode, totalWaypointsCompleted(sort: Desc), totalGlowPoints(sort: Desc)])
   @@index([beaconLevel(sort: Desc), beaconXp(sort: Desc)])
+  @@index([lastSeenAt])
 }
 
 model UserSettings {

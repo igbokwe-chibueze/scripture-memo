@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import { FlameIcon, HomeIcon, MapIcon, SettingsIcon, ShoppingCartIcon, UsersRoundIcon, VaultIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { PresenceHeartbeat } from "@/features/profile/components/presence-heartbeat";
 
 const navigationItems = [
   { href: "/game", labelKey: "home", icon: HomeIcon, exact: true },
@@ -29,10 +30,18 @@ export function MobileGameNavigation({
   const t = useTranslations("Navigation");
   const hidesNavigation = pathname.startsWith("/game/sessions/");
 
-  if (hidesNavigation) return children;
+  if (hidesNavigation) {
+    return (
+      <>
+        <PresenceHeartbeat />
+        {children}
+      </>
+    );
+  }
 
   return (
     <div className="min-h-dvh bg-background pb-[calc(5.75rem+env(safe-area-inset-bottom))] md:pb-0 md:pl-24 xl:pl-28">
+      <PresenceHeartbeat />
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-24 flex-col border-r border-violet-300/15 bg-[#090817] px-2 py-5 text-white shadow-[12px_0_30px_rgb(5_4_15/0.16)] md:flex xl:w-28" aria-label={t("desktopPlayerNavigation")}>
         <Link href="/game" className="mx-auto grid size-14 place-items-center rounded-2xl bg-amber-400/10 text-amber-300 shadow-[inset_0_0_18px_rgb(251_191_36/0.1)]" aria-label={t("scriptureMemoHome")}>
           <FlameIcon className="size-8" aria-hidden="true" />

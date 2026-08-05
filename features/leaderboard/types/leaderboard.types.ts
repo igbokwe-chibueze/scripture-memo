@@ -12,7 +12,8 @@ export type LeaderboardScope =
 
 /** Public-safe ranking row; identity keys and emails never leave repositories. */
 export type LeaderboardEntry = {
-  rank: number;
+  kind: "PLAYER" | "RIVAL";
+  rank: number | null;
   displayName: string;
   avatarKey: AvatarKey;
   avatarFrameKey: AvatarFrameKey;
@@ -24,6 +25,7 @@ export type LeaderboardEntry = {
   crowns: number;
   league: BeaconLeague;
   isCurrentUser: boolean;
+  isOnline: boolean;
 };
 
 export type LeaderboardFellowshipOption = {
@@ -35,6 +37,7 @@ export type LeaderboardRanking = {
   podium: LeaderboardEntry[];
   entries: LeaderboardEntry[];
   currentUser: LeaderboardEntry | null;
+  rivals: LeaderboardEntry[];
   page: number;
   totalPages: number;
   totalPlayers: number;

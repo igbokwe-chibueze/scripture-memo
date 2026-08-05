@@ -41,7 +41,7 @@ export function AvatarPicker({
           frameKey={isPartner ? frameKey : "default"}
           displayName={displayName || t("player")}
           size="xl"
-          priority
+          loading="eager"
         />
         <div className="min-w-0">
           <h3 id="avatar-picker-title" className="font-heading text-xl font-black">

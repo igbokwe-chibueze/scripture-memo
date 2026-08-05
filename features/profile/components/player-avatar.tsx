@@ -13,7 +13,8 @@ export type PlayerAvatarProps = {
   displayName: string;
   size?: "sm" | "md" | "lg" | "xl";
   className?: string;
-  priority?: boolean;
+  loading?: "eager" | "lazy";
+  isOnline?: boolean;
 };
 
 const sizeClasses = {
@@ -44,7 +45,8 @@ export function PlayerAvatar({
   displayName,
   size = "md",
   className,
-  priority = false,
+  loading = "lazy",
+  isOnline = false,
 }: PlayerAvatarProps): React.ReactNode {
   const safeAvatarKey = normalizeAvatarKey(avatarKey);
   const safeFrameKey = normalizeAvatarFrameKey(frameKey);
@@ -66,9 +68,15 @@ export function PlayerAvatar({
           fill
           sizes="112px"
           className="object-contain"
-          priority={priority}
+          loading={loading}
         />
       </span>
+      {isOnline ? (
+        <span
+          className="absolute right-0 bottom-0 size-[22%] min-h-2 min-w-2 rounded-full border-2 border-background bg-emerald-500 shadow-[0_0_8px_rgb(16_185_129/0.75)]"
+          aria-hidden="true"
+        />
+      ) : null}
     </span>
   );
 }

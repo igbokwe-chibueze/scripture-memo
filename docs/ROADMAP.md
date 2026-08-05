@@ -1450,6 +1450,20 @@ Beacon Challenger activation migration has been applied successfully.
   Leaderboard rows compose the selected portrait with a fixed standard frame or
   one of six Partner-only frames. Partner entitlement is persisted now and will
   be granted automatically by the later donation/subscription workflow.
+- Packaged SVG country flags and a coarse five-minute presence indicator appear
+  with real leaderboard portraits. Viewer-specific Trail Rivals fill sparse League and
+  Country boards through deterministic idle days and simulated play sessions;
+  every row gets a sequential visible position, while a rival's compass marker
+  sits beside its name. Rivals never influence real standings, promotion,
+  demotion, rewards, Fellowships, or All Time history.
+- Rows foreground only Beacon Points. Selecting a player opens a compact dialog
+  containing secondary Beacon progression statistics.
+- Rank, Player, and Beacon Points headers align with the list. Podium positions
+  use custom crowns and gold, silver, and bronze plates, while the signed-in
+  learner uses a violet position treatment.
+- The leaderboard table is composed for 375px first with compact rank plates,
+  portraits, gaps, and score pills. Row padding provides breathing room while
+  preserving the flexible player-name column.
 
 ---
 

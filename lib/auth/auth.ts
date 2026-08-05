@@ -3,9 +3,17 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "@/lib/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { deliverPasswordReset } from "@/features/auth/lib/password-reset-delivery";
+import { getDevelopmentOrigins } from "@/lib/auth/development-origins";
 
 
 export const auth = betterAuth({
+    // WHY: Physical-device testing originates from the computer's LAN address,
+    // not localhost. Better Auth must trust that exact development origin while
+    // production remains restricted to its configured base URL.
+    trustedOrigins:
+        process.env.NODE_ENV === "development"
+            ? getDevelopmentOrigins()
+            : [],
     database: prismaAdapter(prisma, {
         provider: "postgresql", // or "mysql", "postgresql", ...etc
     }),
