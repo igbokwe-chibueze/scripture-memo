@@ -19,13 +19,15 @@ import { NavigationButton } from "@/components/shared/navigation-button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { initializeBeaconLeagueAction } from "@/features/beacon/actions/initialize-beacon-league.action";
+import { LeagueEmblem } from "@/features/beacon/components/league-emblem";
+import { LeagueJourneyDialog } from "@/features/beacon/components/league-journey-dialog";
 import type {
   LeaderboardEntry,
   LeaderboardPageData,
   LeaderboardScope,
 } from "@/features/leaderboard/types/leaderboard.types";
 import { cn } from "@/lib/utils";
-import type { BeaconLeague } from "@/lib/generated/prisma/enums";
+import { PlayerAvatar } from "@/features/profile/components/player-avatar";
 
 type LeaderboardBoardProps = {
   data: LeaderboardPageData;
@@ -55,102 +57,6 @@ function leaderboardHref(
   return `/leaderboard?${parameters.toString()}`;
 }
 
-/** Displays the three ranking values shared by podium and standard rows. */
-function leagueLabel(league: BeaconLeague): string {
-  return league.charAt(0) + league.slice(1).toLowerCase();
-}
-
-/** Displays weekly competition values, or permanent XP on All Time. */
-function PlayerStats({
-  entry,
-  scope,
-}: {
-  entry: LeaderboardEntry;
-  scope: LeaderboardScope;
-}): React.ReactNode {
-  const t = useTranslations("Leaderboard");
-
-  return (
-    <div className="mt-3 grid grid-cols-3 gap-1.5 text-center text-xs font-black">
-      <span
-        aria-label={
-          scope === "all-time"
-            ? t("lifetimeXp", { count: entry.beaconXp })
-            : t("weeklyXp", { count: entry.weeklyXp })
-        }
-      >
-        <SparklesIcon className="mx-auto mb-1 size-4" aria-hidden="true" />
-        {(scope === "all-time" ? entry.beaconXp : entry.weeklyXp).toLocaleString()}
-      </span>
-      <span
-        className="text-amber-600 dark:text-amber-300"
-        aria-label={t("level", { count: entry.beaconLevel })}
-      >
-        <TrophyIcon className="mx-auto mb-1 size-4" aria-hidden="true" />
-        {entry.beaconLevel.toLocaleString()}
-      </span>
-      <span aria-label={t("crowns", { count: entry.crowns })}>
-        <CrownIcon className="mx-auto mb-1 size-4" aria-hidden="true" />
-        <span className="mt-1 block">{entry.crowns.toLocaleString()}</span>
-      </span>
-    </div>
-  );
-}
-
-/** One animated podium card; animation becomes a simple fade for reduced motion. */
-function PodiumCard({
-  entry,
-  featured,
-  delay,
-  scope,
-}: {
-  entry: LeaderboardEntry;
-  featured: boolean;
-  delay: number;
-  scope: LeaderboardScope;
-}): React.ReactNode {
-  const t = useTranslations("Leaderboard");
-  const reduceMotion = useReducedMotion();
-
-  return (
-    <motion.article
-      initial={{ opacity: 0, y: reduceMotion ? 0 : 24, scale: reduceMotion ? 1 : 0.92 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: reduceMotion ? 0.15 : 0.5, delay: reduceMotion ? 0 : delay }}
-      className={cn(
-        "relative overflow-hidden rounded-3xl border p-4 text-center shadow-lg",
-        featured
-          ? "border-amber-400/55 bg-linear-to-b from-amber-300/25 to-card"
-          : "border-violet-400/25 bg-card",
-        entry.isCurrentUser && "ring-3 ring-primary/35",
-      )}
-    >
-      <span
-        className={cn(
-          "mx-auto grid size-11 place-items-center rounded-2xl font-heading text-xl font-black",
-          featured
-            ? "bg-amber-400 text-amber-950"
-            : "bg-violet-500/12 text-violet-600 dark:text-violet-300",
-        )}
-      >
-        {featured ? <CrownIcon aria-hidden="true" /> : entry.rank}
-      </span>
-      <p className="mt-3 truncate font-heading text-lg font-black">
-        {entry.displayName}
-      </p>
-      <p className="text-sm text-muted-foreground">
-        {countryFlag(entry.countryCode)} {entry.countryCode ?? t("globalPlayer")}
-      </p>
-      <PlayerStats entry={entry} scope={scope} />
-      {entry.isCurrentUser && (
-        <span className="mt-3 inline-flex rounded-full bg-primary px-3 py-1 text-xs font-black text-primary-foreground">
-          {t("you")}
-        </span>
-      )}
-    </motion.article>
-  );
-}
-
 /** Compact mobile-first row used for rank four and below. */
 function RankingRow({
   entry,
@@ -164,20 +70,39 @@ function RankingRow({
   zone?: "promotion" | "steady" | "demotion";
 }): React.ReactNode {
   const t = useTranslations("Leaderboard");
+  const reduceMotion = useReducedMotion();
 
   return (
-    <article
+    <motion.article
+      initial={{ opacity: 0, x: reduceMotion ? 0 : -14 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: reduceMotion ? 0 : 0.28, delay: Math.min(entry.rank, 8) * 0.035 }}
       className={cn(
-        "grid grid-cols-[2.5rem_minmax(0,1fr)] gap-x-3 border-b p-4 last:border-0 sm:grid-cols-[3rem_minmax(0,1fr)_auto] sm:items-center",
+        "grid grid-cols-[2.5rem_3rem_minmax(0,1fr)] gap-x-3 border-b p-4 last:border-0 sm:grid-cols-[3rem_3.5rem_minmax(0,1fr)_auto] sm:items-center",
         entry.isCurrentUser && "bg-amber-400/10",
         pinned && "rounded-2xl border border-amber-400/35 bg-amber-400/12",
         zone === "promotion" && "border-l-4 border-l-emerald-500",
         zone === "demotion" && "border-l-4 border-l-rose-500",
+        entry.rank === 1 && "bg-amber-400/12",
+        entry.rank === 2 && "bg-slate-400/10",
+        entry.rank === 3 && "bg-orange-500/10",
       )}
     >
       <span className="grid size-10 place-items-center rounded-2xl bg-muted font-heading font-black">
-        {entry.rank}
+        {entry.rank <= 3 ? (
+          <span className="relative">
+            <CrownIcon className="size-5" aria-hidden="true" />
+            <span className="sr-only">{entry.rank}</span>
+          </span>
+        ) : entry.rank}
       </span>
+      <PlayerAvatar
+        avatarKey={entry.avatarKey}
+        frameKey={entry.avatarFrameKey}
+        displayName={entry.displayName}
+        size="sm"
+        className="sm:size-14"
+      />
       <div className="min-w-0">
         <p className="truncate font-black">
           {entry.displayName}
@@ -191,7 +116,7 @@ function RankingRow({
           {countryFlag(entry.countryCode)} {entry.countryCode ?? t("globalPlayer")}
         </p>
       </div>
-      <div className="col-start-2 mt-3 flex flex-wrap gap-3 text-xs font-black sm:col-start-auto sm:mt-0">
+      <div className="col-start-3 mt-3 flex flex-wrap gap-3 text-xs font-black sm:col-start-auto sm:mt-0">
         <span className="inline-flex items-center gap-1">
           <SparklesIcon className="size-4" aria-hidden="true" />
           {(scope === "all-time" ? entry.beaconXp : entry.weeklyXp).toLocaleString()}
@@ -205,7 +130,7 @@ function RankingRow({
           {entry.crowns.toLocaleString()}
         </span>
       </div>
-    </article>
+    </motion.article>
   );
 }
 
@@ -221,11 +146,12 @@ export function LeaderboardBoard({
   const evaluationStarted = useRef(false);
   const enrollmentStarted = useRef(false);
   const [badgeUnlocks, setBadgeUnlocks] = useState<BadgeUnlockResult[]>([]);
-  const podiumByRank = new Map(data.podium.map((entry) => [entry.rank, entry]));
-  const winner = podiumByRank.get(1);
-  const remainingPodium = [podiumByRank.get(2), podiumByRank.get(3)].filter(
-    (entry): entry is LeaderboardEntry => Boolean(entry),
-  );
+  const visibleEntries = [...data.podium, ...data.entries]
+    .filter(
+      (entry, index, allEntries) =>
+        allEntries.findIndex((candidate) => candidate.rank === entry.rank) === index,
+    )
+    .toSorted((left, right) => left.rank - right.rank);
   const currentUserAlreadyVisible = [...data.podium, ...data.entries].some(
     (entry) => entry.isCurrentUser,
   );
@@ -337,25 +263,47 @@ export function LeaderboardBoard({
       </nav>
 
       {isWeeklyScope && (
-        <section className="mt-4 rounded-3xl border border-violet-400/25 bg-card p-4 shadow-lg sm:p-5">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
+        <section className="mt-4 overflow-hidden rounded-3xl border border-violet-400/25 bg-linear-to-br from-card via-card to-violet-500/10 p-4 shadow-lg sm:p-6">
+          <div className="grid grid-cols-[6.5rem_minmax(0,1fr)] items-center gap-3 sm:grid-cols-[9rem_minmax(0,1fr)_auto] sm:gap-5">
+            <div className="grid aspect-square place-items-center">
+              {data.scope === "league" ? (
+                <LeagueEmblem
+                  league={data.league}
+                  label={t("leagueEmblemAlt", {
+                    league: t(`leagues.${data.league}`),
+                  })}
+                  priority
+                />
+              ) : (
+                <span className="grid size-20 place-items-center rounded-3xl bg-violet-500/12 text-violet-700 dark:text-violet-300">
+                  <TrophyIcon className="size-10" aria-hidden="true" />
+                </span>
+              )}
+            </div>
+            <div className="min-w-0">
               <p className="text-xs font-black tracking-[0.16em] text-violet-700 uppercase dark:text-violet-300">
                 {data.scope === "league"
                   ? t("leagueCompetition")
                   : t("weeklyCompetition")}
               </p>
-              <p className="mt-1 font-heading text-2xl font-black">
+              <p className="mt-1 truncate font-heading text-2xl font-black sm:text-3xl">
                 {data.scope === "league"
-                  ? t("leagueName", { league: leagueLabel(data.league) })
+                  ? t("leagueName", { league: t(`leagues.${data.league}`) })
                   : data.activeFellowshipName ?? t("country")}
               </p>
+              <p className="mt-1 text-xs font-bold text-muted-foreground sm:text-sm">
+                {t("players", { count: data.totalPlayers })}
+              </p>
             </div>
-            <div className="rounded-2xl bg-violet-500/10 px-4 py-3 text-right">
+            <div className="col-span-2 flex flex-wrap items-center justify-between gap-2 sm:col-span-1 sm:flex-col sm:items-end">
+              {data.scope === "league" && (
+                <LeagueJourneyDialog currentLeague={data.league} />
+              )}
+              <div className="rounded-2xl bg-violet-500/10 px-3 py-2 text-right">
               <p className="text-xs font-bold text-muted-foreground">
                 {t("weekEnds")}
               </p>
-              <p className="font-black">
+              <p className="text-sm font-black">
                 {new Intl.DateTimeFormat(undefined, {
                   weekday: "short",
                   month: "short",
@@ -364,16 +312,46 @@ export function LeaderboardBoard({
                   minute: "2-digit",
                 }).format(new Date(data.weekEndsAt))}
               </p>
+              </div>
             </div>
           </div>
           {data.scope === "league" && (
-            <div className="mt-4 grid grid-cols-2 gap-2 text-center text-xs font-black">
-              <span className="rounded-xl bg-emerald-500/12 px-3 py-2 text-emerald-700 dark:text-emerald-300">
-                {t("promotionZone", { count: data.promotionCount })}
-              </span>
-              <span className="rounded-xl bg-rose-500/12 px-3 py-2 text-rose-700 dark:text-rose-300">
-                {t("demotionZone", { count: data.demotionCount })}
-              </span>
+            <div className="mt-5 rounded-2xl border bg-background/65 p-3">
+              <div className="grid grid-cols-3 text-center text-[0.65rem] font-black sm:text-xs">
+                <span className="text-emerald-700 dark:text-emerald-300">{t("promote")}</span>
+                <span>{t("stay")}</span>
+                <span className="text-rose-700 dark:text-rose-300">{t("demote")}</span>
+              </div>
+              <div className="relative mt-2 flex h-3 overflow-visible rounded-full bg-muted">
+                <span
+                  className="rounded-l-full bg-emerald-500"
+                  style={{ width: `${Math.min(100, (data.promotionCount / Math.max(1, data.totalPlayers)) * 100)}%` }}
+                />
+                <span className="min-w-3 flex-1 bg-muted" />
+                <span
+                  className="rounded-r-full bg-rose-400"
+                  style={{ width: `${data.totalPlayers >= 10 ? (data.demotionCount / data.totalPlayers) * 100 : 0}%` }}
+                />
+                {data.currentUser && (
+                  <span
+                    className="absolute top-1/2 grid size-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-xl bg-violet-600 font-heading text-xs font-black text-white shadow-lg ring-2 ring-white dark:ring-slate-950"
+                    style={{ left: `${Math.min(98, Math.max(2, ((data.currentUser.rank - 0.5) / Math.max(1, data.totalPlayers)) * 100))}%` }}
+                    aria-label={t("yourRankNumber", { rank: data.currentUser.rank })}
+                  >
+                    {data.currentUser.rank}
+                  </span>
+                )}
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-2 text-center text-xs font-black">
+                <span className="rounded-xl bg-emerald-500/12 px-2 py-2 text-emerald-700 dark:text-emerald-300">
+                  {t("promotionZone", { count: data.promotionCount })}
+                </span>
+                <span className="rounded-xl bg-rose-500/12 px-2 py-2 text-rose-700 dark:text-rose-300">
+                  {data.totalPlayers >= 10
+                    ? t("demotionZone", { count: data.demotionCount })
+                    : t("noDemotion")}
+                </span>
+              </div>
             </div>
           )}
         </section>
@@ -403,43 +381,18 @@ export function LeaderboardBoard({
         />
       ) : (
         <>
-          <section className="mt-6" aria-labelledby="podium-title">
+          <section className="mt-6" aria-labelledby="rankings-title">
             <div className="flex items-center justify-between gap-3">
-              <h2 id="podium-title" className="font-heading text-2xl font-black">
-                {t("podium")}
+              <h2 id="rankings-title" className="font-heading text-2xl font-black">
+                {t("rankings")}
               </h2>
               <span className="text-sm font-bold text-muted-foreground">
                 {t("players", { count: data.totalPlayers })}
               </span>
             </div>
-
-            {/* Winner leads mobile reading order; second and third share a row. */}
-            <div className="mt-4 grid gap-3">
-              {winner && <PodiumCard entry={winner} featured delay={0} scope={data.scope} />}
-              {remainingPodium.length > 0 && (
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {remainingPodium.map((entry, index) => (
-                    <PodiumCard
-                      key={entry.rank}
-                      entry={entry}
-                      featured={false}
-                      delay={0.12 + index * 0.1}
-                      scope={data.scope}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          </section>
-
-          <section className="mt-7" aria-labelledby="rankings-title">
-            <h2 id="rankings-title" className="font-heading text-2xl font-black">
-              {t("rankings")}
-            </h2>
-
-            {data.entries.length > 0 ? (
+            {visibleEntries.length > 0 ? (
               <div className="mt-4 overflow-hidden rounded-3xl border bg-card shadow-lg">
-                {data.entries.map((entry) => (
+                {visibleEntries.map((entry) => (
                   <RankingRow
                     key={entry.rank}
                     entry={entry}

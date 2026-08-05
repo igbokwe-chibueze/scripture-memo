@@ -15,6 +15,7 @@ import {
   saintCrownAward,
 } from "@/features/beacon/constants/beacon-progression";
 import { getBeaconWeekWindow } from "@/features/beacon/lib/beacon-week";
+import { LEAGUE_CATALOG } from "@/features/beacon/data/league-catalog";
 
 test("Beacon levels follow the documented cumulative progression curve", () => {
   assert.equal(beaconLevelFromXp(0), 1);
@@ -48,4 +49,25 @@ test("Monday UTC begins a fresh week for every timezone", () => {
   const window = getBeaconWeekWindow(new Date("2026-08-10T00:00:00.000Z"));
   assert.equal(window.startsAt.toISOString(), "2026-08-10T00:00:00.000Z");
   assert.equal(window.endsAt.toISOString(), "2026-08-17T00:00:00.000Z");
+});
+
+test("every league has one independent ordered emblem asset", () => {
+  assert.deepEqual(
+    LEAGUE_CATALOG.map((entry) => entry.league),
+    [
+      "TRAVELER",
+      "DISCIPLE",
+      "MESSENGER",
+      "WATCHMAN",
+      "TEACHER",
+      "SHEPHERD",
+      "ELDER",
+      "SCRIBE",
+      "SAINT",
+    ],
+  );
+  assert.equal(
+    new Set(LEAGUE_CATALOG.map((entry) => entry.imagePath)).size,
+    LEAGUE_CATALOG.length,
+  );
 });

@@ -7,6 +7,10 @@ import {
 } from "@/features/beacon/constants/beacon-progression";
 import { beaconRepository } from "@/features/beacon/repositories/beacon.repository";
 import { getBeaconWeekWindow } from "@/features/beacon/lib/beacon-week";
+import {
+  normalizeAvatarFrameKey,
+  normalizeAvatarKey,
+} from "@/features/profile/data/avatar-catalog";
 import type {
   LeaderboardEntry,
   LeaderboardFellowshipOption,
@@ -22,6 +26,8 @@ const DEFAULT_PAGE_SIZE = 20;
 type RawLeaderboardEntry = {
   userId: string;
   displayName: string;
+  avatarKey: string;
+  avatarFrameKey: string;
   countryCode: string | null;
   weeklyXp: number;
   waypointsCompletedThisWeek: number;
@@ -56,6 +62,8 @@ function toLeaderboardEntry(
   return {
     rank: Number(row.rank),
     displayName: row.displayName,
+    avatarKey: normalizeAvatarKey(row.avatarKey),
+    avatarFrameKey: normalizeAvatarFrameKey(row.avatarFrameKey),
     countryCode: row.countryCode,
     weeklyXp: row.weeklyXp,
     waypointsCompletedThisWeek: row.waypointsCompletedThisWeek,
@@ -84,6 +92,8 @@ async function getRanking(input: {
       SELECT
         profile."userId" AS "userId",
         profile."displayName" AS "displayName",
+        profile."avatarKey" AS "avatarKey",
+        profile."avatarFrameKey" AS "avatarFrameKey",
         profile."countryCode" AS "countryCode",
         COALESCE(score.points, 0) AS "weeklyXp",
         COALESCE(score."waypointsCompleted", 0) AS "waypointsCompletedThisWeek",

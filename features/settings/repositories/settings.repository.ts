@@ -41,6 +41,16 @@ export const settingsRepository = {
     userId: string,
     input: UpdateUserSettingsInput,
   ): Promise<void> {
+    const currentProfile = await prisma.userProfile.findUnique({
+      where: { userId },
+      select: { isPartner: true },
+    });
+    // WHY: Partner frame authorization uses persisted entitlement. Hiding
+    // premium choices in the browser alone would not stop a forged action.
+    const authorizedFrameKey = currentProfile?.isPartner
+      ? input.avatarFrameKey
+      : "default";
+
     await prisma.$transaction([
       prisma.user.update({
         where: { id: userId },
@@ -51,11 +61,15 @@ export const settingsRepository = {
         update: {
           displayName: input.displayName,
           countryCode: input.countryCode || null,
+          avatarKey: input.avatarKey,
+          avatarFrameKey: authorizedFrameKey,
         },
         create: {
           userId,
           displayName: input.displayName,
           countryCode: input.countryCode || null,
+          avatarKey: input.avatarKey,
+          avatarFrameKey: authorizedFrameKey,
         },
       }),
       prisma.userSettings.upsert({

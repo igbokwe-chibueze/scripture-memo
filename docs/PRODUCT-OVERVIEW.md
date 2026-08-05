@@ -1294,6 +1294,8 @@ Display:
   ranks 4 through 10 earn one. Crowns cannot be spent.
 - My League shows the weekly cohort. Country and Fellowship are recognition
   rankings by Weekly Beacon XP. All Time uses permanent Beacon Level and XP.
+- Nine independent league emblems identify Traveler through Saint. Players can
+  open the League Journey from My League to see every reached and future tier.
 
 ### 15.9 Settings
 
@@ -1491,6 +1493,20 @@ campaign or award Glow Points.
 - `registerAction` — validate input, create user and profile
 - `logoutAction` — destroy session
 - `updateProfileAction` — update display name, country, avatar
+
+### 18.1 Player Portraits and Partner Frames
+
+- Players choose from twelve bundled animal portraits. User uploads and remote
+  avatar URLs are not accepted.
+- Profiles persist stable catalog keys rather than asset paths. Unknown legacy
+  keys fall back to the lion portrait and standard frame.
+- Every player receives the standard frame. A persisted Partner entitlement is
+  required to select gold, violet crystal, emerald, silver, flame, or celestial
+  frames. The donation/subscription system will grant that entitlement later.
+- Partner eligibility is verified on the server when settings are saved; hiding
+  premium frames in the browser is not an authorization boundary.
+- The same composed portrait and frame appear in profile settings and every
+  leaderboard scope.
 
 ### Admin Verse Actions (ADMIN+)
 - `createVerseAction`

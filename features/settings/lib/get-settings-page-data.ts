@@ -15,6 +15,7 @@ export type SettingsPageData = {
     currentStreak: number;
     bestStreak: number;
   };
+  isPartner: boolean;
 };
 
 /**
@@ -34,6 +35,8 @@ export async function getSettingsPageData(): Promise<SettingsPageData> {
     formValues: {
       displayName: profile.displayName,
       countryCode: profile.countryCode ?? "",
+      avatarKey: profile.avatarKey,
+      avatarFrameKey: profile.avatarFrameKey,
       preferredTranslation: settings.preferredTranslation,
       locale: settings.locale,
       audioEnabled: settings.audioEnabled,
@@ -48,5 +51,6 @@ export async function getSettingsPageData(): Promise<SettingsPageData> {
       currentStreak: profile.currentStreak,
       bestStreak: profile.bestStreak,
     },
+    isPartner: profile.isPartner,
   };
 }

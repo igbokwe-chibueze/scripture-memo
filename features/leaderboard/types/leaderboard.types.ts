@@ -1,4 +1,8 @@
 import type { BeaconLeague } from "@/lib/generated/prisma/enums";
+import type {
+  AvatarFrameKey,
+  AvatarKey,
+} from "@/features/profile/data/avatar-catalog";
 
 export type LeaderboardScope =
   | "league"
@@ -10,6 +14,8 @@ export type LeaderboardScope =
 export type LeaderboardEntry = {
   rank: number;
   displayName: string;
+  avatarKey: AvatarKey;
+  avatarFrameKey: AvatarFrameKey;
   countryCode: string | null;
   weeklyXp: number;
   waypointsCompletedThisWeek: number;

@@ -1439,10 +1439,17 @@ Beacon Challenger activation migration has been applied successfully.
   XP without promotion effects. All Time ranks permanent Beacon Level and XP.
 - Weekly ties use weekly waypoint completions, then the earliest final score
   timestamp. All week assignment and finalization remain server-authoritative.
+- Each league has an independent emblem asset. The leaderboard's League Journey
+  surface always exposes the complete Traveler-to-Saint path, distinguishing
+  reached, current, and future leagues without relying on an image atlas.
 
 - Leaderboard queries do not return email addresses.
 - User's own rank is always visible regardless of pagination position.
 - Country filter works based on the user's country setting.
+- Player identity uses twelve bundled animal portraits rather than uploads.
+  Leaderboard rows compose the selected portrait with a fixed standard frame or
+  one of six Partner-only frames. Partner entitlement is persisted now and will
+  be granted automatically by the later donation/subscription workflow.
 
 ---
 

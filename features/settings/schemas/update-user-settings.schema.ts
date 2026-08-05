@@ -1,5 +1,9 @@
 import { z } from "zod";
 import { isValidTimeZone } from "@/features/progression/lib/streak-utils";
+import {
+  AVATAR_FRAME_KEYS,
+  AVATAR_KEYS,
+} from "@/features/profile/data/avatar-catalog";
 
 /** Validates every editable profile and preference field at the server boundary. */
 export const updateUserSettingsSchema = z.object({
@@ -16,6 +20,8 @@ export const updateUserSettingsSchema = z.object({
     z.literal(""),
     z.string().regex(/^[A-Z]{2}$/, "Select a valid country."),
   ]),
+  avatarKey: z.enum(AVATAR_KEYS),
+  avatarFrameKey: z.enum(AVATAR_FRAME_KEYS),
   preferredTranslation: z.enum(["NIV", "ESV", "KJV"]),
   locale: z.enum(["en", "es", "fr"]),
   audioEnabled: z.boolean(),

@@ -1,5 +1,30 @@
 # Scripture Memo Project Log
 
+### 2026-08-05 — Player portraits and Partner frames
+
+- Added twelve independent transparent animal portraits: lion, dove, deer,
+  bull, owl, donkey, rabbit, fox, panda, elephant, giraffe, and otter.
+- Added a mobile-first portrait picker to Settings with one standard frame and
+  six Partner-selectable frame treatments.
+- Added persisted avatar, frame, and Partner-entitlement fields with a safe
+  additive migration and server-side enforcement of premium frame access.
+- Updated every Great Beacon ranking row to show the learner's selected animal
+  and frame consistently, with localized picker copy in all shipped languages.
+- Added catalog tests and documented how future donation or subscription flows
+  will grant Partner entitlement without changing the avatar contract.
+
+### 2026-08-05 — League emblems and leaderboard visual journey
+
+- Created nine independent transparent league emblems for Traveler through
+  Saint, with localized names kept outside the raster artwork.
+- Added a responsive League Journey drawer/dialog that shows reached, current,
+  and future leagues so upcoming progression is visible from the leaderboard.
+- Rebuilt the leaderboard around a compact game-like league panel, current-rank
+  marker, promotion/stay/demotion track, and one readable mobile-first ranking
+  list with distinct top-three and current-player treatment.
+- Added localized League Journey copy in English, Spanish, and French and
+  extended Beacon tests to protect emblem uniqueness and league ordering.
+
 ### 2026-08-04 — Great Beacon weekly leagues and progression
 
 - Added permanent Beacon XP and Levels, resettable Weekly Beacon XP, nine
