@@ -230,7 +230,9 @@ export function DragDropMode({
       setBadgeUnlockIndex(0);
       setIsComplete(true);
       setShowConfetti(true);
-      setShowCompletion(unlocks.length === 0);
+      // WHY: The completed mode is the cause of every reward that follows, so
+      // its success screen always leads the celebration sequence.
+      setShowCompletion(true);
       onCompletionShown();
       playAudio("correct");
       toast.success("Drag & Drop complete!", { duration: 4_000 });
@@ -264,7 +266,11 @@ export function DragDropMode({
               setBadgeUnlockIndex((current) => current + 1);
             } else {
               setBadgeUnlocks([]);
-              setShowCompletion(true);
+              if (streak && streak.status !== "unchanged") {
+                setShowStreakCompletion(true);
+              } else {
+                onContinue();
+              }
             }
           }}
         />
@@ -278,6 +284,9 @@ export function DragDropMode({
           beaconProgression={beaconProgression}
           onContinue={() => {
             if (isTestReplay) onTestReplayExit?.();
+            else if (badgeUnlocks[badgeUnlockIndex]) {
+              setShowCompletion(false);
+            }
             else if (streak && streak.status !== "unchanged") {
               setShowCompletion(false);
               setShowStreakCompletion(true);

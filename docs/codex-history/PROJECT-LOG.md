@@ -1,5 +1,12 @@
 # Scripture Memo Project Log
 
+### 2026-08-09 — Causal gameplay celebration order
+
+- Reordered every gameplay-mode celebration to show Mode Success first, then
+  each newly unlocked badge, then a changed streak celebration.
+- Preserved the final Fill continuation so Waypoint Complete follows those
+  screens without repeating Mode Success or skipping badge rewards.
+
 ### 2026-08-09 — Interchangeable duplicate gameplay tiles
 
 - Changed Drag & Drop correctness feedback to compare normalized visible words

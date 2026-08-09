@@ -201,7 +201,9 @@ export function FillMode({
           : [];
       setBadgeUnlocks(unlocks);
       setBadgeUnlockIndex(0);
-      setShowCompletion(unlocks.length === 0);
+      // WHY: The completed mode is the cause of every reward that follows, so
+      // its success screen always leads the celebration sequence.
+      setShowCompletion(true);
       setStreak(
         completion?.status === "mode-complete" ||
           completion?.status === "day-complete" ||
@@ -278,7 +280,13 @@ export function FillMode({
               setBadgeUnlockIndex((current) => current + 1);
             } else {
               setBadgeUnlocks([]);
-              setShowCompletion(true);
+              if (streak && streak.status !== "unchanged") {
+                setShowStreakCompletion(true);
+              } else if (waypointOutcome) {
+                setShowWaypointCompletion(true);
+              } else {
+                onContinue();
+              }
             }
           }}
         />
@@ -293,6 +301,9 @@ export function FillMode({
           beaconProgression={beaconProgression}
           onContinue={() => {
             if (isTestReplay) onTestReplayExit?.();
+            else if (badgeUnlocks[badgeUnlockIndex]) {
+              setShowCompletion(false);
+            }
             else if (streak && streak.status !== "unchanged") {
               setShowCompletion(false);
               setShowStreakCompletion(true);
