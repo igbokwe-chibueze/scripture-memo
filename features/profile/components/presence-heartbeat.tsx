@@ -3,9 +3,9 @@
 import { useEffect } from "react";
 import { markPlayerActiveAction } from "@/features/profile/actions/mark-player-active.action";
 
-const HEARTBEAT_INTERVAL_MS = 2 * 60 * 1000;
+const HEARTBEAT_INTERVAL_MS = 15 * 60 * 1000;
 
-/** Sends a throttled heartbeat only while the protected game is visible. */
+/** Sends a coarse, cost-conscious heartbeat only while the game is visible. */
 export function PresenceHeartbeat(): null {
   useEffect(() => {
     const reportActivity = (): void => {

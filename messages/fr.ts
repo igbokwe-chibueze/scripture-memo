@@ -55,6 +55,7 @@ const fr = {
   },
   DaySelection: {
     ...en.DaySelection,
+    locked: "Verrouillé",
     backToMap: "Retour à la carte", waypoint: "Étape {number}", threeDayChallenge: "Défi de trois jours", chooseChallenge: "Choisissez le défi du jour", rewardPreview: "Aperçu de la récompense", glowPoints: "{points} Points de Lumière", ready: "Prêt", completed: "Terminé", cooldown: "Temps d’attente", startDay: "Commencer {day}", continueDay: "Continuer {day}", studyVerse: "Étudier le verset", adminUnlock: "Déblocage admin", glimmer: "Lueur", glow: "Éclat", radiance: "Radiance", glimmerSubtitle: "Début en douceur", glowSubtitle: "Souvenir grandissant", radianceSubtitle: "Souvenir complet", studyReopens: "L’étude rouvre après Radiance", stageRules: "Règles de l’étape", noHints: "Aucun indice disponible", memoryAlone: "Cette étape repose uniquement sur la mémoire.", timedChallenge: "Défi chronométré", flameKindled: "Flamme allumée", restFlame: "Laisser reposer la flamme", preparing: "Préparation de {day}", lunaKeepsPlace: "Luna garde votre place.", readyIn: "Prêt dans", unlocksIn: "{day} se débloque dans", preparingChallenge: "Préparation du défi", coolingDown: "Temps d’attente", timerUpdates: "Le minuteur se met à jour automatiquement.", unlocking: "Déblocage", unlockTesting: "Débloquer pour tester", testReplay: "Tester à nouveau {day}", challengeComplete: "Défi terminé"
   },
   Gameplay: {

@@ -11,6 +11,7 @@ export type UserSettingsValues = {
   theme: "light" | "dark" | "system";
   timeZone: string;
   hasConfiguredTimeZone: boolean;
+  hasSelectedTranslation: boolean;
 };
 
 /** Persistence operations owned by the user-settings feature. */
@@ -30,6 +31,7 @@ export const settingsRepository = {
           : "system",
       timeZone: settings.timeZone,
       hasConfiguredTimeZone: settings.hasConfiguredTimeZone,
+      hasSelectedTranslation: settings.hasSelectedTranslation,
     };
   },
 

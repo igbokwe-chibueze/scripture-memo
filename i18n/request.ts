@@ -1,7 +1,7 @@
 import { cookies, headers } from "next/headers";
 import { getRequestConfig } from "next-intl/server";
-import { auth } from "@/lib/auth/auth";
-import { settingsRepository } from "@/features/settings/repositories/settings.repository";
+import { getServerSession } from "@/lib/auth/session";
+import { getCachedUserSettings } from "@/features/settings/lib/get-cached-user-settings";
 import {
   DEFAULT_LOCALE,
   LOCALE_COOKIE_NAME,
@@ -28,20 +28,27 @@ export default getRequestConfig(async () => {
   const requestHeaders = await headers();
   const requestCookies = await cookies();
   const cookieLocale = requestCookies.get(LOCALE_COOKIE_NAME)?.value;
-  let locale: AppLocale | null = null;
+  // WHY: The locale cookie is updated whenever a learner saves settings and is
+  // sufficient to render translated UI. Consulting it first turns nearly every
+  // request into a zero-database locale lookup while the account row remains the
+  // durable cross-device fallback for a browser that has no cookie yet.
+  let locale: AppLocale | null = isSupportedLocale(cookieLocale)
+    ? cookieLocale
+    : null;
 
-  try {
-    const session = await auth.api.getSession({ headers: requestHeaders });
-    if (session?.user) {
-      const settings = await settingsRepository.getByUserId(session.user.id);
-      if (isSupportedLocale(settings?.locale)) locale = settings.locale;
+  if (!locale) {
+    try {
+      const session = await getServerSession();
+      if (session?.user) {
+        const settings = await getCachedUserSettings(session.user.id);
+        if (isSupportedLocale(settings?.locale)) locale = settings.locale;
+      }
+    } catch {
+      // Authentication or database availability must not prevent public error,
+      // login, or recovery pages from choosing a deterministic language.
     }
-  } catch {
-    // Authentication or database availability must not prevent public error,
-    // login, or recovery pages from rendering in a deterministic language.
   }
 
-  if (!locale && isSupportedLocale(cookieLocale)) locale = cookieLocale;
   if (!locale) locale = localeFromAcceptLanguage(requestHeaders.get("accept-language"));
   if (!isSupportedLocale(locale)) locale = DEFAULT_LOCALE;
 

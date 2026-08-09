@@ -3,7 +3,7 @@ import "server-only";
 import { notFound } from "next/navigation";
 import { requireServerSession } from "@/lib/auth/session";
 import { userRepository } from "@/features/users/repositories/user.repository";
-import { settingsRepository } from "@/features/settings/repositories/settings.repository";
+import { getCachedUserSettings } from "@/features/settings/lib/get-cached-user-settings";
 import type { UpdateUserSettingsInput } from "@/features/settings/schemas/update-user-settings.schema";
 
 export type SettingsPageData = {
@@ -26,7 +26,7 @@ export async function getSettingsPageData(): Promise<SettingsPageData> {
   const session = await requireServerSession();
   const [profile, settings] = await Promise.all([
     userRepository.getProfileSummary(session.user.id),
-    settingsRepository.getByUserId(session.user.id),
+    getCachedUserSettings(session.user.id),
   ]);
 
   if (!profile || !settings) notFound();

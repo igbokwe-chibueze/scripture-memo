@@ -35,7 +35,9 @@ export async function updateUserSettingsAction(
     await settingsRepository.updateForUser(session.user.id, parsed.data);
     const cookieStore = await cookies();
     cookieStore.set(LOCALE_COOKIE_NAME, parsed.data.locale, {
-      httpOnly: true,
+      // Locale is presentation state rather than a credential. Client-side
+      // synchronization may safely maintain it to avoid per-request DB reads.
+      httpOnly: false,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
       path: "/",

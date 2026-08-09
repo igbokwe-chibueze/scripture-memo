@@ -2,12 +2,12 @@ import "server-only";
 
 import { redirect } from "next/navigation";
 import { WaypointStatus } from "@/lib/generated/prisma/enums";
-import { authRepository } from "@/features/auth/repositories/auth.repository";
 import { mapRepository } from "@/features/map/repositories/map.repository";
 import { markCurrentMapWaypoint } from "@/features/map/lib/map-utils";
 import type { MapWaypoint } from "@/features/map/types/map.types";
 import { progressionRepository } from "@/features/progression/repositories/progression.repository";
 import { requireServerSession } from "@/lib/auth/session";
+import { getCachedUserSettings } from "@/features/settings/lib/get-cached-user-settings";
 
 /**
  * Loads the complete, authorized DTO consumed by both map presentations.
@@ -27,14 +27,26 @@ export async function getGameMapData(): Promise<MapWaypoint[]> {
 
   // Translation selection is a required onboarding boundary. Redirecting here
   // protects direct URL access that may bypass the normal post-login flow.
-  if (!(await authRepository.hasSelectedTranslation(session.user.id))) {
+  const settings = await getCachedUserSettings(session.user.id);
+  if (!settings?.hasSelectedTranslation) {
     redirect("/select-translation");
   }
 
-  // WHY: Registration and login normally initialize progression, but map entry
-  // safely retries the idempotent operation after an interrupted onboarding.
-  await progressionRepository.initializeFirstWaypoint(session.user.id);
-  const rows = await mapRepository.getUserMapData(session.user.id);
+  let rows = await mapRepository.getUserMapData(session.user.id);
+
+  // WHY: Registration/onboarding owns normal progression initialization. The
+  // map remains read-only for established learners and enters this transaction
+  // only when its first read proves that an interrupted onboarding left no
+  // progression anywhere. This preserves self-repair without paying for locks
+  // and duplicate reads on every map visit.
+  if (rows.every(({ userProgress }) => userProgress.length === 0)) {
+    const recovery = await progressionRepository.initializeFirstWaypoint(
+      session.user.id,
+    );
+    if (recovery.status === "ready") {
+      rows = await mapRepository.getUserMapData(session.user.id);
+    }
+  }
 
   // Convert Prisma's nested relation arrays into a small presentation DTO. A
   // missing progress relation is expected under lazy progression and means the

@@ -145,6 +145,7 @@
     "rewardPreview": "Vista previa de recompensa",
     "glowPoints": "{points} Puntos de Luz",
     "ready": "Listo",
+    "locked": "Bloqueado",
     "completed": "Completado",
     "cooldown": "En espera",
     "startDay": "Iniciar {day}",

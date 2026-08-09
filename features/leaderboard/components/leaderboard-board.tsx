@@ -399,7 +399,12 @@ export function LeaderboardBoard({
 
     // Periodic refresh reveals completed rival sessions and updated real-player
     // presence without presenting continuously fabricated score movement.
-    const refreshId = window.setInterval(() => router.refresh(), 3 * 60 * 1000);
+    const refreshId = window.setInterval(() => {
+      // WHY: A hidden leaderboard cannot provide useful live feedback. Avoiding
+      // full server refreshes in background tabs prevents silent, recurring
+      // database consumption while preserving occasional visible updates.
+      if (document.visibilityState === "visible") router.refresh();
+    }, 15 * 60 * 1000);
     return () => window.clearInterval(refreshId);
   }, [data.scope, router]);
 

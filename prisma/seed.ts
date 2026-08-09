@@ -46,11 +46,15 @@ function buildWaypointPlaceholders(): WaypointSeedData[] {
 
 /** Runs the idempotent waypoint seed and reports only aggregate, non-sensitive output. */
 async function main(): Promise<void> {
-  const [insertedCount, synchronizedBadges, synchronizedShopItems] = await Promise.all([
-    seedWaypointPlaceholders(buildWaypointPlaceholders()),
-    seedBadgeCatalog(),
-    seedHintShopCatalog(),
-  ]);
+  // WHY: Each catalogue repository owns a short-lived PrismaPg client. Running
+  // those clients concurrently can collide on unnamed prepared statements in
+  // the local Prisma Dev proxy. Sequential bounded calls remain fast, keep the
+  // seed deterministic, and avoid retry traffic against any environment.
+  const insertedCount = await seedWaypointPlaceholders(
+    buildWaypointPlaceholders(),
+  );
+  const synchronizedBadges = await seedBadgeCatalog();
+  const synchronizedShopItems = await seedHintShopCatalog();
   process.stdout.write(
     `Seed complete: inserted ${insertedCount} waypoints, synchronized ${synchronizedBadges} badges and ${synchronizedShopItems} shop items; preserved existing progress.\n`,
   );

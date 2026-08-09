@@ -145,6 +145,7 @@
     "rewardPreview": "Reward preview",
     "glowPoints": "{points} Glow Points",
     "ready": "Ready",
+    "locked": "Locked",
     "completed": "Completed",
     "cooldown": "Cooldown",
     "startDay": "Start {day}",

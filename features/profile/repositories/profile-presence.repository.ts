@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 
-const HEARTBEAT_WRITE_INTERVAL_MS = 2 * 60 * 1000;
+const HEARTBEAT_WRITE_INTERVAL_MS = 15 * 60 * 1000;
 
 /** Database boundary for the deliberately coarse player-presence heartbeat. */
 export const profilePresenceRepository = {
@@ -22,4 +22,3 @@ export const profilePresenceRepository = {
     });
   },
 } as const;
-

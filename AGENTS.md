@@ -195,6 +195,32 @@ Database
 
 This flow is unidirectional. Nothing skips a layer. Nothing goes backwards.
 
+### 2.7 Database Operation and Cost Efficiency
+
+Every new or changed process must minimize database operations and hosted
+database cost wherever doing so does not weaken correctness, security, or data
+integrity. Database efficiency is part of the definition of done, not a later
+optimization.
+
+- Local development and automated tests must use isolated local/test databases;
+  never use the hosted production database as the routine development backend.
+- Do not perform writes, transactions, advisory locks, or initialization during
+  ordinary read requests. Initialization belongs at an explicit state transition
+  or behind a cheap read that proves recovery is actually required.
+- Deduplicate session, settings, and other request-scoped reads with supported
+  request memoization. Prefer a safe non-sensitive cookie or already-loaded data
+  for presentation preferences when that avoids a database round trip.
+- Avoid polling when event-driven invalidation is possible. Necessary polling
+  must pause while the page is hidden and use the longest interval compatible
+  with the product requirement.
+- Select only required columns, batch related work, avoid N+1 queries, and use a
+  single transaction only where atomicity is required.
+- Before adding a recurring query, estimate its operations per active user and
+  document why the frequency is necessary. Review high-read pages and background
+  activity for database amplification before considering the task complete.
+- Cost reductions must never remove server-side authorization, validation,
+  cooldown enforcement, reward integrity, rate limiting, or audit requirements.
+
 ---
 
 ## 3. Feature Folder Standard

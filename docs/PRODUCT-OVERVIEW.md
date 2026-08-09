@@ -1363,6 +1363,24 @@ Build the following as shared, reusable components before implementing features 
 
 Use Prisma with PostgreSQL. This section lists required models. The implementation agent should create a complete schema with all relations, indexes, constraints, timestamps, and enums.
 
+### 17.0 Environment Isolation and Operational Efficiency
+
+- Routine local development uses Prisma Postgres Local through `prisma dev` (or
+  another explicitly approved local PostgreSQL instance), never the hosted
+  production database.
+- Automated tests use their own test database and must not consume production
+  operations or mutate development data.
+- Production credentials are supplied only through the deployment environment;
+  they are not copied into the tracked local template.
+- Read paths must remain read-only. Lazy progression initialization occurs only
+  when a cheap read proves that learner state is genuinely missing.
+- Request-scoped session and settings reads are deduplicated, presentation
+  preferences use safe local state where appropriate, and recurring presence or
+  leaderboard refreshes remain visibility-aware and deliberately infrequent.
+- New features must consider query count, polling frequency, N+1 behavior, and
+  hosted database cost as part of design and review without compromising
+  security, correctness, or transactional integrity.
+
 ### 17.1 Core Enums
 
 ```prisma

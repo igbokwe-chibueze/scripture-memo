@@ -1,5 +1,30 @@
 # Scripture Memo Project Log
 
+### 2026-08-09 — Reliable concurrent reads on Prisma Postgres Local
+
+- Reproduced the admin verse-list and gameplay connection failure with the same
+  parallel Prisma reads outside Next.js; sequential reads remained healthy.
+- Added shared PrismaPg pool configuration that queues loopback development
+  reads through one connection because Prisma Postgres Local was closing extra
+  concurrent TCP connections in this environment.
+- Kept hosted and production pool concurrency unchanged, covered the boundary
+  with tests, and reused the configuration in explicit local fixture commands.
+
+### 2026-08-09 — Local gameplay database reconnection
+
+- Traced the gameplay-session failure to the stopped local `scripture-memo`
+  Prisma Postgres process; no application query or session record was defective.
+- Restarted the named local database on the configured TCP port `51214`, verified
+  its running status, and stopped the incidental unused `default` instance.
+
+### 2026-08-09 — Day Selection locked-state localization repair
+
+- Added the missing `DaySelection.locked` message to English, Spanish, and
+  French so locked Glow and Radiance cards no longer interrupt the first
+  waypoint screen while Glimmer is ready.
+- Confirmed Glimmer progression is intentionally initialized on first play;
+  local fixture accounts do not require a pre-created day-progress record.
+
 ### 2026-08-05 — Extra-small league title fit
 
 - Preserved the prominent 92px mobile emblem from 360px upward while returning
@@ -2331,3 +2356,72 @@ implement the private progress archive and mastered-verse replay flow.
   casts the matching restrained shadow upward.
 - Kept the treatment on the shared navigation component so every protected
   game page receives the same visual separation automatically.
+
+### 2026-08-06 — Hosted database operation reduction and local isolation
+
+- Confirmed routine development had been pointed at hosted Prisma Postgres, so
+  hot reloads, manual testing, seeds, builds, session lookups, and page refreshes
+  were all consuming the production workspace's monthly operation allowance.
+- Started a persistent named Prisma Postgres Local instance, switched the ignored
+  development `.env` to its loopback URL, preserved the former hosted settings
+  in an ignored local backup, deployed all 21 migrations, and seeded the local
+  catalogues successfully.
+- Made the root seed deterministic and local-proxy-safe by running its three
+  bounded catalogue seeds sequentially instead of opening concurrent short-lived
+  Prisma clients.
+- Added a tracked `.env.example` and documented the isolated local database
+  workflow. Hosted credentials remain deployment-only; integration tests retain
+  a separate fail-closed test database contract.
+- Deduplicated Better Auth sessions and settings within a server render, made
+  locale selection cookie-first with the database retained as a cross-device
+  fallback, and removed a duplicate translation-settings query from map loads.
+- Removed progression initialization from ordinary established-user map reads.
+  The map now attempts the idempotent recovery transaction only after its first
+  read proves that all learner progression is missing.
+- Reduced presence and leaderboard refresh frequency from two/three minutes to
+  fifteen minutes, and prevented leaderboard refreshes while its tab is hidden.
+- Added a permanent database operation and cost-efficiency rule to `AGENTS.md`
+  and the product overview so future designs must consider query amplification,
+  polling frequency, local isolation, and hosted cost without weakening server
+  security or transactional integrity.
+- Verified Prisma schema and generation, the idempotent local seed, TypeScript,
+  ESLint, i18n tests, map tests, diff checks, and the production build. The first
+  sandboxed build could not download Google Fonts; the network-enabled retry
+  completed successfully.
+- The local database is a fresh development resource and therefore does not
+  contain the hosted learner accounts or progress. Development can resume now;
+  existing hosted data will become available again when Prisma restores service
+  or the plan changes, without needing to point routine development back to it.
+
+### 2026-08-09 — Local database inspection fallback
+
+- Confirmed Prisma Studio's schema-metadata failure persisted with a direct local
+  URL, a fresh port, and both Node 24 and temporary Node 22 runtimes. Prisma
+  Client, migrations, seeding, and the local PostgreSQL database remained healthy.
+- Installed DBeaver Community 26.1.4 as the local visual database client and
+  documented its connection settings and strict viewer-only role in the README.
+- Prisma remains the application's ORM, schema authority, migration workflow, and
+  production integration. DBeaver introduces no alternate schema or data format,
+  so no future migration back to Prisma is required.
+
+### 2026-08-09 — Guarded local gameplay fixtures
+
+- Added a separate local fixture feature and CLI workflow that validates a direct
+  loopback PostgreSQL URL before constructing Prisma Client and refuses production
+  mode, hosted hosts, and Prisma proxy URLs.
+- Added five public-domain KJV verses and published waypoint fixtures covering all
+  five map positions without adding copyrighted NIV or ESV text under incorrect
+  translation labels.
+- Kept the production seed unchanged: local gameplay fixtures run only through
+  `npm run local:fixtures`, remain idempotent before learner history exists, and
+  fail closed instead of overwriting progressed waypoints.
+- Added `npm run local:player -- <email> [--admin]` for an account that was first
+  registered through Better Auth. It prepares profile, KJV settings, streak, role
+  when explicitly requested, and first-waypoint access without touching password,
+  account, or session records.
+- Applied the curriculum fixture to Prisma Postgres Local and confirmed the second
+  run reused all five verses without duplicates. Verified the URL safety tests,
+  TypeScript, and ESLint.
+- Prepared the first Better Auth-registered local tester as an ADMIN, selected
+  KJV for the fixture curriculum, repaired its application foundation records,
+  and unlocked Waypoint 1 without reading or modifying its credentials.
