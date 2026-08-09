@@ -152,7 +152,11 @@ export function DragDropMode({
   };
 
   const checkAnswer = (): void => {
-    const incorrectSlots = getIncorrectDragDropSlots(hiddenTokenIndexes, placements);
+    const incorrectSlots = getIncorrectDragDropSlots(
+      tokens,
+      hiddenTokenIndexes,
+      placements,
+    );
     const feedback = Object.fromEntries(
       hiddenTokenIndexes.map((slotIndex) => [
         slotIndex,

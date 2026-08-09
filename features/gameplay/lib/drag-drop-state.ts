@@ -7,8 +7,8 @@ export type DragDropPlacements = Readonly<Record<number, number>>;
  * Produces a stable word-bank order while preserving duplicate occurrences.
  *
  * WHY: Token indexes, rather than word strings, are shuffled and stored. Two
- * identical words therefore remain independent draggable objects and can be
- * validated against their exact original positions.
+ * identical words therefore remain independent draggable objects. Their IDs
+ * preserve one-to-one placement, while correctness follows visible content.
  */
 export function createDragDropWordBank(
   hiddenTokenIndexes: readonly number[],
@@ -42,12 +42,30 @@ export function removeDragDropPlacement(
   );
 }
 
-/** Identifies every blank whose placed token does not match its position. */
+/**
+ * Identifies blanks whose placed word does not match the expected visible word.
+ *
+ * WHY: Repeated occurrences retain distinct IDs for dragging, but a learner
+ * cannot distinguish two tiles that both display the same normalized word.
+ * Treating those tiles as interchangeable prevents a correct reconstructed
+ * verse from being rejected because identical internal token IDs were swapped.
+ */
 export function getIncorrectDragDropSlots(
+  tokens: readonly VerseToken[],
   hiddenTokenIndexes: readonly number[],
   placements: DragDropPlacements,
 ): number[] {
-  return hiddenTokenIndexes.filter((slotIndex) => placements[slotIndex] !== slotIndex);
+  return hiddenTokenIndexes.filter((slotIndex) => {
+    const placedTokenIndex = placements[slotIndex];
+    const expectedToken = tokens[slotIndex];
+    const placedToken = placedTokenIndex === undefined
+      ? undefined
+      : tokens[placedTokenIndex];
+
+    return !expectedToken ||
+      !placedToken ||
+      placedToken.normalizedText !== expectedToken.normalizedText;
+  });
 }
 
 /**

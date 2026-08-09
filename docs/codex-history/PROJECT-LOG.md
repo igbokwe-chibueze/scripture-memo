@@ -1,5 +1,15 @@
 # Scripture Memo Project Log
 
+### 2026-08-09 — Interchangeable duplicate gameplay tiles
+
+- Changed Drag & Drop correctness feedback to compare normalized visible words
+  instead of requiring an identical repeated word to return to its hidden source
+  index; unique IDs still preserve one-to-one dragging and placement.
+- Applied the same fairness rule to visually identical Puzzle phrases while
+  retaining final trusted full-answer validation on the server.
+- Added regression coverage for swapped repeated words and repeated phrases,
+  plus a control proving genuinely different words remain incorrect.
+
 ### 2026-08-09 — Reliable concurrent reads on Prisma Postgres Local
 
 - Reproduced the admin verse-list and gameplay connection failure with the same

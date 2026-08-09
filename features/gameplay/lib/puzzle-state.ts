@@ -1,4 +1,5 @@
 import { deterministicShuffle } from "@/features/gameplay/lib/deterministic-random";
+import { normalizeGameplayAnswer } from "@/features/gameplay/lib/answer-validator";
 import type { VersePhrase } from "@/features/gameplay/lib/phrase-generator";
 
 export type PuzzlePlacements = Readonly<Record<number, number>>;
@@ -74,14 +75,28 @@ export function removePuzzlePlacement(
   );
 }
 
-/** Identifies every hidden position that lacks its original phrase occurrence. */
+/**
+ * Identifies hidden positions whose visible phrase content is incorrect.
+ * Duplicate phrase IDs still enforce one-to-one movement, but equal normalized
+ * phrases are interchangeable because no player-visible distinction exists.
+ */
 export function getIncorrectPuzzleSlots(
+  phrases: readonly VersePhrase[],
   hiddenPhraseIndexes: readonly number[],
   placements: PuzzlePlacements,
 ): number[] {
-  return hiddenPhraseIndexes.filter(
-    (slotIndex) => placements[slotIndex] !== slotIndex,
-  );
+  return hiddenPhraseIndexes.filter((slotIndex) => {
+    const placedPhraseIndex = placements[slotIndex];
+    const expectedPhrase = phrases[slotIndex];
+    const placedPhrase = placedPhraseIndex === undefined
+      ? undefined
+      : phrases[placedPhraseIndex];
+
+    return !expectedPhrase ||
+      !placedPhrase ||
+      normalizeGameplayAnswer(placedPhrase.text) !==
+        normalizeGameplayAnswer(expectedPhrase.text);
+  });
 }
 
 /**

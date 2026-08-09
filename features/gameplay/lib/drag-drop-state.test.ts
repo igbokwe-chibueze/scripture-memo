@@ -24,14 +24,33 @@ test("placing, moving, and returning tokens preserves a one-to-one assignment", 
   assert.deepEqual(placements, {});
 });
 
-test("validation and reconstruction use original token positions", () => {
+test("identical repeated words are interchangeable while reconstructing the verse", () => {
   const tokens = tokenizeVerse("the Lord is my Lord");
   const hidden = [1, 4];
   const swapped = placeDragDropToken(placeDragDropToken({}, 4, 1), 1, 4);
-  assert.deepEqual(getIncorrectDragDropSlots(hidden, swapped), [1, 4]);
+  assert.deepEqual(getIncorrectDragDropSlots(tokens, hidden, swapped), []);
   assert.equal(reconstructDragDropAnswer(tokens, hidden, swapped), "the Lord is my Lord");
 
   const correct = placeDragDropToken(placeDragDropToken({}, 1, 1), 4, 4);
-  assert.deepEqual(getIncorrectDragDropSlots(hidden, correct), []);
+  assert.deepEqual(getIncorrectDragDropSlots(tokens, hidden, correct), []);
   assert.equal(reconstructDragDropAnswer(tokens, hidden, correct), "the Lord is my Lord");
+});
+
+test("a different visible word remains incorrect", () => {
+  const tokens = tokenizeVerse("charity suffereth and charity rejoiceth");
+  const hidden = [0, 1, 3];
+  const placements = placeDragDropToken(
+    placeDragDropToken(
+      placeDragDropToken({}, 3, 0),
+      0,
+      3,
+    ),
+    1,
+    1,
+  );
+
+  assert.deepEqual(getIncorrectDragDropSlots(tokens, hidden, placements), []);
+
+  const wrong = placeDragDropToken(placements, 1, 0);
+  assert.deepEqual(getIncorrectDragDropSlots(tokens, hidden, wrong), [0, 1]);
 });

@@ -165,6 +165,7 @@ export function PuzzleMode({
 
   const checkAnswer = (): void => {
     const incorrectSlots = getIncorrectPuzzleSlots(
+      phrases,
       hiddenPhraseIndexes,
       placements,
     );
