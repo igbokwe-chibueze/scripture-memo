@@ -1464,6 +1464,22 @@ Beacon Challenger activation migration has been applied successfully.
 - The leaderboard table is composed for 375px first with compact rank plates,
   portraits, gaps, and score pills. Row padding provides breathing room while
   preserving the flexible player-name column.
+- Protected large-screen pages now share an optional contextual-column
+  composition. The leaderboard is its first adopter and uses already-loaded
+  page data for a weekly rank, Beacon, Crown, and league snapshot without
+  issuing another database query. Mobile remains a single focused column.
+- The right column is owned by the protected application shell rather than
+  styled as a floating page card. Its upper region accepts route-specific
+  content, while a visual Become a Partner card remains anchored at its base
+  across protected non-gameplay pages and links directly to Shop donations.
+- Map and Admin routes deliberately omit the contextual column. Elsewhere the
+  narrower rail is a flush continuation of the center surface, separated only
+  by a border. Route panels must stay compact, avoid their own scrolling, and
+  must not repeat information that the center already makes obvious.
+- The shared protected navigation uses theme tokens in both light and dark
+  modes. Its wide desktop form places each icon beside its label, while the
+  compact tablet rail and mobile bottom navigation retain icon-first layouts
+  and matching restrained elevation.
 
 ---
 

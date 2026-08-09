@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { TrophyIcon } from "lucide-react";
+import { GamePageColumns } from "@/components/shared/game-page-columns";
 import { ResponsiveContainer } from "@/components/shared/responsive-container";
 import { LeaderboardBoard } from "@/features/leaderboard/components/leaderboard-board";
+import { LeaderboardContextPanel } from "@/features/leaderboard/components/leaderboard-context-panel";
 import { leaderboardRepository } from "@/features/leaderboard/repositories/leaderboard.repository";
 import { requireServerSession } from "@/lib/auth/session";
 
@@ -63,24 +65,28 @@ export async function LeaderboardView({
 
   return (
     <main className="min-h-dvh bg-[radial-gradient(circle_at_50%_0%,color-mix(in_oklch,var(--primary),transparent_78%),transparent_32%),linear-gradient(to_bottom,color-mix(in_oklch,var(--background),white_3%),var(--background))] py-5 sm:py-9">
-      <ResponsiveContainer size="lg">
-        <header className="flex items-center justify-center gap-3 py-3 text-center sm:py-5">
-          <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-amber-400 text-amber-950 shadow-[0_5px_0_rgb(120_53_15/0.65)]">
-            <TrophyIcon className="size-6" aria-hidden="true" />
-          </span>
-          <div className="text-left">
-            <h1 className="font-heading text-3xl leading-tight font-black sm:text-4xl">
-            {t("title")}
-            </h1>
-            <p className="text-sm font-semibold text-muted-foreground">
-              {t("eyebrow")}
-            </p>
-          </div>
-        </header>
+      <ResponsiveContainer size="xl">
+        <GamePageColumns
+          contextPanel={<LeaderboardContextPanel data={data} />}
+        >
+          <header className="flex items-center justify-center gap-3 py-3 text-center sm:py-5">
+            <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-amber-400 text-amber-950 shadow-[0_5px_0_rgb(120_53_15/0.65)]">
+              <TrophyIcon className="size-6" aria-hidden="true" />
+            </span>
+            <div className="text-left">
+              <h1 className="font-heading text-3xl leading-tight font-black sm:text-4xl">
+                {t("title")}
+              </h1>
+              <p className="text-sm font-semibold text-muted-foreground">
+                {t("eyebrow")}
+              </p>
+            </div>
+          </header>
 
-        <div className="mt-3">
-          <LeaderboardBoard data={data} />
-        </div>
+          <div className="mt-3">
+            <LeaderboardBoard data={data} />
+          </div>
+        </GamePageColumns>
       </ResponsiveContainer>
     </main>
   );

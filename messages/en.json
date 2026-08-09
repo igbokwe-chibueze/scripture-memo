@@ -21,7 +21,13 @@
     "fellowships": "Fellowships",
     "playerNavigation": "Player navigation",
     "desktopPlayerNavigation": "Desktop player navigation",
-    "scriptureMemoHome": "Scripture Memo home"
+    "scriptureMemoHome": "Scripture Memo home",
+    "contextRail": "Page information and partnership",
+    "partner": "Partner",
+    "becomePartner": "Become a Partner",
+    "partnerDescription": "Help Scripture Memo grow and unlock Partner profile frames.",
+    "learnMore": "Learn more",
+    "openingPartner": "Opening"
   },
   "Settings": {
     "title": "Settings",
@@ -532,6 +538,7 @@
     "trailRivalExplanation": "A simulated trail competitor. It never changes your official rank.",
     "playerDetailsDescription": "A closer look at this player's Beacon journey.",
     "weeklyBeaconPoints": "Weekly Beacon Points",
+    "beaconProgress": "Beacon progress",
     "lifetimeBeaconPoints": "Lifetime Beacon Points",
     "beaconLevel": "Beacon Level",
     "crownsLabel": "Crowns",

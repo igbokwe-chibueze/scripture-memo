@@ -21,7 +21,13 @@
     "fellowships": "Comunidades",
     "playerNavigation": "Navegación del jugador",
     "desktopPlayerNavigation": "Navegación de escritorio del jugador",
-    "scriptureMemoHome": "Inicio de Scripture Memo"
+    "scriptureMemoHome": "Inicio de Scripture Memo",
+    "contextRail": "Información de la página y colaboración",
+    "partner": "Colaborador",
+    "becomePartner": "Hazte colaborador",
+    "partnerDescription": "Ayuda a crecer Scripture Memo y desbloquea marcos de colaborador.",
+    "learnMore": "Más información",
+    "openingPartner": "Abriendo"
   },
   "Settings": {
     "title": "Ajustes",
@@ -532,6 +538,7 @@
     "trailRivalExplanation": "Un competidor simulado del sendero. Nunca cambia tu posiciÃ³n oficial.",
     "playerDetailsDescription": "Una vista detallada del recorrido del Faro de este jugador.",
     "weeklyBeaconPoints": "Puntos semanales del Faro",
+    "beaconProgress": "Progreso del Faro",
     "lifetimeBeaconPoints": "Puntos totales del Faro",
     "beaconLevel": "Nivel del Faro",
     "crownsLabel": "Coronas",

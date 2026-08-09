@@ -2442,3 +2442,38 @@ implement the private progress archive and mastered-verse replay flow.
 - Prepared the first Better Auth-registered local tester as an ADMIN, selected
   KJV for the fixture curriculum, repaired its application foundation records,
   and unlocked Waypoint 1 without reading or modifying its credentials.
+
+### 2026-08-09 — Large-screen game shell and leaderboard context rail
+
+- Added a reusable mobile-first center-and-context page composition. Routes
+  remain a single focused column on small screens and may supply a sticky,
+  feature-owned right panel when large-screen width permits.
+- Adopted the contextual rail on the leaderboard using its existing page data
+  for league, official rank, Weekly Beacon Points, Beacon Level, and Crowns;
+  the richer desktop layout therefore adds no database operations.
+- Widened the protected desktop navigation and placed icons beside labels while
+  retaining the compact tablet rail. Replaced hard-coded dark-only navigation
+  colors with theme tokens and kept matching subtle elevation on the desktop
+  rail and mobile bottom bar.
+- Verified the affected shell and leaderboard files with TypeScript and ESLint.
+  Project-owner responsive visual acceptance remains pending before Phase 27
+  is marked complete.
+- Reworked the contextual area into a fixed full-height shell column separated
+  from the center by a restrained border and shadow. Page-owned content now
+  portals into its scrollable upper region instead of rendering as a floating
+  column card.
+- Anchored a shared Luna Partner invitation at the base of that column for all
+  protected non-gameplay pages. Its action opens the Shop Donations tab through
+  URL state, preserving a meaningful destination across direct links and page
+  refreshes.
+- Removed the right rail from Map and Admin routes, narrowed it on remaining
+  large-screen pages, and removed its floating shadow so a single dividing line
+  defines it as part of the shell. Reduced the persistent Partner card and
+  constrained route context to compact, non-scrolling secondary information.
+- Simplified the leaderboard context to Beacon Level and Crowns only because
+  league identity, weekly score, official rank, timing, and movement zones are
+  already visible or directly inferable from the center board.
+- Rebalanced the large-screen shell after visual review: reduced the expanded
+  left navigation from 256px to 192px and the context rail from 288px to 256px,
+  returning 96px to the primary center experience without changing tablet or
+  mobile navigation dimensions.

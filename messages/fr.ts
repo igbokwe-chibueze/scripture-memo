@@ -11,7 +11,7 @@ import en from "./en.json";
 const fr = {
   ...en,
   Common: { ...en.Common, back: "Retour", cancel: "Annuler", check: "Vérifier", close: "Fermer", continue: "Continuer", locked: "Verrouillé", reset: "Réinitialiser", save: "Enregistrer", share: "Partager", tryAgain: "Réessayer", view: "Voir" },
-  Navigation: { ...en.Navigation, home: "Accueil", map: "Carte", vault: "Bibliothèque", fellowships: "Communautés", shop: "Boutique", settings: "Paramètres", playerNavigation: "Navigation du joueur", desktopPlayerNavigation: "Navigation du joueur sur ordinateur", scriptureMemoHome: "Accueil de Scripture Memo" },
+  Navigation: { ...en.Navigation, home: "Accueil", map: "Carte", vault: "Bibliothèque", fellowships: "Communautés", shop: "Boutique", settings: "Paramètres", playerNavigation: "Navigation du joueur", desktopPlayerNavigation: "Navigation du joueur sur ordinateur", scriptureMemoHome: "Accueil de Scripture Memo", contextRail: "Informations et partenariat", partner: "Partenaire", becomePartner: "Devenir Partenaire", partnerDescription: "Aidez Scripture Memo à grandir et débloquez les cadres Partenaire.", learnMore: "En savoir plus", openingPartner: "Ouverture" },
   Settings: {
     ...en.Settings,
     player: "Joueur",
@@ -94,6 +94,7 @@ const fr = {
     playerDetailsDescription:
       "Un aperçu du parcours de la Balise de ce joueur.",
     weeklyBeaconPoints: "Points de Balise hebdomadaires",
+    beaconProgress: "Progression du Phare",
     lifetimeBeaconPoints: "Points de Balise cumulés",
     beaconLevel: "Niveau de Balise",
     crownsLabel: "Couronnes",
