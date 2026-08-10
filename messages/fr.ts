@@ -78,6 +78,8 @@ const fr = {
     scopes: "Portées du classement",
     global: "Global",
     myLeague: "Ma ligue",
+    fellowships: "Communautés",
+    chooseFellowship: "Choisir une communauté",
     allTime: "Tous les temps",
     country: "Pays",
     podium: "Podium du phare",

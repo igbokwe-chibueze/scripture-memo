@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import {
-  FlameIcon,
   HomeIcon,
   MapIcon,
   SettingsIcon,
@@ -73,12 +73,19 @@ export function MobileGameNavigation({
       >
         <Link
           href="/game"
-          className="mx-auto grid size-14 place-items-center rounded-2xl bg-primary/12 text-primary shadow-[inset_0_0_18px_color-mix(in_oklch,var(--primary),transparent_86%)] xl:mx-1 xl:flex xl:w-auto xl:justify-start xl:gap-2 xl:px-3"
+          className="mx-auto grid size-14 place-items-center text-primary xl:mx-0 xl:flex xl:w-full xl:justify-start xl:gap-2 xl:px-2"
           aria-label={t("scriptureMemoHome")}
         >
-          <FlameIcon className="size-8" aria-hidden="true" />
-          <span className="hidden font-heading text-lg font-black xl:inline">
-            Scripture Memo
+          <Image
+            src="/images/mascot/luna/luna-avatar.png"
+            alt=""
+            width={128}
+            height={128}
+            className="size-10 shrink-0 object-contain"
+          />
+          <span className="hidden text-left font-heading text-base leading-[1.05] font-black xl:inline">
+            <span className="block">Scripture</span>
+            <span className="block">Memo</span>
           </span>
         </Link>
         <nav className="mt-8 flex-1">

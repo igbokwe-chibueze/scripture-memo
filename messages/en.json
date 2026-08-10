@@ -523,6 +523,8 @@
     "scopes": "Leaderboard scopes",
     "global": "Global",
     "myLeague": "My League",
+    "fellowships": "Fellowships",
+    "chooseFellowship": "Choose fellowship",
     "allTime": "All Time",
     "country": "Country",
     "podium": "Beacon podium",

@@ -1476,6 +1476,11 @@ Beacon Challenger activation migration has been applied successfully.
   narrower rail is a flush continuation of the center surface, separated only
   by a border. Route panels must stay compact, avoid their own scrolling, and
   must not repeat information that the center already makes obvious.
+- Leaderboard scope navigation is a stable four-choice grid: My League,
+  Country, Fellowships, and All Time. It never creates one global control per
+  membership; fellowship choice happens through a bounded selector inside the
+  Fellowship scope. Mobile presents all four as one non-scrolling segmented
+  row with icons above labels.
 - The shared protected navigation uses theme tokens in both light and dark
   modes. Its wide desktop form places each icon beside its label, while the
   compact tablet rail and mobile bottom navigation retain icon-first layouts

@@ -2477,3 +2477,26 @@ implement the private progress archive and mastered-verse replay flow.
   left navigation from 256px to 192px and the context rail from 288px to 256px,
   returning 96px to the primary center experience without changing tablet or
   mobile navigation dimensions.
+- Replaced the desktop rail flame mark with Luna and kept the Scripture Memo
+  wordmark on one line. Flattened the leaderboard page heading and reduced its
+  competing visual weight.
+- Replaced membership-generated leaderboard tabs with four stable scopes.
+  Fellowship selection now lives inside the Fellowship view, and the mobile
+  scope controls use a non-scrolling two-by-two grid.
+- Removed the redundant exact-reset block from the league summary, retained the
+  concise remaining-time signal, and reduced Rank Info to an icon-sized help
+  control so the league emblem and ranking movement remain primary.
+- Corrected that refinement after responsive review: the simplification applies
+  only to desktop. Mobile again shows Rank Info beside the exact reset detail,
+  while very small screens retain the earlier icon-only Rank Info treatment.
+- Restored both Rank Info and the exact reset detail on large screens as well.
+  Their desktop stack now uses a larger gap so each element remains distinct;
+  mobile and very-small-screen behavior remains unchanged.
+- Consolidated the four leaderboard scopes into a single segmented mobile bar.
+  Icons sit above compact labels, the active scope receives the violet game
+  treatment, and every scope remains visible without horizontal or vertical
+  navigation scrolling.
+- Refined large-screen branding after visual review: removed the background and
+  inset treatment from the left-rail Luna wordmark, stacked its name as two
+  left-aligned lines, and rebuilt the leaderboard heading with a compact trophy
+  tile immediately beside the title and subtitle.

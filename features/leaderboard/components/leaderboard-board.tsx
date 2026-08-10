@@ -10,7 +10,7 @@ import {
   TrophyIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { BadgeUnlockSequence } from "@/features/badges/components/badge-unlock-screen";
@@ -344,6 +344,7 @@ export function LeaderboardBoard({
   const router = useRouter();
   const evaluationStarted = useRef(false);
   const enrollmentStarted = useRef(false);
+  const [isFellowshipPending, startFellowshipNavigation] = useTransition();
   const [badgeUnlocks, setBadgeUnlocks] = useState<BadgeUnlockResult[]>([]);
   const [selectedEntry, setSelectedEntry] = useState<LeaderboardEntry | null>(null);
   const realVisibleEntries = [...data.podium, ...data.entries]
@@ -433,26 +434,37 @@ export function LeaderboardBoard({
 
   return (
     <>
-      {/* Horizontal scrolling preserves comfortable touch targets at 375px. */}
       <nav
-        className="-mx-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0"
+        className="py-3"
         aria-label={t("scopes")}
       >
-        <div className="flex min-w-max gap-2">
+        {/* WHY: Four stable scopes fit as one segmented mobile control, so the
+         * learner can compare every destination without scrolling or spending
+         * two rows of valuable vertical space. Fellowship growth remains
+         * inside its own scope and therefore cannot expand this navigation. */}
+        <div className="grid grid-cols-4 gap-0 rounded-[1.5rem] border border-border/70 bg-card p-1.5 shadow-lg sm:gap-2 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
           <NavigationButton
             href={leaderboardHref("league")}
             pendingLabel={t("opening")}
-            variant={data.scope === "league" ? "default" : "outline"}
-            className="min-h-11"
+            variant={data.scope === "league" ? "default" : "ghost"}
+            className={cn(
+              "min-h-16 min-w-0 flex-col gap-1 rounded-xl px-0.5 text-[0.65rem] shadow-none sm:min-h-11 sm:flex-row sm:px-2 sm:text-sm",
+              data.scope === "league" &&
+                "bg-violet-600 text-white shadow-[0_4px_0_rgb(76_29_149/0.65)] hover:bg-violet-600",
+            )}
           >
-            <TrophyIcon aria-hidden="true" />
+            <TrophyIcon className="size-5" aria-hidden="true" />
             {t("myLeague")}
           </NavigationButton>
           <NavigationButton
             href={leaderboardHref("country")}
             pendingLabel={t("opening")}
-            variant={data.scope === "country" ? "default" : "outline"}
-            className="min-h-11"
+            variant={data.scope === "country" ? "default" : "ghost"}
+            className={cn(
+              "min-h-16 min-w-0 flex-col gap-1 rounded-xl px-0.5 text-[0.65rem] shadow-none sm:min-h-11 sm:flex-row sm:px-2 sm:text-sm",
+              data.scope === "country" &&
+                "bg-violet-600 text-white shadow-[0_4px_0_rgb(76_29_149/0.65)] hover:bg-violet-600",
+            )}
           >
             <CountryFlag
               countryCode={data.countryCode}
@@ -460,38 +472,77 @@ export function LeaderboardBoard({
             />
             {t("country")}
           </NavigationButton>
-          {data.fellowships.map((fellowship) => (
-            <NavigationButton
-              key={fellowship.id}
-              href={leaderboardHref("fellowship", 1, fellowship.id)}
-              pendingLabel={t("opening")}
-              variant={
-                data.scope === "fellowship" &&
-                data.activeFellowshipId === fellowship.id
-                  ? "default"
-                  : "outline"
-              }
-              className="min-h-11"
-            >
-              <MedalIcon aria-hidden="true" />
-              {fellowship.name}
-            </NavigationButton>
-          ))}
+          <NavigationButton
+            href={leaderboardHref(
+              "fellowship",
+              1,
+              data.activeFellowshipId ?? data.fellowships[0]?.id,
+            )}
+            pendingLabel={t("opening")}
+            variant={data.scope === "fellowship" ? "default" : "ghost"}
+            className={cn(
+              "min-h-16 min-w-0 flex-col gap-1 rounded-xl px-0.5 text-[0.65rem] shadow-none sm:min-h-11 sm:flex-row sm:px-2 sm:text-sm",
+              data.scope === "fellowship" &&
+                "bg-violet-600 text-white shadow-[0_4px_0_rgb(76_29_149/0.65)] hover:bg-violet-600",
+            )}
+          >
+            <MedalIcon className="size-5" aria-hidden="true" />
+            {t("fellowships")}
+          </NavigationButton>
           <NavigationButton
             href={leaderboardHref("all-time")}
             pendingLabel={t("opening")}
-            variant={data.scope === "all-time" ? "default" : "outline"}
-            className="min-h-11"
+            variant={data.scope === "all-time" ? "default" : "ghost"}
+            className={cn(
+              "min-h-16 min-w-0 flex-col gap-1 rounded-xl px-0.5 text-[0.65rem] shadow-none sm:min-h-11 sm:flex-row sm:px-2 sm:text-sm",
+              data.scope === "all-time" &&
+                "bg-violet-600 text-white shadow-[0_4px_0_rgb(76_29_149/0.65)] hover:bg-violet-600",
+            )}
           >
-            <CrownIcon aria-hidden="true" />
+            <CrownIcon className="size-5" aria-hidden="true" />
             {t("allTime")}
           </NavigationButton>
         </div>
       </nav>
 
+      {data.scope === "fellowship" && data.fellowships.length > 1 ? (
+        <div className="mb-3 rounded-2xl border bg-card p-3">
+          <div className="flex min-h-5 items-center justify-between gap-2">
+            <label
+              htmlFor="leaderboard-fellowship"
+              className="text-xs font-black tracking-wide text-muted-foreground uppercase"
+            >
+              {t("chooseFellowship")}
+            </label>
+            {isFellowshipPending ? (
+              <LoadingSpinner size="sm" label={t("opening")} />
+            ) : null}
+          </div>
+          <select
+            id="leaderboard-fellowship"
+            value={data.activeFellowshipId ?? ""}
+            disabled={isFellowshipPending}
+            aria-busy={isFellowshipPending}
+            onChange={(event) => {
+              const fellowshipId = event.target.value;
+              startFellowshipNavigation(() => {
+                router.push(leaderboardHref("fellowship", 1, fellowshipId));
+              });
+            }}
+            className="mt-2 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-bold outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
+          >
+            {data.fellowships.map((fellowship) => (
+              <option key={fellowship.id} value={fellowship.id}>
+                {fellowship.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : null}
+
       {isWeeklyScope && (
-        <section className="mt-4 overflow-hidden rounded-3xl border border-violet-400/25 bg-linear-to-br from-card via-card to-violet-500/10 p-3 shadow-lg sm:p-6">
-          <div className="grid grid-cols-[5.75rem_minmax(0,1fr)] items-center gap-2.5 max-[359px]:grid-cols-[5rem_minmax(0,1fr)] sm:grid-cols-[10.5rem_minmax(0,1fr)_auto] sm:gap-5">
+        <section className="overflow-hidden rounded-3xl border border-violet-400/25 bg-linear-to-br from-card via-card to-violet-500/10 p-3 shadow-lg sm:p-5">
+          <div className="relative grid grid-cols-[5.75rem_minmax(0,1fr)] items-center gap-2.5 max-[359px]:grid-cols-[5rem_minmax(0,1fr)] sm:grid-cols-[8.5rem_minmax(0,1fr)] sm:gap-4">
             <div className="grid size-[5.75rem] place-items-center max-[359px]:size-20 sm:size-auto sm:aspect-square">
               {data.scope === "league" ? (
                 <LeagueEmblem
@@ -522,11 +573,11 @@ export function LeaderboardBoard({
                 <LeagueRemainingTime endsAt={data.weekEndsAt} />
               </p>
             </div>
-            <div className="col-span-2 mt-1 grid grid-cols-[auto_minmax(0,1fr)] items-stretch gap-2 sm:col-span-1 sm:mt-0 sm:flex sm:flex-col sm:items-end">
-              {data.scope === "league" && (
+            <div className="col-span-2 mt-1 grid grid-cols-[auto_minmax(0,1fr)] items-stretch gap-2 sm:absolute sm:top-0 sm:right-0 sm:col-span-1 sm:mt-0 sm:flex sm:flex-col sm:items-end sm:gap-4">
+              {data.scope === "league" ? (
                 <LeagueJourneyDialog currentLeague={data.league} />
-              )}
-              <div className="grid content-center rounded-xl bg-violet-500/10 px-2.5 py-1.5 text-center sm:rounded-2xl sm:px-3 sm:py-2 sm:text-right">
+              ) : null}
+              <div className="grid content-center rounded-xl bg-violet-500/10 px-2.5 py-1.5 text-center sm:px-3 sm:py-2 sm:text-right">
                 <p className="text-[0.6875rem] font-bold leading-tight text-muted-foreground sm:text-xs">
                   {t("weekEnds")}
                 </p>

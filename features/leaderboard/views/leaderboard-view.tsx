@@ -69,15 +69,15 @@ export async function LeaderboardView({
         <GamePageColumns
           contextPanel={<LeaderboardContextPanel data={data} />}
         >
-          <header className="flex items-center justify-center gap-3 py-3 text-center sm:py-5">
-            <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-amber-400 text-amber-950 shadow-[0_5px_0_rgb(120_53_15/0.65)]">
-              <TrophyIcon className="size-6" aria-hidden="true" />
+          <header className="flex items-center gap-3 border-b border-border/70 py-4 sm:py-5">
+            <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-amber-300 text-amber-950 shadow-[0_3px_0_rgb(146_64_14/0.45)]">
+              <TrophyIcon className="size-5" aria-hidden="true" />
             </span>
-            <div className="text-left">
-              <h1 className="font-heading text-3xl leading-tight font-black sm:text-4xl">
+            <div className="min-w-0">
+              <h1 className="font-heading text-2xl leading-none font-black sm:text-3xl">
                 {t("title")}
               </h1>
-              <p className="text-sm font-semibold text-muted-foreground">
+              <p className="mt-1 text-xs font-bold text-muted-foreground sm:text-sm">
                 {t("eyebrow")}
               </p>
             </div>
