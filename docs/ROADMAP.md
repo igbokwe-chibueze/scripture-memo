@@ -1399,10 +1399,11 @@ approval prevent forged decisions and duplicate membership.
 
 **Goal:** Build the global, country, and fellowship leaderboards.
 
-**Implementation status:** Implemented on 2026-08-04; automated TypeScript,
-lint, badge-catalog, and localization checks pass. Project-owner responsive and
-privacy acceptance remains pending before this phase is marked complete. The
-Beacon Challenger activation migration has been applied successfully.
+**Implementation status:** Complete and manually accepted on 2026-08-10.
+Automated TypeScript, lint, badge-catalog, localization, and Beacon progression
+checks pass. The project owner accepted the responsive leaderboard, privacy
+boundaries, weekly league behavior, notification experience, and shared player
+shell. The Beacon Challenger activation migration has been applied successfully.
 
 ### Tasks
 

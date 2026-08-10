@@ -2542,3 +2542,11 @@ implement the private progress archive and mastered-verse replay flow.
   notification trigger to the same quiet stat-pill treatment, removed the
   leaderboard's duplicated visible title, and made narrow-phone route identity
   icon-only so labels cannot clip into incomplete words.
+
+### 2026-08-10 — Phase 27 manually accepted
+
+- The project owner accepted the responsive Great Beacon experience, league
+  progression and results, privacy-safe rankings, player identity treatments,
+  notification centre, and protected player shell.
+- Phase 27 is complete. Phase 28 — Admin Dashboard and Badge Management is next
+  in roadmap order.
