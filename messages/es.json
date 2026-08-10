@@ -610,6 +610,31 @@
     "countryMissingDescription": "Configura tu país para entrar en su clasificación.",
     "chooseCountry": "Abrir ajustes"
   },
+  "PlayerTopBar": {
+    "glowPoints": "Puntos de Luz",
+    "streakDays": "Días de racha",
+    "beaconPoints": "Puntos Faro totales"
+  },
+  "Notifications": {
+    "open": "Abrir avisos",
+    "title": "Avisos",
+    "description": "Novedades de tu camino.",
+    "markAllRead": "Leer todo",
+    "allRead": "Todos los avisos se marcaron como leídos.",
+    "empty": "Todo tranquilo en el camino",
+    "weeklyResult": "Resultado semanal de liga",
+    "promotedTitle": "¡Ascendiste de liga!",
+    "promotedBody": "Avanzaste a la Liga {league}.",
+    "demotedTitle": "Nueva semana, nueva subida",
+    "demotedBody": "Pasaste a la Liga {league}.",
+    "stayedTitle": "¡Liga asegurada!",
+    "stayedBody": "Sigues en la Liga {league}.",
+    "finalRank": "Puesto final",
+    "crowns": "Coronas",
+    "continue": "Continuar",
+    "systemTitle": "Novedad del camino",
+    "systemBody": "Hay algo nuevo en tu camino."
+  },
   "Errors": {
     "snag": "Vaya, encontramos un problema",
     "loadFailed": "Luna no pudo cargar esto. Inténtalo de nuevo.",

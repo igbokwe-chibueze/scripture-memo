@@ -1439,6 +1439,19 @@ Beacon Challenger activation migration has been applied successfully.
   XP without promotion effects. All Time ranks permanent Beacon Level and XP.
 - Weekly ties use weekly waypoint completions, then the earliest final score
   timestamp. All week assignment and finalization remain server-authoritative.
+- Finalized weekly movement creates one idempotent persistent notice in the same
+  transaction. The next protected shell render presents a dedicated Promoted,
+  Stayed, or Demoted result that closes only through Continue, while the result
+  remains available in a capped in-app notification centre afterward.
+- The notification centre never polls PostgreSQL. It performs one bounded,
+  indexed shell read during normal navigation and supports read, read-all, and
+  one-time-presentation state. Its event catalogue is ready for later Fellowship,
+  cooldown, streak-risk, and system notices without storing translated prose.
+- The protected dashboard bar excludes the permanent desktop left rail and
+  spans the center and contextual right column. It shows compact Glow, streak,
+  and lifetime Beacon totals plus the notification bell; mobile receives the
+  same counters in a space-conscious icon-first treatment. Active gameplay
+  deliberately omits the dashboard bar.
 - Each league has an independent emblem asset. The leaderboard's League Journey
   surface always exposes the complete Traveler-to-Saint path, distinguishing
   reached, current, and future leagues without relying on an image atlas.

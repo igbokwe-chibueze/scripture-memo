@@ -610,6 +610,31 @@
     "countryMissingDescription": "Set your country to enter its leaderboard.",
     "chooseCountry": "Open settings"
   },
+  "PlayerTopBar": {
+    "glowPoints": "Glow Points",
+    "streakDays": "Streak days",
+    "beaconPoints": "Lifetime Beacon Points"
+  },
+  "Notifications": {
+    "open": "Open notifications",
+    "title": "Notices",
+    "description": "Updates from your journey.",
+    "markAllRead": "Read all",
+    "allRead": "All notices marked as read.",
+    "empty": "All quiet on the trail",
+    "weeklyResult": "Weekly league result",
+    "promotedTitle": "League promoted!",
+    "promotedBody": "You advanced to {league} League.",
+    "demotedTitle": "New week, new climb",
+    "demotedBody": "You moved to {league} League.",
+    "stayedTitle": "League secured!",
+    "stayedBody": "You remain in {league} League.",
+    "finalRank": "Final rank",
+    "crowns": "Crowns",
+    "continue": "Continue",
+    "systemTitle": "Journey update",
+    "systemBody": "There is something new on your trail."
+  },
   "Errors": {
     "snag": "Oops, we hit a snag",
     "loadFailed": "Luna could not load this. Try again.",

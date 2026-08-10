@@ -2500,3 +2500,41 @@ implement the private progress archive and mastered-verse replay flow.
   inset treatment from the left-rail Luna wordmark, stacked its name as two
   left-aligned lines, and rebuilt the leaderboard heading with a compact trophy
   tile immediately beside the title and subtitle.
+
+### 2026-08-10 — Luna silhouette asset
+
+- Preserved the supplied square Luna face silhouette as an approved mascot
+  asset at `public/images/mascot/luna/luna-silhouette.png` without assigning it
+  to a production surface prematurely.
+- Registered the silhouette in the shared Luna asset catalogue and added it to
+  the `/ui-foundation` Luna production gallery for future visual evaluation.
+- Audited weekly Beacon placement behavior: promotion, demotion, final rank,
+  and Saint Crown outcomes are persisted when the learner enters the new week,
+  but no player-facing weekly-result notice or persistent notification centre
+  currently exists.
+
+### 2026-08-10 — Weekly league results and notification centre
+
+- Added a persistent, localized notification model with stable event types,
+  primitive JSON payloads, read state, one-time presentation state, and indexed
+  bounded inbox reads. No notification polling or scheduled database reads were
+  introduced.
+- Weekly Beacon finalization now creates exactly one Promoted, Stayed, or
+  Demoted notice inside the same transaction that records the finalized rank
+  and next league. Saint Crown awards are included in the result payload.
+- Added a global tactile notification bell, unread count, read/read-all inbox,
+  and a dedicated Luna weekly-result celebration that requires Continue before
+  it closes. Added all three placement variants to `/ui-foundation`.
+- Applied migration `20260810190000_add_user_notifications` to the configured
+  local PostgreSQL database and regenerated Prisma Client.
+- Reprocessed the Luna silhouette as a 32-bit PNG with only the exterior canvas
+  made transparent; enclosed white facial and eye artwork remains opaque.
+- Verified TypeScript, ESLint, localization contract tests, and Beacon tests.
+- Refined the result art direction so Stayed uses Luna Retry, Promoted uses Luna
+  Celebrate, and Demoted uses Luna Encourage.
+- Moved the notification control into a universal theme-aware dashboard bar
+  that starts after the desktop left rail and spans the center plus contextual
+  right column. Added compact Glow, streak, and lifetime Beacon counters using
+  one non-polling summary read over existing profile and streak aggregates.
+- Kept active gameplay free of the dashboard bar and verified the refinement
+  with TypeScript, ESLint, and the localization contract test.

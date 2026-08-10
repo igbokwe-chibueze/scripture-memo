@@ -43,7 +43,7 @@ export function DesktopContextRailProvider({
 
       {enabled ? (
         <aside
-          className="fixed inset-y-0 right-0 z-30 hidden w-64 flex-col border-l border-border/70 bg-background text-foreground xl:flex"
+          className="fixed top-16 right-0 bottom-0 z-30 hidden w-64 flex-col border-l border-border/70 bg-background text-foreground xl:flex"
           aria-label={t("contextRail")}
         >
           {/* WHY: Context content is intentionally bounded and visual-first.

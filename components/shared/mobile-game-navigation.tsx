@@ -15,6 +15,9 @@ import {
 import { cn } from "@/lib/utils";
 import { PresenceHeartbeat } from "@/features/profile/components/presence-heartbeat";
 import { DesktopContextRailProvider } from "@/components/shared/desktop-context-rail";
+import type { NotificationShellData } from "@/features/notifications/types/notification.types";
+import { PlayerTopBar } from "@/features/player-shell/components/player-top-bar";
+import type { PlayerShellSummary } from "@/features/player-shell/types/player-shell.types";
 
 const navigationItems = [
   { href: "/game", labelKey: "home", icon: HomeIcon, exact: true },
@@ -34,7 +37,13 @@ const navigationItems = [
  */
 export function MobileGameNavigation({
   children,
-}: Readonly<{ children: React.ReactNode }>): React.ReactNode {
+  notifications,
+  playerSummary,
+}: Readonly<{
+  children: React.ReactNode;
+  notifications: NotificationShellData;
+  playerSummary: PlayerShellSummary;
+}>): React.ReactNode {
   const pathname = usePathname();
   const t = useTranslations("Navigation");
   const hidesNavigation = pathname.startsWith("/game/sessions/");
@@ -56,11 +65,12 @@ export function MobileGameNavigation({
     <DesktopContextRailProvider enabled={!hidesContextRail}>
       <div
         className={cn(
-          "min-h-dvh bg-background pb-[calc(5.75rem+env(safe-area-inset-bottom))] md:pb-0 md:pl-24 xl:pl-48",
+          "min-h-dvh bg-background pt-16 pb-[calc(5.75rem+env(safe-area-inset-bottom))] md:pb-0 md:pl-24 xl:pl-48",
           !hidesContextRail && "xl:pr-64",
         )}
       >
       <PresenceHeartbeat />
+      <PlayerTopBar summary={playerSummary} notifications={notifications} />
       {/*
        * WHY: This restrained shadow separates the persistent rail from page
        * content without making it look like a heavy modal. Casting it toward

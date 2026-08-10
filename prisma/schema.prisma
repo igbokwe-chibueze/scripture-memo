@@ -115,6 +115,19 @@ enum BeaconLeague {
   SAINT
 }
 
+// Notifications store stable event meaning instead of translated prose so the
+// same record can render correctly after a learner changes language.
+enum UserNotificationType {
+  LEAGUE_PROMOTED
+  LEAGUE_DEMOTED
+  LEAGUE_STAYED
+  FELLOWSHIP_INVITE
+  FELLOWSHIP_REQUEST
+  COOLDOWN_READY
+  STREAK_RISK
+  SYSTEM
+}
+
 // Better Auth owns identity and credential lifecycle fields on this table.
 // Product state is kept in one-to-one profile/settings/streak records, while
 // authorization and suspension fields remain here for efficient server checks.
@@ -157,6 +170,7 @@ model User {
   beaconXpEntries            BeaconXpLedger[]
   beaconWeeklyScores         BeaconWeeklyScore[]
   beaconLeagueMemberships    BeaconLeagueMembership[]
+  notifications              UserNotification[]
 
   @@index([role])
   @@index([suspendedAt])
@@ -498,6 +512,23 @@ model BeaconLeagueMembership {
   @@unique([weekId, userId])
   @@index([cohortId, userId])
   @@index([userId, createdAt(sort: Desc)])
+}
+
+model UserNotification {
+  id          String               @id @default(cuid())
+  userId      String
+  type        UserNotificationType
+  dedupeKey   String               @unique
+  payload     Json
+  readAt      DateTime?
+  presentedAt DateTime?
+  createdAt   DateTime             @default(now())
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // WHY: The shell reads only one learner's newest notifications. This index
+  // keeps that bounded query cheap as the notification history grows.
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, readAt, createdAt(sort: Desc)])
 }
 
 model UserStreak {

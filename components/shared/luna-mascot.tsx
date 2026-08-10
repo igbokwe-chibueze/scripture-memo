@@ -28,6 +28,11 @@ export const LUNA_POSES = {
     width: 1254,
     height: 1254,
   },
+  silhouette: {
+    src: "/images/mascot/luna/luna-silhouette.png",
+    width: 1254,
+    height: 1254,
+  },
 } as const;
 
 export type LunaPose = keyof typeof LUNA_POSES;

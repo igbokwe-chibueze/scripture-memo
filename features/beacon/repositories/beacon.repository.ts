@@ -1,5 +1,8 @@
 import type { Prisma } from "@/lib/generated/prisma/client";
-import { BeaconLeague } from "@/lib/generated/prisma/enums";
+import {
+  BeaconLeague,
+  UserNotificationType,
+} from "@/lib/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import {
   BEACON_COHORT_SIZE,
@@ -118,6 +121,33 @@ async function getLeaguePlacement(
     data: {
       finalRank: standing.rank,
       crownAward: crowns,
+    },
+  });
+
+  const notificationType =
+    league === previous.league
+      ? UserNotificationType.LEAGUE_STAYED
+      : league === promotedLeague(previous.league)
+        ? UserNotificationType.LEAGUE_PROMOTED
+        : UserNotificationType.LEAGUE_DEMOTED;
+
+  // WHY: League placement and its player notice share one transaction. The
+  // previous membership ID is a permanent idempotency key, so retries cannot
+  // create duplicate notices or replay the weekly celebration.
+  await transaction.userNotification.upsert({
+    where: { dedupeKey: `league-result:${previous.id}` },
+    update: {},
+    create: {
+      userId,
+      type: notificationType,
+      dedupeKey: `league-result:${previous.id}`,
+      payload: {
+        previousLeague: previous.league,
+        currentLeague: league,
+        finalRank: standing.rank,
+        playerCount: standing.playerCount,
+        crownAward: crowns,
+      },
     },
   });
 

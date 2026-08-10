@@ -166,6 +166,33 @@ const fr = {
     countryMissingDescription: "Définissez votre pays pour rejoindre son classement.",
     chooseCountry: "Ouvrir les paramètres",
   },
+  PlayerTopBar: {
+    ...en.PlayerTopBar,
+    glowPoints: "Points de Lumière",
+    streakDays: "Jours de série",
+    beaconPoints: "Points Phare cumulés",
+  },
+  Notifications: {
+    ...en.Notifications,
+    open: "Ouvrir les notifications",
+    title: "Notifications",
+    description: "Les nouvelles de votre parcours.",
+    markAllRead: "Tout lire",
+    allRead: "Toutes les notifications sont marquées comme lues.",
+    empty: "Tout est calme sur le sentier",
+    weeklyResult: "Résultat hebdomadaire",
+    promotedTitle: "Ligue supérieure !",
+    promotedBody: "Vous passez en ligue {league}.",
+    demotedTitle: "Nouvelle semaine, nouvel élan",
+    demotedBody: "Vous passez en ligue {league}.",
+    stayedTitle: "Ligue conservée !",
+    stayedBody: "Vous restez en ligue {league}.",
+    finalRank: "Classement final",
+    crowns: "Couronnes",
+    continue: "Continuer",
+    systemTitle: "Nouvelle du parcours",
+    systemBody: "Une nouveauté vous attend sur le sentier.",
+  },
   Errors: { ...en.Errors, snag: "Oups, un problème est survenu", loadFailed: "Luna n’a pas pu charger ceci. Réessayez.", notFound: "Ce sentier est introuvable." }
 };
 
