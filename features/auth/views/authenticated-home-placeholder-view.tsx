@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import {
   FlameIcon,
   MapIcon,
+  ShieldCheckIcon,
   ShoppingBagIcon,
   TrophyIcon,
   VaultIcon,
@@ -16,6 +17,8 @@ import { authRepository } from "@/features/auth/repositories/auth.repository";
 import { getStreakDisplay } from "@/features/progression/lib/streak-utils";
 import { userRepository } from "@/features/users/repositories/user.repository";
 import { requireServerSession } from "@/lib/auth/session";
+import type { UserRole } from "@/lib/generated/prisma/enums";
+import { isAdmin } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -90,6 +93,17 @@ export async function AuthenticatedHomePlaceholderView(): Promise<React.ReactNod
             <TrophyIcon aria-hidden="true" />
             {t("leaderboard")}
           </NavigationButton>
+          {isAdmin(session.user.role as UserRole | null | undefined) ? (
+            <NavigationButton
+              href="/admin"
+              pendingLabel={t("openingAdmin")}
+              variant="outline"
+              className="min-h-11 gap-2 px-4"
+            >
+              <ShieldCheckIcon aria-hidden="true" />
+              {t("admin")}
+            </NavigationButton>
+          ) : null}
           <LogoutButton />
         </div>
       </div>

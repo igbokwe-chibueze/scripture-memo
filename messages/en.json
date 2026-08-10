@@ -112,6 +112,8 @@
     "oilShop": "Oil Shop",
     "leaderboard": "The Great Beacon",
     "openingLeaderboard": "Opening leaderboard",
+    "admin": "Admin",
+    "openingAdmin": "Opening admin",
     "currentStreak": "Current streak: {count} days",
     "loggingOut": "Logging out",
     "logOut": "Log out"

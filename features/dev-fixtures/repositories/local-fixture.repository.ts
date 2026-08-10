@@ -142,7 +142,7 @@ export function createLocalFixtureRepository(databaseUrl: string) {
      */
     async preparePlayer(
       email: string,
-      grantAdminRole: boolean,
+      requestedRole: UserRole | null,
     ): Promise<LocalPlayerPreparation> {
       return client.$transaction(async (transaction) => {
         const user = await transaction.user.findUnique({
@@ -164,8 +164,12 @@ export function createLocalFixtureRepository(databaseUrl: string) {
           throw new Error("No playable local waypoint exists. Seed local fixtures first.");
         }
 
-        const role = grantAdminRole ? UserRole.ADMIN : user.role;
-        if (grantAdminRole && user.role !== UserRole.ADMIN) {
+        // WHY: Local authorization testing needs exact ADMIN and SUPER_ADMIN
+        // identities. The command accepts a generated enum value, operates only
+        // after the loopback URL guard, and never infers a privileged role from
+        // user-controlled application input.
+        const role = requestedRole ?? user.role;
+        if (requestedRole && user.role !== requestedRole) {
           await transaction.user.update({
             where: { id: user.id },
             data: { role },

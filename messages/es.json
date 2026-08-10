@@ -112,6 +112,8 @@
     "oilShop": "Tienda de Aceite",
     "leaderboard": "El Gran Faro",
     "openingLeaderboard": "Abriendo clasificación",
+    "admin": "Administración",
+    "openingAdmin": "Abriendo administración",
     "currentStreak": "Racha actual: {count} días",
     "loggingOut": "Cerrando sesión",
     "logOut": "Cerrar sesión"

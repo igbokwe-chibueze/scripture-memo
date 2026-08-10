@@ -441,7 +441,10 @@ export function BadgeAdminManager({
       </section>
 
       {canAward && (
-        <section className="rounded-2xl border bg-card p-5">
+        <section
+          id="manual-badge-award"
+          className="scroll-mt-6 rounded-2xl border bg-card p-5"
+        >
           <h2 className="flex items-center gap-2 font-heading text-xl font-black">
             <AwardIcon className="size-5 text-amber-500" aria-hidden="true" />
             Manual award

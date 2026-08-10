@@ -2587,3 +2587,61 @@ implement the private progress archive and mastered-verse replay flow.
 - Assigned the corrected Concept head avatar a new immutable public filename so
   Next/Image and browser caches cannot mistake the old bust response for the new
   head-only artwork in `/ui-foundation`.
+
+### 2026-08-10 — Phase 28 admin control center implementation
+
+- Added the protected `/admin` control center with users, verses, assigned
+  waypoints, badges, and 30-day active-user statistics. All five values are
+  returned by one aggregate database query to avoid multiplying hosted database
+  operations on routine dashboard visits.
+- Added mobile-first administrator navigation cards for Verses, Packs,
+  Waypoints, Badges, the operational error guide, Super Admin User Management,
+  and the existing Settings surface.
+- Added Super Admin-only `/admin/users` with bounded name/email search,
+  pagination, compact progress summaries, role controls, and account access
+  controls. Regular Admins are redirected in Proxy and again at the server-view
+  boundary.
+- Made role changes atomic with their audit records, prevented self-demotion and
+  final-Super-Admin demotion, and recorded old and new roles without exposing
+  private data in logs.
+- Implemented audited account suspension/restoration using the existing product
+  suspension fields. Suspension deletes every Better Auth session in the same
+  transaction, login performs a single indexed suspension check before session
+  creation, and the last active Super Admin cannot be suspended.
+- Reused the existing audited manual badge-award form instead of duplicating the
+  grant workflow; User Management links directly to that anchored control.
+- Added protected route loading UI and pending feedback for search, pagination,
+  role changes, suspension, restoration, and every admin navigation action.
+- Verified TypeScript and affected-file ESLint with no errors, and ran all eight
+  badge catalogue tests successfully. Direct repository smoke testing was not
+  run because standalone `tsx` does not load the app's local `DATABASE_URL`;
+  manual route verification remains the Phase 28 acceptance gate.
+
+### 2026-08-10 — Local Phase 28 authorization accounts
+
+- Extended the loopback-guarded `local:player` command with an explicit
+  `--super-admin` option while preserving `--admin` and the no-role-change
+  default. Conflicting privilege flags fail before any database write.
+- Prepared `localtestuser1@test.com` as `SUPER_ADMIN` and
+  `localtestuser2@test.com` as `ADMIN` in the configured local PostgreSQL
+  database. Both accounts retain Better Auth-owned credentials and received the
+  existing idempotent local player foundation for Phase 28 manual testing.
+
+### 2026-08-10 — Admin access from Game Home
+
+- Added a localized, tactile Admin navigation control to the authenticated Game
+  Home for both `ADMIN` and `SUPER_ADMIN` accounts. The trusted server session
+  decides whether the control is rendered, so ordinary players never receive it.
+- Kept `/admin` authorization independent of this convenience link: Proxy and
+  the server-rendered admin boundary remain responsible for access enforcement.
+
+### 2026-08-10 — Admin user-list views
+
+- Added Table and Card presentations to `/admin/users`, with Table as the
+  default. Switching is immediate client UI state and performs no navigation or
+  additional database query.
+- Kept the existing account cards intact and added a compact table presentation
+  with player, role, progress, and action columns. On small screens, each row
+  stacks its secondary fields to remain readable without horizontal scrolling.
+- Preserved audited role changes, suspension/restoration confirmation, disabled
+  self-management controls, and pending feedback in both presentations.

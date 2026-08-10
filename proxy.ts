@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth/auth";
-import { isAdmin } from "@/lib/permissions";
+import { isAdmin, isSuperAdmin } from "@/lib/permissions";
 import type { UserRole } from "@/lib/generated/prisma/enums";
 import { PROTECTED_PATH_PREFIXES } from "@/features/auth/constants/protected-paths";
 
@@ -41,8 +41,19 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   }
 
   if (pathname === "/admin" || pathname.startsWith("/admin/")) {
-    if (!isAdmin(session.user.role as UserRole | undefined)) {
+    const role = session.user.role as UserRole | undefined;
+    if (!isAdmin(role)) {
       return NextResponse.redirect(new URL("/game", request.url));
+    }
+
+    // WHY: Proxy gives regular Admins immediate navigation feedback, while the
+    // view and every mutation repeat this check as the trusted authorization
+    // boundary. Direct Server Action requests cannot rely on Proxy alone.
+    if (
+      (pathname === "/admin/users" || pathname.startsWith("/admin/users/")) &&
+      !isSuperAdmin(role)
+    ) {
+      return NextResponse.redirect(new URL("/admin", request.url));
     }
   }
 

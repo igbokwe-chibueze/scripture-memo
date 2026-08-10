@@ -1523,6 +1523,19 @@ shell. The Beacon Challenger activation migration has been applied successfully.
    - Manual badge award form — logged in audit trail
 6. Role-protect all admin views through Proxy checks and verify authorization again in each Server Action and protected data-access path.
 
+### Implementation checkpoint (2026-08-10)
+
+- The admin dashboard, low-query platform counters, and permission-aware tool
+  links are implemented.
+- Existing Badge Management covers catalogue search, unlock counts, create,
+  edit, pause/resume, safe deletion, and audited Super Admin manual awards.
+- Super Admin User Management provides bounded search and pagination, audited
+  role changes, account suspension/restoration, active Better Auth session
+  revocation, and last-Super-Admin safeguards.
+- `/admin/users` is protected for Super Admins in Proxy, its server view, and
+  every mutation. Phase acceptance remains pending the project owner's manual
+  role-boundary and suspension tests.
+
 ### Acceptance Criteria
 
 - Regular Admin cannot access User Management.
