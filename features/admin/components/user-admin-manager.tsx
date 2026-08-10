@@ -2,33 +2,21 @@
 
 import { useState, useTransition } from "react";
 import {
-  BanIcon,
   CalendarClockIcon,
   LayoutGridIcon,
   ListIcon,
   MapPinnedIcon,
-  RotateCcwIcon,
   SaveIcon,
   SparklesIcon,
-  UserCogIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import type { UserRole } from "@/lib/generated/prisma/enums";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { showActionError } from "@/lib/errors/show-action-error";
 import { changeUserRoleAction } from "@/features/admin/actions/change-user-role.action";
-import { setUserSuspensionAction } from "@/features/admin/actions/set-user-suspension.action";
+import { UserAccountActions } from "@/features/admin/components/user-account-actions";
 import type { AdminUserListItem } from "@/features/admin/types/admin.types";
 
 const ROLE_LABELS: Record<UserRole, string> = {
@@ -54,11 +42,10 @@ function UserAdminCard({
   currentUserId: string;
 }): React.ReactNode {
   const [selectedRole, setSelectedRole] = useState<UserRole>(user.role);
-  const [suspensionOpen, setSuspensionOpen] = useState(false);
-  const [reason, setReason] = useState(user.suspendReason ?? "");
   const [isPending, startTransition] = useTransition();
   const isCurrentUser = user.id === currentUserId;
   const isSuspended = user.suspendedAt !== null;
+  const isDeleted = user.suspendReason === "ACCOUNT_ANONYMIZED";
   const displayName = user.displayName || user.name;
 
   function saveRole(): void {
@@ -72,19 +59,6 @@ function UserAdminCard({
     });
   }
 
-  function updateSuspension(): void {
-    startTransition(async () => {
-      const result = await setUserSuspensionAction({
-        userId: user.id,
-        suspended: !isSuspended,
-        reason: isSuspended ? undefined : reason,
-      });
-      if (!result.success) return showActionError(result);
-      toast.success(result.message, { duration: 4_000 });
-      setSuspensionOpen(false);
-    });
-  }
-
   return (
     <article className="overflow-hidden rounded-3xl border bg-card">
       <div className="space-y-4 p-4 sm:p-5">
@@ -95,7 +69,11 @@ function UserAdminCard({
                 {displayName}
               </h2>
               {isCurrentUser && <Badge>You</Badge>}
-              {isSuspended && <Badge variant="destructive">Suspended</Badge>}
+              {isDeleted ? (
+                <Badge variant="destructive">Deleted</Badge>
+              ) : (
+                isSuspended && <Badge variant="destructive">Suspended</Badge>
+              )}
             </div>
             <p className="truncate text-sm text-muted-foreground">{user.email}</p>
           </div>
@@ -136,7 +114,7 @@ function UserAdminCard({
               onChange={(event) =>
                 setSelectedRole(event.currentTarget.value as UserRole)
               }
-              disabled={isPending || isCurrentUser}
+              disabled={isPending || isCurrentUser || isDeleted}
               className="h-11 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50"
             >
               <option value="USER">Player</option>
@@ -149,75 +127,15 @@ function UserAdminCard({
             variant="outline"
             isPending={isPending}
             pendingLabel="Saving"
-            disabled={isCurrentUser || selectedRole === user.role}
+            disabled={isCurrentUser || isDeleted || selectedRole === user.role}
             onClick={saveRole}
           >
             <SaveIcon aria-hidden="true" />
             Save role
           </LoadingButton>
-          <Button
-            type="button"
-            variant={isSuspended ? "outline" : "destructive"}
-            disabled={isPending || isCurrentUser}
-            onClick={() => setSuspensionOpen(true)}
-          >
-            {isSuspended ? (
-              <RotateCcwIcon aria-hidden="true" />
-            ) : (
-              <BanIcon aria-hidden="true" />
-            )}
-            {isSuspended ? "Restore" : "Suspend"}
-          </Button>
+          <UserAccountActions user={user} currentUserId={currentUserId} />
         </div>
       </div>
-
-      <Dialog open={suspensionOpen} onOpenChange={setSuspensionOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {isSuspended ? "Restore account?" : "Suspend account?"}
-            </DialogTitle>
-            <DialogDescription>
-              {isSuspended
-                ? `${displayName} will be allowed to sign in again.`
-                : `All active sessions for ${displayName} will be revoked.`}
-            </DialogDescription>
-          </DialogHeader>
-          {!isSuspended && (
-            <label className="grid gap-1.5 text-sm font-bold">
-              Reason
-              <Input
-                value={reason}
-                onChange={(event) => setReason(event.currentTarget.value)}
-                placeholder="Reason for suspending this account"
-                maxLength={500}
-                className="h-11"
-              />
-            </label>
-          )}
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              disabled={isPending}
-              onClick={() => setSuspensionOpen(false)}
-            >
-              Cancel
-            </Button>
-            <LoadingButton
-              type="button"
-              variant={isSuspended ? "default" : "destructive"}
-              isPending={isPending}
-              pendingLabel={isSuspended ? "Restoring" : "Suspending"}
-              disabled={!isSuspended && !reason.trim()}
-              onClick={updateSuspension}
-            >
-              <UserCogIcon aria-hidden="true" />
-              {isSuspended ? "Restore account" : "Suspend account"}
-            </LoadingButton>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </article>
   );
 }
@@ -237,11 +155,10 @@ function UserAdminTableRow({
   currentUserId: string;
 }): React.ReactNode {
   const [selectedRole, setSelectedRole] = useState<UserRole>(user.role);
-  const [suspensionOpen, setSuspensionOpen] = useState(false);
-  const [reason, setReason] = useState(user.suspendReason ?? "");
   const [isPending, startTransition] = useTransition();
   const isCurrentUser = user.id === currentUserId;
   const isSuspended = user.suspendedAt !== null;
+  const isDeleted = user.suspendReason === "ACCOUNT_ANONYMIZED";
   const displayName = user.displayName || user.name;
 
   function saveRole(): void {
@@ -255,26 +172,17 @@ function UserAdminTableRow({
     });
   }
 
-  function updateSuspension(): void {
-    startTransition(async () => {
-      const result = await setUserSuspensionAction({
-        userId: user.id,
-        suspended: !isSuspended,
-        reason: isSuspended ? undefined : reason,
-      });
-      if (!result.success) return showActionError(result);
-      toast.success(result.message, { duration: 4_000 });
-      setSuspensionOpen(false);
-    });
-  }
-
   return (
     <article className="grid gap-4 border-t p-4 first:border-t-0 lg:grid-cols-[minmax(13rem,1.4fr)_minmax(10rem,0.8fr)_minmax(13rem,1fr)_auto] lg:items-center">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <h2 className="truncate font-heading font-black">{displayName}</h2>
           {isCurrentUser && <Badge>You</Badge>}
-          {isSuspended && <Badge variant="destructive">Suspended</Badge>}
+          {isDeleted ? (
+            <Badge variant="destructive">Deleted</Badge>
+          ) : (
+            isSuspended && <Badge variant="destructive">Suspended</Badge>
+          )}
         </div>
         <p className="truncate text-sm text-muted-foreground">{user.email}</p>
         <p className="mt-1 text-xs text-muted-foreground">
@@ -289,7 +197,7 @@ function UserAdminTableRow({
           onChange={(event) =>
             setSelectedRole(event.currentTarget.value as UserRole)
           }
-          disabled={isPending || isCurrentUser}
+          disabled={isPending || isCurrentUser || isDeleted}
           className="h-11 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50"
         >
           <option value="USER">Player</option>
@@ -319,69 +227,20 @@ function UserAdminTableRow({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 lg:grid-cols-1 xl:grid-cols-2">
+      <div className="grid grid-cols-[auto_auto] justify-self-end gap-2">
         <LoadingButton
           type="button"
           variant="outline"
           isPending={isPending}
           pendingLabel="Saving"
-          disabled={isCurrentUser || selectedRole === user.role}
+          disabled={isCurrentUser || isDeleted || selectedRole === user.role}
           onClick={saveRole}
         >
           <SaveIcon aria-hidden="true" />
           Save
         </LoadingButton>
-        <Button
-          type="button"
-          variant={isSuspended ? "outline" : "destructive"}
-          disabled={isPending || isCurrentUser}
-          onClick={() => setSuspensionOpen(true)}
-        >
-          {isSuspended ? <RotateCcwIcon aria-hidden="true" /> : <BanIcon aria-hidden="true" />}
-          {isSuspended ? "Restore" : "Suspend"}
-        </Button>
+        <UserAccountActions user={user} currentUserId={currentUserId} />
       </div>
-
-      <Dialog open={suspensionOpen} onOpenChange={setSuspensionOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{isSuspended ? "Restore account?" : "Suspend account?"}</DialogTitle>
-            <DialogDescription>
-              {isSuspended
-                ? `${displayName} will be allowed to sign in again.`
-                : `All active sessions for ${displayName} will be revoked.`}
-            </DialogDescription>
-          </DialogHeader>
-          {!isSuspended && (
-            <label className="grid gap-1.5 text-sm font-bold">
-              Reason
-              <Input
-                value={reason}
-                onChange={(event) => setReason(event.currentTarget.value)}
-                placeholder="Reason for suspending this account"
-                maxLength={500}
-                className="h-11"
-              />
-            </label>
-          )}
-          <DialogFooter>
-            <Button type="button" variant="outline" disabled={isPending} onClick={() => setSuspensionOpen(false)}>
-              Cancel
-            </Button>
-            <LoadingButton
-              type="button"
-              variant={isSuspended ? "default" : "destructive"}
-              isPending={isPending}
-              pendingLabel={isSuspended ? "Restoring" : "Suspending"}
-              disabled={!isSuspended && !reason.trim()}
-              onClick={updateSuspension}
-            >
-              <UserCogIcon aria-hidden="true" />
-              {isSuspended ? "Restore account" : "Suspend account"}
-            </LoadingButton>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </article>
   );
 }
@@ -430,7 +289,7 @@ export function UserAdminManager({
             <span>Player</span>
             <span>Role</span>
             <span>Progress</span>
-            <span>Actions</span>
+            <span className="text-right">Actions</span>
           </div>
           {users.map((user) => (
             <UserAdminTableRow key={user.id} user={user} currentUserId={currentUserId} />

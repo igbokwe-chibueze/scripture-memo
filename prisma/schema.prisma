@@ -118,6 +118,7 @@ enum BeaconLeague {
 // Notifications store stable event meaning instead of translated prose so the
 // same record can render correctly after a learner changes language.
 enum UserNotificationType {
+  BADGE_AWARDED
   LEAGUE_PROMOTED
   LEAGUE_DEMOTED
   LEAGUE_STAYED

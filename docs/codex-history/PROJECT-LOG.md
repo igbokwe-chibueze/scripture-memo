@@ -2645,3 +2645,43 @@ implement the private progress archive and mastered-verse replay flow.
   stacks its secondary fields to remain readable without horizontal scrolling.
 - Preserved audited role changes, suspension/restoration confirmation, disabled
   self-management controls, and pending feedback in both presentations.
+- Normalized the Save and Suspend/Restore controls to the same touch-friendly
+  height in both views so adjacent account actions align consistently.
+- Consolidated session revocation, suspension/restoration, and account deletion
+  into one tactile Actions menu shared by Table and Card views.
+- Added separately validated and audited session-revocation and account-removal
+  Server Actions. Account removal is implemented as irreversible anonymization:
+  Better Auth sessions and credentials, identifying User/Profile fields, private
+  notes, and favorites are removed while progression, rewards, fellowships, and
+  audit history remain structurally valid.
+- Protected the current Super Admin and the final active Super Admin from unsafe
+  account operations, required typed `DELETE` confirmation, and disabled future
+  role/access actions for already anonymized accounts.
+- Simplified the account Actions trigger to the standard vertical-dots icon,
+  reserved modal-header space for the tactile close control, and normalized all
+  confirmation-footer buttons to one explicit touch-friendly height.
+- Removed the table action column's equal-width filler space and aligned its
+  Save/menu group and heading to the row's trailing edge.
+- Replaced the manual badge-award email field with predictive Super Admin-only
+  account suggestions. Lookup starts after three characters and a 400 ms pause,
+  returns at most six active accounts, ignores stale responses, and caches prior
+  queries in the browser to minimize PostgreSQL operations.
+
+### 2026-08-10 — Manual badge-award player notifications
+
+- Added `BADGE_AWARDED` as a stable localized notification event and applied
+  migration `20260810224500_add_badge_awarded_notification` to the configured
+  local PostgreSQL database.
+- Manual badge awards now create the unread learner notice inside the existing
+  badge/reward/audit transaction. This preserves atomicity, reuses the badge and
+  user lookup already in progress, and avoids notification polling or another
+  database round trip.
+- Applied idempotent migration
+  `20260810230000_backfill_manual_badge_award_notifications` so recipients of
+  earlier manual awards also receive their missing notice without any repeat
+  reward or duplicate notification.
+- Badge notices display the awarded badge name and Glow reward in English,
+  Spanish, or French. Selecting the notice marks it read, closes the drawer,
+  and opens the learner's badge collection.
+- Prisma generation and validation, localization contract tests, badge catalogue
+  tests, TypeScript, and targeted ESLint all pass.

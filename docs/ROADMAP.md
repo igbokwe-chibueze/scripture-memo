@@ -1531,7 +1531,18 @@ shell. The Beacon Challenger activation migration has been applied successfully.
   edit, pause/resume, safe deletion, and audited Super Admin manual awards.
 - Super Admin User Management provides bounded search and pagination, audited
   role changes, account suspension/restoration, active Better Auth session
-  revocation, and last-Super-Admin safeguards.
+  revocation, and last-Super-Admin safeguards. Table and Card views share one
+  compact Actions menu for session revocation, suspension/restoration, and
+  permanent account anonymization. Account removal deletes credentials and
+  identifying profile data while preserving anonymous progression, reward,
+  fellowship, and audit history instead of relying on unsafe cascading deletes.
+- Manual badge awards provide a debounced, bounded Super Admin email lookup so
+  administrators can select an active account without loading the full user
+  directory or generating a database request for every keystroke.
+- A newly completed manual badge award atomically creates one deduplicated,
+  localized player notice. The unread bell identifies the badge and Glow reward,
+  and selecting the notice opens the learner's badge collection. Repeat award
+  requests neither repay the reward nor create duplicate notifications.
 - `/admin/users` is protected for Super Admins in Proxy, its server view, and
   every mutation. Phase acceptance remains pending the project owner's manual
   role-boundary and suspension tests.

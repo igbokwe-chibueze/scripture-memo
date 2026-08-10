@@ -3,6 +3,20 @@ import { UserRole } from "@/lib/generated/prisma/enums";
 
 const userIdSchema = z.string().trim().min(1).max(128);
 
+/** Validates session revocation for exactly one account. */
+export const revokeUserSessionsSchema = z.object({
+  userId: userIdSchema,
+});
+
+/**
+ * Requires an explicit destructive confirmation before account anonymization.
+ * The literal prevents an accidental menu tap from reaching the repository.
+ */
+export const anonymizeUserAccountSchema = z.object({
+  userId: userIdSchema,
+  confirmation: z.literal("DELETE"),
+});
+
 /** Validates the exact account and trusted role requested by a Super Admin. */
 export const changeUserRoleSchema = z.object({
   userId: userIdSchema,
@@ -30,4 +44,9 @@ export const setUserSuspensionSchema = z
 export const adminUserFiltersSchema = z.object({
   page: z.coerce.number().int().min(1).max(10_000).default(1),
   search: z.string().trim().max(100).default(""),
+});
+
+/** Bounds predictive email lookup so it cannot become an open-ended user dump. */
+export const userEmailSuggestionSchema = z.object({
+  query: z.string().trim().toLowerCase().min(3).max(100),
 });

@@ -634,6 +634,8 @@
     "finalRank": "Puesto final",
     "crowns": "Coronas",
     "continue": "Continuar",
+    "badgeAwardedTitle": "¡Nueva insignia otorgada!",
+    "badgeAwardedBody": "{badge} ya es tuya. Recibiste {reward} Puntos de Luz.",
     "systemTitle": "Novedad del camino",
     "systemBody": "Hay algo nuevo en tu camino."
   },

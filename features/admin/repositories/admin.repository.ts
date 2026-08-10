@@ -125,6 +125,28 @@ export const adminRepository = {
   },
 
   /**
+   * Returns a tiny email-only suggestion set for explicit Super Admin lookup.
+   * The minimum query length is enforced by the action before this method runs;
+   * the hard result cap prevents exposing the complete account directory.
+   */
+  async findUserEmailSuggestions(query: string): Promise<string[]> {
+    const users = await prisma.user.findMany({
+      where: {
+        email: {
+          contains: query,
+          mode: "insensitive",
+        },
+        suspendedAt: null,
+      },
+      orderBy: { email: "asc" },
+      take: 6,
+      select: { email: true },
+    });
+
+    return users.map((user) => user.email);
+  },
+
+  /**
    * Changes one account role and writes its audit row in the same transaction.
    *
    * The advisory lock prevents two Super Admins from simultaneously demoting
@@ -176,6 +198,153 @@ export const adminRepository = {
         },
       });
       return "updated";
+  }, ADMIN_TRANSACTION_OPTIONS);
+  },
+
+  /** Revokes every Better Auth session and records who performed the action. */
+  async revokeUserSessions({
+    actorId,
+    targetUserId,
+    ipAddress,
+  }: {
+    actorId: string;
+    targetUserId: string;
+    ipAddress: string | null;
+  }): Promise<"revoked" | "missing"> {
+    return prisma.$transaction(async (transaction) => {
+      const target = await transaction.user.findUnique({
+        where: { id: targetUserId },
+        select: { id: true },
+      });
+      if (!target) return "missing";
+
+      const result = await transaction.session.deleteMany({
+        where: { userId: targetUserId },
+      });
+      await transaction.auditLog.create({
+        data: {
+          actorId,
+          action: "USER_SESSIONS_REVOKED",
+          entityType: "User",
+          entityId: targetUserId,
+          ipAddress,
+          metadata: { revokedSessionCount: result.count },
+        },
+      });
+      return "revoked";
+    }, ADMIN_TRANSACTION_OPTIONS);
+  },
+
+  /**
+   * Removes sign-in capability and identifying account data without deleting
+   * progression, rewards, fellowship history, or immutable audit records.
+   *
+   * WHY: Hard deletion is unsafe while many historical models reference User.
+   * Anonymization satisfies the administrative removal intent without relying
+   * on unreviewed cascading deletes or corrupting earned-history reconstruction.
+   */
+  async anonymizeUserAccount({
+    actorId,
+    targetUserId,
+    ipAddress,
+  }: {
+    actorId: string;
+    targetUserId: string;
+    ipAddress: string | null;
+  }): Promise<"anonymized" | "missing" | "last-super-admin" | "already-anonymized"> {
+    return prisma.$transaction(async (transaction) => {
+      await transaction.$executeRaw`
+        SELECT pg_advisory_xact_lock(hashtext('scripture-memo-admin-account-removal'))
+      `;
+      const target = await transaction.user.findUnique({
+        where: { id: targetUserId },
+        select: {
+          email: true,
+          role: true,
+          suspendReason: true,
+        },
+      });
+      if (!target) return "missing";
+      if (target.suspendReason === "ACCOUNT_ANONYMIZED") {
+        return "already-anonymized";
+      }
+
+      if (target.role === "SUPER_ADMIN") {
+        const activeSuperAdmins = await transaction.user.count({
+          where: {
+            role: "SUPER_ADMIN",
+            suspendedAt: null,
+          },
+        });
+        if (activeSuperAdmins <= 1) return "last-super-admin";
+      }
+
+      const anonymizedEmail = `deleted-${targetUserId}@deleted.scripture-memo.invalid`;
+      const anonymizedAt = new Date();
+
+      // Credentials and live sessions are removed before the identity fields are
+      // replaced, ensuring the old email can never authenticate after commit.
+      await transaction.session.deleteMany({ where: { userId: targetUserId } });
+      await transaction.account.deleteMany({ where: { userId: targetUserId } });
+      await transaction.verification.deleteMany({
+        where: { identifier: target.email },
+      });
+
+      // Private notes and favorites are personal content rather than immutable
+      // curriculum history, so account removal clears them instead of retaining
+      // user-authored material under an anonymous identity.
+      await transaction.userVerseNote.deleteMany({
+        where: { userId: targetUserId },
+      });
+      await transaction.userFavoriteVerse.deleteMany({
+        where: { userId: targetUserId },
+      });
+
+      await transaction.user.update({
+        where: { id: targetUserId },
+        data: {
+          name: "Deleted player",
+          email: anonymizedEmail,
+          emailVerified: false,
+          image: null,
+          role: "USER",
+          suspendedAt: anonymizedAt,
+          suspendReason: "ACCOUNT_ANONYMIZED",
+          suspendedUntil: null,
+          profile: {
+            upsert: {
+              create: {
+                displayName: "Deleted player",
+                avatarKey: "lion",
+                avatarFrameKey: "default",
+              },
+              update: {
+                displayName: "Deleted player",
+                countryCode: null,
+                avatarKey: "lion",
+                avatarFrameKey: "default",
+                isPartner: false,
+                lastSeenAt: null,
+              },
+            },
+          },
+        },
+      });
+
+      await transaction.auditLog.create({
+        data: {
+          actorId,
+          action: "USER_ACCOUNT_ANONYMIZED",
+          entityType: "User",
+          entityId: targetUserId,
+          ipAddress,
+          metadata: {
+            previousRole: target.role,
+            preservedHistoricalProgress: true,
+          },
+        },
+      });
+      return "anonymized";
     }, ADMIN_TRANSACTION_OPTIONS);
   },
 

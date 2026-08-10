@@ -190,6 +190,8 @@ const fr = {
     finalRank: "Classement final",
     crowns: "Couronnes",
     continue: "Continuer",
+    badgeAwardedTitle: "Nouveau badge obtenu !",
+    badgeAwardedBody: "{badge} est maintenant à vous. Vous recevez {reward} Points de Lumière.",
     systemTitle: "Nouvelle du parcours",
     systemBody: "Une nouveauté vous attend sur le sentier.",
   },

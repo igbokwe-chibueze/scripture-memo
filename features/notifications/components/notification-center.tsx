@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import {
+  AwardIcon,
   BellIcon,
   CheckCheckIcon,
   MinusIcon,
@@ -52,6 +54,7 @@ export function NotificationCenter({
   const t = useTranslations("Notifications");
   const leagueT = useTranslations("Leaderboard.leagues");
   const locale = useLocale();
+  const router = useRouter();
   const [items, setItems] = useState(data.items);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [resultOpen, setResultOpen] = useState(
@@ -106,6 +109,16 @@ export function NotificationCenter({
         toast.error(response.message, { duration: Infinity });
       }
     });
+  };
+
+  /** A badge notice doubles as a direct path to the learner's collection. */
+  const openNotification = (item: NotificationItem): void => {
+    markRead(item.id);
+
+    if (item.type === "BADGE_AWARDED") {
+      setSheetOpen(false);
+      router.push("/vault/badges");
+    }
   };
 
   const markAllRead = (): void => {
@@ -184,8 +197,11 @@ export function NotificationCenter({
               <ul className="space-y-3">
                 {items.map((item) => {
                   const itemOutcome = leagueOutcome(item);
+                  const isBadgeAward = item.type === "BADGE_AWARDED";
                   const Icon =
-                    itemOutcome === "promoted"
+                    isBadgeAward
+                      ? AwardIcon
+                      : itemOutcome === "promoted"
                       ? TrendingUpIcon
                       : itemOutcome === "demoted"
                         ? TrendingDownIcon
@@ -195,7 +211,7 @@ export function NotificationCenter({
                     <li key={item.id}>
                       <button
                         type="button"
-                        onClick={() => markRead(item.id)}
+                        onClick={() => openNotification(item)}
                         className={cn(
                           "flex w-full touch-manipulation items-start gap-3 rounded-3xl border p-4 text-left transition active:translate-y-0.5",
                           !item.read && "border-primary/45 bg-primary/8",
@@ -206,10 +222,19 @@ export function NotificationCenter({
                         </span>
                         <span className="min-w-0 flex-1">
                           <span className="block font-heading font-black">
-                            {itemOutcome ? t(`${itemOutcome}Title`) : t("systemTitle")}
+                            {isBadgeAward
+                              ? t("badgeAwardedTitle")
+                              : itemOutcome
+                                ? t(`${itemOutcome}Title`)
+                                : t("systemTitle")}
                           </span>
                           <span className="mt-1 block text-sm text-muted-foreground">
-                            {itemOutcome
+                            {isBadgeAward
+                              ? t("badgeAwardedBody", {
+                                  badge: item.payload.badgeName ?? "",
+                                  reward: item.payload.rewardAmount ?? 0,
+                                })
+                              : itemOutcome
                               ? t(`${itemOutcome}Body`, {
                                   league: readableLeague(item.payload.currentLeague),
                                 })

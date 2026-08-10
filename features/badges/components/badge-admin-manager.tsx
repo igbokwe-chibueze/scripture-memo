@@ -31,6 +31,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { showActionError } from "@/lib/errors/show-action-error";
+import { UserEmailAutocomplete } from "@/features/admin/components/user-email-autocomplete";
 import { awardBadgeAction } from "@/features/badges/actions/award-badge.action";
 import { deleteBadgeAction } from "@/features/badges/actions/delete-badge.action";
 import { saveBadgeAction } from "@/features/badges/actions/save-badge.action";
@@ -462,12 +463,10 @@ export function BadgeAdminManager({
                 <option key={badge.id} value={badge.id}>{badge.name}</option>
               ))}
             </select>
-            <input
-              type="email"
-              className="min-h-11 rounded-xl border border-input bg-background px-3"
-              placeholder="player@example.com"
+            <UserEmailAutocomplete
               value={userEmail}
-              onChange={(event) => setUserEmail(event.currentTarget.value)}
+              onValueChange={setUserEmail}
+              disabled={isPending}
             />
             <LoadingButton
               isPending={isPending}
