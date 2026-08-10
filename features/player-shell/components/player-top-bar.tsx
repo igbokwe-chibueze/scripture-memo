@@ -86,7 +86,10 @@ export function PlayerTopBar({
           <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary/12 text-primary">
             <SectionIcon className="size-5" aria-hidden={true} />
           </span>
-          <span className="hidden truncate font-heading text-sm font-black min-[360px]:inline sm:text-base">
+          {/* WHY: Narrow phones do not have enough horizontal room for a route
+           * label plus three counters and notifications. The icon communicates
+           * the current section without clipping an unfinished word. */}
+          <span className="hidden truncate font-heading text-sm font-black sm:inline sm:text-base">
             {section.label}
           </span>
         </div>

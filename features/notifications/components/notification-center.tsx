@@ -135,7 +135,7 @@ export function NotificationCenter({
         size="icon-lg"
         aria-label={t("open")}
         onClick={() => setSheetOpen(true)}
-        className="relative shrink-0 rounded-2xl bg-background"
+        className="relative size-10 min-h-10 shrink-0 rounded-2xl border-border/70 bg-background shadow-none hover:translate-y-0 hover:bg-muted hover:shadow-none active:translate-y-0 active:scale-95 active:shadow-none dark:shadow-none dark:hover:shadow-none dark:active:shadow-none"
       >
         <BellIcon aria-hidden="true" />
         {unreadCount > 0 && (

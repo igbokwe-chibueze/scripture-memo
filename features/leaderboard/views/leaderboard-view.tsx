@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { TrophyIcon } from "lucide-react";
 import { GamePageColumns } from "@/components/shared/game-page-columns";
 import { ResponsiveContainer } from "@/components/shared/responsive-container";
 import { LeaderboardBoard } from "@/features/leaderboard/components/leaderboard-board";
@@ -69,21 +68,12 @@ export async function LeaderboardView({
         <GamePageColumns
           contextPanel={<LeaderboardContextPanel data={data} />}
         >
-          <header className="flex items-center gap-3 border-b border-border/70 py-4 sm:py-5">
-            <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-amber-300 text-amber-950 shadow-[0_3px_0_rgb(146_64_14/0.45)]">
-              <TrophyIcon className="size-5" aria-hidden="true" />
-            </span>
-            <div className="min-w-0">
-              <h1 className="font-heading text-2xl leading-none font-black sm:text-3xl">
-                {t("title")}
-              </h1>
-              <p className="mt-1 text-xs font-bold text-muted-foreground sm:text-sm">
-                {t("eyebrow")}
-              </p>
-            </div>
-          </header>
+          {/* WHY: The persistent player bar already identifies this route.
+           * Preserve one semantic heading for assistive technology without
+           * repeating the same title visually in the content canvas. */}
+          <h1 className="sr-only">{t("title")}</h1>
 
-          <div className="mt-3">
+          <div>
             <LeaderboardBoard data={data} />
           </div>
         </GamePageColumns>

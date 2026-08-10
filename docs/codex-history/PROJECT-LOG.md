@@ -2538,3 +2538,7 @@ implement the private progress archive and mastered-verse replay flow.
   one non-polling summary read over existing profile and streak aggregates.
 - Kept active gameplay free of the dashboard bar and verified the refinement
   with TypeScript, ESLint, and the localization contract test.
+- Aligned the desktop Luna wordmark with the universal top bar, normalized the
+  notification trigger to the same quiet stat-pill treatment, removed the
+  leaderboard's duplicated visible title, and made narrow-phone route identity
+  icon-only so labels cannot clip into incomplete words.

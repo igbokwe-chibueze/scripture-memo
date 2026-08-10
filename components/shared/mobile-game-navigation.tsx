@@ -78,12 +78,12 @@ export function MobileGameNavigation({
        * mobile bar below.
        */}
       <aside
-        className="fixed inset-y-0 left-0 z-40 hidden w-24 flex-col border-r border-border/70 bg-card px-2 py-5 text-card-foreground shadow-[8px_0_24px_-14px_color-mix(in_oklch,var(--foreground),transparent_68%)] md:flex xl:w-48 xl:px-3"
+        className="fixed inset-y-0 left-0 z-40 hidden w-24 flex-col border-r border-border/70 bg-card px-2 text-card-foreground shadow-[8px_0_24px_-14px_color-mix(in_oklch,var(--foreground),transparent_68%)] md:flex xl:w-48 xl:px-3"
         aria-label={t("desktopPlayerNavigation")}
       >
         <Link
           href="/game"
-          className="mx-auto grid size-14 place-items-center text-primary xl:mx-0 xl:flex xl:w-full xl:justify-start xl:gap-2 xl:px-2"
+          className="mx-auto grid h-16 w-14 place-items-center text-primary xl:mx-0 xl:flex xl:w-full xl:justify-start xl:gap-2 xl:px-2"
           aria-label={t("scriptureMemoHome")}
         >
           <Image
@@ -98,7 +98,7 @@ export function MobileGameNavigation({
             <span className="block">Memo</span>
           </span>
         </Link>
-        <nav className="mt-8 flex-1">
+        <nav className="mt-4 flex-1">
           <ul className="flex h-full flex-col gap-2">
             {navigationItems.map(({ href, labelKey, icon: Icon, exact }) => {
               const label = t(labelKey);
