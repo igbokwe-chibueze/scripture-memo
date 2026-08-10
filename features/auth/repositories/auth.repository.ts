@@ -4,6 +4,27 @@ import { prisma } from "@/lib/prisma";
 /** Database operations owned by authentication and first-login onboarding. */
 export const authRepository = {
   /**
+   * Rejects suspended identities before Better Auth creates a new session.
+   *
+   * WHY: Suspension is product authorization state stored beside the Better
+   * Auth user. This indexed email lookup occurs only during an explicit login,
+   * never on ordinary page reads, so enforcement does not create recurring
+   * database cost.
+   */
+  async isLoginSuspended(email: string, now: Date): Promise<boolean> {
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: {
+        suspendedAt: true,
+        suspendedUntil: true,
+      },
+    });
+
+    if (!user?.suspendedAt) return false;
+    return !user.suspendedUntil || user.suspendedUntil > now;
+  },
+
+  /**
    * Creates missing one-to-one player records after Better Auth creates a user.
    * Upserts make registration recovery safe if a prior request created identity
    * but failed before onboarding records were written.

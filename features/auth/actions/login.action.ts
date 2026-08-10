@@ -39,6 +39,19 @@ export async function loginAction(input: unknown): Promise<ActionResult<LoginRes
   }
 
   try {
+    const isSuspended = await authRepository.isLoginSuspended(
+      parsed.data.email,
+      new Date(),
+    );
+    if (isSuspended) {
+      // WHY: Use the same safe response as invalid credentials. Public login
+      // must not reveal whether an email exists or whether it is suspended.
+      return {
+        success: false,
+        message: "Email or password is incorrect.",
+      };
+    }
+
     const result = await auth.api.signInEmail({
       body: {
         email: parsed.data.email,

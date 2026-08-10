@@ -2587,3 +2587,125 @@ implement the private progress archive and mastered-verse replay flow.
 - Assigned the corrected Concept head avatar a new immutable public filename so
   Next/Image and browser caches cannot mistake the old bust response for the new
   head-only artwork in `/ui-foundation`.
+
+### 2026-08-10 — Phase 28 admin control center implementation
+
+- Added the protected `/admin` control center with users, verses, assigned
+  waypoints, badges, and 30-day active-user statistics. All five values are
+  returned by one aggregate database query to avoid multiplying hosted database
+  operations on routine dashboard visits.
+- Added mobile-first administrator navigation cards for Verses, Packs,
+  Waypoints, Badges, the operational error guide, Super Admin User Management,
+  and the existing Settings surface.
+- Added Super Admin-only `/admin/users` with bounded name/email search,
+  pagination, compact progress summaries, role controls, and account access
+  controls. Regular Admins are redirected in Proxy and again at the server-view
+  boundary.
+- Made role changes atomic with their audit records, prevented self-demotion and
+  final-Super-Admin demotion, and recorded old and new roles without exposing
+  private data in logs.
+- Implemented audited account suspension/restoration using the existing product
+  suspension fields. Suspension deletes every Better Auth session in the same
+  transaction, login performs a single indexed suspension check before session
+  creation, and the last active Super Admin cannot be suspended.
+- Reused the existing audited manual badge-award form instead of duplicating the
+  grant workflow; User Management links directly to that anchored control.
+- Added protected route loading UI and pending feedback for search, pagination,
+  role changes, suspension, restoration, and every admin navigation action.
+- Verified TypeScript and affected-file ESLint with no errors, and ran all eight
+  badge catalogue tests successfully. Direct repository smoke testing was not
+  run because standalone `tsx` does not load the app's local `DATABASE_URL`;
+  manual route verification remains the Phase 28 acceptance gate.
+
+### 2026-08-10 — Local Phase 28 authorization accounts
+
+- Extended the loopback-guarded `local:player` command with an explicit
+  `--super-admin` option while preserving `--admin` and the no-role-change
+  default. Conflicting privilege flags fail before any database write.
+- Prepared `localtestuser1@test.com` as `SUPER_ADMIN` and
+  `localtestuser2@test.com` as `ADMIN` in the configured local PostgreSQL
+  database. Both accounts retain Better Auth-owned credentials and received the
+  existing idempotent local player foundation for Phase 28 manual testing.
+
+### 2026-08-10 — Admin access from Game Home
+
+- Added a localized, tactile Admin navigation control to the authenticated Game
+  Home for both `ADMIN` and `SUPER_ADMIN` accounts. The trusted server session
+  decides whether the control is rendered, so ordinary players never receive it.
+- Kept `/admin` authorization independent of this convenience link: Proxy and
+  the server-rendered admin boundary remain responsible for access enforcement.
+
+### 2026-08-10 — Admin user-list views
+
+- Added Table and Card presentations to `/admin/users`, with Table as the
+  default. Switching is immediate client UI state and performs no navigation or
+  additional database query.
+- Kept the existing account cards intact and added a compact table presentation
+  with player, role, progress, and action columns. On small screens, each row
+  stacks its secondary fields to remain readable without horizontal scrolling.
+- Preserved audited role changes, suspension/restoration confirmation, disabled
+  self-management controls, and pending feedback in both presentations.
+- Normalized the Save and Suspend/Restore controls to the same touch-friendly
+  height in both views so adjacent account actions align consistently.
+- Consolidated session revocation, suspension/restoration, and account deletion
+  into one tactile Actions menu shared by Table and Card views.
+- Added separately validated and audited session-revocation and account-removal
+  Server Actions. Account removal is implemented as irreversible anonymization:
+  Better Auth sessions and credentials, identifying User/Profile fields, private
+  notes, and favorites are removed while progression, rewards, fellowships, and
+  audit history remain structurally valid.
+- Protected the current Super Admin and the final active Super Admin from unsafe
+  account operations, required typed `DELETE` confirmation, and disabled future
+  role/access actions for already anonymized accounts.
+- Simplified the account Actions trigger to the standard vertical-dots icon,
+  reserved modal-header space for the tactile close control, and normalized all
+  confirmation-footer buttons to one explicit touch-friendly height.
+- Removed the table action column's equal-width filler space and aligned its
+  Save/menu group and heading to the row's trailing edge.
+- Replaced the manual badge-award email field with predictive Super Admin-only
+  account suggestions. Lookup starts after three characters and a 400 ms pause,
+  returns at most six active accounts, ignores stale responses, and caches prior
+  queries in the browser to minimize PostgreSQL operations.
+
+### 2026-08-10 — Manual badge-award player notifications
+
+- Added `BADGE_AWARDED` as a stable localized notification event and applied
+  migration `20260810224500_add_badge_awarded_notification` to the configured
+  local PostgreSQL database.
+- Manual badge awards now create the unread learner notice inside the existing
+  badge/reward/audit transaction. This preserves atomicity, reuses the badge and
+  user lookup already in progress, and avoids notification polling or another
+  database round trip.
+- Applied idempotent migration
+  `20260810230000_backfill_manual_badge_award_notifications` so recipients of
+  earlier manual awards also receive their missing notice without any repeat
+  reward or duplicate notification.
+- Badge notices display the awarded badge name and Glow reward in English,
+  Spanish, or French. Selecting the notice marks it read, closes the drawer,
+  and opens the learner's badge collection.
+- Prisma generation and validation, localization contract tests, badge catalogue
+  tests, TypeScript, and targeted ESLint all pass.
+
+### 2026-08-10 — Local Test User 3 progress reset
+
+- Added a loopback-database-only maintenance command at
+  `scripts/reset-local-player-progress.ts`. It validates one exact email and
+  resets gameplay history, rewards, badges, purchased hints, streaks, Beacon
+  state, and notifications in one transaction while preserving Better Auth
+  credentials/sessions, role, settings, identity, notes, favourites, and
+  Fellowship membership.
+- Reset `localtestuser3@test.com`: removed zero sessions, zero day records, one
+  waypoint record, three badge records, and three reward-ledger records. All
+  derived game counters were restored to zero and Waypoint 1 was recreated as
+  the sole fresh-player unlock.
+- TypeScript and targeted ESLint pass for the guarded repository operation and
+  extensively documented command.
+
+### 2026-08-10 — Phase 28 accepted
+
+- The project owner confirmed that the manually awarded badge appears as an
+  unread recipient notification and that selecting it opens the badge
+  collection.
+- All Phase 28 automated checks and required manual checks now pass. Phase 28 —
+  Admin Dashboard and Badge Management is complete and accepted; Phase 29 —
+  Seed Data is next.

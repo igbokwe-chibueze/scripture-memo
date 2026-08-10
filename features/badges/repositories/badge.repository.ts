@@ -4,6 +4,7 @@ import {
   JourneyStage,
   Prisma,
   RewardEventType,
+  UserNotificationType,
 } from "@/lib/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import type {
@@ -574,6 +575,24 @@ export const badgeRepository = {
         where: { userId: user.id },
         data: { totalGlowPoints: { increment: badge.rewardAmount } },
         select: { totalGlowPoints: true },
+      });
+
+      // WHY: A manual badge grant can occur while the recipient is offline and
+      // therefore has no client-side completion flow available to celebrate it.
+      // Persisting the unread notice in this same transaction guarantees the
+      // badge, reward, balance, audit trail, and player feedback either all
+      // commit together or all roll back. The badge/user key also makes retries
+      // idempotent without adding a separate lookup or notification poll.
+      await transaction.userNotification.create({
+        data: {
+          userId: user.id,
+          type: UserNotificationType.BADGE_AWARDED,
+          dedupeKey: `manual-badge-awarded:${user.id}:${badge.id}`,
+          payload: {
+            badgeName: badge.name,
+            rewardAmount: badge.rewardAmount,
+          },
+        },
       });
       await transaction.auditLog.create({
         data: {
