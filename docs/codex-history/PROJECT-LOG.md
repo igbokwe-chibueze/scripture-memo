@@ -2685,3 +2685,18 @@ implement the private progress archive and mastered-verse replay flow.
   and opens the learner's badge collection.
 - Prisma generation and validation, localization contract tests, badge catalogue
   tests, TypeScript, and targeted ESLint all pass.
+
+### 2026-08-10 — Local Test User 3 progress reset
+
+- Added a loopback-database-only maintenance command at
+  `scripts/reset-local-player-progress.ts`. It validates one exact email and
+  resets gameplay history, rewards, badges, purchased hints, streaks, Beacon
+  state, and notifications in one transaction while preserving Better Auth
+  credentials/sessions, role, settings, identity, notes, favourites, and
+  Fellowship membership.
+- Reset `localtestuser3@test.com`: removed zero sessions, zero day records, one
+  waypoint record, three badge records, and three reward-ledger records. All
+  derived game counters were restored to zero and Waypoint 1 was recreated as
+  the sole fresh-player unlock.
+- TypeScript and targeted ESLint pass for the guarded repository operation and
+  extensively documented command.

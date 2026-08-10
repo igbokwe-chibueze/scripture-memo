@@ -18,6 +18,17 @@ export type LocalPlayerPreparation = {
   firstWaypointNumber: number;
 };
 
+/** Counts returned after a local learner is restored to a new-player state. */
+export type LocalPlayerProgressReset = {
+  email: string;
+  firstWaypointNumber: number;
+  removedGameSessions: number;
+  removedWaypointRecords: number;
+  removedDayRecords: number;
+  removedBadgeRecords: number;
+  removedRewardRecords: number;
+};
+
 /**
  * Creates a short-lived repository for explicit local fixture commands.
  *
@@ -221,6 +232,103 @@ export function createLocalFixtureRepository(databaseUrl: string) {
           email: user.email,
           role,
           firstWaypointNumber: firstWaypoint.number,
+        };
+      });
+    },
+
+    /**
+     * Removes all progression and earned/spent game state for one local account.
+     *
+     * WHY: This destructive maintenance operation is deliberately available only
+     * through the loopback-guarded fixture repository. Better Auth credentials,
+     * sessions, authorization role, settings, identity, notes, favourites, and
+     * Fellowship membership are preserved because they are not learner progress.
+     * All dependent rows and summary counters change in one transaction, so an
+     * interruption cannot leave ledger totals disagreeing with the profile.
+     */
+    async resetPlayerProgress(email: string): Promise<LocalPlayerProgressReset> {
+      return client.$transaction(async (transaction) => {
+        const user = await transaction.user.findUnique({
+          where: { email },
+          select: { id: true, email: true },
+        });
+        if (!user) {
+          throw new Error("No local account has that email.");
+        }
+
+        const firstWaypoint = await transaction.waypoint.findFirst({
+          where: { isActive: true, verseId: { not: null } },
+          select: { id: true, number: true },
+          orderBy: { number: "asc" },
+        });
+        if (!firstWaypoint) {
+          throw new Error("No playable local waypoint exists. Seed local fixtures first.");
+        }
+
+        // Sessions own attempts and hint usages through cascading relations.
+        // They must be removed before their restrict-linked day progress rows.
+        const gameSessions = await transaction.gameSession.deleteMany({
+          where: { userId: user.id },
+        });
+        const dayProgress = await transaction.userDayProgress.deleteMany({
+          where: { userId: user.id },
+        });
+        const waypointProgress = await transaction.userWaypointProgress.deleteMany({
+          where: { userId: user.id },
+        });
+
+        const [badgeProgress, rewardLedger] = await Promise.all([
+          transaction.userBadgeProgress.deleteMany({ where: { userId: user.id } }),
+          transaction.rewardLedger.deleteMany({ where: { userId: user.id } }),
+          transaction.beaconXpLedger.deleteMany({ where: { userId: user.id } }),
+          transaction.beaconWeeklyScore.deleteMany({ where: { userId: user.id } }),
+          transaction.beaconLeagueMembership.deleteMany({ where: { userId: user.id } }),
+          transaction.userShopPurchase.deleteMany({ where: { userId: user.id } }),
+          transaction.userNotification.deleteMany({ where: { userId: user.id } }),
+        ]);
+
+        // Reset derived counters instead of replacing the profile, preserving
+        // the learner's chosen avatar, frame, country, display name, and partner.
+        await transaction.userProfile.update({
+          where: { userId: user.id },
+          data: {
+            totalGlowPoints: 0,
+            totalWaypointsCompleted: 0,
+            totalHintsUsed: 0,
+            beaconXp: 0,
+            beaconLevel: 1,
+            beaconCrowns: 0,
+          },
+        });
+        await transaction.userStreak.upsert({
+          where: { userId: user.id },
+          update: {
+            currentStreak: 0,
+            bestStreak: 0,
+            lastActiveAt: null,
+          },
+          create: { userId: user.id },
+        });
+
+        // A normal new learner begins with exactly one playable waypoint. This
+        // baseline is not earned history and allows immediate Glimmer testing.
+        await transaction.userWaypointProgress.create({
+          data: {
+            userId: user.id,
+            waypointId: firstWaypoint.id,
+            status: WaypointStatus.UNLOCKED,
+            unlockedAt: new Date(),
+          },
+        });
+
+        return {
+          email: user.email,
+          firstWaypointNumber: firstWaypoint.number,
+          removedGameSessions: gameSessions.count,
+          removedWaypointRecords: waypointProgress.count,
+          removedDayRecords: dayProgress.count,
+          removedBadgeRecords: badgeProgress.count,
+          removedRewardRecords: rewardLedger.count,
         };
       });
     },
