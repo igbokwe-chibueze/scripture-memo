@@ -205,6 +205,9 @@ classes before changing `components/ui/button.tsx`.
   reserved for compositions where space supports it.
 - Luna is not mandatory decoration. Do not add her to a screen merely to fill
   empty space or weaken an already clear visual hierarchy.
+- The parallel Concept Luna collection is comparison-only in `/ui-foundation`.
+  It may be proposed for a product screen, but requires explicit project-owner
+  approval for that specific screen before it is integrated.
 
 ## 12. Required Interaction States
 

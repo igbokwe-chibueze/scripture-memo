@@ -2550,3 +2550,40 @@ implement the private progress archive and mastered-verse replay flow.
   notification centre, and protected player shell.
 - Phase 27 is complete. Phase 28 — Admin Dashboard and Badge Management is next
   in roadmap order.
+
+### 2026-08-10 — Prisma Local stale-lock recovery
+
+- Diagnosed a post-merge leaderboard 404 and Better Auth `Failed to get
+  session` error as a local database startup failure rather than a missing route
+  or merged application regression.
+- Prisma Local retained an empty stale `.lock` directory while no database
+  process was listening. Removed only that verified empty lock, restarted the
+  persistent `scripture-memo` instance, executed a direct SQL health probe, and
+  confirmed all 22 migrations are applied. No database data or application code
+  was changed.
+
+### 2026-08-10 — Parallel Concept Luna comparison set
+
+- Created a separate flat-illustration Concept Luna collection matching the
+  approved production roles: avatar, guidance, celebration, encouragement,
+  loading, retry, reward, three full-size reminder emotions, three compact
+  notification portraits, and a silhouette.
+- Preserved every existing production Luna asset and added a dedicated typed
+  `ConceptLunaMascot` registry so experimental artwork cannot silently replace
+  the approved collection.
+- Added Current Luna and Concept Luna tabs to the `/ui-foundation` mascot
+  gallery for direct, role-for-role comparison on mobile and large screens.
+- Recorded the approval boundary in `AGENTS.md`, `docs/UI-UX-GUIDE.md`, and the
+  concept asset README: Concept Luna remains preview-only unless the project
+  owner explicitly approves its use on a specific product screen.
+- Added a documented, reproducible Sharp processing script that converts the
+  retained chroma-key sources into transparent public PNG assets. It keeps the
+  collections separate and writes only the explicitly requested Current Luna
+  bust into the production mascot directory.
+- Corrected the Concept Luna avatar to a true head-only mark and preserved its
+  former upper-body artwork as the separate `bust` role. Added a matching Current
+  Luna bust with her production rendering, pendant, and forehooves so both tabs
+  now compare Avatar and Bust consistently.
+- Assigned the corrected Concept head avatar a new immutable public filename so
+  Next/Image and browser caches cannot mistake the old bust response for the new
+  head-only artwork in `/ui-foundation`.

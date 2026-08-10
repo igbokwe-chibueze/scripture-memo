@@ -586,6 +586,11 @@ Before implementing or changing any player-facing UI, read
 rules in this section and `/ui-foundation` is its living component reference.
 Neither source overrides this `AGENTS.md` file.
 
+The parallel Concept Luna artwork is restricted to `/ui-foundation` comparison
+previews by default. Never use it on a product screen or replace the approved
+production Luna collection without explicit project-owner approval for that
+specific screen.
+
 ### 9.1 Required States — Non-Negotiable
 
 Every interactive feature must handle all of these states:

@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 /** Every approved Luna asset is registered here to prevent arbitrary file use. */
 export const LUNA_POSES = {
   avatar: { src: "/images/mascot/luna/luna-avatar.png", width: 1254, height: 1254 },
+  bust: { src: "/images/mascot/luna/luna-bust.png", width: 1254, height: 1254 },
   guide: { src: "/images/mascot/luna/luna-guide.png", width: 1024, height: 1536 },
   celebrate: { src: "/images/mascot/luna/luna-celebrate.png", width: 1024, height: 1536 },
   encourage: { src: "/images/mascot/luna/luna-encourage.png", width: 1024, height: 1536 },

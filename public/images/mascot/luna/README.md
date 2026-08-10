@@ -17,6 +17,7 @@ palette.
 | `luna-retry.png` | Incorrect answers, recoverable errors, and retry prompts |
 | `luna-reward.png` | Glow Points, badges, unlocks, and reward presentation |
 | `luna-avatar.png` | Favicon master, profile-scale mascot avatar, and compact brand marks |
+| `luna-bust.png` | Upper-body portrait for profile cards and larger identity moments |
 | `luna-worried.png` | Caring early warning that a streak needs attention |
 | `luna-disappointed.png` | Compassionate acknowledgement after a missed streak |
 | `luna-angry.png` | Urgent final reminder; determined at protecting the flame, never hostile toward the player |
@@ -43,5 +44,8 @@ quality loss. Do not use the source files directly in the interface.
 - Use `luna-notification-*` close-ups for push notifications and compact widgets.
   Reserve the corresponding full-body assets for larger in-app cards, modals,
   and screens where the complete pose remains readable.
+- Use `luna-avatar.png` when only Luna's head should appear. Use
+  `luna-bust.png` when the composition has room for her chest, pendant, and
+  forehooves.
 - Prefer these approved assets before generating another pose. New poses should
   use the approved concept and these production files as identity references.
