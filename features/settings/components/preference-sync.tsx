@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { detectTimeZoneAction } from "@/features/settings/actions/detect-time-zone.action";
+import { LOCALE_COOKIE_NAME } from "@/i18n/config";
 
 export type PreferenceSyncProps = {
   theme: "light" | "dark" | "system";
@@ -33,6 +34,10 @@ export function PreferenceSync({
     document.documentElement.classList.toggle("reduce-motion", reducedMotion);
     document.documentElement.dataset.audioEnabled = String(audioEnabled);
     document.documentElement.lang = locale;
+    // WHY: Locale is not sensitive. Mirroring the already-authoritative server
+    // preference into a browser cookie lets future requests translate without a
+    // database read. The Settings action also writes it immediately on changes.
+    document.cookie = `${LOCALE_COOKIE_NAME}=${locale}; Path=/; Max-Age=31536000; SameSite=Lax`;
 
     return () => {
       document.documentElement.classList.remove("reduce-motion");

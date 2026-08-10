@@ -2,6 +2,9 @@
 // npm install --save-dev prisma dotenv
 import "dotenv/config";
 import { defineConfig } from "prisma/config";
+import { normalizePostgresSslUrl } from "./lib/database/normalize-postgres-ssl-url";
+
+const connectionString = process.env["DATABASE_URL"];
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
@@ -10,6 +13,10 @@ export default defineConfig({
     seed: "tsx prisma/seed.ts",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    // Keep Prisma CLI migrations on the same explicit certificate-verification
+    // behavior as the application's PrismaPg connection pool.
+    url: connectionString
+      ? normalizePostgresSslUrl(connectionString)
+      : undefined,
   },
 });

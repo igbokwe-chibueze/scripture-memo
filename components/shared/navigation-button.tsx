@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useTransition } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { VariantProps } from "class-variance-authority";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { buttonVariants } from "@/components/ui/button";
@@ -31,7 +32,8 @@ export function NavigationButton({
   onClick,
   ...props
 }: NavigationButtonProps): React.ReactNode {
-  const [isPending, setIsPending] = useState(false);
+  const router = useRouter();
+  const [isPending, startNavigation] = useTransition();
 
   return (
     <Link
@@ -44,15 +46,56 @@ export function NavigationButton({
       className={cn(buttonVariants({ variant, size, className }))}
       onClick={(event) => {
         onClick?.(event);
-        if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        if (
+          event.defaultPrevented ||
+          event.button !== 0 ||
+          event.metaKey ||
+          event.ctrlKey ||
+          event.shiftKey ||
+          event.altKey
+        ) {
+          return;
+        }
+
         if (isPending) {
           event.preventDefault();
           return;
         }
-        setIsPending(true);
+
+        // Clicking the already-active destination does not produce a route
+        // change, so no completion signal would follow. Keep the button idle.
+        const destination = new URL(event.currentTarget.href);
+        const currentLocation = new URL(window.location.href);
+        if (
+          destination.pathname === currentLocation.pathname &&
+          destination.search === currentLocation.search &&
+          destination.hash === currentLocation.hash
+        ) {
+          event.preventDefault();
+          return;
+        }
+
+        // External destinations retain the browser's native navigation. For an
+        // internal destination, React owns the transition and clears pending
+        // only after Next.js commits the pathname or query-string update.
+        if (destination.origin !== currentLocation.origin) return;
+
+        event.preventDefault();
+        startNavigation(() => {
+          router.push(
+            `${destination.pathname}${destination.search}${destination.hash}`,
+          );
+        });
       }}
     >
-      {isPending ? <><LoadingSpinner size="sm" label={pendingLabel} /><span>{pendingLabel}</span></> : children}
+      {isPending ? (
+        <>
+          <LoadingSpinner size="sm" label={pendingLabel} />
+          <span>{pendingLabel}</span>
+        </>
+      ) : (
+        children
+      )}
     </Link>
   );
 }

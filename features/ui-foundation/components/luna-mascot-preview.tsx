@@ -34,6 +34,12 @@ const lunaGallery: ReadonlyArray<{
     use: "Final notification warning",
     square: true,
   },
+  {
+    pose: "silhouette",
+    label: "Silhouette",
+    use: "Reserved Luna visual mark",
+    square: true,
+  },
 ] as const;
 
 /** Displays every approved Luna asset without implying a live integration. */

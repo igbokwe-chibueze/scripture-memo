@@ -81,4 +81,8 @@ export type BadgeEvent =
     }
   | {
       type: "FELLOWSHIP_JOINED" | "FELLOWSHIP_CREATED";
+    }
+  | {
+      type: "LEADERBOARD_VIEWED";
+      globalRank: number;
     };

@@ -1279,6 +1279,24 @@ Display:
 - The logged-in user's own row is always highlighted and pinned visible even when scrolling
 - No email addresses are ever displayed — only display name, country flag, and stats
 
+#### Great Beacon league refinement
+
+- **Beacon XP** is permanent, non-spendable progression and fills an escalating
+  Beacon Level bar. Weekly Beacon XP records eligible XP inside one global
+  Monday 00:00 UTC competition week.
+- Game modes award 10 XP. Glimmer, Glow, and Radiance completion add 25, 40,
+  and 60 XP; waypoint completion adds another 100 XP. Failed attempts, admin
+  tests, Vault review, and replays award no XP.
+- Leagues are Traveler, Disciple, Messenger, Watchman, Teacher, Shepherd,
+  Elder, Scribe, and Saint. Cohorts hold up to 30 players; top 7 promote and
+  bottom 5 demote when at least 10 players competed.
+- Saint never promotes. Ranks 1, 2, and 3 earn 5, 3, and 2 lifetime Crowns;
+  ranks 4 through 10 earn one. Crowns cannot be spent.
+- My League shows the weekly cohort. Country and Fellowship are recognition
+  rankings by Weekly Beacon XP. All Time uses permanent Beacon Level and XP.
+- Nine independent league emblems identify Traveler through Saint. Players can
+  open the League Journey from My League to see every reached and future tier.
+
 ### 15.9 Settings
 
 User settings:
@@ -1344,6 +1362,24 @@ Build the following as shared, reusable components before implementing features 
 ## 17. Database Model Plan
 
 Use Prisma with PostgreSQL. This section lists required models. The implementation agent should create a complete schema with all relations, indexes, constraints, timestamps, and enums.
+
+### 17.0 Environment Isolation and Operational Efficiency
+
+- Routine local development uses Prisma Postgres Local through `prisma dev` (or
+  another explicitly approved local PostgreSQL instance), never the hosted
+  production database.
+- Automated tests use their own test database and must not consume production
+  operations or mutate development data.
+- Production credentials are supplied only through the deployment environment;
+  they are not copied into the tracked local template.
+- Read paths must remain read-only. Lazy progression initialization occurs only
+  when a cheap read proves that learner state is genuinely missing.
+- Request-scoped session and settings reads are deduplicated, presentation
+  preferences use safe local state where appropriate, and recurring presence or
+  leaderboard refreshes remain visibility-aware and deliberately infrequent.
+- New features must consider query count, polling frequency, N+1 behavior, and
+  hosted database cost as part of design and review without compromising
+  security, correctness, or transactional integrity.
 
 ### 17.1 Core Enums
 
@@ -1475,6 +1511,40 @@ campaign or award Glow Points.
 - `registerAction` — validate input, create user and profile
 - `logoutAction` — destroy session
 - `updateProfileAction` — update display name, country, avatar
+
+### 18.1 Player Portraits and Partner Frames
+
+- Players choose from twelve bundled animal portraits. User uploads and remote
+  avatar URLs are not accepted.
+- Profiles persist stable catalog keys rather than asset paths. Unknown legacy
+  keys fall back to the lion portrait and standard frame.
+- Every player receives the standard frame. A persisted Partner entitlement is
+  required to select gold, violet crystal, emerald, silver, flame, or celestial
+  frames. The donation/subscription system will grant that entitlement later.
+- Partner eligibility is verified on the server when settings are saved; hiding
+  premium frames in the browser is not an authorization boundary.
+- The same composed portrait and frame appear in profile settings and every
+  leaderboard scope.
+- Leaderboard portraits show country through packaged SVG flags without
+  repeating its country code or depending on operating-system emoji support. A
+  green dot means the real account reported protected-route activity in
+  the previous five minutes; exact last-seen timestamps are never exposed.
+- League and Country views may be filled with viewer-specific Trail Rivals.
+  Rivals use deterministic weekly schedules with idle days and discrete scoring
+  sessions. Every displayed row receives an easy-to-read table position, while
+  a compass beside a rival's name explains that its position is presentational
+  and never affects official promotion, demotion, rewards, Crowns, or progression.
+- Leaderboard rows show only the scope-relevant Beacon Points. Selecting a row
+  opens a compact detail dialog for the player's secondary Beacon statistics.
+- The leaderboard list has Rank, Player, and Beacon Points headers. Displayed
+  positions one through three receive custom crown marks and metallic gold,
+  silver, and bronze rank plates; the signed-in learner receives a violet row
+  and rank treatment so their position is immediately recognizable.
+- At the 375px foundation width, compact rank plates, portraits, gaps, and score
+  pills reserve most flexible width for the player's name. Comfortable row
+  padding provides breathing room without enlarging fixed controls.
+- Trail Rivals never appear in Fellowship or All Time views and are not stored as
+  users, profiles, progression records, or presence records.
 
 ### Admin Verse Actions (ADMIN+)
 - `createVerseAction`

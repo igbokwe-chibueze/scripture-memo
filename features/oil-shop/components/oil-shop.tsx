@@ -154,7 +154,13 @@ export function PurchaseCelebrationDialog({
 }
 
 /** Visual-first, tactile hint-pack storefront with server-owned purchase values. */
-export function OilShop({ initialData }: { initialData: OilShopData }): React.ReactNode {
+export function OilShop({
+  initialData,
+  initialTab = "hints",
+}: {
+  initialData: OilShopData;
+  initialTab?: "hints" | "donations";
+}): React.ReactNode {
   const t = useTranslations("Shop");
   const common = useTranslations("Common");
   const locale = useLocale();
@@ -162,7 +168,8 @@ export function OilShop({ initialData }: { initialData: OilShopData }): React.Re
   const [selected, setSelected] = useState<OilShopItem | null>(initialData.items[0] ?? null);
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
   const [celebration, setCelebration] = useState<PurchaseCelebration | null>(null);
-  const [activeTab, setActiveTab] = useState<"hints" | "donations">("hints");
+  const [activeTab, setActiveTab] =
+    useState<"hints" | "donations">(initialTab);
   const [isPending, startTransition] = useTransition();
 
   /** Selects the desktop detail card or opens the compact-screen modal. */

@@ -3,7 +3,7 @@ import "server-only";
 import { notFound } from "next/navigation";
 import { requireServerSession } from "@/lib/auth/session";
 import { userRepository } from "@/features/users/repositories/user.repository";
-import { settingsRepository } from "@/features/settings/repositories/settings.repository";
+import { getCachedUserSettings } from "@/features/settings/lib/get-cached-user-settings";
 import type { UpdateUserSettingsInput } from "@/features/settings/schemas/update-user-settings.schema";
 
 export type SettingsPageData = {
@@ -15,6 +15,7 @@ export type SettingsPageData = {
     currentStreak: number;
     bestStreak: number;
   };
+  isPartner: boolean;
 };
 
 /**
@@ -25,7 +26,7 @@ export async function getSettingsPageData(): Promise<SettingsPageData> {
   const session = await requireServerSession();
   const [profile, settings] = await Promise.all([
     userRepository.getProfileSummary(session.user.id),
-    settingsRepository.getByUserId(session.user.id),
+    getCachedUserSettings(session.user.id),
   ]);
 
   if (!profile || !settings) notFound();
@@ -34,6 +35,8 @@ export async function getSettingsPageData(): Promise<SettingsPageData> {
     formValues: {
       displayName: profile.displayName,
       countryCode: profile.countryCode ?? "",
+      avatarKey: profile.avatarKey,
+      avatarFrameKey: profile.avatarFrameKey,
       preferredTranslation: settings.preferredTranslation,
       locale: settings.locale,
       audioEnabled: settings.audioEnabled,
@@ -48,5 +51,6 @@ export async function getSettingsPageData(): Promise<SettingsPageData> {
       currentStreak: profile.currentStreak,
       bestStreak: profile.bestStreak,
     },
+    isPartner: profile.isPartner,
   };
 }

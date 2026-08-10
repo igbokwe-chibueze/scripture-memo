@@ -15,11 +15,23 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+type OilShopSearchParameters = {
+  tab?: string;
+};
+
 /** Loads the authenticated learner's private marketplace and balances. */
-export async function OilShopView(): Promise<React.ReactNode> {
+export async function OilShopView({
+  searchParams,
+}: {
+  searchParams: Promise<OilShopSearchParameters>;
+}): Promise<React.ReactNode> {
   const t = await getTranslations("Shop");
   const session = await requireServerSession();
-  const data = await oilShopRepository.getShopData(session.user.id);
+  const [data, parameters] = await Promise.all([
+    oilShopRepository.getShopData(session.user.id),
+    searchParams,
+  ]);
+  const initialTab = parameters.tab === "donations" ? "donations" : "hints";
 
   return (
     <main className="min-h-dvh bg-linear-to-b from-violet-100 via-background to-amber-100/60 px-4 py-6 dark:from-[#120b25] dark:via-[#070913] dark:to-[#160d09] sm:px-6 sm:py-10">
@@ -36,7 +48,7 @@ export async function OilShopView(): Promise<React.ReactNode> {
             <p className="mt-3 whitespace-nowrap text-xs font-bold text-violet-100 min-[390px]:text-sm sm:text-lg">{t("subtitle")}</p>
           </div>
         </header>
-        <OilShop initialData={data} />
+        <OilShop initialData={data} initialTab={initialTab} />
       </div>
     </main>
   );

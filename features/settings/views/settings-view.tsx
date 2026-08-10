@@ -39,7 +39,10 @@ export async function SettingsView(): Promise<React.ReactNode> {
           <StatCard label={t("hintsUsed")} value={data.stats.totalHintsUsed} icon={<LightbulbIcon />} />
         </section>
 
-        <SettingsForm initialValues={data.formValues} />
+        <SettingsForm
+          initialValues={data.formValues}
+          isPartner={data.isPartner}
+        />
       </ResponsiveContainer>
     </main>
   );

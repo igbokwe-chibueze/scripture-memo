@@ -8,6 +8,7 @@ import { LoadingButton } from "@/components/shared/loading-button";
 import { Button } from "@/components/ui/button";
 import { BadgeUnlockSequence } from "@/features/badges/components/badge-unlock-screen";
 import type { BadgeUnlockResult } from "@/features/badges/types/badge.types";
+import type { BeaconProgressionResult } from "@/features/beacon/types/beacon.types";
 import { showActionError } from "@/lib/errors/show-action-error";
 import { completeGameModeAction } from "@/features/gameplay/actions/complete-game-mode.action";
 import { ConfettiCelebration } from "@/features/gameplay/components/confetti-celebration";
@@ -89,6 +90,8 @@ export function FillMode({
   const [showWaypointCompletion, setShowWaypointCompletion] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [earnedReward, setEarnedReward] = useState<DayRewardResult | null>(null);
+  const [beaconProgression, setBeaconProgression] =
+    useState<BeaconProgressionResult | null>(null);
   const [waypointOutcome, setWaypointOutcome] = useState<{
     unlockedWaypointNumber: number | null;
     caughtUp: boolean;
@@ -198,12 +201,20 @@ export function FillMode({
           : [];
       setBadgeUnlocks(unlocks);
       setBadgeUnlockIndex(0);
-      setShowCompletion(unlocks.length === 0);
+      // WHY: The completed mode is the cause of every reward that follows, so
+      // its success screen always leads the celebration sequence.
+      setShowCompletion(true);
       setStreak(
         completion?.status === "mode-complete" ||
           completion?.status === "day-complete" ||
           completion?.status === "vault-complete"
           ? completion.streak
+          : null,
+      );
+      setBeaconProgression(
+        completion?.status === "mode-complete" ||
+          completion?.status === "day-complete"
+          ? completion.beaconProgression
           : null,
       );
       if (completion?.status === "day-complete") {
@@ -269,7 +280,13 @@ export function FillMode({
               setBadgeUnlockIndex((current) => current + 1);
             } else {
               setBadgeUnlocks([]);
-              setShowCompletion(true);
+              if (streak && streak.status !== "unchanged") {
+                setShowStreakCompletion(true);
+              } else if (waypointOutcome) {
+                setShowWaypointCompletion(true);
+              } else {
+                onContinue();
+              }
             }
           }}
         />
@@ -281,8 +298,12 @@ export function FillMode({
           isTestReplay={isTestReplay}
           isVaultReplay={isVaultReplay}
           reward={earnedReward}
+          beaconProgression={beaconProgression}
           onContinue={() => {
             if (isTestReplay) onTestReplayExit?.();
+            else if (badgeUnlocks[badgeUnlockIndex]) {
+              setShowCompletion(false);
+            }
             else if (streak && streak.status !== "unchanged") {
               setShowCompletion(false);
               setShowStreakCompletion(true);

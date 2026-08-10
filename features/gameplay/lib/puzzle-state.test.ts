@@ -38,7 +38,7 @@ test("placing, moving, and returning phrases preserves one-to-one assignments", 
   assert.deepEqual(placements, {});
 });
 
-test("validation tracks duplicate phrase occurrences by original position", () => {
+test("identical repeated phrases are interchangeable", () => {
   const phrases = [
     { index: 0, startTokenIndex: 0, endTokenIndex: 2, text: "the Lord remains" },
     { index: 1, startTokenIndex: 3, endTokenIndex: 5, text: "the Lord remains" },
@@ -46,10 +46,10 @@ test("validation tracks duplicate phrase occurrences by original position", () =
   const hidden = [0, 1];
   const swapped = placePuzzlePhrase(placePuzzlePhrase({}, 1, 0), 0, 1);
 
-  assert.deepEqual(getIncorrectPuzzleSlots(hidden, swapped), [0, 1]);
+  assert.deepEqual(getIncorrectPuzzleSlots(phrases, hidden, swapped), []);
 
   const correct = placePuzzlePhrase(placePuzzlePhrase({}, 0, 0), 1, 1);
-  assert.deepEqual(getIncorrectPuzzleSlots(hidden, correct), []);
+  assert.deepEqual(getIncorrectPuzzleSlots(phrases, hidden, correct), []);
   assert.equal(
     reconstructPuzzleAnswer(phrases, hidden, correct),
     "the Lord remains the Lord remains",

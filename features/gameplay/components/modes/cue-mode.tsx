@@ -8,6 +8,7 @@ import { LoadingButton } from "@/components/shared/loading-button";
 import { Button } from "@/components/ui/button";
 import { BadgeUnlockSequence } from "@/features/badges/components/badge-unlock-screen";
 import type { BadgeUnlockResult } from "@/features/badges/types/badge.types";
+import type { BeaconProgressionResult } from "@/features/beacon/types/beacon.types";
 import { showActionError } from "@/lib/errors/show-action-error";
 import { completeGameModeAction } from "@/features/gameplay/actions/complete-game-mode.action";
 import { ConfettiCelebration } from "@/features/gameplay/components/confetti-celebration";
@@ -77,6 +78,8 @@ export function CueMode({
   const [badgeUnlockIndex, setBadgeUnlockIndex] = useState(0);
   const [showStreakCompletion, setShowStreakCompletion] = useState(false);
   const [streak, setStreak] = useState<StreakCompletionResult | null>(null);
+  const [beaconProgression, setBeaconProgression] =
+    useState<BeaconProgressionResult | null>(null);
   const [isComplete, setIsComplete] = useState(false);
   const [isPending, startTransition] = useTransition();
   const seed = `${sessionId}:${dayLevel}:CUE`;
@@ -177,6 +180,12 @@ export function CueMode({
           ? result.data.streak
           : null,
       );
+      setBeaconProgression(
+        result.data?.status === "mode-complete" ||
+          result.data?.status === "day-complete"
+          ? result.data.beaconProgression
+          : null,
+      );
       const unlocks =
         result.data?.status === "mode-complete" ||
         result.data?.status === "day-complete" ||
@@ -187,7 +196,9 @@ export function CueMode({
       setBadgeUnlockIndex(0);
       setIsComplete(true);
       setShowConfetti(true);
-      setShowCompletion(unlocks.length === 0);
+      // WHY: The completed mode is the cause of every reward that follows, so
+      // its success screen always leads the celebration sequence.
+      setShowCompletion(true);
       onCompletionShown();
       playAudio("correct");
       toast.success("Cue complete!", { duration: 4_000 });
@@ -221,7 +232,11 @@ export function CueMode({
               setBadgeUnlockIndex((current) => current + 1);
             } else {
               setBadgeUnlocks([]);
-              setShowCompletion(true);
+              if (streak && streak.status !== "unchanged") {
+                setShowStreakCompletion(true);
+              } else {
+                onContinue();
+              }
             }
           }}
         />
@@ -232,8 +247,12 @@ export function CueMode({
           nextMode={nextMode}
           isTestReplay={isTestReplay}
           isVaultReplay={isVaultReplay}
+          beaconProgression={beaconProgression}
           onContinue={() => {
             if (isTestReplay) onTestReplayExit?.();
+            else if (badgeUnlocks[badgeUnlockIndex]) {
+              setShowCompletion(false);
+            }
             else if (streak && streak.status !== "unchanged") {
               setShowCompletion(false);
               setShowStreakCompletion(true);

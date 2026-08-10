@@ -2,7 +2,14 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { FlameIcon, MapIcon, ShoppingBagIcon, VaultIcon } from "lucide-react";
+import {
+  FlameIcon,
+  MapIcon,
+  ShoppingBagIcon,
+  TrophyIcon,
+  VaultIcon,
+} from "lucide-react";
+import { NavigationButton } from "@/components/shared/navigation-button";
 import { buttonVariants } from "@/components/ui/button";
 import { LogoutButton } from "@/features/auth/components/logout-button";
 import { authRepository } from "@/features/auth/repositories/auth.repository";
@@ -74,6 +81,15 @@ export async function AuthenticatedHomePlaceholderView(): Promise<React.ReactNod
             <ShoppingBagIcon aria-hidden="true" />
             {t("oilShop")}
           </Link>
+          <NavigationButton
+            href="/leaderboard"
+            pendingLabel={t("openingLeaderboard")}
+            variant="outline"
+            className="min-h-11 gap-2 px-4"
+          >
+            <TrophyIcon aria-hidden="true" />
+            {t("leaderboard")}
+          </NavigationButton>
           <LogoutButton />
         </div>
       </div>

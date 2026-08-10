@@ -195,6 +195,32 @@ Database
 
 This flow is unidirectional. Nothing skips a layer. Nothing goes backwards.
 
+### 2.7 Database Operation and Cost Efficiency
+
+Every new or changed process must minimize database operations and hosted
+database cost wherever doing so does not weaken correctness, security, or data
+integrity. Database efficiency is part of the definition of done, not a later
+optimization.
+
+- Local development and automated tests must use isolated local/test databases;
+  never use the hosted production database as the routine development backend.
+- Do not perform writes, transactions, advisory locks, or initialization during
+  ordinary read requests. Initialization belongs at an explicit state transition
+  or behind a cheap read that proves recovery is actually required.
+- Deduplicate session, settings, and other request-scoped reads with supported
+  request memoization. Prefer a safe non-sensitive cookie or already-loaded data
+  for presentation preferences when that avoids a database round trip.
+- Avoid polling when event-driven invalidation is possible. Necessary polling
+  must pause while the page is hidden and use the longest interval compatible
+  with the product requirement.
+- Select only required columns, batch related work, avoid N+1 queries, and use a
+  single transaction only where atomicity is required.
+- Before adding a recurring query, estimate its operations per active user and
+  document why the frequency is necessary. Review high-read pages and background
+  activity for database amplification before considering the task complete.
+- Cost reductions must never remove server-side authorization, validation,
+  cooldown enforcement, reward integrity, rate limiting, or audit requirements.
+
 ---
 
 ## 3. Feature Folder Standard
@@ -523,15 +549,21 @@ database transaction. A day-completion caller must first prove the server-create
 game/day state is complete; never expose a Server Action that accepts an
 unverified client completion claim.
 
-### 8.4 Glow Points Are the Only Currency
+### 8.4 Glow Points, Beacon XP, and Crowns
 
-There is no XP system. No experience points. No separate currency.
+**Glow Points are the only spendable currency.** They are earned through
+progression and badges, appear on the profile, and are spent in the Oil Shop.
 
-Glow Points serve two purposes:
-1. They represent achievement (displayed on profile and leaderboard).
-2. They are spent in the Oil Shop.
+Beacon XP is permanent, non-spendable progression. It fills the learner's
+Beacon Level and also contributes to a separate Weekly Beacon XP total that
+resets every Monday at 00:00 UTC for league competition. Replays, admin testing,
+failed attempts, and Vault review never award Beacon XP.
 
-**Badges reward Glow Points only.** Never reference XP in any code, comment, or user-facing string.
+Crowns are permanent, non-spendable Saint League prestige. They never replace
+Glow Points and are granted only from an eligible finalized Saint weekly finish.
+
+**Badges reward Glow Points only.** Never describe Beacon XP or Crowns as a
+currency, and never permit either value to be spent in the Oil Shop.
 
 ### 8.5 Duplicate Reward Prevention
 

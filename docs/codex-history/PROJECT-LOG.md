@@ -1,5 +1,260 @@
 # Scripture Memo Project Log
 
+### 2026-08-09 — Causal gameplay celebration order
+
+- Reordered every gameplay-mode celebration to show Mode Success first, then
+  each newly unlocked badge, then a changed streak celebration.
+- Preserved the final Fill continuation so Waypoint Complete follows those
+  screens without repeating Mode Success or skipping badge rewards.
+
+### 2026-08-09 — Interchangeable duplicate gameplay tiles
+
+- Changed Drag & Drop correctness feedback to compare normalized visible words
+  instead of requiring an identical repeated word to return to its hidden source
+  index; unique IDs still preserve one-to-one dragging and placement.
+- Applied the same fairness rule to visually identical Puzzle phrases while
+  retaining final trusted full-answer validation on the server.
+- Added regression coverage for swapped repeated words and repeated phrases,
+  plus a control proving genuinely different words remain incorrect.
+
+### 2026-08-09 — Reliable concurrent reads on Prisma Postgres Local
+
+- Reproduced the admin verse-list and gameplay connection failure with the same
+  parallel Prisma reads outside Next.js; sequential reads remained healthy.
+- Added shared PrismaPg pool configuration that queues loopback development
+  reads through one connection because Prisma Postgres Local was closing extra
+  concurrent TCP connections in this environment.
+- Kept hosted and production pool concurrency unchanged, covered the boundary
+  with tests, and reused the configuration in explicit local fixture commands.
+
+### 2026-08-09 — Local gameplay database reconnection
+
+- Traced the gameplay-session failure to the stopped local `scripture-memo`
+  Prisma Postgres process; no application query or session record was defective.
+- Restarted the named local database on the configured TCP port `51214`, verified
+  its running status, and stopped the incidental unused `default` instance.
+
+### 2026-08-09 — Day Selection locked-state localization repair
+
+- Added the missing `DaySelection.locked` message to English, Spanish, and
+  French so locked Glow and Radiance cards no longer interrupt the first
+  waypoint screen while Glimmer is ready.
+- Confirmed Glimmer progression is intentionally initialized on first play;
+  local fixture accounts do not require a pre-created day-progress record.
+
+### 2026-08-05 — Extra-small league title fit
+
+- Preserved the prominent 92px mobile emblem from 360px upward while returning
+  it to 80px below 360px, where the larger asset squeezed the title column.
+- Reduced only the extra-small league-title type and kept it on one line; the
+  168px larger-screen emblem remains unchanged.
+
+### 2026-08-05 — More prominent league emblem
+
+- Increased the weekly league emblem from 80px to 92px at the mobile baseline
+  and from 144px to 168px on larger screens.
+- Expanded the matching grid columns so the emblem gains hierarchy without
+  overlapping or compressing the adjacent league information.
+
+### 2026-08-05 — Live league deadline summary
+
+- Replaced the league-header player count with a compact live deadline such as
+  `Ends in 3d 12h`, while retaining the exact UTC reset date beside it.
+- The countdown initializes after hydration to avoid server/device-clock markup
+  differences and refreshes once per minute without reloading leaderboard data.
+- Added compact deadline copy for English, Spanish, and French.
+
+### 2026-08-05 — Three-zone league position bar
+
+- Divided the weekly league bar into persistent promotion, stay, and demotion
+  colours using the approved 30-player structure: 7, 18, and 5 places.
+- Added compact `Top 7` and `Bottom 5` labels beneath the outer zone headings
+  and removed the redundant status blocks below the bar.
+- Positioned the learner marker against the full cohort scale so it corresponds
+  to the same zone boundaries shown visually.
+
+### 2026-08-05 — Compact leaderboard help label
+
+- Shortened the league-header help control to `Rank info`, with equally compact
+  Spanish and French labels, while retaining the full explanatory drawer title.
+
+### 2026-08-05 — Leaderboard help and extra-small header control
+
+- Reframed the league browser as `How rankings work` with a question-mark icon
+  and equal height beside the weekly reset card.
+- Below 360px, the accessible control becomes icon-only so the reset date keeps
+  enough width to remain readable.
+- Expanded the league drawer with compact translated rules for earning points,
+  weekly resets, promotion and demotion, Saint Crowns, and the full league path.
+
+### 2026-08-05 — Compact mobile league header
+
+- Rebalanced the weekly league header for 375px with a smaller emblem, tighter
+  spacing, and compact type while preserving the larger desktop composition.
+- Removed mobile title truncation so localized league names can wrap cleanly.
+- Placed the league browser and weekly reset information in one efficient row,
+  reducing vertical travel without shrinking either control below touch size.
+
+### 2026-08-05 — Leaderboard learner label and mobile spacing
+
+- Replaced the signed-in learner's leaderboard display name plus appended
+  qualifier with the single localized label `You`.
+- Reduced rank plate width, height, type, and crown size at the 375px baseline;
+  the established larger proportions still return from the `sm` breakpoint.
+- Commented out the rankings-heading player count until the live leaderboard
+  population grows, while retaining the localized markup for easy restoration.
+
+### 2026-08-05 — Leaderboard hydration and LCP correction
+
+- Removed hydration-unsafe per-row Framer Motion state. Server rendering had
+  emitted translated rows while a reduced-motion phone hydrated them without a
+  transform, producing mismatched inline styles across the full leaderboard.
+- Leaderboard rows now render as stable semantic articles on server and client.
+- Added explicit eager loading for the first three leaderboard portraits and
+  retained lazy loading below the fold, resolving Next.js's avatar LCP warning.
+
+### 2026-08-05 — Safe physical-device authentication testing
+
+- Added one development-only origin source shared by Next.js asset protection
+  and Better Auth trusted-origin validation for LAN device testing.
+- Allowed `http://192.168.100.11:3000` by default, with a documented
+  `DEV_ALLOWED_ORIGINS` override for DHCP address changes.
+- Changed the login form's no-JavaScript fallback to POST so blocked client
+  assets can never place credentials in the URL or access logs again.
+
+### 2026-08-05 — Mobile-first leaderboard proportions
+
+- Corrected the 375px leaderboard after oversized fixed columns squeezed player
+  names. Rank plates, portraits, gaps, flags, and score pills are compact first.
+- Preserved visual breathing room through row height and padding rather than
+  consuming the flexible identity column; desktop enhances those proportions.
+
+### 2026-08-05 — Podium rank plates and leaderboard headers
+
+- Added aligned Rank, Player, and Beacon Points headers to the leaderboard list.
+- Added custom filled crown icons and metallic gold, silver, and bronze rank
+  plates for displayed positions one through three.
+- Changed the signed-in learner's row and non-podium rank plate to violet so
+  their current position remains visually distinct without extra explanatory text.
+
+### 2026-08-05 — Leaderboard row clarity and player details
+
+- Replaced the mixed crown/compass position column with sequential visible
+  positions for real players and Trail Rivals; rivals retain a compass beside
+  their name so the simulation remains transparent.
+- Reduced each row to its scope-relevant Beacon Points. Selecting a row now
+  opens a compact dialog with secondary Beacon statistics.
+- Replaced Unicode regional-indicator flags with packaged SVG assets so Windows
+  cannot expose their underlying two-letter country symbols.
+- Added distinct visual icons to the weekly points, Beacon Level, lifetime
+  points, and Crowns cards in the player-details dialog.
+
+### 2026-08-05 — Presence, country flags, and Trail Rivals
+
+- Simplified player location to a visual country flag and added a throttled,
+  server-timed five-minute online indicator around real leaderboard portraits.
+- Added viewer-specific Trail Rivals to sparse League and Country boards only.
+  Their deterministic weekly simulation includes idle days and discrete play
+  sessions so scores can remain stagnant or rise naturally between refreshes.
+- Kept all official ranking math isolated from Rivals: they use a compass marker,
+  have no user/progression records, and cannot affect promotions, demotions,
+  Crowns, rewards, Fellowship rankings, or permanent history.
+- Added presence and rival simulation tests and applied the additive presence
+  migration without exposing exact last-seen timestamps.
+
+### 2026-08-05 — Player portraits and Partner frames
+
+- Added twelve independent transparent animal portraits: lion, dove, deer,
+  bull, owl, donkey, rabbit, fox, panda, elephant, giraffe, and otter.
+- Added a mobile-first portrait picker to Settings with one standard frame and
+  six Partner-selectable frame treatments.
+- Added persisted avatar, frame, and Partner-entitlement fields with a safe
+  additive migration and server-side enforcement of premium frame access.
+- Updated every Great Beacon ranking row to show the learner's selected animal
+  and frame consistently, with localized picker copy in all shipped languages.
+- Added catalog tests and documented how future donation or subscription flows
+  will grant Partner entitlement without changing the avatar contract.
+
+### 2026-08-05 — League emblems and leaderboard visual journey
+
+- Created nine independent transparent league emblems for Traveler through
+  Saint, with localized names kept outside the raster artwork.
+- Added a responsive League Journey drawer/dialog that shows reached, current,
+  and future leagues so upcoming progression is visible from the leaderboard.
+- Rebuilt the leaderboard around a compact game-like league panel, current-rank
+  marker, promotion/stay/demotion track, and one readable mobile-first ranking
+  list with distinct top-three and current-player treatment.
+- Added localized League Journey copy in English, Spanish, and French and
+  extended Beacon tests to protect emblem uniqueness and league ordering.
+
+### 2026-08-04 — Great Beacon weekly leagues and progression
+
+- Added permanent Beacon XP and Levels, resettable Weekly Beacon XP, nine
+  promotion leagues, and lifetime Saint Crowns while retaining Glow Points as
+  the only spendable currency.
+- Added transaction-safe gameplay awards, UTC Monday competition windows,
+  30-player cohorts, promotion/demotion decisions, and an immutable XP ledger.
+- Reworked leaderboard meanings to My League, Country, Fellowship, and All Time
+  and added league/reset context plus promotion and demotion zones.
+- Added post-mode XP progress and level-up feedback, localized in English,
+  Spanish, and French, together with pure progression and week-boundary tests.
+- Applied migration `20260804190000_add_beacon_leagues`. TypeScript, targeted
+  lint, five Beacon progression tests, localization checks, and diff checks
+  pass; project-owner gameplay and responsive acceptance remain pending.
+
+### 2026-08-04 — Navigation pending lifecycle corrected
+
+- Replaced `NavigationButton`'s permanent click-state flag with React transition
+  state around the internal Next.js router navigation.
+- Pending feedback now ends when the destination pathname or query-string view
+  commits, fixing Great Beacon scope buttons that remained on “Opening.”
+- Prevented same-destination clicks from entering pending and retained native
+  browser behavior for modifier clicks and external destinations.
+- TypeScript, targeted ESLint, and diff validation pass.
+
+### 2026-08-04 — PostgreSQL SSL mode made upgrade-safe
+
+- Added one credential-safe connection URL normalizer that converts pg’s
+  ambiguous `prefer`, `require`, and `verify-ca` aliases to explicit
+  `sslmode=verify-full` while respecting intentional libpq compatibility.
+- Applied the same normalization to the application Prisma singleton, Prisma
+  CLI configuration, and every standalone seed repository.
+- Added tests for legacy modes, explicit compatibility, and secret-safe invalid
+  URL errors; TypeScript, targeted ESLint, Prisma validation, and diff checks
+  pass.
+- Verified the configured `DATABASE_URL` initializes PrismaPg without emitting
+  the pg-connection-string security warning.
+
+### 2026-08-04 — Stale next-intl development cache cleared
+
+- Confirmed `next.config.ts` correctly registers the installed next-intl plugin
+  against `i18n/request.ts`; no configuration code change was required.
+- Removed the generated `.next` cache because the active development server had
+  started before the plugin configuration was loaded.
+- Verified a fresh Next.js 16 development process serves `/login` with HTTP 200
+  and resolves `getLocale()` and `getMessages()` without the config-file error.
+
+### 2026-08-04 — Phase 27 Great Beacon implemented
+
+- Built privacy-safe Global, Country, and Fellowship rankings ordered by
+  completed waypoints, Glow Points, current streak, and stable server-only
+  tie-breakers.
+- Added an animated mobile-first podium, paginated positions four and below,
+  a highlighted pinned current-player row, scope controls, empty states, and a
+  route skeleton in English, Spanish, and French.
+- Kept emails and raw user IDs out of the leaderboard response contract and
+  documented the implemented privacy and index controls in the security audit.
+- Connected the hidden Beacon Challenger badge to a fresh authenticated
+  server-derived global rank through a Server Action, with an idempotent badge
+  transaction and an included activation migration.
+- Added a Great Beacon entry point to the authenticated game home without
+  squeezing the existing six-item mobile navigation bar.
+- TypeScript, targeted ESLint, badge tests, localization contract tests, and
+  diff checks pass. The production build reached compilation but the sandbox
+  could not download the project’s existing Google-hosted Geist fonts.
+- Applied migration `20260804163000_activate_leaderboard_badge` successfully to
+  the configured PostgreSQL database; Prisma reports all migrations applied.
+
 ### 2026-08-04 — Prisma Compute clean-install failure repaired
 
 - Regenerated `package-lock.json` with npm 10.9.8, matching the package manager
@@ -2110,3 +2365,188 @@ implement the private progress archive and mastered-verse replay flow.
 - Recovered the prior development transcript into the codex-history archive.
 - Completed project bootstrap and global UI foundation work.
 - Added the landing page, theme system, shared components, and UI preview.
+
+### 2026-08-06 — Shared navigation elevation
+
+- Refined the persistent player navigation elevation so the desktop side rail
+  casts a subtle shadow toward the centre content and the mobile bottom bar
+  casts the matching restrained shadow upward.
+- Kept the treatment on the shared navigation component so every protected
+  game page receives the same visual separation automatically.
+
+### 2026-08-06 — Hosted database operation reduction and local isolation
+
+- Confirmed routine development had been pointed at hosted Prisma Postgres, so
+  hot reloads, manual testing, seeds, builds, session lookups, and page refreshes
+  were all consuming the production workspace's monthly operation allowance.
+- Started a persistent named Prisma Postgres Local instance, switched the ignored
+  development `.env` to its loopback URL, preserved the former hosted settings
+  in an ignored local backup, deployed all 21 migrations, and seeded the local
+  catalogues successfully.
+- Made the root seed deterministic and local-proxy-safe by running its three
+  bounded catalogue seeds sequentially instead of opening concurrent short-lived
+  Prisma clients.
+- Added a tracked `.env.example` and documented the isolated local database
+  workflow. Hosted credentials remain deployment-only; integration tests retain
+  a separate fail-closed test database contract.
+- Deduplicated Better Auth sessions and settings within a server render, made
+  locale selection cookie-first with the database retained as a cross-device
+  fallback, and removed a duplicate translation-settings query from map loads.
+- Removed progression initialization from ordinary established-user map reads.
+  The map now attempts the idempotent recovery transaction only after its first
+  read proves that all learner progression is missing.
+- Reduced presence and leaderboard refresh frequency from two/three minutes to
+  fifteen minutes, and prevented leaderboard refreshes while its tab is hidden.
+- Added a permanent database operation and cost-efficiency rule to `AGENTS.md`
+  and the product overview so future designs must consider query amplification,
+  polling frequency, local isolation, and hosted cost without weakening server
+  security or transactional integrity.
+- Verified Prisma schema and generation, the idempotent local seed, TypeScript,
+  ESLint, i18n tests, map tests, diff checks, and the production build. The first
+  sandboxed build could not download Google Fonts; the network-enabled retry
+  completed successfully.
+- The local database is a fresh development resource and therefore does not
+  contain the hosted learner accounts or progress. Development can resume now;
+  existing hosted data will become available again when Prisma restores service
+  or the plan changes, without needing to point routine development back to it.
+
+### 2026-08-09 — Local database inspection fallback
+
+- Confirmed Prisma Studio's schema-metadata failure persisted with a direct local
+  URL, a fresh port, and both Node 24 and temporary Node 22 runtimes. Prisma
+  Client, migrations, seeding, and the local PostgreSQL database remained healthy.
+- Installed DBeaver Community 26.1.4 as the local visual database client and
+  documented its connection settings and strict viewer-only role in the README.
+- Prisma remains the application's ORM, schema authority, migration workflow, and
+  production integration. DBeaver introduces no alternate schema or data format,
+  so no future migration back to Prisma is required.
+
+### 2026-08-09 — Guarded local gameplay fixtures
+
+- Added a separate local fixture feature and CLI workflow that validates a direct
+  loopback PostgreSQL URL before constructing Prisma Client and refuses production
+  mode, hosted hosts, and Prisma proxy URLs.
+- Added five public-domain KJV verses and published waypoint fixtures covering all
+  five map positions without adding copyrighted NIV or ESV text under incorrect
+  translation labels.
+- Kept the production seed unchanged: local gameplay fixtures run only through
+  `npm run local:fixtures`, remain idempotent before learner history exists, and
+  fail closed instead of overwriting progressed waypoints.
+- Added `npm run local:player -- <email> [--admin]` for an account that was first
+  registered through Better Auth. It prepares profile, KJV settings, streak, role
+  when explicitly requested, and first-waypoint access without touching password,
+  account, or session records.
+- Applied the curriculum fixture to Prisma Postgres Local and confirmed the second
+  run reused all five verses without duplicates. Verified the URL safety tests,
+  TypeScript, and ESLint.
+- Prepared the first Better Auth-registered local tester as an ADMIN, selected
+  KJV for the fixture curriculum, repaired its application foundation records,
+  and unlocked Waypoint 1 without reading or modifying its credentials.
+
+### 2026-08-09 — Large-screen game shell and leaderboard context rail
+
+- Added a reusable mobile-first center-and-context page composition. Routes
+  remain a single focused column on small screens and may supply a sticky,
+  feature-owned right panel when large-screen width permits.
+- Adopted the contextual rail on the leaderboard using its existing page data
+  for league, official rank, Weekly Beacon Points, Beacon Level, and Crowns;
+  the richer desktop layout therefore adds no database operations.
+- Widened the protected desktop navigation and placed icons beside labels while
+  retaining the compact tablet rail. Replaced hard-coded dark-only navigation
+  colors with theme tokens and kept matching subtle elevation on the desktop
+  rail and mobile bottom bar.
+- Verified the affected shell and leaderboard files with TypeScript and ESLint.
+  Project-owner responsive visual acceptance remains pending before Phase 27
+  is marked complete.
+- Reworked the contextual area into a fixed full-height shell column separated
+  from the center by a restrained border and shadow. Page-owned content now
+  portals into its scrollable upper region instead of rendering as a floating
+  column card.
+- Anchored a shared Luna Partner invitation at the base of that column for all
+  protected non-gameplay pages. Its action opens the Shop Donations tab through
+  URL state, preserving a meaningful destination across direct links and page
+  refreshes.
+- Removed the right rail from Map and Admin routes, narrowed it on remaining
+  large-screen pages, and removed its floating shadow so a single dividing line
+  defines it as part of the shell. Reduced the persistent Partner card and
+  constrained route context to compact, non-scrolling secondary information.
+- Simplified the leaderboard context to Beacon Level and Crowns only because
+  league identity, weekly score, official rank, timing, and movement zones are
+  already visible or directly inferable from the center board.
+- Rebalanced the large-screen shell after visual review: reduced the expanded
+  left navigation from 256px to 192px and the context rail from 288px to 256px,
+  returning 96px to the primary center experience without changing tablet or
+  mobile navigation dimensions.
+- Replaced the desktop rail flame mark with Luna and kept the Scripture Memo
+  wordmark on one line. Flattened the leaderboard page heading and reduced its
+  competing visual weight.
+- Replaced membership-generated leaderboard tabs with four stable scopes.
+  Fellowship selection now lives inside the Fellowship view, and the mobile
+  scope controls use a non-scrolling two-by-two grid.
+- Removed the redundant exact-reset block from the league summary, retained the
+  concise remaining-time signal, and reduced Rank Info to an icon-sized help
+  control so the league emblem and ranking movement remain primary.
+- Corrected that refinement after responsive review: the simplification applies
+  only to desktop. Mobile again shows Rank Info beside the exact reset detail,
+  while very small screens retain the earlier icon-only Rank Info treatment.
+- Restored both Rank Info and the exact reset detail on large screens as well.
+  Their desktop stack now uses a larger gap so each element remains distinct;
+  mobile and very-small-screen behavior remains unchanged.
+- Consolidated the four leaderboard scopes into a single segmented mobile bar.
+  Icons sit above compact labels, the active scope receives the violet game
+  treatment, and every scope remains visible without horizontal or vertical
+  navigation scrolling.
+- Refined large-screen branding after visual review: removed the background and
+  inset treatment from the left-rail Luna wordmark, stacked its name as two
+  left-aligned lines, and rebuilt the leaderboard heading with a compact trophy
+  tile immediately beside the title and subtitle.
+
+### 2026-08-10 — Luna silhouette asset
+
+- Preserved the supplied square Luna face silhouette as an approved mascot
+  asset at `public/images/mascot/luna/luna-silhouette.png` without assigning it
+  to a production surface prematurely.
+- Registered the silhouette in the shared Luna asset catalogue and added it to
+  the `/ui-foundation` Luna production gallery for future visual evaluation.
+- Audited weekly Beacon placement behavior: promotion, demotion, final rank,
+  and Saint Crown outcomes are persisted when the learner enters the new week,
+  but no player-facing weekly-result notice or persistent notification centre
+  currently exists.
+
+### 2026-08-10 — Weekly league results and notification centre
+
+- Added a persistent, localized notification model with stable event types,
+  primitive JSON payloads, read state, one-time presentation state, and indexed
+  bounded inbox reads. No notification polling or scheduled database reads were
+  introduced.
+- Weekly Beacon finalization now creates exactly one Promoted, Stayed, or
+  Demoted notice inside the same transaction that records the finalized rank
+  and next league. Saint Crown awards are included in the result payload.
+- Added a global tactile notification bell, unread count, read/read-all inbox,
+  and a dedicated Luna weekly-result celebration that requires Continue before
+  it closes. Added all three placement variants to `/ui-foundation`.
+- Applied migration `20260810190000_add_user_notifications` to the configured
+  local PostgreSQL database and regenerated Prisma Client.
+- Reprocessed the Luna silhouette as a 32-bit PNG with only the exterior canvas
+  made transparent; enclosed white facial and eye artwork remains opaque.
+- Verified TypeScript, ESLint, localization contract tests, and Beacon tests.
+- Refined the result art direction so Stayed uses Luna Retry, Promoted uses Luna
+  Celebrate, and Demoted uses Luna Encourage.
+- Moved the notification control into a universal theme-aware dashboard bar
+  that starts after the desktop left rail and spans the center plus contextual
+  right column. Added compact Glow, streak, and lifetime Beacon counters using
+  one non-polling summary read over existing profile and streak aggregates.
+- Kept active gameplay free of the dashboard bar and verified the refinement
+  with TypeScript, ESLint, and the localization contract test.
+- Aligned the desktop Luna wordmark with the universal top bar, normalized the
+  notification trigger to the same quiet stat-pill treatment, removed the
+  leaderboard's duplicated visible title, and made narrow-phone route identity
+  icon-only so labels cannot clip into incomplete words.
+
+### 2026-08-10 — Phase 27 manually accepted
+
+- The project owner accepted the responsive Great Beacon experience, league
+  progression and results, privacy-safe rankings, player identity treatments,
+  notification centre, and protected player shell.
+- Phase 27 is complete. Phase 28 — Admin Dashboard and Badge Management is next
+  in roadmap order.

@@ -139,6 +139,16 @@ The server and database are the only sources of truth for all security-sensitive
 
 ---
 
+### Beacon progression security addendum
+
+- Glow Points are the only spendable currency. Beacon XP and Crowns are
+  non-spendable progression values and must never be accepted from the client.
+- Every Beacon XP award uses a server-owned amount, immutable idempotency key,
+  per-user transaction lock, and the same transaction as verified completion.
+- Weekly placement uses the server completion timestamp and the global Monday
+  00:00 UTC boundary; client clocks and displayed local time are informational.
+- Replays, Vault review, admin testing, and failed attempts never create XP.
+
 ## Section 7 — Badge System Security
 
 | # | Check | Risk | Status | Notes |
@@ -177,7 +187,7 @@ The server and database are the only sources of truth for all security-sensitive
 
 | # | Check | Risk | Status | Notes |
 |---|---|---|---|---|
-| 9.1 | Leaderboard queries never return user email addresses | 🔴 Critical | ☐ Pending | Only display name, country, and stats |
+| 9.1 | Leaderboard queries never return user email addresses | 🔴 Critical | ☑ Implemented | Phase 27 repository maps internal rows to display name, country, rank, and game statistics; raw IDs become an `isCurrentUser` boolean before leaving the repository |
 | 9.2 | Fellowship member lists never expose user emails | 🔴 Critical | ☑ Implemented | Fellowship DTOs return display name, country, and game statistics only; no email or raw user ID |
 | 9.3 | Public profile data is limited to display name, country, and game stats | 🟠 High | ☐ Pending | No email, no internal IDs in public responses |
 | 9.4 | Private Sanctuary notes are visible only to the note's owner | 🔴 Critical | ☐ Pending | Ownership check: `note.userId === session.user.id` |
@@ -185,6 +195,7 @@ The server and database are the only sources of truth for all security-sensitive
 | 9.6 | Audit logs are readable only by SUPER_ADMIN | 🟠 High | ☐ Pending | Audit logs contain sensitive operational history |
 | 9.7 | Production error messages do not reveal stack traces, schema details, or Prisma errors | 🟠 High | ☐ Pending | Catch and sanitize all errors before returning to client |
 | 9.8 | Server logs never contain passwords, session tokens, or secret values | 🔴 Critical | ☐ Pending | Review all `logger.ts` calls |
+| 9.8A | Auth forms use POST as their native fallback so missing client JavaScript cannot place credentials in URLs or access logs | 🔴 Critical | ✅ Implemented | Login remains a Better Auth-backed Server Action after hydration |
 | 9.9 | Hidden badge names and descriptions are omitted from API responses for locked+hidden badges | 🟡 Medium | ☐ Pending | Only reveal badge identity on unlock |
 
 ---
@@ -229,7 +240,7 @@ The server and database are the only sources of truth for all security-sensitive
 | 12.5 | Foreign key relations are defined and enforced in the Prisma schema | 🟠 High | ☐ Pending | Data integrity |
 | 12.6 | Cascading deletes are explicitly reviewed — no accidental data loss | 🟠 High | ☐ Pending | Deleting a verse must not silently delete user progress |
 | 12.7 | Indexes exist on `(userId, waypointId)` for progress queries | 🟡 Medium | ☐ Pending | Performance |
-| 12.8 | Indexes exist on `(totalGlowPoints DESC)` and `(currentStreak DESC)` for leaderboard queries | 🟡 Medium | ☐ Pending | Performance |
+| 12.8 | Indexes exist on `(totalGlowPoints DESC)` and `(currentStreak DESC)` for leaderboard queries | 🟡 Medium | ☑ Implemented | `UserProfile` and `UserStreak` include descending leaderboard indexes; country also has a composite ranking index |
 | 12.9 | Database transactions are used for all multi-write operations | 🔴 Critical | ☐ Pending | Day completion, reward award, shop purchase, waypoint unlock |
 | 12.10 | The database user in `DATABASE_URL` has only the permissions needed (not superuser) | 🟠 High | ☐ Pending | Principle of least privilege |
 | 12.11 | `prisma migrate dev` is never run against the production database | 🔴 Critical | ☐ Pending | Use `prisma migrate deploy` in production |

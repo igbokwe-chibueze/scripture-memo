@@ -1,10 +1,23 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
-import { FlameIcon, HomeIcon, MapIcon, SettingsIcon, ShoppingCartIcon, UsersRoundIcon, VaultIcon } from "lucide-react";
+import {
+  HomeIcon,
+  MapIcon,
+  SettingsIcon,
+  ShoppingCartIcon,
+  UsersRoundIcon,
+  VaultIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
+import { PresenceHeartbeat } from "@/features/profile/components/presence-heartbeat";
+import { DesktopContextRailProvider } from "@/components/shared/desktop-context-rail";
+import type { NotificationShellData } from "@/features/notifications/types/notification.types";
+import { PlayerTopBar } from "@/features/player-shell/components/player-top-bar";
+import type { PlayerShellSummary } from "@/features/player-shell/types/player-shell.types";
 
 const navigationItems = [
   { href: "/game", labelKey: "home", icon: HomeIcon, exact: true },
@@ -24,20 +37,68 @@ const navigationItems = [
  */
 export function MobileGameNavigation({
   children,
-}: Readonly<{ children: React.ReactNode }>): React.ReactNode {
+  notifications,
+  playerSummary,
+}: Readonly<{
+  children: React.ReactNode;
+  notifications: NotificationShellData;
+  playerSummary: PlayerShellSummary;
+}>): React.ReactNode {
   const pathname = usePathname();
   const t = useTranslations("Navigation");
   const hidesNavigation = pathname.startsWith("/game/sessions/");
+  const hidesContextRail =
+    pathname.startsWith("/admin") ||
+    pathname === "/game/map" ||
+    pathname.startsWith("/game/map/");
 
-  if (hidesNavigation) return children;
+  if (hidesNavigation) {
+    return (
+      <>
+        <PresenceHeartbeat />
+        {children}
+      </>
+    );
+  }
 
   return (
-    <div className="min-h-dvh bg-background pb-[calc(5.75rem+env(safe-area-inset-bottom))] md:pb-0 md:pl-24 xl:pl-28">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-24 flex-col border-r border-violet-300/15 bg-[#090817] px-2 py-5 text-white shadow-[12px_0_30px_rgb(5_4_15/0.16)] md:flex xl:w-28" aria-label={t("desktopPlayerNavigation")}>
-        <Link href="/game" className="mx-auto grid size-14 place-items-center rounded-2xl bg-amber-400/10 text-amber-300 shadow-[inset_0_0_18px_rgb(251_191_36/0.1)]" aria-label={t("scriptureMemoHome")}>
-          <FlameIcon className="size-8" aria-hidden="true" />
+    <DesktopContextRailProvider enabled={!hidesContextRail}>
+      <div
+        className={cn(
+          "min-h-dvh bg-background pt-16 pb-[calc(5.75rem+env(safe-area-inset-bottom))] md:pb-0 md:pl-24 xl:pl-48",
+          !hidesContextRail && "xl:pr-64",
+        )}
+      >
+      <PresenceHeartbeat />
+      <PlayerTopBar summary={playerSummary} notifications={notifications} />
+      {/*
+       * WHY: This restrained shadow separates the persistent rail from page
+       * content without making it look like a heavy modal. Casting it toward
+       * the centre creates the same raised-navigation language used by the
+       * mobile bar below.
+       */}
+      <aside
+        className="fixed inset-y-0 left-0 z-40 hidden w-24 flex-col border-r border-border/70 bg-card px-2 text-card-foreground shadow-[8px_0_24px_-14px_color-mix(in_oklch,var(--foreground),transparent_68%)] md:flex xl:w-48 xl:px-3"
+        aria-label={t("desktopPlayerNavigation")}
+      >
+        <Link
+          href="/game"
+          className="mx-auto grid h-16 w-14 place-items-center text-primary xl:mx-0 xl:flex xl:w-full xl:justify-start xl:gap-2 xl:px-2"
+          aria-label={t("scriptureMemoHome")}
+        >
+          <Image
+            src="/images/mascot/luna/luna-avatar.png"
+            alt=""
+            width={128}
+            height={128}
+            className="size-10 shrink-0 object-contain"
+          />
+          <span className="hidden text-left font-heading text-base leading-[1.05] font-black xl:inline">
+            <span className="block">Scripture</span>
+            <span className="block">Memo</span>
+          </span>
         </Link>
-        <nav className="mt-8 flex-1">
+        <nav className="mt-4 flex-1">
           <ul className="flex h-full flex-col gap-2">
             {navigationItems.map(({ href, labelKey, icon: Icon, exact }) => {
               const label = t(labelKey);
@@ -49,10 +110,15 @@ export function MobileGameNavigation({
                   (href === "/vault" && pathname.startsWith("/sanctuary/"));
               return (
                 <li key={href} className={href === "/settings" ? "mt-auto" : undefined}>
-                  <Link href={href} aria-current={active ? "page" : undefined} className={cn(
-                    "flex min-h-16 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[0.68rem] font-black text-slate-400 transition-all hover:bg-white/5 hover:text-white active:translate-y-0.5 active:scale-95",
-                    active && "border border-amber-300/45 bg-linear-to-b from-amber-500/25 to-orange-800/20 text-amber-300 shadow-[0_0_22px_rgb(245_158_11/0.18),0_4px_0_rgb(76_37_8/0.7)]",
-                  )}>
+                  <Link
+                    href={href}
+                    aria-current={active ? "page" : undefined}
+                    className={cn(
+                      "flex min-h-16 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[0.68rem] font-black text-muted-foreground transition-all hover:bg-muted hover:text-foreground active:translate-y-0.5 active:scale-95 xl:min-h-14 xl:flex-row xl:justify-start xl:gap-2.5 xl:px-3 xl:text-sm",
+                      active &&
+                        "border border-primary/40 bg-linear-to-b from-primary/20 to-primary/8 text-primary shadow-[0_4px_0_color-mix(in_oklch,var(--primary),black_48%)]",
+                    )}
+                  >
                     <Icon className="size-5" aria-hidden="true" />
                     <span>{label}</span>
                   </Link>
@@ -65,7 +131,7 @@ export function MobileGameNavigation({
       <div className="min-w-0">{children}</div>
       <nav
         aria-label={t("playerNavigation")}
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-violet-300/20 bg-[#090817]/98 px-1.5 pb-[max(0.45rem,env(safe-area-inset-bottom))] pt-2 text-white shadow-[0_-10px_30px_rgb(5_4_15/0.4)] backdrop-blur-xl md:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-border/75 bg-card/98 px-1.5 pb-[max(0.45rem,env(safe-area-inset-bottom))] pt-2 text-card-foreground shadow-[0_-7px_20px_-10px_color-mix(in_oklch,var(--foreground),transparent_58%)] backdrop-blur-xl md:hidden"
       >
         <ul className="mx-auto grid max-w-lg grid-cols-6 gap-1">
           {navigationItems.map(({ href, labelKey, icon: Icon, exact }) => {
@@ -82,8 +148,9 @@ export function MobileGameNavigation({
                   href={href}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "relative flex min-h-14 touch-manipulation flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[0.62rem] font-black text-slate-400 transition-all active:translate-y-0.5 active:scale-95",
-                    active && "-translate-y-3 border border-amber-300/55 bg-linear-to-b from-[#5c3308] to-[#2b1606] text-amber-300 shadow-[0_0_24px_rgb(245_158_11/0.35),0_5px_0_rgb(92_43_5/0.8)]",
+                    "relative flex min-h-14 touch-manipulation flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[0.62rem] font-black text-muted-foreground transition-all active:translate-y-0.5 active:scale-95",
+                    active &&
+                      "-translate-y-3 border border-primary/50 bg-linear-to-b from-primary/25 to-primary/10 text-primary shadow-[0_0_24px_color-mix(in_oklch,var(--primary),transparent_66%),0_5px_0_color-mix(in_oklch,var(--primary),black_52%)]",
                   )}
                 >
                   <Icon className="size-5" aria-hidden="true" />
@@ -94,6 +161,7 @@ export function MobileGameNavigation({
           })}
         </ul>
       </nav>
-    </div>
+      </div>
+    </DesktopContextRailProvider>
   );
 }

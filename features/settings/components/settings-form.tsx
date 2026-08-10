@@ -2,7 +2,7 @@
 
 import { useMemo, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -19,13 +19,20 @@ import { SearchableSelect } from "@/components/shared/searchable-select";
 import { updateUserSettingsAction } from "@/features/settings/actions/update-user-settings.action";
 import { COUNTRY_OPTIONS } from "@/features/settings/data/country-options";
 import { updateUserSettingsSchema, type UpdateUserSettingsInput } from "@/features/settings/schemas/update-user-settings.schema";
+import { AvatarPicker } from "@/features/profile/components/avatar-picker";
 
-export type SettingsFormProps = { initialValues: UpdateUserSettingsInput };
+export type SettingsFormProps = {
+  initialValues: UpdateUserSettingsInput;
+  isPartner: boolean;
+};
 
 const timeZoneOptions = ["UTC", ...Intl.supportedValuesOf("timeZone")];
 
 /** Editable account preferences with localized labels and immediate visual sync. */
-export function SettingsForm({ initialValues }: SettingsFormProps): React.ReactNode {
+export function SettingsForm({
+  initialValues,
+  isPartner,
+}: SettingsFormProps): React.ReactNode {
   const t = useTranslations("Settings");
   const locale = useLocale();
   const router = useRouter();
@@ -34,6 +41,20 @@ export function SettingsForm({ initialValues }: SettingsFormProps): React.ReactN
   const form = useForm<UpdateUserSettingsInput>({
     resolver: zodResolver(updateUserSettingsSchema),
     defaultValues: initialValues,
+  });
+  // useWatch subscribes to only the three preview fields and avoids invoking
+  // React Hook Form's non-memoizable `watch` function during JSX rendering.
+  const selectedAvatarKey = useWatch({
+    control: form.control,
+    name: "avatarKey",
+  });
+  const selectedAvatarFrameKey = useWatch({
+    control: form.control,
+    name: "avatarFrameKey",
+  });
+  const previewDisplayName = useWatch({
+    control: form.control,
+    name: "displayName",
   });
   const countryOptions = useMemo(() => {
     const names = new Intl.DisplayNames([locale], { type: "region" });
@@ -76,6 +97,20 @@ export function SettingsForm({ initialValues }: SettingsFormProps): React.ReactN
         <CardHeader><CardTitle>{t("profile")}</CardTitle></CardHeader>
         <CardContent>
           <FieldGroup>
+            <AvatarPicker
+              avatarKey={selectedAvatarKey}
+              frameKey={selectedAvatarFrameKey}
+              displayName={previewDisplayName}
+              isPartner={isPartner}
+              disabled={isPending}
+              onAvatarChange={(value) => {
+                form.setValue("avatarKey", value, { shouldDirty: true });
+              }}
+              onFrameChange={(value) => {
+                form.setValue("avatarFrameKey", value, { shouldDirty: true });
+              }}
+            />
+
             <Field data-invalid={Boolean(form.formState.errors.displayName)}>
               <FieldLabel htmlFor="display-name">{t("displayName")}</FieldLabel>
               <Input id="display-name" autoComplete="name" aria-invalid={Boolean(form.formState.errors.displayName)} {...form.register("displayName")} />

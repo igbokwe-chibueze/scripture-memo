@@ -12,6 +12,7 @@ import { LunaMascot } from "@/components/shared/luna-mascot";
 import { Button } from "@/components/ui/button";
 import type { GameMode } from "@/lib/generated/prisma/enums";
 import type { DayRewardResult } from "@/features/rewards/types/reward.types";
+import type { BeaconProgressionResult } from "@/features/beacon/types/beacon.types";
 
 /**
  * Pauses progression on a celebratory, explicit learner-controlled transition.
@@ -28,6 +29,7 @@ export function ModeCompletionScreen({
   onContinue,
   onReplay,
   reward = null,
+  beaconProgression = null,
 }: {
   completedMode: GameMode;
   nextMode: GameMode | null;
@@ -36,6 +38,7 @@ export function ModeCompletionScreen({
   onContinue: () => void;
   onReplay?: () => void;
   reward?: DayRewardResult | null;
+  beaconProgression?: BeaconProgressionResult | null;
 }): React.ReactNode {
   const t = useTranslations("Completion");
   const gameT = useTranslations("Gameplay");
@@ -43,6 +46,19 @@ export function ModeCompletionScreen({
     DRAG_DROP: gameT("dragDrop"), PUZZLE: gameT("puzzle"), SWAP: gameT("swap"), CUE: gameT("cue"), FILL: gameT("fill"),
   };
   const shouldReduceMotion = useReducedMotion();
+  const levelProgress = beaconProgression
+    ? Math.min(
+        100,
+        Math.max(
+          0,
+          ((beaconProgression.lifetimeXp -
+            beaconProgression.currentLevelStartXp) /
+            (beaconProgression.nextLevelXp -
+              beaconProgression.currentLevelStartXp)) *
+            100,
+        ),
+      )
+    : 0;
 
   useEffect(() => {
     const previousBodyOverflow = document.body.style.overflow;
@@ -152,6 +168,54 @@ export function ModeCompletionScreen({
               </div>
             )}
           </div>
+
+          {beaconProgression && !isTestReplay && !isVaultReplay && (
+            <motion.div
+              className="mt-4 rounded-2xl border border-violet-400/30 bg-violet-500/10 p-4 text-left"
+              initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: shouldReduceMotion ? 0 : 0.42 }}
+            >
+              <div className="flex items-end justify-between gap-3">
+                <div>
+                  <p className="text-xs font-black tracking-[0.14em] text-violet-700 uppercase dark:text-violet-300">
+                    {t("beaconXpEarned", { count: beaconProgression.earnedXp })}
+                  </p>
+                  <p className="mt-1 font-heading text-lg font-black">
+                    {t("beaconLevel", { level: beaconProgression.level })}
+                  </p>
+                </div>
+                <span className="font-heading text-2xl font-black text-violet-700 dark:text-violet-300">
+                  +{beaconProgression.earnedXp}
+                </span>
+              </div>
+              <div
+                className="mt-3 h-3 overflow-hidden rounded-full bg-violet-950/15 dark:bg-black/35"
+                role="progressbar"
+                aria-label={t("beaconLevelProgress")}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(levelProgress)}
+              >
+                <motion.div
+                  className="h-full rounded-full bg-linear-to-r from-violet-500 to-fuchsia-400"
+                  initial={{ width: shouldReduceMotion ? `${levelProgress}%` : 0 }}
+                  animate={{ width: `${levelProgress}%` }}
+                  transition={{ duration: shouldReduceMotion ? 0 : 0.8, delay: 0.5 }}
+                />
+              </div>
+              {beaconProgression.leveledUp && (
+                <motion.p
+                  className="mt-3 text-center font-heading text-lg font-black text-fuchsia-700 dark:text-fuchsia-300"
+                  initial={shouldReduceMotion ? false : { scale: 0.7 }}
+                  animate={{ scale: [1, 1.14, 1] }}
+                  transition={{ duration: shouldReduceMotion ? 0 : 0.7, delay: 1.1 }}
+                >
+                  {t("levelUp", { level: beaconProgression.level })}
+                </motion.p>
+              )}
+            </motion.div>
+          )}
 
           <div className="mt-5 grid gap-3 sm:mt-7">
             <Button

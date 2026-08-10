@@ -1399,6 +1399,12 @@ approval prevent forged decisions and duplicate membership.
 
 **Goal:** Build the global, country, and fellowship leaderboards.
 
+**Implementation status:** Complete and manually accepted on 2026-08-10.
+Automated TypeScript, lint, badge-catalog, localization, and Beacon progression
+checks pass. The project owner accepted the responsive leaderboard, privacy
+boundaries, weekly league behavior, notification experience, and shared player
+shell. The Beacon Challenger activation migration has been applied successfully.
+
 ### Tasks
 
 1. Create `features/leaderboard/`.
@@ -1418,9 +1424,81 @@ approval prevent forged decisions and duplicate membership.
 
 ### Acceptance Criteria
 
+#### Approved Great Beacon refinement (2026-08-04)
+
+- Glow Points remain the only spendable currency. Beacon XP is permanent,
+  non-spendable progression; Weekly Beacon XP resets every Monday at 00:00 UTC.
+- Eligible awards are 10 XP per mode, plus 25 for Glimmer, 40 for Glow, 60 for
+  Radiance, and 100 for waypoint completion. Failed attempts, admin tests,
+  Vault review, and other replays award nothing.
+- Weekly leagues progress through Traveler, Disciple, Messenger, Watchman,
+  Teacher, Shepherd, Elder, Scribe, and Saint in cohorts of up to 30. The top 7
+  promote and bottom 5 demote; cohorts below 10 players do not demote anyone.
+- Saint weekly finishes award lifetime Crowns: 5 for first, 3 for second, 2 for
+  third, and 1 for positions four through ten.
+- My League is the learner's cohort. Country and Fellowship rank Weekly Beacon
+  XP without promotion effects. All Time ranks permanent Beacon Level and XP.
+- Weekly ties use weekly waypoint completions, then the earliest final score
+  timestamp. All week assignment and finalization remain server-authoritative.
+- Finalized weekly movement creates one idempotent persistent notice in the same
+  transaction. The next protected shell render presents a dedicated Promoted,
+  Stayed, or Demoted result that closes only through Continue, while the result
+  remains available in a capped in-app notification centre afterward.
+- The notification centre never polls PostgreSQL. It performs one bounded,
+  indexed shell read during normal navigation and supports read, read-all, and
+  one-time-presentation state. Its event catalogue is ready for later Fellowship,
+  cooldown, streak-risk, and system notices without storing translated prose.
+- The protected dashboard bar excludes the permanent desktop left rail and
+  spans the center and contextual right column. It shows compact Glow, streak,
+  and lifetime Beacon totals plus the notification bell; mobile receives the
+  same counters in a space-conscious icon-first treatment. Active gameplay
+  deliberately omits the dashboard bar.
+- Each league has an independent emblem asset. The leaderboard's League Journey
+  surface always exposes the complete Traveler-to-Saint path, distinguishing
+  reached, current, and future leagues without relying on an image atlas.
+
 - Leaderboard queries do not return email addresses.
 - User's own rank is always visible regardless of pagination position.
 - Country filter works based on the user's country setting.
+- Player identity uses twelve bundled animal portraits rather than uploads.
+  Leaderboard rows compose the selected portrait with a fixed standard frame or
+  one of six Partner-only frames. Partner entitlement is persisted now and will
+  be granted automatically by the later donation/subscription workflow.
+- Packaged SVG country flags and a coarse five-minute presence indicator appear
+  with real leaderboard portraits. Viewer-specific Trail Rivals fill sparse League and
+  Country boards through deterministic idle days and simulated play sessions;
+  every row gets a sequential visible position, while a rival's compass marker
+  sits beside its name. Rivals never influence real standings, promotion,
+  demotion, rewards, Fellowships, or All Time history.
+- Rows foreground only Beacon Points. Selecting a player opens a compact dialog
+  containing secondary Beacon progression statistics.
+- Rank, Player, and Beacon Points headers align with the list. Podium positions
+  use custom crowns and gold, silver, and bronze plates, while the signed-in
+  learner uses a violet position treatment.
+- The leaderboard table is composed for 375px first with compact rank plates,
+  portraits, gaps, and score pills. Row padding provides breathing room while
+  preserving the flexible player-name column.
+- Protected large-screen pages now share an optional contextual-column
+  composition. The leaderboard is its first adopter and uses already-loaded
+  page data for a weekly rank, Beacon, Crown, and league snapshot without
+  issuing another database query. Mobile remains a single focused column.
+- The right column is owned by the protected application shell rather than
+  styled as a floating page card. Its upper region accepts route-specific
+  content, while a visual Become a Partner card remains anchored at its base
+  across protected non-gameplay pages and links directly to Shop donations.
+- Map and Admin routes deliberately omit the contextual column. Elsewhere the
+  narrower rail is a flush continuation of the center surface, separated only
+  by a border. Route panels must stay compact, avoid their own scrolling, and
+  must not repeat information that the center already makes obvious.
+- Leaderboard scope navigation is a stable four-choice grid: My League,
+  Country, Fellowships, and All Time. It never creates one global control per
+  membership; fellowship choice happens through a bounded selector inside the
+  Fellowship scope. Mobile presents all four as one non-scrolling segmented
+  row with icons above labels.
+- The shared protected navigation uses theme tokens in both light and dark
+  modes. Its wide desktop form places each icon beside its label, while the
+  compact tablet rail and mobile bottom navigation retain icon-first layouts
+  and matching restrained elevation.
 
 ---
 
