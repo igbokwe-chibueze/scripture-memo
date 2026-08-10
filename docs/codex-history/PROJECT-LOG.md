@@ -2700,3 +2700,12 @@ implement the private progress archive and mastered-verse replay flow.
   the sole fresh-player unlock.
 - TypeScript and targeted ESLint pass for the guarded repository operation and
   extensively documented command.
+
+### 2026-08-10 — Phase 28 accepted
+
+- The project owner confirmed that the manually awarded badge appears as an
+  unread recipient notification and that selecting it opens the badge
+  collection.
+- All Phase 28 automated checks and required manual checks now pass. Phase 28 —
+  Admin Dashboard and Badge Management is complete and accepted; Phase 29 —
+  Seed Data is next.

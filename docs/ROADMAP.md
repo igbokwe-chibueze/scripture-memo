@@ -1523,7 +1523,7 @@ shell. The Beacon Challenger activation migration has been applied successfully.
    - Manual badge award form — logged in audit trail
 6. Role-protect all admin views through Proxy checks and verify authorization again in each Server Action and protected data-access path.
 
-### Implementation checkpoint (2026-08-10)
+### Implementation status — Complete (2026-08-10)
 
 - The admin dashboard, low-query platform counters, and permission-aware tool
   links are implemented.
@@ -1544,8 +1544,10 @@ shell. The Beacon Challenger activation migration has been applied successfully.
   and selecting the notice opens the learner's badge collection. Repeat award
   requests neither repay the reward nor create duplicate notifications.
 - `/admin/users` is protected for Super Admins in Proxy, its server view, and
-  every mutation. Phase acceptance remains pending the project owner's manual
-  role-boundary and suspension tests.
+  every mutation.
+- The project owner completed the role, account-action, badge-award, predictive
+  recipient lookup, and recipient-notification manual checks. Phase 28 is
+  complete and accepted.
 
 ### Acceptance Criteria
 
