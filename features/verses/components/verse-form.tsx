@@ -18,6 +18,10 @@ import { showActionError } from "@/lib/errors/show-action-error";
 import { createVerseAction } from "@/features/verses/actions/create-verse.action";
 import { updateVerseAction } from "@/features/verses/actions/update-verse.action";
 import { MarkdownEditor } from "@/features/verses/components/markdown-editor";
+import {
+  ADMIN_TRANSLATION_CODES,
+  TRANSLATION_NAMES,
+} from "@/features/verses/constants/translations";
 import { BIBLE_BOOK_NAMES } from "@/features/verses/data/bible-structure";
 import {
   formatBibleReference,
@@ -36,7 +40,6 @@ export type VerseFormProps = {
   initialValues: VerseFormInput;
 };
 
-const translations = ["NIV", "ESV", "KJV"] as const;
 const bookOptions = BIBLE_BOOK_NAMES.map((book) => ({ value: book, label: book }));
 
 /** Complete verse editor shared by create and edit admin views. */
@@ -184,14 +187,21 @@ export function VerseForm({ mode, initialValues }: VerseFormProps): React.ReactN
       <Card>
         <CardHeader><CardTitle>Translations</CardTitle></CardHeader>
         <CardContent className="space-y-5">
-          {translations.map((translation) => (
+          {ADMIN_TRANSLATION_CODES.map((translation) => (
             <Field key={translation}>
-              <FieldLabel htmlFor={`translation-${translation}`}>{translation}</FieldLabel>
+              <FieldLabel htmlFor={`translation-${translation}`}>
+                {TRANSLATION_NAMES[translation]} ({translation})
+              </FieldLabel>
               <Textarea
                 id={`translation-${translation}`}
                 rows={4}
                 {...form.register(`translations.${translation}`)}
               />
+              {(translation === "NIV" || translation === "ESV") && (
+                <FieldDescription>
+                  Optional. Add only when licensed text is available.
+                </FieldDescription>
+              )}
               <FieldError>{form.formState.errors.translations?.[translation]?.message}</FieldError>
             </Field>
           ))}

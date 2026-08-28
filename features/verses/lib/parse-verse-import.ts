@@ -111,9 +111,11 @@ export function prepareVerseImport(
       tags: record.tags,
       isActive: parseBoolean(record.isActive),
       translations: {
+        KJV: record.KJV,
+        WEB: record.WEB,
+        BSB: record.BSB,
         NIV: record.NIV,
         ESV: record.ESV,
-        KJV: record.KJV,
       },
     });
 

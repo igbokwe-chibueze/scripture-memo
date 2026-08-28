@@ -12,8 +12,31 @@ export async function CreateVerseView(): Promise<React.ReactNode> {
   return (
     <main className="min-h-svh bg-muted/20 py-8">
       <ResponsiveContainer size="md" className="space-y-6">
-        <PageHeader eyebrow="Scripture library" title="Create verse" description="Choose a canonical location, then add study content, tags, and all three translations." />
-        <VerseForm mode="create" initialValues={{ book: "", chapter: 1, verseStart: 1, verseEnd: "", reflection: "", studyNote: "", tags: "", isActive: false, translations: { NIV: "", ESV: "", KJV: "" } }} />
+        <PageHeader
+          eyebrow="Scripture library"
+          title="Create verse"
+          description="Choose a canonical location, then add study content, tags, and available translations."
+        />
+        <VerseForm
+          mode="create"
+          initialValues={{
+            book: "",
+            chapter: 1,
+            verseStart: 1,
+            verseEnd: "",
+            reflection: "",
+            studyNote: "",
+            tags: "",
+            isActive: false,
+            translations: {
+              KJV: "",
+              WEB: "",
+              BSB: "",
+              NIV: "",
+              ESV: "",
+            },
+          }}
+        />
       </ResponsiveContainer>
     </main>
   );

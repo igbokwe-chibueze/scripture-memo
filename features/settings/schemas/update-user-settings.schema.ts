@@ -22,7 +22,7 @@ export const updateUserSettingsSchema = z.object({
   ]),
   avatarKey: z.enum(AVATAR_KEYS),
   avatarFrameKey: z.enum(AVATAR_FRAME_KEYS),
-  preferredTranslation: z.enum(["NIV", "ESV", "KJV"]),
+  preferredTranslation: z.enum(["KJV", "WEB", "BSB"]),
   locale: z.enum(["en", "es", "fr"]),
   audioEnabled: z.boolean(),
   reducedMotion: z.boolean(),

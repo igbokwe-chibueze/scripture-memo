@@ -23,6 +23,8 @@ enum TranslationCode {
   NIV
   ESV
   KJV
+  WEB
+  BSB
 }
 
 enum WaypointStatus {
@@ -207,7 +209,7 @@ model UserProfile {
 model UserSettings {
   id                     String          @id @default(cuid())
   userId                 String          @unique
-  preferredTranslation   TranslationCode @default(NIV)
+  preferredTranslation   TranslationCode @default(KJV)
   hasSelectedTranslation Boolean         @default(false)
   audioEnabled           Boolean         @default(true)
   reducedMotion          Boolean         @default(false)
@@ -373,7 +375,7 @@ model GameSession {
   verseId       String
   dayProgressId String?
   dayLevel      DayLevel?
-  translation   TranslationCode   @default(NIV)
+  translation   TranslationCode   @default(KJV)
   status        CompletionStatus  @default(IN_PROGRESS)
   isVaultReplay Boolean           @default(false)
   startedAt     DateTime          @default(now())

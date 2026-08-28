@@ -409,7 +409,14 @@
     "returnToJourney": "Volver al camino",
     "navigation": "Navegación del Santuario",
     "updating": "Actualizando",
-    "privateOnly": "Solo tú puedes ver esto."
+    "privateOnly": "Solo tú puedes ver esto.",
+    "openingVault": "Abriendo la Bóveda",
+    "viewOptions": "Vistas del Santuario",
+    "studyTab": "Estudio",
+    "notesTab": "Mis notas",
+    "contents": "Ruta de estudio",
+    "studyComingSoon": "Guía de estudio próximamente",
+    "studyComingSoonBody": "Guarda este versículo cerca y anota lo que más te hable en tus notas privadas."
   },
   "Shop": {
     "back": "Volver al viaje",

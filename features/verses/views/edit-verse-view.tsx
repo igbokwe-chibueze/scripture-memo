@@ -29,7 +29,13 @@ export async function EditVerseView({ params }: { params: Promise<{ id: string }
             studyNote: verse.studyNote ?? "",
             tags: verse.tags.map(({ tag }) => tag.name).join(", "),
             isActive: verse.isActive,
-            translations: { NIV: text.NIV ?? "", ESV: text.ESV ?? "", KJV: text.KJV ?? "" },
+            translations: {
+              KJV: text.KJV ?? "",
+              WEB: text.WEB ?? "",
+              BSB: text.BSB ?? "",
+              NIV: text.NIV ?? "",
+              ESV: text.ESV ?? "",
+            },
           }}
         />
       </ResponsiveContainer>

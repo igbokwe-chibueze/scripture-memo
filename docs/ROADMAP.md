@@ -1563,23 +1563,23 @@ shell. The Beacon Challenger activation migration has been applied successfully.
 
 ### Tasks
 
-1. Expand `prisma/seed.ts`:
-   - 1 Super Admin user
-   - 1 Regular Admin user
-   - 2 test regular users
-   - 10 verses with all three translations (NIV, ESV, KJV) and normalized text
-   - 2 packs using those verses
-   - Initial 220 waypoint records:
-     - Waypoints 1–10 assigned to real verses with Journey Stage set
-     - Demonstrate verse repetition: assign one verse at waypoints 1 and 5 with Learn and Recall stages respectively
-     - Waypoints 11–220 created as placeholders (no verse assigned, inactive)
-   - A sample set of badges across all six categories and all five rarities
-   - 3–5 Oil Shop items
+1. Build the approved curriculum source into validated seed data:
+   - 100 active verses with normalized KJV, WEB, and BSB text
+   - 31 formatted Markdown study guides; the remaining 69 are intentionally blank
+   - 400 active, permanently numbered waypoint assignments
+   - Learn, Recall, Strengthen, and Master assignments for every verse
+2. Keep `prisma/seed.ts` idempotent so a rerun inserts missing curriculum without
+   rewriting established learner history.
+3. Preserve the existing 27-badge catalogue and three Oil Shop hint packs.
+4. Keep local Better Auth test accounts separate from the production-safe seed;
+   developers create credentials through Better Auth and use the guarded local
+   preparation commands to assign test roles.
 
 ### Acceptance Criteria
 
 - Seed runs cleanly with `prisma db seed`.
-- A fresh developer can register, log in, and play through Waypoints 1–5 immediately after seeding.
+- A fresh developer can register, log in, and begin Waypoint 1 immediately after
+  preparing the local account.
 - Verse repetition across waypoints (with different Journey Stages) is demonstrable.
 
 ---

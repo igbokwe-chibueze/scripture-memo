@@ -27,9 +27,11 @@ export const verseFormSchema = z
     tags: z.string().trim().max(500),
     isActive: z.boolean(),
     translations: z.object({
-      NIV: translationTextSchema,
-      ESV: translationTextSchema,
       KJV: translationTextSchema,
+      WEB: translationTextSchema,
+      BSB: translationTextSchema,
+      NIV: translationTextSchema.or(z.literal("")),
+      ESV: translationTextSchema.or(z.literal("")),
     }),
   })
   .superRefine((value, context) => {
@@ -83,7 +85,7 @@ export const verseIdSchema = z.object({ id: z.string().cuid() });
 
 export const upsertTranslationSchema = z.object({
   verseId: z.string().cuid(),
-  translation: z.enum(["NIV", "ESV", "KJV"]),
+  translation: z.enum(["NIV", "ESV", "KJV", "WEB", "BSB"]),
   text: translationTextSchema,
 });
 

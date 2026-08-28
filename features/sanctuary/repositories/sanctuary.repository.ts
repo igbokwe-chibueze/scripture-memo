@@ -12,7 +12,7 @@ function selectTranslation(
 ): { translation: TranslationCode; text: string } | null {
   return (
     translations.find((item) => item.translation === preferred) ??
-    translations.find((item) => item.translation === TranslationCode.NIV) ??
+    translations.find((item) => item.translation === TranslationCode.KJV) ??
     translations[0] ??
     null
   );
@@ -92,7 +92,7 @@ export const sanctuaryRepository = {
 
     const selected = selectTranslation(
       verse.translations,
-      settings?.preferredTranslation ?? TranslationCode.NIV,
+      settings?.preferredTranslation ?? TranslationCode.KJV,
     );
     if (!selected) return null;
 

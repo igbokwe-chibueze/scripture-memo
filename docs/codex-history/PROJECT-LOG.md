@@ -1,5 +1,26 @@
 # Scripture Memo Project Log
 
+### 2026-08-28 — Sanctuary study-reader redesign
+
+- Rebuilt the Sanctuary as a mobile-first devotional reader with a compact
+  verse hero, dedicated Study and My Notes views, and tactile shared navigation
+  controls that retain clear pending feedback.
+- Preserved the imported Markdown hierarchy while presenting major study-guide
+  headings as readable themed sections, including distinct treatments for key
+  lessons, application, reflection, and prayer.
+- Removed the imported guide preamble that repeated the hero verse, and softened
+  the source emphasis in Tags and Key Lesson so those sections read naturally.
+- Added an expandable mobile study path and a sticky study path in the
+  Sanctuary-owned desktop companion column.
+- Added a helpful notes-first empty state for verses whose study material is
+  pending.
+- Expanded the large-screen Sanctuary canvas and widened the private-note
+  companion at extra-large desktop sizes without reducing either mobile card.
+- Compacted the desktop Study Path navigation so it supports scanning without
+  dominating the private-note companion column.
+- Updated the Sanctuary loading skeleton and English/Spanish message contracts
+  to match the new composition.
+
 ### 2026-08-09 — Causal gameplay celebration order
 
 - Reordered every gameplay-mode celebration to show Mode Success first, then
@@ -2709,3 +2730,27 @@ implement the private progress archive and mastered-verse replay flow.
 - All Phase 28 automated checks and required manual checks now pass. Phase 28 —
   Admin Dashboard and Badge Management is complete and accepted; Phase 29 —
   Seed Data is next.
+
+### 2026-08-27 — Approved 100-verse curriculum replacement
+
+- Archived the approved source documents under `prisma/source-data/` and added
+  an Office-independent build command that validates and generates canonical
+  curriculum JSON.
+- Replaced the local curriculum with 100 active verses and 400 active waypoint
+  assignments. Numbers 1–400 are unique and contiguous, and every verse has
+  Learn, Recall, Strengthen, and Master placement.
+- Imported KJV, WEB, and BSB for every verse (300 normalized rows). Added WEB and
+  BSB to Prisma and changed new defaults to KJV; NIV/ESV remain optional for
+  future licensed content.
+- Converted all 31 supplied study-guide sections to Markdown while preserving
+  headings, emphasis, lists, quotations, and devotional structure. The remaining
+  69 verses intentionally have no study material yet.
+- Wrote a timestamped recovery snapshot before mutation. Preserved three Better
+  Auth accounts, identity/settings, roles, purchases, notifications, and two
+  Fellowship memberships while resetting all earned progress and counters.
+- Recreated only the initial Waypoint 1 unlock for each account. Verification
+  reports 100 active verses, 400 active waypoints, 300 translations, 31 study
+  guides, and no residual sessions, day records, rewards, badges, or counters.
+- Updated normal Prisma seeding to install this curriculum idempotently with the
+  existing 27 badges and three shop items. Migration/generation, TypeScript,
+  ESLint, seed idempotency, and local aggregate verification all pass.

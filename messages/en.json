@@ -409,7 +409,14 @@
     "returnToJourney": "Return to journey",
     "navigation": "Sanctuary navigation",
     "updating": "Updating",
-    "privateOnly": "Only you can see this."
+    "privateOnly": "Only you can see this.",
+    "openingVault": "Opening Vault",
+    "viewOptions": "Sanctuary views",
+    "studyTab": "Study",
+    "notesTab": "My Notes",
+    "contents": "Study path",
+    "studyComingSoon": "Study guide coming soon",
+    "studyComingSoonBody": "Keep this verse close and record what stands out in your private notes."
   },
   "Shop": {
     "back": "Back to journey",

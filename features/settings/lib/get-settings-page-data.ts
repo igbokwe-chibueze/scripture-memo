@@ -6,6 +6,8 @@ import { userRepository } from "@/features/users/repositories/user.repository";
 import { getCachedUserSettings } from "@/features/settings/lib/get-cached-user-settings";
 import type { UpdateUserSettingsInput } from "@/features/settings/schemas/update-user-settings.schema";
 
+const selectableTranslations = new Set(["KJV", "WEB", "BSB"]);
+
 export type SettingsPageData = {
   formValues: UpdateUserSettingsInput;
   stats: {
@@ -37,7 +39,11 @@ export async function getSettingsPageData(): Promise<SettingsPageData> {
       countryCode: profile.countryCode ?? "",
       avatarKey: profile.avatarKey,
       avatarFrameKey: profile.avatarFrameKey,
-      preferredTranslation: settings.preferredTranslation,
+      // Existing accounts may still hold a future licensed code. Until that
+      // text is available, the settings form safely presents public-domain KJV.
+      preferredTranslation: selectableTranslations.has(settings.preferredTranslation)
+        ? (settings.preferredTranslation as "KJV" | "WEB" | "BSB")
+        : "KJV",
       locale: settings.locale,
       audioEnabled: settings.audioEnabled,
       reducedMotion: settings.reducedMotion,

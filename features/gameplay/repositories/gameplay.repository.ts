@@ -130,14 +130,14 @@ export const gameplayRepository = {
         select: { preferredTranslation: true },
       });
       const preferredTranslation =
-        settings?.preferredTranslation ?? TranslationCode.NIV;
+        settings?.preferredTranslation ?? TranslationCode.KJV;
       const availableTranslations = new Set(
         waypoint.verse.translations.map(({ translation }) => translation),
       );
       const translation = availableTranslations.has(preferredTranslation)
         ? preferredTranslation
-        : availableTranslations.has(TranslationCode.NIV)
-          ? TranslationCode.NIV
+        : availableTranslations.has(TranslationCode.KJV)
+          ? TranslationCode.KJV
           : waypoint.verse.translations[0]?.translation;
       if (!translation) {
         throw new Error("Playable verse has no translation.");

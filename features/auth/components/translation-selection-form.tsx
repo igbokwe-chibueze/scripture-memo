@@ -7,22 +7,32 @@ import { CheckIcon } from "lucide-react";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { cn } from "@/lib/utils";
 import { selectTranslationAction } from "@/features/auth/actions/select-translation.action";
+import {
+  AVAILABLE_TRANSLATION_CODES,
+  TRANSLATION_NAMES,
+} from "@/features/verses/constants/translations";
 import type { SelectTranslationInput } from "@/features/auth/schemas/select-translation.schema";
+
+const translationDescriptions = {
+  KJV: "Classic traditional language.",
+  WEB: "Clear public-domain modern English.",
+  BSB: "Readable and closely grounded in the source text.",
+} as const;
 
 const translations: Array<{
   code: SelectTranslationInput["translation"];
   name: string;
   description: string;
-}> = [
-  { code: "NIV", name: "New International Version", description: "Clear, contemporary language." },
-  { code: "ESV", name: "English Standard Version", description: "Literary and word-focused." },
-  { code: "KJV", name: "King James Version", description: "Classic traditional language." },
-];
+}> = AVAILABLE_TRANSLATION_CODES.map((code) => ({
+  code,
+  name: TRANSLATION_NAMES[code],
+  description: translationDescriptions[code],
+}));
 
 /** Saves the player's required first-login translation preference. */
 export function TranslationSelectionForm({ nextPath }: { nextPath: string }): React.ReactNode {
   const router = useRouter();
-  const [selection, setSelection] = useState<SelectTranslationInput["translation"]>("NIV");
+  const [selection, setSelection] = useState<SelectTranslationInput["translation"]>("KJV");
   const [isPending, startTransition] = useTransition();
 
   return (

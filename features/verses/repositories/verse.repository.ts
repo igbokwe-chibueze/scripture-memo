@@ -96,6 +96,24 @@ function tagCreates(tags: string[]): Prisma.VerseTagCreateWithoutVerseInput[] {
   }));
 }
 
+/**
+ * Removes empty optional licensed translations before persistence.
+ *
+ * KJV, WEB, and BSB are required by the form schema. NIV and ESV remain in the
+ * data model for future licensed content, but an empty admin field must not
+ * create a misleading translation row with no Scripture text.
+ */
+function populatedTranslations(
+  translations: VerseWriteData["translations"],
+): Array<{ translation: TranslationCode; text: string }> {
+  return Object.entries(translations)
+    .filter(([, text]) => text.trim().length > 0)
+    .map(([translation, text]) => ({
+      translation: translation as TranslationCode,
+      text,
+    }));
+}
+
 function getChangedFields(previous: VerseAuditSnapshot, next: VerseWriteData): string[] {
   const changedFields: string[] = [];
   if (previous.reference !== next.reference) changedFields.push("reference");
@@ -116,11 +134,11 @@ function getChangedFields(previous: VerseAuditSnapshot, next: VerseWriteData): s
   const previousTranslations = new Map(
     previous.translations.map((translation) => [translation.translation, translation.text]),
   );
+  const nextTranslations = populatedTranslations(next.translations);
   if (
-    previousTranslations.size !== Object.keys(next.translations).length ||
-    Object.entries(next.translations).some(
-      ([translation, text]) =>
-        previousTranslations.get(translation as TranslationCode) !== text,
+    previousTranslations.size !== nextTranslations.length ||
+    nextTranslations.some(
+      ({ translation, text }) => previousTranslations.get(translation) !== text,
     )
   ) {
     changedFields.push("translations");
@@ -253,8 +271,8 @@ export const verseRepository = {
           createdById: actorId,
           tags: { create: tagCreates(data.tags) },
           translations: {
-            create: Object.entries(data.translations).map(([translation, text]) => ({
-              translation: translation as TranslationCode,
+            create: populatedTranslations(data.translations).map(({ translation, text }) => ({
+              translation,
               text,
               normalizedText: normalizeVerseText(text),
             })),
@@ -311,8 +329,8 @@ export const verseRepository = {
               createdById: actorId,
               tags: { create: tagCreates(row.data.tags) },
               translations: {
-                create: Object.entries(row.data.translations).map(([translation, text]) => ({
-                  translation: translation as TranslationCode,
+                create: populatedTranslations(row.data.translations).map(({ translation, text }) => ({
+                  translation,
                   text,
                   normalizedText: normalizeVerseText(text),
                 })),
@@ -388,8 +406,17 @@ export const verseRepository = {
           isActive: data.isActive,
           tags: { deleteMany: {}, create: tagCreates(data.tags) },
           translations: {
-            upsert: Object.entries(data.translations).map(([translation, text]) => ({
-              where: { verseId_translation: { verseId: id, translation: translation as TranslationCode } },
+            // WHY: Removing an optional licensed field must remove its old row,
+            // otherwise a cleared admin field would silently keep stale text.
+            deleteMany: {
+              translation: {
+                notIn: populatedTranslations(data.translations).map(
+                  ({ translation }) => translation,
+                ),
+              },
+            },
+            upsert: populatedTranslations(data.translations).map(({ translation, text }) => ({
+              where: { verseId_translation: { verseId: id, translation } },
               update: { text, normalizedText: normalizeVerseText(text) },
               create: { translation: translation as TranslationCode, text, normalizedText: normalizeVerseText(text) },
             })),
