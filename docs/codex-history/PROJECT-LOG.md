@@ -2754,3 +2754,53 @@ implement the private progress archive and mastered-verse replay flow.
 - Updated normal Prisma seeding to install this curriculum idempotently with the
   existing 27 badges and three shop items. Migration/generation, TypeScript,
   ESLint, seed idempotency, and local aggregate verification all pass.
+
+### 2026-08-28 — Structured Sanctuary study content
+
+- Replaced heading-dependent Sanctuary parsing with eight typed, ordered
+  `VerseStudySection` records: Book Background, Historical Context, Study Note,
+  Key Lesson, Application, Cross References, Word Study, and Prayer.
+- Kept reflection and tags in their existing structured storage and now render
+  them directly in the Sanctuary, so future admin entries always reach the
+  correct card without relying on wording inside one large Markdown field.
+- Replaced the admin's single study-guide editor with eight clearly labelled
+  Markdown editors. Verse create, edit, audit, and bulk-import paths now persist
+  the same canonical section contract.
+- Applied migration `20260828130000_add_structured_study_sections` locally. It
+  retained the legacy `Verse.studyNote` column for rollback safety and backfilled
+  all 31 supplied guides into 248 typed sections; the 69 intentionally empty
+  guides remain empty.
+- Updated ordinary and local curriculum seeders plus development fixtures to
+  create structured sections. Added compatibility tests for audited headings and
+  heading-free legacy notes.
+- Prisma validation/migration, aggregate curriculum verification, TypeScript,
+  targeted ESLint, and the new parser tests all pass.
+
+### 2026-08-28 — Audited study-guide tag merge
+
+- Compared Excel tags with the 31 audited guides and confirmed that every covered
+  verse had a difference, primarily because the guides supplied additional,
+  more-specific discovery tags.
+- Made the curriculum builder merge workbook and study-guide tags
+  case-insensitively while preserving useful tags unique to either source.
+- Added idempotent database migration and batched seed synchronization so both
+  existing deployments and fresh curriculum resets receive the same canonical
+  tag relationships without deleting learner data.
+- Regenerated the curriculum and synchronized the local database. Verification
+  reports 133 unique tags, 286 verse-tag relationships, zero malformed combined
+  tag labels, and zero study-guide tags missing from canonical data.
+- Consolidated those merged values into the single structured `Tag`/`VerseTag`
+  source used throughout the app. Removed the duplicate `## Tags` blocks from
+  canonical and persisted legacy study Markdown after the merge was secured.
+
+### 2026-08-28 — Draft-safe structured verse bulk import
+
+- Replaced the legacy single `studyNote` CSV column with dedicated columns for
+  all eight structured Sanctuary study sections.
+- Reduced the minimum import translation requirement to KJV; WEB, BSB, NIV, ESV,
+  reflection, study sections, and tags can be completed later.
+- Made a blank `isActive` cell resolve to an inactive draft while preserving
+  strict rejection of unsupported status values and malformed Scripture ranges.
+- Updated the admin import guidance, product contract, roadmap, and parser tests
+  so the downloadable template and future bulk imports share one documented
+  contract.

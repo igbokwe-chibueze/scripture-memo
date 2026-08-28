@@ -27,6 +27,17 @@ enum TranslationCode {
   BSB
 }
 
+enum VerseStudySectionType {
+  BOOK_BACKGROUND
+  HISTORICAL_CONTEXT
+  STUDY_NOTE
+  KEY_LESSON
+  APPLICATION
+  CROSS_REFERENCES
+  WORD_STUDY
+  PRAYER
+}
+
 enum WaypointStatus {
   LOCKED
   UNLOCKED
@@ -237,6 +248,7 @@ model Verse {
   updatedAt      DateTime            @updatedAt
   createdBy      User?               @relation("VerseCreator", fields: [createdById], references: [id], onDelete: SetNull)
   translations   VerseTranslation[]
+  studySections  VerseStudySection[]
   tags           VerseTag[]
   packs          PackVerse[]
   waypoints      Waypoint[]
@@ -246,6 +258,20 @@ model Verse {
 
   @@index([book, chapter, verseStart])
   @@index([isActive])
+}
+
+model VerseStudySection {
+  id        String                @id @default(cuid())
+  verseId   String
+  type      VerseStudySectionType
+  position  Int
+  content   String
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+  verse     Verse                 @relation(fields: [verseId], references: [id], onDelete: Cascade)
+
+  @@unique([verseId, type])
+  @@index([verseId, position])
 }
 
 model VerseTranslation {

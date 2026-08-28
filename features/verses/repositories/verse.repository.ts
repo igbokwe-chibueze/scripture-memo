@@ -14,11 +14,16 @@ import type {
 const verseInclude = {
   translations: { orderBy: { translation: "asc" as const } },
   tags: { include: { tag: true } },
+  studySections: { orderBy: { position: "asc" as const } },
 } satisfies Prisma.VerseInclude;
 
 const verseAuditSnapshotInclude = {
   translations: { select: { translation: true, text: true } },
   tags: { include: { tag: { select: { name: true } } } },
+  studySections: {
+    select: { type: true, position: true, content: true },
+    orderBy: { position: "asc" as const },
+  },
 } satisfies Prisma.VerseInclude;
 
 type VerseAuditSnapshot = Prisma.VerseGetPayload<{
@@ -96,12 +101,23 @@ function tagCreates(tags: string[]): Prisma.VerseTagCreateWithoutVerseInput[] {
   }));
 }
 
+/** Maps normalized form sections into one nested Prisma write. */
+function studySectionCreates(
+  sections: VerseWriteData["studySections"],
+): Prisma.VerseStudySectionCreateWithoutVerseInput[] {
+  return sections.map((section) => ({
+    type: section.type,
+    position: section.position,
+    content: section.content,
+  }));
+}
+
 /**
- * Removes empty optional licensed translations before persistence.
+ * Removes empty optional translations before persistence.
  *
- * KJV, WEB, and BSB are required by the form schema. NIV and ESV remain in the
- * data model for future licensed content, but an empty admin field must not
- * create a misleading translation row with no Scripture text.
+ * KJV is the minimum playable translation required by the form schema. Other
+ * translations can be layered into a draft later, and an empty admin field
+ * must never create a misleading translation row with no Scripture text.
  */
 function populatedTranslations(
   translations: VerseWriteData["translations"],
@@ -122,7 +138,15 @@ function getChangedFields(previous: VerseAuditSnapshot, next: VerseWriteData): s
   if (previous.verseStart !== next.verseStart) changedFields.push("verseStart");
   if (previous.verseEnd !== next.verseEnd) changedFields.push("verseEnd");
   if (previous.reflection !== next.reflection) changedFields.push("reflection");
-  if (previous.studyNote !== next.studyNote) changedFields.push("studyNote");
+  const previousStudySections = previous.studySections.map(
+    ({ type, position, content }) => `${type}\u0000${position}\u0000${content}`,
+  );
+  const nextStudySections = next.studySections.map(
+    ({ type, position, content }) => `${type}\u0000${position}\u0000${content}`,
+  );
+  if (previousStudySections.join("\u0001") !== nextStudySections.join("\u0001")) {
+    changedFields.push("studySections");
+  }
   if (previous.isActive !== next.isActive) changedFields.push("isActive");
 
   const previousTags = previous.tags.map(({ tag }) => tag.name).sort();
@@ -158,6 +182,25 @@ async function setVerseActiveStatus(
   // accurate even when an administrator repeats an already-applied action.
   await prisma.$transaction(async (transaction) => {
     await lockVerse(transaction, id);
+
+    if (isActive) {
+      // A published verse must always have the minimum Scripture text needed
+      // by gameplay. This repository guard also protects legacy drafts created
+      // before KJV became the explicit minimum in the admin form and importer.
+      const playableTranslation = await transaction.verseTranslation.findFirst({
+        where: {
+          verseId: id,
+          translation: "KJV",
+          text: { not: "" },
+        },
+        select: { id: true },
+      });
+
+      if (!playableTranslation) {
+        throw new Error("A KJV translation is required before publication.");
+      }
+    }
+
     if (!isActive) {
       const publishedWaypointNumbers = await findPublishedWaypointNumbers(transaction, id);
       if (publishedWaypointNumbers.length > 0) {
@@ -266,7 +309,7 @@ export const verseRepository = {
           verseStart: data.verseStart,
           verseEnd: data.verseEnd,
           reflection: data.reflection,
-          studyNote: data.studyNote,
+          studySections: { create: studySectionCreates(data.studySections) },
           isActive: data.isActive,
           createdById: actorId,
           tags: { create: tagCreates(data.tags) },
@@ -324,7 +367,9 @@ export const verseRepository = {
               verseStart: row.data.verseStart,
               verseEnd: row.data.verseEnd,
               reflection: row.data.reflection,
-              studyNote: row.data.studyNote,
+              studySections: {
+                create: studySectionCreates(row.data.studySections),
+              },
               isActive: row.data.isActive,
               createdById: actorId,
               tags: { create: tagCreates(row.data.tags) },
@@ -402,7 +447,10 @@ export const verseRepository = {
           verseStart: data.verseStart,
           verseEnd: data.verseEnd,
           reflection: data.reflection,
-          studyNote: data.studyNote,
+          studySections: {
+            deleteMany: {},
+            create: studySectionCreates(data.studySections),
+          },
           isActive: data.isActive,
           tags: { deleteMany: {}, create: tagCreates(data.tags) },
           translations: {

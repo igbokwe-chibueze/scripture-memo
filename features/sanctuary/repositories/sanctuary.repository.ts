@@ -43,7 +43,20 @@ export const sanctuaryRepository = {
           id: true,
           reference: true,
           reflection: true,
-          studyNote: true,
+          tags: {
+            select: {
+              tag: { select: { name: true } },
+            },
+            orderBy: { tag: { name: "asc" } },
+          },
+          studySections: {
+            select: {
+              type: true,
+              position: true,
+              content: true,
+            },
+            orderBy: { position: "asc" },
+          },
           translations: {
             select: { translation: true, text: true },
             orderBy: { translation: "asc" },
@@ -105,7 +118,8 @@ export const sanctuaryRepository = {
         translation: selected.translation,
         verseText: selected.text,
         reflection: verse.reflection,
-        studyNote: verse.studyNote,
+        tags: verse.tags.map(({ tag }) => tag.name),
+        studySections: verse.studySections,
         personalNote: verse.notes[0]?.content ?? "",
         isFavorite: verse.favorites.length > 0,
       },

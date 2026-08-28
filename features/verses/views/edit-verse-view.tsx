@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { ResponsiveContainer } from "@/components/shared/responsive-container";
 import { VerseForm } from "@/features/verses/components/verse-form";
 import { getVerseEditData } from "@/features/verses/lib/get-verse-edit-data";
+import { STUDY_SECTION_DEFINITIONS } from "@/features/verses/constants/study-sections";
 
 export const metadata: Metadata = { title: "Edit verse | Scripture Memo", robots: { index: false, follow: false } };
 
@@ -12,6 +13,15 @@ export async function EditVerseView({ params }: { params: Promise<{ id: string }
   const verse = await getVerseEditData((await params).id);
   if (!verse) notFound();
   const text = Object.fromEntries(verse.translations.map((item) => [item.translation, item.text]));
+  const studySectionContent = new Map(
+    verse.studySections.map((section) => [section.type, section.content]),
+  );
+  const studySections = Object.fromEntries(
+    STUDY_SECTION_DEFINITIONS.map(({ key, type }) => [
+      key,
+      studySectionContent.get(type) ?? "",
+    ]),
+  ) as Record<(typeof STUDY_SECTION_DEFINITIONS)[number]["key"], string>;
 
   return (
     <main className="min-h-svh bg-muted/20 py-8">
@@ -26,7 +36,7 @@ export async function EditVerseView({ params }: { params: Promise<{ id: string }
             verseStart: verse.verseStart,
             verseEnd: verse.verseEnd ?? "",
             reflection: verse.reflection ?? "",
-            studyNote: verse.studyNote ?? "",
+            studySections,
             tags: verse.tags.map(({ tag }) => tag.name).join(", "),
             isActive: verse.isActive,
             translations: {

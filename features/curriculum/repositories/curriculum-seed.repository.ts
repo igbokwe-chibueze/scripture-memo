@@ -4,6 +4,7 @@ import type { TranslationCode } from "@/lib/generated/prisma/enums";
 import { normalizePostgresSslUrl } from "@/lib/database/normalize-postgres-ssl-url";
 import { normalizeVerseText } from "@/features/verses/lib/normalize-verse-text";
 import { slugifyTag } from "@/features/verses/lib/normalize-tags";
+import { parseLegacyStudySections } from "@/features/verses/lib/parse-legacy-study-sections";
 import type { CurriculumData } from "@/features/curriculum/types/curriculum-data.types";
 
 const connectionString = process.env.DATABASE_URL;
@@ -55,6 +56,9 @@ export async function seedCurriculumCatalog(
             verseEnd: verseData.verseEnd,
             reflection: verseData.reflection,
             studyNote: verseData.studyNote,
+            studySections: {
+              create: parseLegacyStudySections(verseData.studyNote),
+            },
             isActive: true,
             translations: {
               create: Object.entries(verseData.translations).map(
@@ -81,6 +85,48 @@ export async function seedCurriculumCatalog(
         verseIds.set(verseData.reference, verse.id);
         createdVerses += 1;
       }
+
+      // Synchronize canonical tags even for verses that already existed before
+      // this seed run. A small number of batched statements is used instead of
+      // one update per verse, keeping deployment database operations bounded.
+      const canonicalTagNames = [
+        ...new Set(data.verses.flatMap(({ tags }) => tags)),
+      ];
+      await transaction.tag.createMany({
+        data: canonicalTagNames.map((name) => ({
+          name,
+          slug: slugifyTag(name),
+        })),
+        skipDuplicates: true,
+      });
+
+      const canonicalTags = await transaction.tag.findMany({
+        where: {
+          slug: { in: canonicalTagNames.map((name) => slugifyTag(name)) },
+        },
+        select: { id: true, slug: true },
+      });
+      const tagIdsBySlug = new Map(
+        canonicalTags.map(({ id, slug }) => [slug, id]),
+      );
+
+      await transaction.verseTag.createMany({
+        data: data.verses.flatMap((verseData) => {
+          const verseId = verseIds.get(verseData.reference);
+          if (!verseId) {
+            throw new Error(`Missing verse ${verseData.reference}.`);
+          }
+
+          return verseData.tags.map((name) => {
+            const tagId = tagIdsBySlug.get(slugifyTag(name));
+            if (!tagId) {
+              throw new Error(`Missing canonical tag ${name}.`);
+            }
+            return { verseId, tagId };
+          });
+        }),
+        skipDuplicates: true,
+      });
 
       const existingWaypointNumbers = new Set(
         (

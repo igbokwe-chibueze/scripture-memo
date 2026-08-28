@@ -347,13 +347,17 @@ Confirm the following before proceeding:
    - `upsertTranslation(verseId, translation, text)` — also generates and stores `normalizedText`
 3. Create all verse Server Actions (ADMIN+ role required on each).
 4. Build verse forms with: a canonical 66-book selector, exact chapter/verse
-   limits, a server-generated reference preview, reflection, studyNote, tags,
+   limits, a server-generated reference preview, reflection, eight labelled
+   Markdown study-section fields, tags,
    active status, and inline NIV/ESV/KJV translation input group.
 5. Build `VersesListView` using the shared data table component. Sortable by book; filterable by active status and tags.
 6. Add Sonner toasts on create, update, publish, archive.
 7. Add loading, empty, and error states.
 8. Add CSV bulk import with a downloadable template, strict server validation,
    preview, duplicate skipping, transactional writes, and an audit log entry.
+   The current template stores all eight structured study sections in dedicated
+   columns, requires canonical location fields plus KJV, permits optional content
+   to remain blank, and treats a blank publication value as an inactive draft.
 9. Make reference/book search update dynamically with a 300ms debounce and apply
    book, tag, status, and sort selections immediately while preserving URL state.
 10. Use searchable comboboxes for long predefined lists such as Bible books and
@@ -363,7 +367,7 @@ Confirm the following before proceeding:
 
 ### Acceptance Criteria
 
-- Admin can create a verse with all three translations.
+- Admin can create a verse with KJV and layer optional translations in later.
 - `normalizedText` is generated server-side and stored for each translation.
 - References are generated server-side from a valid canonical book, chapter, and
   verse range; impossible chapter and verse numbers are rejected.

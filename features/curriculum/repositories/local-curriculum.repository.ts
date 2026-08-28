@@ -8,6 +8,7 @@ import { getPostgresPoolConfig } from "@/lib/database/get-postgres-pool-config";
 import { assertLocalDatabaseUrl } from "@/features/dev-fixtures/lib/assert-local-database-url";
 import { normalizeVerseText } from "@/features/verses/lib/normalize-verse-text";
 import { slugifyTag } from "@/features/verses/lib/normalize-tags";
+import { parseLegacyStudySections } from "@/features/verses/lib/parse-legacy-study-sections";
 import type { CurriculumData } from "@/features/curriculum/types/curriculum-data.types";
 
 export type CurriculumResetSummary = {
@@ -23,6 +24,11 @@ export type CurriculumVerification = {
   activeWaypoints: number;
   translations: number;
   studyGuides: number;
+  studySections: number;
+  tags: number;
+  verseTags: number;
+  malformedMergedTags: number;
+  studyNotesWithEmbeddedTags: number;
   waypointProgress: number;
   dayProgress: number;
   gameSessions: number;
@@ -56,6 +62,11 @@ export function createLocalCurriculumRepository(databaseUrl: string) {
         activeWaypoints,
         translations,
         studyGuides,
+        studySections,
+        tags,
+        verseTags,
+        malformedMergedTags,
+        studyNotesWithEmbeddedTags,
         waypointProgress,
         dayProgress,
         gameSessions,
@@ -71,6 +82,13 @@ export function createLocalCurriculumRepository(databaseUrl: string) {
         client.waypoint.count({ where: { isActive: true } }),
         client.verseTranslation.count(),
         client.verse.count({ where: { studyNote: { not: null } } }),
+        client.verseStudySection.count(),
+        client.tag.count(),
+        client.verseTag.count(),
+        client.tag.count({ where: { name: { contains: "•" } } }),
+        client.verse.count({
+          where: { studyNote: { contains: "## Tags" } },
+        }),
         client.userWaypointProgress.count(),
         client.userDayProgress.count(),
         client.gameSession.count(),
@@ -99,6 +117,11 @@ export function createLocalCurriculumRepository(databaseUrl: string) {
         activeWaypoints,
         translations,
         studyGuides,
+        studySections,
+        tags,
+        verseTags,
+        malformedMergedTags,
+        studyNotesWithEmbeddedTags,
         waypointProgress,
         dayProgress,
         gameSessions,
@@ -243,6 +266,9 @@ export function createLocalCurriculumRepository(databaseUrl: string) {
                 verseEnd: verseData.verseEnd,
                 reflection: verseData.reflection,
                 studyNote: verseData.studyNote,
+                studySections: {
+                  create: parseLegacyStudySections(verseData.studyNote),
+                },
                 isActive: true,
                 translations: {
                   create: Object.entries(verseData.translations).map(

@@ -9,10 +9,11 @@ the guarded local curriculum reset. It is deliberately a build-time tool: the
 application never parses Office documents during a request and therefore incurs
 no database operations or runtime Office-processing cost.
 
-The workbook is authoritative for canonical references, tags, public-domain
-translation text, and the four waypoint assignments for each verse. The study
-guide contributes formatted Markdown for the verses it currently covers. Missing
-study sections are valid because the project owner will supply those later.
+The workbook is authoritative for canonical references, public-domain
+translation text, and the four waypoint assignments for each verse. Its tags
+form the base tag set. For covered verses, the audited study guide contributes
+additional tags and formatted Markdown. Missing study sections are valid because
+the project owner will supply those later.
 
 .PARAMETER WorkbookPath
 Path to the approved 100-verse `.xlsx` workbook.
@@ -349,6 +350,82 @@ function Assert-CurriculumIntegrity {
   }
 }
 
+# Extracts the dedicated Tags section from one trusted study-guide Markdown
+# block. Tags remain structured VerseTag data; they are not stored as a reader
+# section. Returning an empty array is safe for guides without a Tags heading.
+function Read-StudyGuideTags {
+  param(
+    [AllowNull()] [string]$Markdown
+  )
+
+  if ([string]::IsNullOrWhiteSpace($Markdown)) {
+    return @()
+  }
+
+  $match = [regex]::Match(
+    $Markdown,
+    '(?ms)^## Tags\s+\*\*(.+?)\*\*'
+  )
+  if (-not $match.Success) {
+    return @()
+  }
+
+  # Use the Unicode code point instead of a literal bullet in the executable
+  # expression. Windows PowerShell 5.1 can otherwise decode a UTF-8 script
+  # without a BOM using the active ANSI code page and fail to recognize it.
+  $bullet = [char]0x2022
+  return @(
+    $match.Groups[1].Value -split "\s*$bullet\s*" |
+      ForEach-Object { $_.Trim() } |
+      Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
+  )
+}
+
+# Removes the Tags heading after its values have been merged into structured
+# curriculum tags. Keeping the same labels inside studyNote would create a second
+# database representation and invite future divergence between the admin form,
+# Sanctuary, and imported Markdown.
+function Remove-StudyGuideTagsSection {
+  param(
+    [AllowNull()] [string]$Markdown
+  )
+
+  if ([string]::IsNullOrWhiteSpace($Markdown)) {
+    return $Markdown
+  }
+
+  return [regex]::Replace(
+    $Markdown,
+    '(?ms)^## Tags\s+\*\*(.+?)\*\*\s*',
+    ''
+  ).Trim()
+}
+
+# Merges Excel and study-guide tags case-insensitively while preserving the
+# source order and preferred display casing. This retains broad workbook tags
+# such as "Comfort" and adds the guide's more specific discovery terms without
+# creating duplicates that differ only by capitalization.
+function Merge-CurriculumTags {
+  param(
+    [Parameter(Mandatory)] [object[]]$WorkbookTags,
+    [AllowNull()] [string]$StudyMarkdown
+  )
+
+  $merged = [System.Collections.Generic.List[string]]::new()
+  $seen = [System.Collections.Generic.HashSet[string]]::new(
+    [System.StringComparer]::OrdinalIgnoreCase
+  )
+
+  foreach ($tag in @($WorkbookTags) + @(Read-StudyGuideTags $StudyMarkdown)) {
+    $label = ([string]$tag).Trim()
+    if (-not [string]::IsNullOrWhiteSpace($label) -and $seen.Add($label)) {
+      $merged.Add($label)
+    }
+  }
+
+  return @($merged)
+}
+
 if (-not (Test-Path -LiteralPath $WorkbookPath)) {
   throw "Workbook not found: $WorkbookPath"
 }
@@ -366,21 +443,22 @@ Assert-CurriculumIntegrity `
 $datasetVerses = @(
   foreach ($verse in $workbook.verses) {
     $studyKey = ConvertTo-ReferenceKey $verse.reference
+    $studyMarkdown = if ($studySections.ContainsKey($studyKey)) {
+      $studySections[$studyKey]
+    }
+    else {
+      $null
+    }
     [ordered]@{
       reference = $verse.reference
       book = $verse.book
       chapter = $verse.chapter
       verseStart = $verse.verseStart
       verseEnd = $verse.verseEnd
-      tags = $verse.tags
+      tags = @(Merge-CurriculumTags $verse.tags $studyMarkdown)
       translations = $verse.translations
       reflection = $null
-      studyNote = if ($studySections.ContainsKey($studyKey)) {
-        $studySections[$studyKey]
-      }
-      else {
-        $null
-      }
+      studyNote = Remove-StudyGuideTagsSection $studyMarkdown
       isActive = $true
     }
   }

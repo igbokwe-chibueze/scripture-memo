@@ -25,7 +25,16 @@ export async function CreateVerseView(): Promise<React.ReactNode> {
             verseStart: 1,
             verseEnd: "",
             reflection: "",
-            studyNote: "",
+            studySections: {
+              bookBackground: "",
+              historicalContext: "",
+              studyNote: "",
+              keyLesson: "",
+              application: "",
+              crossReferences: "",
+              wordStudy: "",
+              prayer: "",
+            },
             tags: "",
             isActive: false,
             translations: {

@@ -3,6 +3,7 @@ import { PrismaClient } from "@/lib/generated/prisma/client";
 import { TranslationCode, UserRole, WaypointStatus } from "@/lib/generated/prisma/enums";
 import { getPostgresPoolConfig } from "@/lib/database/get-postgres-pool-config";
 import { normalizeVerseText } from "@/features/verses/lib/normalize-verse-text";
+import { parseLegacyStudySections } from "@/features/verses/lib/parse-legacy-study-sections";
 import { assertLocalDatabaseUrl } from "@/features/dev-fixtures/lib/assert-local-database-url";
 import { LOCAL_CURRICULUM_FIXTURES } from "@/features/dev-fixtures/data/local-curriculum-fixtures";
 
@@ -107,6 +108,9 @@ export function createLocalFixtureRepository(databaseUrl: string) {
                   verseEnd: fixture.verseEnd,
                   reflection: fixture.reflection,
                   studyNote: fixture.studyNote,
+                  studySections: {
+                    create: parseLegacyStudySections(fixture.studyNote),
+                  },
                   isActive: true,
                   translations: {
                     create: {

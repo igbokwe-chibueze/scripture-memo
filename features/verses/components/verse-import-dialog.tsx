@@ -154,7 +154,9 @@ export function VerseImportDialog(): React.ReactNode {
               onChange={(event) => void handleFile(event.target.files?.[0])}
             />
             <p className="text-xs text-muted-foreground">
-              Maximum 1 MB. KJV, WEB, and BSB are required; NIV and ESV are optional.
+              Maximum 1 MB. Location fields and KJV are required. Blank study,
+              tag, translation, and publication cells are allowed; a blank
+              publication cell creates a draft.
             </p>
           </div>
 

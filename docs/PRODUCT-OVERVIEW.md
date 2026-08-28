@@ -344,12 +344,23 @@ A verse is the core content unit of the entire platform.
 | `verseStart` | Starting verse validated against the selected chapter |
 | `verseEnd` | Optional ending verse validated against the selected chapter and start |
 | `reflection` | Short devotional thought for the Sanctuary |
-| `studyNote` | Deeper teaching insight stored as Markdown; embedded HTML is not supported |
+| `studySections` | Ordered, typed Markdown sections for Book Background, Historical Context, Study Note, Key Lesson, Application, Cross References, Word Study, and Prayer |
 | `tags` | Array of category tags, e.g., `["love", "salvation"]` |
 | `isActive` | Whether the verse is published and available |
 | `createdBy` | Admin user ID |
 | `updatedAt` | Audit timestamp |
 | `translations` | Related `VerseTranslation` records |
+
+`reflection` and `tags` retain their own structured fields and are not embedded
+inside study-section Markdown. The legacy `studyNote` database column is retained
+temporarily for rollback safety, but new application reads and writes use the
+typed `VerseStudySection` records.
+
+For the checked-in curriculum, Excel tags form the base set and audited study
+guide tags are merged into that set case-insensitively. This preserves broader
+workbook categories while adding the guide's more specific discovery terms.
+After generation, `Tag` and `VerseTag` are the only tag source used by the
+application; study-section Markdown does not retain a duplicate Tags block.
 
 ### 6.2 Verse Translations
 
@@ -368,17 +379,20 @@ Translations are stored in a separate normalized table so additional translation
 ### 6.3 Administrative CSV Import
 
 Administrators can populate the verse library in batches of up to 100 rows using
-the downloadable CSV template. The import requires canonical location fields and all
-three MVP translations, applies the same validation and normalization as manual
-creation, and displays a row-by-row preview before confirmation. Existing
+the downloadable CSV template. The import requires canonical location fields and
+KJV as the minimum playable translation. WEB, BSB, NIV, ESV, reflection, tags,
+and all eight structured study sections may be left blank and completed later.
+A blank `isActive` cell safely creates an inactive draft. The import applies the
+same validation and normalization as manual creation and displays a row-by-row
+preview before confirmation. Existing
 references and repeated references within the file are skipped and reported;
 bulk import never overwrites an existing verse. Accepted rows and the associated
 admin audit record are written in one database transaction.
 
 References are never authored directly in either the form or CSV file. They are
 generated from book, chapter, starting verse, and optional ending verse after
-validation against the exact NIV/KJV-compatible verse limits shared by all three
-required translations. The compact structure dataset contains counts only and no
+validation against the exact NIV/KJV-compatible verse limits shared by every
+translation. The compact structure dataset contains counts only and no
 copyrighted Scripture text.
 
 ### 6.4 Learning Pack Lifecycle

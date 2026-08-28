@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -25,87 +25,37 @@ import { cn } from "@/lib/utils";
 import { saveSanctuaryNoteAction } from "@/features/sanctuary/actions/save-sanctuary-note.action";
 import { toggleSanctuaryFavoriteAction } from "@/features/sanctuary/actions/toggle-sanctuary-favorite.action";
 import type { SanctuaryData } from "@/features/sanctuary/types/sanctuary.types";
+import type { VerseStudySectionType } from "@/lib/generated/prisma/enums";
 
 type SanctuaryViewName = "study" | "notes";
 
 type StudySection = {
   id: string;
+  type: VerseStudySectionType;
   title: string;
   markdown: string;
 };
 
-/**
- * Removes the imported guide label and duplicated opening verse.
- *
- * WHY: The Sanctuary hero already presents the canonical reference and verse.
- * The audited study guides intentionally repeat both in their source document,
- * but showing that preamble again in the reader creates unnecessary repetition.
- * Only the known leading import convention is removed; the devotional sections
- * and every later quotation remain untouched.
- */
-function removeImportedStudyPreamble(markdown: string): string {
-  const paragraphs = markdown
-    .trim()
-    .split(/\r?\n\s*\r?\n/)
-    .map((paragraph) => paragraph.trim());
-
-  if (/^\*\*.+study guide\*\*$/i.test(paragraphs[0] ?? "")) {
-    paragraphs.shift();
-  }
-
-  const possibleVerse = paragraphs[0] ?? "";
-  if (possibleVerse.startsWith("*") && possibleVerse.endsWith("*")) {
-    paragraphs.shift();
-  }
-
-  return paragraphs.join("\n\n").trim();
-}
-
-/** Converts a study heading into a stable, readable in-page anchor. */
-function toSectionId(title: string, index: number): string {
-  const slug = title
-    .toLocaleLowerCase("en")
-    .replaceAll(/[^a-z0-9]+/g, "-")
-    .replaceAll(/(^-|-$)/g, "");
-
-  return `study-${slug || index + 1}`;
-}
-
-/**
- * Separates the trusted Markdown into devotional reading sections.
- *
- * WHY: A long study guide rendered as one prose block is difficult to scan on
- * a phone. Splitting only on level-two headings preserves the source Markdown
- * and its order while giving every major thought a clear visual resting point.
- */
-function parseStudySections(markdown: string): {
-  introduction: string;
-  sections: StudySection[];
-} {
-  const readerMarkdown = removeImportedStudyPreamble(markdown);
-  const headingPattern = /^##\s+(.+)$/gm;
-  const matches = [...readerMarkdown.matchAll(headingPattern)];
-
-  if (matches.length === 0) {
-    return { introduction: readerMarkdown, sections: [] };
-  }
-
-  const firstHeadingIndex = matches[0]?.index ?? 0;
-  const introduction = readerMarkdown.slice(0, firstHeadingIndex).trim();
-  const sections = matches.map((match, index) => {
-    const title = match[1]?.trim() || `Section ${index + 1}`;
-    const contentStart = (match.index ?? 0) + match[0].length;
-    const contentEnd = matches[index + 1]?.index ?? readerMarkdown.length;
-
-    return {
-      id: toSectionId(title, index),
-      title,
-      markdown: readerMarkdown.slice(contentStart, contentEnd).trim(),
-    };
-  });
-
-  return { introduction, sections };
-}
+/** Stable translation keys and anchors for each persisted study-section type. */
+const STUDY_SECTION_PRESENTATION: Record<
+  VerseStudySectionType,
+  { labelKey: string; id: string }
+> = {
+  BOOK_BACKGROUND: { labelKey: "bookBackground", id: "study-book-background" },
+  HISTORICAL_CONTEXT: {
+    labelKey: "historicalContext",
+    id: "study-historical-context",
+  },
+  STUDY_NOTE: { labelKey: "studyNote", id: "study-note" },
+  KEY_LESSON: { labelKey: "keyLesson", id: "study-key-lesson" },
+  APPLICATION: { labelKey: "application", id: "study-application" },
+  CROSS_REFERENCES: {
+    labelKey: "crossReferences",
+    id: "study-cross-references",
+  },
+  WORD_STUDY: { labelKey: "wordStudy", id: "study-word-study" },
+  PRAYER: { labelKey: "prayer", id: "study-prayer" },
+};
 
 /** Renders trusted admin-authored Markdown while refusing embedded HTML. */
 function StudyMarkdown({
@@ -182,27 +132,21 @@ function StudyMarkdown({
 }
 
 /** Identifies sections whose imported bold markup should read as normal copy. */
-function usesRegularBodyWeight(title: string): boolean {
-  const normalizedTitle = title.toLocaleLowerCase("en");
-  return (
-    normalizedTitle.includes("tags") ||
-    normalizedTitle.includes("key lesson")
-  );
+function usesRegularBodyWeight(type: VerseStudySectionType): boolean {
+  return type === "KEY_LESSON";
 }
 
 /** Gives the most devotional sections a warmer, more prominent surface. */
-function sectionTreatment(title: string): string {
-  const normalizedTitle = title.toLocaleLowerCase("en");
-  if (normalizedTitle.includes("prayer")) {
+function sectionTreatment(type: VerseStudySectionType): string {
+  if (type === "PRAYER") {
     return "border-amber-300/60 bg-amber-50/60 dark:border-amber-300/15 dark:bg-amber-950/18";
   }
   if (
-    normalizedTitle.includes("key lesson") ||
-    normalizedTitle.includes("reflection")
+    type === "KEY_LESSON"
   ) {
     return "border-emerald-300/60 bg-emerald-50/60 dark:border-emerald-300/15 dark:bg-emerald-950/18";
   }
-  if (normalizedTitle.includes("application")) {
+  if (type === "APPLICATION") {
     return "border-violet-300/60 bg-violet-50/60 dark:border-violet-300/15 dark:bg-violet-950/18";
   }
   return "border-border/70 bg-card/72";
@@ -216,10 +160,25 @@ export function SanctuarySpace({ data }: { data: SanctuaryData }): React.ReactNo
   const [isFavorite, setIsFavorite] = useState(data.isFavorite);
   const [isSaving, startSaving] = useTransition();
   const [isFavoriting, startFavoriting] = useTransition();
-  const study = useMemo(
-    () => (data.studyNote ? parseStudySections(data.studyNote) : null),
-    [data.studyNote],
-  );
+  const studySections: StudySection[] = data.studySections.map((section) => {
+    const presentation = STUDY_SECTION_PRESENTATION[section.type];
+    return {
+      id: presentation.id,
+      type: section.type,
+      title: t(presentation.labelKey),
+      markdown: section.content,
+    };
+  });
+  const studyPath = [
+    ...(data.tags.length > 0
+      ? [{ id: "study-tags", title: t("tags") }]
+      : []),
+    ...(data.reflection
+      ? [{ id: "study-reflection", title: t("reflection") }]
+      : []),
+    ...studySections.map(({ id, title }) => ({ id, title })),
+  ];
+  const hasStudyContent = studyPath.length > 0;
 
   const saveNote = (): void => {
     startSaving(async () => {
@@ -359,14 +318,14 @@ export function SanctuarySpace({ data }: { data: SanctuaryData }): React.ReactNo
               activeView !== "study" && "hidden lg:block",
             )}
           >
-            {study && study.sections.length > 0 && (
+            {studyPath.length > 0 && (
               <details className="rounded-2xl border bg-card/90 p-4 lg:hidden">
                 <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 font-black text-violet-700 dark:text-violet-300">
                   <ListTreeIcon className="size-5" aria-hidden="true" />
                   {t("contents")}
                 </summary>
                 <ol className="mt-2 space-y-1 border-t pt-3">
-                  {study.sections.map((section, index) => (
+                  {studyPath.map((section, index) => (
                     <li key={section.id}>
                       <a
                         href={`#${section.id}`}
@@ -383,8 +342,38 @@ export function SanctuarySpace({ data }: { data: SanctuaryData }): React.ReactNo
               </details>
             )}
 
+            {data.tags.length > 0 && (
+              <section
+                id="study-tags"
+                className="scroll-mt-6 rounded-3xl border border-violet-200/70 bg-card/82 p-5 dark:border-violet-300/15 sm:p-7"
+              >
+                <div className="flex items-center gap-3">
+                  <SparklesIcon
+                    className="size-5 shrink-0 text-violet-500"
+                    aria-hidden="true"
+                  />
+                  <h2 className="font-heading text-xl font-black">
+                    {t("tags")}
+                  </h2>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {data.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-full border border-violet-200/70 bg-violet-500/8 px-3 py-1.5 text-sm font-normal text-foreground/78 dark:border-violet-300/15"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </section>
+            )}
+
             {data.reflection && (
-              <section className="rounded-3xl border border-emerald-300/60 bg-emerald-50/70 p-5 dark:border-emerald-300/15 dark:bg-emerald-950/20 sm:p-7">
+              <section
+                id="study-reflection"
+                className="scroll-mt-6 rounded-3xl border border-emerald-300/60 bg-emerald-50/70 p-5 dark:border-emerald-300/15 dark:bg-emerald-950/20 sm:p-7"
+              >
                 <div className="flex items-center gap-3">
                   <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-emerald-500/12 text-emerald-700 dark:text-emerald-300">
                     <BookHeartIcon className="size-5" aria-hidden="true" />
@@ -399,20 +388,15 @@ export function SanctuarySpace({ data }: { data: SanctuaryData }): React.ReactNo
               </section>
             )}
 
-            {study ? (
+            {hasStudyContent ? (
               <>
-                {study.introduction && (
-                  <section className="rounded-3xl border border-violet-200/70 bg-card/82 p-5 dark:border-violet-300/15 sm:p-7">
-                    <StudyMarkdown>{study.introduction}</StudyMarkdown>
-                  </section>
-                )}
-                {study.sections.map((section) => (
+                {studySections.map((section) => (
                   <section
                     key={section.id}
                     id={section.id}
                     className={cn(
                       "scroll-mt-6 rounded-3xl border p-5 sm:p-7",
-                      sectionTreatment(section.title),
+                      sectionTreatment(section.type),
                     )}
                   >
                     <div className="mb-4 flex items-center gap-3">
@@ -425,7 +409,7 @@ export function SanctuarySpace({ data }: { data: SanctuaryData }): React.ReactNo
                       </h2>
                     </div>
                     <StudyMarkdown
-                      softenEmphasis={usesRegularBodyWeight(section.title)}
+                      softenEmphasis={usesRegularBodyWeight(section.type)}
                     >
                       {section.markdown}
                     </StudyMarkdown>
@@ -457,7 +441,7 @@ export function SanctuarySpace({ data }: { data: SanctuaryData }): React.ReactNo
               activeView !== "notes" && "hidden lg:block",
             )}
           >
-            {study && study.sections.length > 0 && (
+            {studyPath.length > 0 && (
               <nav
                 className="hidden rounded-3xl border bg-card/82 p-4 lg:block"
                 aria-label={t("contents")}
@@ -466,7 +450,7 @@ export function SanctuarySpace({ data }: { data: SanctuaryData }): React.ReactNo
                   {t("contents")}
                 </p>
                 <ol className="mt-2 space-y-0.5">
-                  {study.sections.map((section, index) => (
+                  {studyPath.map((section, index) => (
                     <li key={section.id}>
                       <a
                         href={`#${section.id}`}

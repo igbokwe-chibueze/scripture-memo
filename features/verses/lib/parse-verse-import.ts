@@ -31,6 +31,11 @@ export class VerseImportFileError extends Error {
 
 function parseBoolean(value: string): boolean | string {
   const normalized = value.trim().toLocaleLowerCase("en");
+
+  // An omitted publication value intentionally creates a safe draft. This
+  // lets administrators import incomplete enrichment content and finish it in
+  // the editor without accidentally exposing it to the live curriculum.
+  if (normalized === "") return false;
   if (normalized === "true") return true;
   if (normalized === "false") return false;
   return value;
@@ -107,7 +112,18 @@ export function prepareVerseImport(
       verseStart: record.verseStart,
       verseEnd: record.verseEnd,
       reflection: record.reflection,
-      studyNote: record.studyNote,
+      // Each structured column maps directly to the matching Sanctuary card.
+      // Empty study cells are valid and are simply omitted from persistence.
+      studySections: {
+        bookBackground: record.bookBackground,
+        historicalContext: record.historicalContext,
+        studyNote: record.studyNote,
+        keyLesson: record.keyLesson,
+        application: record.application,
+        crossReferences: record.crossReferences,
+        wordStudy: record.wordStudy,
+        prayer: record.prayer,
+      },
       tags: record.tags,
       isActive: parseBoolean(record.isActive),
       translations: {
