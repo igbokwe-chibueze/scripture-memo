@@ -1599,6 +1599,11 @@ Phase 29 is complete and accepted. Phase 30 — Testing and QA is next.
 
 **Goal:** Verify all MVP flows work correctly and securely.
 
+**Status:** In progress — the Phase 30 regression checklist was opened on
+2026-08-29. TypeScript, ESLint, and 99 non-database tests pass. Repository
+integration suites are awaiting repair/reset of the dedicated test database,
+and the 16 manual flows remain the acceptance gate.
+
 ### Manual Test Flows
 
 1. **Auth**: Register → Login → Logout → Login again → correct redirect.

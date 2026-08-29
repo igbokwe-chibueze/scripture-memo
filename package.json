@@ -17,6 +17,7 @@
     "lint": "eslint",
     "test:errors": "tsx --test lib/errors/error-catalog.test.ts",
     "test:database-guard": "tsx --test lib/testing/test-database-guard.test.ts",
+    "test:database:reset": "tsx --conditions=react-server scripts/reset-integration-test-database.ts",
     "test:local-fixtures": "tsx --test features/dev-fixtures/lib/assert-local-database-url.test.ts",
     "test:progression": "tsx --test features/progression/lib/progression-utils.test.ts",
     "test:streaks": "tsx --test features/progression/lib/streak-utils.test.ts",

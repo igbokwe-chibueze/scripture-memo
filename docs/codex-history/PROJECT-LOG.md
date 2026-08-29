@@ -2814,3 +2814,73 @@ implement the private progress archive and mastered-verse replay flow.
 - Phase 30 — Testing and QA is the next roadmap stage. Its final regression pass
   retains the previously deferred natural streak, restricted-stage hint, and
   mastered-verse Vault replay checks.
+
+### 2026-08-29 — Phase 30 QA baseline opened
+
+- Opened `docs/QA-CHECKLIST.md` as the durable result ledger for all 16 roadmap
+  flows, deferred natural-time checks, automated evidence, and test-data safety.
+- TypeScript, full ESLint, and all 99 non-database tests pass.
+- Repository integration tests remain blocked by a dirty/unstable dedicated test
+  database. The initial parallel attempt also confirmed these curriculum suites
+  must run sequentially because each requires exclusive ownership of an empty
+  temporary waypoint curriculum.
+- Phase 30 remains in progress; no manual flow has been marked passed without
+  project-owner verification.
+
+### 2026-08-29 — Guarded integration database reset
+
+- Added `npm run test:database:reset`, which requires the existing exact test
+  acknowledgement and a PostgreSQL URL distinct from the application database.
+- The reset performs one server-side application-table cleanup, preserves the
+  migrated schema and `_prisma_migrations`, verifies that users and waypoints are
+  empty, and never prints or shell-interpolates database credentials.
+- Prisma currently refuses the dedicated hosted test-resource operation with
+  `planLimitReached`. Repository integration checks remain Blocked—not Failed—
+  until the workspace quota resets or the plan restriction is removed.
+
+### 2026-08-29 — Phase 30 authentication flow passed
+
+- The project owner manually verified registration, login, logout, repeat login,
+  and the expected protected-route redirect behavior.
+- Phase 30 manual Flow 1 is Passed. Flow 2 — admin route and role protection —
+  is next.
+
+### 2026-08-29 — Phase 30 admin protection flow passed
+
+- The project owner manually verified that Player, Admin, and Super Admin
+  accounts receive their intended route access.
+- Phase 30 manual Flow 2 is Passed. Flow 3 — verse management — is next.
+
+### 2026-08-29 — Phase 30 verse management flow passed
+
+- The project owner manually verified the administrator verse-management flow
+  and Player route protection.
+- Phase 30 manual Flow 3 is Passed. Before Flow 4, curriculum administration is
+  receiving a focused taxonomy and safe-placeholder cleanup correction.
+
+### 2026-08-29 — Psalms, tags, and unused-waypoint correction
+
+- Canonicalized the structured Bible book name to `Psalms` while retaining
+  singular human-readable references such as `Psalm 23:1`. The checked-in
+  curriculum generator and dataset now agree with the 66-book selector.
+- Added and applied a non-destructive data migration to the local database. All
+  ten matching local verses now store `Psalms`; references, assignments, and
+  learner history were not changed.
+- Standardized tag input to a case-insensitive slug identity with a consistent
+  human-readable Title Case label. Case-only variants collapse before writes,
+  and the local tag catalogue contains no case-duplicate records.
+- Added administrator deletion for only the final hidden, unassigned waypoint
+  with no learner history. The repository rechecks every condition under the
+  curriculum advisory lock and records successful deletion in the audit log.
+- Focused tag/import tests pass (5/5), TypeScript passes, targeted ESLint passes,
+  and `git diff --check` reports no whitespace errors.
+
+### 2026-08-29 — Hidden-waypoint unassignment
+
+- Added a confirmation-gated Unassign control to the existing waypoint
+  assignment dialog.
+- A waypoint can be unassigned only while hidden and free of learner-linked
+  progress, day progress, and game sessions. The repository rechecks these
+  rules under the curriculum advisory lock before clearing the verse.
+- Unassignment retains the waypoint, resets its provisional Journey Stage to
+  `LEARN`, and records the previous verse and stage in the audit log.

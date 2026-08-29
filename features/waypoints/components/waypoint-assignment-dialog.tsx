@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Pencil } from "lucide-react";
+import { Pencil, Unlink } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,11 +14,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ConfirmationDialog } from "@/components/shared/confirmation-dialog";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { SearchableSelect } from "@/components/shared/searchable-select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { showActionError } from "@/lib/errors/show-action-error";
 import { assignVerseToWaypointAction } from "@/features/waypoints/actions/assign-verse-to-waypoint.action";
+import { unassignVerseFromWaypointAction } from "@/features/waypoints/actions/unassign-verse-from-waypoint.action";
 import type { JourneyStage } from "@/lib/generated/prisma/enums";
 
 const stageOptions: { value: JourneyStage; label: string }[] = [
@@ -85,6 +93,21 @@ export function WaypointAssignmentDialog({
     });
   }
 
+  function unassignWaypoint(): void {
+    startTransition(async () => {
+      const result = await unassignVerseFromWaypointAction({
+        id: waypointId,
+      });
+
+      if (result.success) {
+        toast.success(result.message);
+        setOpen(false);
+      } else {
+        showActionError(result);
+      }
+    });
+  }
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger
@@ -118,21 +141,69 @@ export function WaypointAssignmentDialog({
           </div>
           <div className="space-y-2">
             <p className="text-sm font-medium">Journey Stage</p>
-            <Select value={journeyStage} onValueChange={(value) => setJourneyStage(value as JourneyStage)} disabled={isPending}>
-              <SelectTrigger className="min-h-11 w-full"><SelectValue /></SelectTrigger>
+            <Select
+              value={journeyStage}
+              onValueChange={(value) => setJourneyStage(value as JourneyStage)}
+              disabled={isPending}
+            >
+              <SelectTrigger className="min-h-11 w-full">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
-                {stageOptions.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
+                {stageOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
         </div>
-        <DialogFooter>
-          <DialogClose render={<Button type="button" variant="outline" className="min-h-11" disabled={isPending} />}>
-            Close
-          </DialogClose>
-          <LoadingButton type="button" isPending={isPending} pendingLabel="Saving assignment" disabled={!verseId} onClick={saveAssignment}>
-            Save assignment
-          </LoadingButton>
+        <DialogFooter className="sm:justify-between">
+          {initialVerseId && (
+            <ConfirmationDialog
+              title={`Unassign waypoint ${waypointNumber}?`}
+              description="The verse and Journey Stage will be removed from this hidden waypoint. The empty waypoint will remain available for a new assignment."
+              confirmLabel="Unassign waypoint"
+              destructive
+              isConfirmDisabled={isPending}
+              trigger={
+                <Button
+                  type="button"
+                  variant="destructive"
+                  className="min-h-11"
+                  disabled={isPending}
+                >
+                  <Unlink aria-hidden="true" />
+                  Unassign
+                </Button>
+              }
+              onConfirm={unassignWaypoint}
+            />
+          )}
+          <div className="flex flex-col-reverse gap-2 sm:flex-row">
+            <DialogClose
+              render={
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="min-h-11"
+                  disabled={isPending}
+                />
+              }
+            >
+              Close
+            </DialogClose>
+            <LoadingButton
+              type="button"
+              isPending={isPending}
+              pendingLabel="Saving assignment"
+              disabled={!verseId}
+              onClick={saveAssignment}
+            >
+              Save assignment
+            </LoadingButton>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

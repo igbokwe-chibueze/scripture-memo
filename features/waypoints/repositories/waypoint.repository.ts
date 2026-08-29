@@ -3,9 +3,11 @@ import { prisma } from "@/lib/prisma";
 import { WAYPOINT_AUDIT_ACTIONS } from "@/features/waypoints/constants/waypoint-audit-actions";
 import type {
   AssignWaypointResult,
+  DeleteWaypointResult,
   HideWaypointResult,
   PublishWaypointResult,
   ReorderWaypointResult,
+  UnassignWaypointResult,
   WaypointMove,
 } from "@/features/waypoints/types/waypoint.types";
 
@@ -113,6 +115,57 @@ export const waypointRepository = {
     }, auditTransactionOptions);
   },
 
+  /** Deletes only the final placeholder before it enters curriculum history. */
+  async deleteUnusedFinal(
+    id: string,
+    actorId: string,
+    ipAddress: string | null,
+  ): Promise<DeleteWaypointResult> {
+    return prisma.$transaction(async (transaction) => {
+      // WHY: Appends, reorders, assignments, and this deletion must agree on
+      // which record is final. The shared lock makes that decision atomic.
+      await lockCurriculum(transaction);
+
+      const waypoint = await transaction.waypoint.findUnique({
+        where: { id },
+        select: {
+          id: true,
+          number: true,
+          verseId: true,
+          isActive: true,
+          _count: { select: waypointProgressCountSelect },
+        },
+      });
+      if (!waypoint) return { status: "waypoint-missing" };
+
+      const finalWaypoint = await transaction.waypoint.findFirst({
+        orderBy: { number: "desc" },
+        select: { id: true },
+      });
+      if (finalWaypoint?.id !== waypoint.id) return { status: "not-final" };
+      if (waypoint.isActive) return { status: "published" };
+      if (waypoint.verseId) return { status: "assigned" };
+      if (hasLearnerHistory(waypoint._count)) return { status: "progress-locked" };
+
+      await transaction.waypoint.delete({ where: { id: waypoint.id } });
+      await transaction.auditLog.create({
+        data: {
+          actorId,
+          action: WAYPOINT_AUDIT_ACTIONS.delete,
+          entityType: "Waypoint",
+          entityId: waypoint.id,
+          ipAddress,
+          metadata: {
+            number: waypoint.number,
+            reason: "Final hidden, unassigned waypoint had no learner history.",
+          },
+        },
+      });
+
+      return { status: "deleted", number: waypoint.number };
+    }, auditTransactionOptions);
+  },
+
   async assignVerse(
     waypointId: string,
     verseId: string,
@@ -187,6 +240,77 @@ export const waypointRepository = {
         },
       });
       return { status: "assigned" };
+    }, auditTransactionOptions);
+  },
+
+  /**
+   * Returns a hidden, unused waypoint to its empty placeholder state.
+   *
+   * WHY: Unassignment changes curriculum history, so the repository repeats
+   * every safety check inside the same serialized transaction that performs
+   * the update. A disabled browser control is never treated as authority.
+   */
+  async unassignVerse(
+    waypointId: string,
+    actorId: string,
+    ipAddress: string | null,
+  ): Promise<UnassignWaypointResult> {
+    return prisma.$transaction(async (transaction) => {
+      await lockCurriculum(transaction);
+
+      const waypoint = await transaction.waypoint.findUnique({
+        where: { id: waypointId },
+        select: {
+          id: true,
+          number: true,
+          verseId: true,
+          journeyStage: true,
+          isActive: true,
+          verse: {
+            select: {
+              reference: true,
+            },
+          },
+          _count: {
+            select: waypointProgressCountSelect,
+          },
+        },
+      });
+
+      if (!waypoint) return { status: "waypoint-missing" };
+      if (hasLearnerHistory(waypoint._count)) return { status: "progress-locked" };
+      if (waypoint.isActive) return { status: "published-locked" };
+      if (!waypoint.verseId) return { status: "already-unassigned" };
+
+      await lockVerses(transaction, [waypoint.verseId]);
+
+      await transaction.waypoint.update({
+        where: { id: waypointId },
+        data: {
+          verseId: null,
+          // Unassigned slots use LEARN only as a harmless provisional value.
+          // A real stage must be selected when a verse is assigned again.
+          journeyStage: "LEARN",
+        },
+      });
+
+      await transaction.auditLog.create({
+        data: {
+          actorId,
+          action: WAYPOINT_AUDIT_ACTIONS.unassignVerse,
+          entityType: "Waypoint",
+          entityId: waypointId,
+          ipAddress,
+          metadata: {
+            number: waypoint.number,
+            previousVerseId: waypoint.verseId,
+            previousReference: waypoint.verse?.reference ?? null,
+            previousJourneyStage: waypoint.journeyStage,
+          },
+        },
+      });
+
+      return { status: "unassigned" };
     }, auditTransactionOptions);
   },
 

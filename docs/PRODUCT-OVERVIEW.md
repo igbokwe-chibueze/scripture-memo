@@ -351,6 +351,11 @@ A verse is the core content unit of the entire platform.
 | `updatedAt` | Audit timestamp |
 | `translations` | Related `VerseTranslation` records |
 
+The structured canonical book name is **Psalms**. Human-readable references use
+the conventional singular form, such as **Psalm 23:1**. Tags have
+case-insensitive identity and use one canonical human-readable Title Case label
+throughout forms, filters, and verse displays.
+
 `reflection` and `tags` retain their own structured fields and are not embedded
 inside study-section Markdown. The legacy `studyNote` database column is retained
 temporarily for rollback safety, but new application reads and writes use the
@@ -450,6 +455,11 @@ append after the current final waypoint. They use the same hidden, unassigned,
 provisional-`LEARN` defaults. The curriculum has no year grouping and historical
 waypoints are never renumbered merely because new content is appended.
 
+An administrator may delete only the final waypoint, and only while it remains
+hidden, unassigned, and free of learner-linked progress, day progress, and game
+sessions. This narrowly removes an accidental unused append without renumbering
+curriculum history. No other waypoint deletion is permitted.
+
 The administrative waypoint screen summarizes total, assigned, unassigned,
 published, and hidden records so curriculum readiness is visible at a glance.
 
@@ -467,7 +477,9 @@ learner-history restrictions before the server performs its authoritative
 validation.
 
 Waypoint and verse history becomes permanent at the first learner-linked record.
-A hidden waypoint with no history remains freely editable. A published but
+A hidden waypoint with no history remains freely editable and may be returned
+to an unassigned placeholder; unassignment resets its provisional Journey Stage
+to `LEARN` until an administrator makes a new explicit assignment. A published but
 unstarted waypoint must be hidden before its verse or Journey Stage can change.
 Once any waypoint progress, day progress, or waypoint-linked game session exists,
 the waypoint cannot be reassigned, hidden, or reordered. Its verse content also

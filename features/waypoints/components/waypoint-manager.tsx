@@ -12,6 +12,7 @@ import { showActionError } from "@/lib/errors/show-action-error";
 import { createWaypointAction } from "@/features/waypoints/actions/create-waypoint.action";
 import { reorderWaypointsAction } from "@/features/waypoints/actions/reorder-waypoints.action";
 import { WaypointAssignmentDialog } from "@/features/waypoints/components/waypoint-assignment-dialog";
+import { WaypointDeleteAction } from "@/features/waypoints/components/waypoint-delete-action";
 import {
   WaypointPositionDialog,
   type ProposedWaypointMoveResult,
@@ -240,6 +241,11 @@ export function WaypointManager({ initialWaypoints, publishedVerses }: WaypointM
                   ? "Assign a published verse first."
                   : "Publish every earlier waypoint first.";
               const originalNumber = initialNumberById.get(waypoint.id) ?? index + 1;
+              const canDelete =
+                index === waypoints.length - 1 &&
+                !waypoint.isActive &&
+                !waypoint.verse &&
+                !learnerHistoryLocked;
 
               return (
                 <tr key={waypoint.id} className={cn("transition-colors hover:bg-muted/35", originalNumber !== index + 1 && "bg-amber-500/5")}>
@@ -283,6 +289,13 @@ export function WaypointManager({ initialWaypoints, publishedVerses }: WaypointM
                             : undefined}
                       />
                       <WaypointStatusAction id={waypoint.id} number={index + 1} isActive={waypoint.isActive} canPublish={canPublish} statusChangeAllowed={statusChangeAllowed} disabledReason={disabledReason} disabled={hasUnsavedOrder || isReordering || isCreating} />
+                      {canDelete && (
+                        <WaypointDeleteAction
+                          id={waypoint.id}
+                          number={index + 1}
+                          disabled={hasUnsavedOrder || isReordering || isCreating}
+                        />
+                      )}
                     </div>
                   </td>
                 </tr>
