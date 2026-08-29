@@ -2804,3 +2804,13 @@ implement the private progress archive and mastered-verse replay flow.
 - Updated the admin import guidance, product contract, roadmap, and parser tests
   so the downloadable template and future bulk imports share one documented
   contract.
+
+### 2026-08-29 — Phase 29 accepted
+
+- The project owner marked Phase 29 — Seed Data complete and accepted.
+- The canonical seed now provides 100 active verses, 400 active waypoint
+  assignments, normalized KJV/WEB/BSB translations, 31 structured study guides,
+  the existing 27-badge catalogue, and three Oil Shop hint packs.
+- Phase 30 — Testing and QA is the next roadmap stage. Its final regression pass
+  retains the previously deferred natural streak, restricted-stage hint, and
+  mastered-verse Vault replay checks.

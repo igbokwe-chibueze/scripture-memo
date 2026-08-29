@@ -1565,6 +1565,11 @@ shell. The Beacon Challenger activation migration has been applied successfully.
 
 **Goal:** Provide enough data for complete end-to-end testing.
 
+**Status:** Complete — the approved 100-verse curriculum, 400 permanent
+waypoints, 31 structured study guides, 27 badges, and three Oil Shop hint packs
+are installed through the idempotent seed path. Project-owner acceptance was
+recorded on 2026-08-29.
+
 ### Tasks
 
 1. Build the approved curriculum source into validated seed data:
@@ -1585,6 +1590,8 @@ shell. The Beacon Challenger activation migration has been applied successfully.
 - A fresh developer can register, log in, and begin Waypoint 1 immediately after
   preparing the local account.
 - Verse repetition across waypoints (with different Journey Stages) is demonstrable.
+
+Phase 29 is complete and accepted. Phase 30 — Testing and QA is next.
 
 ---
 
