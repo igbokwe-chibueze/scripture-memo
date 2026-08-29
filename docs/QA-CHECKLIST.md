@@ -40,7 +40,7 @@ it only after Prisma lifts the current workspace plan restriction.
 | 1 | Authentication | Register, login, logout, and login again return to the correct protected destination. | Passed — project-owner manual verification on 2026-08-29. |
 | 2 | Admin route protection | A Player cannot open `/admin`; Admin and Super Admin permissions remain distinct. | Passed — project-owner manual verification on 2026-08-29. |
 | 3 | Verse management | Admin can create an unpublished KJV-backed verse, enrich and publish it; a Player cannot invoke the mutation. | Passed — project-owner manual verification on 2026-08-29. |
-| 4 | Waypoint assignment | The same verse can occupy different permanent waypoints with different Journey Stages; a hidden waypoint without learner history can be unassigned, while published or history-linked waypoints reject unassignment. | Not run |
+| 4 | Waypoint assignment | The same verse can occupy different permanent waypoints with different Journey Stages; a hidden waypoint without learner history can be unassigned, while published or history-linked waypoints reject unassignment. | Passed — project-owner manual verification on 2026-08-29. |
 | 5 | Journey Stage rules | Learn exposes hints; Recall is timed; Strengthen and Master expose no hints and use their configured timers. | Not run |
 | 6 | Three-Day Challenge | Five Glimmer modes complete the day, add one flame, and place Glow behind its 24-hour server cooldown. | Not run |
 | 7 | Cooldown bypass | Changing client time/state cannot start a server-locked day. | Not run |

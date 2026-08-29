@@ -2897,3 +2897,10 @@ implement the private progress archive and mastered-verse replay flow.
   performs no database request. The list repository loads only the relationship
   fields required by this screen.
 - TypeScript, targeted ESLint, and whitespace validation pass.
+
+### 2026-08-29 — Phase 30 waypoint assignment flow passed
+
+- The project owner manually verified repeated verse assignment across distinct
+  Journey Stages, correct administrative display, and guarded hidden-waypoint
+  unassignment behavior.
+- Phase 30 manual Flow 4 is Passed. Flow 5 — Journey Stage rules — is next.
