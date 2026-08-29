@@ -17,6 +17,54 @@ const verseInclude = {
   studySections: { orderBy: { position: "asc" as const } },
 } satisfies Prisma.VerseInclude;
 
+/**
+ * Relations required only by the administrative verse library.
+ *
+ * WHY: Keeping this separate from `verseInclude` avoids loading pack and
+ * waypoint relationships during verse edits and writes that never display
+ * them. This keeps routine database operations proportional to the screen.
+ */
+const verseListInclude = {
+  translations: {
+    select: {
+      translation: true,
+    },
+    orderBy: {
+      translation: "asc" as const,
+    },
+  },
+  tags: {
+    include: {
+      tag: true,
+    },
+  },
+  waypoints: {
+    select: {
+      id: true,
+      number: true,
+      journeyStage: true,
+    },
+    orderBy: {
+      number: "asc" as const,
+    },
+  },
+  packs: {
+    select: {
+      pack: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+    orderBy: {
+      pack: {
+        name: "asc" as const,
+      },
+    },
+  },
+} satisfies Prisma.VerseInclude;
+
 const verseAuditSnapshotInclude = {
   translations: { select: { translation: true, text: true } },
   tags: { include: { tag: { select: { name: true } } } },
@@ -264,7 +312,7 @@ export const verseRepository = {
     const [items, total, books, tags] = await Promise.all([
       prisma.verse.findMany({
         where,
-        include: verseInclude,
+        include: verseListInclude,
         orderBy:
           filters.sort === "book-desc"
             ? [{ book: "desc" }, { chapter: "desc" }, { verseStart: "desc" }]

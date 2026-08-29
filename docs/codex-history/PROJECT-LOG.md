@@ -2884,3 +2884,16 @@ implement the private progress archive and mastered-verse replay flow.
   rules under the curriculum advisory lock before clearing the verse.
 - Unassignment retains the waypoint, resets its provisional Journey Stage to
   `LEARN`, and records the previous verse and stage in the audit log.
+
+### 2026-08-29 — Configurable verse-library columns
+
+- Added Waypoints and Packs as optional columns in the administrative verse
+  library. Waypoint cells show the waypoint number and Journey Stage; pack cells
+  show the learning-pack names linked to the verse.
+- Added a checklist menu that keeps the existing five information columns as
+  the default and enforces a maximum of five visible information columns. Row
+  actions remain permanently available and do not count toward the limit.
+- Kept column selection inside a focused client component, so toggling columns
+  performs no database request. The list repository loads only the relationship
+  fields required by this screen.
+- TypeScript, targeted ESLint, and whitespace validation pass.

@@ -381,6 +381,11 @@ Translations are stored in a separate normalized table so additional translation
 
 **Important:** The `normalizedText` field is never shown to the user. It is used exclusively for server-side answer validation to allow case-insensitive, punctuation-tolerant comparisons.
 
+The administrative verse library can display Reference, Book, Tags,
+Translations, Status, Waypoints, and Packs. Administrators choose the visible
+columns from a checklist, with no more than five information columns shown at
+once. Row actions remain available independently of that limit.
+
 ### 6.3 Administrative CSV Import
 
 Administrators can populate the verse library in batches of up to 100 rows using
