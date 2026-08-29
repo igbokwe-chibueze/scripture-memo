@@ -23,6 +23,19 @@ enum TranslationCode {
   NIV
   ESV
   KJV
+  WEB
+  BSB
+}
+
+enum VerseStudySectionType {
+  BOOK_BACKGROUND
+  HISTORICAL_CONTEXT
+  STUDY_NOTE
+  KEY_LESSON
+  APPLICATION
+  CROSS_REFERENCES
+  WORD_STUDY
+  PRAYER
 }
 
 enum WaypointStatus {
@@ -207,7 +220,7 @@ model UserProfile {
 model UserSettings {
   id                     String          @id @default(cuid())
   userId                 String          @unique
-  preferredTranslation   TranslationCode @default(NIV)
+  preferredTranslation   TranslationCode @default(KJV)
   hasSelectedTranslation Boolean         @default(false)
   audioEnabled           Boolean         @default(true)
   reducedMotion          Boolean         @default(false)
@@ -235,6 +248,7 @@ model Verse {
   updatedAt      DateTime            @updatedAt
   createdBy      User?               @relation("VerseCreator", fields: [createdById], references: [id], onDelete: SetNull)
   translations   VerseTranslation[]
+  studySections  VerseStudySection[]
   tags           VerseTag[]
   packs          PackVerse[]
   waypoints      Waypoint[]
@@ -244,6 +258,20 @@ model Verse {
 
   @@index([book, chapter, verseStart])
   @@index([isActive])
+}
+
+model VerseStudySection {
+  id        String                @id @default(cuid())
+  verseId   String
+  type      VerseStudySectionType
+  position  Int
+  content   String
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+  verse     Verse                 @relation(fields: [verseId], references: [id], onDelete: Cascade)
+
+  @@unique([verseId, type])
+  @@index([verseId, position])
 }
 
 model VerseTranslation {
@@ -373,7 +401,7 @@ model GameSession {
   verseId       String
   dayProgressId String?
   dayLevel      DayLevel?
-  translation   TranslationCode   @default(NIV)
+  translation   TranslationCode   @default(KJV)
   status        CompletionStatus  @default(IN_PROGRESS)
   isVaultReplay Boolean           @default(false)
   startedAt     DateTime          @default(now())

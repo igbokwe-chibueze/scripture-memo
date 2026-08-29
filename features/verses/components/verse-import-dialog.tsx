@@ -153,7 +153,11 @@ export function VerseImportDialog(): React.ReactNode {
               disabled={isPending}
               onChange={(event) => void handleFile(event.target.files?.[0])}
             />
-            <p className="text-xs text-muted-foreground">Maximum 1 MB. NIV, ESV, and KJV text are required for every valid row.</p>
+            <p className="text-xs text-muted-foreground">
+              Maximum 1 MB. Location fields and KJV are required. Blank study,
+              tag, translation, and publication cells are allowed; a blank
+              publication cell creates a draft.
+            </p>
           </div>
 
           {isPending && pendingOperation === "preview" && (

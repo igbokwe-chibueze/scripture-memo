@@ -12,6 +12,18 @@ const translationTextSchema = z
   .min(1, "Translation text is required.")
   .max(3000, "Translation text cannot exceed 3000 characters.");
 
+/**
+ * Draft verses may omit secondary translations while an administrator builds
+ * the library incrementally. KJV remains the minimum playable source and is
+ * therefore validated with the required schema below.
+ */
+const optionalTranslationTextSchema = translationTextSchema.or(z.literal(""));
+
+const studySectionContentSchema = z
+  .string()
+  .trim()
+  .max(5000, "A study section cannot exceed 5000 characters.");
+
 /** Complete create/edit form contract for a verse and MVP translations. */
 export const verseFormSchema = z
   .object({
@@ -23,13 +35,24 @@ export const verseFormSchema = z
     verseStart: z.coerce.number().int().min(1).max(176),
     verseEnd: z.union([z.literal(""), z.coerce.number().int().min(1).max(176)]),
     reflection: z.string().trim().max(3000).optional(),
-    studyNote: z.string().trim().max(5000).optional(),
+    studySections: z.object({
+      bookBackground: studySectionContentSchema,
+      historicalContext: studySectionContentSchema,
+      studyNote: studySectionContentSchema,
+      keyLesson: studySectionContentSchema,
+      application: studySectionContentSchema,
+      crossReferences: studySectionContentSchema,
+      wordStudy: studySectionContentSchema,
+      prayer: studySectionContentSchema,
+    }),
     tags: z.string().trim().max(500),
     isActive: z.boolean(),
     translations: z.object({
-      NIV: translationTextSchema,
-      ESV: translationTextSchema,
       KJV: translationTextSchema,
+      WEB: optionalTranslationTextSchema,
+      BSB: optionalTranslationTextSchema,
+      NIV: optionalTranslationTextSchema,
+      ESV: optionalTranslationTextSchema,
     }),
   })
   .superRefine((value, context) => {
@@ -83,7 +106,7 @@ export const verseIdSchema = z.object({ id: z.string().cuid() });
 
 export const upsertTranslationSchema = z.object({
   verseId: z.string().cuid(),
-  translation: z.enum(["NIV", "ESV", "KJV"]),
+  translation: z.enum(["NIV", "ESV", "KJV", "WEB", "BSB"]),
   text: translationTextSchema,
 });
 

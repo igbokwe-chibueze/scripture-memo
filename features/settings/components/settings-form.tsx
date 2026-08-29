@@ -150,7 +150,17 @@ export function SettingsForm({
                 <FieldLabel>{t("preferredBibleTranslation")}</FieldLabel>
                 <Select value={field.value} onValueChange={field.onChange}>
                   <SelectTrigger className="min-h-11 w-full"><SelectValue /></SelectTrigger>
-                  <SelectContent><SelectItem value="NIV">New International Version (NIV)</SelectItem><SelectItem value="ESV">English Standard Version (ESV)</SelectItem><SelectItem value="KJV">King James Version (KJV)</SelectItem></SelectContent>
+                  <SelectContent>
+                    <SelectItem value="KJV">
+                      King James Version (KJV)
+                    </SelectItem>
+                    <SelectItem value="WEB">
+                      World English Bible (WEB)
+                    </SelectItem>
+                    <SelectItem value="BSB">
+                      Berean Standard Bible (BSB)
+                    </SelectItem>
+                  </SelectContent>
                 </Select>
               </Field>
             )} />

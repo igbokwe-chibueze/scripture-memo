@@ -74,13 +74,13 @@ export const daySelectionRepository = {
       where: { userId },
       select: { preferredTranslation: true },
     });
-    const preferredTranslation = settings?.preferredTranslation ?? TranslationCode.NIV;
+    const preferredTranslation = settings?.preferredTranslation ?? TranslationCode.KJV;
     const selectedTranslation =
       waypoint.verse.translations.find(
         ({ translation }) => translation === preferredTranslation,
       ) ??
       waypoint.verse.translations.find(
-        ({ translation }) => translation === TranslationCode.NIV,
+        ({ translation }) => translation === TranslationCode.KJV,
       ) ??
       waypoint.verse.translations[0];
     if (!selectedTranslation) return null;

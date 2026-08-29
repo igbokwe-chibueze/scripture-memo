@@ -1,16 +1,24 @@
-/** Calm route skeleton that preserves the Sanctuary composition while loading. */
+/** Calm route skeleton that mirrors the mobile-first Sanctuary reader. */
 export function SanctuaryLoadingView(): React.ReactNode {
   return (
-    <main className="min-h-dvh animate-pulse bg-background px-4 py-5 sm:px-6 sm:py-9">
-      <div className="mx-auto max-w-4xl">
-        <div className="h-11 w-40 rounded-xl bg-muted" />
-        <div className="mt-5 overflow-hidden rounded-[2rem] border bg-card">
-          <div className="h-72 bg-muted/70" />
-          <div className="grid gap-4 border-t p-4 sm:p-6 lg:grid-cols-2">
-            <div className="h-52 rounded-3xl bg-muted" />
-            <div className="h-52 rounded-3xl bg-muted" />
+    <main className="min-h-dvh animate-pulse bg-background px-4 py-4 sm:px-6 sm:py-8">
+      <div className="mx-auto max-w-[90rem]">
+        <div className="flex justify-between">
+          <div className="size-11 rounded-xl bg-muted sm:w-36" />
+          <div className="size-11 rounded-xl bg-muted sm:w-32" />
+        </div>
+        <div className="mt-4 h-72 rounded-[2rem] border bg-muted/60" />
+        <div className="mt-4 h-12 rounded-2xl bg-muted lg:hidden" />
+        <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem] 2xl:grid-cols-[minmax(0,1fr)_23rem] 2xl:gap-7">
+          <div className="space-y-4">
+            <div className="h-48 rounded-3xl bg-muted" />
+            <div className="h-72 rounded-3xl bg-muted/70" />
+            <div className="h-64 rounded-3xl bg-muted/70" />
           </div>
-          <div className="h-64 border-t bg-muted/50" />
+          <div className="hidden space-y-4 lg:block">
+            <div className="h-64 rounded-3xl bg-muted" />
+            <div className="h-80 rounded-3xl bg-muted/70" />
+          </div>
         </div>
       </div>
     </main>

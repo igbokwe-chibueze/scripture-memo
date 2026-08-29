@@ -1,5 +1,26 @@
 # Scripture Memo Project Log
 
+### 2026-08-28 — Sanctuary study-reader redesign
+
+- Rebuilt the Sanctuary as a mobile-first devotional reader with a compact
+  verse hero, dedicated Study and My Notes views, and tactile shared navigation
+  controls that retain clear pending feedback.
+- Preserved the imported Markdown hierarchy while presenting major study-guide
+  headings as readable themed sections, including distinct treatments for key
+  lessons, application, reflection, and prayer.
+- Removed the imported guide preamble that repeated the hero verse, and softened
+  the source emphasis in Tags and Key Lesson so those sections read naturally.
+- Added an expandable mobile study path and a sticky study path in the
+  Sanctuary-owned desktop companion column.
+- Added a helpful notes-first empty state for verses whose study material is
+  pending.
+- Expanded the large-screen Sanctuary canvas and widened the private-note
+  companion at extra-large desktop sizes without reducing either mobile card.
+- Compacted the desktop Study Path navigation so it supports scanning without
+  dominating the private-note companion column.
+- Updated the Sanctuary loading skeleton and English/Spanish message contracts
+  to match the new composition.
+
 ### 2026-08-09 — Causal gameplay celebration order
 
 - Reordered every gameplay-mode celebration to show Mode Success first, then
@@ -2709,3 +2730,87 @@ implement the private progress archive and mastered-verse replay flow.
 - All Phase 28 automated checks and required manual checks now pass. Phase 28 —
   Admin Dashboard and Badge Management is complete and accepted; Phase 29 —
   Seed Data is next.
+
+### 2026-08-27 — Approved 100-verse curriculum replacement
+
+- Archived the approved source documents under `prisma/source-data/` and added
+  an Office-independent build command that validates and generates canonical
+  curriculum JSON.
+- Replaced the local curriculum with 100 active verses and 400 active waypoint
+  assignments. Numbers 1–400 are unique and contiguous, and every verse has
+  Learn, Recall, Strengthen, and Master placement.
+- Imported KJV, WEB, and BSB for every verse (300 normalized rows). Added WEB and
+  BSB to Prisma and changed new defaults to KJV; NIV/ESV remain optional for
+  future licensed content.
+- Converted all 31 supplied study-guide sections to Markdown while preserving
+  headings, emphasis, lists, quotations, and devotional structure. The remaining
+  69 verses intentionally have no study material yet.
+- Wrote a timestamped recovery snapshot before mutation. Preserved three Better
+  Auth accounts, identity/settings, roles, purchases, notifications, and two
+  Fellowship memberships while resetting all earned progress and counters.
+- Recreated only the initial Waypoint 1 unlock for each account. Verification
+  reports 100 active verses, 400 active waypoints, 300 translations, 31 study
+  guides, and no residual sessions, day records, rewards, badges, or counters.
+- Updated normal Prisma seeding to install this curriculum idempotently with the
+  existing 27 badges and three shop items. Migration/generation, TypeScript,
+  ESLint, seed idempotency, and local aggregate verification all pass.
+
+### 2026-08-28 — Structured Sanctuary study content
+
+- Replaced heading-dependent Sanctuary parsing with eight typed, ordered
+  `VerseStudySection` records: Book Background, Historical Context, Study Note,
+  Key Lesson, Application, Cross References, Word Study, and Prayer.
+- Kept reflection and tags in their existing structured storage and now render
+  them directly in the Sanctuary, so future admin entries always reach the
+  correct card without relying on wording inside one large Markdown field.
+- Replaced the admin's single study-guide editor with eight clearly labelled
+  Markdown editors. Verse create, edit, audit, and bulk-import paths now persist
+  the same canonical section contract.
+- Applied migration `20260828130000_add_structured_study_sections` locally. It
+  retained the legacy `Verse.studyNote` column for rollback safety and backfilled
+  all 31 supplied guides into 248 typed sections; the 69 intentionally empty
+  guides remain empty.
+- Updated ordinary and local curriculum seeders plus development fixtures to
+  create structured sections. Added compatibility tests for audited headings and
+  heading-free legacy notes.
+- Prisma validation/migration, aggregate curriculum verification, TypeScript,
+  targeted ESLint, and the new parser tests all pass.
+
+### 2026-08-28 — Audited study-guide tag merge
+
+- Compared Excel tags with the 31 audited guides and confirmed that every covered
+  verse had a difference, primarily because the guides supplied additional,
+  more-specific discovery tags.
+- Made the curriculum builder merge workbook and study-guide tags
+  case-insensitively while preserving useful tags unique to either source.
+- Added idempotent database migration and batched seed synchronization so both
+  existing deployments and fresh curriculum resets receive the same canonical
+  tag relationships without deleting learner data.
+- Regenerated the curriculum and synchronized the local database. Verification
+  reports 133 unique tags, 286 verse-tag relationships, zero malformed combined
+  tag labels, and zero study-guide tags missing from canonical data.
+- Consolidated those merged values into the single structured `Tag`/`VerseTag`
+  source used throughout the app. Removed the duplicate `## Tags` blocks from
+  canonical and persisted legacy study Markdown after the merge was secured.
+
+### 2026-08-28 — Draft-safe structured verse bulk import
+
+- Replaced the legacy single `studyNote` CSV column with dedicated columns for
+  all eight structured Sanctuary study sections.
+- Reduced the minimum import translation requirement to KJV; WEB, BSB, NIV, ESV,
+  reflection, study sections, and tags can be completed later.
+- Made a blank `isActive` cell resolve to an inactive draft while preserving
+  strict rejection of unsupported status values and malformed Scripture ranges.
+- Updated the admin import guidance, product contract, roadmap, and parser tests
+  so the downloadable template and future bulk imports share one documented
+  contract.
+
+### 2026-08-29 — Phase 29 accepted
+
+- The project owner marked Phase 29 — Seed Data complete and accepted.
+- The canonical seed now provides 100 active verses, 400 active waypoint
+  assignments, normalized KJV/WEB/BSB translations, 31 structured study guides,
+  the existing 27-badge catalogue, and three Oil Shop hint packs.
+- Phase 30 — Testing and QA is the next roadmap stage. Its final regression pass
+  retains the previously deferred natural streak, restricted-stage hint, and
+  mastered-verse Vault replay checks.

@@ -347,13 +347,17 @@ Confirm the following before proceeding:
    - `upsertTranslation(verseId, translation, text)` — also generates and stores `normalizedText`
 3. Create all verse Server Actions (ADMIN+ role required on each).
 4. Build verse forms with: a canonical 66-book selector, exact chapter/verse
-   limits, a server-generated reference preview, reflection, studyNote, tags,
+   limits, a server-generated reference preview, reflection, eight labelled
+   Markdown study-section fields, tags,
    active status, and inline NIV/ESV/KJV translation input group.
 5. Build `VersesListView` using the shared data table component. Sortable by book; filterable by active status and tags.
 6. Add Sonner toasts on create, update, publish, archive.
 7. Add loading, empty, and error states.
 8. Add CSV bulk import with a downloadable template, strict server validation,
    preview, duplicate skipping, transactional writes, and an audit log entry.
+   The current template stores all eight structured study sections in dedicated
+   columns, requires canonical location fields plus KJV, permits optional content
+   to remain blank, and treats a blank publication value as an inactive draft.
 9. Make reference/book search update dynamically with a 300ms debounce and apply
    book, tag, status, and sort selections immediately while preserving URL state.
 10. Use searchable comboboxes for long predefined lists such as Bible books and
@@ -363,7 +367,7 @@ Confirm the following before proceeding:
 
 ### Acceptance Criteria
 
-- Admin can create a verse with all three translations.
+- Admin can create a verse with KJV and layer optional translations in later.
 - `normalizedText` is generated server-side and stored for each translation.
 - References are generated server-side from a valid canonical book, chapter, and
   verse range; impossible chapter and verse numbers are rejected.
@@ -1561,26 +1565,33 @@ shell. The Beacon Challenger activation migration has been applied successfully.
 
 **Goal:** Provide enough data for complete end-to-end testing.
 
+**Status:** Complete — the approved 100-verse curriculum, 400 permanent
+waypoints, 31 structured study guides, 27 badges, and three Oil Shop hint packs
+are installed through the idempotent seed path. Project-owner acceptance was
+recorded on 2026-08-29.
+
 ### Tasks
 
-1. Expand `prisma/seed.ts`:
-   - 1 Super Admin user
-   - 1 Regular Admin user
-   - 2 test regular users
-   - 10 verses with all three translations (NIV, ESV, KJV) and normalized text
-   - 2 packs using those verses
-   - Initial 220 waypoint records:
-     - Waypoints 1–10 assigned to real verses with Journey Stage set
-     - Demonstrate verse repetition: assign one verse at waypoints 1 and 5 with Learn and Recall stages respectively
-     - Waypoints 11–220 created as placeholders (no verse assigned, inactive)
-   - A sample set of badges across all six categories and all five rarities
-   - 3–5 Oil Shop items
+1. Build the approved curriculum source into validated seed data:
+   - 100 active verses with normalized KJV, WEB, and BSB text
+   - 31 formatted Markdown study guides; the remaining 69 are intentionally blank
+   - 400 active, permanently numbered waypoint assignments
+   - Learn, Recall, Strengthen, and Master assignments for every verse
+2. Keep `prisma/seed.ts` idempotent so a rerun inserts missing curriculum without
+   rewriting established learner history.
+3. Preserve the existing 27-badge catalogue and three Oil Shop hint packs.
+4. Keep local Better Auth test accounts separate from the production-safe seed;
+   developers create credentials through Better Auth and use the guarded local
+   preparation commands to assign test roles.
 
 ### Acceptance Criteria
 
 - Seed runs cleanly with `prisma db seed`.
-- A fresh developer can register, log in, and play through Waypoints 1–5 immediately after seeding.
+- A fresh developer can register, log in, and begin Waypoint 1 immediately after
+  preparing the local account.
 - Verse repetition across waypoints (with different Journey Stages) is demonstrable.
+
+Phase 29 is complete and accepted. Phase 30 — Testing and QA is next.
 
 ---
 

@@ -18,6 +18,11 @@ import { showActionError } from "@/lib/errors/show-action-error";
 import { createVerseAction } from "@/features/verses/actions/create-verse.action";
 import { updateVerseAction } from "@/features/verses/actions/update-verse.action";
 import { MarkdownEditor } from "@/features/verses/components/markdown-editor";
+import {
+  ADMIN_TRANSLATION_CODES,
+  TRANSLATION_NAMES,
+} from "@/features/verses/constants/translations";
+import { STUDY_SECTION_DEFINITIONS } from "@/features/verses/constants/study-sections";
 import { BIBLE_BOOK_NAMES } from "@/features/verses/data/bible-structure";
 import {
   formatBibleReference,
@@ -36,7 +41,6 @@ export type VerseFormProps = {
   initialValues: VerseFormInput;
 };
 
-const translations = ["NIV", "ESV", "KJV"] as const;
 const bookOptions = BIBLE_BOOK_NAMES.map((book) => ({ value: book, label: book }));
 
 /** Complete verse editor shared by create and edit admin views. */
@@ -184,14 +188,21 @@ export function VerseForm({ mode, initialValues }: VerseFormProps): React.ReactN
       <Card>
         <CardHeader><CardTitle>Translations</CardTitle></CardHeader>
         <CardContent className="space-y-5">
-          {translations.map((translation) => (
+          {ADMIN_TRANSLATION_CODES.map((translation) => (
             <Field key={translation}>
-              <FieldLabel htmlFor={`translation-${translation}`}>{translation}</FieldLabel>
+              <FieldLabel htmlFor={`translation-${translation}`}>
+                {TRANSLATION_NAMES[translation]} ({translation})
+              </FieldLabel>
               <Textarea
                 id={`translation-${translation}`}
                 rows={4}
                 {...form.register(`translations.${translation}`)}
               />
+              {translation !== "KJV" && (
+                <FieldDescription>
+                  Optional. Add when this translation is available.
+                </FieldDescription>
+              )}
               <FieldError>{form.formState.errors.translations?.[translation]?.message}</FieldError>
             </Field>
           ))}
@@ -205,28 +216,33 @@ export function VerseForm({ mode, initialValues }: VerseFormProps): React.ReactN
             <FieldLabel htmlFor="reflection">Reflection</FieldLabel>
             <Textarea id="reflection" rows={4} {...form.register("reflection")} />
           </Field>
-          <Controller
-            control={form.control}
-            name="studyNote"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="study-note">Study note</FieldLabel>
-                <MarkdownEditor
-                  id="study-note"
-                  value={field.value ?? ""}
-                  maxLength={5000}
-                  invalid={fieldState.invalid}
-                  disabled={isPending}
-                  onBlur={field.onBlur}
-                  onChange={field.onChange}
-                />
-                <FieldDescription>
-                  Format deeper teaching notes with Markdown and review the safe preview before saving.
-                </FieldDescription>
-                <FieldError>{fieldState.error?.message}</FieldError>
-              </Field>
-            )}
-          />
+          <div className="grid gap-5 lg:grid-cols-2">
+            {STUDY_SECTION_DEFINITIONS.map((section) => (
+              <Controller
+                key={section.type}
+                control={form.control}
+                name={`studySections.${section.key}`}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={`study-section-${section.key}`}>
+                      {section.label}
+                    </FieldLabel>
+                    <MarkdownEditor
+                      id={`study-section-${section.key}`}
+                      value={field.value}
+                      maxLength={5000}
+                      invalid={fieldState.invalid}
+                      disabled={isPending}
+                      onBlur={field.onBlur}
+                      onChange={field.onChange}
+                    />
+                    <FieldDescription>{section.description}</FieldDescription>
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+            ))}
+          </div>
           <Controller
             control={form.control}
             name="isActive"

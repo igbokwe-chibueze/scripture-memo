@@ -1,4 +1,7 @@
-import type { TranslationCode } from "@/lib/generated/prisma/enums";
+import type {
+  TranslationCode,
+  VerseStudySectionType,
+} from "@/lib/generated/prisma/enums";
 
 export type VerseWriteData = {
   reference: string;
@@ -7,7 +10,11 @@ export type VerseWriteData = {
   verseStart: number;
   verseEnd: number | null;
   reflection: string | null;
-  studyNote: string | null;
+  studySections: Array<{
+    type: VerseStudySectionType;
+    position: number;
+    content: string;
+  }>;
   tags: string[];
   isActive: boolean;
   translations: Record<TranslationCode, string>;

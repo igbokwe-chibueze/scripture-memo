@@ -29,7 +29,7 @@ function selectTranslation(
 ): { translation: TranslationCode; text: string } | null {
   return (
     translations.find(({ translation }) => translation === preferred) ??
-    translations.find(({ translation }) => translation === TranslationCode.NIV) ??
+    translations.find(({ translation }) => translation === TranslationCode.KJV) ??
     translations[0] ??
     null
   );
@@ -190,7 +190,7 @@ export const vaultRepository = {
         }),
       ]);
 
-    const preferred = settings?.preferredTranslation ?? TranslationCode.NIV;
+    const preferred = settings?.preferredTranslation ?? TranslationCode.KJV;
     const stagesByVerse = new Map<
       string,
       {
@@ -328,12 +328,12 @@ export const vaultRepository = {
         }),
       ]);
       if (!verse) return null;
-      const preferred = settings?.preferredTranslation ?? TranslationCode.NIV;
+      const preferred = settings?.preferredTranslation ?? TranslationCode.KJV;
       const available = verse.translations.map(({ translation }) => translation);
       const translation = available.includes(preferred)
         ? preferred
-        : available.includes(TranslationCode.NIV)
-          ? TranslationCode.NIV
+        : available.includes(TranslationCode.KJV)
+          ? TranslationCode.KJV
           : available[0];
       if (!translation) return null;
 
