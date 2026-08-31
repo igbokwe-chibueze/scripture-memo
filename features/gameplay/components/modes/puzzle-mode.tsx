@@ -75,6 +75,7 @@ export function PuzzleMode({
   attempt,
   isTestReplay = false,
   isVaultReplay = false,
+  isAdminTest = false,
   nextMode,
   onContinue,
   onCompletionShown,
@@ -86,6 +87,7 @@ export function PuzzleMode({
   attempt: GameModeAttemptData | null;
   isTestReplay?: boolean;
   isVaultReplay?: boolean;
+  isAdminTest?: boolean;
   nextMode: GameModeAttemptData["gameMode"] | null;
   onContinue: () => void;
   onCompletionShown: () => void;
@@ -294,6 +296,7 @@ export function PuzzleMode({
           completedMode="PUZZLE"
           nextMode={nextMode}
           isTestReplay={isTestReplay}
+          isAdminTest={isAdminTest}
           isVaultReplay={isVaultReplay}
           beaconProgression={beaconProgression}
           onContinue={() => {

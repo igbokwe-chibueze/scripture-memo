@@ -281,6 +281,8 @@
     "nextMode": "Siguiente modo",
     "returnCurrent": "Volver al modo actual",
     "adminReplay": "Repetición de prueba de administrador",
+    "adminTest": "Prueba de etapa del recorrido",
+    "returnWaypoints": "Volver a los puntos de ruta",
     "testingComplete": "Prueba completada. No cambiaron el progreso, las recompensas ni las esperas.",
     "waypointComplete": "¡Punto completado!",
     "threeFlames": "Las tres llamas están encendidas.",

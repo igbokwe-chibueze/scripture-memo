@@ -18,6 +18,7 @@ import {
   type ProposedWaypointMoveResult,
 } from "@/features/waypoints/components/waypoint-position-dialog";
 import { WaypointStatusAction } from "@/features/waypoints/components/waypoint-status-action";
+import { JourneyStageTestLauncher } from "@/features/waypoints/components/journey-stage-test-launcher";
 import type { JourneyStage } from "@/lib/generated/prisma/enums";
 
 export type ManagedWaypoint = {
@@ -173,6 +174,8 @@ export function WaypointManager({ initialWaypoints, publishedVerses }: WaypointM
 
   return (
     <div className="space-y-5">
+      <JourneyStageTestLauncher waypoints={waypoints} />
+
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-5" aria-label="Waypoint statistics">
         <StatisticCard label="Total waypoints" value={waypoints.length} icon={<MapPinned aria-hidden="true" />} />
         <StatisticCard label="Assigned" value={assignedCount} icon={<BookOpenCheck aria-hidden="true" />} />

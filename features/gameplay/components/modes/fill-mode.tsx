@@ -56,6 +56,7 @@ export function FillMode({
   attempt,
   isTestReplay = false,
   isVaultReplay = false,
+  isAdminTest = false,
   nextMode,
   onContinue,
   onWaypointContinue,
@@ -70,6 +71,7 @@ export function FillMode({
   attempt: GameModeAttemptData | null;
   isTestReplay?: boolean;
   isVaultReplay?: boolean;
+  isAdminTest?: boolean;
   nextMode: GameModeAttemptData["gameMode"] | null;
   onContinue: () => void;
   onWaypointContinue: () => void;
@@ -296,6 +298,7 @@ export function FillMode({
           completedMode="FILL"
           nextMode={nextMode}
           isTestReplay={isTestReplay}
+          isAdminTest={isAdminTest}
           isVaultReplay={isVaultReplay}
           reward={earnedReward}
           beaconProgression={beaconProgression}

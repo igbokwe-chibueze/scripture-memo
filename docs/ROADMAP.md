@@ -1601,8 +1601,8 @@ Phase 29 is complete and accepted. Phase 30 — Testing and QA is next.
 
 **Status:** In progress — the Phase 30 regression checklist was opened on
 2026-08-29. TypeScript, ESLint, and 99 non-database tests pass. Repository
-integration suites are awaiting repair/reset of the dedicated test database,
-and the 16 manual flows remain the acceptance gate.
+integration suites are awaiting repair/reset of the dedicated test database.
+Manual flows 1–5 have passed; flows 6–16 remain the acceptance gate.
 
 ### Manual Test Flows
 
@@ -1611,6 +1611,10 @@ and the 16 manual flows remain the acceptance gate.
 3. **Verse management**: Admin creates a verse with all translations → publishes it → regular user cannot call create action.
 4. **Waypoint assignment**: Admin assigns verse with LEARN stage to Waypoint 1, same verse with RECALL stage to Waypoint 5 → confirm both show correctly on map.
 5. **Journey Stage rules**: Play Waypoint 1 (LEARN stage) → confirm hints are available. Play Waypoint 5 (RECALL stage) → confirm time limit shows. Play a Strengthen stage waypoint → confirm hint button is absent.
+   - Regression testing may use the ADMIN-only Journey Stage launcher on
+     `/admin/waypoints`. It runs a selected real mode against the assigned
+     waypoint's server-authoritative stage rules without changing learner
+     progression, rewards, cooldowns, streaks, badges, flames, or hint balance.
 6. **Three-Day Challenge**: Complete all 5 modes for Day 1 → confirm flame added → confirm Day 2 shows cooldown → confirm server blocks Day 2 start before 24 hours.
 7. **Cooldown bypass test**: Manually alter client state or time → attempt to start Day 2 early → confirm server rejects.
 8. **Day 3 completion**: Complete Day 3 → confirm waypoint gets 3 flames → confirm next waypoint unlocks → confirm Glow Points awarded.

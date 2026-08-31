@@ -581,6 +581,21 @@ or changing the device clock does not pause or extend an attempt.
 
 Every waypoint clearly displays its Journey Stage label. On the Day Selection screen and the Game Map, the stage badge is always visible so the player understands whether they are learning a new verse or revisiting one from memory.
 
+### 8.4A Administrator Journey Stage Testing
+
+The waypoint administration page includes an isolated Journey Stage test
+launcher. An Admin or Super Admin may select any assigned waypoint and one of
+the five game modes. The launcher creates a server-owned test session using the
+waypoint's real verse, translation, Journey Stage, timer, answer validation, and
+hint-availability rules.
+
+Administrator test sessions never create or update learner day/waypoint
+progress, cooldowns, flames, Glow Points, Beacon XP, streaks, badges, hint
+inventory, or profile hint statistics. They are excluded from learner-history
+counts and cannot make an editable waypoint permanent. Every mutation endpoint
+rechecks both the session's test marker and the caller's current administrator
+role; hiding the launcher in the browser is not treated as authorization.
+
 ### 8.5 Verse Mastery
 
 After successfully completing the **Master** stage waypoint for a verse (all three days complete), that verse is considered **permanently mastered** within the main progression. The Vault displays mastered verses in a dedicated section. Players may replay any mastered verse from the Vault at any time without affecting main campaign progression.

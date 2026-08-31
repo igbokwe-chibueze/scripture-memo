@@ -62,6 +62,7 @@ async function getDayMetricValues(
         userId,
         status: CompletionStatus.COMPLETED,
         isVaultReplay: false,
+        isAdminTest: false,
       },
       select: {
         waypointId: true,

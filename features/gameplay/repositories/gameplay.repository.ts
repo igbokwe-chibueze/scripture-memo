@@ -76,6 +76,76 @@ function getAttemptExpiry(
 /** Database boundary for server-created gameplay sessions and mode attempts. */
 export const gameplayRepository = {
   /**
+   * Creates one isolated administrator test against the assigned waypoint.
+   *
+   * The session deliberately has no day-progress relation. `isAdminTest` is
+   * checked again by attempt completion before any learner progression branch,
+   * which makes the database record safe even if a client calls actions directly.
+   */
+  async startAdminTestSession(
+    userId: string,
+    waypointId: string,
+    gameMode: GameMode,
+    startedAt: Date,
+  ): Promise<GameSessionModel> {
+    return prisma.$transaction(async (transaction) => {
+      const [waypoint, settings] = await Promise.all([
+        transaction.waypoint.findUnique({
+          where: { id: waypointId },
+          select: {
+            id: true,
+            verseId: true,
+            verse: {
+              select: {
+                translations: {
+                  select: { translation: true },
+                },
+              },
+            },
+          },
+        }),
+        transaction.userSettings.findUnique({
+          where: { userId },
+          select: { preferredTranslation: true },
+        }),
+      ]);
+
+      if (!waypoint?.verseId || !waypoint.verse) {
+        throw new GameplayConflictError("SESSION_UNAVAILABLE");
+      }
+
+      const availableTranslations = new Set(
+        waypoint.verse.translations.map(({ translation }) => translation),
+      );
+      const preferredTranslation =
+        settings?.preferredTranslation ?? TranslationCode.KJV;
+      const translation = availableTranslations.has(preferredTranslation)
+        ? preferredTranslation
+        : availableTranslations.has(TranslationCode.KJV)
+          ? TranslationCode.KJV
+          : waypoint.verse.translations[0]?.translation;
+
+      if (!translation) {
+        throw new GameplayConflictError("SESSION_UNAVAILABLE");
+      }
+
+      return transaction.gameSession.create({
+        data: {
+          userId,
+          waypointId: waypoint.id,
+          verseId: waypoint.verseId,
+          dayLevel: DayLevel.GLIMMER,
+          translation,
+          status: CompletionStatus.IN_PROGRESS,
+          isAdminTest: true,
+          adminTestMode: gameMode,
+          startedAt,
+        },
+      });
+    }, gameplayTransactionOptions);
+  },
+
+  /**
    * Starts or resumes one campaign session atomically with day preparation.
    *
    * WHY: The progression advisory lock remains held until both the day state and
@@ -119,6 +189,7 @@ export const gameplayRepository = {
           waypointId,
           dayLevel,
           isVaultReplay: false,
+          isAdminTest: false,
           status: CompletionStatus.IN_PROGRESS,
         },
         orderBy: { createdAt: "desc" },
@@ -173,6 +244,8 @@ export const gameplayRepository = {
           translation: true,
           status: true,
           isVaultReplay: true,
+          isAdminTest: true,
+          adminTestMode: true,
           waypoint: { select: { number: true, journeyStage: true } },
           verse: {
             select: {
@@ -215,6 +288,11 @@ export const gameplayRepository = {
     const completedModes = GAME_MODE_ORDER.filter((mode) =>
       session.attempts.some((attempt) => attempt.gameMode === mode),
     );
+    const currentMode = session.isAdminTest
+      ? session.status === CompletionStatus.IN_PROGRESS
+        ? session.adminTestMode
+        : null
+      : getCurrentMode(completedModes);
 
     return {
       id: session.id,
@@ -223,6 +301,8 @@ export const gameplayRepository = {
       translation: session.translation,
       status: session.status,
       isVaultReplay: session.isVaultReplay,
+      isAdminTest: session.isAdminTest,
+      adminTestMode: session.adminTestMode,
       waypoint: session.waypoint,
       verse: {
         id: session.verse.id,
@@ -230,7 +310,7 @@ export const gameplayRepository = {
         translationText: translation.text,
       },
       completedModes,
-      currentMode: getCurrentMode(completedModes),
+      currentMode,
       audioEnabled: settings?.audioEnabled ?? true,
       hintBalance: calculateHintBalance(
         usedHintCount,
@@ -256,6 +336,7 @@ export const gameplayRepository = {
     sessionId: string,
     requestedMode: GameMode,
     startedAt: Date,
+    allowAdminTest: boolean,
   ): Promise<GameModeAttemptData> {
     return prisma.$transaction(async (transaction) => {
       await lockGameSession(transaction, sessionId);
@@ -267,6 +348,8 @@ export const gameplayRepository = {
         },
         select: {
           isVaultReplay: true,
+          isAdminTest: true,
+          adminTestMode: true,
           waypoint: { select: { journeyStage: true } },
           attempts: {
             select: {
@@ -283,6 +366,9 @@ export const gameplayRepository = {
       if (!session || (!session.isVaultReplay && !session.waypoint)) {
         throw new GameplayConflictError("SESSION_UNAVAILABLE");
       }
+      if (session.isAdminTest && !allowAdminTest) {
+        throw new GameplayConflictError("SESSION_UNAVAILABLE");
+      }
 
       const completedModes = GAME_MODE_ORDER.filter((mode) =>
         session.attempts.some(
@@ -291,7 +377,9 @@ export const gameplayRepository = {
             attempt.status === GameModeAttemptStatus.COMPLETED,
         ),
       );
-      const currentMode = getCurrentMode(completedModes);
+      const currentMode = session.isAdminTest
+        ? session.adminTestMode
+        : getCurrentMode(completedModes);
       if (!currentMode) throw new GameplayConflictError("ALL_MODES_COMPLETED");
       if (requestedMode !== currentMode) {
         throw new GameplayConflictError("MODE_OUT_OF_ORDER");
@@ -361,6 +449,7 @@ export const gameplayRepository = {
     requestedMode: GameMode,
     submittedAnswer: string,
     completedAt: Date,
+    allowAdminTest: boolean,
   ): Promise<CompleteModeResult> {
     return prisma.$transaction(async (transaction) => {
       await lockGameSession(transaction, sessionId);
@@ -375,6 +464,8 @@ export const gameplayRepository = {
           dayLevel: true,
           translation: true,
           isVaultReplay: true,
+          isAdminTest: true,
+          adminTestMode: true,
           waypoint: { select: { journeyStage: true } },
           verse: {
             select: {
@@ -401,6 +492,9 @@ export const gameplayRepository = {
       ) {
         throw new GameplayConflictError("SESSION_UNAVAILABLE");
       }
+      if (session.isAdminTest && !allowAdminTest) {
+        throw new GameplayConflictError("SESSION_UNAVAILABLE");
+      }
 
       const completedModes = GAME_MODE_ORDER.filter((mode) =>
         session.attempts.some(
@@ -409,7 +503,9 @@ export const gameplayRepository = {
             attempt.status === GameModeAttemptStatus.COMPLETED,
         ),
       );
-      const currentMode = getCurrentMode(completedModes);
+      const currentMode = session.isAdminTest
+        ? session.adminTestMode
+        : getCurrentMode(completedModes);
       if (!currentMode || requestedMode !== currentMode) {
         throw new GameplayConflictError("MODE_OUT_OF_ORDER");
       }
@@ -483,6 +579,28 @@ export const gameplayRepository = {
       });
       const completedAfterSubmission = [...completedModes, requestedMode];
       const nextMode = getCurrentMode(completedAfterSubmission);
+
+      // WHY: An admin test proves the actual answer and server-owned deadline,
+      // then stops before streak, badge, Beacon, reward, day, or cooldown work.
+      // The terminal session remains only as a short audit/debug artifact.
+      if (session.isAdminTest) {
+        await transaction.gameSession.update({
+          where: { id: sessionId },
+          data: {
+            status: CompletionStatus.COMPLETED,
+            completedAt,
+          },
+        });
+        return {
+          status: "admin-test-complete",
+          gameMode: requestedMode,
+          nextMode: null,
+          dayCompletion: null,
+          streak: null,
+          badgeUnlocks: [],
+          beaconProgression: null,
+        };
+      }
 
       // WHY: Vault replay attempts prove real answers and ordered completion,
       // but never touch campaign progression, streaks, rewards, hints, or

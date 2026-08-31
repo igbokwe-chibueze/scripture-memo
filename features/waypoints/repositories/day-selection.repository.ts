@@ -55,6 +55,7 @@ export const daySelectionRepository = {
               where: {
                 userId,
                 isVaultReplay: false,
+                isAdminTest: false,
                 status: CompletionStatus.COMPLETED,
               },
               select: { id: true },

@@ -25,6 +25,7 @@ export function ModeCompletionScreen({
   completedMode,
   nextMode,
   isTestReplay,
+  isAdminTest = false,
   isVaultReplay = false,
   onContinue,
   onReplay,
@@ -34,6 +35,7 @@ export function ModeCompletionScreen({
   completedMode: GameMode;
   nextMode: GameMode | null;
   isTestReplay: boolean;
+  isAdminTest?: boolean;
   isVaultReplay?: boolean;
   onContinue: () => void;
   onReplay?: () => void;
@@ -128,8 +130,10 @@ export function ModeCompletionScreen({
           </motion.div>
 
           <p className="mt-2 text-xs font-black tracking-[0.18em] text-emerald-700 uppercase dark:text-emerald-300 sm:mt-3">
-            {isTestReplay
-              ? t("adminReplay")
+            {isAdminTest
+              ? t("adminTest")
+              : isTestReplay
+                ? t("adminReplay")
               : isVaultReplay
                 ? t("vaultReplay")
                 : t("modeRestored")}
@@ -144,7 +148,7 @@ export function ModeCompletionScreen({
           <div className="mt-5 rounded-2xl border border-amber-400/30 bg-amber-100/70 p-4 dark:border-amber-300/20 dark:bg-amber-300/8 sm:mt-7">
             <SparklesIcon className="mx-auto size-6 text-amber-600 dark:text-amber-300" aria-hidden="true" />
             <p className="mt-2 text-sm font-semibold text-muted-foreground dark:text-slate-300">
-              {isTestReplay
+              {isTestReplay || isAdminTest
                 ? t("testingComplete")
                 : isVaultReplay
                   ? nextMode
@@ -169,7 +173,7 @@ export function ModeCompletionScreen({
             )}
           </div>
 
-          {beaconProgression && !isTestReplay && !isVaultReplay && (
+          {beaconProgression && !isTestReplay && !isAdminTest && !isVaultReplay && (
             <motion.div
               className="mt-4 rounded-2xl border border-violet-400/30 bg-violet-500/10 p-4 text-left"
               initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.92 }}
@@ -225,6 +229,8 @@ export function ModeCompletionScreen({
             >
               {isTestReplay
                 ? t("returnCurrent")
+                : isAdminTest
+                  ? t("returnWaypoints")
                 : nextMode
                   ? t("continueTo", { mode: modeLabels[nextMode] })
                   : isVaultReplay

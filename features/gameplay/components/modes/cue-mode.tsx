@@ -51,6 +51,7 @@ export function CueMode({
   attempt,
   isTestReplay = false,
   isVaultReplay = false,
+  isAdminTest = false,
   nextMode,
   onContinue,
   onCompletionShown,
@@ -62,6 +63,7 @@ export function CueMode({
   attempt: GameModeAttemptData | null;
   isTestReplay?: boolean;
   isVaultReplay?: boolean;
+  isAdminTest?: boolean;
   nextMode: GameModeAttemptData["gameMode"] | null;
   onContinue: () => void;
   onCompletionShown: () => void;
@@ -246,6 +248,7 @@ export function CueMode({
           completedMode="CUE"
           nextMode={nextMode}
           isTestReplay={isTestReplay}
+          isAdminTest={isAdminTest}
           isVaultReplay={isVaultReplay}
           beaconProgression={beaconProgression}
           onContinue={() => {

@@ -281,6 +281,8 @@
     "nextMode": "Next mode",
     "returnCurrent": "Return to current mode",
     "adminReplay": "Admin test replay",
+    "adminTest": "Journey Stage test",
+    "returnWaypoints": "Return to waypoints",
     "testingComplete": "Testing complete. No progress, rewards, or cooldowns were changed.",
     "waypointComplete": "Waypoint complete!",
     "threeFlames": "All three flames are burning.",

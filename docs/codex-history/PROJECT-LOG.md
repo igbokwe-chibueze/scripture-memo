@@ -1,5 +1,30 @@
 # Scripture Memo Project Log
 
+### 2026-08-31 — Journey Stage regression accepted
+
+- The project owner manually verified the ADMIN Journey Stage launcher across
+  Learn, Recall, Strengthen, and Master.
+- Confirmed the production timer and hint restrictions while preserving learner
+  progress, rewards, streaks, badges, flames, cooldowns, and hint balances.
+- Marked Phase 30 manual Flow 5 as passed. Manual flows 6–16 remain.
+
+### 2026-08-29 — Isolated Journey Stage QA launcher
+
+- Added an ADMIN-only launcher to `/admin/waypoints` for selecting any assigned
+  waypoint and any of the five real game modes without playing through earlier
+  curriculum or waiting for cooldowns.
+- Added persisted admin-test session identity and target-mode fields so Recall,
+  Strengthen, and Master tests use the production server-owned attempt timers,
+  answer validation, and Journey Stage hint gates.
+- Terminated successful test submissions before learner progression, Glow,
+  Beacon XP, streak, badge, flame, reward, cooldown, or hint-inventory branches.
+- Excluded test sessions from learner-history locks, active campaign resumption,
+  completed-day detection, and badge metrics; every test mutation also rechecks
+  the caller's current administrator role.
+- Applied migration `20260829170000_add_admin_gameplay_test_sessions` to the
+  local database and regenerated the Prisma client.
+- Updated the Phase 30 Flow 5 checklist with a short, repeatable manual path.
+
 ### 2026-08-28 — Sanctuary study-reader redesign
 
 - Rebuilt the Sanctuary as a mobile-first devotional reader with a compact

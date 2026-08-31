@@ -13,7 +13,17 @@ import type {
 
 const waypointInclude = {
   verse: { select: { id: true, reference: true, book: true, isActive: true } },
-  _count: { select: { userProgress: true, dayProgress: true, gameSessions: true } },
+  _count: {
+    select: {
+      userProgress: true,
+      dayProgress: true,
+      // Administrator diagnostics are not learner curriculum history and must
+      // never freeze an otherwise editable hidden waypoint.
+      gameSessions: {
+        where: { isAdminTest: false },
+      },
+    },
+  },
 } satisfies Prisma.WaypointInclude;
 
 const auditTransactionOptions = { maxWait: 10_000, timeout: 60_000 } as const;
@@ -21,7 +31,9 @@ const auditTransactionOptions = { maxWait: 10_000, timeout: 60_000 } as const;
 const waypointProgressCountSelect = {
   userProgress: true,
   dayProgress: true,
-  gameSessions: true,
+  gameSessions: {
+    where: { isAdminTest: false },
+  },
 } satisfies Prisma.WaypointCountOutputTypeSelect;
 
 type WaypointProgressCounts = {

@@ -25,8 +25,12 @@ export async function SessionReadyView({
     session.user.id,
     sessionId,
   );
+  const administrator = isAdmin(
+    session.user.role as UserRole | null | undefined,
+  );
   if (
     !gameSession ||
+    (gameSession.isAdminTest && !administrator) ||
     (!gameSession.isVaultReplay &&
       (!gameSession.waypointId || !gameSession.dayLevel || !gameSession.waypoint))
   ) {
@@ -40,7 +44,7 @@ export async function SessionReadyView({
     <GameShell
       key={gameSession.id}
       gameSession={gameSession}
-      isAdmin={isAdmin(session.user.role as UserRole | null | undefined)}
+      isAdmin={administrator}
     />
   );
 }

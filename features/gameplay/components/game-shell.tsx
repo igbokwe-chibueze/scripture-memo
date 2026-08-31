@@ -154,6 +154,10 @@ export function GameShell({
     setExpiredMode(null);
     setCurrentMode(nextMode);
     setIsAwaitingContinue(false);
+    if (gameSession.isAdminTest) {
+      router.push("/admin/waypoints");
+      return;
+    }
     if (!nextMode && gameSession.isVaultReplay) {
       router.push("/vault");
       return;
@@ -186,7 +190,9 @@ export function GameShell({
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
               <p className="whitespace-nowrap text-xs font-black tracking-[0.12em] text-amber-700 uppercase dark:text-amber-300 sm:tracking-[0.16em]">
-                {gameSession.isVaultReplay
+                {gameSession.isAdminTest
+                  ? t("adminTesting")
+                  : gameSession.isVaultReplay
                   ? t("vaultReplay")
                   : t("dayWaypoint", { day: dayLabel, number: gameSession.waypoint?.number ?? 0 })}
               </p>
@@ -232,7 +238,9 @@ export function GameShell({
                       className="min-h-11 cursor-pointer gap-3 rounded-lg px-3 py-2 font-bold"
                       onClick={() =>
                         router.push(
-                          gameSession.isVaultReplay
+                          gameSession.isAdminTest
+                            ? "/admin/waypoints"
+                            : gameSession.isVaultReplay
                             ? "/vault"
                             : `/game/waypoints/${gameSession.waypointId}`,
                         )
@@ -298,7 +306,14 @@ export function GameShell({
             </div>
           </div>
 
-          {isAdmin && gameSession.completedModes.length > 0 && (
+          {gameSession.isAdminTest && (
+            <div className="mt-4 flex min-h-11 items-center gap-2 rounded-xl border border-sky-400/25 bg-sky-100/70 px-3 py-2 text-xs font-bold text-sky-800 dark:border-sky-300/20 dark:bg-sky-300/8 dark:text-sky-200">
+              <ShieldCheckIcon className="size-4 shrink-0" aria-hidden="true" />
+              {t("adminTesting")}
+            </div>
+          )}
+
+          {isAdmin && !gameSession.isAdminTest && gameSession.completedModes.length > 0 && (
             <div className="mt-4 flex flex-col items-stretch gap-3 rounded-xl border border-sky-400/25 bg-sky-100/70 p-3 dark:border-sky-300/20 dark:bg-sky-300/8 sm:flex-row sm:items-center sm:justify-between">
               <span className="inline-flex items-center gap-2 text-xs font-bold text-sky-800 dark:text-sky-200">
                 <ShieldCheckIcon className="size-4 shrink-0" aria-hidden="true" />
@@ -440,7 +455,12 @@ export function GameShell({
               verseText={gameSession.verse.translationText}
               attempt={attempt}
               isVaultReplay={gameSession.isVaultReplay}
-              nextMode={GAME_MODE_ORDER[currentModeIndex + 1] ?? null}
+              isAdminTest={gameSession.isAdminTest}
+              nextMode={
+                gameSession.isAdminTest
+                  ? null
+                  : GAME_MODE_ORDER[currentModeIndex + 1] ?? null
+              }
               onContinue={() =>
                 continueToMode(GAME_MODE_ORDER[currentModeIndex + 1] ?? null)
               }
@@ -453,7 +473,12 @@ export function GameShell({
               verseText={gameSession.verse.translationText}
               attempt={attempt}
               isVaultReplay={gameSession.isVaultReplay}
-              nextMode={GAME_MODE_ORDER[currentModeIndex + 1] ?? null}
+              isAdminTest={gameSession.isAdminTest}
+              nextMode={
+                gameSession.isAdminTest
+                  ? null
+                  : GAME_MODE_ORDER[currentModeIndex + 1] ?? null
+              }
               onContinue={() =>
                 continueToMode(GAME_MODE_ORDER[currentModeIndex + 1] ?? null)
               }
@@ -466,7 +491,12 @@ export function GameShell({
               verseText={gameSession.verse.translationText}
               attempt={attempt}
               isVaultReplay={gameSession.isVaultReplay}
-              nextMode={GAME_MODE_ORDER[currentModeIndex + 1] ?? null}
+              isAdminTest={gameSession.isAdminTest}
+              nextMode={
+                gameSession.isAdminTest
+                  ? null
+                  : GAME_MODE_ORDER[currentModeIndex + 1] ?? null
+              }
               onContinue={() =>
                 continueToMode(GAME_MODE_ORDER[currentModeIndex + 1] ?? null)
               }
@@ -479,7 +509,12 @@ export function GameShell({
               verseText={gameSession.verse.translationText}
               attempt={attempt}
               isVaultReplay={gameSession.isVaultReplay}
-              nextMode={GAME_MODE_ORDER[currentModeIndex + 1] ?? null}
+              isAdminTest={gameSession.isAdminTest}
+              nextMode={
+                gameSession.isAdminTest
+                  ? null
+                  : GAME_MODE_ORDER[currentModeIndex + 1] ?? null
+              }
               onContinue={() =>
                 continueToMode(GAME_MODE_ORDER[currentModeIndex + 1] ?? null)
               }
@@ -494,6 +529,7 @@ export function GameShell({
               verseText={gameSession.verse.translationText}
               attempt={attempt}
               isVaultReplay={gameSession.isVaultReplay}
+              isAdminTest={gameSession.isAdminTest}
               nextMode={null}
               onContinue={() => continueToMode(null)}
               onWaypointContinue={continueToSanctuary}
@@ -555,6 +591,7 @@ export function GameShell({
               initialBalance={gameSession.hintBalance}
               disabled={isAwaitingContinue}
               isTestReplay={Boolean(testReplayMode)}
+              isAdminTest={gameSession.isAdminTest}
               testReference={gameSession.verse.reference}
               testVerseText={gameSession.verse.translationText}
             />

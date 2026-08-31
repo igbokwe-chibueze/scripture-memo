@@ -404,6 +404,8 @@ model GameSession {
   translation   TranslationCode   @default(KJV)
   status        CompletionStatus  @default(IN_PROGRESS)
   isVaultReplay Boolean           @default(false)
+  isAdminTest   Boolean           @default(false)
+  adminTestMode GameMode?
   startedAt     DateTime          @default(now())
   completedAt   DateTime?
   createdAt     DateTime          @default(now())
@@ -417,6 +419,7 @@ model GameSession {
 
   @@index([userId, status])
   @@index([userId, isVaultReplay, createdAt(sort: Desc)])
+  @@index([userId, isAdminTest, createdAt(sort: Desc)])
   @@index([waypointId, dayLevel])
   @@index([dayProgressId])
 }

@@ -76,6 +76,7 @@ export function DragDropMode({
   attempt,
   isTestReplay = false,
   isVaultReplay = false,
+  isAdminTest = false,
   nextMode,
   onContinue,
   onCompletionShown,
@@ -87,6 +88,7 @@ export function DragDropMode({
   attempt: GameModeAttemptData | null;
   isTestReplay?: boolean;
   isVaultReplay?: boolean;
+  isAdminTest?: boolean;
   nextMode: GameModeAttemptData["gameMode"] | null;
   onContinue: () => void;
   onCompletionShown: () => void;
@@ -280,6 +282,7 @@ export function DragDropMode({
           completedMode="DRAG_DROP"
           nextMode={nextMode}
           isTestReplay={isTestReplay}
+          isAdminTest={isAdminTest}
           isVaultReplay={isVaultReplay}
           beaconProgression={beaconProgression}
           onContinue={() => {

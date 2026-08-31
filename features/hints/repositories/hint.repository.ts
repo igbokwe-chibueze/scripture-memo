@@ -57,9 +57,12 @@ export const hintRepository = {
    * Master verse, access another learner's session, or spend the same final
    * hint twice.
    */
-  async useHint(userId: string, sessionId: string): Promise<UseHintResult> {
+  async useHint(
+    userId: string,
+    sessionId: string,
+    allowAdminTest: boolean,
+  ): Promise<UseHintResult> {
     return prisma.$transaction(async (transaction) => {
-      await lockHintBalance(transaction, userId);
       const session = await transaction.gameSession.findFirst({
         where: {
           id: sessionId,
@@ -70,6 +73,7 @@ export const hintRepository = {
         select: {
           id: true,
           translation: true,
+          isAdminTest: true,
           waypoint: { select: { journeyStage: true } },
           verse: {
             select: {
@@ -84,12 +88,37 @@ export const hintRepository = {
         },
       });
       if (!session?.waypoint) throw new HintConflictError("SESSION_UNAVAILABLE");
+      if (session.isAdminTest && !allowAdminTest) {
+        throw new HintConflictError("SESSION_UNAVAILABLE");
+      }
       if (
         session.waypoint.journeyStage === "STRENGTHEN" ||
         session.waypoint.journeyStage === "MASTER"
       ) {
         throw new HintConflictError("STAGE_DISALLOWS_HINTS");
       }
+
+      const completedModes = new Set(session.attempts.map(({ gameMode }) => gameMode));
+      const currentMode = GAME_MODE_ORDER.find((mode) => !completedModes.has(mode));
+      if (!currentMode) throw new HintConflictError("SESSION_UNAVAILABLE");
+      const translation = session.verse.translations.find(
+        ({ translation: code }) => code === session.translation,
+      );
+      if (!translation) throw new HintConflictError("SESSION_UNAVAILABLE");
+
+      // WHY: Admin stage testing must exercise the same server-side stage gate,
+      // but it must never consume inventory or increment hint statistics.
+      if (session.isAdminTest) {
+        return {
+          reference: session.verse.reference,
+          verseText: translation.text,
+          remainingHints: 0,
+        };
+      }
+
+      // Only real inventory consumption needs serialization. Admin diagnostics
+      // remain a read-only path and avoid an unnecessary database lock/write.
+      await lockHintBalance(transaction, userId);
 
       const [usedHints, purchased] = await Promise.all([
         transaction.hintUsage.count({ where: { userId } }),
@@ -105,13 +134,6 @@ export const hintRepository = {
       if (remainingBeforeUse <= 0) {
         throw new HintConflictError("NO_HINTS_REMAINING");
       }
-      const completedModes = new Set(session.attempts.map(({ gameMode }) => gameMode));
-      const currentMode = GAME_MODE_ORDER.find((mode) => !completedModes.has(mode));
-      if (!currentMode) throw new HintConflictError("SESSION_UNAVAILABLE");
-      const translation = session.verse.translations.find(
-        ({ translation: code }) => code === session.translation,
-      );
-      if (!translation) throw new HintConflictError("SESSION_UNAVAILABLE");
 
       await transaction.hintUsage.create({
         data: { userId, gameSessionId: session.id, gameMode: currentMode },
