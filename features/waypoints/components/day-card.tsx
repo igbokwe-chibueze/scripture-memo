@@ -10,6 +10,7 @@ import {
   LockKeyholeIcon,
   PlayIcon,
   RotateCcwIcon,
+  ShieldAlertIcon,
   ShieldCheckIcon,
   SparklesIcon,
 } from "lucide-react";
@@ -48,6 +49,7 @@ export function DayCard({
   const t = useTranslations("DaySelection");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [isVerifyingCooldown, startCooldownVerification] = useTransition();
   const status = statusPresentation[card.status];
   const StatusIcon = status.icon;
   const dayKey = card.dayLevel.toLowerCase() as "glimmer" | "glow" | "radiance";
@@ -91,6 +93,40 @@ export function DayCard({
       }
 
       toast.success(result.message, { duration: 4_000 });
+      router.refresh();
+    });
+  }
+
+  /**
+   * Calls the production session-start action while this card is still in its
+   * cooldown state. The check passes only for the stable cooldown conflict
+   * code, so an unrelated authentication or persistence failure cannot create
+   * a false-positive QA result.
+   */
+  function verifyServerCooldown(): void {
+    startCooldownVerification(async () => {
+      const result = await startGameSessionAction({
+        waypointId,
+        dayLevel: card.dayLevel,
+      });
+
+      if (!result.success && result.errorCode === "PRG-004") {
+        toast.success(t("serverLockVerified"), {
+          duration: 4_000,
+        });
+        return;
+      }
+
+      if (!result.success) {
+        showActionError(result);
+        return;
+      }
+
+      // A successful start means the persisted cooldown was no longer active.
+      // Refresh rather than claiming that the server-side lock passed.
+      toast.warning(t("cooldownNoLongerActive"), {
+        duration: 4_000,
+      });
       router.refresh();
     });
   }
@@ -184,7 +220,9 @@ export function DayCard({
           <div
             className={cn(
               "grid w-full gap-2",
-              isAdmin && card.status === "COOLDOWN" ? "grid-cols-2" : "grid-cols-1",
+              isAdmin && card.status === "COOLDOWN"
+                ? "grid-cols-1 sm:grid-cols-3"
+                : "grid-cols-1",
             )}
           >
             <Button
@@ -196,6 +234,18 @@ export function DayCard({
               <StatusIcon className="size-4" aria-hidden="true" />
               {card.status === "COOLDOWN" ? t("coolingDown") : t("locked")}
             </Button>
+            {isAdmin && card.status === "COOLDOWN" && (
+              <LoadingButton
+                isPending={isVerifyingCooldown}
+                pendingLabel={t("verifyingLock")}
+                variant="outline"
+                onClick={verifyServerCooldown}
+                className="min-h-11 rounded-xl px-2 text-xs sm:text-sm"
+              >
+                <ShieldAlertIcon className="size-4" aria-hidden="true" />
+                {t("verifyServerLock")}
+              </LoadingButton>
+            )}
             {isAdmin && card.status === "COOLDOWN" && (
               <LoadingButton
                 isPending={isPending}

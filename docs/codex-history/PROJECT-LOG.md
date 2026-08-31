@@ -1,5 +1,15 @@
 # Scripture Memo Project Log
 
+### 2026-08-31 — Three-Day Challenge accepted and cooldown QA exposed
+
+- Recorded project-owner acceptance of Phase 30 Flow 6 after the five Glimmer
+  modes produced one flame and a persisted 24-hour Glow cooldown.
+- Added an ADMIN-only **Verify server lock** control to active cooldown cards.
+  It invokes the production session-start action and reports success only for
+  the specific server-owned `PRG-004` cooldown rejection.
+- Kept cooldown override separate so verification cannot silently unlock or
+  alter learner progression.
+
 ### 2026-08-31 — Journey Stage regression accepted
 
 - The project owner manually verified the ADMIN Journey Stage launcher across

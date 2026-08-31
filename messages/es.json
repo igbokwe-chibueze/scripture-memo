@@ -185,6 +185,10 @@
     "timerUpdates": "El contador se actualiza automáticamente.",
     "unlocking": "Desbloqueando",
     "unlockTesting": "Desbloquear para pruebas",
+    "verifyServerLock": "Verificar bloqueo",
+    "verifyingLock": "Verificando bloqueo",
+    "serverLockVerified": "El servidor bloqueó correctamente el inicio anticipado.",
+    "cooldownNoLongerActive": "La espera ha terminado. El día se está actualizando.",
     "testReplay": "Probar de nuevo {day}",
     "challengeComplete": "Desafío completado"
   },

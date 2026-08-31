@@ -185,6 +185,10 @@
     "timerUpdates": "The timer updates automatically.",
     "unlocking": "Unlocking",
     "unlockTesting": "Unlock for testing",
+    "verifyServerLock": "Verify server lock",
+    "verifyingLock": "Verifying lock",
+    "serverLockVerified": "Server cooldown correctly blocked the early start.",
+    "cooldownNoLongerActive": "The cooldown has expired. The day is being refreshed.",
     "testReplay": "Test replay {day}",
     "challengeComplete": "Challenge complete"
   },
