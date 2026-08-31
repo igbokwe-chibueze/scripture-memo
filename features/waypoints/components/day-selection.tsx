@@ -105,6 +105,7 @@ export function DaySelection({
           {isAdmin && (
             <AdminDayTestingMenu
               waypointId={data.waypointId}
+              journeyStage={data.journeyStage}
               cards={cards}
             />
           )}

@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import {
   ClockArrowUpIcon,
+  BadgeCheckIcon,
   EllipsisVerticalIcon,
   RotateCcwIcon,
   ShieldAlertIcon,
@@ -25,12 +26,15 @@ import { buttonVariants } from "@/components/ui/button";
 import { showActionError } from "@/lib/errors/show-action-error";
 import { cn } from "@/lib/utils";
 import { startGameSessionAction } from "@/features/gameplay/actions/start-game-session.action";
+import { verifyFirstStepsBadgeAction } from "@/features/badges/actions/verify-first-steps-badge.action";
 import { verifyCompletionIdempotencyAction } from "@/features/gameplay/actions/verify-completion-idempotency.action";
 import { overrideCooldownAction } from "@/features/progression/actions/override-cooldown.action";
 import type { DayCardData } from "@/features/waypoints/types/day-selection.types";
+import type { JourneyStage } from "@/lib/generated/prisma/enums";
 
 type AdminDayTestingMenuProps = {
   waypointId: string;
+  journeyStage: JourneyStage;
   cards: DayCardData[];
 };
 
@@ -43,6 +47,7 @@ type AdminDayTestingMenuProps = {
  */
 export function AdminDayTestingMenu({
   waypointId,
+  journeyStage,
   cards,
 }: AdminDayTestingMenuProps): React.ReactNode {
   const t = useTranslations("DaySelection");
@@ -53,6 +58,9 @@ export function AdminDayTestingMenu({
     (card) => card.status === "COMPLETE" && Boolean(card.completedSessionId),
   );
   const hasTestingActions = cooldownCards.length > 0 || replayCards.length > 0;
+  const canVerifyFirstSteps =
+    journeyStage === "LEARN" &&
+    replayCards.some((card) => card.dayLevel === "RADIANCE");
 
   if (!hasTestingActions) return null;
 
@@ -111,6 +119,21 @@ export function AdminDayTestingMenu({
         waypointId,
         dayLevel: card.dayLevel,
       });
+      if (!result.success) {
+        showActionError(result);
+        return;
+      }
+
+      toast.success(result.message, {
+        duration: 4_000,
+      });
+    });
+  }
+
+  /** Confirms trusted Learn completion unlocked and rewarded First Steps once. */
+  function verifyFirstStepsBadge(): void {
+    startTransition(async () => {
+      const result = await verifyFirstStepsBadgeAction({ waypointId });
       if (!result.success) {
         showActionError(result);
         return;
@@ -202,6 +225,15 @@ export function AdminDayTestingMenu({
                 </Fragment>
               );
             })}
+            {canVerifyFirstSteps && (
+              <DropdownMenuItem
+                className="min-h-11 cursor-pointer gap-3 rounded-lg px-3 py-2 font-bold"
+                onClick={verifyFirstStepsBadge}
+              >
+                <BadgeCheckIcon aria-hidden="true" />
+                {t("verifyFirstStepsBadge")}
+              </DropdownMenuItem>
+            )}
           </DropdownMenuGroup>
         )}
       </DropdownMenuContent>

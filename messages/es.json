@@ -194,6 +194,7 @@
     "unlockDayTesting": "Desbloquear {day} para pruebas",
     "completedDayTests": "Pruebas de días completados",
     "verifyDuplicateRewards": "Verificar protección duplicada de {day}",
+    "verifyFirstStepsBadge": "Verificar insignia Primeros Pasos",
     "testReplay": "Probar de nuevo {day}",
     "challengeComplete": "Desafío completado"
   },

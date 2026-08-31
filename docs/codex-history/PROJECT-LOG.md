@@ -1,5 +1,12 @@
 # Scripture Memo Project Log
 
+### 2026-08-31 — Read-only First Steps badge verification
+
+- Added a repeatable, read-only Phase 30 badge acceptance check to completed
+  Learn waypoints. The administrator menu now verifies that trusted waypoint
+  completion unlocked First Steps once and recorded its Glow reward once,
+  without re-evaluating badges or changing learner balances.
+
 ### 2026-08-31 — Rollback-only duplicate reward verification
 
 - The project owner ran the completed-Radiance probe and received the protected,

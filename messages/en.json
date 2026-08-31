@@ -194,6 +194,7 @@
     "unlockDayTesting": "Unlock {day} for testing",
     "completedDayTests": "Completed-day tests",
     "verifyDuplicateRewards": "Verify {day} duplicate protection",
+    "verifyFirstStepsBadge": "Verify First Steps badge",
     "testReplay": "Test replay {day}",
     "challengeComplete": "Challenge complete"
   },
