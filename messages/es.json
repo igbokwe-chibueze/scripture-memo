@@ -193,6 +193,7 @@
     "verifyDayLock": "Verificar bloqueo de {day}",
     "unlockDayTesting": "Desbloquear {day} para pruebas",
     "completedDayTests": "Pruebas de días completados",
+    "verifyDuplicateRewards": "Verificar protección duplicada de {day}",
     "testReplay": "Probar de nuevo {day}",
     "challengeComplete": "Desafío completado"
   },

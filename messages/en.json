@@ -193,6 +193,7 @@
     "verifyDayLock": "Verify {day} server lock",
     "unlockDayTesting": "Unlock {day} for testing",
     "completedDayTests": "Completed-day tests",
+    "verifyDuplicateRewards": "Verify {day} duplicate protection",
     "testReplay": "Test replay {day}",
     "challengeComplete": "Challenge complete"
   },

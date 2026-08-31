@@ -1,5 +1,18 @@
 # Scripture Memo Project Log
 
+### 2026-08-31 — Rollback-only duplicate reward verification
+
+- The project owner ran the completed-Radiance probe and received the protected,
+  balances-unchanged result; Phase 30 Flow 9 is accepted.
+- Added an ADMIN-only completed-day check that proves the gameplay session is
+  terminal before reward, badge, streak, or progression logic can run again.
+- Added forced-rollback probes for the existing Glow and Beacon idempotency
+  identities. PostgreSQL must reject both duplicates; even a missing constraint
+  cannot let the diagnostic insert commit.
+- Re-read Glow and Beacon balances after the probes and fail verification unless
+  both remain unchanged.
+- Placed the check inside the consolidated Day Selection **Admin testing** menu.
+
 ### 2026-08-31 — Radiance completion regression accepted
 
 - The project owner completed the accelerated but production-backed Glow and

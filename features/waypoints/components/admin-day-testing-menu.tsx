@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { Fragment, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import {
@@ -9,6 +9,7 @@ import {
   RotateCcwIcon,
   ShieldAlertIcon,
   ShieldCheckIcon,
+  ShieldPlusIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -24,6 +25,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { showActionError } from "@/lib/errors/show-action-error";
 import { cn } from "@/lib/utils";
 import { startGameSessionAction } from "@/features/gameplay/actions/start-game-session.action";
+import { verifyCompletionIdempotencyAction } from "@/features/gameplay/actions/verify-completion-idempotency.action";
 import { overrideCooldownAction } from "@/features/progression/actions/override-cooldown.action";
 import type { DayCardData } from "@/features/waypoints/types/day-selection.types";
 
@@ -102,6 +104,24 @@ export function AdminDayTestingMenu({
     });
   }
 
+  /** Runs rollback-only duplicate ledger probes for a completed challenge day. */
+  function verifyDuplicateProtection(card: DayCardData): void {
+    startTransition(async () => {
+      const result = await verifyCompletionIdempotencyAction({
+        waypointId,
+        dayLevel: card.dayLevel,
+      });
+      if (!result.success) {
+        showActionError(result);
+        return;
+      }
+
+      toast.success(result.message, {
+        duration: 4_000,
+      });
+    });
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -164,14 +184,22 @@ export function AdminDayTestingMenu({
               );
 
               return (
-                <DropdownMenuItem
-                  key={`${card.dayLevel}-replay`}
-                  className="min-h-11 cursor-pointer gap-3 rounded-lg px-3 py-2 font-bold"
-                  onClick={() => router.push(`/game/sessions/${card.completedSessionId}`)}
-                >
-                  <RotateCcwIcon aria-hidden="true" />
-                  {t("testReplay", { day: dayName })}
-                </DropdownMenuItem>
+                <Fragment key={`${card.dayLevel}-tests`}>
+                  <DropdownMenuItem
+                    className="min-h-11 cursor-pointer gap-3 rounded-lg px-3 py-2 font-bold"
+                    onClick={() => router.push(`/game/sessions/${card.completedSessionId}`)}
+                  >
+                    <RotateCcwIcon aria-hidden="true" />
+                    {t("testReplay", { day: dayName })}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="min-h-11 cursor-pointer gap-3 rounded-lg px-3 py-2 font-bold"
+                    onClick={() => verifyDuplicateProtection(card)}
+                  >
+                    <ShieldPlusIcon aria-hidden="true" />
+                    {t("verifyDuplicateRewards", { day: dayName })}
+                  </DropdownMenuItem>
+                </Fragment>
               );
             })}
           </DropdownMenuGroup>
