@@ -1,5 +1,15 @@
 # Scripture Memo Project Log
 
+### 2026-08-31 — Radiance completion regression accepted
+
+- The project owner completed the accelerated but production-backed Glow and
+  Radiance path for Phase 30 Flow 8.
+- Confirmed the third flame, one Glow award, waypoint completion, automatic next
+  published waypoint unlock, immediate next Glimmer readiness, and completed
+  verse access through the Vault and Sanctuary.
+- Preserved this completed waypoint as the fixture for the remaining duplicate
+  reward, badge, and Vault regression checks.
+
 ### 2026-08-31 — Player surfaces normalized around admin testing menus
 
 - Recorded project-owner acceptance of Phase 30 Flow 7 after the production

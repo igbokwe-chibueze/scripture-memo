@@ -1602,7 +1602,7 @@ Phase 29 is complete and accepted. Phase 30 — Testing and QA is next.
 **Status:** In progress — the Phase 30 regression checklist was opened on
 2026-08-29. TypeScript, ESLint, and 99 non-database tests pass. Repository
 integration suites are awaiting repair/reset of the dedicated test database.
-Manual flows 1–7 have passed; flows 8–16 remain the acceptance gate.
+Manual flows 1–8 have passed; flows 9–16 remain the acceptance gate.
 
 ### Manual Test Flows
 
