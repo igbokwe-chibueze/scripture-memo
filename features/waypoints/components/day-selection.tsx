@@ -6,6 +6,7 @@ import { AlertTriangleIcon, BookHeartIcon, Clock3Icon, LockKeyholeIcon, ShieldOf
 import { buttonVariants } from "@/components/ui/button";
 import { JourneyStageBadge } from "@/components/shared/journey-stage-badge";
 import { DayCard } from "@/features/waypoints/components/day-card";
+import { AdminDayTestingMenu } from "@/features/waypoints/components/admin-day-testing-menu";
 import type { DayCardData, DaySelectionData } from "@/features/waypoints/types/day-selection.types";
 import { JourneyStage } from "@/lib/generated/prisma/enums";
 import { cn } from "@/lib/utils";
@@ -91,14 +92,22 @@ export function DaySelection({
       )}
 
       <section aria-labelledby="challenge-days-heading" className="space-y-4">
-        <div>
-          <p className="flex items-center gap-2 text-xs font-black tracking-[0.16em] text-amber-700 uppercase dark:text-amber-300">
-            <AlertTriangleIcon className="size-4" aria-hidden="true" />
-            {t("threeDayChallenge")}
-          </p>
-          <h2 id="challenge-days-heading" className="mt-1 font-heading text-2xl font-black">
-            {t("chooseChallenge")}
-          </h2>
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <p className="flex items-center gap-2 text-xs font-black tracking-[0.16em] text-amber-700 uppercase dark:text-amber-300">
+              <AlertTriangleIcon className="size-4" aria-hidden="true" />
+              {t("threeDayChallenge")}
+            </p>
+            <h2 id="challenge-days-heading" className="mt-1 font-heading text-2xl font-black">
+              {t("chooseChallenge")}
+            </h2>
+          </div>
+          {isAdmin && (
+            <AdminDayTestingMenu
+              waypointId={data.waypointId}
+              cards={cards}
+            />
+          )}
         </div>
         <div className="grid gap-4 lg:grid-cols-3">
           {cards.map((card, index) => (
@@ -107,7 +116,6 @@ export function DaySelection({
               card={card}
               waypointId={data.waypointId}
               index={index}
-              isAdmin={isAdmin}
             />
           ))}
         </div>

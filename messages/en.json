@@ -189,6 +189,10 @@
     "verifyingLock": "Verifying lock",
     "serverLockVerified": "Server cooldown correctly blocked the early start.",
     "cooldownNoLongerActive": "The cooldown has expired. The day is being refreshed.",
+    "adminTesting": "Admin testing",
+    "verifyDayLock": "Verify {day} server lock",
+    "unlockDayTesting": "Unlock {day} for testing",
+    "completedDayTests": "Completed-day tests",
     "testReplay": "Test replay {day}",
     "challengeComplete": "Challenge complete"
   },

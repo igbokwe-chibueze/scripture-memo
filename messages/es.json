@@ -189,6 +189,10 @@
     "verifyingLock": "Verificando bloqueo",
     "serverLockVerified": "El servidor bloqueó correctamente el inicio anticipado.",
     "cooldownNoLongerActive": "La espera ha terminado. El día se está actualizando.",
+    "adminTesting": "Pruebas de administrador",
+    "verifyDayLock": "Verificar bloqueo de {day}",
+    "unlockDayTesting": "Desbloquear {day} para pruebas",
+    "completedDayTests": "Pruebas de días completados",
     "testReplay": "Probar de nuevo {day}",
     "challengeComplete": "Desafío completado"
   },

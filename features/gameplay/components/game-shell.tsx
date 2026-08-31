@@ -4,7 +4,6 @@ import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import {
-  ChevronDownIcon,
   Clock3Icon,
   EllipsisVerticalIcon,
   LogOutIcon,
@@ -230,6 +229,40 @@ export function GameShell({
                     </DropdownMenuShortcut>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
+                {isAdmin &&
+                  !gameSession.isAdminTest &&
+                  gameSession.completedModes.length > 0 && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuGroup>
+                        <DropdownMenuLabel className="px-2 py-1.5 font-black text-foreground">
+                          {t("adminTesting")}
+                        </DropdownMenuLabel>
+                        {testReplayMode ? (
+                          <DropdownMenuItem
+                            className="min-h-11 cursor-pointer gap-3 rounded-lg px-3 py-2 font-bold"
+                            onClick={exitTestReplay}
+                          >
+                            <RotateCcwIcon aria-hidden="true" />
+                            {t("returnCurrent")}
+                          </DropdownMenuItem>
+                        ) : (
+                          completedReplayModes.map((mode) => (
+                            <DropdownMenuItem
+                              key={mode}
+                              className="min-h-11 cursor-pointer gap-3 rounded-lg px-3 py-2 font-bold"
+                              onClick={() => setTestReplayMode(mode)}
+                            >
+                              <span className="grid size-6 place-items-center rounded-md bg-sky-500/15 text-xs font-black text-sky-700 dark:text-sky-200">
+                                {GAME_MODE_ORDER.indexOf(mode) + 1}
+                              </span>
+                              {t("replayMode", { mode: modeLabels[mode] })}
+                            </DropdownMenuItem>
+                          ))
+                        )}
+                      </DropdownMenuGroup>
+                    </>
+                  )}
                 {(gameSession.waypointId || gameSession.isVaultReplay) && (
                   <>
                     <DropdownMenuSeparator />
@@ -313,58 +346,6 @@ export function GameShell({
             </div>
           )}
 
-          {isAdmin && !gameSession.isAdminTest && gameSession.completedModes.length > 0 && (
-            <div className="mt-4 flex flex-col items-stretch gap-3 rounded-xl border border-sky-400/25 bg-sky-100/70 p-3 dark:border-sky-300/20 dark:bg-sky-300/8 sm:flex-row sm:items-center sm:justify-between">
-              <span className="inline-flex items-center gap-2 text-xs font-bold text-sky-800 dark:text-sky-200">
-                <ShieldCheckIcon className="size-4 shrink-0" aria-hidden="true" />
-                {testReplayMode
-                  ? t("testingMode", { mode: modeLabels[testReplayMode] })
-                  : t("adminTesting")}
-              </span>
-              {testReplayMode ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="min-h-11 w-full rounded-lg border-sky-500/30 bg-background/70 text-sky-800 hover:bg-sky-200/70 hover:text-sky-950 dark:bg-slate-950/30 dark:text-sky-100 dark:hover:bg-sky-300/15 dark:hover:text-white sm:w-auto"
-                  onClick={() => setTestReplayMode(null)}
-                >
-                  <RotateCcwIcon data-icon="inline-start" aria-hidden="true" />
-                  {t("returnCurrent")}
-                </Button>
-              ) : (
-                <DropdownMenu>
-                  <DropdownMenuTrigger className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-sky-500/30 bg-background/70 px-4 text-sm font-black text-sky-900 transition hover:bg-sky-200/70 focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none dark:bg-slate-950/30 dark:text-sky-100 dark:hover:bg-sky-300/15 sm:w-auto">
-                    <RotateCcwIcon className="size-4" aria-hidden="true" />
-                    {t("replayCompleted")}
-                    <ChevronDownIcon className="size-4" aria-hidden="true" />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    align="end"
-                    className="w-64 rounded-xl border border-sky-500/20 p-2"
-                  >
-                    <DropdownMenuGroup>
-                      <DropdownMenuLabel className="px-2 py-1.5 font-black text-foreground">
-                        {t("chooseCompleted")}
-                      </DropdownMenuLabel>
-                      {completedReplayModes.map((mode) => (
-                        <DropdownMenuItem
-                          key={mode}
-                          className="min-h-11 cursor-pointer gap-3 rounded-lg px-3 py-2 font-bold"
-                          onClick={() => setTestReplayMode(mode)}
-                        >
-                          <span className="grid size-6 place-items-center rounded-md bg-sky-500/15 text-xs font-black text-sky-700 dark:text-sky-200">
-                            {GAME_MODE_ORDER.indexOf(mode) + 1}
-                          </span>
-                          {modeLabels[mode]}
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuGroup>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-            </div>
-          )}
         </header>
 
         <div className="flex flex-1 flex-col items-center px-5 py-8 text-center sm:px-10">

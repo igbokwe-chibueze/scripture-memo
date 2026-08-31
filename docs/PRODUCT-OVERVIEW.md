@@ -635,6 +635,9 @@ Each waypoint contains three challenge days. The days must be completed in order
 - Cooldowns are enforced **server-side**. Client-side countdowns are display only and cannot be used to bypass the server check.
 - Users see a real-time countdown timer on the Day Selection screen when a day is locked in cooldown.
 - Regular Admins and Super Admins can bypass cooldowns for testing via a protected override action.
+- Player-facing cards remain visually identical for administrators; contextual
+  cooldown verification, cooldown override, and completed-day replay controls
+  are grouped inside the page's **Admin testing** menu.
 - Every cooldown override is recorded in the audit log.
 
 ### 9.5 Cooldown Calculation

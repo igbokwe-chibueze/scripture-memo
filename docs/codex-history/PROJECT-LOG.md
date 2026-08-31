@@ -1,5 +1,18 @@
 # Scripture Memo Project Log
 
+### 2026-08-31 — Player surfaces normalized around admin testing menus
+
+- Recorded project-owner acceptance of Phase 30 Flow 7 after the production
+  start action returned the expected server-owned cooldown rejection.
+- Removed administrator-only testing buttons and completed-day replay controls
+  from individual challenge cards so their normal presentation matches players.
+- Consolidated cooldown verification, audited cooldown override, and day replay
+  into one contextual **Admin testing** menu on Day Selection.
+- Moved completed-mode replay into the existing gameplay three-dot menu instead
+  of rendering a separate administrator banner in the gameplay header.
+- Retained the explicit test-session identity notice because isolated tests must
+  never be mistaken for reward-bearing learner progression.
+
 ### 2026-08-31 — Three-Day Challenge accepted and cooldown QA exposed
 
 - Recorded project-owner acceptance of Phase 30 Flow 6 after the five Glimmer
