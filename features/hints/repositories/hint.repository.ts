@@ -29,6 +29,16 @@ async function lockHintBalance(
   await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('scripture-memo-hints'), hashtext(${userId}))`;
 }
 
+/** Applies the single server-owned Journey Stage hint policy. */
+function assertStageAllowsHints(journeyStage: string): void {
+  if (
+    journeyStage === "STRENGTHEN" ||
+    journeyStage === "MASTER"
+  ) {
+    throw new HintConflictError("STAGE_DISALLOWS_HINTS");
+  }
+}
+
 /** Database boundary for server-authoritative hint balances and consumption. */
 export const hintRepository = {
   /**
@@ -91,12 +101,7 @@ export const hintRepository = {
       if (session.isAdminTest && !allowAdminTest) {
         throw new HintConflictError("SESSION_UNAVAILABLE");
       }
-      if (
-        session.waypoint.journeyStage === "STRENGTHEN" ||
-        session.waypoint.journeyStage === "MASTER"
-      ) {
-        throw new HintConflictError("STAGE_DISALLOWS_HINTS");
-      }
+      assertStageAllowsHints(session.waypoint.journeyStage);
 
       const completedModes = new Set(session.attempts.map(({ gameMode }) => gameMode));
       const currentMode = GAME_MODE_ORDER.find((mode) => !completedModes.has(mode));
@@ -148,5 +153,36 @@ export const hintRepository = {
         remainingHints: remainingBeforeUse - 1,
       };
     }, hintTransactionOptions);
+  },
+
+  /**
+   * Exercises the production stage gate against an isolated admin session.
+   *
+   * Restricting the lookup to `isAdminTest` prevents a crafted diagnostic
+   * request from ever reaching the inventory-consuming path used by learners.
+   */
+  async verifyAdminTestStageBlock(
+    userId: string,
+    sessionId: string,
+  ): Promise<void> {
+    const session = await prisma.gameSession.findFirst({
+      where: {
+        id: sessionId,
+        userId,
+        isAdminTest: true,
+        isVaultReplay: false,
+        status: CompletionStatus.IN_PROGRESS,
+      },
+      select: {
+        waypoint: {
+          select: { journeyStage: true },
+        },
+      },
+    });
+    if (!session?.waypoint) {
+      throw new HintConflictError("SESSION_UNAVAILABLE");
+    }
+
+    assertStageAllowsHints(session.waypoint.journeyStage);
   },
 } as const;

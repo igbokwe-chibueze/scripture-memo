@@ -208,6 +208,8 @@
     "beaconXp": "{count} XP",
     "beaconProgress": "Beacon Level progress",
     "adminTesting": "Admin testing · no progress changes",
+    "verifyHintAccounting": "Verify hint accounting",
+    "verifyBlockedHint": "Verify blocked hint",
     "replayMode": "Test {mode} again",
     "dragDrop": "Drag & Drop",
     "puzzle": "Puzzle",

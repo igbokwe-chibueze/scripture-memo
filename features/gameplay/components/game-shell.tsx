@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   Clock3Icon,
   EllipsisVerticalIcon,
+  LightbulbIcon,
   LogOutIcon,
   PlayIcon,
   RotateCcwIcon,
@@ -45,6 +46,8 @@ import type {
 } from "@/features/gameplay/types/game-session.types";
 import type { GameMode } from "@/lib/generated/prisma/enums";
 import { HintButton } from "@/features/hints/components/hint-button";
+import { verifyLearnHintAccountingAction } from "@/features/hints/actions/verify-learn-hint-accounting.action";
+import { verifyStageHintBlockAction } from "@/features/hints/actions/verify-stage-hint-block.action";
 
 /**
  * Shared mobile-first frame used by every gameplay mode.
@@ -87,6 +90,17 @@ export function GameShell({
   const hintsAllowed =
     gameSession.waypoint?.journeyStage === "LEARN" ||
     gameSession.waypoint?.journeyStage === "RECALL";
+  const canVerifyLearnHint =
+    isAdmin &&
+    !gameSession.isAdminTest &&
+    !gameSession.isVaultReplay &&
+    gameSession.waypoint?.journeyStage === "LEARN" &&
+    Boolean(currentMode);
+  const canVerifyBlockedHint =
+    isAdmin &&
+    gameSession.isAdminTest &&
+    (gameSession.waypoint?.journeyStage === "STRENGTHEN" ||
+      gameSession.waypoint?.journeyStage === "MASTER");
   const completedReplayModes = GAME_MODE_ORDER.filter((mode) =>
     gameSession.completedModes.includes(mode),
   );
@@ -139,6 +153,34 @@ export function GameShell({
         : t("audioOff"),
       { duration: 4_000 },
     );
+  };
+
+  /** Confirms one real Learn hint and its aggregate usage counter agree. */
+  const verifyLearnHintAccounting = (): void => {
+    startTransition(async () => {
+      const result = await verifyLearnHintAccountingAction({
+        sessionId: gameSession.id,
+      });
+      if (!result.success) {
+        showActionError(result);
+        return;
+      }
+      toast.success(result.message, { duration: 4_000 });
+    });
+  };
+
+  /** Exercises the real server gate for an isolated Strengthen/Master test. */
+  const verifyBlockedHint = (): void => {
+    startTransition(async () => {
+      const result = await verifyStageHintBlockAction({
+        sessionId: gameSession.id,
+      });
+      if (!result.success) {
+        showActionError(result);
+        return;
+      }
+      toast.success(result.message, { duration: 4_000 });
+    });
   };
 
   /**
@@ -229,6 +271,34 @@ export function GameShell({
                     </DropdownMenuShortcut>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
+                {(canVerifyLearnHint || canVerifyBlockedHint) && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuGroup>
+                      <DropdownMenuLabel className="px-2 py-1.5 font-black text-foreground">
+                        {t("adminTesting")}
+                      </DropdownMenuLabel>
+                      {canVerifyLearnHint && (
+                        <DropdownMenuItem
+                          className="min-h-11 cursor-pointer gap-3 rounded-lg px-3 py-2 font-bold"
+                          onClick={verifyLearnHintAccounting}
+                        >
+                          <LightbulbIcon aria-hidden="true" />
+                          {t("verifyHintAccounting")}
+                        </DropdownMenuItem>
+                      )}
+                      {canVerifyBlockedHint && (
+                        <DropdownMenuItem
+                          className="min-h-11 cursor-pointer gap-3 rounded-lg px-3 py-2 font-bold"
+                          onClick={verifyBlockedHint}
+                        >
+                          <ShieldCheckIcon aria-hidden="true" />
+                          {t("verifyBlockedHint")}
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuGroup>
+                  </>
+                )}
                 {isAdmin &&
                   !gameSession.isAdminTest &&
                   gameSession.completedModes.length > 0 && (

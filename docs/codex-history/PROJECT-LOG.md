@@ -1,5 +1,31 @@
 # Scripture Memo Project Log
 
+### 2026-09-01 — Hint accounting regression accepted
+
+- The project owner confirmed that one real Learn hint was recorded once with
+  the expected remaining balance, and that isolated Strengthen and Master
+  requests were both rejected by the production server stage gate. Phase 30
+  Flow 11 is accepted.
+
+### 2026-09-01 — Repeatable hint accounting and stage-gate verification
+
+- Kept **Verify hint accounting** visible throughout a real active Learn
+  session. The existing hint control is usable before **Begin mode**, so the QA
+  entry must not depend on client attempt state.
+- Added a read-only check for one real Learn hint that compares the current
+  mode usage, aggregate usage counter, purchased allowance, and recomputed
+  remaining balance without consuming another hint.
+- Added an isolated Strengthen/Master diagnostic that calls the production
+  server hint gate and passes only for its explicit Journey Stage rejection.
+- Kept both controls inside existing administrator testing menus so ordinary
+  learner gameplay remains unchanged.
+
+### 2026-08-31 — First Steps badge regression accepted
+
+- The project owner ran the read-only completed-Learn verification and
+  confirmed that First Steps unlocked once with exactly one matching Glow
+  reward ledger. Phase 30 Flow 10 is accepted.
+
 ### 2026-08-31 — Read-only First Steps badge verification
 
 - Added a repeatable, read-only Phase 30 badge acceptance check to completed

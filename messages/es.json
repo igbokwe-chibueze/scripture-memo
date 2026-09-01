@@ -208,6 +208,8 @@
     "beaconXp": "{count} XP",
     "beaconProgress": "Progreso del nivel del Faro",
     "adminTesting": "Prueba de administrador · sin cambios de progreso",
+    "verifyHintAccounting": "Verificar conteo de pistas",
+    "verifyBlockedHint": "Verificar pista bloqueada",
     "replayMode": "Probar {mode} de nuevo",
     "dragDrop": "Arrastrar y soltar",
     "puzzle": "Rompecabezas",
