@@ -3050,3 +3050,68 @@ implement the private progress archive and mastered-verse replay flow.
   Journey Stages, correct administrative display, and guarded hidden-waypoint
   unassignment behavior.
 - Phase 30 manual Flow 4 is Passed. Flow 5 — Journey Stage rules — is next.
+### 2026-09-01 — Phase 30 private-note isolation audited
+
+- Audited the complete Sanctuary private-note read and mutation path before
+  manual Flow 14. Sanctuary reads select notes only for the authenticated
+  learner, and note saves derive the owner from the server session rather than
+  accepting a client-provided user ID.
+- Confirmed that persistence uses the database-enforced `(userId, verseId)`
+  ownership key, so one learner's save cannot update another learner's note.
+- Expanded the Flow 14 checklist into a two-account read-and-mutation isolation
+  test. No gameplay or cooldown wait is required when both test accounts use the
+  same verse during its pre-study window.
+
+### 2026-09-01 — Phase 30 private-note isolation passed
+
+- The project owner manually verified that a second authenticated account could
+  neither read nor overwrite the first learner's Sanctuary note.
+- Phase 30 manual Flow 14 is Passed. Flow 15 — mobile gameplay at 375px — is
+  next; Flow 16 remains the deferred mastered-verse Vault replay check.
+
+### 2026-09-01 — Phase 30 mobile gameplay check prepared
+
+- Prepared a non-progressing Flow 15 path that reuses a completed challenge
+  day's administrator replay and the gameplay replay menu, avoiding another
+  campaign playthrough or cooldown wait.
+- The 375px acceptance pass covers all five modes, touch placement, one real
+  drag interaction, mobile keyboard input, wrapping, clipping, horizontal
+  overflow, drag-created scrollbars, overlay scroll locking, and confirmation
+  that administrator replays do not change progression or rewards.
+
+### 2026-09-01 — Phase 30 mobile gameplay passed
+
+- The project owner manually completed all five gameplay modes at a 375px touch
+  viewport, including tap placement, dragging, swapping, and mobile keyboard
+  input, without clipping, overflow, accidental scrolling, or reward/progress
+  changes from administrator replay.
+- Phase 30 manual Flow 15 is Passed. Flow 16 — mastered-verse Vault replay — is
+  the only remaining manual regression flow.
+### 2026-09-01 — Phase 30 Flow 16 Vault fixture ready
+
+- Clarified that the normal instruction is to go to the **Mastered** section;
+  “Mastered” is not a selectable action.
+- Added an administrator-only Vault replay fixture for an account with a
+  completed verse but no fully mastered verse.
+- The fixture follows the real five-mode Vault sequence while server logic
+  suppresses progression, rewards, streaks, hints, badges, and cooldowns.
+- Updated the QA checklist with the exact administrator testing path.
+### 2026-09-01 — Vault fixture navigation correction
+
+- Corrected the combined administrator/Vault fixture so Continue remains in the
+  same session between all five modes and returns only to `/vault` after Fill.
+- Corrected completion-screen precedence so the fixture uses Vault replay copy
+  and next-mode actions instead of the single-mode waypoint test treatment.
+### 2026-09-01 — Vault replay continuation labels corrected
+
+- Corrected the combined administrator/Vault fixture's completion labels.
+- Modes 1–4 now identify their real next mode (Puzzle, Swap, Cue, or Fill),
+  while only the terminal Fill screen says **Return to Vault**.
+### 2026-09-01 — Phase 30 completed
+
+- Recorded project-owner acceptance of Flow 16 after the administrator Vault
+  fixture completed all five modes, used correct continuation labels, and
+  returned to the Vault only after Fill.
+- All 16 Phase 30 manual regression flows are now passed.
+- Marked Phase 30 complete in the roadmap and QA checklist. Phase 31 —
+  Performance and Polish — is next.

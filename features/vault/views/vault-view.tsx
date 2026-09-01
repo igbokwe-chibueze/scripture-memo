@@ -11,8 +11,11 @@ import {
   VaultIcon,
 } from "lucide-react";
 import { requireServerSession } from "@/lib/auth/session";
+import { isAdmin } from "@/lib/permissions";
+import type { UserRole } from "@/lib/generated/prisma/enums";
 import { StatCard } from "@/components/shared/stat-card";
 import { VaultLibrary } from "@/features/vault/components/vault-library";
+import { VaultAdminTestingMenu } from "@/features/vault/components/vault-admin-testing-menu";
 import { vaultRepository } from "@/features/vault/repositories/vault.repository";
 
 export const metadata: Metadata = {
@@ -26,6 +29,10 @@ export async function VaultView(): Promise<React.ReactNode> {
   const t = await getTranslations("Vault");
   const session = await requireServerSession();
   const data = await vaultRepository.getLibrary(session.user.id);
+  const administrator = isAdmin(
+    session.user.role as UserRole | null | undefined,
+  );
+  const replayFixtureVerse = data.completedVerses[0] ?? null;
 
   return (
     <main className="min-h-dvh bg-linear-to-b from-violet-100/70 via-background to-amber-50 px-4 py-6 text-foreground dark:from-violet-950 dark:via-slate-950 dark:to-slate-900 sm:px-6 sm:py-10">
@@ -39,7 +46,7 @@ export async function VaultView(): Promise<React.ReactNode> {
           <p className="mt-3 max-w-2xl text-sm leading-6 text-violet-100">
             {t("longDescription")}
           </p>
-          <div className="mt-6 flex flex-wrap gap-3">
+          <div className="mt-6 flex flex-wrap items-center gap-3">
             <Link href="/game/map" className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-white/10 px-4 font-black hover:bg-white/15">
               <MapIcon className="size-4" aria-hidden="true" />
               {t("returnTrail")}
@@ -48,6 +55,9 @@ export async function VaultView(): Promise<React.ReactNode> {
               <AwardIcon className="size-4" aria-hidden="true" />
               {t("badgeCollection")}
             </Link>
+            {administrator && (
+              <VaultAdminTestingMenu verse={replayFixtureVerse} />
+            )}
           </div>
         </header>
 

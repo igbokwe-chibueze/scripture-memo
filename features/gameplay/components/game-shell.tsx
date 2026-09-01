@@ -101,6 +101,11 @@ export function GameShell({
     gameSession.isAdminTest &&
     (gameSession.waypoint?.journeyStage === "STRENGTHEN" ||
       gameSession.waypoint?.journeyStage === "MASTER");
+  // The Vault QA fixture carries both flags: `isAdminTest` prevents rewards,
+  // while `isVaultReplay` means it still follows the full five-mode sequence.
+  // Only the older waypoint probe is genuinely a single-mode administrator test.
+  const isSingleModeAdminTest =
+    gameSession.isAdminTest && !gameSession.isVaultReplay;
   const completedReplayModes = GAME_MODE_ORDER.filter((mode) =>
     gameSession.completedModes.includes(mode),
   );
@@ -195,12 +200,15 @@ export function GameShell({
     setExpiredMode(null);
     setCurrentMode(nextMode);
     setIsAwaitingContinue(false);
-    if (gameSession.isAdminTest) {
-      router.push("/admin/waypoints");
-      return;
-    }
     if (!nextMode && gameSession.isVaultReplay) {
       router.push("/vault");
+      return;
+    }
+    // A Vault QA fixture is also marked as an admin test to suppress every
+    // progression side effect. It must nevertheless remain in this session
+    // between modes; only the older single-mode waypoint probe returns here.
+    if (gameSession.isAdminTest && !gameSession.isVaultReplay) {
+      router.push("/admin/waypoints");
       return;
     }
     if (!nextMode && gameSession.waypointId) {
@@ -508,7 +516,7 @@ export function GameShell({
               isVaultReplay={gameSession.isVaultReplay}
               isAdminTest={gameSession.isAdminTest}
               nextMode={
-                gameSession.isAdminTest
+                isSingleModeAdminTest
                   ? null
                   : GAME_MODE_ORDER[currentModeIndex + 1] ?? null
               }
@@ -526,7 +534,7 @@ export function GameShell({
               isVaultReplay={gameSession.isVaultReplay}
               isAdminTest={gameSession.isAdminTest}
               nextMode={
-                gameSession.isAdminTest
+                isSingleModeAdminTest
                   ? null
                   : GAME_MODE_ORDER[currentModeIndex + 1] ?? null
               }
@@ -544,7 +552,7 @@ export function GameShell({
               isVaultReplay={gameSession.isVaultReplay}
               isAdminTest={gameSession.isAdminTest}
               nextMode={
-                gameSession.isAdminTest
+                isSingleModeAdminTest
                   ? null
                   : GAME_MODE_ORDER[currentModeIndex + 1] ?? null
               }
@@ -562,7 +570,7 @@ export function GameShell({
               isVaultReplay={gameSession.isVaultReplay}
               isAdminTest={gameSession.isAdminTest}
               nextMode={
-                gameSession.isAdminTest
+                isSingleModeAdminTest
                   ? null
                   : GAME_MODE_ORDER[currentModeIndex + 1] ?? null
               }

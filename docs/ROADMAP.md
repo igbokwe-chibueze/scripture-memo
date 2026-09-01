@@ -1602,10 +1602,11 @@ Phase 29 is complete and accepted. Phase 30 — Testing and QA is next.
 
 **Goal:** Verify all MVP flows work correctly and securely.
 
-**Status:** In progress — the Phase 30 regression checklist was opened on
-2026-08-29. TypeScript, ESLint, and 99 non-database tests pass. Repository
-integration suites are awaiting repair/reset of the dedicated test database.
-Manual flows 1–13 have passed; flows 14–16 remain the acceptance gate.
+**Status:** Complete — all 16 manual regression flows passed by 2026-09-01.
+TypeScript, ESLint, and the non-database test baseline pass. The dedicated
+repository integration suites remain operationally blocked by the documented
+hosted test-database plan limit and must be rerun when that isolated resource is
+available; this does not replace the completed manual acceptance record.
 
 ### Manual Test Flows
 
@@ -1634,8 +1635,10 @@ Manual flows 1–13 have passed; flows 14–16 remain the acceptance gate.
     Vault, campaign progression/rewards/streaks/cooldowns remain unchanged, and
     Vault Explorer progress is evaluated once.
 
-**Deferred test note:** Vault replay remains on the final regression checklist
-until a test learner has mastered the same verse across all four Journey Stages.
+**Vault test note:** When the test account had no four-stage mastered verse, the
+administrator-only Vault fixture exercised the real five-mode replay sequence
+with a completed verse while suppressing progression, rewards, streaks, hints,
+badges, and cooldowns. The project owner accepted the result on 2026-09-01.
 
 ### Acceptance Criteria
 

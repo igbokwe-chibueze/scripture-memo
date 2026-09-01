@@ -352,4 +352,76 @@ export const vaultRepository = {
       return session.id;
     }, vaultTransactionOptions);
   },
+
+  /**
+   * Starts a no-progress Vault fixture for an administrator's completed verse.
+   *
+   * WHY: QA must exercise the real five-mode replay without creating artificial
+   * mastery. The completed-progress predicate still prevents arbitrary verse
+   * access, while the two session flags suppress every reward and progression
+   * side effect in the gameplay transaction.
+   */
+  async startAdminReplay(
+    userId: string,
+    verseId: string,
+    startedAt: Date,
+  ): Promise<string | null> {
+    return prisma.$transaction(async (transaction) => {
+      const [verse, settings, active] = await Promise.all([
+        transaction.verse.findFirst({
+          where: {
+            id: verseId,
+            waypoints: {
+              some: {
+                userProgress: {
+                  some: { userId, status: WaypointStatus.COMPLETED },
+                },
+              },
+            },
+          },
+          select: {
+            translations: { select: { translation: true, text: true } },
+          },
+        }),
+        transaction.userSettings.findUnique({
+          where: { userId },
+          select: { preferredTranslation: true },
+        }),
+        transaction.gameSession.findFirst({
+          where: {
+            userId,
+            verseId,
+            isVaultReplay: true,
+            isAdminTest: true,
+            status: CompletionStatus.IN_PROGRESS,
+          },
+          orderBy: { createdAt: "desc" },
+          select: { id: true },
+        }),
+      ]);
+
+      if (active) return active.id;
+      if (!verse) return null;
+
+      const preferred = settings?.preferredTranslation ?? TranslationCode.KJV;
+      const selected = selectTranslation(verse.translations, preferred);
+      if (!selected) return null;
+
+      const replay = await transaction.gameSession.create({
+        data: {
+          userId,
+          verseId,
+          dayLevel: VAULT_REPLAY_DAY_LEVEL,
+          translation: selected.translation,
+          status: CompletionStatus.IN_PROGRESS,
+          isVaultReplay: true,
+          isAdminTest: true,
+          startedAt,
+        },
+        select: { id: true },
+      });
+
+      return replay.id;
+    }, vaultTransactionOptions);
+  },
 } as const;

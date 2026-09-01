@@ -30,6 +30,10 @@ import {
 } from "@/features/beacon/constants/beacon-progression";
 import { updateStreakInTransaction } from "@/features/progression/repositories/streak.repository";
 import { calculateHintBalance } from "@/features/hints/lib/hint-balance";
+import {
+  isSingleModeAdminTest,
+  shouldAwardVaultReplayBadge,
+} from "@/features/gameplay/lib/gameplay-session-policy";
 import type {
   CompleteModeResult,
   GameModeAttemptData,
@@ -329,7 +333,7 @@ export const gameplayRepository = {
     const completedModes = GAME_MODE_ORDER.filter((mode) =>
       session.attempts.some((attempt) => attempt.gameMode === mode),
     );
-    const currentMode = session.isAdminTest
+    const currentMode = isSingleModeAdminTest(session)
       ? session.status === CompletionStatus.IN_PROGRESS
         ? session.adminTestMode
         : null
@@ -418,7 +422,7 @@ export const gameplayRepository = {
             attempt.status === GameModeAttemptStatus.COMPLETED,
         ),
       );
-      const currentMode = session.isAdminTest
+      const currentMode = isSingleModeAdminTest(session)
         ? session.adminTestMode
         : getCurrentMode(completedModes);
       if (!currentMode) throw new GameplayConflictError("ALL_MODES_COMPLETED");
@@ -544,7 +548,7 @@ export const gameplayRepository = {
             attempt.status === GameModeAttemptStatus.COMPLETED,
         ),
       );
-      const currentMode = session.isAdminTest
+      const currentMode = isSingleModeAdminTest(session)
         ? session.adminTestMode
         : getCurrentMode(completedModes);
       if (!currentMode || requestedMode !== currentMode) {
@@ -624,7 +628,7 @@ export const gameplayRepository = {
       // WHY: An admin test proves the actual answer and server-owned deadline,
       // then stops before streak, badge, Beacon, reward, day, or cooldown work.
       // The terminal session remains only as a short audit/debug artifact.
-      if (session.isAdminTest) {
+      if (isSingleModeAdminTest(session)) {
         await transaction.gameSession.update({
           where: { id: sessionId },
           data: {
@@ -662,12 +666,14 @@ export const gameplayRepository = {
           where: { id: sessionId },
           data: { status: CompletionStatus.COMPLETED, completedAt },
         });
-        const badgeUnlocks = await evaluateBadgeProgressInTransaction(
-          transaction,
-          userId,
-          { type: "VAULT_REPLAY_COMPLETED" },
-          completedAt,
-        );
+        const badgeUnlocks = shouldAwardVaultReplayBadge(session)
+          ? await evaluateBadgeProgressInTransaction(
+              transaction,
+              userId,
+              { type: "VAULT_REPLAY_COMPLETED" },
+              completedAt,
+            )
+          : [];
         return {
           status: "vault-complete",
           gameMode: requestedMode,

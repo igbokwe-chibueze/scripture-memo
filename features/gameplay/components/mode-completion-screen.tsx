@@ -130,12 +130,12 @@ export function ModeCompletionScreen({
           </motion.div>
 
           <p className="mt-2 text-xs font-black tracking-[0.18em] text-emerald-700 uppercase dark:text-emerald-300 sm:mt-3">
-            {isAdminTest
-              ? t("adminTest")
-              : isTestReplay
+            {isTestReplay
                 ? t("adminReplay")
               : isVaultReplay
                 ? t("vaultReplay")
+                : isAdminTest
+                  ? t("adminTest")
                 : t("modeRestored")}
           </p>
           <h2 id="mode-complete-title" className="mt-2 font-heading text-4xl font-black">
@@ -148,7 +148,7 @@ export function ModeCompletionScreen({
           <div className="mt-5 rounded-2xl border border-amber-400/30 bg-amber-100/70 p-4 dark:border-amber-300/20 dark:bg-amber-300/8 sm:mt-7">
             <SparklesIcon className="mx-auto size-6 text-amber-600 dark:text-amber-300" aria-hidden="true" />
             <p className="mt-2 text-sm font-semibold text-muted-foreground dark:text-slate-300">
-              {isTestReplay || isAdminTest
+              {isTestReplay || (isAdminTest && !isVaultReplay)
                 ? t("testingComplete")
                 : isVaultReplay
                   ? nextMode
@@ -229,12 +229,12 @@ export function ModeCompletionScreen({
             >
               {isTestReplay
                 ? t("returnCurrent")
-                : isAdminTest
-                  ? t("returnWaypoints")
                 : nextMode
                   ? t("continueTo", { mode: modeLabels[nextMode] })
                   : isVaultReplay
                     ? t("returnVault")
+                    : isAdminTest
+                      ? t("returnWaypoints")
                     : t("continueJourney")}
               <ArrowRightIcon data-icon="inline-end" aria-hidden="true" />
             </Button>
