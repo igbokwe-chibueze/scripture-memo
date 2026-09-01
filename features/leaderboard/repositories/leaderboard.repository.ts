@@ -172,6 +172,57 @@ const lifetimeOrder = Prisma.sql`
 
 /** Database boundary for Great Beacon competition and recognition views. */
 export const leaderboardRepository = {
+  /**
+   * Computes one exact permanent rank inside a trusted caller transaction.
+   *
+   * Gameplay calls this immediately after awarding Beacon XP, so the query can
+   * see the new score before commit and badge eligibility cannot lag behind the
+   * mode that established it. The ordering exactly matches the All Time board.
+   */
+  async getUserAllTimeRankInTransaction(
+    transaction: Prisma.TransactionClient,
+    userId: string,
+  ): Promise<number | null> {
+    const rows = await transaction.$queryRaw<Array<{ rank: bigint }>>(Prisma.sql`
+      WITH target AS (
+        SELECT
+          profile."userId",
+          profile."beaconLevel",
+          profile."beaconXp",
+          profile."createdAt"
+        FROM "UserProfile" profile
+        INNER JOIN "user" account ON account.id = profile."userId"
+        WHERE profile."userId" = ${userId}
+          AND account."suspendedAt" IS NULL
+      )
+      SELECT (COUNT(*) + 1)::bigint AS rank
+      FROM "UserProfile" competitor
+      INNER JOIN "user" account ON account.id = competitor."userId"
+      CROSS JOIN target
+      WHERE account."suspendedAt" IS NULL
+        AND (
+          competitor."beaconLevel" > target."beaconLevel"
+          OR (
+            competitor."beaconLevel" = target."beaconLevel"
+            AND competitor."beaconXp" > target."beaconXp"
+          )
+          OR (
+            competitor."beaconLevel" = target."beaconLevel"
+            AND competitor."beaconXp" = target."beaconXp"
+            AND competitor."createdAt" < target."createdAt"
+          )
+          OR (
+            competitor."beaconLevel" = target."beaconLevel"
+            AND competitor."beaconXp" = target."beaconXp"
+            AND competitor."createdAt" = target."createdAt"
+            AND competitor."userId" < target."userId"
+          )
+        )
+    `);
+
+    return rows[0] ? Number(rows[0].rank) : null;
+  },
+
   async getUserFellowships(
     userId: string,
   ): Promise<LeaderboardFellowshipOption[]> {

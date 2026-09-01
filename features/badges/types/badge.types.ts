@@ -83,6 +83,6 @@ export type BadgeEvent =
       type: "FELLOWSHIP_JOINED" | "FELLOWSHIP_CREATED";
     }
   | {
-      type: "LEADERBOARD_VIEWED";
+      type: "LEADERBOARD_POSITION_ESTABLISHED";
       globalRank: number;
     };

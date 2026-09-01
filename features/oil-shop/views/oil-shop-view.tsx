@@ -3,7 +3,9 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { ArrowLeftIcon } from "lucide-react";
 import Image from "next/image";
+import type { UserRole } from "@/lib/generated/prisma/enums";
 import { requireServerSession } from "@/lib/auth/session";
+import { isAdmin } from "@/lib/permissions";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { OilShop } from "@/features/oil-shop/components/oil-shop";
@@ -48,7 +50,13 @@ export async function OilShopView({
             <p className="mt-3 whitespace-nowrap text-xs font-bold text-violet-100 min-[390px]:text-sm sm:text-lg">{t("subtitle")}</p>
           </div>
         </header>
-        <OilShop initialData={data} initialTab={initialTab} />
+        <OilShop
+          initialData={data}
+          initialTab={initialTab}
+          isAdministrator={isAdmin(
+            session.user.role as UserRole | undefined,
+          )}
+        />
       </div>
     </main>
   );

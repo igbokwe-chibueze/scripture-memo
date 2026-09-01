@@ -1,5 +1,47 @@
 # Scripture Memo Project Log
 
+### 2026-09-01 — Immediate Beacon Challenger evaluation
+
+- The project owner accepted the leaderboard privacy flow. Phase 30 Flow 13 is
+  complete.
+- Removed the All Time leaderboard's page-view badge mutation. Opening any
+  leaderboard scope is now read-only with respect to achievements and rewards.
+- A genuine mode completion now evaluates an active, unearned leaderboard badge
+  immediately after its trusted Beacon XP award. The permanent rank is computed
+  inside the same gameplay transaction and the resulting unlock joins the
+  established mode-success → badge-celebration queue.
+- The pending-badge check prevents permanent rank recalculation after every
+  active leaderboard badge has already been earned. Existing badge locks,
+  unique progress, reward-ledger idempotency, and Glow balance updates remain
+  the authority against duplicate awards.
+- TypeScript, focused ESLint, badge tests, Beacon tests, gameplay tests, and
+  whitespace validation pass.
+
+### 2026-09-01 — Oil Shop accepted and leaderboard privacy audited
+
+- The project owner confirmed both Oil Shop verification checks passed. Phase
+  30 Flow 12 is accepted.
+- Audited every leaderboard scope and its player-details modal. The ranking SQL
+  does not select account email, and the repository converts raw rows into a
+  public allowlisted DTO that drops the temporary internal user ID before data
+  reaches a client component.
+- League, country, Fellowship, all-time, and generated rival entries share the
+  same public row contract. Flow 13 is ready for short visual verification; no
+  product-code change was necessary.
+
+### 2026-09-01 — Repeatable Oil Shop transaction verification
+
+- Added an administrator-only Oil Shop acceptance panel for Phase 30 Flow 12.
+- **Verify latest purchase** reconstructs exact Glow and hint before/after values
+  from the latest immutable purchase snapshot, current inventory, and matching
+  negative reward-ledger row without changing state.
+- **Verify balance guard** uses the production conditional-decrement pattern
+  with an intentionally unaffordable amount while holding the learner purchase
+  lock. It passes only when zero rows change and the balance remains nonnegative
+  and exactly unchanged.
+- The real purchase remains the only state-changing test step. TypeScript,
+  focused ESLint, i18n contract tests, and whitespace validation pass.
+
 ### 2026-09-01 — Hint accounting regression accepted
 
 - The project owner confirmed that one real Learn hint was recorded once with

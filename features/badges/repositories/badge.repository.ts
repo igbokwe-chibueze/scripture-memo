@@ -151,10 +151,10 @@ async function getEventMetricValues(
   if (event.type === "FELLOWSHIP_CREATED") {
     return { FELLOWSHIP_CREATE: await transaction.fellowship.count({ where: { createdById: userId } }) };
   }
-  if (event.type === "LEADERBOARD_VIEWED") {
-    // WHY: The rank came from the server-owned leaderboard repository. The
-    // badge engine converts that trusted position into an absolute criterion
-    // value rather than accepting a client claim that the learner reached 100.
+  if (event.type === "LEADERBOARD_POSITION_ESTABLISHED") {
+    // WHY: The rank is calculated in the trusted gameplay transaction after a
+    // real Beacon XP award. The badge engine never accepts a browser claim that
+    // the learner entered the global top 100.
     return { LEADERBOARD_TOP_100: event.globalRank <= 100 ? 1 : 0 };
   }
   return getDayMetricValues(transaction, userId);
@@ -242,6 +242,35 @@ export async function evaluateBadgeProgressInTransaction(
 
 /** Database boundary for badge reads, evaluation, and administration. */
 export const badgeRepository = {
+  /**
+   * Returns whether a leaderboard badge still needs rank evaluation.
+   *
+   * This cheap indexed check prevents every future mode completion from
+   * recalculating an all-time rank after all active leaderboard badges have
+   * already been earned. The subsequent badge transaction remains the final
+   * idempotency boundary if two qualifying events ever overlap.
+   */
+  async hasPendingLeaderboardBadgeInTransaction(
+    transaction: Prisma.TransactionClient,
+    userId: string,
+  ): Promise<boolean> {
+    const pendingBadge = await transaction.badge.findFirst({
+      where: {
+        isActive: true,
+        criteriaKey: "LEADERBOARD_TOP_100",
+        userProgress: {
+          none: {
+            userId,
+            status: CompletionStatus.COMPLETED,
+          },
+        },
+      },
+      select: { id: true },
+    });
+
+    return Boolean(pendingBadge);
+  },
+
   async findAll(): Promise<BadgeCollectionItem[]> {
     const badges = await prisma.badge.findMany({
       where: { isActive: true },

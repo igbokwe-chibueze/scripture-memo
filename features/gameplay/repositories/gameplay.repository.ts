@@ -36,7 +36,11 @@ import type {
   GameplayConflictCode,
   GameplaySessionData,
 } from "@/features/gameplay/types/game-session.types";
-import { evaluateBadgeProgressInTransaction } from "@/features/badges/repositories/badge.repository";
+import {
+  badgeRepository,
+  evaluateBadgeProgressInTransaction,
+} from "@/features/badges/repositories/badge.repository";
+import { leaderboardRepository } from "@/features/leaderboard/repositories/leaderboard.repository";
 
 const gameplayTransactionOptions = { maxWait: 10_000, timeout: 60_000 } as const;
 
@@ -60,6 +64,43 @@ async function lockGameSession(
 function getCurrentMode(completedModes: readonly GameMode[]): GameMode | null {
   const completed = new Set<GameMode>(completedModes);
   return GAME_MODE_ORDER.find((mode) => !completed.has(mode)) ?? null;
+}
+
+/**
+ * Evaluates rank badges immediately after trusted Beacon XP changes rank.
+ *
+ * The cheap pending-badge lookup prevents permanent rank calculations after
+ * all active leaderboard badges are already earned. The existing badge engine
+ * remains responsible for locking, idempotency, reward ledger, and balance.
+ */
+async function evaluateLeaderboardBadgesAfterBeaconAward(
+  transaction: Prisma.TransactionClient,
+  userId: string,
+  completedAt: Date,
+): Promise<Awaited<ReturnType<typeof evaluateBadgeProgressInTransaction>>> {
+  const needsEvaluation =
+    await badgeRepository.hasPendingLeaderboardBadgeInTransaction(
+      transaction,
+      userId,
+    );
+  if (!needsEvaluation) return [];
+
+  const globalRank =
+    await leaderboardRepository.getUserAllTimeRankInTransaction(
+      transaction,
+      userId,
+    );
+  if (globalRank === null) return [];
+
+  return evaluateBadgeProgressInTransaction(
+    transaction,
+    userId,
+    {
+      type: "LEADERBOARD_POSITION_ESTABLISHED",
+      globalRank,
+    },
+    completedAt,
+  );
 }
 
 /** Calculates a persisted-attempt deadline without consulting client time. */
@@ -674,13 +715,22 @@ export const gameplayRepository = {
             waypointCompleted: false,
           },
         );
+        const leaderboardBadgeUnlocks =
+          await evaluateLeaderboardBadgesAfterBeaconAward(
+            transaction,
+            userId,
+            completedAt,
+          );
         return {
           status: "mode-complete",
           gameMode: requestedMode,
           nextMode,
           dayCompletion: null,
           streak: streakResult,
-          badgeUnlocks: modeBadgeUnlocks,
+          badgeUnlocks: [
+            ...modeBadgeUnlocks,
+            ...leaderboardBadgeUnlocks,
+          ],
           beaconProgression,
         };
       }
@@ -720,6 +770,12 @@ export const gameplayRepository = {
           waypointCompleted,
         },
       );
+      const leaderboardBadgeUnlocks =
+        await evaluateLeaderboardBadgesAfterBeaconAward(
+          transaction,
+          userId,
+          completedAt,
+        );
       await transaction.gameSession.update({
         where: { id: sessionId },
         data: { status: CompletionStatus.COMPLETED, completedAt },
@@ -730,12 +786,17 @@ export const gameplayRepository = {
         { type: "DAY_COMPLETED" },
         completedAt,
       );
+      const allBadgeUnlocks = [
+        ...modeBadgeUnlocks,
+        ...leaderboardBadgeUnlocks,
+        ...dayBadgeUnlocks,
+      ];
       const finalReward =
-        dayBadgeUnlocks.length > 0
+        allBadgeUnlocks.length > 0
           ? {
               ...reward,
               balance:
-                dayBadgeUnlocks[dayBadgeUnlocks.length - 1]?.balance ??
+                allBadgeUnlocks[allBadgeUnlocks.length - 1]?.balance ??
                 reward.balance,
             }
           : reward;
@@ -745,7 +806,7 @@ export const gameplayRepository = {
         nextMode: null,
         dayCompletion: { ...dayCompletion, reward: finalReward },
         streak: streakResult,
-        badgeUnlocks: [...modeBadgeUnlocks, ...dayBadgeUnlocks],
+        badgeUnlocks: allBadgeUnlocks,
         beaconProgression,
       };
     }, gameplayTransactionOptions);

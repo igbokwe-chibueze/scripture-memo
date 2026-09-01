@@ -4,11 +4,22 @@ import Image from "next/image";
 import { useEffect, useState, useTransition } from "react";
 import { motion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
-import { GemIcon, GiftIcon, LightbulbIcon, PackageOpenIcon, ShoppingBagIcon, SparklesIcon, XIcon } from "lucide-react";
+import {
+  GemIcon,
+  GiftIcon,
+  LightbulbIcon,
+  PackageOpenIcon,
+  ShieldCheckIcon,
+  ShoppingBagIcon,
+  SparklesIcon,
+  XIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { purchaseShopItemAction } from "@/features/oil-shop/actions/purchase-shop-item.action";
+import { verifyInsufficientBalanceAction } from "@/features/oil-shop/actions/verify-insufficient-balance.action";
+import { verifyOilShopPurchaseAction } from "@/features/oil-shop/actions/verify-oil-shop-purchase.action";
 import type { OilShopData, OilShopItem } from "@/features/oil-shop/types/oil-shop.types";
 import { useAudioFeedback } from "@/features/gameplay/hooks/use-audio-feedback";
 
@@ -157,9 +168,11 @@ export function PurchaseCelebrationDialog({
 export function OilShop({
   initialData,
   initialTab = "hints",
+  isAdministrator = false,
 }: {
   initialData: OilShopData;
   initialTab?: "hints" | "donations";
+  isAdministrator?: boolean;
 }): React.ReactNode {
   const t = useTranslations("Shop");
   const common = useTranslations("Common");
@@ -171,6 +184,8 @@ export function OilShop({
   const [activeTab, setActiveTab] =
     useState<"hints" | "donations">(initialTab);
   const [isPending, startTransition] = useTransition();
+  const [qaCheck, setQaCheck] = useState<"purchase" | "balance" | null>(null);
+  const [isQaPending, startQaTransition] = useTransition();
 
   /** Selects the desktop detail card or opens the compact-screen modal. */
   function previewItem(item: OilShopItem): void {
@@ -197,6 +212,26 @@ export function OilShop({
     });
   }
 
+  /** Runs one administrator-only shop diagnostic with visible pending feedback. */
+  function runQaCheck(check: "purchase" | "balance"): void {
+    if (isQaPending) return;
+
+    setQaCheck(check);
+    startQaTransition(async () => {
+      const result =
+        check === "purchase"
+          ? await verifyOilShopPurchaseAction()
+          : await verifyInsufficientBalanceAction();
+
+      if (result.success) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.message, { duration: Infinity });
+      }
+      setQaCheck(null);
+    });
+  }
+
   return (
     <>
       <section className="grid grid-cols-2 gap-3" aria-label={t("balances")}>
@@ -211,6 +246,37 @@ export function OilShop({
           <p className="font-heading text-3xl font-black">{data.hintsRemaining}</p>
         </div>
       </section>
+
+      {isAdministrator && (
+        <section className="mt-4 rounded-2xl border border-sky-400/35 bg-sky-500/10 p-3 text-sky-950 dark:text-sky-100">
+          <div className="flex items-center gap-2 font-black">
+            <ShieldCheckIcon className="size-5" aria-hidden="true" />
+            <h2>Admin testing</h2>
+          </div>
+          <div className="mt-3 grid gap-2 min-[390px]:grid-cols-2">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isQaPending}
+              onClick={() => runQaCheck("purchase")}
+            >
+              {isQaPending && qaCheck === "purchase"
+                ? "Verifying…"
+                : "Verify latest purchase"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isQaPending}
+              onClick={() => runQaCheck("balance")}
+            >
+              {isQaPending && qaCheck === "balance"
+                ? "Verifying…"
+                : "Verify balance guard"}
+            </Button>
+          </div>
+        </section>
+      )}
 
       <div className="mt-5 lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-5 xl:grid-cols-[minmax(0,1fr)_26rem]">
       <section className="overflow-hidden rounded-[2rem] border border-violet-400/30 bg-slate-950/95 text-white shadow-xl">

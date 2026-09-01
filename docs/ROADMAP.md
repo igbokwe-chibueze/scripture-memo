@@ -1424,7 +1424,10 @@ shell. The Beacon Challenger activation migration has been applied successfully.
    - Logged-in user's row always highlighted and pinned visible
 4. **Never include email addresses, raw user IDs, or any private data in leaderboard responses.**
 5. Add skeleton loaders.
-6. Appearing in the global top 100 triggers "Beacon Challenger" badge evaluation.
+6. A real Beacon XP award recalculates an unearned learner's permanent global
+   rank inside the gameplay transaction. Entering the global top 100 queues the
+   idempotent "Beacon Challenger" unlock after mode success; viewing the All
+   Time leaderboard is read-only and never triggers badge evaluation.
 
 ### Acceptance Criteria
 
@@ -1602,7 +1605,7 @@ Phase 29 is complete and accepted. Phase 30 — Testing and QA is next.
 **Status:** In progress — the Phase 30 regression checklist was opened on
 2026-08-29. TypeScript, ESLint, and 99 non-database tests pass. Repository
 integration suites are awaiting repair/reset of the dedicated test database.
-Manual flows 1–11 have passed; flows 12–16 remain the acceptance gate.
+Manual flows 1–13 have passed; flows 14–16 remain the acceptance gate.
 
 ### Manual Test Flows
 

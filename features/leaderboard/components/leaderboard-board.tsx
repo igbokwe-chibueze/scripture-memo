@@ -13,9 +13,6 @@ import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { BadgeUnlockSequence } from "@/features/badges/components/badge-unlock-screen";
-import type { BadgeUnlockResult } from "@/features/badges/types/badge.types";
-import { evaluateLeaderboardBadgeAction } from "@/features/leaderboard/actions/evaluate-leaderboard-badge.action";
 import { NavigationButton } from "@/components/shared/navigation-button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
@@ -342,10 +339,8 @@ export function LeaderboardBoard({
 }: LeaderboardBoardProps): React.ReactNode {
   const t = useTranslations("Leaderboard");
   const router = useRouter();
-  const evaluationStarted = useRef(false);
   const enrollmentStarted = useRef(false);
   const [isFellowshipPending, startFellowshipNavigation] = useTransition();
-  const [badgeUnlocks, setBadgeUnlocks] = useState<BadgeUnlockResult[]>([]);
   const [selectedEntry, setSelectedEntry] = useState<LeaderboardEntry | null>(null);
   const realVisibleEntries = [...data.podium, ...data.entries]
     .filter(
@@ -408,20 +403,6 @@ export function LeaderboardBoard({
     }, 15 * 60 * 1000);
     return () => window.clearInterval(refreshId);
   }, [data.scope, router]);
-
-  useEffect(() => {
-    // Only the global view can earn Beacon Challenger. The ref prevents React
-    // development-mode effect replays from issuing duplicate requests; the
-    // badge transaction remains the final idempotency boundary.
-    if (data.scope !== "all-time" || evaluationStarted.current) return;
-    evaluationStarted.current = true;
-
-    void evaluateLeaderboardBadgeAction().then((result) => {
-      if (result.success && result.data) {
-        setBadgeUnlocks(result.data.badgeUnlocks);
-      }
-    });
-  }, [data.scope]);
 
   if (data.needsEnrollment) {
     return (
@@ -771,14 +752,6 @@ export function LeaderboardBoard({
             </aside>
           )}
         </>
-      )}
-
-      {badgeUnlocks.length > 0 && (
-        <BadgeUnlockSequence
-          badges={badgeUnlocks}
-          index={0}
-          onAdvance={() => window.location.reload()}
-        />
       )}
 
       <PlayerDetailsDialog
