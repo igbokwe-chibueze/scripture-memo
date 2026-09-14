@@ -1257,8 +1257,12 @@ long-term verse difficulty. Glow Points are the only currency.
 
 ## Current Project State
 
-- Branch: `badge-system`.
-- Current committed HEAD at this update: `4cebadf`.
+- Branch: `testing`.
+- Current committed HEAD at this update: `1ecb7d6`.
+- Phase 30 is complete: all 16 manual regression flows passed. Phase 31 is
+  in progress; its current evidence is tracked in `docs/PERFORMANCE-AUDIT.md`.
+- The Oil Shop purchase preview passed all three in-app Reduced Motion checks
+  on 2026-09-14. Independent OS-preference verification is next.
 - Phases 0–9 are complete and manually accepted, including bulk CSV import,
   dynamic verse-list search, and admin pack management.
 - The public landing page and internal UI-foundation preview are implemented.
@@ -1300,8 +1304,8 @@ long-term verse difficulty. Glow Points are the only currency.
 
 ## Current Roadmap Position
 
-Phases 0–22 are complete and manually accepted.
-Phase 23 — Vault is next.
+Phases through Phase 30 are complete. Phase 31 — Performance and Polish is
+in progress. Phase 32 — Final Security Audit follows Phase 31 acceptance.
 
 ## Completed Work
 
@@ -1350,12 +1354,16 @@ Phase 23 — Vault is next.
 
 ## Current Task
 
-Begin Phase 23 — Vault.
+Continue Phase 31 — Performance and Polish, starting with the remaining
+independent reduced-motion verification.
 
 ## Exact Next Task
 
-Inspect the Phase 23 Vault requirements and current replay infrastructure, then
-implement the private progress archive and mastered-verse replay flow.
+At `/ui-foundation`, replay **Shop purchase celebration** with the saved in-app
+Reduced Motion preference off and the OS reduced-motion preference on. Confirm
+no particles, no entrance/radial animation, and an immediate final hint balance
+of 8. The in-app-enabled preview has already passed and need not be repeated.
+Then continue the remaining checks in `docs/PERFORMANCE-AUDIT.md`.
 
 ## Important Decisions
 
@@ -3144,3 +3152,13 @@ implement the private progress archive and mastered-verse replay flow.
   to their final values under reduced motion.
 - Map jumps also use immediate scrolling when either reduced-motion source is
   active. TypeScript, ESLint, and whitespace checks pass.
+
+### 2026-09-14 — In-app reduced-motion purchase preview accepted
+
+- The project owner confirmed all three pending purchase-preview checks passed:
+  particles are absent, entrance/radial motion is absent, and the final hint
+  balance appears immediately without counting up.
+- Recorded acceptance in the performance audit and corrected the stale branch,
+  roadmap position, current task, and next-task handoff fields.
+- Independent OS-preference verification is next; Phase 31 remains in progress.
+- Documentation only; no application code or learner data changed.

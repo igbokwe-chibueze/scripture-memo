@@ -41,6 +41,15 @@ review.
 - Beacon level-up copy no longer runs a zero-duration pulse keyframe sequence
   under reduced motion; it renders directly at its final scale.
 
+## Manual verification
+
+- 2026-09-14: The project owner passed all three Oil Shop purchase preview
+  checks at `/ui-foundation` with the saved in-app Reduced Motion preference
+  enabled: no particles, no entrance/radial animation, and the final hint
+  balance appears immediately without counting up.
+- Next: repeat that preview with the in-app preference off and the OS reduced-
+  motion preference on to verify the independent system signal.
+
 ## Remaining audit work
 
 - Inspect high-read repository methods for additional N+1 or duplicated reads.
