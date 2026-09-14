@@ -47,8 +47,60 @@ review.
   checks at `/ui-foundation` with the saved in-app Reduced Motion preference
   enabled: no particles, no entrance/radial animation, and the final hint
   balance appears immediately without counting up.
-- Next: repeat that preview with the in-app preference off and the OS reduced-
-  motion preference on to verify the independent system signal.
+- The owner directed work to continue with the remaining audit. Do not request
+  the accepted preview again; OS-only coverage was not separately reported.
+
+## Source review — 2026-09-14
+
+- Map, Day Selection, and badge collection batch related learner progress;
+  their reviewed reads do not query inside a waypoint/day/badge loop.
+- Session and shared settings reads already use request-scoped React `cache`.
+  Narrowed settings to its eight returned preference fields, omitting internal
+  row IDs and timestamps. Query count and returned behavior remain unchanged.
+- Notification shell reads are capped at 30 and do not poll. Presence reports
+  only while visible, every 15 minutes plus mount/visibility events: four
+  periodic action calls per visible hour, excluding lifecycle events. This is
+  not a count of physical SQL operations.
+- Existing schema indexes cover published waypoint ordering, learner progress
+  identity, notification owner/date ordering, and weekly membership identity.
+  No index migration was justified by this source-only review.
+- Leaderboard responses are bounded, but ranking evaluates the eligible
+  population. Joined/COALESCE ordering still needs representative local query
+  plans and timings; existing indexes do not prove sort avoidance.
+- Map, Vault, and leaderboard views compose server-loaded data with interactive
+  children. No client directive was found in feature `views/` files. Deeper
+  client dependency and bundle measurement remains open.
+- Fellowship detail selection and Vault header navigation findings were
+  corrected in the follow-up below. Full-roster growth remains a measurement
+  concern; pagination would require a separately defined UX.
+- Validation: TypeScript and focused settings-repository ESLint passed.
+
+This is source evidence, not runtime latency or mobile acceptance. Earlier
+Vault/gameplay query counts describe repository calls; physical SQL counts
+remain to be measured.
+
+## Fellowship and Vault follow-up — 2026-09-14
+
+- Fellowship detail applies public-or-member visibility in the database lookup
+  and retains its output visibility guard. Request selection is scoped to the
+  authenticated leader; ordinary viewers no longer load applicant rows only
+  to discard them. Selected fields match the existing returned DTO.
+- Removed the redundant member relation count: the full roster already supplies
+  its exact length. Existing roster rank/tie ordering and the 50-request limit
+  remain unchanged. No write, transaction, or migration was added.
+- Vault header destinations now use NavigationButton and the existing localized
+  `Vault.opening` copy. Shared button variants supply visuals; mobile controls
+  stack with a minimum 44px height, expanding to a row at larger widths.
+- TypeScript, focused ESLint, six Fellowship schema tests, two i18n tests, and
+  whitespace checks pass. These schema tests do not exercise database visibility
+  filters; no database integration test or query-plan measurement ran.
+- Visual acceptance passed: the project owner confirmed the Vault header's
+  375px navigation check on 2026-09-14, covering Return to trail and Badge
+  collection fit, pending feedback, and destinations. Do not repeat this check.
+- Pending repository runtime check: leader request history remains visible;
+  ordinary members/public visitors receive no review requests; private detail
+  remains inaccessible to non-members. Source checks preserve these boundaries,
+  but runtime verification has not been reported for this correction.
 
 ## Remaining audit work
 

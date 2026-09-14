@@ -69,19 +69,126 @@ export const fellowshipRepository = {
     return { memberships: memberships.map(memberMap), discoverableFellowships: discoverableFellowships.map(discoveryMap) };
   },
 
-  async getDetail(userId: string, slug: string): Promise<FellowshipDetailData | null> {
+  /** Loads an accessible roster and only the leader's reviewable request data. */
+  async getDetail(
+    userId: string,
+    slug: string,
+  ): Promise<FellowshipDetailData | null> {
     const fellowship = await prisma.fellowship.findUnique({
-      where: { slug },
-      include: { members: { orderBy: { joinedAt: "asc" }, include: { user: { select: { id: true, profile: { select: { displayName: true, countryCode: true, totalWaypointsCompleted: true, totalGlowPoints: true } } } } } }, joinRequests: { orderBy: { requestedAt: "desc" }, take: 50, include: { user: { select: { profile: { select: { displayName: true, countryCode: true, totalWaypointsCompleted: true, totalGlowPoints: true } } } } } }, _count: { select: { members: true } } },
+      // Apply the existing visibility rule before materializing private rosters.
+      // The caller supplies the authenticated identity, never a browser user ID.
+      where: {
+        slug,
+        OR: [{ isPublic: true }, { members: { some: { userId } } }],
+      },
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        description: true,
+        isPublic: true,
+        createdById: true,
+        insigniaKey: true,
+        inviteCode: true,
+        members: {
+          orderBy: { joinedAt: "asc" },
+          select: {
+            userId: true,
+            joinedAt: true,
+            user: {
+              select: {
+                profile: {
+                  select: {
+                    displayName: true,
+                    countryCode: true,
+                    totalWaypointsCompleted: true,
+                    totalGlowPoints: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        joinRequests: {
+          // Non-leaders receive no request rows from the database. Filtering
+          // here avoids fetching applicant profiles only to discard them later.
+          where: { fellowship: { createdById: userId } },
+          orderBy: { requestedAt: "desc" },
+          take: 50,
+          select: {
+            id: true,
+            source: true,
+            status: true,
+            requestedAt: true,
+            resolvedAt: true,
+            user: {
+              select: {
+                profile: {
+                  select: {
+                    displayName: true,
+                    countryCode: true,
+                    totalWaypointsCompleted: true,
+                    totalGlowPoints: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
     if (!fellowship) return null;
     const isMember = fellowship.members.some((member) => member.userId === userId);
     if (!fellowship.isPublic && !isMember) return null;
-    const ranked = [...fellowship.members].sort((left, right) => (right.user.profile?.totalWaypointsCompleted ?? 0) - (left.user.profile?.totalWaypointsCompleted ?? 0) || (right.user.profile?.totalGlowPoints ?? 0) - (left.user.profile?.totalGlowPoints ?? 0) || left.joinedAt.getTime() - right.joinedAt.getTime());
+    const isLeader = fellowship.createdById === userId;
+    // Preserve the complete roster and existing rank/tie ordering. Pagination
+    // would change visible membership behavior and is not part of this repair.
+    const ranked = [...fellowship.members].sort(
+      (left, right) =>
+        (right.user.profile?.totalWaypointsCompleted ?? 0) -
+          (left.user.profile?.totalWaypointsCompleted ?? 0) ||
+        (right.user.profile?.totalGlowPoints ?? 0) -
+          (left.user.profile?.totalGlowPoints ?? 0) ||
+        left.joinedAt.getTime() - right.joinedAt.getTime(),
+    );
     return {
-      id: fellowship.id, slug: fellowship.slug, name: fellowship.name, description: fellowship.description, isPublic: fellowship.isPublic, memberCount: fellowship._count.members, isMember, isLeader: fellowship.createdById === userId, insigniaKey: fellowship.insigniaKey, inviteCode: fellowship.createdById === userId ? fellowship.inviteCode : null, requestStatus: null, requestId: null,
-      members: ranked.map((member, index) => ({ rank: index + 1, displayName: member.user.profile?.displayName ?? "Player", countryCode: member.user.profile?.countryCode ?? null, waypointsCompleted: member.user.profile?.totalWaypointsCompleted ?? 0, glowPoints: member.user.profile?.totalGlowPoints ?? 0, joinedAt: member.joinedAt, isLeader: member.userId === fellowship.createdById })),
-      joinRequests: fellowship.createdById === userId ? fellowship.joinRequests.map((request) => ({ id: request.id, displayName: request.user.profile?.displayName ?? "Player", countryCode: request.user.profile?.countryCode ?? null, waypointsCompleted: request.user.profile?.totalWaypointsCompleted ?? 0, glowPoints: request.user.profile?.totalGlowPoints ?? 0, source: request.source, status: request.status, requestedAt: request.requestedAt, resolvedAt: request.resolvedAt })) : [],
+      id: fellowship.id,
+      slug: fellowship.slug,
+      name: fellowship.name,
+      description: fellowship.description,
+      isPublic: fellowship.isPublic,
+      // The complete roster is already loaded; a second relation count is redundant.
+      memberCount: fellowship.members.length,
+      isMember,
+      isLeader,
+      insigniaKey: fellowship.insigniaKey,
+      inviteCode: isLeader ? fellowship.inviteCode : null,
+      requestStatus: null,
+      requestId: null,
+      members: ranked.map((member, index) => ({
+        rank: index + 1,
+        displayName: member.user.profile?.displayName ?? "Player",
+        countryCode: member.user.profile?.countryCode ?? null,
+        waypointsCompleted: member.user.profile?.totalWaypointsCompleted ?? 0,
+        glowPoints: member.user.profile?.totalGlowPoints ?? 0,
+        joinedAt: member.joinedAt,
+        isLeader: member.userId === fellowship.createdById,
+      })),
+      // Retain the output guard as well as the database filter so leader-only
+      // review data stays private if this selection is extended in the future.
+      joinRequests: isLeader
+        ? fellowship.joinRequests.map((request) => ({
+            id: request.id,
+            displayName: request.user.profile?.displayName ?? "Player",
+            countryCode: request.user.profile?.countryCode ?? null,
+            waypointsCompleted: request.user.profile?.totalWaypointsCompleted ?? 0,
+            glowPoints: request.user.profile?.totalGlowPoints ?? 0,
+            source: request.source,
+            status: request.status,
+            requestedAt: request.requestedAt,
+            resolvedAt: request.resolvedAt,
+          }))
+        : [],
     };
   },
 

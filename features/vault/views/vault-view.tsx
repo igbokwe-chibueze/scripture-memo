@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import Link from "next/link";
+import { NavigationButton } from "@/components/shared/navigation-button";
 import {
   AwardIcon,
   FlameIcon,
@@ -46,15 +46,26 @@ export async function VaultView(): Promise<React.ReactNode> {
           <p className="mt-3 max-w-2xl text-sm leading-6 text-violet-100">
             {t("longDescription")}
           </p>
-          <div className="mt-6 flex flex-wrap items-center gap-3">
-            <Link href="/game/map" className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-white/10 px-4 font-black hover:bg-white/15">
+          {/* Stack touch targets at 375px; wider screens can share a row.
+           * Shared navigation owns pending feedback and the approved bevel. */}
+          <div className="mt-6 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            <NavigationButton
+              href="/game/map"
+              pendingLabel={t("opening")}
+              variant="secondary"
+              className="min-h-11"
+            >
               <MapIcon className="size-4" aria-hidden="true" />
               {t("returnTrail")}
-            </Link>
-            <Link href="/vault/badges" className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-amber-300 px-4 font-black text-slate-950 hover:bg-amber-200">
+            </NavigationButton>
+            <NavigationButton
+              href="/vault/badges"
+              pendingLabel={t("opening")}
+              className="min-h-11"
+            >
               <AwardIcon className="size-4" aria-hidden="true" />
               {t("badgeCollection")}
-            </Link>
+            </NavigationButton>
             {administrator && (
               <VaultAdminTestingMenu verse={replayFixtureVerse} />
             )}

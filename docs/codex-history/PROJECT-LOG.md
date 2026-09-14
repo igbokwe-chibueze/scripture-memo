@@ -1262,7 +1262,7 @@ long-term verse difficulty. Glow Points are the only currency.
 - Phase 30 is complete: all 16 manual regression flows passed. Phase 31 is
   in progress; its current evidence is tracked in `docs/PERFORMANCE-AUDIT.md`.
 - The Oil Shop purchase preview passed all three in-app Reduced Motion checks
-  on 2026-09-14. Independent OS-preference verification is next.
+  on 2026-09-14. Remaining query, route-state, and mobile audits are next.
 - Phases 0–9 are complete and manually accepted, including bulk CSV import,
   dynamic verse-list search, and admin pack management.
 - The public landing page and internal UI-foundation preview are implemented.
@@ -1354,16 +1354,15 @@ in progress. Phase 32 — Final Security Audit follows Phase 31 acceptance.
 
 ## Current Task
 
-Continue Phase 31 — Performance and Polish, starting with the remaining
-independent reduced-motion verification.
+Continue Phase 31 — Performance and Polish: query payloads, client boundaries,
+route states, and mobile review. The purchase preview is accepted.
 
 ## Exact Next Task
 
-At `/ui-foundation`, replay **Shop purchase celebration** with the saved in-app
-Reduced Motion preference off and the OS reduced-motion preference on. Confirm
-no particles, no entrance/radial animation, and an immediate final hint balance
-of 8. The in-app-enabled preview has already passed and need not be repeated.
-Then continue the remaining checks in `docs/PERFORMANCE-AUDIT.md`.
+Verify Fellowship detail visibility, then continue route-state checks in
+`docs/PERFORMANCE-AUDIT.md`. The Vault header 375px check has passed.
+Do not repeat the accepted purchase preview or Vault check. Runtime SQL plans and browser
+bundle measurements remain unverified.
 
 ## Important Decisions
 
@@ -3160,5 +3159,43 @@ Then continue the remaining checks in `docs/PERFORMANCE-AUDIT.md`.
   balance appears immediately without counting up.
 - Recorded acceptance in the performance audit and corrected the stale branch,
   roadmap position, current task, and next-task handoff fields.
-- Independent OS-preference verification is next; Phase 31 remains in progress.
+- The owner subsequently directed work to continue with the remaining audit;
+  do not repeat the accepted preview. Phase 31 remains in progress.
 - Documentation only; no application code or learner data changed.
+
+### 2026-09-14 — High-read source review and narrower settings selection
+
+- Reviewed map/day progress batching, badge collection reads, notification
+  bounds, presence frequency, request memoization, and principal schema indexes.
+- Narrowed the shared settings read to eight returned fields without changing
+  its result, query count, authorization, or persistence behavior.
+- Recorded evidence and limits in the performance audit, including the need
+  for actual SQL plans rather than inferring physical query counts from Prisma
+  calls. Fellowship payloads and Vault navigation feedback are next.
+- TypeScript and focused ESLint passed. No database commands were run.
+
+### 2026-09-14 — Fellowship detail payload and Vault navigation corrections
+
+- Scoped Fellowship detail reads to public/member visibility and filtered join
+  requests by leader ownership in the database. Narrowed selected fields and
+  removed the redundant relation count while preserving the full roster,
+  rankings, request limit, and output privacy guards.
+- Replaced Vault header route links with shared NavigationButton controls using
+  existing localized pending copy; controls stack at mobile widths and keep
+  44px touch heights. Shared button implementation remains unchanged.
+- TypeScript, focused ESLint, Fellowship schema tests (6), i18n tests (2), and
+  whitespace checks passed. No database integration or browser test ran.
+- Next: visual verification of Vault navigation at 375px and runtime Fellowship
+  detail visibility, then the remaining Phase 31 route-state/mobile audit.
+
+### 2026-09-14 — Local database recovery and Vault mobile acceptance
+
+- Read-only authentication diagnostics found the app reachable on port 3000
+  while its configured local database port 51214 refused IPv4 and IPv6
+  connections. Generic auth catch responses concealed the service outage.
+- The owner restarted the existing local database and reported the test passed.
+  No authentication code, credentials, or account data were changed by the agent.
+- The owner then confirmed the requested Vault navigation check at 375px passed.
+  Recorded acceptance in the performance audit; this check need not be repeated.
+- Next: Fellowship detail visibility verification, followed by remaining Phase
+  31 route-state/mobile checks. Phase 31 is still in progress.
