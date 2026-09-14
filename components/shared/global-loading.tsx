@@ -1,8 +1,9 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { SparklesIcon } from "lucide-react";
 import { LunaMascot } from "@/components/shared/luna-mascot";
+import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preference";
 
 const TRAIL_STEPS = [0, 1, 2, 3, 4] as const;
 const EMBERS = [
@@ -20,7 +21,7 @@ const EMBERS = [
  * while preserving the flame, trail, and loading message.
  */
 export function GlobalLoading(): React.ReactNode {
-  const shouldReduceMotion = useReducedMotion() ?? false;
+  const shouldReduceMotion = useReducedMotionPreference();
 
   return (
     <main

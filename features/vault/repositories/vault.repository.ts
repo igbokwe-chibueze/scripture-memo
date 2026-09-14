@@ -121,23 +121,33 @@ const vaultVerseSelect = (userId: string) => ({
 /** Database boundary for private Vault reads and isolated replay creation. */
 export const vaultRepository = {
   async getLibrary(userId: string): Promise<VaultLibraryData> {
-    const [profile, streak, settings, completedProgress, purchasedHints, favorites, activeProgress] =
+    const [userSummary, completedProgress, purchasedHints, favorites, activeProgress] =
       await Promise.all([
-        prisma.userProfile.findUnique({
-          where: { userId },
+        // WHY: Profile, streak, and settings are one-to-one relations owned by
+        // the same learner. Reading them through User replaces three database
+        // operations with one narrow relation query on every Vault visit.
+        prisma.user.findUnique({
+          where: { id: userId },
           select: {
-            totalWaypointsCompleted: true,
-            totalGlowPoints: true,
-            totalHintsUsed: true,
+            profile: {
+              select: {
+                totalWaypointsCompleted: true,
+                totalGlowPoints: true,
+                totalHintsUsed: true,
+              },
+            },
+            streak: {
+              select: {
+                currentStreak: true,
+                bestStreak: true,
+              },
+            },
+            settings: {
+              select: {
+                preferredTranslation: true,
+              },
+            },
           },
-        }),
-        prisma.userStreak.findUnique({
-          where: { userId },
-          select: { currentStreak: true, bestStreak: true },
-        }),
-        prisma.userSettings.findUnique({
-          where: { userId },
-          select: { preferredTranslation: true },
         }),
         prisma.userWaypointProgress.findMany({
           where: { userId, status: WaypointStatus.COMPLETED },
@@ -190,7 +200,10 @@ export const vaultRepository = {
         }),
       ]);
 
-    const preferred = settings?.preferredTranslation ?? TranslationCode.KJV;
+    const profile = userSummary?.profile;
+    const streak = userSummary?.streak;
+    const preferred =
+      userSummary?.settings?.preferredTranslation ?? TranslationCode.KJV;
     const stagesByVerse = new Map<
       string,
       {

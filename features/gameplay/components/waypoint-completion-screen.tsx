@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preference";
 import { ArrowRightIcon, MapIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AnimatedFlame } from "@/features/gameplay/components/animated-flame";
@@ -30,7 +31,7 @@ function AnimatedBalanceValue({
   startingValue: number;
   finalValue: number;
 }): React.ReactNode {
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useReducedMotionPreference();
   const [displayValue, setDisplayValue] = useState(
     shouldReduceMotion ? finalValue : startingValue,
   );
@@ -38,6 +39,8 @@ function AnimatedBalanceValue({
   const frameRef = useRef<number | null>(null);
 
   useEffect(() => {
+    // The reduced-motion result is derived directly during render. Avoid both
+    // the animation timers and a synchronous state update inside this effect.
     if (shouldReduceMotion) return;
     const delayTimer = window.setTimeout(() => {
       const startedAt = performance.now();
@@ -77,7 +80,7 @@ function AnimatedBalanceValue({
       }
       transition={{ duration: shouldReduceMotion ? 0 : 1.1, ease: "easeOut" }}
     >
-      {displayValue.toLocaleString()}
+      {(shouldReduceMotion ? finalValue : displayValue).toLocaleString()}
     </motion.p>
   );
 }
@@ -101,7 +104,7 @@ export function WaypointCompletionScreen({
   onContinue: () => void;
 }): React.ReactNode {
   const t = useTranslations("Completion");
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useReducedMotionPreference();
   const playAudio = useAudioFeedback();
 
   useEffect(() => {

@@ -2,7 +2,8 @@
 
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preference";
 import {
   ArrowRightIcon,
   RotateCcwIcon,
@@ -47,7 +48,7 @@ export function ModeCompletionScreen({
   const modeLabels: Record<GameMode, string> = {
     DRAG_DROP: gameT("dragDrop"), PUZZLE: gameT("puzzle"), SWAP: gameT("swap"), CUE: gameT("cue"), FILL: gameT("fill"),
   };
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useReducedMotionPreference();
   const levelProgress = beaconProgression
     ? Math.min(
         100,
@@ -212,7 +213,11 @@ export function ModeCompletionScreen({
                 <motion.p
                   className="mt-3 text-center font-heading text-lg font-black text-fuchsia-700 dark:text-fuchsia-300"
                   initial={shouldReduceMotion ? false : { scale: 0.7 }}
-                  animate={{ scale: [1, 1.14, 1] }}
+                  animate={
+                    shouldReduceMotion
+                      ? { scale: 1 }
+                      : { scale: [1, 1.14, 1] }
+                  }
                   transition={{ duration: shouldReduceMotion ? 0 : 0.7, delay: 1.1 }}
                 >
                   {t("levelUp", { level: beaconProgression.level })}

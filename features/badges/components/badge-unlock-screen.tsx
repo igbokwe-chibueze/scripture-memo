@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { ArrowRightIcon, SparklesIcon } from "lucide-react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preference";
 import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { ShareAchievementButton } from "@/components/shared/share-achievement-button";
@@ -73,7 +74,7 @@ export function BadgeUnlockScreen({
   const t = useTranslations("Badges");
   const common = useTranslations("Common");
   const locale = useLocale();
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useReducedMotionPreference();
   const playAudio = useAudioFeedback();
 
   useEffect(() => {

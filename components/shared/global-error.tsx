@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preference";
 import { RefreshCwIcon } from "lucide-react";
 import { LunaMascot } from "@/components/shared/luna-mascot";
 import { Button } from "@/components/ui/button";
@@ -23,7 +24,7 @@ export function GlobalError({
   unstable_retry,
 }: GlobalErrorProps): React.ReactNode {
   void error;
-  const shouldReduceMotion = useReducedMotion() ?? false;
+  const shouldReduceMotion = useReducedMotionPreference();
 
   return (
     <main className="relative isolate flex min-h-dvh items-center justify-center overflow-hidden bg-linear-to-b from-amber-50 via-orange-50 to-violet-100 px-5 py-8 text-slate-950 dark:from-slate-950 dark:via-[#150d20] dark:to-[#27123c] dark:text-white">

@@ -1651,6 +1651,12 @@ badges, and cooldowns. The project owner accepted the result on 2026-09-01.
 
 **Goal:** Make the application feel production-ready.
 
+**Status:** In progress. The initial automated audit passes TypeScript, lint,
+explicit-`any`, debug-log, and repository-boundary checks. The first correction
+batch reduces repeat Vault and gameplay reads and closes reduced-motion gaps.
+The remaining route-by-route visual and state review is tracked in
+`PERFORMANCE-AUDIT.md`.
+
 ### Tasks
 
 1. Audit all database queries for N+1 problems — replace with batch queries or `include` where needed.

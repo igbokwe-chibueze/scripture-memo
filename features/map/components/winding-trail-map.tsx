@@ -113,9 +113,9 @@ export function WindingTrailMap({
 
     // Respect the operating-system motion preference even when the saved app
     // setting has not hydrated yet. Navigation remains immediate and complete.
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    const prefersReducedMotion =
+      document.documentElement.classList.contains("reduce-motion") ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     destination.scrollIntoView({
       block: "start",
       behavior: prefersReducedMotion ? "auto" : "smooth",

@@ -279,7 +279,7 @@ export const gameplayRepository = {
     userId: string,
     sessionId: string,
   ): Promise<GameplaySessionData | null> {
-    const [session, settings, usedHintCount, purchasedHints, profile] = await Promise.all([
+    const [session, userSummary, usedHintCount, purchasedHints] = await Promise.all([
       prisma.gameSession.findFirst({
         where: { id: sessionId, userId },
         select: {
@@ -308,21 +308,35 @@ export const gameplayRepository = {
           },
         },
       }),
-      prisma.userSettings.findUnique({
-        where: { userId },
-        select: { audioEnabled: true },
+      // WHY: Settings and Beacon progress are one-to-one relations on the same
+      // learner. Selecting both through User removes one database operation
+      // from every gameplay render without broadening the returned data.
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          settings: {
+            select: {
+              audioEnabled: true,
+            },
+          },
+          profile: {
+            select: {
+              beaconXp: true,
+              beaconLevel: true,
+            },
+          },
+        },
       }),
       prisma.hintUsage.count({ where: { userId } }),
       prisma.userShopPurchase.aggregate({
         where: { userId, shopItem: { itemType: "HINT_PACK" } },
         _sum: { entitlementQuantity: true },
       }),
-      prisma.userProfile.findUnique({
-        where: { userId },
-        select: { beaconXp: true, beaconLevel: true },
-      }),
     ]);
     if (!session) return null;
+
+    const settings = userSummary?.settings;
+    const profile = userSummary?.profile;
 
     const translation =
       session.verse.translations.find(

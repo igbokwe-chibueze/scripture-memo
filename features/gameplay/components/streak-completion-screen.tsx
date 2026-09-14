@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preference";
 import {
   ArrowRightIcon,
   FlameIcon,
@@ -26,7 +27,7 @@ export function StreakCompletionScreen({
   const t = useTranslations("Streak");
   const commonT = useTranslations("Common");
   const locale = useLocale();
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useReducedMotionPreference();
   const playAudio = useAudioFeedback();
   const [ambienceStarted, setAmbienceStarted] = useState(false);
   useFlameAmbience(ambienceStarted);

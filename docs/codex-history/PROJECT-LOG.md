@@ -3115,3 +3115,32 @@ implement the private progress archive and mastered-verse replay flow.
 - All 16 Phase 30 manual regression flows are now passed.
 - Marked Phase 30 complete in the roadmap and QA checklist. Phase 31 —
   Performance and Polish — is next.
+
+### 2026-09-01 — Phase 31 audit and first correction batch
+
+- Started the evidence-based performance and polish audit and added
+  `docs/PERFORMANCE-AUDIT.md` to distinguish automated evidence from pending
+  route-by-route visual checks.
+- Reduced a normal Vault load from seven database queries to five by selecting
+  the learner's profile, streak, and settings through one narrow relation read.
+- Reduced shared gameplay-session rendering from five database queries to four
+  by loading audio settings and Beacon progress through one learner query.
+- Added complete reduced-motion handling to the Oil Shop purchase celebration
+  and removed the remaining Beacon level-up pulse for reduced-motion users.
+- TypeScript, lint, whitespace validation, and all 100 non-database automated
+  tests pass. Phase 31 remains in progress pending the remaining audit and
+  manual visual checks.
+
+### 2026-09-02 — Unified reduced-motion behavior
+
+- Corrected the first Phase 31 implementation after manual testing established
+  that Framer Motion observed only the operating-system media preference while
+  Scripture Memo's saved setting was represented by a document class.
+- Added one shared hook that combines both signals and reacts immediately when
+  the saved app setting changes, without polling or database reads.
+- Applied the shared signal across route loading/error feedback, hints, badges,
+  mode, streak, waypoint, and Oil Shop celebrations. Confetti and purchase
+  particles are now omitted entirely, and JavaScript count-ups resolve directly
+  to their final values under reduced motion.
+- Map jumps also use immediate scrolling when either reduced-motion source is
+  active. TypeScript, ESLint, and whitespace checks pass.

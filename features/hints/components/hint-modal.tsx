@@ -2,7 +2,8 @@
 
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preference";
 import { LunaMascot } from "@/components/shared/luna-mascot";
 import {
   Dialog,
@@ -27,7 +28,7 @@ export function HintModal({
   onOpenChange: (open: boolean) => void;
 }): React.ReactNode {
   const t = useTranslations("Gameplay");
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useReducedMotionPreference();
 
   useEffect(() => {
     if (!open) return;

@@ -22,6 +22,7 @@ import { verifyInsufficientBalanceAction } from "@/features/oil-shop/actions/ver
 import { verifyOilShopPurchaseAction } from "@/features/oil-shop/actions/verify-oil-shop-purchase.action";
 import type { OilShopData, OilShopItem } from "@/features/oil-shop/types/oil-shop.types";
 import { useAudioFeedback } from "@/features/gameplay/hooks/use-audio-feedback";
+import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preference";
 
 const itemArt: Record<number, string> = {
   1: "/images/oil-shop/single-spark.png",
@@ -39,21 +40,23 @@ export type PurchaseCelebration = {
 function PurchasedHintBalance({
   previousValue,
   newValue,
+  reducedMotion,
 }: {
   previousValue: number;
   newValue: number;
+  reducedMotion: boolean;
 }): React.ReactNode {
   const [displayedValue, setDisplayedValue] = useState(previousValue);
 
   useEffect(() => {
+    // Reduced motion resolves the trusted result directly during render. Do not
+    // schedule the normal 1.5-second animation delay or a follow-up state write.
+    if (reducedMotion) return;
+
     let animationFrame = 0;
     // WHY: The balance is deliberately the final celebration beat. Waiting for
     // the modal, Luna, particles, and item to settle prevents competing motion.
     const startTimer = window.setTimeout(() => {
-      if (document.documentElement.dataset.reducedMotion === "true") {
-        setDisplayedValue(newValue);
-        return;
-      }
       const startedAt = performance.now();
       const durationMs = 850;
       const step = (timestamp: number): void => {
@@ -67,17 +70,17 @@ function PurchasedHintBalance({
       window.clearTimeout(startTimer);
       window.cancelAnimationFrame(animationFrame);
     };
-  }, [newValue, previousValue]);
+  }, [newValue, previousValue, reducedMotion]);
 
   return (
     <motion.div
-      key={displayedValue}
-      initial={{ scale: 0.94 }}
+      key={reducedMotion ? newValue : displayedValue}
+      initial={reducedMotion ? false : { scale: 0.94 }}
       animate={{ scale: 1 }}
       className="rounded-xl bg-violet-400/15 px-3 py-2 text-center"
     >
       <LightbulbIcon className="mx-auto size-5 text-violet-300" />
-      <strong>{displayedValue}</strong>
+      <strong>{reducedMotion ? newValue : displayedValue}</strong>
     </motion.div>
   );
 }
@@ -98,6 +101,7 @@ export function PurchaseCelebrationDialog({
   const t = useTranslations("Shop");
   const common = useTranslations("Common");
   const playAudio = useAudioFeedback();
+  const shouldReduceMotion = useReducedMotionPreference();
 
   useEffect(() => {
     if (celebration) playAudio("shop-purchase");
@@ -108,21 +112,33 @@ export function PurchaseCelebrationDialog({
       <DialogContent showCloseButton={false} className="h-[calc(100dvh-1rem)] max-h-[46rem] overflow-hidden rounded-[2rem] border-2 border-violet-400/50 bg-[radial-gradient(circle_at_50%_22%,color-mix(in_oklch,var(--primary),transparent_70%),transparent_48%),linear-gradient(160deg,#17112d,#090817)] p-0 text-white sm:max-w-lg">
         {celebration && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.82 }}
+            initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.82 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ type: "spring", duration: 0.75, bounce: 0.28 }}
+            transition={
+              shouldReduceMotion
+                ? { duration: 0 }
+                : { type: "spring", duration: 0.75, bounce: 0.28 }
+            }
             className="relative grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] gap-3 px-4 pb-4 pt-5 text-center min-[390px]:px-5 min-[390px]:pb-5 min-[390px]:pt-7"
           >
             <Button type="button" variant="outline" size="icon-lg" onClick={onClose} aria-label={common("close")} className="absolute right-3 top-3 z-20 size-11 rounded-2xl border-violet-200/35 bg-[#25163b]! text-white hover:bg-violet-800! dark:bg-[#25163b]!">
               <XIcon className="size-5" aria-hidden="true" />
             </Button>
             <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-              {Array.from({ length: 12 }, (_, index) => (
+              {!shouldReduceMotion && Array.from({ length: 12 }, (_, index) => (
                 <motion.span
                   key={index}
                   className="absolute size-2 rotate-45 bg-amber-300"
                   style={{ left: `${8 + ((index * 17) % 84)}%`, top: `${12 + ((index * 23) % 62)}%` }}
-                  animate={{ y: [0, -18, 8], rotate: [45, 160, 260], opacity: [0, 1, 0] }}
+                  animate={
+                    shouldReduceMotion
+                      ? undefined
+                      : {
+                          y: [0, -18, 8],
+                          rotate: [45, 160, 260],
+                          opacity: [0, 1, 0],
+                        }
+                  }
                   transition={{ duration: 1.8, delay: index * 0.07, repeat: Infinity, repeatDelay: 0.5 }}
                 />
               ))}
@@ -135,14 +151,22 @@ export function PurchaseCelebrationDialog({
               <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
                 <motion.div
                   className="absolute left-1/2 top-1/2 aspect-square w-[120%] -translate-x-1/2 -translate-y-1/2 bg-[repeating-conic-gradient(from_0deg,transparent_0deg_11deg,rgb(251_191_36/0.12)_11deg_17deg,transparent_17deg_30deg)] [mask-image:radial-gradient(circle,black_0%,rgb(0_0_0/0.88)_34%,rgb(0_0_0/0.38)_62%,transparent_88%)]"
-                  animate={{ rotate: 360, scale: [0.98, 1.04, 0.98] }}
+                  animate={
+                    shouldReduceMotion
+                      ? undefined
+                      : { rotate: 360, scale: [0.98, 1.04, 0.98] }
+                  }
                   transition={{ rotate: { duration: 28, repeat: Infinity, ease: "linear" }, scale: { duration: 3.6, repeat: Infinity, ease: "easeInOut" } }}
                 />
                 <div className="absolute left-1/2 top-1/2 size-[68%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-200/18 blur-[3.5rem]" />
               </div>
               <Image src="/images/mascot/luna/luna-reward.png" alt={t("celebrationAlt")} fill className="z-10 object-contain" sizes="384px" />
               <motion.div
-                initial={{ x: 30, scale: 0.4, rotate: 12 }}
+                initial={
+                  shouldReduceMotion
+                    ? false
+                    : { x: 30, scale: 0.4, rotate: 12 }
+                }
                 animate={{ x: 0, scale: 1, rotate: -4 }}
                 transition={{ type: "spring", delay: 0.3, duration: 0.8 }}
                 className="absolute bottom-1 right-1 z-20 size-24 overflow-hidden rounded-3xl border-2 border-violet-300/70 shadow-[0_0_30px_rgb(168_85_247/0.5)] min-[390px]:size-28"
@@ -155,6 +179,7 @@ export function PurchaseCelebrationDialog({
               <PurchasedHintBalance
                 previousValue={celebration.previousHintBalance}
                 newValue={celebration.newHintBalance}
+                reducedMotion={shouldReduceMotion}
               />
             </div>
           </motion.div>

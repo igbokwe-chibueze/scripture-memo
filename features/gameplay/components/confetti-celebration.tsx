@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preference";
 
 const CONFETTI_PIECES = Array.from({ length: 28 }, (_, index) => ({
   id: index,
@@ -15,11 +16,14 @@ const CONFETTI_PIECES = Array.from({ length: 28 }, (_, index) => ({
 /**
  * Renders a brief, non-interactive celebration without blocking navigation.
  *
- * Motion is disabled through Tailwind's reduced-motion variant, preserving the
- * success announcement while respecting the learner's operating-system choice.
+ * The shared preference hook covers both the operating-system setting and the
+ * saved Scripture Memo setting. Returning no decorative nodes prevents app-
+ * selected reduced motion from leaving static confetti across the viewport.
  */
 export function ConfettiCelebration({ show }: { show: boolean }): React.ReactNode {
-  if (!show) return null;
+  const shouldReduceMotion = useReducedMotionPreference();
+
+  if (!show || shouldReduceMotion) return null;
 
   return (
     <div
