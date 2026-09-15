@@ -651,6 +651,8 @@
     "title": "Notices",
     "description": "Updates from your journey.",
     "markAllRead": "Read all",
+    "markingRead": "Marking read…",
+    "readFailed": "Could not mark notices as read. Please try again.",
     "allRead": "All notices marked as read.",
     "empty": "All quiet on the trail",
     "weeklyResult": "Weekly league result",

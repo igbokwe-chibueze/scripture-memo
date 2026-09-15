@@ -21,17 +21,20 @@ security issue remains unresolved.
 | TypeScript strict compilation | Passed | `npx tsc --noEmit` on 2026-08-29 |
 | Full ESLint pass | Passed | `npm run lint` on 2026-08-29 |
 | Non-database unit tests | Passed | 99 tests across errors, guards, progression, streaks, gameplay, rewards, hints, badges, Vault, map, localization, Fellowships, Beacon, and verse import |
-| Waypoint repository integration | Blocked | Dedicated hosted test database requires an empty curriculum, but Prisma currently rejects its guarded reset with `planLimitReached`. |
-| Progression repository integration | Blocked | Dedicated hosted test database requires an empty curriculum, but Prisma currently rejects its guarded reset with `planLimitReached`. |
-| Reward repository integration | Blocked | The hosted test resource cannot complete reliable fixture cleanup while its Prisma workspace plan limit is active. |
+| Waypoint repository integration | Passed locally | 2026-09-14; lifecycle and ordered append outcomes pass. Actual concurrent lock contention remains unverified on Prisma Local. |
+| Progression repository integration | Passed with skips | 2026-09-14; cooldown, duplicate, and lazy unlock checks pass; two lock-race subtests explicitly skipped because the local pool has one connection. |
+| Reward repository integration | Passed locally | 2026-09-14; committed balance and single ledger entry survive a duplicate award rejection. |
+| Fellowship repository integration | Passed locally | 2026-09-14; leader/member/visitor access, privacy, ranking, and request projection. |
 
 Integration suites must run **sequentially**, because the waypoint and
 progression suites both own the complete temporary curriculum and require the
 same dedicated database to be empty at startup.
 
-The reusable `npm run test:database:reset` command validates that the test URL is
-separate from the application database before clearing application tables. Rerun
-it only after Prisma lifts the current workspace plan restriction.
+Use `npm run local:test:start`, `npm run test:database:migrate`, then
+`npm run test:integration:all`. The test instance uses port 51224; development
+remains on 51214. The shared guard rejects hosted URLs and same-port aliases.
+`npm run test:database:reset` clears disposable local fixtures only. The former
+hosted quota blocker is retired; genuine concurrent race coverage remains pending.
 
 ## Manual regression flows
 

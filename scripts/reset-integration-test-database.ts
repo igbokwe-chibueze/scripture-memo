@@ -2,22 +2,24 @@
  * Resets only the dedicated Scripture Memo integration-test database.
  *
  * Use this command when repository integration tests report that their isolated
- * waypoint curriculum is not empty or that its migration state has drifted:
+ * waypoint curriculum is not empty. This does not repair migration drift;
+ * use `npm run test:database:migrate` to apply missing schema migrations.
  *
  *   npm run test:database:reset
  *
  * Required environment values (normally loaded from the local `.env` file):
  *
  * - `DATABASE_URL`: the routine application/development database.
- * - `TEST_DATABASE_URL`: a different, dedicated PostgreSQL test database.
+ * - `TEST_DATABASE_URL`: a dedicated local PostgreSQL instance on a different port.
  * - `TEST_DATABASE_CONFIRMATION`: the exact acknowledgement enforced by
  *   `requireSafeTestDatabaseUrl`.
  *
  * SECURITY AND DATA-INTEGRITY GUARANTEES:
  *
  * - The shared guard rejects a missing URL, malformed PostgreSQL URL, absent
- *   credentials, incorrect acknowledgement, or reuse of `DATABASE_URL`.
- * - The validated test URL is passed only through the child process environment;
+ *   credentials, incorrect acknowledgement, hosted targets, production mode,
+ *   or reuse of the application listener even with a different database name.
+ * - The validated test URL is passed only through this process environment;
  *   it is never printed or interpolated into a shell command.
  * - The command preserves the already-applied schema and `_prisma_migrations`
  *   history, but clears all application tables in one server-side operation.

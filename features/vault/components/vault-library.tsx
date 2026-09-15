@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/shared/loading-button";
+import { NavigationButton } from "@/components/shared/navigation-button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { showActionError } from "@/lib/errors/show-action-error";
 import { cn } from "@/lib/utils";
@@ -101,29 +103,33 @@ function VerseCard({
           </span>
         ))}
       </div>
-      <div className={cn("mt-5 grid gap-2", canReplay && verse.studyAccess === "AVAILABLE" && "grid-cols-2")}>
+      {/* At 375px each translated label gets a full-width touch target. Wider
+       * cards can place study and replay alongside each other without clipping. */}
+      <div className={cn("mt-5 grid gap-2", canReplay && verse.studyAccess === "AVAILABLE" && "sm:grid-cols-2")}>
         {verse.studyAccess === "AVAILABLE" ? (
-          <Link
+          <NavigationButton
             href={`/sanctuary/${verse.verseId}`}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-violet-300/40 bg-background px-3 text-sm font-black hover:bg-violet-50 dark:hover:bg-violet-950/30"
+            pendingLabel={t("opening")}
+            variant="outline"
+            className="min-h-11"
           >
             <BookHeartIcon className="size-4" aria-hidden="true" /> {t("sanctuary")}
-          </Link>
+          </NavigationButton>
         ) : (
           <Button type="button" variant="outline" className="min-h-11 rounded-xl" disabled>
             <LockKeyholeIcon aria-hidden="true" /> {t("studyLocked")}
           </Button>
         )}
         {canReplay && verse.studyAccess === "AVAILABLE" && (
-        <Button
-          type="button"
-          className="min-h-11 rounded-xl bg-violet-600 font-black text-white hover:bg-violet-500"
-          disabled={isPending}
-          onClick={replay}
-        >
-          <PlayIcon data-icon="inline-start" aria-hidden="true" />
-          {isPending ? t("opening") : t("replayFromVault")}
-        </Button>
+          <LoadingButton
+            type="button"
+            isPending={isPending}
+            pendingLabel={t("opening")}
+            onClick={replay}
+          >
+            <PlayIcon data-icon="inline-start" aria-hidden="true" />
+            {t("replayFromVault")}
+          </LoadingButton>
         )}
       </div>
     </article>

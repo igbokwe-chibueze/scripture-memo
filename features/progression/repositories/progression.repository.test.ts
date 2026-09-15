@@ -2,7 +2,7 @@
  * PostgreSQL integration coverage for atomic progression and cooldown rules.
  *
  * Run with `TEST_DATABASE_URL` pointing to an empty, migrated PostgreSQL test
- * database whose name contains "test", then execute
+ * database on its own local port, then execute
  * `npm run test:progression:integration`. The suite switches `DATABASE_URL`
  * before importing Prisma, refuses a non-test or non-empty waypoint database,
  * creates all fixtures itself, and deletes them in foreign-key order.
@@ -10,6 +10,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import "dotenv/config";
+import { getPostgresPoolConfig } from "@/lib/database/get-postgres-pool-config";
 import type { Prisma } from "@/lib/generated/prisma/client";
 import { requireSafeTestDatabaseUrl } from "@/lib/testing/test-database-guard";
 
@@ -19,7 +20,7 @@ const applicationDatabaseUrl = process.env.DATABASE_URL;
 test(
   "progression transitions enforce cooldowns, duplicates, and lazy next unlocks",
   { skip: testDatabaseUrl ? false : "TEST_DATABASE_URL is not configured." },
-  async () => {
+  async (context) => {
     if (!testDatabaseUrl) return;
 
     requireSafeTestDatabaseUrl({
@@ -65,6 +66,14 @@ test(
     });
 
     try {
+      // Production onboarding creates this profile before gameplay. Radiance
+      // completion now updates its waypoint total inside the same transaction.
+      await prisma.userProfile.createMany({
+        data: userIds.map((id) => ({
+          userId: id,
+          displayName: "Progression Integration Learner",
+        })),
+      });
       const createVerse = async (reference: string, verseStart: number): Promise<string> => {
         const verse = await prisma.verse.create({
           data: {
@@ -149,21 +158,30 @@ test(
       });
       waypointIds.push(firstWaypoint.id, nextWaypoint.id);
 
-      const unavailableInitialization = await runAfterLockedCurriculumMutation(
-        () => progressionRepository.initializeFirstWaypoint(raceUserId),
-        async (transaction) => {
-          await transaction.waypoint.update({
-            where: { id: firstWaypoint.id },
-            data: { isActive: false },
-          });
-        },
-      );
-      assert.deepEqual(unavailableInitialization, { status: "curriculum-unavailable" });
-      assert.equal(
-        await prisma.userWaypointProgress.count({ where: { userId: raceUserId } }),
-        0,
-        "Initialization must not attach history to curriculum hidden under the shared lock.",
-      );
+      // The local pool has one connection: waiting for a second transaction
+      // would deadlock the harness. Report missing race coverage explicitly.
+      await context.test("initialization waits for concurrent curriculum changes", {
+        skip: getPostgresPoolConfig(testDatabaseUrl).max === 1
+          ? "Requires concurrent PostgreSQL connections; Prisma Local serializes them."
+          : false,
+      }, async () => {
+        const unavailableInitialization = await runAfterLockedCurriculumMutation(
+          () => progressionRepository.initializeFirstWaypoint(raceUserId),
+          async (transaction) => {
+            await transaction.waypoint.update({
+              where: { id: firstWaypoint.id },
+              data: { isActive: false },
+            });
+          },
+        );
+        assert.deepEqual(unavailableInitialization, { status: "curriculum-unavailable" });
+        assert.equal(
+          await prisma.userWaypointProgress.count({ where: { userId: raceUserId } }),
+          0,
+          "Initialization must not attach history to curriculum hidden under the shared lock.",
+        );
+
+      });
       await prisma.waypoint.update({
         where: { id: firstWaypoint.id },
         data: { isActive: true },
@@ -183,23 +201,32 @@ test(
         where: { id: nextWaypoint.id },
         data: { isActive: true },
       });
-      const unavailableNextWaypoint = await runAfterLockedCurriculumMutation(
-        () => progressionRepository.unlockNextWaypoint(raceUserId, firstWaypoint.number),
-        async (transaction) => {
-          await transaction.waypoint.update({
-            where: { id: nextWaypoint.id },
-            data: { isActive: false },
-          });
-        },
-      );
-      assert.equal(unavailableNextWaypoint, null);
-      assert.equal(
-        await prisma.userWaypointProgress.count({
-          where: { userId: raceUserId, waypointId: nextWaypoint.id },
-        }),
-        0,
-        "Next unlock must re-check availability after the admin mutation commits.",
-      );
+      // The local pool has one connection: waiting for a second transaction
+      // would deadlock the harness. Report missing race coverage explicitly.
+      await context.test("next unlock waits for concurrent curriculum changes", {
+        skip: getPostgresPoolConfig(testDatabaseUrl).max === 1
+          ? "Requires concurrent PostgreSQL connections; Prisma Local serializes them."
+          : false,
+      }, async () => {
+        const unavailableNextWaypoint = await runAfterLockedCurriculumMutation(
+          () => progressionRepository.unlockNextWaypoint(raceUserId, firstWaypoint.number),
+          async (transaction) => {
+            await transaction.waypoint.update({
+              where: { id: nextWaypoint.id },
+              data: { isActive: false },
+            });
+          },
+        );
+        assert.equal(unavailableNextWaypoint, null);
+        assert.equal(
+          await prisma.userWaypointProgress.count({
+            where: { userId: raceUserId, waypointId: nextWaypoint.id },
+          }),
+          0,
+          "Next unlock must re-check availability after the admin mutation commits.",
+        );
+
+      });
       await prisma.waypoint.update({
         where: { id: nextWaypoint.id },
         data: { isActive: true },

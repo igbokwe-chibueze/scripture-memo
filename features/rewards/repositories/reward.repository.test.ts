@@ -34,6 +34,11 @@ test(
     const userId = `reward-test-${runId}`;
 
     try {
+      // Fail before fixtures if this instance contains unrelated learner data.
+      // Keep checks serial for the local single-connection transport.
+      assert.equal(await prisma.user.count(), 0, "Test users must be empty.");
+      assert.equal(await prisma.userProfile.count(), 0, "Test profiles must be empty.");
+      assert.equal(await prisma.rewardLedger.count(), 0, "Test rewards must be empty.");
       await prisma.user.create({
         data: {
           id: userId,
@@ -68,13 +73,15 @@ test(
         ),
       );
 
-      const [profile, ledger] = await Promise.all([
-        prisma.userProfile.findUniqueOrThrow({
-          where: { userId },
-          select: { totalGlowPoints: true },
-        }),
-        prisma.rewardLedger.findMany({ where: { userId } }),
-      ]);
+      // Verify durable committed state using a fresh connection after the
+      // intentionally rejected transaction. Prisma Local's socket can retain
+      // protocol responses after a constraint error on the previous connection.
+      await prisma.$disconnect();
+      const profile = await prisma.userProfile.findUniqueOrThrow({
+        where: { userId },
+        select: { totalGlowPoints: true },
+      });
+      const ledger = await prisma.rewardLedger.findMany({ where: { userId } });
       assert.equal(profile.totalGlowPoints, 100);
       assert.equal(ledger.length, 1);
       assert.equal(ledger[0]?.amount, 100);

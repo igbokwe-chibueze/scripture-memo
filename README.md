@@ -19,6 +19,42 @@ it and `npx prisma dev stop scripture-memo` when you intentionally want to stop
 it. Keep hosted credentials in deployment configuration or an ignored backup,
 never in the active development `.env`.
 
+#### Local integration tests
+
+The application keeps using `scripture-memo` on port **51214**. Disposable
+integration fixtures use `scripture-memo-tests` on **51224**, backed by separate
+local storage. Both use the existing Prisma installation; neither needs Cloud.
+Changing only the database name on a Prisma Local URL does **not** isolate data.
+The test guard requires local URLs, different ports, and explicit confirmation.
+
+```bash
+# Start the persistent test service; leave this terminal running during tests.
+npm run local:test:start
+```
+
+In another terminal:
+
+```bash
+# Apply checked-in schema changes to TEST_DATABASE_URL only; never seed the app.
+npm run test:database:migrate
+# Run suites sequentially because they share disposable fixture tables.
+npm run test:integration:all
+```
+
+The service was provisioned and migrated on 2026-09-14. After restarting the
+computer, start it again only when running integration tests. It is not required
+for login or ordinary development. `Ctrl+C` stops the foreground test service.
+`npm run test:database:reset` clears **test data only**, preserving migrations;
+use it only to remove failed fixture leftovers, not to repair missing migrations.
+
+Prisma Local uses one connection. The two progression lock-race subtests are
+explicitly skipped; they still require verification against a separately
+approved local PostgreSQL setup supporting concurrent connections before release.
+The waypoint append test verifies ordered outcomes locally, not real lock contention.
+Hosted test credentials are retired from the active `.env`; archived credentials
+are not a fallback. Production migration/data transfer remains a separate future
+deployment task; test fixtures must never be transferred to production.
+
 #### Inspecting local data
 
 Prisma remains the only ORM, schema authority, and migration system. DBeaver

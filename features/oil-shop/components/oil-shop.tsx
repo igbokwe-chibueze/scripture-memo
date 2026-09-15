@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/shared/loading-button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { purchaseShopItemAction } from "@/features/oil-shop/actions/purchase-shop-item.action";
 import { verifyInsufficientBalanceAction } from "@/features/oil-shop/actions/verify-insufficient-balance.action";
@@ -372,7 +373,17 @@ export function OilShop({
             <p className="mt-2 min-h-12 text-violet-200">{selected.description}</p>
             <div className="mt-6 grid grid-cols-[1fr_1.25fr] gap-3 rounded-2xl border border-violet-300/25 bg-black/20 p-3">
               <span className="flex items-center justify-center gap-2 text-xl font-black text-amber-300"><GemIcon />{selected.cost}</span>
-              <Button size="lg" className="min-h-12 bg-amber-400 text-base font-black text-slate-950 hover:bg-amber-300" disabled={isPending || data.balance < selected.cost} onClick={purchase}><SparklesIcon />{isPending ? t("purchasing") : data.balance < selected.cost ? t("moreGlow") : t("buy")}</Button>
+              <LoadingButton
+                size="lg"
+                className="min-h-12 bg-amber-400 text-base font-black text-slate-950 hover:bg-amber-300"
+                isPending={isPending}
+                pendingLabel={t("purchasing")}
+                disabled={data.balance < selected.cost}
+                onClick={purchase}
+              >
+                <SparklesIcon />
+                {data.balance < selected.cost ? t("moreGlow") : t("buy")}
+              </LoadingButton>
             </div>
           </div>
         ) : null}
@@ -392,7 +403,17 @@ export function OilShop({
             </DialogHeader>
             <div className="mt-2 grid grid-cols-[1fr_1.25fr] gap-3 rounded-2xl border border-violet-300/25 bg-black/20 p-3">
               <span className="flex items-center justify-center gap-2 text-xl font-black text-amber-300"><GemIcon />{selected.cost}</span>
-              <Button size="lg" className="min-h-12 bg-amber-400 text-base font-black text-slate-950 hover:bg-amber-300" disabled={isPending || data.balance < selected.cost} onClick={purchase}><SparklesIcon />{isPending ? t("purchasing") : data.balance < selected.cost ? t("moreGlowNeeded") : t("buy")}</Button>
+              <LoadingButton
+                size="lg"
+                className="min-h-12 bg-amber-400 text-base font-black text-slate-950 hover:bg-amber-300"
+                isPending={isPending}
+                pendingLabel={t("purchasing")}
+                disabled={data.balance < selected.cost}
+                onClick={purchase}
+              >
+                <SparklesIcon />
+                {data.balance < selected.cost ? t("moreGlowNeeded") : t("buy")}
+              </LoadingButton>
             </div>
           </>}
         </DialogContent>

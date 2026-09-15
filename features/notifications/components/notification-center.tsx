@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/shared/loading-button";
+import { showActionError } from "@/lib/errors/show-action-error";
 import {
   Sheet,
   SheetContent,
@@ -45,8 +47,8 @@ function leagueOutcome(item: NotificationItem): LeagueResultOutcome | null {
  * Provides an on-demand inbox and one-time weekly-result celebration.
  *
  * The component never polls. Server-rendered shell data changes during normal
- * navigation, while local updates make acknowledgements feel immediate without
- * issuing a second read after each mutation.
+ * navigation. Local read indicators change after server confirmation without
+ * issuing a second read after each mutation, so failures remain retryable.
  */
 export function NotificationCenter({
   data,
@@ -96,17 +98,25 @@ export function NotificationCenter({
     });
   }, [result]);
 
+  /** Retains unread state on rejected or interrupted server acknowledgements. */
   const markRead = (notificationId: string): void => {
-    setItems((current) =>
-      current.map((item) =>
-        item.id === notificationId ? { ...item, read: true } : item,
-      ),
-    );
-
     startTransition(async () => {
-      const response = await markNotificationReadAction({ notificationId });
-      if (!response.success) {
-        toast.error(response.message, { duration: Infinity });
+      try {
+        const response = await markNotificationReadAction({ notificationId });
+        if (!response.success) {
+          showActionError(response);
+          return;
+        }
+        // Functional updates preserve other acknowledgements that complete
+        // concurrently; no stale whole-inbox snapshot is restored on failure.
+        setItems((current) =>
+          current.map((item) =>
+            item.id === notificationId ? { ...item, read: true } : item,
+          ),
+        );
+        toast.success(response.message);
+      } catch {
+        toast.error(t("readFailed"), { duration: Infinity });
       }
     });
   };
@@ -122,16 +132,20 @@ export function NotificationCenter({
   };
 
   const markAllRead = (): void => {
-    setItems((current) => current.map((item) => ({ ...item, read: true })));
-
     startTransition(async () => {
-      const response = await markAllNotificationsReadAction(undefined);
-      if (!response.success) {
-        toast.error(response.message, { duration: Infinity });
-        return;
+      try {
+        const response = await markAllNotificationsReadAction(undefined);
+        if (!response.success) {
+          showActionError(response);
+          return;
+        }
+        // Keep the existing unread count until persistence confirms success.
+        // Failure therefore leaves Read all enabled for a later retry.
+        setItems((current) => current.map((item) => ({ ...item, read: true })));
+        toast.success(t("allRead"));
+      } catch {
+        toast.error(t("readFailed"), { duration: Infinity });
       }
-
-      toast.success(t("allRead"));
     });
   };
 
@@ -171,16 +185,18 @@ export function NotificationCenter({
           </SheetHeader>
 
           <div className="flex items-center justify-end px-4">
-            <Button
+            <LoadingButton
               type="button"
               variant="outline"
               size="sm"
-              disabled={unreadCount === 0 || isPending}
+              disabled={unreadCount === 0}
+              isPending={isPending}
+              pendingLabel={t("markingRead")}
               onClick={markAllRead}
             >
               <CheckCheckIcon aria-hidden="true" />
               {t("markAllRead")}
-            </Button>
+            </LoadingButton>
           </div>
 
           <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-6">
@@ -211,9 +227,10 @@ export function NotificationCenter({
                     <li key={item.id}>
                       <button
                         type="button"
+                        disabled={isPending}
                         onClick={() => openNotification(item)}
                         className={cn(
-                          "flex w-full touch-manipulation items-start gap-3 rounded-3xl border p-4 text-left transition active:translate-y-0.5",
+                          "flex w-full touch-manipulation items-start gap-3 rounded-3xl border p-4 text-left transition active:translate-y-0.5 disabled:opacity-50",
                           !item.read && "border-primary/45 bg-primary/8",
                         )}
                       >

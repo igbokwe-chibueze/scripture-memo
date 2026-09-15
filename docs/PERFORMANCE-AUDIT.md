@@ -97,12 +97,122 @@ remain to be measured.
 - Visual acceptance passed: the project owner confirmed the Vault header's
   375px navigation check on 2026-09-14, covering Return to trail and Badge
   collection fit, pending feedback, and destinations. Do not repeat this check.
-- Pending repository runtime check: leader request history remains visible;
-  ordinary members/public visitors receive no review requests; private detail
-  remains inaccessible to non-members. Source checks preserve these boundaries,
-  but runtime verification has not been reported for this correction.
+- Repository runtime coverage is implemented in
+  `features/fellowships/repositories/fellowship.repository.test.ts`, covering
+  leader/member/visitor access to public/private detail, request privacy,
+  invite privacy, member ranking/count, and missing slugs. Execution was blocked
+  during preflight: the configured test database lacks `FellowshipJoinRequest`.
+  No fixtures were created. The existing migration is
+  `20260804135748_fellowship_join_requests`; the test resource's complete
+  migration status needed review before updating its schema. Superseded by the
+  local isolation resolution below: Fellowship integration now passes locally.
+
+## Route-state continuation — 2026-09-14
+
+- Inventoried all 21 non-admin/product/auth pages (excluding development
+  previews). Every page resolves a loading and error boundary through its route
+  ancestors. This is file coverage, not rendered acceptance.
+- Map, Day Selection, gameplay, Vault, Badges, Sanctuary, Oil Shop, leaderboard,
+  and Fellowships have dedicated loading files. Settings, onboarding, and Home
+  inherit protected loading; auth/public invitations inherit root loading.
+- Source checks found Settings save and Sanctuary save/favorite use shared
+  pending controls. Leaderboard and Vault expose explicit empty states.
+- Corrected Vault verse-card Sanctuary navigation to use NavigationButton with
+  localized pending feedback. Replay uses LoadingButton with spinner/disabled
+  state. These card actions stack on mobile. The accepted Vault header was not
+  modified, and no replay reward or persistence logic changed.
+- Increased the shared error retry control to the required 44px minimum height.
+- Fellowship/Oil Shop pending-control gaps and notification read recovery were
+  corrected in the follow-ups below. Rendered acceptance remains separate.
+- Vault and i18n tests pass (4 total). Browser verification of the changed verse
+  card actions/retry target remains open; the earlier header acceptance stands.
+
+### Notification failure recovery
+
+- Individual and bulk read indicators now update only after successful server
+  acknowledgement. Rejected actions and thrown connection errors keep notices
+  unread, with persistent Sonner feedback and a retryable Read all control.
+- Read all uses LoadingButton; notice rows disable during acknowledgement.
+  Functional state updates preserve other completed acknowledgements without
+  restoring stale snapshots. No extra queries, polling, or server writes were
+  introduced. Added pending/retry copy in English, Spanish, and French.
+- TypeScript and focused lint passed for the changed components and repository
+  test; Vault/i18n suites passed. Fellowship integration is explicitly not a pass
+  because its test-schema preflight failed before fixtures.
+- Runtime browser checks of notification failure/retry and newly changed card
+  controls remain open. No browser tool is available in this session.
 
 ## Remaining audit work
+
+### Pending-control follow-up — 2026-09-14
+
+- Fellowship join, request, cancel, invite-code entry, and leader decisions use
+  LoadingButton with existing localized pending labels. Only the selected
+  operation spins; competing mutations remain disabled. Mobile card/decision
+  controls stack with 44px minimum targets. Invite input disables during work.
+- Desktop and mobile Oil Shop purchases now use LoadingButton while preserving
+  existing visual classes, balance checks, and server purchase behavior. The
+  accepted purchase celebration was not modified.
+- TypeScript, focused ESLint, Fellowship schema tests (6), i18n tests (2), and
+  whitespace checks pass. These checks do not validate rendered mobile layout.
+- Read-only `prisma migrate status` against the dedicated test resource found
+  27 pending migrations out of 31 checked-in migrations, starting with
+  `20260723090000_add_gameplay_attempt_lifecycle` and ending with
+  `20260829170000_add_admin_gameplay_test_sessions`. This is broader schema drift
+  than the missing Fellowship request table. No migration was applied, and no
+  environment file or application data was changed. This finding concerned the
+  retired hosted test resource, not the current local development database.
+  Superseded by the local isolation resolution below; do not migrate that cloud
+  resource as routine development work.
+
+### Local test isolation resolved - 2026-09-14
+
+- Existing development remains on port 51214 with all 31 migrations; no schema
+  or data writes were made there. Read-only verification found 3 users, 402
+  waypoints, and 4 waypoint progress rows.
+- A separate named Prisma Local test instance runs on 51224 with all 31
+  migrations applied. Active test URLs now point locally; no Cloud contact was
+  made during this setup. Same-port database-name changes were proven unsafe.
+- Shared guards reject remote URLs, production, host overrides, and reuse of
+  the application port. Startup, guarded migrations, and sequential test commands
+  are documented in README.
+- Waypoint, progression, reward, and Fellowship checks pass locally, with two
+  progression lock-race subtests explicitly skipped. Local serialized append
+  success does not prove real concurrent locking. Production race coverage is
+  still required on an approved concurrent local PostgreSQL environment.
+- Updated the progression fixture to include its required user profile. Reward
+  verification reconnects after the intentional constraint failure, then checks
+  durable balance and ledger state. Production repository logic was unchanged.
+
+### Open checks
+
+#### Read-only ranking plan review - 2026-09-15
+
+- Executed the ranking SQL extracted from the repository with parameterized
+  local identities using `EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON)` inside a
+  read-only transaction on development port 51214. No data/schema writes,
+  statistics updates, fixtures, or hosted connections were performed.
+- All-time returned three rows (13.714 ms execution); league and Fellowship
+  each returned one row (0.376 ms and 1.007 ms). These are single local samples,
+  not warm benchmarks or production performance targets. Planning time was
+  separately 50.297 ms, 15.980 ms, and 18.348 ms respectively.
+- Plans used the weekly score `(weekId, userId)` unique index, league membership
+  `(weekId, userId)` and `(cohortId, userId)` indexes, and Fellowship membership
+  `(fellowshipId, userId)` unique index. Window ranking still sorts eligible
+  rows before filtering the requested page. The three-row profile sequential
+  scan is not evidence of a missing index.
+- Country input was null for the selected learner, producing an empty constant
+  result; this is not a valid country-scope performance measurement. Representative
+  country, large-population, and large-roster measurements remain open.
+- Extended source review to Oil Shop and Sanctuary: no per-item query loops.
+  Shop reads four independent projections/aggregates; existing user-leading hint
+  and purchase indexes support its filters, and the catalogue index covers
+  active/type filtering (not necessarily cost/name sort elimination). Sanctuary
+  uses learner-scoped notes/favorites/progress and existing composite identity,
+  verse, and study-position indexes. Physical relation-query counts remain
+  unmeasured. No index migration or production code change was justified.
+- Next browser check: notification failure/retry. Existing purchase-preview and
+  Vault-header acceptance remains valid; do not repeat those checks.
 
 - Inspect high-read repository methods for additional N+1 or duplicated reads.
 - Confirm indexes against final high-read filters and ordering.
@@ -116,3 +226,7 @@ remain to be measured.
 
 Phase 31 is not complete until the remaining checks and required project-owner
 manual checks pass.
+
+Local setup validation (2026-09-14): strict TypeScript, full ESLint, four guard
+unit tests, and all four integration suite commands passed; the two progression
+concurrency subtests remain explicitly skipped as documented above.

@@ -178,6 +178,8 @@ const fr = {
     title: "Notifications",
     description: "Les nouvelles de votre parcours.",
     markAllRead: "Tout lire",
+    markingRead: "Marquage en cours…",
+    readFailed: "Impossible de marquer les notifications comme lues. Réessayez.",
     allRead: "Toutes les notifications sont marquées comme lues.",
     empty: "Tout est calme sur le sentier",
     weeklyResult: "Résultat hebdomadaire",

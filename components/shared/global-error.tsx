@@ -71,7 +71,8 @@ export function GlobalError({
         <Button
           type="button"
           size="lg"
-          className="mt-7 w-full max-w-xs"
+          // Keep the only recovery action usable as a 44px mobile touch target.
+          className="mt-7 min-h-11 w-full max-w-xs"
           onClick={unstable_retry}
         >
           <RefreshCwIcon aria-hidden="true" />

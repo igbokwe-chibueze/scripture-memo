@@ -1603,10 +1603,12 @@ Phase 29 is complete and accepted. Phase 30 — Testing and QA is next.
 **Goal:** Verify all MVP flows work correctly and securely.
 
 **Status:** Complete — all 16 manual regression flows passed by 2026-09-01.
-TypeScript, ESLint, and the non-database test baseline pass. The dedicated
-repository integration suites remain operationally blocked by the documented
-hosted test-database plan limit and must be rerun when that isolated resource is
-available; this does not replace the completed manual acceptance record.
+TypeScript, ESLint, and the non-database test baseline pass. On 2026-09-14,
+waypoint, progression, reward, and Fellowship integration suites ran on the
+separate local test instance. Two progression lock-race subtests remain explicitly
+skipped because Prisma Local uses one connection; real concurrent lock coverage
+remains pending. The retired hosted test resource is no longer a development
+dependency. Completed manual acceptance remains unchanged.
 
 ### Manual Test Flows
 

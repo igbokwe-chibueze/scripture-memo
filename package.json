@@ -33,7 +33,11 @@
     "test:fellowships": "tsx --test features/fellowships/schemas/fellowship.schema.test.ts",
     "test:beacon": "tsx --test features/beacon/lib/beacon-progression.test.ts",
     "test:integration": "tsx --conditions=react-server --test features/waypoints/repositories/waypoint.repository.test.ts",
-    "test:progression:integration": "tsx --conditions=react-server --test features/progression/repositories/progression.repository.test.ts"
+    "test:progression:integration": "tsx --conditions=react-server --test features/progression/repositories/progression.repository.test.ts",
+    "local:test:start": "tsx scripts/start-local-test-database.ts",
+    "test:database:migrate": "tsx scripts/migrate-local-test-database.ts",
+    "test:fellowships:integration": "tsx --conditions=react-server --test features/fellowships/repositories/fellowship.repository.test.ts",
+    "test:integration:all": "npm run test:integration && npm run test:progression:integration && npm run test:rewards:integration && npm run test:fellowships:integration"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
@@ -79,6 +83,7 @@
     "shadcn": "^4.13.0",
     "tailwindcss": "^4",
     "tsx": "^4.23.1",
-    "typescript": "^5"
+    "typescript": "^5",
+    "@prisma/dev": "0.24.3"
   }
 }

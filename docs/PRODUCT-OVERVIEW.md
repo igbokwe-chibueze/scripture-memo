@@ -1417,8 +1417,9 @@ Use Prisma with PostgreSQL. This section lists required models. The implementati
 - Routine local development uses Prisma Postgres Local through `prisma dev` (or
   another explicitly approved local PostgreSQL instance), never the hosted
   production database.
-- Automated tests use their own test database and must not consume production
-  operations or mutate development data.
+- Automated tests use a separate local instance on port 51224; development stays
+  on 51214. Changing only a Prisma Local database name does not isolate data.
+  Tests must not consume hosted operations or mutate development data.
 - Production credentials are supplied only through the deployment environment;
   they are not copied into the tracked local template.
 - Read paths must remain read-only. Lazy progression initialization occurs only

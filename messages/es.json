@@ -651,6 +651,8 @@
     "title": "Avisos",
     "description": "Novedades de tu camino.",
     "markAllRead": "Leer todo",
+    "markingRead": "Marcando como leído…",
+    "readFailed": "No se pudieron marcar los avisos como leídos. Inténtalo de nuevo.",
     "allRead": "Todos los avisos se marcaron como leídos.",
     "empty": "Todo tranquilo en el camino",
     "weeklyResult": "Resultado semanal de liga",

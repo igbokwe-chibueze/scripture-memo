@@ -1359,10 +1359,17 @@ route states, and mobile review. The purchase preview is accepted.
 
 ## Exact Next Task
 
-Verify Fellowship detail visibility, then continue route-state checks in
-`docs/PERFORMANCE-AUDIT.md`. The Vault header 375px check has passed.
-Do not repeat the accepted purchase preview or Vault check. Runtime SQL plans and browser
-bundle measurements remain unverified.
+Continue the remaining visual/state and performance checks in
+`docs/PERFORMANCE-AUDIT.md`. Fellowship/Oil Shop pending controls are corrected.
+Local test isolation is now configured: development uses 51214 and tests use
+51224, both with 31 migrations. Fellowship integration passes. Two progression
+lock-race subtests remain skipped on the single-connection local runtime; do not
+resume the retired hosted test migration plan.
+The Vault header 375px check has passed.
+Do not repeat the accepted purchase preview or Vault check. Small-population local
+ranking plans were inspected on 2026-09-15; representative-scale SQL plans and
+browser bundle measurements remain unverified. Next browser check: notification
+failure/retry, followed by the unaccepted changed card controls at 375px.
 
 ## Important Decisions
 
@@ -3199,3 +3206,97 @@ bundle measurements remain unverified.
   Recorded acceptance in the performance audit; this check need not be repeated.
 - Next: Fellowship detail visibility verification, followed by remaining Phase
   31 route-state/mobile checks. Phase 31 is still in progress.
+
+### 2026-09-14 — Fellowship runtime preflight and route-state continuation
+
+- Added a guarded Fellowship repository integration test for public/private
+  leader/member/visitor reads and privacy/ranking contracts. The separate test
+  database is reachable but lacks `FellowshipJoinRequest`; preflight stopped
+  before fixtures. No application data or database schema was changed.
+- Continued independently: all 21 audited player/auth/public pages resolve
+  loading and error boundaries. Recorded source evidence and pending gaps in
+  the performance audit rather than treating file presence as visual acceptance.
+- Added shared pending feedback to Vault verse-card Sanctuary/replay actions,
+  with stacked mobile controls, and enlarged the error retry target to 44px.
+  The accepted Vault header and purchase preview remain unchanged.
+- Vault/i18n tests pass. Runtime Fellowship coverage remains blocked by test
+  schema drift; no claim of a passing integration test or browser check is made.
+- Continue with Fellowship pending controls and notification failure recovery;
+  separately review test migration status before altering the test resource.
+
+### 2026-09-14 — Notification read failure recovery
+
+- Continued the audit without another handoff: individual/bulk notification
+  read state now changes after server success. Returned failures and thrown
+  connection errors preserve unread indicators and show persistent feedback.
+- Added shared Read all loading feedback, disabled notice rows during pending
+  acknowledgements, and English/Spanish/French pending and retry copy.
+- TypeScript, focused lint, and Vault/i18n tests passed. No extra database calls
+  were introduced; runtime browser checks remain unverified.
+- Remaining work includes Fellowship/Oil Shop pending controls, rendered mobile
+  states, and test-schema review to unblock the Fellowship integration suite.
+
+### 2026-09-14 — Fellowship/Oil Shop pending controls and test migration inventory
+
+- Added shared loading controls for Fellowship joins, requests, cancellations,
+  invite-code entry, and leader decisions. The selected action spins while
+  competing mutations disable; mobile controls stack with 44px minimum targets.
+- Both Oil Shop purchase surfaces use LoadingButton with existing pending copy,
+  visual classes, balance checks, and purchase behavior preserved.
+- TypeScript, focused ESLint, six Fellowship schema tests, two i18n tests, and
+  whitespace checks pass. Accepted header/celebration checks were not repeated.
+- Read-only dedicated-test migration status found 27 pending migrations out of
+  31. No migrations were applied. Review migration contents and test data before
+  updating that resource was the initial proposal. Superseded by the local-only
+  resolution below: this was the retired hosted test resource, not development.
+- Remaining work: rendered state/mobile acceptance and the outstanding query,
+  index, client-boundary, and feedback checks in the performance audit.
+
+### 2026-09-14 - Local-only development and integration isolation resolved
+
+- Owner authorized the complete setup while preserving existing development
+  accounts/data. Development already had all 31 migrations; the 27 pending
+  migrations belonged to stale hosted TEST_DATABASE_URL settings. No Cloud
+  connection or modification was made during the local setup.
+- A read-only alternate-database-name probe still returned template1 from the
+  existing local listener. Therefore test isolation uses the separate named
+  scripture-memo-tests instance (HTTP 51223, database 51224, shadow 51225),
+  provisioned with the already-installed @prisma/dev 0.24.3 runtime. The existing
+  scripture-memo development instance remains on database port 51214.
+- Updated only active test connection settings in the ignored .env; preserved
+  DATABASE_URL and the ignored cloud archive. Applied all 31 checked-in migrations
+  to tests, with no seed/reset/migration applied to development. Read-only final
+  development inventory: 3 users, 402 waypoints, 4 waypoint progress rows. Test
+  fixtures cleaned up to zero users, waypoints, and waypoint progress.
+- Added local:test:start, test:database:migrate, test:fellowships:integration,
+  and test:integration:all. The shared guard rejects hosted connections,
+  production, unsafe query overrides, and same-port URL aliases.
+- Local suites cover waypoint lifecycle, progression/cooldowns/duplicates, reward
+  idempotency, and Fellowship access/privacy. Two progression race subtests are
+  explicitly skipped: Prisma Local and the local pool use one connection. Real
+  concurrent lock coverage remains required before production. No production
+  repository or connection-pool behavior was weakened to make tests pass.
+- The old progression fixture needed a profile for the current completion-total
+  update. Reward assertions now reconnect after the intentional constraint error
+  to verify durable state despite Prisma Local socket response behavior.
+- Updated README, environment template, QA, roadmap, and performance records.
+  Resume Phase 31 open checks; accepted purchase and Vault header checks stand.
+
+Local setup validation (2026-09-14): strict TypeScript, full ESLint, four guard
+unit tests, and all four integration suite commands passed; the two progression
+concurrency subtests remain explicitly skipped as documented above.
+
+### 2026-09-15 - Phase 31 local ranking plans and read-path review
+
+- Inspected leaderboard SQL with read-only local EXPLAIN ANALYZE. Existing score,
+  cohort, and Fellowship membership indexes appear in plans; ranking still sorts
+  before pagination. Three local profiles cannot establish production latency.
+  Country performance remains unmeasured because the selected profile has no country.
+- Oil Shop and Sanctuary reads contain no per-result query loops. Filter/index
+  evidence and measurement limits are recorded in PERFORMANCE-AUDIT.md.
+- No production code, schema, or database data changed; no hosted connection was
+  made. Corrected stale Fellowship preflight wording to reference its local pass.
+- Next manual check: notification failure/retry. With an unread notice, go offline
+  before marking it read or using Read all. It should remain unread, show a
+  persistent error, and re-enable the control. Reconnect and retry: acknowledgement
+  should succeed and update the unread state. Accepted UI checks remain valid.
