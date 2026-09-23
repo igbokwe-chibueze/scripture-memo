@@ -1,5 +1,34 @@
 # Scripture Memo Project Log
 
+### 2026-09-23 - Gameplay entry card mobile correction
+
+- Owner rejected the first 375px gameplay preview because the entry composition
+  produced cramped copy, awkward title wrapping, clipped Luna artwork, and a
+  competing button placement.
+- Gave the mode title full width, placed the rule panel beside a contained Luna,
+  and moved the primary Begin action to a full-width row beneath both.
+- TypeScript, focused ESLint, diff checks, and preview HTTP verification pass.
+  The corrected 375px visual still needs owner acceptance.
+
+### 2026-09-23 - Trail Navigator animation work reverted and deferred
+
+- At the owner's request, removed all recent panel-animation changes: CSS
+  overrides, Framer Motion integration, manual unmounting, and scroll timing
+  changes. Restored the original shared Sheet behavior and list centering.
+- Preserved the mobile floating-button visibility fix and unlimited future-map
+  scrolling. Animation work is deferred; gameplay preview acceptance is pending.
+
+### 2026-09-23 - Map A mobile controls restored
+
+- Found the fixed Map A controls underneath the fixed mobile navigation because
+  both occupied the viewport bottom at the same stacking level.
+- Raised the controls above the mobile navigation and safe-area inset while
+  preserving their desktop position and behavior.
+- Per the owner's direction, future-trail scrolling remains unchanged.
+- TypeScript, focused ESLint, diff checks, and all 10 focused map tests pass.
+- Subsequent panel-animation experiments were reverted at the owner's request;
+  only the mobile floating-button visibility correction remains.
+
 ### 2026-09-23 - Gameplay mobile scenarios prepared
 
 - Added `/ui-foundation#gameplay-testing` immediately after recording the passed

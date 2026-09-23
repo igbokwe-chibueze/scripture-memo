@@ -484,3 +484,27 @@ and purchase controls. Desktop visual acceptance remains pending.
   this isolated shell check.
 - TypeScript, focused ESLint, whitespace validation, and preview HTTP/section
   verification passed. Rendered mobile acceptance remains pending.
+- The owner's first 375px review rejected the mode-entry card: its horizontal
+  flex layout crushed the pace copy, wrapped the mode title poorly, clipped Luna,
+  and made the primary action compete with the artwork.
+- Reworked the production card mobile-first. The title now owns the full width;
+  the compact pace/timer panel and contained Luna form a middle row; and Begin
+  spans the card below them. Larger screens retain roomier sizing.
+- TypeScript, focused ESLint, whitespace validation, and preview HTTP verification
+  pass after the correction. Visual acceptance remains pending.
+
+### Map A mobile floating-control correction - 2026-09-23
+
+- The return-to-current and Trail Navigator controls used the viewport's bottom
+  edge on every breakpoint. The fixed mobile navigation occupied that same area
+  and painted over them.
+- Mobile controls now sit above the navigation and safe-area inset. At `md` and
+  above, they retain the original 1rem bottom position beside the desktop rail.
+- Unlimited future-trail scrolling is intentionally unchanged at the project
+  owner's direction.
+- TypeScript, focused ESLint, whitespace validation, and all 10 focused map tests
+  pass. Mobile visual acceptance remains pending.
+- Panel-animation work is deferred at the owner's request. All recent CSS and
+  Framer Motion experiments, manual unmounting, and list-scroll timing changes
+  were reverted. The original shared Sheet behavior and centering are restored;
+  the mobile floating-button visibility fix remains.

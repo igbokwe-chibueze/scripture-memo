@@ -207,7 +207,7 @@ export function WindingTrailMap({
 
   return (
     <div ref={trailRef} className="mx-auto w-full max-w-[30rem]">
-      <div className="fixed right-4 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-40 flex items-center gap-2 sm:right-6">
+      <div className="fixed right-4 bottom-[calc(env(safe-area-inset-bottom)+6.25rem)] z-40 flex items-center gap-2 sm:right-6 md:bottom-4">
         <Button
           type="button"
           aria-label={t("backToCurrent")}
