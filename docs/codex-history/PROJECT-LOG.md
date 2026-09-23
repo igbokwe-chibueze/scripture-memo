@@ -1368,8 +1368,10 @@ resume the retired hosted test migration plan.
 The Vault header 375px check has passed.
 Do not repeat the accepted purchase preview or Vault check. Small-population local
 ranking plans were inspected on 2026-09-15; representative-scale SQL plans and
-browser bundle measurements remain unverified. Next browser check: notification
-failure/retry, followed by the unaccepted changed card controls at 375px.
+browser bundle measurements remain unverified. The owner passed all prepared
+notification scenarios on 2026-09-23. Next: prepare the unaccepted Vault verse-card
+controls for 375px verification without gameplay prerequisites. Do not repeat
+notification, purchase-preview, or Vault-header acceptance.
 
 ## Important Decisions
 
@@ -3300,3 +3302,31 @@ concurrency subtests remain explicitly skipped as documented above.
   before marking it read or using Read all. It should remain unread, show a
   persistent error, and re-enable the control. Reconnect and retry: acknowledgement
   should succeed and update the unread state. Accepted UI checks remain valid.
+
+### 2026-09-23 - Repeatable notification recovery preview
+
+- Owner clarified that AI should prepare test prerequisites so manual QA does not
+  require playing the game to produce the relevant state. Reuse isolated previews
+  and admin test tools while preserving production rules and learner progress.
+- Added /ui-foundation#notification-testing with three unread synthetic notices,
+  connection failure, rejected request, success, empty inbox, and reset controls.
+- Extracted the existing inbox rendering/read handling into NotificationInbox.
+  Production binds real authenticated actions through NotificationCenter; preview
+  uses local promises only. No database or account data was read or changed.
+- First attempt fails in either failure scenario, then retry succeeds; individual
+  reads and Read all have independent counters. Pending is visible for 800 ms.
+- TypeScript and focused lint passed. An unrelated malformed generated dev route
+  declaration was replaced with fresh Next.js typegen output before TypeScript
+  verification. Manual rendering at 375px remains pending; this preview does not
+  establish server persistence or authorization coverage.
+- Next: owner opens the prepared test bell and checks unread retention, persistent
+  failure feedback, re-enabled controls, successful retry, and reset. No Offline
+  toggle, earned notification, or gameplay prerequisite is needed.
+
+### 2026-09-23 - Notification test scenarios accepted
+
+- Owner reported all prepared notification tests passed. Recorded acceptance of
+  the client preview scenarios; server persistence coverage is not implied.
+- Notification testing is no longer the next manual task. Next: prepare remaining
+  Vault verse-card controls for 375px review without requiring gameplay setup.
+- Previously accepted purchase celebration and Vault header remain accepted.

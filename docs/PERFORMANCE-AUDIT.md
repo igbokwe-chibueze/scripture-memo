@@ -184,6 +184,29 @@ remain to be measured.
   verification reconnects after the intentional constraint failure, then checks
   durable balance and ledger state. Production repository logic was unchanged.
 
+### Repeatable notification scenario - 2026-09-23
+
+- Added `/ui-foundation#notification-testing` with three synthetic unread
+  system notices and Connection failure, Request rejected, Success, and Empty
+  inbox scenarios. Reset scenario restores the fixture and failure counters.
+- Production and preview render the same NotificationInbox component, including
+  pending/disabled controls, unread state, Sonner errors, and retry handling.
+  Only the production NotificationCenter wrapper binds authenticated actions;
+  preview callbacks stay in browser memory and make no persistence requests.
+- Failure scenarios reject the first attempt for each individual notice and
+  Read all independently; repeating the same operation succeeds. An 800 ms
+  delay makes pending states observable. No gameplay, real unread notices,
+  database fixtures, or browser Offline setting is required.
+- The project owner reported all prepared notification tests passed on
+  2026-09-23. Notification scenario acceptance is complete; do not request a
+  repeat. This verifies the preview's client acknowledgement handling, not
+  server authorization, real network behavior, or persisted notification writes.
+- Strict TypeScript and focused ESLint pass. Repaired malformed ignored Next.js
+  development route declarations using freshly generated `next typegen` output.
+- Next: prepare the remaining Vault verse-card control scenario for 375px
+  verification without requiring gameplay prerequisites. The previously
+  accepted Vault header is separate and must not be tested again.
+
 ### Open checks
 
 #### Read-only ranking plan review - 2026-09-15
@@ -211,8 +234,8 @@ remain to be measured.
   uses learner-scoped notes/favorites/progress and existing composite identity,
   verse, and study-position indexes. Physical relation-query counts remain
   unmeasured. No index migration or production code change was justified.
-- Next browser check: notification failure/retry. Existing purchase-preview and
-  Vault-header acceptance remains valid; do not repeat those checks.
+- Notification failure/retry was subsequently accepted on 2026-09-23. Existing
+  purchase-preview and Vault-header acceptance also remains valid.
 
 - Inspect high-read repository methods for additional N+1 or duplicated reads.
 - Confirm indexes against final high-read filters and ordering.
