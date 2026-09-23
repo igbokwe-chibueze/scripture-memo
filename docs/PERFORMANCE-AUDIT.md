@@ -242,8 +242,43 @@ remain to be measured.
 - Local HTTP verification returned 200 and confirmed the section exists.
   TypeScript, focused lint, and six Fellowship schema tests passed. These are
   not browser-interaction or server authorization/persistence acceptance.
-- Next: owner checks the prepared controls at 375px, including pending/recovery,
-  input disabling, local state changes, retry after rejection, and reset.
+- Owner reported the Fellowship tests passed after the selector-highlight fix
+  on 2026-09-23. Acceptance covers the prepared controls and scenarios; do not
+  repeat the Fellowship check.
+
+### Prepared Oil Shop control scenarios - 2026-09-23
+
+- Added `/ui-foundation#oil-shop-testing` with a sample pack and synthetic
+  balances. Success, reject-once/retry, insufficient balance, and reset are ready
+  without gameplay or real Glow spending.
+- Production and preview share OilShopContent, including mobile modal/desktop
+  detail purchase controls and acknowledgement handling. The production wrapper
+  binds the unchanged authenticated purchase and admin diagnostic actions.
+  Preview responses use only browser memory; admin diagnostics are hidden.
+- Owner reported all prepared Oil Shop control tests passed on 2026-09-23.
+  Record functional acceptance separately from the subsequent color correction;
+  no repeat of those functional scenarios is required.
+- The already accepted purchase celebration is unchanged and needs no retest.
+  This preview does not establish real payment/ledger or authorization coverage.
+
+### Oil Shop palette alignment - 2026-09-23
+
+- Owner requested uniformity after the preview showed fixed navy/purple cards
+  against the light application theme. Source inspection found hardcoded dark
+  surfaces, white copy, purple gradients, and yellow button overrides.
+- Balance cards, catalogue, tabs, product rows, desktop detail, and mobile product
+  modal now use shared card/background/muted/border and foreground tokens. View
+  and purchase buttons use existing shared variants without local color overrides.
+  Small amber/violet currency accents have light/dark foreground variants.
+- The real shop page background now follows the shared background token. Product
+  artwork and the illustrated hero remain; the accepted celebration source is
+  unchanged. No global theme or shared button implementation was modified.
+- TypeScript, focused ESLint, and local HTTP verification passed. The preview
+  returned 200 with the updated card markup. No browser rendering/contrast
+  measurement was available; light/dark visual acceptance remains pending.
+- Next: inspect the existing Oil Shop preview in light and dark themes, including
+  the mobile product modal at 375px and desktop detail card. Functional acceptance
+  remains recorded and does not need to be repeated.
 
 ### Open checks
 
@@ -293,3 +328,5 @@ unit tests, and all four integration suite commands passed; the two progression
 concurrency subtests remain explicitly skipped as documented above.
 
 Fellowship preview correction (2026-09-23): scenario button variants now track the active mode after the owner reported a stale Success highlight. Manual acceptance remains pending.
+
+Purchase success palette follow-up (2026-09-23): owner extended theme alignment to the celebration. Dialog, text, close control, reward panel, and hint counter now use semantic tokens; animation/reduced-motion and purchase behavior are unchanged. Light/dark color acceptance remains pending.

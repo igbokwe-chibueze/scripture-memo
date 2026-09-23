@@ -1369,11 +1369,13 @@ The Vault header 375px check has passed.
 Do not repeat the accepted purchase preview or Vault check. Small-population local
 ranking plans were inspected on 2026-09-15; representative-scale SQL plans and
 browser bundle measurements remain unverified. The owner passed all prepared
-notification and Vault verse-card scenarios on 2026-09-23. Next: check the
-Fellowship controls prepared at `/ui-foundation#fellowship-testing` for
-375px verification, with success and reject-once/retry modes and reset. No real
-membership/request setup is needed. Do not repeat notification, purchase-preview, Vault-header, or
-Vault-card acceptance. Phase 31 remains in progress.
+notification, Vault verse-card, and Fellowship scenarios on 2026-09-23.
+Oil Shop control scenarios also passed. The owner then requested uniform card
+colors; shop surfaces now follow shared theme tokens. Next: visual acceptance at
+`/ui-foundation#oil-shop-testing` in light/dark themes, including mobile product
+modal and desktop detail. No real spending or gameplay setup is needed. Do not repeat accepted
+notification, Fellowship, purchase-celebration, Vault-header, or Vault-card checks.
+Phase 31 remains in progress.
 
 ## Important Decisions
 
@@ -3380,3 +3382,45 @@ concurrency subtests remain explicitly skipped as documented above.
   simulated response mode. No production membership behavior changed.
 - Manual Fellowship acceptance remains pending; verify the selector switches
   highlight in both directions, then continue the existing prepared scenarios.
+
+### 2026-09-23 - Fellowship accepted; Oil Shop controls prepared
+
+- Owner reported Fellowship tests passed after the scenario highlight correction.
+  Marked prepared Fellowship scenarios accepted; no repeat is required.
+- Added /ui-foundation#oil-shop-testing using the real shop UI with a synthetic
+  pack/balance and delayed in-memory purchase responses. Success, rejection/retry,
+  insufficient balance, and reset are available without real spending.
+- Production OilShop binds unchanged authenticated actions through a wrapper;
+  preview imports no persistence actions. The approved celebration is unchanged.
+- TypeScript, focused ESLint, and three hint-balance tests passed. Local HTTP
+  returned 200 and confirmed the new test section. No database data changed.
+- Next manual check: mobile purchase pending/disabled/retry controls at 375px and
+  desktop purchase controls at 1024px or wider. This does not establish actual
+  ledger transactions or authorization. Do not repeat accepted celebrations.
+
+### 2026-09-23 - Oil Shop controls accepted; shared card palette applied
+
+- Owner reported all Oil Shop tests passed, then requested card-color uniformity
+  after providing a screenshot of dark navy/purple cards on the light preview.
+- Replaced storefront-specific backgrounds, gradients, borders, white copy, and
+  yellow button overrides with existing semantic theme tokens/shared variants.
+  Applied to balance cards, catalogue/tabs, item rows, desktop detail, and mobile
+  modal. Real page background follows the shared background token too.
+- Artwork retains its identity; small currency accents adapt to light/dark. The
+  previously accepted celebration source remains unchanged, verified against
+  the staged version. No global palette, gameplay, or persistence change.
+- TypeScript and focused lint passed; localhost returned 200 with theme-aware
+  balance-card markup. Visual light/dark acceptance remains pending.
+- Next: review colors on the prepared preview at mobile and desktop widths.
+  Do not repeat already accepted purchase/retry/balance functional checks.
+
+### 2026-09-23 - Purchase success palette aligned
+
+- Owner explicitly requested the purchase success screen follow the shared theme
+  too. Replaced its fixed purple/night gradient, white copy, purple close-button
+  overrides, reward panel, and hint-counter surfaces with semantic theme tokens.
+- Warm celebratory accents, Luna and item artwork, animation timing, audio,
+  count-up, reduced-motion handling, and purchase logic remain unchanged.
+- This extends the preceding storefront-only palette correction. Color review
+  of the success screen in light/dark themes is now pending; prior functional
+  and reduced-motion acceptance remains recorded.
