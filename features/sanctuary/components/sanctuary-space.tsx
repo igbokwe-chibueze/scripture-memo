@@ -11,6 +11,21 @@ const transport: SanctuaryTransport = {
 };
 
 /** Production binding preserves authenticated note and favorite persistence. */
-export function SanctuarySpace({ data }: { data: SanctuaryData }): React.ReactNode {
-  return <SanctuaryContent data={data} transport={transport} />;
+export function SanctuarySpace({
+  data,
+  studyContent,
+  contentsNavigation,
+}: {
+  data: SanctuaryData;
+  studyContent: React.ReactNode;
+  contentsNavigation: React.ReactNode;
+}): React.ReactNode {
+  return (
+    <SanctuaryContent
+      data={data}
+      transport={transport}
+      studyContent={studyContent}
+      contentsNavigation={contentsNavigation}
+    />
+  );
 }

@@ -25,6 +25,11 @@ import { FellowshipTestPreview } from "@/features/fellowships";
 import { OilShopTestPreview } from "@/features/oil-shop";
 import { SettingsTestPreview } from "@/features/settings";
 import { SanctuaryTestPreview } from "@/features/sanctuary";
+import {
+  SanctuaryContentsNavigation,
+  SanctuaryStudyContent,
+} from "@/features/sanctuary/components/sanctuary-study-content";
+import { SANCTUARY_TEST_DATA } from "@/features/sanctuary/data/sanctuary-test-data";
 import { MotionPreferencePreview } from "../components/motion-preference-preview";
 
 export const metadata: Metadata = {
@@ -77,7 +82,12 @@ export function UiFoundationView(): React.ReactNode {
         <FellowshipTestPreview />
         <OilShopTestPreview />
         <SettingsTestPreview />
-        <SanctuaryTestPreview />
+        <SanctuaryTestPreview
+          studyContent={<SanctuaryStudyContent data={SANCTUARY_TEST_DATA} />}
+          contentsNavigation={
+            <SanctuaryContentsNavigation data={SANCTUARY_TEST_DATA} />
+          }
+        />
         <LunaMascotPreview />
         <MotionPreferencePreview />
         <LoadingScreenPreview />

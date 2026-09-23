@@ -3,6 +3,10 @@ import { notFound } from "next/navigation";
 import { requireServerSession } from "@/lib/auth/session";
 import { SanctuarySpace } from "@/features/sanctuary/components/sanctuary-space";
 import { SanctuaryLocked } from "@/features/sanctuary/components/sanctuary-locked";
+import {
+  SanctuaryContentsNavigation,
+  SanctuaryStudyContent,
+} from "@/features/sanctuary/components/sanctuary-study-content";
 import { sanctuaryRepository } from "@/features/sanctuary/repositories/sanctuary.repository";
 
 export const metadata: Metadata = {
@@ -28,5 +32,11 @@ export async function SanctuaryView({
     );
     return <SanctuaryLocked reference={result.reference} waypointId={waypointId} />;
   }
-  return <SanctuarySpace data={result.data} />;
+  return (
+    <SanctuarySpace
+      data={result.data}
+      studyContent={<SanctuaryStudyContent data={result.data} />}
+      contentsNavigation={<SanctuaryContentsNavigation data={result.data} />}
+    />
+  );
 }

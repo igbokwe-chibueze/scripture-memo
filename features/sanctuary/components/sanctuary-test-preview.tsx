@@ -3,20 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { SanctuaryContent, type SanctuaryTransport } from "./sanctuary-content";
-import type { SanctuaryData } from "../types/sanctuary.types";
-
-/** Public-domain verse and synthetic learner state; no real IDs or notes. */
-const sample: SanctuaryData = {
-  verseId: "preview-sanctuary-verse",
-  reference: "Psalm 23:1",
-  translation: "KJV",
-  verseText: "The LORD is my shepherd; I shall not want.",
-  reflection: "Consider the care described in this verse.",
-  tags: ["Trust"],
-  studySections: [],
-  personalNote: "A sample reflection for testing.",
-  isFavorite: false,
-};
+import { SANCTUARY_TEST_DATA } from "../data/sanctuary-test-data";
 
 /** Each operation rejects once independently, then succeeds after a visible delay. */
 function createTransport(rejectOnce: boolean): SanctuaryTransport {
@@ -44,19 +31,35 @@ function createTransport(rejectOnce: boolean): SanctuaryTransport {
 }
 
 /** Remounting resets both synthetic responses and the visible draft/favorite. */
-function PreviewRun({ rejectOnce }: { rejectOnce: boolean }): React.ReactNode {
+function PreviewRun({
+  rejectOnce,
+  studyContent,
+  contentsNavigation,
+}: {
+  rejectOnce: boolean;
+  studyContent: React.ReactNode;
+  contentsNavigation: React.ReactNode;
+}): React.ReactNode {
   const [transport] = useState(() => createTransport(rejectOnce));
   return (
     <SanctuaryContent
-      data={sample}
+      data={SANCTUARY_TEST_DATA}
       transport={transport}
+      studyContent={studyContent}
+      contentsNavigation={contentsNavigation}
       backHref="/ui-foundation#sanctuary-testing"
     />
   );
 }
 
 /** Prepared note/favorite checks require no progression or real account writes. */
-export function SanctuaryTestPreview(): React.ReactNode {
+export function SanctuaryTestPreview({
+  studyContent,
+  contentsNavigation,
+}: {
+  studyContent: React.ReactNode;
+  contentsNavigation: React.ReactNode;
+}): React.ReactNode {
   const [rejectOnce, setRejectOnce] = useState(false);
   const [run, setRun] = useState(0);
   return (
@@ -85,7 +88,12 @@ export function SanctuaryTestPreview(): React.ReactNode {
           Reset scenario
         </Button>
       </div>
-      <PreviewRun key={run} rejectOnce={rejectOnce} />
+      <PreviewRun
+        key={run}
+        rejectOnce={rejectOnce}
+        studyContent={studyContent}
+        contentsNavigation={contentsNavigation}
+      />
     </section>
   );
 }

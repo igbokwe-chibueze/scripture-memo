@@ -420,3 +420,35 @@ and purchase controls. Desktop visual acceptance remains pending.
 - No application code, database, user preference or dependency changed in this
   review. OS-only motion acceptance was subsequently reported by the owner;
   the earlier Proceed instruction alone was not recorded as a test pass.
+
+### Production bundle baseline - 2026-09-23
+
+- Completed installed Turbopack experimental-analyze --output. Reproducible method
+  and exact grouping are in CLIENT-BUNDLE-BASELINE.md; generated local report is
+  .next/diagnostics/analyze.
+- Route-associated browser JS attribution: Sanctuary 1,304,448 bytes / 26 chunks;
+  gameplay 1,345,857 bytes / 28 chunks. Shared modules overlap. These totals are
+  not initial downloads, compressed transfer sizes or runtime timings.
+- Sanctuary Markdown-family subset: 113,160 bytes. Gameplay modes: 36,013 bytes;
+  @dnd-kit packages: 43,998 bytes.
+- Next optimization candidate: render static Sanctuary study Markdown on the
+  server and compare analyzer output. Do not infer savings from subset size alone.
+- Gameplay lazy-loading deferred pending timed-attempt loading design; server
+  deadlines continue while chunks load. No application refactor made this session.
+- Baseline production attribution is complete. Browser network/timing measurements,
+  remaining route reviews and representative database plans remain open.
+
+### Sanctuary client-boundary optimization - 2026-09-23
+
+- Moved static study Markdown, tags, reflection, empty state, and contents lists
+  into server-rendered Sanctuary components. The client retains mobile tab state,
+  private note editing, favorite state, pending controls, and Sonner feedback.
+- The production page and isolated preview pass rendered server content through
+  the same interactive shell. Preview data now includes a Markdown study section
+  so heading, emphasis, and list rendering can be checked without progression.
+- Identical analyzer method reduced route-associated browser JS from 1,304,448
+  to 1,155,119 bytes: 149,329 bytes / 11.4%. Associated chunks fell 26 to 25;
+  the defined Markdown-family subset fell 113,160 bytes to zero.
+- TypeScript, focused ESLint, diff checks, preview HTTP 200, and the production
+  analyzer passed. Manual visual regression of Study/Notes tabs remains pending.
+- Exact method, limits, and before/after figures: CLIENT-BUNDLE-BASELINE.md.

@@ -1374,10 +1374,12 @@ Oil Shop controls and the latest no-inner-scroll selected-pack correction are
 accepted. Settings save scenarios also passed per the owner. Do not repeat those
 checks. Sanctuary sample note/favorite scenarios also passed per the owner.
 The owner also passed the prepared OS-only reduced-motion check. Do not repeat
-accepted Sanctuary or motion scenarios. Next: production client-bundle measurement
-for the identified Sanctuary Markdown and eager gameplay-mode imports, alongside
-remaining route reviews. Representative database performance measurements remain
-open as tracked in PERFORMANCE-AUDIT.md.
+accepted motion scenarios. Sanctuary study Markdown now renders on the server;
+the identical analyzer measured 149,329 fewer route-associated browser JS bytes
+(11.4%) and removed the Markdown family from the client graph. Next: visually
+check Study/Notes at /ui-foundation#sanctuary-testing after this rendering-boundary
+change. Prior note/favorite behavior remains accepted. Defer gameplay lazy-loading
+until timed-attempt loading is addressed. Other Phase 31 checks remain open.
 Phase 31 remains in progress.
 
 ## Important Decisions
@@ -3549,3 +3551,30 @@ concurrency subtests remain explicitly skipped as documented above.
 ### 2026-09-23 - OS-only motion scenarios accepted
 
 - Owner reported the prepared motion test passed. Updated the audit and active handoff; no repeat required. Remaining bundle, database-performance and route reviews keep Phase 31 open. No application code changed.
+
+### 2026-09-23 - Production client bundle baseline measured
+
+- Ran installed Next.js 16.2.10 experimental-analyze --output successfully using
+  bundled documentation; no dependency install or application configuration edit.
+- Browser JS attribution across route-associated chunks: Sanctuary 1,304,448 bytes
+  / 26 chunks; gameplay 1,345,857 bytes / 28 chunks. Shared code overlaps; these
+  are not initial-network or compressed-transfer measurements.
+- Sanctuary Markdown-family subset is 113,160 bytes. Gameplay mode components
+  total 36,013 bytes, with @dnd-kit packages contributing 43,998 bytes.
+- Saved reproducible method, limitations and next decision in
+  docs/CLIENT-BUNDLE-BASELINE.md. Prioritize evaluating Sanctuary server Markdown;
+  defer lazy gameplay loading because server attempt deadlines keep running.
+- No application code or database operations changed. Phase 31 remains open.
+
+### 2026-09-23 - Sanctuary Markdown moved to the server
+
+- Split static study content and contents navigation from the interactive shell.
+  Markdown parsing, tags, reflection, and the study empty state now render on the
+  server; notes, favorite, mobile tabs, pending states, and toasts remain client-side.
+- Production and the isolated preview pass server-rendered content through the
+  same interactive component. Added sample Markdown to the preview for regression.
+- Identical analyzer comparison: 1,304,448 to 1,155,119 route-associated browser
+  JS bytes (-149,329 / -11.4%), 26 to 25 chunks, Markdown subset 113,160 to zero.
+- TypeScript, focused ESLint, preview HTTP and analyzer passed. Next manual check:
+  Study/Notes layout and switching at /ui-foundation#sanctuary-testing; previously
+  accepted note/favorite response behavior does not need repeating.
