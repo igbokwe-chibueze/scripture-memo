@@ -25,6 +25,7 @@ import { FellowshipTestPreview } from "@/features/fellowships";
 import { OilShopTestPreview } from "@/features/oil-shop";
 import { SettingsTestPreview } from "@/features/settings";
 import { SanctuaryTestPreview } from "@/features/sanctuary";
+import { MotionPreferencePreview } from "../components/motion-preference-preview";
 
 export const metadata: Metadata = {
   title: "UI Foundation Preview | Scripture Memo",
@@ -78,6 +79,7 @@ export function UiFoundationView(): React.ReactNode {
         <SettingsTestPreview />
         <SanctuaryTestPreview />
         <LunaMascotPreview />
+        <MotionPreferencePreview />
         <LoadingScreenPreview />
         <ErrorScreenPreview />
         <ModeCompletionPreview />

@@ -1373,9 +1373,11 @@ notification, Vault verse-card, and Fellowship scenarios on 2026-09-23.
 Oil Shop controls and the latest no-inner-scroll selected-pack correction are
 accepted. Settings save scenarios also passed per the owner. Do not repeat those
 checks. Sanctuary sample note/favorite scenarios also passed per the owner.
-Do not repeat the accepted Sanctuary check. Next: continue the remaining route
-and motion review, including OS-only reduced-motion coverage. Representative
-performance measurements remain open as tracked in PERFORMANCE-AUDIT.md.
+The owner also passed the prepared OS-only reduced-motion check. Do not repeat
+accepted Sanctuary or motion scenarios. Next: production client-bundle measurement
+for the identified Sanctuary Markdown and eager gameplay-mode imports, alongside
+remaining route reviews. Representative database performance measurements remain
+open as tracked in PERFORMANCE-AUDIT.md.
 Phase 31 remains in progress.
 
 ## Important Decisions
@@ -3515,3 +3517,35 @@ concurrency subtests remain explicitly skipped as documented above.
 ### 2026-09-23 - Sanctuary scenarios accepted
 
 - Owner reported Sanctuary testing passed. Updated the audit and active handoff; no repeat required. Phase 31 remains in progress. No application code changed.
+
+### 2026-09-23 - OS-only motion coverage prepared
+
+- Source review confirmed shared JavaScript preference use in loading, errors,
+  hints, confetti and celebrations; map scrolling checks OS and app independently.
+- Global CSS claimed an OS fallback but only implemented the app class rule.
+  Added a prefers-reduced-motion media rule for CSS animation/transition duration,
+  repetition and smooth scrolling. Retained minimal duration for completion events.
+- Added read-only /ui-foundation#motion-testing status for OS/app/effective sources
+  plus spinner/pulse samples deliberately exercising the global CSS rule. Existing
+  real loading/celebration previews immediately below supply the manual scenarios.
+- No settings, database or gameplay changes. TypeScript and focused lint passed.
+- Next: OS-only manual coverage with app option off; status On/Off/On, static CSS
+  samples, no animated entrances/particles/confetti/count-ups, working controls.
+- Preview HTTP 200 confirmed the motion section; compiled CSS contains the OS
+  media query. Diff checks passed. Browser animation behavior is not yet verified.
+
+### 2026-09-23 - Independent toast and client-boundary review
+
+- Continued source checks while OS-only motion acceptance remains pending.
+- AST review: 485 TS/TSX files, 47 persistent direct error toasts, 83 non-error
+  toast calls, and 45 feature view files without client directives.
+- Confirmed root toast duration 4000 and recorded client bundle candidates:
+  Sanctuary Markdown renderer and eager imports of all five gameplay modes.
+- No application changes were justified by source evidence alone. Production
+  bundle sizes and browser behavior are still unmeasured.
+- Next manual check remains /ui-foundation#motion-testing with OS On/App Off.
+  Independent performance work can continue without treating that check as passed.
+
+### 2026-09-23 - OS-only motion scenarios accepted
+
+- Owner reported the prepared motion test passed. Updated the audit and active handoff; no repeat required. Remaining bundle, database-performance and route reviews keep Phase 31 open. No application code changed.

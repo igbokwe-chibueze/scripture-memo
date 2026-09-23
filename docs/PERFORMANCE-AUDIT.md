@@ -383,3 +383,40 @@ and purchase controls. Desktop visual acceptance remains pending.
   accepted. Do not repeat these scenarios. This is preview acceptance, not
   verification of server authorization or persisted note/favorite writes.
 - Validation: TypeScript, focused ESLint, diff checks and preview HTTP/section verification passed.
+
+### OS-only motion follow-up - 2026-09-23
+
+- Source review found that global CSS described an OS fallback but implemented
+  only the app reduce-motion class. Added the OS media rule for CSS animations,
+  transitions and smooth scrolling, preserving minimal completion durations.
+- JavaScript loading/error/hint/confetti/celebration paths consume the shared
+  preference; map navigation reads both sources. This is source evidence.
+- Added /ui-foundation#motion-testing: read-only OS/app/effective status and CSS
+  spin/pulse samples. Existing production preview scenarios follow below it.
+- Owner reported the prepared OS-only motion test passed: app Reduced Motion
+  off, device reduced motion on, On/Off/On labels, static CSS samples, suppressed
+  loading/celebration motion and usable controls. Do not repeat this check.
+- TypeScript and focused ESLint passed. This accepts the prepared preview scope;
+  it does not establish untested route-specific motion behavior.
+
+### Toast and client-boundary source review - 2026-09-23
+
+- Read-only TypeScript AST inspection covered 485 feature/component TS/TSX files:
+  all 47 direct toast.error calls explicitly use duration Infinity. The shared
+  showActionError helper also persists errors and includes optional error codes.
+- The root Toaster supplies duration 4000. There are 83 direct success/info/warning
+  calls; explicit duration overrides were inspected separately. This is source
+  configuration evidence, not stopwatch/browser acceptance or full copy approval.
+- All 45 files under feature views directories have no use-client directive.
+  Sanctuary and leaderboard views were inspected as server-loaded compositions.
+  This does not establish the transitive size of their interactive client trees.
+- Bundle measurement candidates: SanctuaryContent imports react-markdown and
+  remark-gfm inside the client tree; GameShell eagerly imports all five mode
+  components, including drag-and-drop dependencies. No speculative lazy-loading
+  or server/client restructuring was applied without production size evidence.
+- Leaderboard league/country refresh is visibility-gated at 15 minutes: up to
+  four scheduled route refreshes per visible hour, excluding initial navigation,
+  enrollment and user-driven changes. This is not a physical SQL operation count.
+- No application code, database, user preference or dependency changed in this
+  review. OS-only motion acceptance was subsequently reported by the owner;
+  the earlier Proceed instruction alone was not recorded as a test pass.
