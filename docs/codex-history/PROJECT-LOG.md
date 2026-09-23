@@ -1373,7 +1373,10 @@ notification, Vault verse-card, and Fellowship scenarios on 2026-09-23.
 Oil Shop control scenarios also passed. The owner then requested uniform card
 colors; shop surfaces now follow shared theme tokens. Next: visual acceptance at
 `/ui-foundation#oil-shop-testing` in light/dark themes, including mobile product
-modal and desktop detail. No real spending or gameplay setup is needed. Do not repeat accepted
+modal, desktop detail, and purchase success screen. Transparent spark/backpack/
+lantern assets now replace the illustrated scenery; all three packs are available
+in the isolated preview. Review artwork and theme colors only. No real spending
+or gameplay setup is needed. Do not repeat accepted
 notification, Fellowship, purchase-celebration, Vault-header, or Vault-card checks.
 Phase 31 remains in progress.
 
@@ -3424,3 +3427,19 @@ concurrency subtests remain explicitly skipped as documented above.
 - This extends the preceding storefront-only palette correction. Color review
   of the success screen in light/dark themes is now pending; prior functional
   and reduced-motion acceptance remains recorded.
+
+### 2026-09-23 - Transparent Oil Shop product artwork
+
+- Owner approved preserving only the spark, backpack, and lantern objects.
+  Built-in reference-image edits removed purple scenery, arches, and platforms.
+  New sibling cutout PNGs preserve original assets; prompts are recorded in
+  OIL-SHOP-ARTWORK.md.
+- Catalogue, desktop detail, mobile modal, and purchase success thumbnail use
+  transparent assets with contained sizing and semantic muted backgrounds.
+- Isolated Oil Shop preview now includes all three static catalogue items;
+  purchases remain in memory with no database or real balance changes.
+- All three alpha checks, TypeScript, focused ESLint, and preview/asset HTTP
+  checks passed. Visual inspection of generated assets passed; browser light/
+  dark and 375px visual acceptance remains pending.
+- Next: review artwork and palette at /ui-foundation#oil-shop-testing, including
+  a sample purchase success screen. Do not repeat accepted functional checks.

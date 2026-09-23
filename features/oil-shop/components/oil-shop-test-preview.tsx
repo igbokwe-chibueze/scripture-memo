@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { OilShopContent } from "./oil-shop-content";
+import { HINT_SHOP_CATALOG } from "../data/hint-shop-catalog";
 import type { OilShopData } from "../types/oil-shop.types";
 import type { OilShopTransport } from "../types/oil-shop-transport.types";
 
@@ -20,13 +21,15 @@ function createData(scenario: Scenario): OilShopData {
     balance: scenario === "insufficient" ? 0 : 500,
     hintsRemaining: 5,
     purchasedHints: 0,
-    items: [{
-      id: "preview-hint-pack",
-      name: "Traveler Pack",
-      description: "Three sample hints for this test only.",
-      cost: 125,
-      hintQuantity: 3,
-    }],
+    // Reuse static catalogue copy so all three cutouts can be reviewed without
+    // querying the database. Synthetic IDs stay inside the in-memory transport.
+    items: HINT_SHOP_CATALOG.map((item) => ({
+      id: `preview-${item.slug}`,
+      name: item.name,
+      description: item.description,
+      cost: item.cost,
+      hintQuantity: item.grantQuantity,
+    })),
   };
 }
 
@@ -82,9 +85,9 @@ export function OilShopTestPreview(): React.ReactNode {
     <section id="oil-shop-testing" className="space-y-5">
       <h2 className="font-heading text-2xl font-black">Oil Shop control testing</h2>
       <p className="text-sm text-muted-foreground">
-        At 375px, tap the sample pack and buy. Check pending feedback and disabled
-        purchase/close controls. On desktop, use the detail-panel purchase button.
-        Only sample balances change; the previously accepted celebration needs no retest.
+        Review all three pack illustrations in light and dark themes at 375px
+        and desktop widths. Tap View for details and buy with sample Glow Points
+        to review the success screen. Previously accepted behavior needs no retest.
       </p>
       <div className="grid gap-3 sm:grid-cols-2">
         {scenarios.map((option) => (

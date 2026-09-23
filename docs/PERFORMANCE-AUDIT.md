@@ -330,3 +330,10 @@ concurrency subtests remain explicitly skipped as documented above.
 Fellowship preview correction (2026-09-23): scenario button variants now track the active mode after the owner reported a stale Success highlight. Manual acceptance remains pending.
 
 Purchase success palette follow-up (2026-09-23): owner extended theme alignment to the celebration. Dialog, text, close control, reward panel, and hint counter now use semantic tokens; animation/reduced-motion and purchase behavior are unchanged. Light/dark color acceptance remains pending.
+
+Oil Shop artwork follow-up (2026-09-23): transparent spark/backpack/lantern PNGs
+replace the illustrated scenery across catalogue, details, and success thumbnail.
+Code supplies semantic theme backgrounds. All three packs are available in the
+in-memory preview. Alpha validation, TypeScript, focused ESLint, and preview/
+asset HTTP checks passed. Light/dark and 375px visual acceptance remains pending;
+previously accepted functional and reduced-motion checks remain accepted.

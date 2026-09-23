@@ -23,10 +23,11 @@ import type { OilShopData, OilShopItem } from "@/features/oil-shop/types/oil-sho
 import { useAudioFeedback } from "@/features/gameplay/hooks/use-audio-feedback";
 import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preference";
 
+// Transparent objects deliberately contain no card scenery; surfaces use theme tokens.
 const itemArt: Record<number, string> = {
-  1: "/images/oil-shop/single-spark.png",
-  3: "/images/oil-shop/traveler-pack.png",
-  5: "/images/oil-shop/lantern-pack.png",
+  1: "/images/oil-shop/single-spark-cutout.png",
+  3: "/images/oil-shop/traveler-pack-cutout.png",
+  5: "/images/oil-shop/lantern-pack-cutout.png",
 };
 
 export type PurchaseCelebration = {
@@ -86,7 +87,7 @@ function PurchasedHintBalance({
 
 /** Returns approved game art for each server-defined hint quantity. */
 function getItemArt(item: OilShopItem): string {
-  return itemArt[item.hintQuantity] ?? "/images/oil-shop/single-spark.png";
+  return itemArt[item.hintQuantity] ?? "/images/oil-shop/single-spark-cutout.png";
 }
 
 /** Animated purchase acknowledgement that remains open until the learner closes it. */
@@ -184,9 +185,21 @@ export function PurchaseCelebrationDialog({
                 }
                 animate={{ x: 0, scale: 1, rotate: -4 }}
                 transition={{ type: "spring", delay: 0.3, duration: 0.8 }}
-                className="absolute bottom-1 right-1 z-20 size-24 overflow-hidden rounded-3xl border-2 border-border shadow-lg min-[390px]:size-28"
+                className="absolute bottom-1 right-1 z-20 size-24 overflow-hidden rounded-3xl border-2 border-border bg-muted shadow-lg min-[390px]:size-28"
               >
-                <Image src={getItemArt(celebration.item)} alt="" fill className="object-cover" sizes="112px" />
+                <Image
+
+                  src={getItemArt(celebration.item)}
+
+                  alt=""
+
+                  fill
+
+                  className="object-contain p-2"
+
+                  sizes="112px"
+
+                />
               </motion.div>
             </div>
             <div className="mx-auto grid w-full max-w-sm grid-cols-[1fr_auto] items-center gap-3 rounded-2xl border border-border bg-background p-3 text-left text-foreground min-[390px]:p-4">
@@ -376,9 +389,15 @@ export function OilShopContent({
                 <button
                   type="button"
                   onClick={() => previewItem(item)}
-                  className="relative row-span-2 aspect-square min-w-0 overflow-hidden rounded-2xl border border-border transition-transform hover:scale-[1.03] active:scale-95 sm:row-span-1"
+                  className="relative row-span-2 aspect-square min-w-0 overflow-hidden rounded-2xl border border-border bg-muted transition-transform hover:scale-[1.03] active:scale-95 sm:row-span-1"
                 >
-                  <Image src={getItemArt(item)} alt={item.name} fill className="object-cover" sizes="112px" />
+                  <Image
+                    src={getItemArt(item)}
+                    alt={item.name}
+                    fill
+                    className="object-contain p-2"
+                    sizes="112px"
+                  />
                   <span className="absolute right-1 top-1 grid size-9 place-items-center rounded-full border-2 border-card bg-primary font-black text-primary-foreground ring-2 ring-border shadow-sm">
                     {item.hintQuantity}
                   </span>
@@ -412,8 +431,20 @@ export function OilShopContent({
         ) : selected ? (
           <div>
             <p className="text-xs font-black tracking-[0.2em] text-violet-700 dark:text-violet-300 uppercase">{t("hintPack")}</p>
-            <div className="relative mx-auto mt-4 aspect-square w-full max-w-72 overflow-hidden rounded-[2rem] border-2 border-border shadow-sm">
-              <Image src={getItemArt(selected)} alt={selected.name} fill className="object-cover" sizes="288px" />
+            <div className="relative mx-auto mt-4 aspect-square w-full max-w-72 overflow-hidden rounded-[2rem] border-2 border-border bg-muted shadow-sm">
+              <Image
+
+                src={getItemArt(selected)}
+
+                alt={selected.name}
+
+                fill
+
+                className="object-contain p-2"
+
+                sizes="288px"
+
+              />
               <span className="absolute right-3 top-3 grid size-12 place-items-center rounded-full border-[3px] border-card bg-primary text-primary-foreground text-xl font-black ring-[3px] ring-border shadow-sm">{selected.hintQuantity}</span>
             </div>
             <h2 className="mt-5 font-heading text-3xl font-black">{selected.name}</h2>
@@ -455,7 +486,18 @@ export function OilShopContent({
               <XIcon className="size-5" aria-hidden="true" />
             </Button>
             <DialogHeader className="items-center text-center">
-              <div className="relative mt-3 aspect-square w-52 overflow-hidden rounded-[2rem] border-2 border-border shadow-sm"><Image src={getItemArt(selected)} alt={selected.name} fill className="object-cover" sizes="208px" /><span className="absolute right-3 top-3 grid size-12 place-items-center rounded-full border-[3px] border-card bg-primary text-primary-foreground text-xl font-black ring-[3px] ring-border shadow-sm">{selected.hintQuantity}</span></div>
+              <div className="relative mt-3 aspect-square w-52 overflow-hidden rounded-[2rem] border-2 border-border bg-muted shadow-sm">
+                <Image
+                  src={getItemArt(selected)}
+                  alt={selected.name}
+                  fill
+                  className="object-contain p-2"
+                  sizes="208px"
+                />
+                <span className="absolute right-3 top-3 grid size-12 place-items-center rounded-full border-[3px] border-card bg-primary text-primary-foreground text-xl font-black ring-[3px] ring-border shadow-sm">
+                  {selected.hintQuantity}
+                </span>
+              </div>
               <DialogTitle className="mt-4 font-heading text-3xl font-black">{selected.name}</DialogTitle>
               <DialogDescription className="max-w-xs text-base text-muted-foreground">{selected.description}</DialogDescription>
             </DialogHeader>
