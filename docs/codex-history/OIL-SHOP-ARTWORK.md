@@ -1,5 +1,12 @@
 # Oil Shop transparent artwork
 
+## Header follow-up
+
+Built-in reference-image edit of `luna-shopkeeper-hero.png`, saved as
+`public/images/oil-shop/luna-shopkeeper-cutout.png`. Original retained.
+
+Final prompt: Use case: background-extraction. Edit target: attached Scripture Memo shopkeeper hero. Preserve the same Luna lamb character holding the single golden oil bottle, including face, wool, ears, hands, pendant, pose and original rendering style. Remove the entire shop interior, counter, extra bottles, shelves and background. Isolate Luna and the bottle she holds as a waist-up portrait with a clean complete lower torso edge. Genuine transparent alpha PNG, no colored backdrop, checkerboard, text, shadows or scenery. Center the character with small transparent margins; preserve both ears and bottle tip fully. Do not redesign her or add legs.
+
 Created 2026-09-23 using the built-in image tool in reference-image edit mode.
 Original images remain available beside the new `*-cutout.png` files in
 `public/images/oil-shop/`. Output: 1254 x 1254 PNG with alpha transparency.

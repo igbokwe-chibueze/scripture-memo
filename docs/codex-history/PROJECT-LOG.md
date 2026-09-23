@@ -1370,14 +1370,13 @@ Do not repeat the accepted purchase preview or Vault check. Small-population loc
 ranking plans were inspected on 2026-09-15; representative-scale SQL plans and
 browser bundle measurements remain unverified. The owner passed all prepared
 notification, Vault verse-card, and Fellowship scenarios on 2026-09-23.
-Oil Shop control scenarios also passed. The owner then requested uniform card
-colors; shop surfaces now follow shared theme tokens. Next: visual acceptance at
-`/ui-foundation#oil-shop-testing` in light/dark themes, including mobile product
-modal, desktop detail, and purchase success screen. Transparent spark/backpack/
-lantern assets now replace the illustrated scenery; all three packs are available
-in the isolated preview. Review artwork and theme colors only. No real spending
-or gameplay setup is needed. Do not repeat accepted
-notification, Fellowship, purchase-celebration, Vault-header, or Vault-card checks.
+Oil Shop controls and the latest no-inner-scroll selected-pack correction are
+accepted. Do not repeat that shop check. Next: Settings save scenarios at
+/ui-foundation#settings-testing. Synthetic success, rejection/retry, and connection
+failure/retry use the production form without saving real preferences. Check at
+375px that all fields lock during saving, failures preserve the draft, and success
+disables Save until the next edit. Broader OS-only motion and route reviews remain
+open; prior notification, Fellowship, Vault and purchase acceptance stands.
 Phase 31 remains in progress.
 
 ## Important Decisions
@@ -3443,3 +3442,59 @@ concurrency subtests remain explicitly skipped as documented above.
   dark and 375px visual acceptance remains pending.
 - Next: review artwork and palette at /ui-foundation#oil-shop-testing, including
   a sample purchase success screen. Do not repeat accepted functional checks.
+
+### 2026-09-23 - Compact theme-aware Oil Shop header
+
+- Owner approved replacing the dark scenery header with isolated Luna holding
+  the oil bottle, shared theme surfaces/text, and a shorter mobile-first layout.
+- Added OilShopHeader shared by the production view and existing isolated preview.
+  Removed Trail supplies from the rendered header. Separate grid columns allow
+  copy to wrap without overlapping the artwork; loading header dimensions align.
+- Built-in reference-image edit saved luna-shopkeeper-cutout.png; original retained
+  and exact prompt recorded in OIL-SHOP-ARTWORK.md. Alpha validation passed.
+- Next visual check: /ui-foundation#oil-shop-testing header in light/dark at 375px
+  and desktop. Previously accepted purchase and reduced-motion behavior stays accepted.
+- Validation: TypeScript, focused ESLint, and diff checks passed. Initial local HTTP preview request timed out; browser appearance remains unverified.
+- HTTP retry passed (200) and confirmed the new header asset in preview markup.
+
+### 2026-09-23 - Shop overview and selected-pack rail
+
+- Owner approved placing desktop pack details above Partner in the existing
+  shell rail, selected-only View highlighting, and balances inside the header.
+- Reused GamePageColumns/rail portal with current shop state. A compact detail
+  panel scrolls locally when needed; standalone previews use an inline fallback.
+  The detail modal applies below the shell's 1280px breakpoint.
+- Header receives live balances, keeps wrapping mobile columns, and adds a faint
+  warm glow behind Luna. Selected cards have a subtle ring; other View buttons
+  use outline. Loading composition now reserves the combined header.
+- TypeScript, focused ESLint, diff checks, and preview HTTP 200 passed.
+  Browser appearance and interaction acceptance remain pending.
+- Next: at /ui-foundation#oil-shop-testing, switch packs and confirm only one
+  View is filled, check right-side details at desktop width, then make a sample
+  purchase to see header balances update. Inspect at 375px and light/dark.
+
+### 2026-09-23 - Shop detail panel without nested scrolling
+
+- Owner requested no independent scrollbar in selected-pack details and removal
+  of the Hint pack label. This supersedes the earlier locally scrolling panel.
+- Removed the label and both rail/standalone-preview scroll containers. Artwork
+  flexes down with available height; tighter spacing and smaller badge preserve
+  room for the name, description, price, and touch-sized Buy control.
+- Next visual check: all three selected packs above Partner at the owner's
+  desktop window size; confirm the Buy button is visible without inner scrolling.
+- Validation: TypeScript and diff checks passed; visual fit requires browser review.
+- Focused ESLint also passed.
+
+### 2026-09-23 - Shop accepted; Settings save scenarios prepared
+
+- Owner accepted the selected-pack no-scroll correction and directed continuation.
+- Settings source review found name, language, translation, theme and switches
+  editable during Save. Disabled them consistently to avoid losing mid-save edits.
+- Shared SettingsFormContent owns validation, pending, draft and toast handling;
+  production wrapper alone binds the action and browser preference synchronization.
+  Connection failures now preserve the draft with persistent error feedback.
+- Added /ui-foundation#settings-testing with synthetic preferences, delayed success,
+  rejection-once and connection-failure-once; retries succeed. No server action,
+  theme/language/motion change, cookie or database write occurs in the preview.
+- TypeScript passed. Manual Settings acceptance is pending.
+- Focused ESLint and diff checks passed; HTTP 200 confirmed settings-testing exists.

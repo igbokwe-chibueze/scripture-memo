@@ -23,6 +23,7 @@ import { NotificationTestPreview } from "@/features/notifications";
 import { VaultCardTestPreview } from "@/features/vault";
 import { FellowshipTestPreview } from "@/features/fellowships";
 import { OilShopTestPreview } from "@/features/oil-shop";
+import { SettingsTestPreview } from "@/features/settings";
 
 export const metadata: Metadata = {
   title: "UI Foundation Preview | Scripture Memo",
@@ -73,6 +74,7 @@ export function UiFoundationView(): React.ReactNode {
         <VaultCardTestPreview />
         <FellowshipTestPreview />
         <OilShopTestPreview />
+        <SettingsTestPreview />
         <LunaMascotPreview />
         <LoadingScreenPreview />
         <ErrorScreenPreview />

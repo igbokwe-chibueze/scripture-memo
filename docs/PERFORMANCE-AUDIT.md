@@ -337,3 +337,35 @@ Code supplies semantic theme backgrounds. All three packs are available in the
 in-memory preview. Alpha validation, TypeScript, focused ESLint, and preview/
 asset HTTP checks passed. Light/dark and 375px visual acceptance remains pending;
 previously accepted functional and reduced-motion checks remain accepted.
+
+Oil Shop header follow-up (2026-09-23): compact semantic card header replaces
+the dark scene. Luna holding the oil bottle is transparent; text/artwork use
+separate columns with wrapping. Loading dimensions align. The existing isolated
+shop preview renders the same header. Browser visual acceptance remains pending.
+
+Oil Shop composition follow-up (2026-09-23): live balances moved into the header;
+selected pack details use the existing desktop context rail above Partner.
+Selected-only View styling and subtle card selection ring added. Below 1280px,
+details remain modal. Standalone preview has an inline desktop fallback.
+TypeScript, focused lint, diff checks and preview HTTP passed. New composition,
+selection switching and header balance update acceptance remain pending.
+
+Selected-pack height correction (2026-09-23): owner rejected the nested scrollbar.
+Removed Hint pack label and inner scrolling; artwork yields height before text
+and purchase controls. Desktop visual acceptance remains pending.
+
+### Settings save continuation - 2026-09-23
+
+- Owner accepted the latest Oil Shop no-inner-scroll correction. Do not repeat it.
+- Reviewed Settings and Sanctuary save feedback. Sanctuary already uses coded
+  persistent errors and explicit four-second success toasts (source evidence).
+- Settings name, locale, Bible translation, theme and switches were still editable
+  during save; they now disable consistently. Thrown transport failures retain
+  the draft and show persistent safe feedback. Successful saves reset dirty state.
+- Added /ui-foundation#settings-testing using the same form with sample preferences.
+  Success, rejection/retry and connection-failure/retry require no account changes.
+  Production-only wrapper retains real persistence and preference synchronization.
+- Next manual check: at 375px, edit a sample name and save in each scenario.
+  Fields lock while pending; failures retain edits; retry succeeds; successful
+  saves disable Save until another edit. No previously accepted shop retest needed.
+- Validation: TypeScript, focused ESLint, diff checks and preview HTTP/section verification passed.

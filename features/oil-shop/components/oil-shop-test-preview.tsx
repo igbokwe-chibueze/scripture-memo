@@ -74,7 +74,7 @@ function createTransport(data: OilShopData, scenario: Scenario): OilShopTranspor
 function PreviewRun({ scenario }: { scenario: Scenario }): React.ReactNode {
   const [data] = useState(() => createData(scenario));
   const [transport] = useState(() => createTransport(data, scenario));
-  return <OilShopContent initialData={data} transport={transport} />;
+  return <OilShopContent initialData={data} transport={transport} isPreview />;
 }
 
 /** Ready-made mobile/desktop purchase-control QA without spending real currency. */

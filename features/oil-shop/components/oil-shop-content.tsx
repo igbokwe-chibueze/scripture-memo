@@ -1,6 +1,9 @@
 /** Client-only shop UI shared with isolated QA; the caller owns persistence. */
 
 import Image from "next/image";
+import { GamePageColumns } from "@/components/shared/game-page-columns";
+import { useDesktopContextRail } from "@/components/shared/desktop-context-rail";
+import { OilShopHeader } from "./oil-shop-header";
 import { useEffect, useState, useTransition } from "react";
 import { motion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
@@ -230,15 +233,18 @@ export function OilShopContent({
   transport,
   initialTab = "hints",
   isAdministrator = false,
+  isPreview = false,
 }: {
   initialData: OilShopData;
   transport: OilShopTransport;
   initialTab?: "hints" | "donations";
   isAdministrator?: boolean;
+  isPreview?: boolean;
 }): React.ReactNode {
   const t = useTranslations("Shop");
   const common = useTranslations("Common");
   const locale = useLocale();
+  const rail = useDesktopContextRail();
   const [data, setData] = useState(initialData);
   const [selected, setSelected] = useState<OilShopItem | null>(initialData.items[0] ?? null);
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
@@ -252,7 +258,7 @@ export function OilShopContent({
   /** Selects the desktop detail card or opens the compact-screen modal. */
   function previewItem(item: OilShopItem): void {
     setSelected(item);
-    if (!window.matchMedia("(min-width: 1024px)").matches) {
+    if (!window.matchMedia("(min-width: 1280px)").matches) {
       setMobilePreviewOpen(true);
     }
   }
@@ -294,28 +300,71 @@ export function OilShopContent({
     });
   }
 
+  // Keep the rail free of nested scrolling. Flexible artwork gives space back
+  // to the name, description, and purchase controls on shorter windows.
+  const detailPanel = (
+      <aside className="flex h-full min-h-0 flex-col p-3 text-card-foreground" aria-label={t("selectedItem")}>
+        {activeTab === "donations" ? (
+          <div className="grid min-h-48 place-items-center text-center">
+            <div><span className="mx-auto grid size-20 place-items-center rounded-3xl bg-muted"><GiftIcon className="size-10 text-violet-700 dark:text-violet-300" /></span><h2 className="mt-5 font-heading text-2xl font-black">{t("donationsSoon")}</h2></div>
+          </div>
+        ) : selected ? (
+          <div className="flex min-h-0 flex-1 flex-col gap-2">
+            <div className="relative mx-auto max-h-36 min-h-0 w-full max-w-36 flex-1 basis-36 overflow-hidden rounded-2xl bg-muted">
+              <Image
+                src={getItemArt(selected)}
+                alt={selected.name}
+                fill
+                className="object-contain p-2"
+                sizes="144px"
+              />
+              <span className="absolute right-1 top-1 grid size-8 place-items-center rounded-full border-[3px] border-card bg-primary text-primary-foreground text-sm font-black ring-[3px] ring-border shadow-sm">{selected.hintQuantity}</span>
+            </div>
+            <h2 className="shrink-0 font-heading text-lg font-black leading-tight">{selected.name}</h2>
+            <p className="shrink-0 text-sm leading-snug text-muted-foreground">{selected.description}</p>
+            <div className="grid shrink-0 gap-2 rounded-2xl border border-border bg-muted/50 p-2">
+              <span className="flex items-center justify-center gap-2 text-xl font-black text-amber-700 dark:text-amber-300"><GemIcon />{selected.cost}</span>
+              <LoadingButton
+                size="lg"
+                className="min-h-11 text-sm font-black"
+                isPending={isPending}
+                pendingLabel={t("purchasing")}
+                disabled={data.balance < selected.cost}
+                onClick={purchase}
+              >
+                <SparklesIcon />
+                {data.balance < selected.cost ? t("moreGlow") : t("buy")}
+              </LoadingButton>
+            </div>
+          </div>
+        ) : null}
+      </aside>
+  );
+
   return (
     <>
       {/* Storefront surfaces inherit the application theme. Artwork and small
        * currency accents provide identity without forcing a separate dark UI. */}
-      <section className="grid grid-cols-2 gap-3" aria-label={t("balances")}>
-        <div className="rounded-3xl border border-border bg-card p-4 text-card-foreground shadow-sm">
-          <GemIcon className="size-6 text-amber-700 dark:text-amber-300" aria-hidden="true" />
-          <p className="mt-3 text-[0.65rem] font-black tracking-wider text-amber-700 uppercase dark:text-amber-300">
-            {t("glowBalance")}
-          </p>
-          <p className="font-heading text-3xl font-black">
-            {data.balance.toLocaleString(locale)}
-          </p>
-        </div>
-        <div className="rounded-3xl border border-border bg-card p-4 text-card-foreground shadow-sm">
-          <LightbulbIcon className="size-6 text-violet-700 dark:text-violet-300" aria-hidden="true" />
-          <p className="mt-3 text-[0.65rem] font-black tracking-wider text-violet-700 uppercase dark:text-violet-300">
-            {t("hintsAvailable")}
-          </p>
-          <p className="font-heading text-3xl font-black">{data.hintsRemaining}</p>
-        </div>
-      </section>
+      <OilShopHeader isPreview={isPreview}>
+        <section className="grid grid-cols-2 gap-2" aria-label={t("balances")}>
+          <div className="min-w-0 rounded-2xl border border-border bg-muted/50 p-3 text-card-foreground">
+            <GemIcon className="size-6 text-amber-700 dark:text-amber-300" aria-hidden="true" />
+            <p className="mt-1 text-[0.65rem] font-black tracking-wider text-amber-700 uppercase dark:text-amber-300">
+              {t("glowBalance")}
+            </p>
+            <p className="break-all font-heading text-2xl font-black">
+              {data.balance.toLocaleString(locale)}
+            </p>
+          </div>
+          <div className="min-w-0 rounded-2xl border border-border bg-muted/50 p-3 text-card-foreground">
+            <LightbulbIcon className="size-6 text-violet-700 dark:text-violet-300" aria-hidden="true" />
+            <p className="mt-1 text-[0.65rem] font-black tracking-wider text-violet-700 uppercase dark:text-violet-300">
+              {t("hintsAvailable")}
+            </p>
+            <p className="break-all font-heading text-2xl font-black">{data.hintsRemaining.toLocaleString(locale)}</p>
+          </div>
+        </section>
+      </OilShopHeader>
 
       {isAdministrator && (
         <section className="mt-4 rounded-2xl border border-sky-400/35 bg-sky-500/10 p-3 text-sky-950 dark:text-sky-100">
@@ -348,125 +397,90 @@ export function OilShopContent({
         </section>
       )}
 
-      <div className="mt-5 lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-5 xl:grid-cols-[minmax(0,1fr)_26rem]">
-      <section className="overflow-hidden rounded-[2rem] border border-border bg-card text-card-foreground shadow-sm">
-        <div className="grid grid-cols-2 border-b border-border" role="tablist" aria-label={t("categories")}>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === "hints"}
-            onClick={() => setActiveTab("hints")}
-            className={`relative flex min-h-14 items-center justify-center gap-2 px-3 text-sm font-black transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${activeTab === "hints" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
-          >
-            <ShoppingBagIcon className="size-5" aria-hidden="true" /> {t("hintPacks")}
-            {activeTab === "hints" && <span className="absolute inset-x-5 bottom-0 h-1 rounded-t-full bg-primary" />}
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === "donations"}
-            onClick={() => setActiveTab("donations")}
-            className={`relative flex min-h-14 items-center justify-center gap-2 px-3 text-sm font-black transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${activeTab === "donations" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
-          >
-            <GiftIcon className="size-5" aria-hidden="true" /> {t("donations")}
-            {activeTab === "donations" && <span className="absolute inset-x-5 bottom-0 h-1 rounded-t-full bg-primary" />}
-          </button>
-        </div>
-        {activeTab === "donations" ? (
-          <div role="tabpanel" className="px-5 py-12 text-center">
-            <span className="mx-auto grid size-16 place-items-center rounded-3xl border border-border bg-muted"><GiftIcon className="size-8 text-violet-700 dark:text-violet-300" aria-hidden="true" /></span>
-            <h2 className="mt-4 font-heading text-2xl font-black">{t("donationsSoon")}</h2>
+      <GamePageColumns className="mt-5" contextPanel={rail ? detailPanel : undefined}>
+        <div className={rail ? "" : "xl:grid xl:grid-cols-[minmax(0,1fr)_16rem] xl:items-start xl:gap-5"}>
+        <section className="overflow-hidden rounded-[2rem] border border-border bg-card text-card-foreground shadow-sm">
+          <div className="grid grid-cols-2 border-b border-border" role="tablist" aria-label={t("categories")}>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "hints"}
+              onClick={() => setActiveTab("hints")}
+              className={`relative flex min-h-14 items-center justify-center gap-2 px-3 text-sm font-black transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${activeTab === "hints" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+            >
+              <ShoppingBagIcon className="size-5" aria-hidden="true" /> {t("hintPacks")}
+              {activeTab === "hints" && <span className="absolute inset-x-5 bottom-0 h-1 rounded-t-full bg-primary" />}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "donations"}
+              onClick={() => setActiveTab("donations")}
+              className={`relative flex min-h-14 items-center justify-center gap-2 px-3 text-sm font-black transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${activeTab === "donations" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+            >
+              <GiftIcon className="size-5" aria-hidden="true" /> {t("donations")}
+              {activeTab === "donations" && <span className="absolute inset-x-5 bottom-0 h-1 rounded-t-full bg-primary" />}
+            </button>
           </div>
-        ) : data.items.length === 0 ? (
-          <div className="p-10 text-center"><PackageOpenIcon className="mx-auto size-12 text-violet-700 dark:text-violet-300" /><h2 className="mt-4 font-heading text-2xl font-black">{t("restocking")}</h2></div>
-        ) : (
-          <div role="tabpanel" className="space-y-3 p-3 sm:p-4">
-            {data.items.map((item) => (
-              <article
-                key={item.id}
-                className="grid min-w-0 grid-cols-[4.75rem_minmax(0,1fr)] gap-2.5 overflow-hidden rounded-3xl border border-border bg-muted/40 p-3 min-[390px]:grid-cols-[5.5rem_minmax(0,1fr)] sm:grid-cols-[7rem_minmax(0,1fr)_auto] sm:items-center sm:gap-3"
-              >
-                <button
-                  type="button"
-                  onClick={() => previewItem(item)}
-                  className="relative row-span-2 aspect-square min-w-0 overflow-hidden rounded-2xl border border-border bg-muted transition-transform hover:scale-[1.03] active:scale-95 sm:row-span-1"
+          {activeTab === "donations" ? (
+            <div role="tabpanel" className="px-5 py-12 text-center">
+              <span className="mx-auto grid size-16 place-items-center rounded-3xl border border-border bg-muted"><GiftIcon className="size-8 text-violet-700 dark:text-violet-300" aria-hidden="true" /></span>
+              <h2 className="mt-4 font-heading text-2xl font-black">{t("donationsSoon")}</h2>
+            </div>
+          ) : data.items.length === 0 ? (
+            <div className="p-10 text-center"><PackageOpenIcon className="mx-auto size-12 text-violet-700 dark:text-violet-300" /><h2 className="mt-4 font-heading text-2xl font-black">{t("restocking")}</h2></div>
+          ) : (
+            <div role="tabpanel" className="space-y-3 p-3 sm:p-4">
+              {data.items.map((item) => (
+                <article
+                  key={item.id}
+                  className={`grid min-w-0 grid-cols-[4.75rem_minmax(0,1fr)] gap-2.5 overflow-hidden rounded-3xl border border-border bg-muted/40 p-3 min-[390px]:grid-cols-[5.5rem_minmax(0,1fr)] sm:grid-cols-[7rem_minmax(0,1fr)_auto] sm:items-center sm:gap-3 ${selected?.id === item.id ? "ring-1 ring-primary/40" : ""}`}
                 >
-                  <Image
-                    src={getItemArt(item)}
-                    alt={item.name}
-                    fill
-                    className="object-contain p-2"
-                    sizes="112px"
-                  />
-                  <span className="absolute right-1 top-1 grid size-9 place-items-center rounded-full border-2 border-card bg-primary font-black text-primary-foreground ring-2 ring-border shadow-sm">
-                    {item.hintQuantity}
-                  </span>
-                </button>
-                <button type="button" onClick={() => previewItem(item)} className="min-w-0 self-end overflow-hidden text-left sm:self-center">
-                  <h2 className="text-wrap font-heading text-base font-black leading-tight min-[390px]:text-lg sm:text-xl">{item.name}</h2>
-                  <p className="mt-1 line-clamp-2 text-xs text-muted-foreground sm:text-sm">
-                    {item.description}
-                  </p>
-                </button>
-                <div className="col-start-2 grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 sm:col-start-3 sm:flex sm:flex-col sm:items-stretch">
-                  <span className="inline-flex min-h-9 min-w-0 items-center justify-center gap-1 rounded-xl bg-muted px-2 font-black text-amber-700 dark:text-amber-300"><GemIcon className="size-4" />{item.cost}</span>
-                  <Button
+                  <button
+                    type="button"
                     onClick={() => previewItem(item)}
-                    className="min-h-11 px-3 font-black sm:px-5"
+                    className="relative row-span-2 aspect-square min-w-0 overflow-hidden rounded-2xl border border-border bg-muted transition-transform hover:scale-[1.03] active:scale-95 sm:row-span-1"
                   >
-                    {common("view")}
-                  </Button>
-                </div>
-              </article>
-            ))}
+                    <Image
+                      src={getItemArt(item)}
+                      alt={item.name}
+                      fill
+                      className="object-contain p-2"
+                      sizes="112px"
+                    />
+                    <span className="absolute right-1 top-1 grid size-9 place-items-center rounded-full border-2 border-card bg-primary font-black text-primary-foreground ring-2 ring-border shadow-sm">
+                      {item.hintQuantity}
+                    </span>
+                  </button>
+                  <button type="button" onClick={() => previewItem(item)} className="min-w-0 self-end overflow-hidden text-left sm:self-center">
+                    <h2 className="text-wrap font-heading text-base font-black leading-tight min-[390px]:text-lg sm:text-xl">{item.name}</h2>
+                    <p className="mt-1 line-clamp-2 text-xs text-muted-foreground sm:text-sm">
+                      {item.description}
+                    </p>
+                  </button>
+                  <div className="col-start-2 grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 sm:col-start-3 sm:flex sm:flex-col sm:items-stretch">
+                    <span className="inline-flex min-h-9 min-w-0 items-center justify-center gap-1 rounded-xl bg-muted px-2 font-black text-amber-700 dark:text-amber-300"><GemIcon className="size-4" />{item.cost}</span>
+                    <Button
+                      onClick={() => previewItem(item)}
+                      variant={selected?.id === item.id ? "default" : "outline"}
+                      aria-pressed={selected?.id === item.id}
+                      className="min-h-11 px-3 font-black sm:px-5"
+                    >
+                      {common("view")}
+                    </Button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+        {!rail && (
+          <div className="sticky top-6 hidden h-96 rounded-3xl border border-border bg-card xl:block">
+            {detailPanel}
           </div>
         )}
-      </section>
-
-      <aside className="sticky top-6 hidden overflow-hidden rounded-[2rem] border border-border bg-card p-5 text-card-foreground shadow-sm lg:block" aria-label={t("selectedItem")}>
-        {activeTab === "donations" ? (
-          <div className="grid min-h-96 place-items-center text-center">
-            <div><span className="mx-auto grid size-20 place-items-center rounded-3xl bg-muted"><GiftIcon className="size-10 text-violet-700 dark:text-violet-300" /></span><h2 className="mt-5 font-heading text-2xl font-black">{t("donationsSoon")}</h2></div>
-          </div>
-        ) : selected ? (
-          <div>
-            <p className="text-xs font-black tracking-[0.2em] text-violet-700 dark:text-violet-300 uppercase">{t("hintPack")}</p>
-            <div className="relative mx-auto mt-4 aspect-square w-full max-w-72 overflow-hidden rounded-[2rem] border-2 border-border bg-muted shadow-sm">
-              <Image
-
-                src={getItemArt(selected)}
-
-                alt={selected.name}
-
-                fill
-
-                className="object-contain p-2"
-
-                sizes="288px"
-
-              />
-              <span className="absolute right-3 top-3 grid size-12 place-items-center rounded-full border-[3px] border-card bg-primary text-primary-foreground text-xl font-black ring-[3px] ring-border shadow-sm">{selected.hintQuantity}</span>
-            </div>
-            <h2 className="mt-5 font-heading text-3xl font-black">{selected.name}</h2>
-            <p className="mt-2 min-h-12 text-muted-foreground">{selected.description}</p>
-            <div className="mt-6 grid grid-cols-[1fr_1.25fr] gap-3 rounded-2xl border border-border bg-muted/50 p-3">
-              <span className="flex items-center justify-center gap-2 text-xl font-black text-amber-700 dark:text-amber-300"><GemIcon />{selected.cost}</span>
-              <LoadingButton
-                size="lg"
-                className="min-h-12 text-base font-black"
-                isPending={isPending}
-                pendingLabel={t("purchasing")}
-                disabled={data.balance < selected.cost}
-                onClick={purchase}
-              >
-                <SparklesIcon />
-                {data.balance < selected.cost ? t("moreGlow") : t("buy")}
-              </LoadingButton>
-            </div>
-          </div>
-        ) : null}
-      </aside>
-      </div>
+        </div>
+      </GamePageColumns>
 
       <Dialog open={mobilePreviewOpen && selected !== null} onOpenChange={(open) => !open && !isPending && setMobilePreviewOpen(false)}>
         <DialogContent
