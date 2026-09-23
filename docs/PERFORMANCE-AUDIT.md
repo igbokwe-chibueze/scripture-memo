@@ -369,3 +369,17 @@ and purchase controls. Desktop visual acceptance remains pending.
   Fields lock while pending; failures retain edits; retry succeeds; successful
   saves disable Save until another edit. No previously accepted shop retest needed.
 - Validation: TypeScript, focused ESLint, diff checks and preview HTTP/section verification passed.
+
+### Sanctuary control continuation - 2026-09-23
+
+- Owner passed the prepared Settings scenarios. Do not repeat this check.
+- Added /ui-foundation#sanctuary-testing with sample verse, note and favorite.
+  Production and QA share the rendering and pending/result handling; only the
+  production wrapper binds authenticated persistence actions.
+- Success and reject-once/retry responses are delayed and in memory. Each action
+  rejects independently, and Reset restores the draft and favorite state.
+- Owner reported Sanctuary testing passed: prepared 375px Notes/save and heart
+  controls, pending feedback, state preservation on rejection, and retry are
+  accepted. Do not repeat these scenarios. This is preview acceptance, not
+  verification of server authorization or persisted note/favorite writes.
+- Validation: TypeScript, focused ESLint, diff checks and preview HTTP/section verification passed.

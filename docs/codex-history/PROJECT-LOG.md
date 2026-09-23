@@ -1371,12 +1371,11 @@ ranking plans were inspected on 2026-09-15; representative-scale SQL plans and
 browser bundle measurements remain unverified. The owner passed all prepared
 notification, Vault verse-card, and Fellowship scenarios on 2026-09-23.
 Oil Shop controls and the latest no-inner-scroll selected-pack correction are
-accepted. Do not repeat that shop check. Next: Settings save scenarios at
-/ui-foundation#settings-testing. Synthetic success, rejection/retry, and connection
-failure/retry use the production form without saving real preferences. Check at
-375px that all fields lock during saving, failures preserve the draft, and success
-disables Save until the next edit. Broader OS-only motion and route reviews remain
-open; prior notification, Fellowship, Vault and purchase acceptance stands.
+accepted. Settings save scenarios also passed per the owner. Do not repeat those
+checks. Sanctuary sample note/favorite scenarios also passed per the owner.
+Do not repeat the accepted Sanctuary check. Next: continue the remaining route
+and motion review, including OS-only reduced-motion coverage. Representative
+performance measurements remain open as tracked in PERFORMANCE-AUDIT.md.
 Phase 31 remains in progress.
 
 ## Important Decisions
@@ -3498,3 +3497,21 @@ concurrency subtests remain explicitly skipped as documented above.
   theme/language/motion change, cookie or database write occurs in the preview.
 - TypeScript passed. Manual Settings acceptance is pending.
 - Focused ESLint and diff checks passed; HTTP 200 confirmed settings-testing exists.
+
+### 2026-09-23 - Settings accepted; Sanctuary controls prepared
+
+- Owner reported Settings tests passed and directed continuation. Phase 31 remains
+  in progress; accepted Settings and Shop checks must not be repeated.
+- Added /ui-foundation#sanctuary-testing with a public-domain sample verse, note,
+  and favorite state. Success and independent reject-once/retry operations use
+  delayed in-memory callbacks. Reset restores all prerequisites.
+- Production and preview share SanctuaryContent. Production wrapper alone binds
+  unchanged authenticated Server Actions; preview back navigation remains local
+  to UI Foundation. No real note, favorite, progression or database changes.
+- Next: inspect 375px Notes/save and heart controls, pending state, preserved draft
+  and favorite on rejection, and successful retry. Manual acceptance pending.
+- Validation: TypeScript, focused ESLint, diff checks and HTTP 200/section verification passed.
+
+### 2026-09-23 - Sanctuary scenarios accepted
+
+- Owner reported Sanctuary testing passed. Updated the audit and active handoff; no repeat required. Phase 31 remains in progress. No application code changed.
