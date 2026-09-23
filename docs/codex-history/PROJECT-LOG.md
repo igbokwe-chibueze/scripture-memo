@@ -1369,9 +1369,10 @@ The Vault header 375px check has passed.
 Do not repeat the accepted purchase preview or Vault check. Small-population local
 ranking plans were inspected on 2026-09-15; representative-scale SQL plans and
 browser bundle measurements remain unverified. The owner passed all prepared
-notification scenarios on 2026-09-23. Next: prepare the unaccepted Vault verse-card
-controls for 375px verification without gameplay prerequisites. Do not repeat
-notification, purchase-preview, or Vault-header acceptance.
+notification and Vault verse-card scenarios on 2026-09-23. Next: prepare isolated
+Fellowship pending-control scenarios without requiring membership/request setup
+by the owner. Do not repeat notification, purchase-preview, Vault-header, or
+Vault-card acceptance. Phase 31 remains in progress.
 
 ## Important Decisions
 
@@ -3330,3 +3331,25 @@ concurrency subtests remain explicitly skipped as documented above.
 - Notification testing is no longer the next manual task. Next: prepare remaining
   Vault verse-card controls for 375px review without requiring gameplay setup.
 - Previously accepted purchase celebration and Vault header remain accepted.
+
+### 2026-09-23 - Vault verse-card scenario prepared
+
+- Added /ui-foundation#vault-card-testing with mastered and locked synthetic
+  cards; no gameplay, database fixtures, or earned mastery is required.
+- Extracted shared VaultVerseCard markup. Production keeps its existing replay
+  action and real Sanctuary URL. Preview uses a delayed local replay response
+  and a real NavigationButton targeting the preview page with a test query.
+- This covers UI layout, locked controls, and replay pending feedback, not real
+  session creation or Sanctuary authorization. No database data was changed.
+- TypeScript, focused ESLint, both Vault tests, and diff checks passed. Manual
+  375px acceptance remains pending. Accepted notification, Vault header, and
+  purchase-preview checks must not be repeated.
+
+### 2026-09-23 - Vault card preview accepted
+
+- Owner reported the prepared Vault card check passed after the local preview
+  route and section were verified available. Recorded 375px scenario acceptance.
+- Accepted coverage remains scoped to preview layout, pending/recovery, locked
+  controls, and preview navigation, not real Sanctuary or replay persistence.
+- Next: prepare isolated Fellowship pending-control scenarios. Do not repeat
+  accepted notification, purchase celebration, Vault header, or Vault card tests.

@@ -203,9 +203,26 @@ remain to be measured.
   server authorization, real network behavior, or persisted notification writes.
 - Strict TypeScript and focused ESLint pass. Repaired malformed ignored Next.js
   development route declarations using freshly generated `next typegen` output.
-- Next: prepare the remaining Vault verse-card control scenario for 375px
-  verification without requiring gameplay prerequisites. The previously
-  accepted Vault header is separate and must not be tested again.
+- The subsequent Vault verse-card scenario was prepared and accepted on
+  2026-09-23. Both that check and the earlier Vault header remain accepted.
+
+### Prepared Vault verse-card scenario - 2026-09-23
+
+- Added `/ui-foundation#vault-card-testing` with mastered and locked sample
+  cards. Both preview and production use the same VaultVerseCard markup and
+  shared navigation/loading controls. The accepted Vault header is untouched.
+- Preview replay waits 1.2 seconds locally, shows pending/disabled feedback,
+  then a success toast. It never invokes the replay Server Action or creates
+  a session. Study navigation uses NavigationButton to this preview page with
+  `?preview=vault-study`; it does not open a synthetic Sanctuary record.
+- This checks card layout, replay pending feedback, locked controls, and link
+  wiring. It does not verify real session creation, Sanctuary authorization,
+  or guaranteed visible navigation delay on a prefetched route.
+- Project-owner acceptance passed on 2026-09-23: 375px card fit and stacked
+  controls, replay pending/recovery, preview study navigation, disabled locked
+  study, and absent locked replay. Do not repeat this check.
+- Next: prepare Fellowship pending-control scenarios without requiring the
+  owner to create memberships or join requests through normal gameplay.
 
 ### Open checks
 
