@@ -22,6 +22,12 @@ import { showActionError } from "@/lib/errors/show-action-error";
 import { cn } from "@/lib/utils";
 import { startGameSessionAction } from "@/features/gameplay/actions/start-game-session.action";
 import type { DayCardData } from "@/features/waypoints/types/day-selection.types";
+import type { ActionResult } from "@/types/api";
+
+export type StartDay = (input: {
+  waypointId: string;
+  dayLevel: DayCardData["dayLevel"];
+}) => Promise<ActionResult<{ redirectTo?: string }>>;
 
 const statusPresentation = {
   LOCKED: { labelKey: "locked", icon: LockKeyholeIcon },
@@ -35,10 +41,12 @@ export function DayCard({
   card,
   waypointId,
   index,
+  startDayAction = startGameSessionAction,
 }: {
   card: DayCardData;
   waypointId: string;
   index: number;
+  startDayAction?: StartDay;
 }): React.ReactNode {
   const t = useTranslations("DaySelection");
   const router = useRouter();
@@ -59,7 +67,7 @@ export function DayCard({
 
   function startDay(): void {
     startTransition(async () => {
-      const result = await startGameSessionAction({
+      const result = await startDayAction({
         waypointId,
         dayLevel: card.dayLevel,
       });
@@ -70,7 +78,7 @@ export function DayCard({
       }
 
       toast.success(result.message, { duration: 4_000 });
-      if (result.data) router.push(result.data.redirectTo);
+      if (result.data?.redirectTo) router.push(result.data.redirectTo);
     });
   }
 

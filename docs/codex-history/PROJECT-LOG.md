@@ -1,5 +1,36 @@
 # Scripture Memo Project Log
 
+### 2026-09-23 - Gameplay mobile scenarios prepared
+
+- Added `/ui-foundation#gameplay-testing` immediately after recording the passed
+  Day Selection check. It renders the production shell and first mode with sample
+  Glimmer/Learn data.
+- Begin success and reject-once/retry are delayed in memory; the hint opens from
+  local sample content. Production retains its authenticated start and hint paths.
+- Next: at 375px, inspect shell fit, menu, progress, Beacon bar, local hint,
+  pending/retry behavior, and the initial Drag & Drop layout. Do not submit the
+  sample answer; completion is outside this isolated check.
+- TypeScript, focused ESLint, diff checks, and HTTP 200/section verification pass.
+
+### 2026-09-23 - Day Selection mobile scenarios accepted
+
+- The project owner passed the prepared 375px Day Selection layout, pending,
+  reject-once/retry, and locked-day explanation checks. Do not repeat them.
+- Phase 31 remains in progress. The next route review is the active gameplay
+  screen at 375px, prepared without requiring a real timed attempt or progress.
+
+### 2026-09-23 - Day Selection mobile scenarios prepared
+
+- Continued Phase 31 after the owner accepted the Sanctuary rendering regression.
+- Added `/ui-foundation#day-selection-testing` with the production Day Selection
+  composition and representative completed, ready, and locked states.
+- Start success and reject-once/retry are delayed and in memory. The production
+  action remains the default outside the preview; no gameplay session, cooldown,
+  reward, learner progress, or database record is changed by this check.
+- Next: inspect the prepared section at 375px for fit and hierarchy, then verify
+  Glow pending/retry feedback and Radiance's blocked explanation.
+- TypeScript, focused ESLint, diff checks, and HTTP 200/section verification pass.
+
 ### 2026-09-01 — Immediate Beacon Challenger evaluation
 
 - The project owner accepted the leaderboard privacy flow. Phase 30 Flow 13 is
@@ -1374,12 +1405,13 @@ Oil Shop controls and the latest no-inner-scroll selected-pack correction are
 accepted. Settings save scenarios also passed per the owner. Do not repeat those
 checks. Sanctuary sample note/favorite scenarios also passed per the owner.
 The owner also passed the prepared OS-only reduced-motion check. Do not repeat
-accepted motion scenarios. Sanctuary study Markdown now renders on the server;
+accepted motion and Sanctuary rendering scenarios. Sanctuary study Markdown now renders on the server;
 the identical analyzer measured 149,329 fewer route-associated browser JS bytes
 (11.4%) and removed the Markdown family from the client graph. Next: visually
-check Study/Notes at /ui-foundation#sanctuary-testing after this rendering-boundary
-change. Prior note/favorite behavior remains accepted. Defer gameplay lazy-loading
-until timed-attempt loading is addressed. Other Phase 31 checks remain open.
+The owner passed the Study/Notes regression after this rendering-boundary change;
+do not repeat it. Defer gameplay lazy-loading until timed-attempt loading is
+addressed. Next: remaining read-only high-read repository and index review. Other
+Phase 31 checks remain open.
 Phase 31 remains in progress.
 
 ## Important Decisions
@@ -3575,6 +3607,6 @@ concurrency subtests remain explicitly skipped as documented above.
   same interactive component. Added sample Markdown to the preview for regression.
 - Identical analyzer comparison: 1,304,448 to 1,155,119 route-associated browser
   JS bytes (-149,329 / -11.4%), 26 to 25 chunks, Markdown subset 113,160 to zero.
-- TypeScript, focused ESLint, preview HTTP and analyzer passed. Next manual check:
-  Study/Notes layout and switching at /ui-foundation#sanctuary-testing; previously
-  accepted note/favorite response behavior does not need repeating.
+- TypeScript, focused ESLint, preview HTTP and analyzer passed. The owner then
+  passed Study/Notes layout, switching, and desktop alignment. Previously accepted
+  note/favorite behavior remains accepted; no Sanctuary repeat is required.

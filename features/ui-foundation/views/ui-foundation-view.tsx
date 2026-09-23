@@ -30,6 +30,7 @@ import {
   SanctuaryStudyContent,
 } from "@/features/sanctuary/components/sanctuary-study-content";
 import { SANCTUARY_TEST_DATA } from "@/features/sanctuary/data/sanctuary-test-data";
+import { DaySelectionTestPreview } from "@/features/waypoints/components/day-selection-test-preview";
 import { MotionPreferencePreview } from "../components/motion-preference-preview";
 
 export const metadata: Metadata = {
@@ -88,6 +89,7 @@ export function UiFoundationView(): React.ReactNode {
             <SanctuaryContentsNavigation data={SANCTUARY_TEST_DATA} />
           }
         />
+        <DaySelectionTestPreview />
         <LunaMascotPreview />
         <MotionPreferencePreview />
         <LoadingScreenPreview />

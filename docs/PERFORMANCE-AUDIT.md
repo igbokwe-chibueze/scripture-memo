@@ -450,5 +450,37 @@ and purchase controls. Desktop visual acceptance remains pending.
   to 1,155,119 bytes: 149,329 bytes / 11.4%. Associated chunks fell 26 to 25;
   the defined Markdown-family subset fell 113,160 bytes to zero.
 - TypeScript, focused ESLint, diff checks, preview HTTP 200, and the production
-  analyzer passed. Manual visual regression of Study/Notes tabs remains pending.
+  analyzer passed. The owner subsequently passed the 375px Study/Notes rendering,
+  switching, and desktop alignment check. Do not repeat this regression check.
 - Exact method, limits, and before/after figures: CLIENT-BUNDLE-BASELINE.md.
+
+### Day Selection mobile-state continuation - 2026-09-23
+
+- Added `/ui-foundation#day-selection-testing` using the production Day Selection
+  composition with completed, ready, and locked cards plus the Recall timing
+  notice. The preview needs no curriculum progress or gameplay setup.
+- Production keeps the authenticated start action as its default. The preview
+  injects delayed in-memory success and reject-once responses, so it creates no
+  session, reward, cooldown, progression row, or database operation.
+- Next manual check: at 375px, confirm the header, timing rule, cards, status
+  badges, and controls have no clipping or horizontal overflow. Start Glow to
+  verify pending feedback; retry after the prepared rejection; tap Radiance for
+  its blocked explanation.
+- TypeScript, focused ESLint, whitespace validation, and preview HTTP/section
+  verification passed. The project owner subsequently passed the prepared 375px
+  layout, pending/retry, and locked-explanation scenarios. Do not repeat this check.
+
+### Gameplay mobile-state continuation - 2026-09-23
+
+- Added `/ui-foundation#gameplay-testing` using the production gameplay shell,
+  representative Glimmer/Learn data, and the first Drag & Drop mode.
+- The production start action remains the default. The preview injects delayed
+  in-memory success and reject-once responses and uses the existing local test
+  hint path. It creates no real attempt, progress, reward, cooldown, or hint use.
+- Next manual check: at 375px, inspect the header, menu, progress, Beacon bar,
+  mode card, and footer for clipping or horizontal overflow. Verify the local
+  hint modal, Begin pending state, reject/retry recovery, and initial Drag & Drop
+  layout. Do not submit the sample answer because answer completion is outside
+  this isolated shell check.
+- TypeScript, focused ESLint, whitespace validation, and preview HTTP/section
+  verification passed. Rendered mobile acceptance remains pending.

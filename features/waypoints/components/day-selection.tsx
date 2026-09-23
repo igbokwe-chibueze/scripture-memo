@@ -5,7 +5,10 @@ import { useTranslations } from "next-intl";
 import { AlertTriangleIcon, BookHeartIcon, Clock3Icon, LockKeyholeIcon, ShieldOffIcon } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { JourneyStageBadge } from "@/components/shared/journey-stage-badge";
-import { DayCard } from "@/features/waypoints/components/day-card";
+import {
+  DayCard,
+  type StartDay,
+} from "@/features/waypoints/components/day-card";
 import { AdminDayTestingMenu } from "@/features/waypoints/components/admin-day-testing-menu";
 import type { DayCardData, DaySelectionData } from "@/features/waypoints/types/day-selection.types";
 import { JourneyStage } from "@/lib/generated/prisma/enums";
@@ -16,10 +19,12 @@ export function DaySelection({
   data,
   cards,
   isAdmin,
+  startDayAction,
 }: {
   data: DaySelectionData;
   cards: DayCardData[];
   isAdmin: boolean;
+  startDayAction?: StartDay;
 }): React.ReactNode {
   const t = useTranslations("DaySelection");
   const hintsUnavailable =
@@ -117,6 +122,7 @@ export function DaySelection({
               card={card}
               waypointId={data.waypointId}
               index={index}
+              startDayAction={startDayAction}
             />
           ))}
         </div>
