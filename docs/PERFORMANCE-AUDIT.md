@@ -224,6 +224,27 @@ remain to be measured.
 - Next: prepare Fellowship pending-control scenarios without requiring the
   owner to create memberships or join requests through normal gameplay.
 
+### Prepared Fellowship control scenarios - 2026-09-23
+
+- Added `/ui-foundation#fellowship-testing` with a public group, private group,
+  pending cancellation, prefilled invite code, and two pending leader decisions.
+  Reset restores every prerequisite without gameplay or account setup.
+- Production and preview share directory/request components and transition,
+  pending, disabled, toast, and result-handling logic. Production wrappers bind
+  authenticated Server Actions; the preview imports no persistence actions and
+  changes only synthetic browser state after a 1.2-second delay.
+- Success and reject-once/retry modes are available. Verify join, request,
+  cancellation, invite entry, approval, and rejection; only the selected action
+  should spin and competing mutations within its panel should disable. Directory
+  and leader panels are independent, as on their separate production screens.
+- Preview navigation and search are contained; link destinations also stay on
+  UI Foundation so prefetch cannot resolve synthetic Fellowship IDs.
+- Local HTTP verification returned 200 and confirmed the section exists.
+  TypeScript, focused lint, and six Fellowship schema tests passed. These are
+  not browser-interaction or server authorization/persistence acceptance.
+- Next: owner checks the prepared controls at 375px, including pending/recovery,
+  input disabling, local state changes, retry after rejection, and reset.
+
 ### Open checks
 
 #### Read-only ranking plan review - 2026-09-15
@@ -270,3 +291,5 @@ manual checks pass.
 Local setup validation (2026-09-14): strict TypeScript, full ESLint, four guard
 unit tests, and all four integration suite commands passed; the two progression
 concurrency subtests remain explicitly skipped as documented above.
+
+Fellowship preview correction (2026-09-23): scenario button variants now track the active mode after the owner reported a stale Success highlight. Manual acceptance remains pending.

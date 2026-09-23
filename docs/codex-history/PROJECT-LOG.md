@@ -1369,9 +1369,10 @@ The Vault header 375px check has passed.
 Do not repeat the accepted purchase preview or Vault check. Small-population local
 ranking plans were inspected on 2026-09-15; representative-scale SQL plans and
 browser bundle measurements remain unverified. The owner passed all prepared
-notification and Vault verse-card scenarios on 2026-09-23. Next: prepare isolated
-Fellowship pending-control scenarios without requiring membership/request setup
-by the owner. Do not repeat notification, purchase-preview, Vault-header, or
+notification and Vault verse-card scenarios on 2026-09-23. Next: check the
+Fellowship controls prepared at `/ui-foundation#fellowship-testing` for
+375px verification, with success and reject-once/retry modes and reset. No real
+membership/request setup is needed. Do not repeat notification, purchase-preview, Vault-header, or
 Vault-card acceptance. Phase 31 remains in progress.
 
 ## Important Decisions
@@ -3353,3 +3354,29 @@ concurrency subtests remain explicitly skipped as documented above.
   controls, and preview navigation, not real Sanctuary or replay persistence.
 - Next: prepare isolated Fellowship pending-control scenarios. Do not repeat
   accepted notification, purchase celebration, Vault header, or Vault card tests.
+
+### 2026-09-23 - Fellowship pending-control scenarios prepared
+
+- Added /ui-foundation#fellowship-testing with public/private/pending directory
+  cards, prefilled invite entry, and two leader request fixtures. Success and
+  reject-once/retry modes plus reset remove all manual setup prerequisites.
+- Extracted shared directory and leader queue content; production wrappers retain
+  authenticated actions and real router effects. Preview responses are delayed
+  in-memory mutations, with no account, membership, reward, or database writes.
+- Preview links remain on UI Foundation, including prefetch destinations. Search
+  submission is contained. Production navigation destinations are unchanged.
+- TypeScript, focused ESLint, six Fellowship schema tests, and diff checks passed.
+  Running localhost preview returned HTTP 200 with the test section present.
+- Next: owner verifies controls at 375px. Pending spins only on the selected
+  operation, competing mutations within its panel disable, invite input disables,
+  and rejection leaves the action retryable. This is not server authorization
+  or persistence verification. Earlier accepted previews remain accepted.
+
+### 2026-09-23 - Fellowship scenario selection highlight corrected
+
+- Owner found that selecting reject-once changed behavior but left Success
+  highlighted. The button variants were fixed constants instead of state-driven.
+- Both variants now follow the same rejectFirst state as aria-pressed and the
+  simulated response mode. No production membership behavior changed.
+- Manual Fellowship acceptance remains pending; verify the selector switches
+  highlight in both directions, then continue the existing prepared scenarios.
