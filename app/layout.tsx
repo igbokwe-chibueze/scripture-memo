@@ -17,8 +17,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// Keep the display face available for the map's live waypoint numbers. It is
-// not preloaded globally, so pages that do not render Map A do not fetch it.
+// Share the display face with game headings and waypoint numbers. Preloading
+// remains disabled to avoid adding this font to every route's critical path.
 const lilitaOne = Lilita_One({
   variable: "--font-lilita-one",
   subsets: ["latin"],

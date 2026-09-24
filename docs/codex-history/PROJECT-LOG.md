@@ -1,5 +1,20 @@
 # Scripture Memo Project Log
 
+### 2026-09-24 - Lilita One display typography adopted
+
+- Switched the shared `font-heading` token to the already-loaded Lilita One
+  face. Existing semantic game headings and reward numbers now use the display
+  font throughout the app, while Geist remains the body, paragraph, and
+  scripture-reading face.
+- Added `font-heading` to the shared `buttonVariants` base so Button,
+  LoadingButton, and NavigationButton labels receive the same typography through
+  their existing shared styling path. Colors, bevels, shadows, sizing, and motion
+  classes are unchanged.
+- Updated the UI/UX guide and kept `/admin/testing/shared-ui#typography-balance`
+  as a side-by-side reference. TypeScript, focused ESLint, repository lint, and
+  whitespace checks pass. Owner visual acceptance at 375px/desktop in light and
+  dark themes remains pending.
+
 ### 2026-09-24 - Admin assignment for Map A trail artwork
 
 - Added an ADMIN/SUPER_ADMIN page at `/admin/map-trails` to assign the existing
