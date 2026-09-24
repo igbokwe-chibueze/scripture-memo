@@ -310,15 +310,18 @@ remain to be measured.
 - Notification failure/retry was subsequently accepted on 2026-09-23. Existing
   purchase-preview and Vault-header acceptance also remains valid.
 
-- Inspect high-read repository methods for additional N+1 or duplicated reads.
-- Confirm indexes against final high-read filters and ordering.
+- High-read repository source review is complete. No request-path read query is
+  issued from a collection loop, and the reviewed filters have supporting
+  primary, unique, or leading composite indexes. Representative ranking plans
+  remain a separate measurement item below.
 - Review client-component boundaries on data-heavy screens.
 - Verify loading, empty, error, pending, and disabled states route by route.
 - Inspect every player-facing route at a 375px viewport for wrapping, clipping,
   horizontal overflow, touch targets, and content hierarchy.
 - Manually verify all motion and confetti surfaces with the in-app setting and
   operating-system setting independently enabled.
-- Review Sonner messages for concise, consistent game tone.
+- Sonner message copy review completed on 2026-09-23; see the detailed audit
+  below. Error persistence and non-error timing also conform to the shared rules.
 
 Phase 31 is not complete until the remaining checks and required project-owner
 manual checks pass.
@@ -491,7 +494,9 @@ and purchase controls. Desktop visual acceptance remains pending.
   the compact pace/timer panel and contained Luna form a middle row; and Begin
   spans the card below them. Larger screens retain roomier sizing.
 - TypeScript, focused ESLint, whitespace validation, and preview HTTP verification
-  pass after the correction. Visual acceptance remains pending.
+  pass after the correction. The owner then directed work to proceed; the corrected
+  gameplay entry presentation and prepared interaction scenarios are accepted and
+  should not be repeated.
 
 ### Map A mobile floating-control correction - 2026-09-23
 
@@ -501,10 +506,47 @@ and purchase controls. Desktop visual acceptance remains pending.
 - Mobile controls now sit above the navigation and safe-area inset. At `md` and
   above, they retain the original 1rem bottom position beside the desktop rail.
 - Unlimited future-trail scrolling is intentionally unchanged at the project
-  owner's direction.
+  owner's direction and is closed with no follow-up work.
 - TypeScript, focused ESLint, whitespace validation, and all 10 focused map tests
-  pass. Mobile visual acceptance remains pending.
-- Panel-animation work is deferred at the owner's request. All recent CSS and
-  Framer Motion experiments, manual unmounting, and list-scroll timing changes
-  were reverted. The original shared Sheet behavior and centering are restored;
-  the mobile floating-button visibility fix remains.
+  pass. The owner continued from the corrected mobile map with the controls
+  visible and exercised the Trail Navigator; the button-visibility correction
+  is accepted and should not be repeated.
+- Panel-animation work is closed without a change at the owner's request. All
+  recent CSS and Framer Motion experiments, manual unmounting, and list-scroll
+  timing changes were reverted. The original shared Sheet behavior and
+  centering are restored; the mobile floating-button visibility fix remains.
+  No Trail Navigator animation follow-up remains in Phase 31.
+
+### Sonner copy and persistence audit completed - 2026-09-23
+
+- Reviewed direct player-facing toast copy and the messages returned by Auth,
+  Gameplay, Hints, Fellowships, Oil Shop, Settings, Sanctuary, Vault,
+  Notifications, Badges, and Leaderboard actions. Messages identify the result
+  or the learner's next step without exposing internal errors.
+- Reconfirmed all 47 direct error toasts explicitly persist until dismissal and
+  `showActionError` applies the same rule while presenting optional safe error
+  codes. The root Toaster supplies the required four-second default for success,
+  information, and warning feedback; explicit non-error overrides use 4,000 ms.
+- No unclear, inconsistent, or inappropriate game-tone copy requiring an
+  application change was found. This closes the Phase 31 Sonner audit item.
+
+### High-read repository and index audit completed - 2026-09-23
+
+- Scanned repository query sites together with every loop in repository code.
+  No learner request performs a database read once per rendered waypoint, day,
+  badge, product, notice, verse, Fellowship, or leaderboard row. High-volume
+  reads use relation selection, bounded queries, aggregates, or batched promises.
+- Database calls that remain inside loops are write-oriented and deliberately
+  bounded: ordered advisory locks, badge progress/reward writes, pack reordering,
+  transactional verse imports, seed paths, and local fixture preparation. They
+  do not create request-path read amplification or hosted development usage.
+- Cross-checked the final Map, Day Selection, Gameplay, Vault, Sanctuary, Oil
+  Shop, Notifications, Badges, Fellowships, and Leaderboard filters against the
+  schema. Primary keys, owner/entity unique constraints, and existing leading
+  composite indexes cover the reviewed identities and common status/order
+  filters. The three-item shop catalogue may sort after its active/type lookup;
+  its fixed small cardinality does not justify a wider index.
+- No new index or query rewrite is justified by source evidence. Large-population
+  country/global ranking and large-Fellowship plans remain open because the
+  development dataset is not representative; that limitation must not be
+  converted into a speculative migration.

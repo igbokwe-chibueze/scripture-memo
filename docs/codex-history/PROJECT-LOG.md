@@ -1,5 +1,12 @@
 # Scripture Memo Project Log
 
+### 2026-09-23 - Gameplay mobile preview accepted
+
+- The owner directed work to proceed after the mobile entry-card correction.
+  Record the prepared gameplay layout and interaction scenarios as accepted; do
+  not repeat them.
+- Phase 31 continues with the next unfinished 375px player-route review.
+
 ### 2026-09-23 - Gameplay entry card mobile correction
 
 - Owner rejected the first 375px gameplay preview because the entry composition
@@ -10,13 +17,14 @@
 - TypeScript, focused ESLint, diff checks, and preview HTTP verification pass.
   The corrected 375px visual still needs owner acceptance.
 
-### 2026-09-23 - Trail Navigator animation work reverted and deferred
+### 2026-09-23 - Trail Navigator animation work reverted and closed
 
 - At the owner's request, removed all recent panel-animation changes: CSS
   overrides, Framer Motion integration, manual unmounting, and scroll timing
   changes. Restored the original shared Sheet behavior and list centering.
 - Preserved the mobile floating-button visibility fix and unlimited future-map
-  scrolling. Animation work is deferred; gameplay preview acceptance is pending.
+  scrolling. Both the animation request and future-scrolling question are closed
+  with no follow-up work; gameplay preview acceptance was handled separately.
 
 ### 2026-09-23 - Map A mobile controls restored
 
@@ -24,7 +32,8 @@
   both occupied the viewport bottom at the same stacking level.
 - Raised the controls above the mobile navigation and safe-area inset while
   preserving their desktop position and behavior.
-- Per the owner's direction, future-trail scrolling remains unchanged.
+- Per the owner's direction, future-trail scrolling remains unchanged and is not
+  a project to-do item.
 - TypeScript, focused ESLint, diff checks, and all 10 focused map tests pass.
 - Subsequent panel-animation experiments were reverted at the owner's request;
   only the mobile floating-button visibility correction remains.
@@ -3639,3 +3648,28 @@ concurrency subtests remain explicitly skipped as documented above.
 - TypeScript, focused ESLint, preview HTTP and analyzer passed. The owner then
   passed Study/Notes layout, switching, and desktop alignment. Previously accepted
   note/favorite behavior remains accepted; no Sanctuary repeat is required.
+
+### 2026-09-23 - Sonner message audit completed
+
+- Reviewed direct player-facing toast copy and action-result messages across
+  Auth, Gameplay, Hints, Fellowships, Oil Shop, Settings, Sanctuary, Vault,
+  Notifications, Badges, and Leaderboard. Messages clearly identify outcomes or
+  next steps and do not expose internal failures.
+- Reconfirmed persistent error behavior through all direct error calls and the
+  shared `showActionError` helper. The root four-second default and explicit
+  non-error overrides satisfy the success, information, and warning duration rule.
+- No application edit was justified. The Phase 31 Sonner clarity and tone item
+  is complete; database-performance and remaining route reviews stay open.
+
+### 2026-09-23 - High-read repository and index audit completed
+
+- Reviewed repository query sites and looped database operations. Learner-facing
+  reads remain batched or relation-selected; no request reads once per rendered
+  item. Remaining looped calls are bounded writes for locking, badge evaluation,
+  reorder/import, seeding, or local fixtures.
+- Matched final high-read filters to schema primary, unique, and leading composite
+  indexes across Map, Day Selection, Gameplay, Vault, Sanctuary, Oil Shop,
+  Notifications, Badges, Fellowships, and Leaderboard. No migration or query
+  rewrite is justified by source evidence.
+- Representative large global/country and Fellowship ranking plans remain open;
+  the small development dataset cannot establish those execution characteristics.
