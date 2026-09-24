@@ -11,7 +11,7 @@ mobile or visual acceptance while preserving the evidence that closed the phase.
 
 The former all-in-one `/ui-foundation` gallery has been split into focused,
 administrator-only workspaces: `/admin/testing/shared-ui` (including the game
-button showcase), `/admin/testing/gameplay`, `/admin/testing/features`, and
+button showcase and both custom waypoint controls), `/admin/testing/gameplay`, `/admin/testing/features`, and
 `/admin/testing/accessibility`. `/admin/testing` is the index. The old
 `/ui-foundation` URL now performs a server-authorized redirect to that index;
 historical entries below retain the route that existed when each check ran.

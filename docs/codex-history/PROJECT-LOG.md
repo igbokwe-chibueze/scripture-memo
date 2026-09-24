@@ -10,6 +10,9 @@
   components, every shared appearance variant, text and icon sizes, pending,
   disabled, and route-navigation states. Its async action is simulated locally
   and the route sample stays inside administrator testing.
+- Added the actual custom Map A trail node and Map B waypoint card to Shared UI.
+  Local controls preview all five waypoint statuses, current-node emphasis, and
+  zero through three completed-day flames without changing learner progress.
 - Removed public landing-page links to internal test tooling. Updated the UI/UX
   guide and product overview to point at the protected shared reference. Manual
   browser review of the reorganized pages remains for the project owner.

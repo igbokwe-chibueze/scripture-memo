@@ -269,6 +269,9 @@ Before handing off a new or changed player-facing screen, verify:
 
 - [ ] Buttons match `/admin/testing/shared-ui#button-showcase` in rest, hover,
       press, disabled, and pending states.
+- [ ] Custom Map A and Map B waypoint controls match
+      `/admin/testing/shared-ui#waypoint-buttons` across locked, ready, active,
+      cooldown, completed, current, and flame-progress states.
 - [ ] Navigation gives immediate loading feedback.
 - [ ] Back and close controls are tactile, visible, and at least 44×44.
 - [ ] Modal/drawer motion and background scroll behavior are correct.
