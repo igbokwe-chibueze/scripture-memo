@@ -3787,3 +3787,34 @@ concurrency subtests remain explicitly skipped as documented above.
 - Phase 31 — Performance and Polish is complete. Phase 32 — Final Security Audit
   is next. The two progression lock-race skips remain assigned to a future
   production-capable database environment and do not reopen Phase 31.
+
+### 2026-09-24 - Phase 32 security audit and auth hardening in progress
+
+- Reconciled the audit checklist with current code and project evidence. Verified
+  route/action role enforcement, input-first Server Action validation, persisted
+  progression and reward checks, private data ownership, secret boundaries,
+  database constraints, and current local environment handling. Corrected stale
+  checklist assumptions about a fixed 220-waypoint curriculum, translation
+  codes, the password-hashing algorithm, XP, and raw-HTML usage.
+- Added per-email password-reset throttling through the existing Better Auth
+  `RateLimit` table. Emails are normalized before keyed HMAC to create the
+  lookup key; a transaction advisory lock makes the five-attempt, 15-minute
+  fixed window atomic across application instances. No schema migration or
+  hosted database operation was used. A dedicated test against the isolated
+  local integration database verified the cap, blocked-request behavior, and
+  expiry boundary, and removed its unique limiter row.
+- Hardened server error logging to redact common credential encodings and omit
+  stack traces in production. Added a focused logger test. Also moved the
+  settings translation lookup behind input validation and corrected a stale
+  waypoint schema comment.
+- Verification so far: TypeScript, full ESLint, `git diff --check`, logger unit
+  test, and password-reset limiter integration test passed. Final verification
+  remains after remaining review.
+- Phase 32 remains open. Pending items include the selected hosting provider's
+  trusted-proxy/IP configuration, production database role and migration
+  safeguards, production HTTPS/network/backup/secrets settings, nonce CSP
+  performance decision, and owner disposition for cross-feature imports and
+  email verification/registration enumeration. The npm vulnerability audit
+  was rejected by automatic approval review because it would disclose project
+  dependency names and versions to the public registry; owner authorization is
+  pending. No production approval is implied.

@@ -1690,6 +1690,11 @@ Phase 31 is complete. Phase 32 — Final Security Audit is next.
 
 ## Phase 32 — Final Security Audit
 
+**Status:** In progress — source review and focused remediation underway as of
+2026-09-24. Do not treat this phase or the production approval checklist as
+complete while deployment configuration, dependency audit access, or required
+owner acceptance remains unresolved.
+
 **Goal:** Verify the application against the complete security checklist before deployment.
 
 ### Tasks

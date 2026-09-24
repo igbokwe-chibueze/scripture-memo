@@ -41,9 +41,9 @@ The server and database are the only sources of truth for all security-sensitive
 | 1.2 | Route files in `app/` are one-line re-exports only — no logic | 🟡 Medium | ✅ Verified 2026-09-24 | All `page.tsx` route files are single-line re-exports; the auth handler and framework boundaries are intentional exceptions |
 | 1.3 | Prisma is imported only inside repository files | 🟠 High | ✅ Verified 2026-09-24 | Source scan found no Prisma singleton imports outside repositories, `lib/prisma.ts`, or Better Auth adapter initialization |
 | 1.4 | Server Actions never call Prisma directly — always call repositories | 🟠 High | ✅ Verified 2026-09-24 | Source scan found no Prisma imports in action files |
-| 1.5 | No feature imports another feature's internal components, hooks, or views | 🟡 Medium | ☐ Pending | Tight coupling breaks feature isolation and makes refactoring dangerous |
-| 1.6 | No empty or speculative folders exist in the project | 🟢 Low | ☐ Pending | Project clarity and maintainability |
-| 1.7 | Barrel files do not exist inside sub-folders (`actions/index.ts` etc.) | 🟢 Low | ☐ Pending | Barrel files inside sub-folders can cause circular dependency issues |
+| 1.5 | No feature imports another feature's internal components, hooks, or views | 🟡 Medium | ☐ Pending | Source scan found cross-feature imports, including test previews. Refactoring these to shared public contracts is broader than this security fix; owner acceptance is required before deferring |
+| 1.6 | No empty or speculative folders exist in the project | 🟢 Low | ✅ Verified 2026-09-24 | Current source tree scan found no empty feature folders |
+| 1.7 | Barrel files do not exist inside sub-folders (`actions/index.ts` etc.) | 🟢 Low | ✅ Verified 2026-09-24 | No sub-folder barrels found; feature-root entry files are intentional public feature surfaces |
 
 ---
 
@@ -51,16 +51,16 @@ The server and database are the only sources of truth for all security-sensitive
 
 | # | Check | Risk | Status | Notes |
 |---|---|---|---|---|
-| 2.1 | All protected routes require a valid session | 🔴 Critical | ☐ Pending | Game, map, vault, sanctuary, oil shop, fellowships, leaderboard, settings |
-| 2.2 | Unauthenticated users are redirected to `/login` by root-level Next.js 16 Proxy | 🟠 High | ☐ Pending | Proxy performs optimistic checks in the Node.js runtime; secure checks remain close to protected data |
-| 2.3 | Auth cookies are secure, HTTP-only, and SameSite where supported | 🔴 Critical | ☐ Pending | Depends on auth provider configuration |
-| 2.4 | Passwords are hashed by the auth provider — never stored in plaintext | 🔴 Critical | ☐ Pending | Must use bcrypt or equivalent with minimum cost factor 12 |
-| 2.5 | Login errors use generic messages — do not reveal whether an email exists | 🟡 Medium | ☐ Pending | Account enumeration prevention |
-| 2.6 | Logout correctly destroys the server-side session | 🟠 High | ☐ Pending | Session must be invalidated on the server, not just cleared client-side |
+| 2.1 | All protected routes require a valid session | 🔴 Critical | ✅ Verified 2026-09-24 | Proxy gates protected path prefixes and the protected shell resolves a server session before loading learner data |
+| 2.2 | Unauthenticated users are redirected to `/login` by root-level Next.js 16 Proxy | 🟠 High | ✅ Verified 2026-09-24 | Root `proxy.ts` performs optimistic route checks; protected data and actions retain server-side checks |
+| 2.3 | Auth cookies are secure, HTTP-only, and SameSite where supported | 🔴 Critical | ✅ Verified 2026-09-24 | Better Auth 1.6.23 uses HTTP-only cookies, secure cookies in production, and SameSite=Lax by default; confirm production HTTPS at deployment |
+| 2.4 | Passwords are hashed by the auth provider — never stored in plaintext | 🔴 Critical | ✅ Verified 2026-09-24 | Better Auth 1.6.23 uses its built-in scrypt password hashing; the obsolete bcrypt cost-factor wording does not apply |
+| 2.5 | Login errors use generic messages — do not reveal whether an email exists | 🟡 Medium | ✅ Verified 2026-09-24 | Login action returns a generic failure; registration still exposes success/failure status for a duplicate address until verification or equivalent is configured |
+| 2.6 | Logout correctly destroys the server-side session | 🟠 High | ✅ Verified 2026-09-24 | `logoutAction` calls Better Auth `signOut` with the request headers |
 | 2.7 | Password reset tokens expire within a reasonable time window | 🟠 High | ✅ Implemented | Better Auth reset tokens expire after 1 hour |
-| 2.8 | Email verification is enforced for email/password registrations | 🟡 Medium | ☐ Pending | If implemented by the auth provider |
+| 2.8 | Email verification is enforced for email/password registrations | 🟡 Medium | ☐ Pending | No mail provider or verification workflow is configured. Registration action status still distinguishes a duplicate address from a new account; owner must approve verification or accept this enumeration risk |
 | 2.9 | After a password change, all existing sessions for that user are invalidated | 🟠 High | ✅ Implemented | Better Auth revokes sessions after successful reset |
-| 2.10 | OAuth tokens are never stored in plaintext in the database | 🔴 Critical | ☐ Pending | Delegate token storage entirely to the auth provider |
+| 2.10 | OAuth tokens are never stored in plaintext in the database | 🔴 Critical | N/A 2026-09-24 | No OAuth provider is configured; recheck before enabling OAuth |
 | 2.11 | Development reset-link delivery cannot run in production | 🔴 Critical | ✅ Implemented | `LIGHT_DEV` throws under `NODE_ENV=production`; production requires the dedicated delivery adapter |
 
 ---
@@ -69,18 +69,18 @@ The server and database are the only sources of truth for all security-sensitive
 
 | # | Check | Risk | Status | Notes |
 |---|---|---|---|---|
-| 3.1 | All admin routes require ADMIN or SUPER_ADMIN — checked optimistically in Proxy | 🔴 Critical | ☐ Pending | Navigation-level guard |
-| 3.2 | All admin routes require ADMIN or SUPER_ADMIN — enforced in Server Actions | 🔴 Critical | ☐ Pending | Action-level guard — Proxy alone is not sufficient |
-| 3.3 | Super Admin routes require SUPER_ADMIN — enforced in Proxy and again in actions | 🔴 Critical | ☐ Pending | User management, role changes, manual badge awards |
-| 3.4 | Regular users cannot call verse create/update/delete/publish actions | 🔴 Critical | ☐ Pending | Role check in each verse action |
-| 3.5 | Regular users cannot call pack management actions | 🔴 Critical | ☐ Pending | Role check in each pack action |
-| 3.6 | Regular users cannot call waypoint management actions | 🔴 Critical | ☐ Pending | Role check in each waypoint action |
-| 3.7 | Regular users cannot call badge create/update/toggle actions | 🔴 Critical | ☐ Pending | Role check in each badge admin action |
-| 3.8 | Only SUPER_ADMIN can call `awardBadgeManuallyAction` | 🔴 Critical | ☐ Pending | Manual badge awards must be logged in AuditLog |
-| 3.9 | Only SUPER_ADMIN can change user roles | 🔴 Critical | ☐ Pending | Prevents privilege escalation by regular admins |
-| 3.10 | Regular admins cannot call `overrideCooldownAction` for other admins | 🟠 High | ☐ Pending | Cooldown override must be role-gated and audit-logged |
-| 3.11 | Users cannot update another user's profile, settings, or progress | 🟠 High | ☐ Pending | Always derive userId from `session.user.id` — never trust client-provided userId |
-| 3.12 | Fellowship admin actions check that the requestor is the fellowship LEADER | 🟠 High | ☐ Pending | Kicking members, editing details, dissolving group |
+| 3.1 | All admin routes require ADMIN or SUPER_ADMIN — checked optimistically in Proxy | 🔴 Critical | ✅ Verified 2026-09-24 | Root `proxy.ts` guards `/admin`; `/admin/users` requires SUPER_ADMIN |
+| 3.2 | All admin routes require ADMIN or SUPER_ADMIN — enforced in Server Actions | 🔴 Critical | ✅ Verified 2026-09-24 | Sensitive admin action files perform server-side role checks; Proxy is not their authorization boundary |
+| 3.3 | Super Admin routes require SUPER_ADMIN — enforced in Proxy and again in actions | 🔴 Critical | ✅ Verified 2026-09-24 | User-role changes and manual badge grants recheck SUPER_ADMIN in their actions; Proxy also protects user management routes |
+| 3.4 | Regular users cannot call verse create/update/delete/publish actions | 🔴 Critical | ✅ Verified 2026-09-24 | Verse mutation actions require ADMIN or SUPER_ADMIN |
+| 3.5 | Regular users cannot call pack management actions | 🔴 Critical | ✅ Verified 2026-09-24 | Pack mutation actions require ADMIN or SUPER_ADMIN |
+| 3.6 | Regular users cannot call waypoint management actions | 🔴 Critical | ✅ Verified 2026-09-24 | Waypoint mutation actions require ADMIN or SUPER_ADMIN |
+| 3.7 | Regular users cannot call badge create/update/toggle actions | 🔴 Critical | ✅ Verified 2026-09-24 | Badge administration actions require ADMIN or SUPER_ADMIN |
+| 3.8 | Only SUPER_ADMIN can call the manual badge award action | 🔴 Critical | ✅ Verified 2026-09-24 | `awardBadgeAction` validates input, checks SUPER_ADMIN, and writes actor-linked audit data transactionally |
+| 3.9 | Only SUPER_ADMIN can change user roles | 🔴 Critical | ✅ Verified 2026-09-24 | Role-change action checks SUPER_ADMIN and repository writes the audit row atomically |
+| 3.10 | Regular admins cannot call `overrideCooldownAction` for other admins | 🟠 High | ✅ Verified 2026-09-24 | Override derives identity from the session, limits self-testing scope, and records the override in AuditLog |
+| 3.11 | Users cannot update another user's profile, settings, or progress | 🟠 High | ✅ Verified 2026-09-24 | Player actions derive the acting user ID from the authenticated server session |
+| 3.12 | Fellowship admin actions check that the requestor is the fellowship LEADER | 🟠 High | ✅ Verified 2026-09-24 | Leader ownership is rechecked in repository mutations under transaction locks |
 | 3.13 | Fellowship identity updates are leader-only and insignias use a fixed server-validated catalogue | 🟠 High | ✅ Implemented | Repository ownership filter and Zod enum reject non-leaders, uploads, and external image paths |
 
 ---
@@ -89,18 +89,18 @@ The server and database are the only sources of truth for all security-sensitive
 
 | # | Check | Risk | Status | Notes |
 |---|---|---|---|---|
-| 4.1 | Every Server Action that accepts input validates it with Zod before any other logic | 🔴 Critical | ☐ Pending | Zod validation must be step 1, before auth checks even |
-| 4.2 | Verse reference fields are validated for format | 🟡 Medium | ☐ Pending | Prevent malformed content |
-| 4.3 | Translation codes are enum-validated (NIV/ESV/KJV only for MVP) | 🟡 Medium | ☐ Pending | Prevent invalid translation codes |
-| 4.4 | Journey Stage values are enum-validated (LEARN/RECALL/STRENGTHEN/MASTER) | 🟠 High | ☐ Pending | Invalid stage values would break gameplay rules |
-| 4.5 | Game mode values are enum-validated using the GameMode enum | 🟠 High | ☐ Pending | `CUE` is a valid value; `HINT` is not |
-| 4.6 | Waypoint numbers are range-validated (1–220 for current curriculum) | 🟠 High | ☐ Pending | Prevent out-of-range waypoint manipulation |
+| 4.1 | Every Server Action that accepts input validates it with Zod before any other logic | 🔴 Critical | ✅ Verified 2026-09-24 | AST/source scan covered 73 action files; the one translation lookup before validation was moved after safeParse |
+| 4.2 | Verse reference fields are validated for format | 🟡 Medium | ✅ Verified 2026-09-24 | Server schema validates canonical book, chapter and verse bounds, then derives the stored reference |
+| 4.3 | Translation codes are validated against the supported application enum | 🟡 Medium | ✅ Verified 2026-09-24 | Current persisted enum and action schemas validate supported codes; the checklist no longer assumes the original MVP translation set |
+| 4.4 | Journey Stage values are enum-validated (LEARN/RECALL/STRENGTHEN/MASTER) | 🟠 High | ✅ Verified 2026-09-24 | Prisma enum types and strict action schemas reject unknown stage values |
+| 4.5 | Game mode values are enum-validated using the GameMode enum | 🟠 High | ✅ Verified 2026-09-24 | Server derives the allowed next mode from the persisted enum order; `CUE` is a mode and HINT is separate |
+| 4.6 | Waypoint positions are assigned and range-validated against the current server curriculum | 🟠 High | ✅ Verified 2026-09-24 | Position is assigned and checked against current server records; reorder input is a complete unique ID list, not a client-selected number. The curriculum is no longer fixed at 220 |
 | 4.7 | Fellowship names and descriptions are length-limited | 🟡 Medium | ☑ Implemented | Zod constrains names to 3–50 safe characters and descriptions to 280 characters |
-| 4.8 | User display names are length-limited and sanitized | 🟡 Medium | ☐ Pending | Prevent UI abuse and XSS |
-| 4.9 | Private notes (Sanctuary) are length-limited | 🟡 Medium | ☐ Pending | Prevent storage abuse |
-| 4.10 | Shop item IDs in purchase requests are validated server-side | 🟠 High | ☐ Pending | Prevent purchasing non-existent or inactive items |
-| 4.11 | Game completion payloads are validated — server independently computes which mode/day should be complete | 🔴 Critical | ☐ Pending | Client never dictates what is being completed |
-| 4.12 | Badge requirement fields are validated when creating/updating badges | 🟡 Medium | ☐ Pending | Malformed requirements would break badge engine |
+| 4.8 | User display names are length-limited and sanitized | 🟡 Medium | ✅ Verified 2026-09-24 | Settings schema trims, length-limits, and allow-lists display-name characters; React renders the value as escaped text |
+| 4.9 | Private notes (Sanctuary) are length-limited | 🟡 Medium | ✅ Verified 2026-09-24 | Server schema trims and caps notes at 5,000 characters |
+| 4.10 | Shop item IDs in purchase requests are validated server-side | 🟠 High | ✅ Verified 2026-09-24 | The repository reloads the requested active item and uses server-owned price and grant values inside the purchase transaction |
+| 4.11 | Game completion payloads are validated — server independently computes which mode/day should be complete | 🔴 Critical | ✅ Verified 2026-09-24 | Completion evidence is validated and the server derives the next mode and day from persisted attempts/session state |
+| 4.12 | Badge requirement fields are validated when creating/updating badges | 🟡 Medium | ✅ Verified 2026-09-24 | Save schema restricts criteria to a fixed enum and bounds target values to positive integers |
 
 ---
 
@@ -113,7 +113,7 @@ The server and database are the only sources of truth for all security-sensitive
 | 5.3 | Day 2 unlock requires Day 1 to be marked complete in the database | 🔴 Critical | ✅ Implemented | Progression transaction verifies the preceding persisted day |
 | 5.4 | Day 3 unlock requires Day 2 to be marked complete in the database | 🔴 Critical | ✅ Implemented | Progression transaction verifies the preceding persisted day |
 | 5.5 | 24-hour cooldown is calculated from the stored `completedAt` timestamp — never from client time | 🔴 Critical | ✅ Implemented | Server-derived completion time plus exact elapsed UTC hours; client countdowns remain display-only |
-| 5.6 | `overrideCooldownAction` requires ADMIN or SUPER_ADMIN role | 🟠 High | ☐ Pending | Must be for testing only and audit-logged |
+| 5.6 | `overrideCooldownAction` requires ADMIN or SUPER_ADMIN role | 🟠 High | ✅ Verified 2026-09-24 | Server role check, restricted self-test scope, and AuditLog transaction are in place |
 | 5.7 | Completing Day 3 unlocks only the next currently published waypoint selected by the server | 🟠 High | ✅ Implemented | Database ordering is used rather than a client ID or an `N+1` assumption |
 | 5.8 | Duplicate day completion is prevented by the unique `(userId, waypointId, dayLevel)` record, transaction lock, and completed-state check | 🔴 Critical | ✅ Implemented | Database and transactional defenses reject repeat or concurrent completion |
 | 5.9 | Game mode completion order is enforced server-side (DRAG_DROP → PUZZLE → SWAP → CUE → FILL) | 🟠 High | ✅ Implemented | Session-locked start and completion transactions derive the sole current mode from persisted completed attempts |
@@ -131,8 +131,8 @@ The server and database are the only sources of truth for all security-sensitive
 | 6.2 | Day 1/2/3 multipliers are calculated server-side using constants | 🟠 High | ✅ Verified 2026-09-24 | Reward repository calculates amount from the validated persisted day level |
 | 6.3 | Every point award inserts a `RewardLedger` record in the same transaction | 🟠 High | ✅ Verified 2026-09-24 | The ledger insert and balance increment share the gameplay transaction |
 | 6.4 | Duplicate reward claims are prevented by unique DB constraint + transaction | 🔴 Critical | ✅ Verified 2026-09-24 | Progression transaction guards completion and the unique reward idempotency key rejects duplicate awards |
-| 6.5 | Badge Glow Point rewards are awarded server-side via the badge engine | 🟠 High | ☐ Pending | Same rules as day completion rewards |
-| 6.6 | No XP system exists — Glow Points is the only currency | 🟢 Low | ☐ Pending | Code and comments must not reference XP or experience points |
+| 6.5 | Badge Glow Point rewards are awarded server-side via the badge engine | 🟠 High | ✅ Verified 2026-09-24 | Badge engine computes the reward from server-side definitions and writes ledger plus balance atomically |
+| 6.6 | Glow Points are the only spendable currency | 🟢 Low | ✅ Verified 2026-09-24 | Beacon XP and Crowns are non-spendable progression/prestige; only Glow Points are accepted by Oil Shop purchase logic |
 | 6.7 | Oil Shop purchases use a database transaction — balance + inventory + ledger updated atomically | 🔴 Critical | ✅ Complete | Per-user advisory lock, purchase snapshot, guarded deduction, and negative ledger row commit together |
 | 6.8 | Oil Shop purchase prevents negative Glow Points balance | 🔴 Critical | ✅ Complete | Conditional profile update requires the persisted balance to cover the server-owned item cost |
 | 6.9 | Users cannot purchase inactive or non-existent shop items | 🟡 Medium | ✅ Complete | Transaction re-reads active item type, cost, and grant quantity; the client supplies no reward values |
@@ -169,16 +169,16 @@ The server and database are the only sources of truth for all security-sensitive
 
 | # | Check | Risk | Status | Notes |
 |---|---|---|---|---|
-| 8.1 | Answer validation normalizes both user input and stored `normalizedText` before comparing | 🟡 Medium | ☐ Pending | Prevents case/punctuation unfairness |
-| 8.2 | `normalizedText` is generated server-side when a translation is saved — never client-generated | 🟠 High | ☐ Pending | Client cannot manipulate the normalized comparison target |
-| 8.3 | Swap mode tracks token positions, not word text values | 🟡 Medium | ☐ Pending | Duplicate words in a verse must be handled correctly |
-| 8.4 | Phrase generator is deterministic for a given input set | 🟢 Low | ☐ Pending | Prevents confusing phrase changes on retry |
-| 8.5 | Each `GameSession` belongs to the authenticated user — server validates ownership | 🔴 Critical | ☐ Pending | User A cannot write to User B's game session |
-| 8.6 | Completed game mode sessions cannot be submitted again for additional rewards | 🔴 Critical | ☐ Pending | `completeGameModeAction` checks existing records before inserting |
-| 8.7 | Hint usage is validated against the current Journey Stage server-side | 🔴 Critical | ☐ Pending | STRENGTHEN and MASTER stage hint requests are rejected regardless of client state |
-| 8.8 | Hint balance is enforced server-side — free allowance + purchased hints only | 🟡 Medium | ☐ Pending | Client cannot inflate the hint count |
-| 8.9 | Hint usage is recorded in `HintUsage` with session reference | 🟡 Medium | ☐ Pending | Auditability |
-| 8.10 | `CUE` mode is distinct from the Hint System — Cue Mode inputs are never blocked by hint count | 🟡 Medium | ☐ Pending | Cue Mode is a game mode; Hint System is a separate assistance feature |
+| 8.1 | Answer validation normalizes both user input and stored `normalizedText` before comparing | 🟡 Medium | ✅ Verified 2026-09-24 | Shared validator applies Unicode normalization, case folding, punctuation removal, and whitespace normalization to both values |
+| 8.2 | `normalizedText` is generated server-side when a translation is saved — never client-generated | 🟠 High | ✅ Verified 2026-09-24 | Verse repository derives normalized comparison text from the submitted canonical translation before persistence |
+| 8.3 | Swap mode tracks token positions, not word text values | 🟡 Medium | ✅ Verified 2026-09-24 | Swap state retains original token indexes so repeated words remain distinct |
+| 8.4 | Phrase generator is deterministic for a given input set | 🟢 Low | ✅ Verified 2026-09-24 | Session/day seed controls phrase chunk layout; retries reproduce the same arrangement |
+| 8.5 | Each `GameSession` belongs to the authenticated user — server validates ownership | 🔴 Critical | ✅ Verified 2026-09-24 | Gameplay repositories scope session reads and writes by the server-derived user ID |
+| 8.6 | Completed game mode sessions cannot be submitted again for additional rewards | 🔴 Critical | ✅ Verified 2026-09-24 | Completion transaction locks and checks persisted attempts before recording progress or rewards |
+| 8.7 | Hint usage is validated against the current Journey Stage server-side | 🔴 Critical | ✅ Verified 2026-09-24 | Hint repository verifies session ownership and stage under the consumption transaction; STRENGTHEN and MASTER are rejected |
+| 8.8 | Hint balance is enforced server-side — free allowance + purchased hints only | 🟡 Medium | ✅ Verified 2026-09-24 | Repository derives remaining allowance from persisted use and purchased entitlements inside a locked transaction |
+| 8.9 | Hint usage is recorded in `HintUsage` with session reference | 🟡 Medium | ✅ Verified 2026-09-24 | Every real consumption creates a `HintUsage` row with its game session and current mode |
+| 8.10 | `CUE` mode is distinct from the Hint System — Cue Mode inputs are never blocked by hint count | 🟡 Medium | ✅ Verified 2026-09-24 | Cue is in the server-enforced game-mode sequence; assistance consumption is a separate repository and action |
 | 8.11 | Vault replay is ownership-checked, mastery-gated, ordered, and isolated from campaign side effects | 🔴 Critical | ✅ Complete | Server-created Radiance replay sessions validate all five modes; no rewards, streaks, hints, cooldowns, or waypoint progression are written |
 
 ---
@@ -189,14 +189,14 @@ The server and database are the only sources of truth for all security-sensitive
 |---|---|---|---|---|
 | 9.1 | Leaderboard queries never return user email addresses | 🔴 Critical | ☑ Implemented | Phase 27 repository maps internal rows to display name, country, rank, and game statistics; raw IDs become an `isCurrentUser` boolean before leaving the repository |
 | 9.2 | Fellowship member lists never expose user emails | 🔴 Critical | ☑ Implemented | Fellowship DTOs return display name, country, and game statistics only; no email or raw user ID |
-| 9.3 | Public profile data is limited to display name, country, and game stats | 🟠 High | ☐ Pending | No email, no internal IDs in public responses |
-| 9.4 | Private Sanctuary notes are visible only to the note's owner | 🔴 Critical | ☐ Pending | Ownership check: `note.userId === session.user.id` |
-| 9.5 | Admin user management list is accessible only to SUPER_ADMIN | 🔴 Critical | ☐ Pending | Regular admins cannot see the full user list with emails |
-| 9.6 | Audit logs are readable only by SUPER_ADMIN | 🟠 High | ☐ Pending | Audit logs contain sensitive operational history |
-| 9.7 | Production error messages do not reveal stack traces, schema details, or Prisma errors | 🟠 High | ☐ Pending | Catch and sanitize all errors before returning to client |
-| 9.8 | Server logs never contain passwords, session tokens, or secret values | 🔴 Critical | ☐ Pending | Review all `logger.ts` calls |
+| 9.3 | Public profile data is limited to display name, country, and game stats | 🟠 High | ✅ Verified 2026-09-24 | Public leaderboard and fellowship DTOs omit email and internal account identifiers |
+| 9.4 | Private Sanctuary notes are visible only to the note's owner | 🔴 Critical | ✅ Verified 2026-09-24 | Note reads and writes include the server-derived owner ID in repository predicates |
+| 9.5 | Admin user management list is accessible only to SUPER_ADMIN | 🔴 Critical | ✅ Verified 2026-09-24 | Proxy and server data/action paths require SUPER_ADMIN |
+| 9.6 | Audit logs are readable only by SUPER_ADMIN | 🟠 High | ✅ Verified 2026-09-24 | Audit-log query actions require SUPER_ADMIN before repository access |
+| 9.7 | Production error messages do not reveal stack traces, schema details, or Prisma errors | 🟠 High | ✅ Verified 2026-09-24 | Action catch blocks return fixed/catalogue messages; errors are logged server-side and are not interpolated into client responses |
+| 9.8 | Server logs never contain passwords, session tokens, or secret values | 🔴 Critical | ✅ Verified 2026-09-24 | Logger now redacts common credential assignments, bearer tokens, and URL credentials; production omits error stacks. Feature log calls were source-reviewed |
 | 9.8A | Auth forms use POST as their native fallback so missing client JavaScript cannot place credentials in URLs or access logs | 🔴 Critical | ✅ Implemented | Login remains a Better Auth-backed Server Action after hydration |
-| 9.9 | Hidden badge names and descriptions are omitted from API responses for locked+hidden badges | 🟡 Medium | ☐ Pending | Only reveal badge identity on unlock |
+| 9.9 | Hidden badge names and descriptions are omitted from API responses for locked+hidden badges | 🟡 Medium | ✅ Verified 2026-09-24 | Badge response mapper masks name, slug, description, and icon until the hidden badge is unlocked |
 
 ---
 
@@ -206,11 +206,11 @@ The server and database are the only sources of truth for all security-sensitive
 |---|---|---|---|---|
 | 10.1 | Fellowship names are sanitized and escaped before rendering in the UI | 🟡 Medium | ☑ Implemented | Zod allow-list validation plus React text rendering prevents markup execution |
 | 10.2 | Fellowship descriptions are sanitized and escaped before rendering | 🟡 Medium | ☑ Implemented | Length-limited plain text is rendered only through escaped React text nodes |
-| 10.3 | User display names are sanitized and escaped before rendering | 🟡 Medium | ☐ Pending | Prevent XSS |
-| 10.4 | Sanctuary private notes are sanitized and escaped before rendering | 🟡 Medium | ☐ Pending | Prevent XSS |
-| 10.5 | Markdown or HTML rendering is never applied to user-generated content unless sanitized | 🟠 High | ☐ Pending | If markdown rendering is added, use a sanitization library like DOMPurify |
-| 10.6 | Length limits are enforced server-side (Zod) for all user-generated fields | 🟡 Medium | ☐ Pending | Prevent storage abuse and UI overflow |
-| 10.7 | React JSX renders all user content as text nodes — `dangerouslySetInnerHTML` is never used | 🟠 High | ☐ Pending | React escapes text by default; `dangerouslySetInnerHTML` bypasses this |
+| 10.3 | User display names are sanitized and escaped before rendering | 🟡 Medium | ✅ Verified 2026-09-24 | Settings schema allow-lists characters and UI outputs use React text rendering |
+| 10.4 | Sanctuary private notes are sanitized and escaped before rendering | 🟡 Medium | ✅ Verified 2026-09-24 | Note text is length-limited and rendered as escaped React text; it is never treated as HTML or Markdown |
+| 10.5 | Markdown or HTML rendering is never applied to user-generated content unless sanitized | 🟠 High | ✅ Verified 2026-09-24 | Sanctuary Markdown renders administrator-authored study content; learner notes remain plain escaped text |
+| 10.6 | Length limits are enforced server-side (Zod) for all user-generated fields | 🟡 Medium | ✅ Verified 2026-09-24 | Verse content, Fellowship fields, profile names, private notes, badge definitions, and admin-authored study sections have explicit schema bounds |
+| 10.7 | User content is never passed to `dangerouslySetInnerHTML` | 🟠 High | ✅ Verified 2026-09-24 | The sole use is a fixed project-authored JSON-LD object on the landing page; it contains no user content |
 
 ---
 
@@ -218,14 +218,15 @@ The server and database are the only sources of truth for all security-sensitive
 
 | # | Check | Risk | Status | Notes |
 |---|---|---|---|---|
-| 11.1 | Login attempts are rate-limited per IP (e.g., 10 per 15 minutes) | 🟠 High | ☐ Pending | Brute force prevention |
-| 11.2 | Registration attempts are rate-limited per IP | 🟡 Medium | ☐ Pending | Spam account prevention |
-| 11.3 | Password reset requests are rate-limited per email | 🟠 High | ☐ Pending | Prevent email flooding |
-| 11.4 | Game completion submissions are protected against rapid repeated calls | 🟡 Medium | ☐ Pending | Unique constraint handles duplicates, but rate limiting adds defense in depth |
-| 11.5 | Hint usage action is rate-limited or guarded against rapid fire requests | 🟢 Low | ☐ Pending | Unique constraint prevents duplicate deduction |
+| 11.1 | Login attempts are rate-limited per IP (e.g., 10 per 15 minutes) | 🟠 High | ✅ Verified 2026-09-24 | Better Auth database-backed limit: 10 sign-in attempts per IP per 15 minutes; deployment proxy/IP trust still needs host-specific verification |
+| 11.2 | Registration attempts are rate-limited per IP | 🟡 Medium | ✅ Verified 2026-09-24 | Better Auth database-backed limit: 5 sign-ups per IP per hour; deployment proxy/IP trust still needs host-specific verification |
+| 11.3 | Password reset requests are rate-limited per email | 🟠 High | ✅ Verified 2026-09-24 | Action uses a Better Auth secret-keyed HMAC of the normalized address in the existing `RateLimit` table, with an atomic PostgreSQL lock and five requests per fixed 15-minute window; the dedicated local integration test passed, and Better Auth also limits by IP |
+| 11.4 | Game completion submissions are protected against rapid repeated calls | 🟡 Medium | ✅ Verified 2026-09-24 | Transaction lock, completed-state check, and database uniqueness make repeated completion requests fail safely |
+| 11.5 | Hint usage action is rate-limited or guarded against rapid fire requests | 🟢 Low | ✅ Verified 2026-09-24 | Hint-balance lock and transaction recheck prevent rapid calls from consuming beyond persisted allowance |
 | 11.6 | Fellowship creation is rate-limited per user | 🟡 Medium | ☑ Implemented | Per-user advisory locking and a maximum of three creations per rolling 24 hours prevent rapid spam |
-| 11.7 | Private Fellowship requests are unique and leader-authorized | 🟠 High | ☑ Implemented | One durable request per learner/fellowship prevents duplicate pending requests; repository ownership checks and locked transactions protect approval and membership creation |
-| 11.8 | Admin bulk actions are confirmation-gated in the UI | 🟡 Medium | ☐ Pending | Prevent accidental destructive actions |
+| 11.7 | Private Fellowship requests are unique and leader-authorized | 🟠 High | ✅ Verified 2026-09-24 | One durable request per learner/fellowship prevents duplicate pending requests; repository ownership checks and locked transactions protect approval and membership creation |
+| 11.8 | Admin bulk actions are confirmation-gated in the UI | 🟡 Medium | ✅ Verified 2026-09-24 | CSV import requires explicit preview confirmation; destructive per-record admin mutations use confirmation controls |
+| 11.9 | Production client IP rate limits trust only forwarding headers from the selected hosting proxy | 🟠 High | ☐ Pending | The hosting provider is not selected; forwarded-header trust and `getRequestIp` must be verified against its proxy contract before launch |
 
 ---
 
@@ -233,15 +234,15 @@ The server and database are the only sources of truth for all security-sensitive
 
 | # | Check | Risk | Status | Notes |
 |---|---|---|---|---|
-| 12.1 | `DATABASE_URL` is stored only in environment variables — never committed to source control | 🔴 Critical | ☐ Pending | `.env` must be in `.gitignore` |
-| 12.2 | Unique constraint exists on `UserDayProgress (userId, waypointId, dayLevel)` | 🔴 Critical | ☐ Pending | Core duplicate reward prevention |
-| 12.3 | Unique constraint exists on `UserBadgeProgress (userId, badgeId)` | 🔴 Critical | ☐ Pending | Prevents duplicate badge awards |
-| 12.4 | `RewardLedger` records are never deleted or updated — insert only | 🟠 High | ☐ Pending | Immutable audit trail |
-| 12.5 | Foreign key relations are defined and enforced in the Prisma schema | 🟠 High | ☐ Pending | Data integrity |
-| 12.6 | Cascading deletes are explicitly reviewed — no accidental data loss | 🟠 High | ☐ Pending | Deleting a verse must not silently delete user progress |
-| 12.7 | Indexes exist on `(userId, waypointId)` for progress queries | 🟡 Medium | ☐ Pending | Performance |
+| 12.1 | `DATABASE_URL` is stored only in environment variables — never committed to source control | 🔴 Critical | ✅ Verified 2026-09-24 | Local `.env` exists, is ignored, and is not tracked; Git history contains only the placeholder `.env.example` |
+| 12.2 | Unique constraint exists on `UserDayProgress (userId, waypointId, dayLevel)` | 🔴 Critical | ✅ Verified 2026-09-24 | Prisma schema declares the composite unique constraint used by progression completion |
+| 12.3 | Unique constraint exists on `UserBadgeProgress (userId, badgeId)` | 🔴 Critical | ✅ Verified 2026-09-24 | Prisma schema declares the composite unique constraint used by badge unlock idempotency |
+| 12.4 | `RewardLedger` records are never deleted or updated — insert only | 🟠 High | ✅ Verified 2026-09-24 | Production reward paths append ledger rows only; deletion is limited to guarded local test/fixture reset repositories |
+| 12.5 | Foreign key relations are defined and enforced in the Prisma schema | 🟠 High | ✅ Verified 2026-09-24 | Prisma relations use database foreign keys with explicit referential actions |
+| 12.6 | Cascading deletes are explicitly reviewed — no accidental data loss | 🟠 High | ✅ Verified 2026-09-24 | Curriculum/verse history relations restrict destructive deletes; retained cascade behavior is limited to owned dependent records |
+| 12.7 | Indexes exist on `(userId, waypointId)` for progress queries | 🟡 Medium | ✅ Verified 2026-09-24 | `UserDayProgress` has the compound index and unique key used by learner progress reads |
 | 12.8 | Indexes exist on `(totalGlowPoints DESC)` and `(currentStreak DESC)` for leaderboard queries | 🟡 Medium | ☑ Implemented | `UserProfile` and `UserStreak` include descending leaderboard indexes; country also has a composite ranking index |
-| 12.9 | Database transactions are used for all multi-write operations | 🔴 Critical | ☐ Pending | Day completion, reward award, shop purchase, waypoint unlock |
+| 12.9 | Database transactions are used for security-sensitive multi-write operations | 🔴 Critical | ✅ Verified 2026-09-24 | Source review confirmed completion/unlock, Glow and badge awards, shop purchases, role changes, and audited admin mutations use repository transactions; one-write operations remain atomic single statements |
 | 12.10 | The database user in `DATABASE_URL` has only the permissions needed (not superuser) | 🟠 High | ☐ Pending | Principle of least privilege |
 | 12.11 | `prisma migrate dev` is never run against the production database | 🔴 Critical | ☐ Pending | Use `prisma migrate deploy` in production |
 
@@ -251,12 +252,12 @@ The server and database are the only sources of truth for all security-sensitive
 
 | # | Check | Risk | Status | Notes |
 |---|---|---|---|---|
-| 13.1 | `.env` is listed in `.gitignore` | 🔴 Critical | ☐ Pending | Never commit secrets |
-| 13.2 | `.env.example` exists with placeholder values only — no real secrets | 🟡 Medium | ☐ Pending | Developer onboarding |
-| 13.3 | Auth secret is cryptographically random and at least 32 characters | 🔴 Critical | ☐ Pending | Use `openssl rand -base64 32` to generate |
+| 13.1 | `.env` is listed in `.gitignore` | 🔴 Critical | ✅ Verified 2026-09-24 | Ignore rules cover local environment files; `.env` is not tracked |
+| 13.2 | `.env.example` exists with placeholder values only — no real secrets | 🟡 Medium | ✅ Verified 2026-09-24 | Example contains local placeholder URLs and a placeholder auth secret only |
+| 13.3 | Auth secret is cryptographically random and at least 32 characters | 🔴 Critical | ✅ Verified 2026-09-24 | Local secret length was checked without exposing its value; it meets the minimum length. Production secret remains unconfigured until deployment |
 | 13.4 | Production and development/staging secrets are completely separate | 🟠 High | ☐ Pending | No shared secrets across environments |
-| 13.5 | All `NEXT_PUBLIC_*` environment variables are reviewed — none contain secrets | 🔴 Critical | ☐ Pending | `NEXT_PUBLIC_*` variables are exposed in browser bundles |
-| 13.6 | Secrets are rotated immediately if a `.env` file is ever accidentally committed | 🔴 Critical | ☐ Pending | Treat any committed secret as compromised |
+| 13.5 | All `NEXT_PUBLIC_*` environment variables are reviewed — none contain secrets | 🔴 Critical | ✅ Verified 2026-09-24 | Only `NEXT_PUBLIC_APP_URL` is declared and it is a public URL, not a credential |
+| 13.6 | Secrets are rotated immediately if a `.env` file is ever accidentally committed | 🔴 Critical | ✅ Verified 2026-09-24 | No secret-bearing environment file appears in tracked files or repository history; any future exposure requires immediate rotation |
 
 ---
 
@@ -264,14 +265,14 @@ The server and database are the only sources of truth for all security-sensitive
 
 | # | Check | Risk | Status | Notes |
 |---|---|---|---|---|
-| 14.1 | Client components never contain secrets or sensitive configuration | 🔴 Critical | ☐ Pending | All client code is visible in browser dev tools |
-| 14.2 | Client state is never trusted for authorization decisions | 🔴 Critical | ☐ Pending | Server validates everything independently |
-| 14.3 | Form submit buttons are disabled during submission to prevent double-submit | 🟡 Medium | ☐ Pending | UX and abuse reduction |
-| 14.4 | Sonner toast messages never expose stack traces, raw Prisma errors, secrets, private data, or internal IDs | 🟡 Medium | ☐ Pending | Complex failures show a safe message and stable catalogue code only |
-| 14.5 | Error boundaries render safe, generic messages — no internal stack traces | 🟡 Medium | ☐ Pending | `error.tsx` must not render raw error objects |
-| 14.6 | `prefers-reduced-motion` preference is respected — animations disabled when set | 🟢 Low | ☐ Pending | Accessibility requirement |
+| 14.1 | Client components never contain secrets or sensitive configuration | 🔴 Critical | ✅ Verified 2026-09-24 | Client-source environment references are limited to public configuration; server secrets remain in server modules |
+| 14.2 | Client state is never trusted for authorization decisions | 🔴 Critical | ✅ Verified 2026-09-24 | Server Actions and repositories re-check session, role, ownership, progress, and purchase state at mutation boundaries |
+| 14.3 | Form submit buttons are disabled during submission to prevent double-submit | 🟡 Medium | ✅ Verified 2026-09-24 | Shared LoadingButton and form transitions expose pending labels and disable repeat submits |
+| 14.4 | Sonner toast messages never expose stack traces, raw Prisma errors, secrets, private data, or internal IDs | 🟡 Medium | ✅ Verified 2026-09-24 | Phase 31 toast audit reviewed player-facing action and error copy; failures use fixed messages or safe catalogue entries |
+| 14.5 | Error boundaries render safe, generic messages — no internal stack traces | 🟡 Medium | ✅ Verified 2026-09-24 | App error boundaries show generic recovery UI and do not render underlying error objects |
+| 14.6 | `prefers-reduced-motion` preference is respected — animations disabled when set | 🟢 Low | ✅ Verified 2026-09-24 | OS preference and saved in-app preference both reach Framer Motion; independent and combined manual checks were accepted in Phase 31 |
 | 14.7 | Security headers are configured in `next.config.ts` | 🟡 Medium | 🟡 In progress | X-Frame-Options, X-Content-Type-Options, Referrer-Policy, and Permissions-Policy are configured. CSP remains open for nonce/rendering compatibility review; Next.js documents that nonce CSP requires dynamic rendering. |
-| 14.8 | Error-reference entries are safe for browser delivery and the reference route verifies ADMIN authorization server-side | 🟡 Medium | ☐ Pending | Codes describe conditions; detailed private diagnostics remain server-only |
+| 14.8 | Error-reference entries are safe for browser delivery and the reference route verifies ADMIN authorization server-side | 🟡 Medium | ✅ Verified 2026-09-24 | Reference is generated from the safe error catalogue and the route/action performs server role checks |
 
 Recommended security headers configuration:
 ```ts
@@ -299,17 +300,17 @@ const nextConfig = {
 
 | # | Check | Risk | Status | Notes |
 |---|---|---|---|---|
-| 15.1 | Admin dashboard is protected by ADMIN or SUPER_ADMIN role at Proxy level | 🔴 Critical | ☐ Pending | Optimistic navigation-level protection |
-| 15.2 | Admin dashboard is protected by ADMIN or SUPER_ADMIN role at action and data-access level | 🔴 Critical | ☐ Pending | Secure authorization — Proxy alone is not enough |
-| 15.3 | Verse create/update/publish actions check ADMIN+ role | 🔴 Critical | ☐ Pending | Per-action check |
-| 15.4 | Pack create/update/publish actions check ADMIN+ role | 🔴 Critical | ☐ Pending | Per-action check |
-| 15.5 | Waypoint create/assign/reorder actions check ADMIN+ role | 🔴 Critical | ☐ Pending | Per-action check |
-| 15.6 | Badge create/update/toggle actions check ADMIN+ role | 🔴 Critical | ☐ Pending | Per-action check |
-| 15.7 | User role changes require SUPER_ADMIN and are logged | 🔴 Critical | ☐ Pending | Highest privilege escalation risk |
+| 15.1 | Admin dashboard is protected by ADMIN or SUPER_ADMIN role at Proxy level | 🔴 Critical | ✅ Verified 2026-09-24 | Root Proxy protects admin routes and applies the stricter SUPER_ADMIN rule to user management |
+| 15.2 | Admin dashboard is protected by ADMIN or SUPER_ADMIN role at action and data-access level | 🔴 Critical | ✅ Verified 2026-09-24 | Admin actions and data loaders perform server-side role checks independently of Proxy |
+| 15.3 | Verse create/update/publish actions check ADMIN+ role | 🔴 Critical | ✅ Verified 2026-09-24 | Every verse mutation checks administrator role before repository writes |
+| 15.4 | Pack create/update/publish actions check ADMIN+ role | 🔴 Critical | ✅ Verified 2026-09-24 | Every pack mutation checks administrator role before repository writes |
+| 15.5 | Waypoint create/assign/reorder actions check ADMIN+ role | 🔴 Critical | ✅ Verified 2026-09-24 | Every curriculum mutation checks administrator role before repository writes |
+| 15.6 | Badge create/update/toggle actions check ADMIN+ role | 🔴 Critical | ✅ Verified 2026-09-24 | Every badge-definition mutation checks administrator role before repository writes |
+| 15.7 | User role changes require SUPER_ADMIN and are logged | 🔴 Critical | ✅ Verified 2026-09-24 | Role-change action requires SUPER_ADMIN; role update and actor-linked audit row commit in one repository transaction |
 | 15.8 | Cooldown override actions require ADMIN+ and are logged in AuditLog | 🟠 High | ☑ Implemented | Self-testing only; server derives the affected admin identity and atomically logs actor, day progress, timing, scope, and request IP |
-| 15.9 | Manual badge awards require SUPER_ADMIN and are logged in AuditLog | 🔴 Critical | ☐ Pending | Every manual award logged |
-| 15.10 | Destructive admin actions (delete verse, archive waypoint) require confirmation dialog | 🟡 Medium | ☐ Pending | Prevent accidental data deletion |
-| 15.11 | Admin audit log is readable only by SUPER_ADMIN | 🟠 High | ☐ Pending | Regular admins must not read the audit trail |
+| 15.9 | Manual badge awards require SUPER_ADMIN and are logged in AuditLog | 🔴 Critical | ✅ Verified 2026-09-24 | Manual award action requires SUPER_ADMIN and repository records the actor-linked audit row transactionally |
+| 15.10 | Destructive admin actions (delete verse, archive waypoint) require confirmation dialog | 🟡 Medium | ✅ Verified 2026-09-24 | Verse status, waypoint deletion/visibility, unassignment, and account deletion use confirmation controls |
+| 15.11 | Admin audit log is readable only by SUPER_ADMIN | 🟠 High | ✅ Verified 2026-09-24 | Audit-log reader checks SUPER_ADMIN before repository access |
 
 ---
 
@@ -326,8 +327,8 @@ const nextConfig = {
 | 16.7 | Database is not publicly accessible — only accessible from the application server | 🟠 High | ☐ Pending | Network-level protection |
 | 16.8 | `NODE_ENV=production` is set in the deployment environment | 🟠 High | ☐ Pending | Disables Prisma query logging, enables production optimizations |
 | 16.9 | Database backup strategy is in place | 🟡 Medium | ☐ Pending | Recovery planning |
-| 16.10 | npm audit shows no critical or high vulnerabilities | 🟠 High | ☐ Pending | Run `npm audit` before every deployment |
-| 16.11 | Dependency versions are pinned or regularly audited | 🟡 Medium | ☐ Pending | Consider Dependabot or equivalent |
+| 16.10 | npm audit shows no critical or high vulnerabilities | 🟠 High | ☐ Pending | Registry audit was blocked by automatic approval review because it would disclose dependency names and versions to the public npm registry; explicit owner approval is pending |
+| 16.11 | Dependency versions are pinned or regularly audited | 🟡 Medium | ✅ Verified 2026-09-24 | `package-lock.json` pins the installed dependency graph; vulnerability audit remains a separate deployment gate |
 
 ---
 

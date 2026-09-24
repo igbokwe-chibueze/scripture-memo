@@ -71,7 +71,11 @@ export async function registerAction(
   } catch {
     return {
       success: false,
-      message: "We could not create that account. Try logging in instead.",
+      // WHY: Use neutral copy rather than repeating provider-specific errors.
+      // This does not hide the action's success status; full duplicate-address
+      // protection requires an email-verification or equivalent signup flow.
+      message:
+        "We could not create your account. Please review your details or try again later.",
     };
   }
 }
