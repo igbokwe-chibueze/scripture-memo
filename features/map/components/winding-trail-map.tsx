@@ -23,7 +23,7 @@ import { FlagIcon, LocateFixedIcon, MapIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TrailNavigator } from "@/features/map/components/trail-navigator";
 import { WaypointCard } from "@/features/map/components/waypoint-card";
-import { getMapTheme } from "@/features/map/data/map-themes";
+import { getMapThemeForTrail } from "@/features/map/data/map-themes";
 import { groupMapWaypoints } from "@/features/map/lib/map-utils";
 import type { MapWaypoint } from "@/features/map/types/map.types";
 
@@ -229,7 +229,13 @@ export function WindingTrailMap({
 
       <div className="space-y-7">
         {visibleGroups.map((group) => {
-          const theme = getMapTheme(group.index);
+          const firstWaypoint = group.waypoints[0];
+          if (!firstWaypoint) return null;
+
+          const theme = getMapThemeForTrail(
+            group.index + 1,
+            firstWaypoint.trailThemeId,
+          );
 
           return (
             <section

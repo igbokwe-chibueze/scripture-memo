@@ -20,7 +20,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { getMapTheme } from "@/features/map/data/map-themes";
+import { getMapThemeForTrail } from "@/features/map/data/map-themes";
 import type { MapWaypointGroup } from "@/features/map/types/map.types";
 import { WaypointStatus } from "@/lib/generated/prisma/enums";
 import { cn } from "@/lib/utils";
@@ -98,7 +98,13 @@ export function TrailNavigator({
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4">
           <div className="space-y-3">
             {groups.map((group) => {
-              const theme = getMapTheme(group.index);
+              const firstWaypoint = group.waypoints[0];
+              if (!firstWaypoint) return null;
+
+              const theme = getMapThemeForTrail(
+                group.index + 1,
+                firstWaypoint.trailThemeId,
+              );
               const isCurrent = group.index === currentGroupIndex;
               const isLocked = group.waypoints.every(
                 ({ status }) => status === WaypointStatus.LOCKED,

@@ -15,9 +15,16 @@ export type MapThemePosition = {
   y: number;
 };
 
+/** Closed set of built-in PNGs allowed in persistent trail assignments. */
+export const MAP_THEME_IDS = ["coastal", "desert", "temple"] as const;
+
+export type MapThemeId = (typeof MAP_THEME_IDS)[number];
+
 export type MapTheme = {
   /** Stable internal identifier used by tests and future visual analytics. */
-  id: "coastal" | "desert" | "temple";
+  id: MapThemeId;
+  /** Short human-readable name shown in administrator artwork controls. */
+  name: string;
   /** Accessible description of the illustrated setting. */
   alt: string;
   /** Root-relative path under `public/`; no remote image host is involved. */
@@ -30,6 +37,11 @@ export type MapTheme = {
   /** Five centers tuned independently for the larger button dimensions. */
   largePositions: readonly MapThemePosition[];
 };
+
+/** Narrows untrusted database strings to the built-in theme catalogue. */
+export function isMapThemeId(value: string | null | undefined): value is MapThemeId {
+  return MAP_THEME_IDS.some((themeId) => themeId === value);
+}
 
 /**
  * Every current and future trail illustration uses this owner-approved rhythm
@@ -47,6 +59,7 @@ const TRAIL_POSITIONS = [
 
 const COASTAL_THEME: MapTheme = {
   id: "coastal",
+  name: "Coastal village",
   alt: "A winding coastal road through a sunlit Mediterranean village",
   imageSrc: "/images/maps/trail-map-1.png",
   width: 941,
@@ -57,6 +70,7 @@ const COASTAL_THEME: MapTheme = {
 
 const DESERT_THEME: MapTheme = {
   id: "desert",
+  name: "Desert valley",
   alt: "A winding stone road crossing a warm desert valley at sunset",
   imageSrc: "/images/maps/trail-map-2.png",
   width: 941,
@@ -67,6 +81,7 @@ const DESERT_THEME: MapTheme = {
 
 const TEMPLE_THEME: MapTheme = {
   id: "temple",
+  name: "Temple gardens",
   alt: "A mountain road climbing through gardens and ruins toward a temple",
   imageSrc: "/images/maps/trail-map-3.png",
   width: 941,
@@ -75,7 +90,7 @@ const TEMPLE_THEME: MapTheme = {
   largePositions: TRAIL_POSITIONS,
 };
 
-/** Public order controls the repeating Map 1 → Map 2 → Map 3 sequence. */
+/** Public catalogue powers previews and validates durable trail assignments. */
 export const MAP_THEMES: readonly MapTheme[] = [
   COASTAL_THEME,
   DESERT_THEME,
@@ -83,14 +98,31 @@ export const MAP_THEMES: readonly MapTheme[] = [
 ];
 
 /**
- * Returns one illustration for any five-waypoint group. Modulo repetition means
- * newly appended curriculum groups continue the three-image cycle indefinitely.
+ * Resolves one five-waypoint trail's chosen artwork, falling back to the
+ * original repeating catalogue order when no administrator assignment exists.
+ *
+ * Admin assignments are global and take precedence. The fallback cycles
+ * Coastal → Desert → Temple by trail number, preserving the map sequence that
+ * existed before assignment controls were added. Theme IDs are checked against
+ * the local catalogue so stale or malformed stored values safely use that
+ * original sequence instead.
  */
-export function getMapTheme(groupIndex: number): MapTheme {
-  const normalizedIndex =
-    ((groupIndex % MAP_THEMES.length) + MAP_THEMES.length) % MAP_THEMES.length;
-  const theme = MAP_THEMES[normalizedIndex];
+export function getMapThemeForTrail(
+  trailNumber: number,
+  assignedThemeId?: string | null,
+): MapTheme {
+  if (!Number.isSafeInteger(trailNumber) || trailNumber < 1) {
+    throw new Error("Trail number must be a positive safe integer.");
+  }
 
+  const assignedTheme = MAP_THEMES.find(({ id }) => id === assignedThemeId);
+  if (assignedTheme) return assignedTheme;
+
+  // Trail numbering is one-based, while the catalogue cycle is zero-based.
+  // This is deterministic, writes no fallback rows, and matches the original
+  // artwork selection for every unassigned trail.
+  const themeIndex = (trailNumber - 1) % MAP_THEMES.length;
+  const theme = MAP_THEMES[themeIndex];
   if (!theme) throw new Error("Map theme configuration is empty.");
   return theme;
 }

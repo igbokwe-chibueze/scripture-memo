@@ -35,6 +35,7 @@ export function WaypointButtonShowcase(): React.ReactNode {
     status,
     flameCount,
     isCurrent,
+    trailThemeId: "coastal",
   };
 
   const previewSelection = (): void => {

@@ -37,10 +37,10 @@ The server and database are the only sources of truth for all security-sensitive
 
 | # | Check | Risk | Status | Notes |
 |---|---|---|---|---|
-| 1.1 | Project uses root-based folder structure — no `src/` folder exists | 🟢 Low | ☐ Pending | Required by project standard |
-| 1.2 | Route files in `app/` are one-line re-exports only — no logic | 🟡 Medium | ☐ Pending | Business logic in route files is untestable and bypasses Server Action guards |
-| 1.3 | Prisma is imported only inside repository files | 🟠 High | ☐ Pending | Uncontrolled Prisma access bypasses repository abstractions and makes queries untestable |
-| 1.4 | Server Actions never call Prisma directly — always call repositories | 🟠 High | ☐ Pending | Same risk as above |
+| 1.1 | Project uses root-based folder structure — no `src/` folder exists | 🟢 Low | ✅ Verified 2026-09-24 | Repository scan confirmed no `src/` directory |
+| 1.2 | Route files in `app/` are one-line re-exports only — no logic | 🟡 Medium | ✅ Verified 2026-09-24 | All `page.tsx` route files are single-line re-exports; the auth handler and framework boundaries are intentional exceptions |
+| 1.3 | Prisma is imported only inside repository files | 🟠 High | ✅ Verified 2026-09-24 | Source scan found no Prisma singleton imports outside repositories, `lib/prisma.ts`, or Better Auth adapter initialization |
+| 1.4 | Server Actions never call Prisma directly — always call repositories | 🟠 High | ✅ Verified 2026-09-24 | Source scan found no Prisma imports in action files |
 | 1.5 | No feature imports another feature's internal components, hooks, or views | 🟡 Medium | ☐ Pending | Tight coupling breaks feature isolation and makes refactoring dangerous |
 | 1.6 | No empty or speculative folders exist in the project | 🟢 Low | ☐ Pending | Project clarity and maintainability |
 | 1.7 | Barrel files do not exist inside sub-folders (`actions/index.ts` etc.) | 🟢 Low | ☐ Pending | Barrel files inside sub-folders can cause circular dependency issues |
@@ -118,7 +118,7 @@ The server and database are the only sources of truth for all security-sensitive
 | 5.8 | Duplicate day completion is prevented by the unique `(userId, waypointId, dayLevel)` record, transaction lock, and completed-state check | 🔴 Critical | ✅ Implemented | Database and transactional defenses reject repeat or concurrent completion |
 | 5.9 | Game mode completion order is enforced server-side (DRAG_DROP → PUZZLE → SWAP → CUE → FILL) | 🟠 High | ✅ Implemented | Session-locked start and completion transactions derive the sole current mode from persisted completed attempts |
 | 5.10 | A day cannot be marked complete unless all five modes are recorded as complete | 🔴 Critical | ✅ Implemented | The completion transaction invokes day completion only when the ordered mode sequence has no next mode |
-| 5.11 | Journey Stage hint rules are enforced server-side in `useHintAction` | 🔴 Critical | ☐ Pending | STRENGTHEN and MASTER stage requests must be rejected at the action level |
+| 5.11 | Journey Stage hint rules are enforced server-side in `useHintAction` | 🔴 Critical | ✅ Verified 2026-09-24 | Repository rechecks the owned active session's stage inside the consumption transaction and rejects STRENGTHEN/MASTER |
 | 5.12 | Journey Stage time limit rules are enforced server-side | 🟠 High | ✅ Complete | Per-mode limits are Recall 5m, Strengthen 3m, Master 2m; persisted attempt time is authoritative and client timers are display-only |
 
 ---
@@ -127,10 +127,10 @@ The server and database are the only sources of truth for all security-sensitive
 
 | # | Check | Risk | Status | Notes |
 |---|---|---|---|---|
-| 6.1 | Glow Points are awarded server-side only — client never sends a point amount | 🔴 Critical | ☐ Pending | Point values are read from server constants, never from request body |
-| 6.2 | Day 1/2/3 multipliers are calculated server-side using constants | 🟠 High | ☐ Pending | Client cannot manipulate the multiplier |
-| 6.3 | Every point award inserts a `RewardLedger` record in the same transaction | 🟠 High | ☐ Pending | Provides immutable audit trail |
-| 6.4 | Duplicate reward claims are prevented by unique DB constraint + transaction | 🔴 Critical | ☐ Pending | The `(userId, waypointId, dayLevel)` constraint is the final guard |
+| 6.1 | Glow Points are awarded server-side only — client never sends a point amount | 🔴 Critical | ✅ Verified 2026-09-24 | Completion action accepts answer evidence only; server reward constants determine the award |
+| 6.2 | Day 1/2/3 multipliers are calculated server-side using constants | 🟠 High | ✅ Verified 2026-09-24 | Reward repository calculates amount from the validated persisted day level |
+| 6.3 | Every point award inserts a `RewardLedger` record in the same transaction | 🟠 High | ✅ Verified 2026-09-24 | The ledger insert and balance increment share the gameplay transaction |
+| 6.4 | Duplicate reward claims are prevented by unique DB constraint + transaction | 🔴 Critical | ✅ Verified 2026-09-24 | Progression transaction guards completion and the unique reward idempotency key rejects duplicate awards |
 | 6.5 | Badge Glow Point rewards are awarded server-side via the badge engine | 🟠 High | ☐ Pending | Same rules as day completion rewards |
 | 6.6 | No XP system exists — Glow Points is the only currency | 🟢 Low | ☐ Pending | Code and comments must not reference XP or experience points |
 | 6.7 | Oil Shop purchases use a database transaction — balance + inventory + ledger updated atomically | 🔴 Critical | ✅ Complete | Per-user advisory lock, purchase snapshot, guarded deduction, and negative ledger row commit together |
@@ -270,7 +270,7 @@ The server and database are the only sources of truth for all security-sensitive
 | 14.4 | Sonner toast messages never expose stack traces, raw Prisma errors, secrets, private data, or internal IDs | 🟡 Medium | ☐ Pending | Complex failures show a safe message and stable catalogue code only |
 | 14.5 | Error boundaries render safe, generic messages — no internal stack traces | 🟡 Medium | ☐ Pending | `error.tsx` must not render raw error objects |
 | 14.6 | `prefers-reduced-motion` preference is respected — animations disabled when set | 🟢 Low | ☐ Pending | Accessibility requirement |
-| 14.7 | Security headers are configured in `next.config.ts` | 🟡 Medium | ☐ Pending | X-Frame-Options, X-Content-Type-Options, Referrer-Policy, CSP |
+| 14.7 | Security headers are configured in `next.config.ts` | 🟡 Medium | 🟡 In progress | X-Frame-Options, X-Content-Type-Options, Referrer-Policy, and Permissions-Policy are configured. CSP remains open for nonce/rendering compatibility review; Next.js documents that nonce CSP requires dynamic rendering. |
 | 14.8 | Error-reference entries are safe for browser delivery and the reference route verifies ADMIN authorization server-side | 🟡 Medium | ☐ Pending | Codes describe conditions; detailed private diagnostics remain server-only |
 
 Recommended security headers configuration:
@@ -317,10 +317,10 @@ const nextConfig = {
 
 | # | Check | Risk | Status | Notes |
 |---|---|---|---|---|
-| 16.1 | Production build passes `tsc --noEmit` with zero errors | 🟠 High | ☐ Pending | Type safety in production |
-| 16.2 | Lint passes with zero errors | 🟡 Medium | ☐ Pending | Code quality |
-| 16.3 | No `console.log` debug statements remain — use `lib/logger.ts` | 🟡 Medium | ☐ Pending | Avoid data leaks in logs |
-| 16.4 | No `any` types exist in the codebase | 🟠 High | ☐ Pending | TypeScript integrity |
+| 16.1 | Production build passes `tsc --noEmit` with zero errors | 🟠 High | ✅ Verified 2026-09-24 | `npx tsc --noEmit` passed during this audit; full production build remains a separate deployment check |
+| 16.2 | Lint passes with zero errors | 🟡 Medium | ✅ Verified 2026-09-24 | Full ESLint command passed during this audit |
+| 16.3 | No `console.log` debug statements remain — use `lib/logger.ts` | 🟡 Medium | ✅ Verified 2026-09-24 | No application-source debug logs found; the only remaining call prints local integration database startup status |
+| 16.4 | No `any` types exist in the codebase | 🟠 High | ✅ Verified 2026-09-24 | Explicit TypeScript `any` annotation/cast scan found no matches |
 | 16.5 | HTTPS is enforced by the hosting provider — no plain HTTP in production | 🔴 Critical | ☐ Pending | Transport security |
 | 16.6 | Database connection uses SSL in production | 🟠 High | ☐ Pending | Transport encryption for DB connections |
 | 16.7 | Database is not publicly accessible — only accessible from the application server | 🟠 High | ☐ Pending | Network-level protection |

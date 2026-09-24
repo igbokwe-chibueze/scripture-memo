@@ -804,3 +804,14 @@ model RateLimit {
 
   @@map("rateLimit")
 }
+
+/// Stores an explicit bundled-artwork choice for a one-based Map A trail.
+/// Missing rows intentionally mean that the trail uses the repeating catalogue default.
+model MapTrailArtwork {
+  trailNumber Int      @id
+  themeId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("mapTrailArtwork")
+}

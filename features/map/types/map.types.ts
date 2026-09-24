@@ -1,4 +1,5 @@
 import type { JourneyStage, WaypointStatus } from "@/lib/generated/prisma/enums";
+import type { MapThemeId } from "@/features/map/data/map-themes";
 
 /**
  * Stable identifiers used by comparative pre-launch map testing.
@@ -31,6 +32,8 @@ export type MapWaypoint = {
   flameCount: number;
   /** True only for the lowest playable unfinished waypoint in the curriculum. */
   isCurrent: boolean;
+  /** Shared artwork choice for the five-waypoint Map A trail containing this node. */
+  trailThemeId: MapThemeId;
 };
 
 /**
@@ -48,4 +51,22 @@ export type MapWaypointGroup = {
   endNumber: number;
   /** Ordered nodes mounted for the selected section only. */
   waypoints: MapWaypoint[];
+};
+
+/** Renderable built-in map option passed to the admin artwork picker. */
+export type MapArtworkOption = {
+  id: MapThemeId;
+  name: string;
+  alt: string;
+  imageSrc: string;
+};
+
+/** One published trail and the explicit/effective artwork shown to its admin. */
+export type MapTrailArtworkRow = {
+  trailNumber: number;
+  firstWaypointNumber: number;
+  lastWaypointNumber: number;
+  waypointCount: number;
+  assignedThemeId: MapThemeId | null;
+  effectiveArtwork: MapArtworkOption;
 };

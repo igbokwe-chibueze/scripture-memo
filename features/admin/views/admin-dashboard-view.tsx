@@ -6,6 +6,7 @@ import {
   Clock3Icon,
   FlaskConicalIcon,
   MapPinnedIcon,
+  MapIcon,
   PackageOpenIcon,
   SettingsIcon,
   ShieldCheckIcon,
@@ -43,6 +44,12 @@ const ADMIN_DESTINATIONS = [
     label: "Waypoints",
     description: "Control the permanent curriculum trail.",
     icon: MapPinnedIcon,
+  },
+  {
+    href: "/admin/map-trails",
+    label: "Map artwork",
+    description: "Choose Map A illustrations for each published trail.",
+    icon: MapIcon,
   },
   {
     href: "/admin/badges",

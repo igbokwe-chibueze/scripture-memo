@@ -1183,9 +1183,9 @@ The landing page after login. Shows:
 
 ### 15.2 Game Map (🗺️)
 
-Mobile-first winding campaign trail of all current waypoints. The presentation
-uses original code-native scenery and tactile circular nodes rather than a
-dashboard grid, while keeping progress readable in light and dark themes.
+Mobile-first winding campaign trail of all current waypoints. Map A places
+tactile waypoint controls over replaceable trail illustrations, while Map B
+keeps its responsive card-grid presentation for comparison.
 
 During pre-launch comparative testing, the map exposes two interchangeable
 presentations over the same progress data and gameplay navigation:
@@ -1201,15 +1201,19 @@ original Scripture reference and Journey Stage preview for comparison.
 
 - Waypoints rendered in scrollable groups of 10—not the entire expanding
   curriculum at once.
-- Map A shows each waypoint's number, status treatment, flame count, and an
-  honest three-segment ring representing the three challenge days. Map B also
-  previews the Scripture reference and Journey Stage. Day Selection remains the
-  authoritative full-detail screen for both variants.
+- Map A shows each waypoint's number, status icon, and three progress flames on
+  its illustrated button. Map B also previews the Scripture reference and
+  Journey Stage. Day Selection remains the authoritative full-detail screen
+  for both variants.
 - Map A includes a full-height right-side Trail Navigator on mobile and larger
   screens. It lists every published five-waypoint trail as `Trail N`, shows its
   artwork, waypoint range, completion progress, and current/locked/completed
   state, and jumps to unlocked trails without changing progression. Locked
   trails remain visible but cannot be selected.
+- Administrators can assign one of the built-in illustrations to each published
+  Map A trail from `/admin/map-trails`. Trails without an explicit assignment
+  retain the original Coastal → Desert → Temple repeating sequence, so the map
+  and navigator stay consistent without writing during learner reads.
 - Map A keeps two icon-only controls near the bottom-right viewport edge: one
   opens the Trail Navigator and one returns directly to the current trail.
 - Nodes alternate along an original connected trail, with the current waypoint

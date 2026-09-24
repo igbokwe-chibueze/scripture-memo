@@ -1,5 +1,49 @@
 # Scripture Memo Project Log
 
+### 2026-09-24 - Admin assignment for Map A trail artwork
+
+- Added an ADMIN/SUPER_ADMIN page at `/admin/map-trails` to assign the existing
+  coastal, desert, or temple illustration to each published five-waypoint trail.
+  Clearing a selection restores the original Coastal → Desert → Temple sequence;
+  the bundled artwork remains allow-listed, with image uploads outside this implementation.
+- Persisted only explicit choices in `MapTrailArtwork`. Map A and Trail Navigator
+  receive one batched assignment lookup; unassigned trail imagery follows the
+  deterministic original sequence with no ordinary-read writes.
+- Added an admin action with Zod catalogue validation and server role checks,
+  route revalidation, responsive image previews, pending/error/success feedback,
+  and a link from the Admin control center.
+- Applied additive migration `20260924170000_add_map_trail_artwork` to the
+  verified local development database on port 51214; no reset, seed, test-database,
+  hosted-database, or learner-data operation occurred. Prisma `migrate dev
+  --create-only` could not replay the pre-existing Better Auth migration into its
+  shadow database (`user` already exists), so read-only status was verified first
+  and only the reviewed additive migration was then deployed locally.
+- Prisma validation/generation, strict TypeScript, ESLint, all 20 map tests,
+  migration status, and whitespace checks passed. The database-to-Prisma diff
+  confirms the new table matches; it also reports one pre-existing, unrelated
+  BeaconWeeklyScore index-name difference, which was left untouched. Admin
+  browser review was completed and passed by the project owner: assigning a
+  bundled image, matching Map A and Trail Navigator previews, persistence after
+  refresh, and restoring the original repeating sequence.
+
+### 2026-09-24 - Phase 32 final security audit started
+
+- Source review verified the root-only structure, single-line page re-exports,
+  Prisma repository boundary, no Prisma imports in actions, no explicit `any`
+  types, server-side Journey Stage hint enforcement, server-owned reward amounts,
+  transactional ledger writes, and duplicate reward defenses.
+- TypeScript, full ESLint, and the 20 Map tests passed. The only application-adjacent
+  `console.log` is a local integration-database startup message, not production
+  request code. Public leaderboard DTOs omit email and raw identity.
+- Added global `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`,
+  and `Permissions-Policy` response headers and disabled `X-Powered-By`. Local
+  HTTP checks confirmed the headers on the public home response and unauthenticated
+  admin redirect. A nonce CSP remains under review:
+  installed Next.js guidance says nonce CSP makes pages dynamic, so compatibility
+  and performance need verification before enforcing it.
+- Production HTTPS, database network/SSL/access controls, deployment secrets and
+  backups remain outside this local source audit. Phase 32 is still in progress.
+
 ### 2026-09-24 - Map A waypoint puck artwork integrated
 
 - Replaced Map A's CSS-only circular face with the supplied proportional oval

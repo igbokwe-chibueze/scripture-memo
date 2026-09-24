@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { getMapTheme, MAP_THEMES } from "@/features/map/data/map-themes";
+import { getMapThemeForTrail, MAP_THEMES } from "@/features/map/data/map-themes";
+import { setTrailArtworkSchema } from "@/features/map/schemas/set-trail-artwork.schema";
 
 /**
  * Configuration checks prevent missing or out-of-bounds responsive centers from
@@ -38,9 +39,44 @@ test("every trail theme uses the owner-approved positions at both breakpoints", 
   }
 });
 
-test("five-waypoint map themes repeat indefinitely in artwork order", () => {
+test("an explicit trail assignment selects the requested bundled artwork", () => {
+  for (const theme of MAP_THEMES) {
+    assert.equal(getMapThemeForTrail(1, theme.id).id, theme.id);
+  }
+});
+
+test("unassigned trails retain the original repeating artwork sequence", () => {
   assert.deepEqual(
-    [0, 1, 2, 3, 4, 5, 300].map((index) => getMapTheme(index).id),
+    Array.from({ length: 7 }, (_, index) =>
+      getMapThemeForTrail(index + 1).id,
+    ),
     ["coastal", "desert", "temple", "coastal", "desert", "temple", "coastal"],
+  );
+});
+
+test("invalid stored artwork safely falls back and invalid trail numbers fail", () => {
+  assert.equal(getMapThemeForTrail(8, "external-image.png").id, "desert");
+  assert.throws(() => getMapThemeForTrail(0), /positive safe integer/);
+});
+
+test("trail artwork assignments accept catalogue IDs and reject arbitrary paths", () => {
+  assert.equal(
+    setTrailArtworkSchema.safeParse({ trailNumber: 2, themeId: "desert" }).success,
+    true,
+  );
+  assert.equal(
+    setTrailArtworkSchema.safeParse({ trailNumber: 2, themeId: null }).success,
+    true,
+  );
+  assert.equal(
+    setTrailArtworkSchema.safeParse({
+      trailNumber: 2,
+      themeId: "https://example.com/map.png",
+    }).success,
+    false,
+  );
+  assert.equal(
+    setTrailArtworkSchema.safeParse({ trailNumber: 0, themeId: "coastal" }).success,
+    false,
   );
 });
