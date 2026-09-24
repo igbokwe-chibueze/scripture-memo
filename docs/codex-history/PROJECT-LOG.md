@@ -1,5 +1,22 @@
 # Scripture Memo Project Log
 
+### 2026-09-24 - Map A waypoint puck artwork integrated
+
+- Replaced Map A's CSS-only circular face with the supplied proportional oval
+  base, status sprite, live Lilita One waypoint number positioned on the lower
+  button face beneath its status icon, and three flame sprites along the rim.
+  The owner's font choice takes precedence over the asset README's suggested
+  Fredoka face; Map B's rectangular cards remain unchanged.
+- Mapped Locked to the muted base/lock; Unlocked to blue/play; In Progress and
+  Cooldown to blue/book; and Completed to blue/check. Filled flames follow the
+  existing completed-day count. Cooldown remains selectable and keeps the same
+  server-controlled timer and progression behavior.
+- Kept Map A's original 64/72px mobile and 80/96px larger button targets. The
+  former visible flame counter is now visually hidden while reserving its exact
+  layout space, so map node alignment does not shift. A 375px browser preview
+  confirmed the 101 completed state fits above the flame sprites; the
+  authenticated Map A manual check remains for owner acceptance.
+
 ### 2026-09-24 - Internal testing gallery organized by category
 
 - Split the former all-in-one UI foundation gallery into administrator-only

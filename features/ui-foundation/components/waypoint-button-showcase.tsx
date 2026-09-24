@@ -23,13 +23,13 @@ const WAYPOINT_STATES = [
  * the actual Map A and Map B components without creating or altering progress.
  */
 export function WaypointButtonShowcase(): React.ReactNode {
-  const [status, setStatus] = useState<WaypointStatus>(WaypointStatus.UNLOCKED);
+  const [status, setStatus] = useState<WaypointStatus>(WaypointStatus.COMPLETED);
   const [isCurrent, setIsCurrent] = useState(true);
-  const [flameCount, setFlameCount] = useState(1);
+  const [flameCount, setFlameCount] = useState(3);
 
   const waypoint: MapWaypoint = {
     id: "waypoint-button-preview",
-    number: 12,
+    number: 101,
     reference: "Psalm 23:1",
     journeyStage: JourneyStage.LEARN,
     status,
@@ -118,7 +118,7 @@ export function WaypointButtonShowcase(): React.ReactNode {
         <article className="min-w-0 rounded-2xl border bg-background p-4">
           <h3 className="font-heading text-lg font-black">Map A · Trail node</h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            Circular progress ring, current marker, status icon, and flame count.
+            Layered sprite puck, live number, current marker, and day flames.
           </p>
           <div className="flex min-h-64 items-center justify-center overflow-hidden pt-10">
             <WaypointCard waypoint={waypoint} onSelect={previewSelection} />

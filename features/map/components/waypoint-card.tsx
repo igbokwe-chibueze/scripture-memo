@@ -6,72 +6,19 @@
  * detail after entering the waypoint, leaving this map focused on progress.
  */
 
-import {
-  BookOpenIcon,
-  CheckIcon,
-  Clock3Icon,
-  LockKeyholeIcon,
-  PlayIcon,
-} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { FlameIndicator } from "@/components/shared/flame-indicator";
 import { TrailWaypointButton } from "@/features/map/components/trail-waypoint-button";
 import type { MapWaypoint } from "@/features/map/types/map.types";
 import { WaypointStatus } from "@/lib/generated/prisma/enums";
-import { cn } from "@/lib/utils";
 
-const statusPresentation: Record<
-  WaypointStatus,
-  { label: string; icon: React.ComponentType<{ className?: string; "aria-hidden"?: boolean }> }
-> = {
-  LOCKED: { label: "Locked", icon: LockKeyholeIcon },
-  UNLOCKED: { label: "Ready", icon: PlayIcon },
-  IN_PROGRESS: { label: "In progress", icon: BookOpenIcon },
-  COOLDOWN: { label: "Cooling down", icon: Clock3Icon },
-  COMPLETED: { label: "Complete", icon: CheckIcon },
+const statusPresentation: Record<WaypointStatus, { label: string }> = {
+  LOCKED: { label: "Locked" },
+  UNLOCKED: { label: "Ready" },
+  IN_PROGRESS: { label: "In progress" },
+  COOLDOWN: { label: "Cooling down" },
+  COMPLETED: { label: "Complete" },
 };
-
-/**
- * Draws three honest ring segments—one for each completed challenge day.
- * Decorative tension never inflates progress beyond the persisted flame count.
- */
-/**
- * SVG `pathLength="100"` makes each 27-unit dash roughly one third of the ring,
- * while 33.33-unit offsets distribute the three challenge-day segments evenly.
- * Clamping is defensive display behavior and never awards completion.
- */
-function WaypointProgressRing({ count }: { count: number }): React.ReactNode {
-  const safeCount = Math.max(0, Math.min(3, count));
-
-  return (
-    <svg
-      viewBox="0 0 100 100"
-      aria-hidden="true"
-      className="pointer-events-none absolute -inset-2 size-[calc(100%+1rem)] -rotate-90"
-    >
-      {[0, 1, 2].map((index) => (
-        <circle
-          key={index}
-          cx="50"
-          cy="50"
-          r="45"
-          pathLength="100"
-          fill="none"
-          strokeWidth="6"
-          strokeLinecap="round"
-          strokeDasharray="27 73"
-          strokeDashoffset={-index * 33.33}
-          className={cn(
-            "transition-colors duration-300 motion-reduce:transition-none",
-            index < safeCount
-              ? "stroke-amber-400 drop-shadow-[0_1px_1px_rgb(245_158_11/0.45)]"
-              : "stroke-foreground/12",
-          )}
-        />
-      ))}
-    </svg>
-  );
-}
 
 /**
  * Renders a responsive campaign node with status and three-day flame progress.
@@ -89,7 +36,6 @@ export function WaypointCard({
 }): React.ReactNode {
   const t = useTranslations("Map");
   const presentation = statusPresentation[waypoint.status];
-  const StatusIcon = presentation.icon;
 
   return (
     // The trail queries this marker once to center the learner's next action.
@@ -117,33 +63,36 @@ export function WaypointCard({
             className="absolute -inset-3 rounded-full bg-amber-400/30 motion-safe:animate-ping"
           />
         )}
-        <WaypointProgressRing count={waypoint.flameCount} />
         <TrailWaypointButton
           status={waypoint.status}
           isCurrent={waypoint.isCurrent}
+          number={waypoint.number}
+          flameCount={waypoint.flameCount}
           ariaLabel={t("waypointAria", {
             number: waypoint.number,
             status: t(`statuses.${waypoint.status}`),
             count: waypoint.flameCount,
           })}
           onClick={() => onSelect(waypoint)}
-        >
-          <span className="flex flex-col items-center leading-none">
-            <StatusIcon className="mb-0.5 size-4 sm:mb-1 sm:size-5" aria-hidden={true} />
-            <span>{waypoint.number}</span>
-          </span>
-        </TrailWaypointButton>
+        />
       </div>
 
       <div className="mt-2 flex flex-col items-center text-center sm:mt-4">
-        {/* Status remains available to assistive technology while visible Map A
-            content stays intentionally limited to the flame indicator. */}
+        {/* Status remains available while the puck uses the supplied icons. */}
         <span className="sr-only">{presentation.label}</span>
-        <FlameIndicator
-          count={waypoint.flameCount}
-          compact
-          className="rounded-full bg-background/75 px-1.5 py-0.5 sm:px-2 sm:py-1"
-        />
+        {/*
+          The sprite flames inside the puck replace this visible count. Keeping
+          the indicator invisible preserves its exact old width, height, and
+          spacing so absolute map positions do not shift. The button's accessible
+          name already announces the same count.
+        */}
+        <span aria-hidden="true">
+          <FlameIndicator
+            count={waypoint.flameCount}
+            compact
+            className="invisible rounded-full bg-background/75 px-1.5 py-0.5 sm:px-2 sm:py-1"
+          />
+        </span>
       </div>
     </div>
   );

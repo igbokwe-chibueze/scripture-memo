@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Lilita_One } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { ThemeProvider } from "@/components/shared/theme-provider";
@@ -15,6 +15,16 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+// Keep the display face available for the map's live waypoint numbers. It is
+// not preloaded globally, so pages that do not render Map A do not fetch it.
+const lilitaOne = Lilita_One({
+  variable: "--font-lilita-one",
+  subsets: ["latin"],
+  weight: "400",
+  display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -41,7 +51,7 @@ export default async function RootLayout({
     <html
       lang={locale}
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${lilitaOne.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
         <ThemeProvider

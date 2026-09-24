@@ -1,43 +1,88 @@
 "use client";
 
-import type { ReactNode } from "react";
+import Image from "next/image";
 import { WaypointStatus } from "@/lib/generated/prisma/enums";
 import { cn } from "@/lib/utils";
 
-const faceStyles: Record<WaypointStatus, string> = {
-  LOCKED:
-    "border-zinc-300 bg-linear-to-b from-zinc-100 to-zinc-300 text-zinc-500 dark:border-zinc-500 dark:from-zinc-600 dark:to-zinc-800 dark:text-zinc-200",
-  UNLOCKED:
-    "border-emerald-200 bg-linear-to-b from-emerald-300 to-emerald-600 text-white hover:from-emerald-200 hover:to-emerald-500",
-  IN_PROGRESS:
-    "border-emerald-200 bg-linear-to-b from-emerald-300 to-emerald-600 text-white hover:from-emerald-200 hover:to-emerald-500",
-  COOLDOWN:
-    "border-violet-200 bg-linear-to-b from-violet-300 to-violet-600 text-white hover:from-violet-200 hover:to-violet-500",
-  COMPLETED:
-    "border-sky-200 bg-linear-to-b from-sky-300 to-sky-600 text-white hover:from-sky-200 hover:to-sky-500",
+const WAYPOINT_ASSET_PATH = "/images/map/waypoint-buttons";
+
+type StatusArtwork = {
+  icon: string;
+  iconWidth: string;
+  iconTop: string;
+  iconAspectRatio: string;
+  base: "button-base-blue.png" | "button-base-locked.png";
+};
+
+/**
+ * Keeps the supplied sprite choices tied to the existing server-owned status.
+ * COOLDOWN still represents an opened, progressing waypoint: its day timer is
+ * shown after selection, so it keeps the blue base and learning-book icon.
+ */
+const STATUS_ARTWORK: Record<WaypointStatus, StatusArtwork> = {
+  LOCKED: {
+    base: "button-base-locked.png",
+    icon: "icon-lock.png",
+    iconWidth: "23%",
+    iconTop: "18%",
+    iconAspectRatio: "1371 / 1148",
+  },
+  UNLOCKED: {
+    base: "button-base-blue.png",
+    icon: "icon-play.png",
+    iconWidth: "28%",
+    iconTop: "18%",
+    iconAspectRatio: "1407 / 1118",
+  },
+  IN_PROGRESS: {
+    base: "button-base-blue.png",
+    icon: "icon-book.png",
+    iconWidth: "32%",
+    iconTop: "18%",
+    iconAspectRatio: "1568 / 1003",
+  },
+  COOLDOWN: {
+    base: "button-base-blue.png",
+    icon: "icon-book.png",
+    iconWidth: "32%",
+    iconTop: "18%",
+    iconAspectRatio: "1568 / 1003",
+  },
+  COMPLETED: {
+    base: "button-base-blue.png",
+    icon: "icon-complete.png",
+    iconWidth: "29%",
+    iconTop: "18%",
+    iconAspectRatio: "1536 / 1024",
+  },
 };
 
 /**
  * Dedicated tactile control for the illustrated winding trail.
  *
- * This component intentionally does not consume the shared application Button
- * primitive. Its gradient face and scale response remain independent of global
- * button styling, while avoiding offset shadows or pedestal layers that obscure
- * the illustrated trail beneath it.
+ * This component intentionally remains separate from the shared application
+ * Button primitive. The supplied transparent sprites form a compact oval puck,
+ * while this native button retains the original circular hit area, responsive
+ * footprint, keyboard focus, and press behavior over the illustrated trail.
  */
 export function TrailWaypointButton({
   status,
   isCurrent,
+  number,
+  flameCount,
   ariaLabel,
   onClick,
-  children,
 }: {
   status: WaypointStatus;
   isCurrent: boolean;
+  number: number;
+  flameCount: number;
   ariaLabel: string;
   onClick: () => void;
-  children: ReactNode;
 }): React.ReactNode {
+  const artwork = STATUS_ARTWORK[status];
+  const safeFlameCount = Math.max(0, Math.min(3, flameCount));
+
   return (
     <div
       className={cn(
@@ -51,16 +96,90 @@ export function TrailWaypointButton({
         aria-label={ariaLabel}
         onClick={onClick}
         className={cn(
-          "group relative grid size-full place-items-center rounded-full border-[3px] text-base font-black outline-none transition-[transform,background-image] duration-150 hover:scale-[1.02] focus-visible:ring-4 focus-visible:ring-white/80 active:scale-[0.97] sm:border-4 sm:text-xl motion-reduce:transition-none motion-reduce:hover:scale-100 motion-reduce:active:scale-100",
-          faceStyles[status],
+          "group relative grid size-full place-items-center rounded-full bg-transparent outline-none transition-transform duration-150 hover:scale-[1.02] focus-visible:ring-4 focus-visible:ring-white/80 active:scale-[0.97] motion-reduce:transition-none motion-reduce:hover:scale-100 motion-reduce:active:scale-100",
           isCurrent && "ring-3 ring-amber-300/75 sm:ring-4",
         )}
       >
-        {children}
+        {/*
+          The original base canvas is 1371×1148, an oval rather than a circle.
+          Keeping its natural aspect ratio inside the existing square target
+          preserves the art while the complete layer stack remains within the
+          map's existing 64/72px mobile and 80/96px larger-screen footprint.
+        */}
         <span
           aria-hidden="true"
-          className="absolute inset-x-[18%] top-[10%] h-[16%] rounded-full bg-white/35"
-        />
+          className="pointer-events-none absolute top-0 left-0 w-full"
+          style={{ aspectRatio: "1371 / 1148" }}
+        >
+          <Image
+            src={`${WAYPOINT_ASSET_PATH}/${artwork.base}`}
+            alt=""
+            fill
+            sizes="96px"
+            className="object-contain"
+          />
+        </span>
+
+        {/*
+          The icon PNG canvases have different transparent margins. Their
+          per-status canvas widths compensate for those margins so the visible
+          marks share a similar scale and align above the live number.
+        */}
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 -translate-x-1/2"
+          style={{
+            top: artwork.iconTop,
+            width: artwork.iconWidth,
+            aspectRatio: artwork.iconAspectRatio,
+          }}
+        >
+          <Image
+            src={`${WAYPOINT_ASSET_PATH}/${artwork.icon}`}
+            alt=""
+            fill
+            sizes="34px"
+            className="object-contain"
+          />
+        </span>
+
+        <span
+          aria-hidden="true"
+          className={cn(
+            "pointer-events-none absolute top-[36%] left-0 z-10 w-full text-center leading-none text-white",
+            "font-[family-name:var(--font-lilita-one)] [text-shadow:0_2px_2px_rgb(4_49_130/0.8)]",
+            isCurrent
+              ? "text-[1.375rem] sm:text-[1.625rem]"
+              : "text-xl sm:text-2xl",
+          )}
+        >
+          {number}
+        </span>
+
+        {/*
+          The flame assets use near-square canvases with different transparent
+          margins. Each keeps its source ratio and sits just over the lower rim.
+        */}
+        {[0, 1, 2].map((index) => (
+          <span
+            key={index}
+            aria-hidden="true"
+            className="pointer-events-none absolute bottom-0 z-20"
+            style={{
+              left: `${12 + index * 26}%`,
+              width: "24%",
+              aspectRatio: "1268 / 1240",
+            }}
+          >
+            <Image
+              src={`${WAYPOINT_ASSET_PATH}/${index < safeFlameCount ? "flame-filled.png" : "flame-empty.png"}`}
+              alt=""
+              fill
+              sizes="24px"
+              className="object-contain"
+            />
+          </span>
+        ))}
       </button>
     </div>
   );
