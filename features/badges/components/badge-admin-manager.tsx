@@ -31,7 +31,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { showActionError } from "@/lib/errors/show-action-error";
-import { UserEmailAutocomplete } from "@/features/admin/components/user-email-autocomplete";
+import { UserEmailAutocomplete } from "@/features/admin";
 import { awardBadgeAction } from "@/features/badges/actions/award-badge.action";
 import { deleteBadgeAction } from "@/features/badges/actions/delete-badge.action";
 import { saveBadgeAction } from "@/features/badges/actions/save-badge.action";

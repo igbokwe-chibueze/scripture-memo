@@ -17,8 +17,7 @@ import { NavigationButton } from "@/components/shared/navigation-button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { initializeBeaconLeagueAction } from "@/features/beacon/actions/initialize-beacon-league.action";
-import { LeagueEmblem } from "@/features/beacon/components/league-emblem";
-import { LeagueJourneyDialog } from "@/features/beacon/components/league-journey-dialog";
+import { LeagueEmblem, LeagueJourneyDialog } from "@/features/beacon";
 import { BEACON_COHORT_SIZE } from "@/features/beacon/constants/beacon-progression";
 import type {
   LeaderboardEntry,
@@ -26,7 +25,7 @@ import type {
   LeaderboardScope,
 } from "@/features/leaderboard/types/leaderboard.types";
 import { cn } from "@/lib/utils";
-import { PlayerAvatar } from "@/features/profile/components/player-avatar";
+import { PlayerAvatar } from "@/features/profile";
 import { CountryFlag } from "@/components/shared/country-flag";
 import {
   Tooltip,

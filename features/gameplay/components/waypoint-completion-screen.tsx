@@ -7,7 +7,7 @@ import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preferenc
 import { ArrowRightIcon, MapIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AnimatedFlame } from "@/features/gameplay/components/animated-flame";
-import { useAudioFeedback } from "@/features/gameplay/hooks/use-audio-feedback";
+import { useAudioFeedback } from "@/hooks/use-audio-feedback";
 
 const FLAME_DELAYS_MS = [420, 900, 1_380] as const;
 const REWARD_CARD_DELAY_MS = 1_850;

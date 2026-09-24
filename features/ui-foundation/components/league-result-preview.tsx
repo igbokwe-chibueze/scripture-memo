@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   LeagueResultDialog,
   type LeagueResultOutcome,
-} from "@/features/notifications/components/league-result-dialog";
+} from "@/features/notifications";
 
 /** Replays all weekly placement outcomes without reading or writing player data. */
 export function LeagueResultPreview(): React.ReactNode {

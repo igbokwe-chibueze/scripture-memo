@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { ShoppingBagIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PurchaseCelebrationDialog } from "@/features/oil-shop/components/oil-shop";
-import type { PurchaseCelebration } from "@/features/oil-shop/components/oil-shop";
+import {
+  PurchaseCelebrationDialog,
+  type PurchaseCelebration,
+} from "@/features/oil-shop";
 
 const previewPurchase: PurchaseCelebration = {
   item: {

@@ -3807,14 +3807,33 @@ concurrency subtests remain explicitly skipped as documented above.
   stack traces in production. Added a focused logger test. Also moved the
   settings translation lookup behind input validation and corrected a stale
   waypoint schema comment.
-- Verification so far: TypeScript, full ESLint, `git diff --check`, logger unit
-  test, and password-reset limiter integration test passed. Final verification
-  remains after remaining review.
+- Replaced cross-feature imports into internal component/hook/view paths with
+  explicit feature-root entry points. Moved reusable confetti and audio
+  feedback into shared locations. A source scan found no remaining cross-feature
+  internal component, hook, or view imports.
+- Verification: TypeScript, full ESLint, whitespace checks, 68 related gameplay,
+  badge, Beacon, Fellowship, and map tests, the password-reset limiter database
+  test, and the logger unit test passed. Production build reached Next.js but
+  could not fetch the app's Google Fonts because network access is unavailable;
+  this is an environment limitation, not an import or TypeScript error.
 - Phase 32 remains open. Pending items include the selected hosting provider's
   trusted-proxy/IP configuration, production database role and migration
   safeguards, production HTTPS/network/backup/secrets settings, nonce CSP
-  performance decision, and owner disposition for cross-feature imports and
-  email verification/registration enumeration. The npm vulnerability audit
+  performance decision, and email verification/registration enumeration. The
+  npm vulnerability audit
   was rejected by automatic approval review because it would disclose project
   dependency names and versions to the public registry; owner authorization is
   pending. No production approval is implied.
+
+### 2026-09-24 - Local font assets for offline builds
+
+- Removed build-time `next/font/google` imports after a restricted production
+  build could not fetch Geist, Geist Mono, and Lilita One. Bundled the exact
+  cached WOFF2 subsets under `public/fonts`, preserving Latin and extended
+  glyph coverage, and retained the upstream OFL notices.
+- Replaced Google font loading with local `@font-face` declarations and kept
+  the existing CSS variables and Latin preload behavior for Geist and Geist
+  Mono. Lilita One remains non-preloaded.
+- Verification: strict TypeScript, full ESLint, `git diff --check`, and the
+  production build all pass in the network-restricted environment. Next.js
+  compiled and generated all 35 static pages without contacting Google Fonts.

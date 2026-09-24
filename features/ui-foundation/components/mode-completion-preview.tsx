@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { CheckCircle2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ModeCompletionScreen } from "@/features/gameplay/components/mode-completion-screen";
+import { ModeCompletionScreen } from "@/features/gameplay";
 
 /**
  * Replays the production mode-completion screen without persistence.

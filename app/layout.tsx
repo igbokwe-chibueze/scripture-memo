@@ -1,31 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Lilita_One } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-// Share the display face with game headings and waypoint numbers. Preloading
-// remains disabled to avoid adding this font to every route's critical path.
-const lilitaOne = Lilita_One({
-  variable: "--font-lilita-one",
-  subsets: ["latin"],
-  weight: "400",
-  display: "swap",
-  preload: false,
-});
 
 export const metadata: Metadata = {
   title: "Scripture Memo",
@@ -51,8 +30,29 @@ export default async function RootLayout({
     <html
       lang={locale}
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${lilitaOne.variable} h-full antialiased`}
+      className="h-full antialiased"
     >
+      <head>
+        {/*
+          Geist is the app's reading and code face, so preload its Latin files
+          as the previous next/font/google setup did. The display face remains
+          lazy-loaded because it is only used by selected headings and previews.
+        */}
+        <link
+          rel="preload"
+          href="/fonts/geist-sans-latin.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/fonts/geist-mono-latin.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className="flex min-h-full flex-col">
         <ThemeProvider
           attribute="class"

@@ -14,7 +14,7 @@ import {
   UsersRoundIcon,
   VaultIcon,
 } from "lucide-react";
-import { NotificationCenter } from "@/features/notifications/components/notification-center";
+import { NotificationCenter } from "@/features/notifications";
 import type { NotificationShellData } from "@/features/notifications/types/notification.types";
 import type { PlayerShellSummary } from "@/features/player-shell/types/player-shell.types";
 

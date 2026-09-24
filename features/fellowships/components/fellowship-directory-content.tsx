@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { KeyRoundIcon, LockKeyholeIcon, SearchIcon, ShieldCheckIcon, UserRoundCheckIcon, UsersRoundIcon, XIcon } from "lucide-react";
 import { toast } from "sonner";
-import { BadgeUnlockSequence } from "@/features/badges/components/badge-unlock-screen";
+import { BadgeUnlockSequence } from "@/features/badges";
 import { NavigationButton } from "@/components/shared/navigation-button";
 import { FellowshipInsignia } from "@/features/fellowships/components/fellowship-insignia";
 import { getFellowshipInsignia } from "@/features/fellowships/constants/fellowship-insignias";

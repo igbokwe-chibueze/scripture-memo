@@ -7,8 +7,8 @@ import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preferenc
 import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { ShareAchievementButton } from "@/components/shared/share-achievement-button";
-import { ConfettiCelebration } from "@/features/gameplay/components/confetti-celebration";
-import { useAudioFeedback } from "@/features/gameplay/hooks/use-audio-feedback";
+import { ConfettiCelebration } from "@/components/shared/confetti-celebration";
+import { useAudioFeedback } from "@/hooks/use-audio-feedback";
 import type { BadgeUnlockResult } from "@/features/badges/types/badge.types";
 import { cn } from "@/lib/utils";
 

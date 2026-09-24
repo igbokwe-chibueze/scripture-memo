@@ -46,7 +46,7 @@ import type {
 } from "@/features/gameplay/types/game-session.types";
 import type { GameMode } from "@/lib/generated/prisma/enums";
 import type { ActionResult } from "@/types/api";
-import { HintButton } from "@/features/hints/components/hint-button";
+import { HintButton } from "@/features/hints";
 import { verifyLearnHintAccountingAction } from "@/features/hints/actions/verify-learn-hint-accounting.action";
 import { verifyStageHintBlockAction } from "@/features/hints/actions/verify-stage-hint-block.action";
 

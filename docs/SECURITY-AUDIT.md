@@ -41,7 +41,7 @@ The server and database are the only sources of truth for all security-sensitive
 | 1.2 | Route files in `app/` are one-line re-exports only — no logic | 🟡 Medium | ✅ Verified 2026-09-24 | All `page.tsx` route files are single-line re-exports; the auth handler and framework boundaries are intentional exceptions |
 | 1.3 | Prisma is imported only inside repository files | 🟠 High | ✅ Verified 2026-09-24 | Source scan found no Prisma singleton imports outside repositories, `lib/prisma.ts`, or Better Auth adapter initialization |
 | 1.4 | Server Actions never call Prisma directly — always call repositories | 🟠 High | ✅ Verified 2026-09-24 | Source scan found no Prisma imports in action files |
-| 1.5 | No feature imports another feature's internal components, hooks, or views | 🟡 Medium | ☐ Pending | Source scan found cross-feature imports, including test previews. Refactoring these to shared public contracts is broader than this security fix; owner acceptance is required before deferring |
+| 1.5 | No feature imports another feature's internal components, hooks, or views | 🟡 Medium | ✅ Verified 2026-09-24 | Cross-feature consumers now use feature-root public entry points. Generic confetti and audio feedback moved to shared locations; scans found no remaining cross-feature internal component, hook, or view imports |
 | 1.6 | No empty or speculative folders exist in the project | 🟢 Low | ✅ Verified 2026-09-24 | Current source tree scan found no empty feature folders |
 | 1.7 | Barrel files do not exist inside sub-folders (`actions/index.ts` etc.) | 🟢 Low | ✅ Verified 2026-09-24 | No sub-folder barrels found; feature-root entry files are intentional public feature surfaces |
 

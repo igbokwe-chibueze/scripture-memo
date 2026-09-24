@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { OilShopData, OilShopItem } from "@/features/oil-shop/types/oil-shop.types";
-import { useAudioFeedback } from "@/features/gameplay/hooks/use-audio-feedback";
+import { useAudioFeedback } from "@/hooks/use-audio-feedback";
 import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preference";
 
 // Transparent objects deliberately contain no card scenery; surfaces use theme tokens.

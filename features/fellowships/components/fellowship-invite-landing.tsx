@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Clock3Icon, LogInIcon, ShieldCheckIcon, SparklesIcon, UserPlusIcon, UsersRoundIcon, XIcon } from "lucide-react";
 import { toast } from "sonner";
-import { BadgeUnlockSequence } from "@/features/badges/components/badge-unlock-screen";
+import { BadgeUnlockSequence } from "@/features/badges";
 import { NavigationButton } from "@/components/shared/navigation-button";
 import { Button } from "@/components/ui/button";
 import { joinFellowshipByInviteAction } from "@/features/fellowships/actions/join-fellowship-by-invite.action";

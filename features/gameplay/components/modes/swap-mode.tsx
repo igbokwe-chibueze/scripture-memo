@@ -6,15 +6,15 @@ import { CheckIcon, RotateCcwIcon, ShuffleIcon } from "lucide-react";
 import { toast } from "sonner";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { Button } from "@/components/ui/button";
-import { BadgeUnlockSequence } from "@/features/badges/components/badge-unlock-screen";
+import { BadgeUnlockSequence } from "@/features/badges";
 import type { BadgeUnlockResult } from "@/features/badges/types/badge.types";
 import type { BeaconProgressionResult } from "@/features/beacon/types/beacon.types";
 import { showActionError } from "@/lib/errors/show-action-error";
 import { completeGameModeAction } from "@/features/gameplay/actions/complete-game-mode.action";
-import { ConfettiCelebration } from "@/features/gameplay/components/confetti-celebration";
+import { ConfettiCelebration } from "@/components/shared/confetti-celebration";
 import { ModeCompletionScreen } from "@/features/gameplay/components/mode-completion-screen";
 import { StreakCompletionScreen } from "@/features/gameplay/components/streak-completion-screen";
-import { useAudioFeedback } from "@/features/gameplay/hooks/use-audio-feedback";
+import { useAudioFeedback } from "@/hooks/use-audio-feedback";
 import { getSessionHiddenPercent } from "@/features/gameplay/lib/hidden-word-generator";
 import {
   areSwapTokensCorrect,

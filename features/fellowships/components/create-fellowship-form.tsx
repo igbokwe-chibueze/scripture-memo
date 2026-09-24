@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { createFellowshipAction } from "@/features/fellowships/actions/create-fellowship.action";
 import { FellowshipInsigniaPicker } from "@/features/fellowships/components/fellowship-insignia-picker";
 import { DEFAULT_FELLOWSHIP_INSIGNIA, type FellowshipInsigniaKey } from "@/features/fellowships/constants/fellowship-insignias";
-import { BadgeUnlockSequence } from "@/features/badges/components/badge-unlock-screen";
+import { BadgeUnlockSequence } from "@/features/badges";
 import type { BadgeUnlockResult } from "@/features/badges/types/badge.types";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";

@@ -5,8 +5,8 @@ import { LeagueResultPreview } from "@/features/ui-foundation/components/league-
 import { ModeCompletionPreview } from "@/features/ui-foundation/components/mode-completion-preview";
 import { StreakCompletionPreview } from "@/features/ui-foundation/components/streak-completion-preview";
 import { WaypointCompletionPreview } from "@/features/ui-foundation/components/waypoint-completion-preview";
-import { GameplayTestPreview } from "@/features/gameplay/components/gameplay-test-preview";
-import { DaySelectionTestPreview } from "@/features/waypoints/components/day-selection-test-preview";
+import { GameplayTestPreview } from "@/features/gameplay";
+import { DaySelectionTestPreview } from "@/features/waypoints";
 import { AdminTestingShell } from "@/features/ui-foundation/components/admin-testing-shell";
 import { getAdminSession } from "@/features/auth/lib/get-admin-session";
 

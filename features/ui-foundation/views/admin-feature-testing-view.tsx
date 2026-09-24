@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
 
-import { FellowshipTestPreview } from "@/features/fellowships/components/fellowship-test-preview";
-import { NotificationTestPreview } from "@/features/notifications/components/notification-test-preview";
+import { FellowshipTestPreview } from "@/features/fellowships";
+import { NotificationTestPreview } from "@/features/notifications";
 import { OilShopPurchasePreview } from "@/features/ui-foundation/components/oil-shop-purchase-preview";
-import { OilShopTestPreview } from "@/features/oil-shop/components/oil-shop-test-preview";
-import { SanctuaryContentsNavigation, SanctuaryStudyContent } from "@/features/sanctuary/components/sanctuary-study-content";
-import { SanctuaryTestPreview } from "@/features/sanctuary/components/sanctuary-test-preview";
+import { OilShopTestPreview } from "@/features/oil-shop";
+import {
+  SanctuaryContentsNavigation,
+  SanctuaryStudyContent,
+  SanctuaryTestPreview,
+} from "@/features/sanctuary";
 import { SANCTUARY_TEST_DATA } from "@/features/sanctuary/data/sanctuary-test-data";
-import { SettingsTestPreview } from "@/features/settings/components/settings-test-preview";
-import { VaultCardTestPreview } from "@/features/vault/components/vault-card-test-preview";
+import { SettingsTestPreview } from "@/features/settings";
+import { VaultCardTestPreview } from "@/features/vault";
 import { AdminTestingShell } from "@/features/ui-foundation/components/admin-testing-shell";
 import { getAdminSession } from "@/features/auth/lib/get-admin-session";
 

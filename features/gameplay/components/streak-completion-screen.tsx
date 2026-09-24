@@ -13,7 +13,7 @@ import { ShareAchievementButton } from "@/components/shared/share-achievement-bu
 import { Button } from "@/components/ui/button";
 import { AnimatedFlame } from "@/features/gameplay/components/animated-flame";
 import { useFlameAmbience } from "@/features/gameplay/hooks/use-flame-ambience";
-import { useAudioFeedback } from "@/features/gameplay/hooks/use-audio-feedback";
+import { useAudioFeedback } from "@/hooks/use-audio-feedback";
 import type { StreakCompletionResult } from "@/features/gameplay/types/game-session.types";
 
 /** Dedicated, learner-controlled celebration for a changed daily streak. */

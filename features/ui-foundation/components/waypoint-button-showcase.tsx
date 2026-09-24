@@ -4,8 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { GridWaypointCard } from "@/features/map/components/grid-waypoint-card";
-import { WaypointCard } from "@/features/map/components/waypoint-card";
+import { GridWaypointCard, WaypointCard } from "@/features/map";
 import type { MapWaypoint } from "@/features/map/types/map.types";
 import { JourneyStage, WaypointStatus } from "@/lib/generated/prisma/enums";
 

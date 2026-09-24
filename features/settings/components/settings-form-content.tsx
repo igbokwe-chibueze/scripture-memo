@@ -18,7 +18,7 @@ import type { ActionResult } from "@/types/api";
 import { showActionError } from "@/lib/errors/show-action-error";
 import { COUNTRY_OPTIONS } from "@/features/settings/data/country-options";
 import { updateUserSettingsSchema, type UpdateUserSettingsInput } from "@/features/settings/schemas/update-user-settings.schema";
-import { AvatarPicker } from "@/features/profile/components/avatar-picker";
+import { AvatarPicker } from "@/features/profile";
 
 export type SettingsFormProps = {
   initialValues: UpdateUserSettingsInput;

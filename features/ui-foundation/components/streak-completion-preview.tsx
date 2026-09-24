@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { FlameIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { StreakCompletionScreen } from "@/features/gameplay/components/streak-completion-screen";
+import { StreakCompletionScreen } from "@/features/gameplay";
 
 type StreakPreviewVariant = "daily" | "level" | "reset" | null;
 

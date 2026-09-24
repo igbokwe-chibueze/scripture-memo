@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { FlameIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { WaypointCompletionScreen } from "@/features/gameplay/components/waypoint-completion-screen";
+import { WaypointCompletionScreen } from "@/features/gameplay";
 
 /**
  * Replays the production waypoint milestone without any persistence side effect.
