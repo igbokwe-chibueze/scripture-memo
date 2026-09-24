@@ -71,9 +71,9 @@ const structuredData = {
  * Renders the public, search-indexable introduction to Scripture Memo.
  *
  * The page explains the actual product loop without promising unfinished account
- * functionality. Its primary action leads to the noindex UI preview until Phase 5
- * supplies registration and login destinations. Native links retain navigation
- * semantics while reusing the shared visual variants for tactile game controls.
+ * functionality. Its primary action opens the existing sign-in flow; internal
+ * administrator test workspaces are intentionally absent from public navigation.
+ * Native links retain navigation semantics while reusing shared visual variants.
  */
 export function LandingView(): React.ReactNode {
   return (
@@ -99,18 +99,7 @@ export function LandingView(): React.ReactNode {
             </span>
             Scripture Memo
           </Link>
-          <div className="flex items-center gap-2">
-            <ThemeSwitcher />
-            <Link
-              href="/ui-foundation"
-              className={buttonVariants({
-                variant: "outline",
-                className: "hidden min-h-11 rounded-2xl sm:inline-flex",
-              })}
-            >
-              UI preview
-            </Link>
-          </div>
+          <ThemeSwitcher />
         </ResponsiveContainer>
       </header>
 
@@ -144,14 +133,14 @@ export function LandingView(): React.ReactNode {
 
                 <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
                   <Link
-                    href="/ui-foundation"
+                    href="/login"
                     className={buttonVariants({
                       size: "lg",
                       className:
                         "min-h-12 rounded-2xl px-6 text-base shadow-lg shadow-primary/20",
                     })}
                   >
-                    Preview the experience
+                    Begin your journey
                     <ChevronRightIcon aria-hidden="true" />
                   </Link>
                   <a
@@ -301,9 +290,6 @@ export function LandingView(): React.ReactNode {
       <footer className="border-t border-border/60 py-8">
         <ResponsiveContainer className="flex flex-col items-center justify-between gap-3 text-center text-sm text-muted-foreground sm:flex-row sm:text-left">
           <p>© {new Date().getFullYear()} Scripture Memo. Built for lasting memory.</p>
-          <Link href="/ui-foundation" className="font-medium text-foreground underline-offset-4 hover:underline">
-            View UI foundation
-          </Link>
         </ResponsiveContainer>
       </footer>
     </div>

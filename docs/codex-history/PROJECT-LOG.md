@@ -1,5 +1,19 @@
 # Scripture Memo Project Log
 
+### 2026-09-24 - Internal testing gallery organized by category
+
+- Split the former all-in-one UI foundation gallery into administrator-only
+  Testing workspaces for Shared UI, Gameplay, Feature checks, and Accessibility.
+  The Admin control center now links to the testing index; `/ui-foundation`
+  remains as a server-authorized redirect for old bookmarks.
+- Added a Shared UI button showcase for all three production button behavior
+  components, every shared appearance variant, text and icon sizes, pending,
+  disabled, and route-navigation states. Its async action is simulated locally
+  and the route sample stays inside administrator testing.
+- Removed public landing-page links to internal test tooling. Updated the UI/UX
+  guide and product overview to point at the protected shared reference. Manual
+  browser review of the reorganized pages remains for the project owner.
+
 ### 2026-09-23 - Gameplay mobile preview accepted
 
 - The owner directed work to proceed after the mobile entry-card correction.

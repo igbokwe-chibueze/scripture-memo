@@ -81,7 +81,7 @@ export function VaultCardTestPreview(): React.ReactNode {
             completedStages: locked ? [] : sampleVerse.completedStages,
           }}
           canReplay={!locked}
-          sanctuaryHref="/ui-foundation?preview=vault-study#vault-card-testing"
+          sanctuaryHref="/admin/testing/features#feature-test-previews"
           isPending={isPending}
           onReplay={replay}
         />

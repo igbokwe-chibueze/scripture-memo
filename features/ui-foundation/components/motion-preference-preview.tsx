@@ -56,9 +56,10 @@ export function MotionPreferencePreview(): React.ReactNode {
         <p className="text-sm">With reduced motion On, both samples should stay still.</p>
       </div>
       <p className="text-sm text-muted-foreground">
-        Use the existing loading and celebration previews below. Check that
-        entrances, particles, confetti and count-ups are suppressed, while close
-        and continue controls still work. No gameplay setup is needed.
+        Open Shared UI for loading and error previews, Gameplay for completion
+        celebrations, and Feature checks for the Oil Shop purchase celebration.
+        With reduced motion On, entrances, particles, confetti, and count-ups
+        should be suppressed while controls remain usable.
       </p>
     </section>
   );

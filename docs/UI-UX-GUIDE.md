@@ -28,8 +28,8 @@ Use these references in order:
 
 1. `AGENTS.md` for mandatory implementation and accessibility rules.
 2. This guide for visual and interaction application.
-3. `/ui-foundation` for approved components and interactive treatments running
-   in the real application.
+3. `/admin/testing/shared-ui` for approved components and interactive treatments
+   running in the real application (administrator access required).
 4. `docs/PRODUCT-OVERVIEW.md` for feature-specific product requirements.
 5. Approved screenshots supplied by the project owner for the particular view.
 
@@ -205,7 +205,8 @@ classes before changing `components/ui/button.tsx`.
   reserved for compositions where space supports it.
 - Luna is not mandatory decoration. Do not add her to a screen merely to fill
   empty space or weaken an already clear visual hierarchy.
-- The parallel Concept Luna collection is comparison-only in `/ui-foundation`.
+- The parallel Concept Luna collection is comparison-only in
+  `/admin/testing/shared-ui`.
   It may be proposed for a product screen, but requires explicit project-owner
   approval for that specific screen before it is integrated.
 
@@ -266,7 +267,8 @@ Before handing off a new or changed player-facing screen, verify:
 
 ### Interaction
 
-- [ ] Buttons match `/ui-foundation` in rest, hover, press, disabled, and pending states.
+- [ ] Buttons match `/admin/testing/shared-ui#button-showcase` in rest, hover,
+      press, disabled, and pending states.
 - [ ] Navigation gives immediate loading feedback.
 - [ ] Back and close controls are tactile, visible, and at least 44×44.
 - [ ] Modal/drawer motion and background scroll behavior are correct.

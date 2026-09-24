@@ -1,1 +1,1 @@
-export { metadata, UiFoundationView as default } from "@/features/ui-foundation/views/ui-foundation-view";
+export { UiFoundationRedirectView as default, metadata } from "@/features/ui-foundation/views/ui-foundation-redirect-view";

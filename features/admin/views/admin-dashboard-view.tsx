@@ -4,6 +4,7 @@ import {
   BookOpenIcon,
   CircleGaugeIcon,
   Clock3Icon,
+  FlaskConicalIcon,
   MapPinnedIcon,
   PackageOpenIcon,
   SettingsIcon,
@@ -54,6 +55,12 @@ const ADMIN_DESTINATIONS = [
     label: "Error guide",
     description: "Look up safe operational error codes.",
     icon: CircleGaugeIcon,
+  },
+  {
+    href: "/admin/testing",
+    label: "Testing",
+    description: "Review shared UI, gameplay, and feature scenarios.",
+    icon: FlaskConicalIcon,
   },
 ] as const;
 

@@ -47,7 +47,7 @@ function PreviewRun({
       transport={transport}
       studyContent={studyContent}
       contentsNavigation={contentsNavigation}
-      backHref="/ui-foundation#sanctuary-testing"
+      backHref="/admin/testing/features#feature-test-previews"
     />
   );
 }

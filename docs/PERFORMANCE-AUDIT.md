@@ -7,6 +7,17 @@ This document records Phase 31 evidence, corrections, accepted manual checks,
 and final verification. It prevents an automated check from being mistaken for
 mobile or visual acceptance while preserving the evidence that closed the phase.
 
+## Current administrator testing routes
+
+The former all-in-one `/ui-foundation` gallery has been split into focused,
+administrator-only workspaces: `/admin/testing/shared-ui` (including the game
+button showcase), `/admin/testing/gameplay`, `/admin/testing/features`, and
+`/admin/testing/accessibility`. `/admin/testing` is the index. The old
+`/ui-foundation` URL now performs a server-authorized redirect to that index;
+historical entries below retain the route that existed when each check ran.
+Administrator authorization is enforced in the route layout and views, with
+Proxy providing the navigation-level check.
+
 ## Automated baseline
 
 - `npx tsc --noEmit`: passed.

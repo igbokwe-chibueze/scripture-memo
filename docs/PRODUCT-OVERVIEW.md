@@ -1663,7 +1663,8 @@ campaign or award Glow Points.
 
 Implementation details for these requirements are consolidated in
 `docs/UI-UX-GUIDE.md`. Agents and developers must read that guide before
-changing player-facing UI; `/ui-foundation` remains the living visual reference.
+changing player-facing UI; `/admin/testing/shared-ui` remains the living visual
+reference and is restricted to administrators.
 
 ### 19.1 Required States
 

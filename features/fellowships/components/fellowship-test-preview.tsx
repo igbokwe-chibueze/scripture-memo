@@ -138,7 +138,7 @@ function PreviewRun({ rejectFirst }: { rejectFirst: boolean }): React.ReactNode 
           },
           refresh: () => undefined,
           navigate: () => undefined,
-          linkHref: () => "/ui-foundation#fellowship-testing",
+          linkHref: () => "/admin/testing/features#feature-test-previews",
         }}
       />
       <FellowshipJoinRequestContent
