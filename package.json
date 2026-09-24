@@ -37,7 +37,8 @@
     "local:test:start": "tsx scripts/start-local-test-database.ts",
     "test:database:migrate": "tsx scripts/migrate-local-test-database.ts",
     "test:fellowships:integration": "tsx --conditions=react-server --test features/fellowships/repositories/fellowship.repository.test.ts",
-    "test:integration:all": "npm run test:integration && npm run test:progression:integration && npm run test:rewards:integration && npm run test:fellowships:integration"
+    "test:integration:all": "npm run test:integration && npm run test:progression:integration && npm run test:rewards:integration && npm run test:fellowships:integration",
+    "audit:ranking-plans": "tsx --conditions=react-server scripts/audit-local-ranking-plans.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

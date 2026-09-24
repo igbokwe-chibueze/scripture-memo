@@ -1653,10 +1653,11 @@ badges, and cooldowns. The project owner accepted the result on 2026-09-01.
 
 **Goal:** Make the application feel production-ready.
 
-**Status:** In progress. The initial automated audit passes TypeScript, lint,
-explicit-`any`, debug-log, and repository-boundary checks. The first correction
-batch reduces repeat Vault and gameplay reads and closes reduced-motion gaps.
-The remaining route-by-route visual and state review is tracked in
+**Status:** Complete — accepted and verified on 2026-09-24. Database/read-path
+review, representative local ranking plans, Server Component boundaries, route
+states, 375px regression coverage, independent reduced-motion sources, Sonner
+copy, strict TypeScript, full lint, explicit-`any`, debug-log, and repository
+boundary checks pass. Exact evidence and measurement limits are recorded in
 `PERFORMANCE-AUDIT.md`.
 
 ### Tasks
@@ -1682,6 +1683,8 @@ The remaining route-by-route visual and state review is tracked in
 - Lint passes.
 - No `any` types.
 - `prefers-reduced-motion` is respected.
+
+Phase 31 is complete. Phase 32 — Final Security Audit is next.
 
 ---
 

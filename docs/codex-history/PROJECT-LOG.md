@@ -3673,3 +3673,24 @@ concurrency subtests remain explicitly skipped as documented above.
   rewrite is justified by source evidence.
 - Representative large global/country and Fellowship ranking plans remain open;
   the small development dataset cannot establish those execution characteristics.
+
+### 2026-09-24 - Representative ranking plans and Phase 31 completed
+
+- Added a guarded `audit:ranking-plans` command backed by a dedicated leaderboard
+  performance repository. It rejects hosted and development listeners, uses the
+  existing test database on port 51224, and requires empty ranking tables.
+- Measured the production query shape with 10,000 rollback-only learners: 5,000
+  country entries, a 2,000-member Fellowship, and a 2,500-member league. Local
+  execution measured 102.445 ms all-time, 52.213 ms country, 46.160 ms
+  Fellowship, and 31.503 ms league. All sorts stayed in memory with zero
+  temporary disk blocks; the plans do not justify a new index.
+- A deliberate transaction rollback and post-run counts proved no synthetic
+  identities, profiles, scores, weeks, cohorts, Fellowships, or memberships
+  remained. No development or hosted database was contacted and no migration ran.
+- Final validation passes strict TypeScript, full ESLint, whitespace checks, and
+  all 119 non-database tests. Existing client-boundary, route-state, 375px,
+  independent reduced-motion, and Sonner evidence was reconciled without
+  repeating accepted manual scenarios.
+- Phase 31 — Performance and Polish is complete. Phase 32 — Final Security Audit
+  is next. The two progression lock-race skips remain assigned to a future
+  production-capable database environment and do not reopen Phase 31.

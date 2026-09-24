@@ -1,17 +1,17 @@
 # Phase 31 Performance and Polish Audit
 
-**Status:** In progress  
+**Status:** Complete — accepted and verified on 2026-09-24
 **Started:** 2026-09-01
 
-This document records Phase 31 evidence and remaining checks. It prevents a
-passing automated check from being mistaken for a completed mobile or visual
-review.
+This document records Phase 31 evidence, corrections, accepted manual checks,
+and final verification. It prevents an automated check from being mistaken for
+mobile or visual acceptance while preserving the evidence that closed the phase.
 
 ## Automated baseline
 
 - `npx tsc --noEmit`: passed.
 - `npm run lint`: passed.
-- Non-database automated suites: 100 tests passed.
+- Non-database automated suites: 119 tests passed.
 - Explicit TypeScript `any` audit: no matches in application source.
 - Production `console.log` and `debugger` audit: no matches in application
   source.
@@ -280,7 +280,7 @@ remain to be measured.
   the mobile product modal at 375px and desktop detail card. Functional acceptance
   remains recorded and does not need to be repeated.
 
-### Open checks
+### Final audit reconciliation
 
 #### Read-only ranking plan review - 2026-09-15
 
@@ -298,8 +298,8 @@ remain to be measured.
   rows before filtering the requested page. The three-row profile sequential
   scan is not evidence of a missing index.
 - Country input was null for the selected learner, producing an empty constant
-  result; this is not a valid country-scope performance measurement. Representative
-  country, large-population, and large-roster measurements remain open.
+  result. The representative-scale follow-up below supersedes this initial
+  small-dataset limitation.
 - Extended source review to Oil Shop and Sanctuary: no per-item query loops.
   Shop reads four independent projections/aggregates; existing user-leading hint
   and purchase indexes support its filters, and the catalogue index covers
@@ -310,21 +310,30 @@ remain to be measured.
 - Notification failure/retry was subsequently accepted on 2026-09-23. Existing
   purchase-preview and Vault-header acceptance also remains valid.
 
-- High-read repository source review is complete. No request-path read query is
-  issued from a collection loop, and the reviewed filters have supporting
-  primary, unique, or leading composite indexes. Representative ranking plans
-  remain a separate measurement item below.
-- Review client-component boundaries on data-heavy screens.
-- Verify loading, empty, error, pending, and disabled states route by route.
-- Inspect every player-facing route at a 375px viewport for wrapping, clipping,
-  horizontal overflow, touch targets, and content hierarchy.
-- Manually verify all motion and confetti surfaces with the in-app setting and
-  operating-system setting independently enabled.
+- High-read repository review and representative ranking measurements are
+  complete. No request-path read query is issued from a collection loop, and no
+  index migration is justified by the measured plans.
+- Client boundaries are complete: all 45 feature view files remain Server
+  Components, the measured Sanctuary Markdown client dependency was removed,
+  and the route-associated browser graph fell by 149,329 bytes (11.4%).
+- Loading and error boundaries resolve for every inventoried player route.
+  Empty, pending, disabled, rejection, retry, and success behavior was exercised
+  through the accepted production-component previews for Notifications, Vault,
+  Fellowships, Oil Shop, Settings, Sanctuary, Day Selection, and Gameplay.
+- Mobile coverage is complete through the earlier accepted responsive feature
+  phases, the full five-mode 375px Phase 30 flow, and the Phase 31 route-specific
+  regression previews. The later Map controls and Gameplay entry-card findings
+  were corrected and accepted.
+- Reduced motion is complete: the saved in-app preference and the independent OS
+  preference were each exercised, while source review covered loading, errors,
+  hints, confetti, celebrations, count-ups, and map scrolling.
 - Sonner message copy review completed on 2026-09-23; see the detailed audit
   below. Error persistence and non-error timing also conform to the shared rules.
 
-Phase 31 is not complete until the remaining checks and required project-owner
-manual checks pass.
+Phase 31 is complete. Previously accepted manual scenarios must not be repeated.
+Production Web Vitals remain deployment telemetry rather than a local acceptance
+claim. The two single-connection concurrency skips remain explicitly tracked for
+the production-capable database environment and do not reopen this phase.
 
 Local setup validation (2026-09-14): strict TypeScript, full ESLint, four guard
 unit tests, and all four integration suite commands passed; the two progression
@@ -438,8 +447,10 @@ and purchase controls. Desktop visual acceptance remains pending.
   server and compare analyzer output. Do not infer savings from subset size alone.
 - Gameplay lazy-loading deferred pending timed-attempt loading design; server
   deadlines continue while chunks load. No application refactor made this session.
-- Baseline production attribution is complete. Browser network/timing measurements,
-  remaining route reviews and representative database plans remain open.
+- Baseline production attribution is complete. The later route reconciliation
+  and representative-scale database audit close the local Phase 31 follow-ups.
+  Browser network timing and Web Vitals remain deployment telemetry rather than
+  claims derived from bundle attribution.
 
 ### Sanctuary client-boundary optimization - 2026-09-23
 
@@ -546,7 +557,27 @@ and purchase controls. Desktop visual acceptance remains pending.
   composite indexes cover the reviewed identities and common status/order
   filters. The three-item shop catalogue may sort after its active/type lookup;
   its fixed small cardinality does not justify a wider index.
-- No new index or query rewrite is justified by source evidence. Large-population
-  country/global ranking and large-Fellowship plans remain open because the
-  development dataset is not representative; that limitation must not be
-  converted into a speculative migration.
+- No new index or query rewrite was justified by source evidence. The
+  representative-scale follow-up below then measured the previously missing
+  country/global, large-Fellowship, and large-league cases.
+
+### Representative ranking plans completed - 2026-09-24
+
+- Added `npm run audit:ranking-plans`, guarded by the existing test-database
+  isolation rules. It uses only the existing local test listener on port 51224,
+  rejects the development listener and hosted targets, and requires empty
+  ranking tables before setup.
+- The audit creates 10,000 synthetic learners, including 5,000 in one country,
+  a 2,000-member Fellowship, and a 2,500-member league cohort. All fixtures and
+  transaction-local statistics exist only inside one Prisma transaction. A
+  deliberate rollback and post-rollback count proved the tables remained empty.
+- Production-shaped `EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON)` results from this
+  local run were: all-time 102.445 ms, country 52.213 ms, Fellowship 46.160 ms,
+  and league 31.503 ms. Planning times were 15.723, 1.532, 4.963, and 1.260 ms.
+- Every ranking sort used in-memory quicksort. The largest reported sort used
+  1,596 kB; no query read or wrote temporary disk blocks. PostgreSQL reasonably
+  chose sequential scans for the full population and 50%-selectivity country
+  scope, while narrower joins used identity indexes. This is one local
+  cardinality test, not a production latency guarantee or Web Vitals result.
+- The plans provide no evidence for an additional index. No migration, hosted
+  connection, development data change, or persistent test fixture was created.
