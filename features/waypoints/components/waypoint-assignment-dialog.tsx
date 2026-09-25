@@ -127,8 +127,11 @@ export function WaypointAssignmentDialog({
         </DialogHeader>
         <div className="space-y-5 py-2">
           <div className="space-y-2">
-            <p className="text-sm font-medium">Published verse</p>
+            <label htmlFor={`waypoint-${waypointNumber}-verse`} className="text-sm font-medium">
+              Published verse
+            </label>
             <SearchableSelect
+              id={`waypoint-${waypointNumber}-verse`}
               value={verseId}
               options={verseOptions}
               onValueChange={setVerseId}
@@ -140,13 +143,16 @@ export function WaypointAssignmentDialog({
             />
           </div>
           <div className="space-y-2">
-            <p className="text-sm font-medium">Journey Stage</p>
+            <label htmlFor={`waypoint-${waypointNumber}-stage`} className="text-sm font-medium">
+              Journey Stage
+            </label>
             <Select
+              name={`waypoint-${waypointNumber}-stage`}
               value={journeyStage}
               onValueChange={(value) => setJourneyStage(value as JourneyStage)}
               disabled={isPending}
             >
-              <SelectTrigger className="min-h-11 w-full">
+              <SelectTrigger id={`waypoint-${waypointNumber}-stage`} className="min-h-11 w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

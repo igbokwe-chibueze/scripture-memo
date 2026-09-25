@@ -72,6 +72,8 @@ export function BadgeCollection({
         <label className="grid gap-1 text-xs font-black tracking-wide uppercase">
           {t("category")}
           <select
+            id="badge-category-filter"
+            name="badgeCategory"
             className="min-h-11 rounded-xl border border-input bg-background px-3 text-sm font-semibold normal-case"
             value={category}
             onChange={(event) => setCategory(event.currentTarget.value as BadgeCategory | "ALL")}
@@ -85,6 +87,8 @@ export function BadgeCollection({
         <label className="grid gap-1 text-xs font-black tracking-wide uppercase">
           {t("rarity")}
           <select
+            id="badge-rarity-filter"
+            name="badgeRarity"
             className="min-h-11 rounded-xl border border-input bg-background px-3 text-sm font-semibold normal-case"
             value={rarity}
             onChange={(event) => setRarity(event.currentTarget.value as BadgeRarity | "ALL")}

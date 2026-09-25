@@ -182,6 +182,7 @@ export function PackVerseManager({ packId, initialItems, availableVerses }: Pack
     <div className="space-y-5">
       <div className="grid gap-3 rounded-xl border bg-muted/25 p-4 sm:grid-cols-[1fr_auto]">
         <SearchableSelect
+          id="pack-verse-search-select"
           value={selectedVerseId}
           options={verseOptions}
           label="Published verse to add"

@@ -256,6 +256,8 @@ export function BadgeAdminManager({
               <label className="grid gap-1 text-sm font-bold">
                 Icon
                 <input
+                  id="badge-icon"
+                  name="badgeIcon"
                   className="min-h-11 rounded-xl border border-input bg-background px-3 aria-invalid:border-red-500"
                   aria-invalid={Boolean(formErrors.icon)}
                   value={draft.icon}
@@ -269,6 +271,8 @@ export function BadgeAdminManager({
               <label className="grid gap-1 text-sm font-bold">
                 Name
                 <input
+                  id="badge-name"
+                  name="badgeName"
                   className="min-h-11 rounded-xl border border-input bg-background px-3 aria-invalid:border-red-500"
                   aria-invalid={Boolean(formErrors.name)}
                   value={draft.name}
@@ -281,6 +285,8 @@ export function BadgeAdminManager({
             <label className="grid gap-1 text-sm font-bold">
               Description
               <textarea
+                id="badge-description"
+                name="badgeDescription"
                 className="min-h-24 rounded-xl border border-input bg-background p-3 aria-invalid:border-red-500"
                 aria-invalid={Boolean(formErrors.description)}
                 value={draft.description}
@@ -296,6 +302,8 @@ export function BadgeAdminManager({
                   explanation="Groups related achievements in the player's collection. It does not change how progress is calculated."
                 />
                 <select
+                  id="badge-category"
+                  name="badgeCategory"
                   className="min-h-11 rounded-xl border border-input bg-background px-3"
                   value={draft.category}
                   onChange={(event) =>
@@ -316,6 +324,8 @@ export function BadgeAdminManager({
                   explanation="Controls the celebration style and server-owned Glow reward: Common 50 through Legendary 500."
                 />
                 <select
+                  id="badge-rarity"
+                  name="badgeRarity"
                   className="min-h-11 rounded-xl border border-input bg-background px-3"
                   value={draft.rarity}
                   onChange={(event) =>
@@ -336,6 +346,8 @@ export function BadgeAdminManager({
                   explanation="The criterion value required to unlock the badge. For example, Streak Days with a target of 7 unlocks at a seven-day streak."
                 />
                 <input
+                  id="badge-target-value"
+                  name="badgeTargetValue"
                   type="number"
                   min={1}
                   max={1_000_000}
@@ -366,6 +378,8 @@ export function BadgeAdminManager({
                 explanation="The server-owned measurement used for progress. Future-feature criteria stay paused until their trusted gameplay event exists."
               />
               <select
+                id="badge-criteria"
+                name="badgeCriteria"
                 className="min-h-11 rounded-xl border border-input bg-background px-3"
                 value={draft.criteriaKey}
                 onChange={(event) => {
@@ -398,6 +412,8 @@ export function BadgeAdminManager({
             <div className="flex flex-wrap gap-5">
               <label className="inline-flex min-h-11 items-center gap-2 text-sm font-bold">
                 <input
+                  id="badge-is-hidden"
+                  name="badgeIsHidden"
                   type="checkbox"
                   checked={draft.isHidden}
                   onChange={(event) =>
@@ -408,6 +424,8 @@ export function BadgeAdminManager({
               </label>
               <label className="inline-flex min-h-11 items-center gap-2 text-sm font-bold">
                 <input
+                  id="badge-is-active"
+                  name="badgeIsActive"
                   type="checkbox"
                   checked={draft.isActive}
                   disabled={!isBadgeCriterionAvailable(draft.criteriaKey)}
@@ -454,7 +472,12 @@ export function BadgeAdminManager({
             Super Admin grants are permanent, rewarded once, and written to the audit trail.
           </p>
           <div className="mt-4 grid gap-3 md:grid-cols-[1fr_1fr_auto]">
+            <label htmlFor="manual-award-badge" className="sr-only">
+              Badge to award
+            </label>
             <select
+              id="manual-award-badge"
+              name="manualAwardBadge"
               className="min-h-11 rounded-xl border border-input bg-background px-3"
               value={awardBadgeId}
               onChange={(event) => setAwardBadgeId(event.currentTarget.value)}
@@ -488,6 +511,8 @@ export function BadgeAdminManager({
             aria-hidden="true"
           />
           <input
+            id="badge-search"
+            name="badgeSearch"
             type="search"
             className="min-h-12 w-full rounded-xl border border-input bg-background pr-4 pl-10"
             placeholder="Find by name, description, category, rarity, or criterion"

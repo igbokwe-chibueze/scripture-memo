@@ -119,8 +119,9 @@ export function VerseForm({ mode, initialValues }: VerseFormProps): React.ReactN
                 name="book"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid} className="sm:col-span-2 lg:col-span-2">
-                    <FieldLabel>Book</FieldLabel>
+                    <FieldLabel htmlFor="verse-book">Book</FieldLabel>
                     <SearchableSelect
+                      id="verse-book"
                       value={field.value}
                       options={bookOptions}
                       label="Bible book"

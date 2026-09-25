@@ -110,6 +110,8 @@ function UserAdminCard({
           <label className="grid gap-1.5 text-sm font-bold">
             Role
             <select
+              id={`user-role-${user.id}`}
+              name={`userRole-${user.id}`}
               value={selectedRole}
               onChange={(event) =>
                 setSelectedRole(event.currentTarget.value as UserRole)
@@ -193,6 +195,8 @@ function UserAdminTableRow({
       <label className="grid gap-1.5 text-sm font-bold">
         <span className="lg:sr-only">Role</span>
         <select
+          id={`user-role-${user.id}`}
+          name={`userRole-${user.id}`}
           value={selectedRole}
           onChange={(event) =>
             setSelectedRole(event.currentTarget.value as UserRole)

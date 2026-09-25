@@ -312,6 +312,8 @@ export function CueMode({
                     complete word.
                   </span>
                   <input
+                    id={`cue-answer-${token.index}`}
+                    name={`cueAnswer-${token.index}`}
                     ref={(element) => {
                       if (element) inputRefs.current.set(token.index, element);
                       else inputRefs.current.delete(token.index);

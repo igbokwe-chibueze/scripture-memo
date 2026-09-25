@@ -96,6 +96,8 @@ export function JourneyStageTestLauncher({
           <label className="grid gap-1.5 text-sm font-bold">
             Waypoint
             <select
+              id="journey-test-waypoint"
+              name="journeyTestWaypoint"
               className="min-h-11 w-full rounded-xl border border-input bg-background px-3 text-sm font-semibold outline-none focus-visible:ring-2 focus-visible:ring-ring"
               value={waypointId}
               disabled={isPending || assignedWaypoints.length === 0}
@@ -112,6 +114,8 @@ export function JourneyStageTestLauncher({
           <label className="grid gap-1.5 text-sm font-bold">
             Mode
             <select
+              id="journey-test-mode"
+              name="journeyTestMode"
               className="min-h-11 w-full rounded-xl border border-input bg-background px-3 text-sm font-semibold outline-none focus-visible:ring-2 focus-visible:ring-ring"
               value={gameMode}
               disabled={isPending || assignedWaypoints.length === 0}

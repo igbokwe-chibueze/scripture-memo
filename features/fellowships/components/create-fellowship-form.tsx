@@ -29,5 +29,74 @@ export function CreateFellowshipForm(): React.ReactNode {
     if (!result.success || !result.data) { toast.error(result.message, { duration: Infinity }); return; }
     toast.success(result.message); if (result.data.badgeUnlocks.length > 0) { setUnlocks(result.data.badgeUnlocks); setPendingSlug(result.data.slug); } else { router.push(`/fellowships/${result.data.slug}`); router.refresh(); }
   });
-  return <><form action={submit} className="space-y-5 rounded-[2rem] border border-violet-300/25 bg-card p-5 shadow-xl sm:p-7"><label className="grid gap-2 font-bold">{t("name")}<Input name="name" required minLength={3} maxLength={50} /></label><label className="grid gap-2 font-bold">{t("descriptionLabel")}<Textarea name="description" maxLength={280} rows={5} /></label><FellowshipInsigniaPicker value={insigniaKey} onChange={setInsigniaKey} /><div className="flex items-center gap-4 rounded-2xl border p-4"><span className="grid size-12 place-items-center rounded-xl bg-violet-500/10"><ShieldCheckIcon /></span><div className="flex-1"><p className="font-black">{t("publicFellowship")}</p><p className="text-sm text-muted-foreground">{t("publicDescription")}</p></div><Switch checked={isPublic} onCheckedChange={setIsPublic} /></div><LoadingButton type="submit" isPending={isPending} pendingLabel={t("creating")} className="min-h-12 w-full font-black"><SparklesIcon />{t("create")}</LoadingButton></form>{unlocks.length > 0 && <BadgeUnlockSequence badges={unlocks} index={unlockIndex} onAdvance={() => { if (unlockIndex + 1 < unlocks.length) { setUnlockIndex((value) => value + 1); return; } setUnlocks([]); if (pendingSlug) { router.push(`/fellowships/${pendingSlug}`); router.refresh(); } }} />}</>;
+  return (
+    <>
+      <form
+        action={submit}
+        className="space-y-5 rounded-[2rem] border border-violet-300/25 bg-card p-5 shadow-xl sm:p-7"
+      >
+        <label className="grid gap-2 font-bold">
+          {t("name")}
+          <Input name="name" required minLength={3} maxLength={50} />
+        </label>
+        <label className="grid gap-2 font-bold">
+          {t("descriptionLabel")}
+          <Textarea name="description" maxLength={280} rows={5} />
+        </label>
+        <FellowshipInsigniaPicker
+          value={insigniaKey}
+          onChange={setInsigniaKey}
+        />
+        <div className="flex items-center gap-4 rounded-2xl border p-4">
+          <span className="grid size-12 place-items-center rounded-xl bg-violet-500/10">
+            <ShieldCheckIcon aria-hidden="true" />
+          </span>
+          <div className="flex-1">
+            <label
+              htmlFor="create-fellowship-public"
+              className="font-black"
+            >
+              {t("publicFellowship")}
+            </label>
+            <p className="text-sm text-muted-foreground">
+              {t("publicDescription")}
+            </p>
+          </div>
+          <Switch
+            id="create-fellowship-public"
+            name="isPublic"
+            aria-label={t("publicFellowship")}
+            checked={isPublic}
+            onCheckedChange={setIsPublic}
+          />
+        </div>
+        <LoadingButton
+          type="submit"
+          isPending={isPending}
+          pendingLabel={t("creating")}
+          className="min-h-12 w-full font-black"
+        >
+          <SparklesIcon aria-hidden="true" />
+          {t("create")}
+        </LoadingButton>
+      </form>
+      {unlocks.length > 0 && (
+        <BadgeUnlockSequence
+          badges={unlocks}
+          index={unlockIndex}
+          onAdvance={() => {
+            if (unlockIndex + 1 < unlocks.length) {
+              setUnlockIndex((value) => value + 1);
+              return;
+            }
+            setUnlocks([]);
+            if (pendingSlug) {
+              router.push(`/fellowships/${pendingSlug}`);
+              router.refresh();
+            }
+          }}
+        />
+      )}
+    </>
+  );
 }

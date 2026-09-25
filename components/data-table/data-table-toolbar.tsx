@@ -50,6 +50,8 @@ export function DataTableToolbar({
           aria-hidden="true"
         />
         <Input
+          id="data-table-search"
+          name="dataTableSearch"
           type="search"
           value={searchValue}
           onChange={(event) => onSearchChange(event.target.value)}

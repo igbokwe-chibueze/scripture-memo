@@ -105,6 +105,8 @@ export function VaultLibrary({ data }: { data: VaultLibraryData }): React.ReactN
           <label className="grid gap-1 text-xs font-bold text-muted-foreground">
             {t("translation")}
             <select
+              id="vault-translation-filter"
+              name="vaultTranslation"
               className="min-h-11 rounded-xl border border-border bg-background px-3 text-sm text-foreground"
               value={translation}
               onChange={(event) => setTranslation(event.currentTarget.value)}
@@ -118,6 +120,8 @@ export function VaultLibrary({ data }: { data: VaultLibraryData }): React.ReactN
           <label className="grid gap-1 text-xs font-bold text-muted-foreground">
             {t("pack")}
             <select
+              id="vault-pack-filter"
+              name="vaultPack"
               className="min-h-11 rounded-xl border border-border bg-background px-3 text-sm text-foreground"
               value={pack}
               onChange={(event) => setPack(event.currentTarget.value)}

@@ -154,7 +154,12 @@ export function FellowshipDirectoryContent({
       <section className="rounded-[2rem] border border-amber-300/25 bg-linear-to-br from-violet-950 via-slate-950 to-amber-950 p-5 text-white shadow-xl sm:p-7">
         <div className="flex items-center gap-3"><KeyRoundIcon className="size-6 text-amber-300" /><div><h2 className="font-heading text-xl font-black">{t("haveInvite")}</h2><p className="text-sm text-slate-300">{t("invitePrompt")}</p></div></div>
         <div className="mt-4 grid gap-2 sm:grid-cols-[1fr_auto]">
+          <label htmlFor="fellowship-invite-code" className="sr-only">
+            {t("inviteCode")}
+          </label>
           <Input
+            id="fellowship-invite-code"
+            name="fellowshipInviteCode"
             value={inviteCode}
             disabled={isPending}
             onChange={(event) => setInviteCode(event.currentTarget.value)}

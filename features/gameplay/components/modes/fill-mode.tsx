@@ -382,6 +382,8 @@ export function FillMode({
                     Enter missing word {token.index + 1}.
                   </span>
                   <input
+                    id={`fill-answer-${token.index}`}
+                    name={`fillAnswer-${token.index}`}
                     ref={(element) => {
                       if (element) inputRefs.current.set(token.index, element);
                       else inputRefs.current.delete(token.index);

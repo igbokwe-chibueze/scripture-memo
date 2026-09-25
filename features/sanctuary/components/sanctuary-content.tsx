@@ -228,7 +228,12 @@ export function SanctuaryContent({
                   {note.length}/5000
                 </span>
               </div>
+              <label htmlFor="private-note-input" className="sr-only">
+                {t("yourNotes")}
+              </label>
               <Textarea
+                id="private-note-input"
+                name="privateNote"
                 value={note}
                 maxLength={5_000}
                 rows={8}

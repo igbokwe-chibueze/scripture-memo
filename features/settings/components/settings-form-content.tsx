@@ -122,8 +122,19 @@ export function SettingsFormContent({
 
             <Controller control={form.control} name="countryCode" render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel>{t("country")}</FieldLabel>
-                <SearchableSelect value={field.value} options={countryOptions} label={t("country")} placeholder={t("selectCountry")} searchPlaceholder={t("searchCountries")} emptyMessage={t("noCountry")} disabled={isPending} invalid={fieldState.invalid} onValueChange={field.onChange} />
+                <FieldLabel htmlFor="country-code">{t("country")}</FieldLabel>
+                <SearchableSelect
+                  id="country-code"
+                  value={field.value}
+                  options={countryOptions}
+                  label={t("country")}
+                  placeholder={t("selectCountry")}
+                  searchPlaceholder={t("searchCountries")}
+                  emptyMessage={t("noCountry")}
+                  disabled={isPending}
+                  invalid={fieldState.invalid}
+                  onValueChange={field.onChange}
+                />
                 <FieldDescription>{t("countryDescription")}</FieldDescription>
                 <FieldError>{fieldState.error?.message}</FieldError>
               </Field>
@@ -138,9 +149,13 @@ export function SettingsFormContent({
           <FieldGroup>
             <Controller control={form.control} name="locale" render={({ field }) => (
               <Field>
-                <FieldLabel>{t("interfaceLanguage")}</FieldLabel>
-                <Select disabled={isPending} value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="min-h-11 w-full"><SelectValue /></SelectTrigger>
+                <FieldLabel htmlFor="interface-language">
+                  {t("interfaceLanguage")}
+                </FieldLabel>
+                <Select name="interfaceLanguage" disabled={isPending} value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger id="interface-language" className="min-h-11 w-full">
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent><SelectItem value="en">{t("english")}</SelectItem><SelectItem value="es">{t("spanish")}</SelectItem><SelectItem value="fr">{t("french")}</SelectItem></SelectContent>
                 </Select>
                 <FieldDescription>{t("interfaceLanguageDescription")}</FieldDescription>
@@ -149,9 +164,13 @@ export function SettingsFormContent({
 
             <Controller control={form.control} name="preferredTranslation" render={({ field }) => (
               <Field>
-                <FieldLabel>{t("preferredBibleTranslation")}</FieldLabel>
-                <Select disabled={isPending} value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="min-h-11 w-full"><SelectValue /></SelectTrigger>
+                <FieldLabel htmlFor="preferred-translation">
+                  {t("preferredBibleTranslation")}
+                </FieldLabel>
+                <Select name="preferredTranslation" disabled={isPending} value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger id="preferred-translation" className="min-h-11 w-full">
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="KJV">
                       King James Version (KJV)
@@ -169,9 +188,11 @@ export function SettingsFormContent({
 
             <Controller control={form.control} name="theme" render={({ field }) => (
               <Field>
-                <FieldLabel>{t("theme")}</FieldLabel>
-                <Select disabled={isPending} value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="min-h-11 w-full"><SelectValue /></SelectTrigger>
+                <FieldLabel htmlFor="theme-preference">{t("theme")}</FieldLabel>
+                <Select name="themePreference" disabled={isPending} value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger id="theme-preference" className="min-h-11 w-full">
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent><SelectItem value="light">{t("light")}</SelectItem><SelectItem value="dark">{t("dark")}</SelectItem><SelectItem value="system">{t("system")}</SelectItem></SelectContent>
                 </Select>
               </Field>

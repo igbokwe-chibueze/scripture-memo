@@ -10,6 +10,7 @@ export type SearchableSelectOption = {
 };
 
 export type SearchableSelectProps = {
+  id: string;
   value: string;
   options: readonly SearchableSelectOption[];
   onValueChange: (value: string) => void;
@@ -28,6 +29,7 @@ export type SearchableSelectProps = {
  * choices are not burdened with an unnecessary search interaction.
  */
 export function SearchableSelect({
+  id,
   value,
   options,
   onValueChange,
@@ -43,6 +45,8 @@ export function SearchableSelect({
 
   return (
     <Combobox.Root
+      id={id}
+      name={id}
       items={[...options]}
       value={selectedOption}
       disabled={disabled}
@@ -53,6 +57,7 @@ export function SearchableSelect({
     >
       <Combobox.Label className="sr-only">{label}</Combobox.Label>
       <Combobox.Trigger
+        id={id}
         className={cn(
           "flex min-h-11 w-full items-center justify-between gap-3 rounded-lg border border-input bg-background px-3 text-left text-sm outline-none transition-colors",
           "hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
@@ -74,8 +79,11 @@ export function SearchableSelect({
             <div className="relative border-b p-2">
               <Search className="pointer-events-none absolute top-1/2 left-5 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
               <Combobox.Input
+                id={`${id}-search`}
+                name={`${id}-search`}
                 autoFocus
                 placeholder={searchPlaceholder}
+                aria-label={searchPlaceholder}
                 className="min-h-10 w-full rounded-lg bg-muted/50 pr-3 pl-9 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
               />
             </div>

@@ -190,6 +190,8 @@ export function UserAccountActions({
             <label className="grid gap-1.5 text-sm font-bold">
               Reason
               <Input
+                id={`suspension-reason-${user.id}`}
+                name={`suspensionReason-${user.id}`}
                 value={reason}
                 onChange={(event) => setReason(event.currentTarget.value)}
                 placeholder="Reason for suspending this account"
@@ -230,6 +232,8 @@ export function UserAccountActions({
           <label className="grid gap-1.5 text-sm font-bold">
             Type DELETE to confirm
             <Input
+              id={`delete-confirmation-${user.id}`}
+              name={`deleteConfirmation-${user.id}`}
               value={deleteConfirmation}
               onChange={(event) => setDeleteConfirmation(event.currentTarget.value)}
               autoComplete="off"

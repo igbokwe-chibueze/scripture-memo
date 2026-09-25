@@ -4017,3 +4017,45 @@ concurrency subtests remain explicitly skipped as documented above.
 - Corrected the first manual security test to use the actual protected route,
   `/game/map`, instead of the stale `/app/map` path. Next owner check: visit
   `/game/map` while fully logged out and confirm the app redirects to `/login`.
+
+### 2026-09-25 - CSP issue isolated to regular browser profile
+
+- The owner confirmed the site-wide DevTools eval issue disappears in an
+  Incognito window. The production response on port 3001 serves the enforcing
+  nonce CSP, project source has no direct dynamic-code call, and bundled Zod
+  uses browser `jitless` mode. The app policy remains unchanged; no
+  `unsafe-eval` exception was added.
+- Security Audit Manual Test 1 passed: while logged out, the owner visited
+  `/game/map` and confirmed it redirected to `/login` without rendering the map.
+- Settings DevTools reported four unassociated visible labels on Country,
+  Interface language, Preferred Bible translation, and Theme. Connected each
+  label to its selector button by ID. A later repository-wide form-field audit
+  made `SearchableSelect` IDs required and added IDs/names to its search input.
+
+### 2026-09-25 - Form field accessibility and autofill audit
+
+- Added IDs and names to all app-owned JSX form controls that lacked both,
+  including the two `/vault` filters, verse and pack search controls, admin
+  editors, fellowship visibility switches, and the dynamic Cue/Fill answer
+  inputs. Added explicit label associations for the previously identified
+  Settings controls, verse-book selector, waypoint assignment selectors, and
+  fellowship visibility switches; added a screen-reader label to the Sanctuary
+  private note field and manual badge selector.
+- Made IDs mandatory for `SearchableSelect` callers, and gave its popup search
+  input a unique ID and name. A TypeScript-AST scan of `app/`, `components/`,
+  and `features/` now reports only the generic Textarea and PasswordInput
+  wrapper definitions; the latter's five callers supply IDs, and native
+  Textarea callers provide IDs/names where required.
+- Full TypeScript, full ESLint, and `git diff --check` pass. Browser Issues
+  verification still requires checking representative forms, especially
+  `/settings` and `/vault`.
+- The owner still saw four autofill warnings on `/vault` and four label warnings
+  on `/settings`. The production `.next` build timestamp predated the edited
+  source, so those reports came from stale production output. The installed
+  Base UI Combobox also emits a separate hidden form input; `SearchableSelect`
+  now gives the root control a stable ID and name as well as naming its popup
+  search input.
+- Rebuilt successfully with `npm run build` after confirming port 3001 had no
+  listener. TypeScript and full ESLint pass after the follow-up change. Next:
+  start this fresh production build on port 3001 and recheck `/settings` and
+  `/vault` in the browser.
