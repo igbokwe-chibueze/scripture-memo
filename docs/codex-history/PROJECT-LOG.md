@@ -76,6 +76,17 @@
   confirmed the 101 completed state fits above the flame sprites; the
   authenticated Map A manual check remains for owner acceptance.
 
+### 2026-09-25 - Map A current-waypoint callout moved beside the node
+
+- The current waypoint sits near the top edge of each trail canvas, whose
+  rounded viewport clips overflow. Its previous callout was positioned above
+  the node, leaving only the pointer visible in the owner's screenshot.
+- Moved the callout beside the current node. Its side is chosen separately for
+  mobile and larger layouts based on the node's existing horizontal position,
+  keeping the node, image positions, and map layout unchanged.
+- TypeScript, full ESLint, and all 20 Map tests pass. The production server was
+  left stopped for the owner to run and visually review the updated callout.
+
 ### 2026-09-24 - Internal testing gallery organized by category
 
 - Split the former all-in-one UI foundation gallery into administrator-only

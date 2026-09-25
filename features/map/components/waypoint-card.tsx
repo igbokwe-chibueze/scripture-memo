@@ -11,6 +11,7 @@ import { FlameIndicator } from "@/components/shared/flame-indicator";
 import { TrailWaypointButton } from "@/features/map/components/trail-waypoint-button";
 import type { MapWaypoint } from "@/features/map/types/map.types";
 import { WaypointStatus } from "@/lib/generated/prisma/enums";
+import { cn } from "@/lib/utils";
 
 const statusPresentation: Record<WaypointStatus, { label: string }> = {
   LOCKED: { label: "Locked" },
@@ -29,13 +30,31 @@ const statusPresentation: Record<WaypointStatus, { label: string }> = {
  */
 export function WaypointCard({
   waypoint,
+  mobileCalloutSide = "right",
+  largeCalloutSide = "right",
   onSelect,
 }: {
   waypoint: MapWaypoint;
+  mobileCalloutSide?: "left" | "right";
+  largeCalloutSide?: "left" | "right";
   onSelect: (waypoint: MapWaypoint) => void;
 }): React.ReactNode {
   const t = useTranslations("Map");
   const presentation = statusPresentation[waypoint.status];
+  const mobileCalloutPosition =
+    mobileCalloutSide === "right" ? "left-full ml-2" : "right-full mr-2";
+  const largeCalloutPosition =
+    largeCalloutSide === "right"
+      ? "sm:left-full sm:ml-3 sm:right-auto sm:mr-0"
+      : "sm:right-full sm:mr-3 sm:left-auto sm:ml-0";
+  const mobilePointerPosition =
+    mobileCalloutSide === "right"
+      ? "-left-1 border-b border-l"
+      : "-right-1 border-t border-r";
+  const largePointerPosition =
+    largeCalloutSide === "right"
+      ? "sm:-left-1 sm:border-b sm:border-l sm:border-t-0 sm:border-r-0"
+      : "sm:-right-1 sm:border-t sm:border-r sm:border-b-0 sm:border-l-0";
 
   return (
     // The trail queries this marker once to center the learner's next action.
@@ -44,17 +63,27 @@ export function WaypointCard({
       data-current-waypoint={waypoint.isCurrent ? "true" : undefined}
       className="relative flex w-24 flex-col items-center sm:w-36"
     >
-      {waypoint.isCurrent && (
-        <span className="absolute -top-9 left-1/2 z-20 -translate-x-1/2 rounded-lg border border-amber-300/70 bg-amber-50 px-2 py-1 text-center text-[0.55rem] font-black tracking-[0.1em] whitespace-nowrap text-amber-900 uppercase shadow-lg shadow-amber-500/15 sm:-top-12 sm:rounded-xl sm:px-3 sm:py-1.5 sm:text-[0.65rem] sm:tracking-[0.14em] dark:border-amber-500/35 dark:bg-amber-950/90 dark:text-amber-200">
-          {t("continueHere")}
-          <span
-            aria-hidden="true"
-            className="absolute top-5 left-1/2 size-2 -translate-x-1/2 rotate-45 border-r border-b border-amber-300/70 bg-amber-50 sm:top-7 sm:size-2.5 dark:border-amber-500/35 dark:bg-amber-950"
-          />
-        </span>
-      )}
-
       <div className="relative">
+        {waypoint.isCurrent && (
+          <span
+            className={cn(
+              "absolute top-1/2 z-30 w-max -translate-y-1/2 rounded-lg border border-amber-300/70 bg-amber-50 px-2 py-1 text-center text-[0.55rem] font-black tracking-[0.1em] whitespace-nowrap text-amber-900 uppercase shadow-lg shadow-amber-500/15 sm:rounded-xl sm:px-3 sm:py-1.5 sm:text-[0.65rem] sm:tracking-[0.14em] dark:border-amber-500/35 dark:bg-amber-950/90 dark:text-amber-200",
+              mobileCalloutPosition,
+              largeCalloutPosition,
+            )}
+          >
+            {t("continueHere")}
+            <span
+              aria-hidden="true"
+              className={cn(
+                "absolute top-1/2 size-2 -translate-y-1/2 rotate-45 border-amber-300/70 bg-amber-50 sm:size-2.5 dark:border-amber-500/35 dark:bg-amber-950",
+                mobilePointerPosition,
+                largePointerPosition,
+              )}
+            />
+          </span>
+        )}
+
         {waypoint.isCurrent && (
           // Decorative attention uses motion-safe so reduced-motion users keep
           // the static current ring without a pulsing animation.

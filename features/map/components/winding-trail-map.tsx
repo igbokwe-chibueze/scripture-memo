@@ -302,6 +302,12 @@ export function WindingTrailMap({
                     >
                       <WaypointCard
                         waypoint={waypoint}
+                        mobileCalloutSide={
+                          mobilePosition.x <= 50 ? "right" : "left"
+                        }
+                        largeCalloutSide={
+                          largePosition.x <= 50 ? "right" : "left"
+                        }
                         onSelect={onSelectWaypoint}
                       />
                     </div>
