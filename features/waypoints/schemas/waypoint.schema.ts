@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/zod";
 
 const journeyStageSchema = z.enum(["LEARN", "RECALL", "STRENGTHEN", "MASTER"]);
 

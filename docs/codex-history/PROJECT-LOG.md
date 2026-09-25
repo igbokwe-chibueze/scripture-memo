@@ -3837,3 +3837,80 @@ concurrency subtests remain explicitly skipped as documented above.
 - Verification: strict TypeScript, full ESLint, `git diff --check`, and the
   production build all pass in the network-restricted environment. Next.js
   compiled and generated all 35 static pages without contacting Google Fonts.
+
+### 2026-09-24 - CSP report-only review enabled
+
+- Added a per-document nonce-based `Content-Security-Policy-Report-Only` through
+  Proxy, excluding static assets and prefetches. The nonce is forwarded to the
+  Next.js renderer and `next-themes`; script execution remains nonce-restricted
+  in the policy, while computed style attributes have a separate allowance.
+- Confirmed the installed Next.js guidance against the app: root
+  internationalization reads request headers and cookies, and user-facing
+  routes are already dynamically rendered, so nonce adoption does not newly
+  remove static page caching. The browser currently receives no enforcing CSP.
+- Verification: strict TypeScript, full ESLint, whitespace checks, and
+  production build passed. A local production-mode smoke test confirmed the
+  report-only response header, 47 matching rendered nonces, no enforcing CSP,
+  unchanged protected-route redirects, and no document policy on local font
+  assets.
+- Manual review pending: inspect report-only violations while using public/auth
+  screens and protected map, gameplay, shop, and theme flows. Keep CSP in
+  report-only mode until this review is accepted.
+
+### 2026-09-25 - CSP production reports traced
+
+- Production browser review found a same-origin Next.js loading-boundary chunk
+  reported under `strict-dynamic`, which disables the `self` source, and two
+  inline style blocks reported from the Sonner bundle. Removed `strict-dynamic`
+  while retaining the per-request script nonce and same-origin script scope.
+- Added only the two exact style hashes reported by the browser. This keeps the
+  stylesheet exception narrower than allowing arbitrary inline style elements;
+  dynamic React style attributes remain separately allowed for map/game UI.
+- CSP remains report-only. Re-run the same production browser flows to confirm
+  that these reports are resolved and check for additional violations before
+  considering enforcement.
+
+### 2026-09-25 - CSP map route recheck passed
+
+- The owner confirmed that the production `/game/map` page now loads with a
+  clear browser console after the policy adjustment. This accepts the map-route
+  check only; CSP remains report-only and audit item 14.7 remains in progress.
+- Next manual check: open `/`, `/login`, and `/register` on the production
+  server. Confirm each page works and the Console has no messages containing
+  “Content Security Policy” or “violates”.
+
+### 2026-09-25 - Zod CSP probe and font preload findings
+
+- Public/auth production review reported `unsafe-eval` on login and register.
+  Traced it to Zod 4's caught JIT capability probe, not application-authored
+  dynamic code. Added `lib/zod.ts` to set browser-only `jitless: true` before
+  schemas load, and routed all project-owned Zod imports through that module.
+  Server validation retains normal JIT behavior.
+- The home and auth pages also warned that both preloaded fonts were unused.
+  Corrected the invalid Latin Unicode-range placeholder in the Geist and Lilita
+  faces and removed the site-wide Geist Mono preload. Follow-up browser checks
+  passed on `/login` and `/register`; `/` had no CSP report but still warned
+  that its Geist Sans preload went unused. Removed that final global font
+  preload. The font remains available through CSS and is fetched if rendered
+  text needs it, avoiding an unnecessary preload on routes that do not use it.
+- TypeScript, ESLint, staged/unstaged `git diff --check`, and the production
+  build passed after removing the final preload. CSP remains report-only.
+
+### 2026-09-25 - CSP public and auth route review passed
+
+- The owner confirmed `/`, `/login`, and `/register` now pass production browser
+  review after restarting the server: no CSP reports and no unused-font-preload
+  warning. `/game/map` had already passed. Audit item 14.7 remains in progress
+  until representative gameplay, Oil Shop, and theme flows are checked.
+- Next manual check: open an active gameplay session from `/game/map`, exercise
+  one game interaction, and confirm the Console has no CSP messages or
+  violations.
+
+### 2026-09-25 - CSP gameplay preview check passed
+
+- The owner confirmed the prepared Success scenario on
+  `/admin/testing/gameplay` displayed the Drag & Drop screen without CSP
+  reports. No real game progress was submitted.
+- Next manual check: open `/oil-shop`, switch from Hint packs to Donations and
+  back, and confirm the Console has no CSP messages or violations. Do not make
+  a purchase for this check.

@@ -13,7 +13,7 @@
  * DATABASE_URL must point directly to a loopback PostgreSQL database.
  */
 import "dotenv/config";
-import { z } from "zod";
+import { z } from "@/lib/zod";
 import { UserRole } from "@/lib/generated/prisma/enums";
 import { createLocalFixtureRepository } from "@/features/dev-fixtures/repositories/local-fixture.repository";
 

@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/zod";
 import { UserRole } from "@/lib/generated/prisma/enums";
 
 const userIdSchema = z.string().trim().min(1).max(128);

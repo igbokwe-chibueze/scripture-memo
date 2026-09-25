@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/zod";
 
 /** Validates opaque identifiers before authentication or database access. */
 export const purchaseShopItemSchema = z.object({

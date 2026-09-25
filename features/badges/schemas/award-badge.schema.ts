@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/zod";
 
 /** Validates the exact badge and account selected for a privileged grant. */
 export const awardBadgeSchema = z.object({

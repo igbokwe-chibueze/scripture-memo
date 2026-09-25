@@ -9,10 +9,9 @@ const nextConfig: NextConfig = {
   // application's behavior and gives remote scanners an avoidable version hint.
   poweredByHeader: false,
   // WHY: These response headers provide defense in depth across rendered pages
-  // and public assets. A nonce-based Content-Security-Policy is intentionally
-  // handled as a separate audit item because Next.js requires nonce-bearing
-  // requests to render dynamically; that performance and compatibility impact
-  // needs dedicated verification before enforcing a policy.
+  // and public assets. The per-response CSP nonce belongs in Proxy rather than
+  // this build-wide header list; Proxy currently sends it as report-only while
+  // browser compatibility is reviewed before enforcement.
   async headers() {
     return [
       {

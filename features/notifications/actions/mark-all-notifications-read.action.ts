@@ -3,7 +3,7 @@
 import { notificationRepository } from "@/features/notifications/repositories/notification.repository";
 import { getServerSession } from "@/lib/auth/session";
 import type { ActionResult } from "@/types/api";
-import { z } from "zod";
+import { z } from "@/lib/zod";
 
 const emptyInputSchema = z.undefined();
 

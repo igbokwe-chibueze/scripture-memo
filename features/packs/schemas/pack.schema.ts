@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/zod";
 
 /** Metadata contract for creating and editing a themed learning pack. */
 export const packFormSchema = z.object({

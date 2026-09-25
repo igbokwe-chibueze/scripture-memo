@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/zod";
 
 /** Rejects unknown fields so identity, rewards, and timing cannot be injected. */
 export const startGameSessionSchema = z.object({

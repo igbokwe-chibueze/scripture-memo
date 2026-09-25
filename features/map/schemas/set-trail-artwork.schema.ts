@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/zod";
 import { MAP_THEME_IDS } from "@/features/map/data/map-themes";
 
 /** Validates a stable Map A trail number and an optional bundled artwork key. */

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers as getRequestHeaders } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { ThemeProvider } from "@/components/shared/theme-provider";
@@ -24,7 +25,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>): Promise<React.ReactNode> {
-  const [locale, messages] = await Promise.all([getLocale(), getMessages()]);
+  const [locale, messages, requestHeaders] = await Promise.all([
+    getLocale(),
+    getMessages(),
+    getRequestHeaders(),
+  ]);
+  const nonce = requestHeaders.get("x-nonce") ?? undefined;
 
   return (
     <html
@@ -32,29 +38,9 @@ export default async function RootLayout({
       suppressHydrationWarning
       className="h-full antialiased"
     >
-      <head>
-        {/*
-          Geist is the app's reading and code face, so preload its Latin files
-          as the previous next/font/google setup did. The display face remains
-          lazy-loaded because it is only used by selected headings and previews.
-        */}
-        <link
-          rel="preload"
-          href="/fonts/geist-sans-latin.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preload"
-          href="/fonts/geist-mono-latin.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-      </head>
       <body className="flex min-h-full flex-col">
         <ThemeProvider
+          nonce={nonce}
           attribute="class"
           defaultTheme="system"
           enableSystem

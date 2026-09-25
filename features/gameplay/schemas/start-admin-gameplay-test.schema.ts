@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/zod";
 
 /**
  * Accepts only the curriculum record and fixed game mode selected by an admin.

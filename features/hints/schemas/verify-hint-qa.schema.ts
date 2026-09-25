@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/zod";
 
 /** Accepts only the learner-owned gameplay session selected for hint QA. */
 export const verifyHintQaSchema = z

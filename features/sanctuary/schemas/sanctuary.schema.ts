@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/zod";
 
 /** Shared identifier validation for every private Sanctuary mutation. */
 const sanctuaryVerseIdSchema = z.string().trim().min(1).max(64);

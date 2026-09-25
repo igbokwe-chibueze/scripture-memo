@@ -1,5 +1,5 @@
 import { parse } from "csv-parse/sync";
-import { z } from "zod";
+import { z } from "@/lib/zod";
 import {
   MAX_VERSE_IMPORT_BYTES,
   MAX_VERSE_IMPORT_ROWS,

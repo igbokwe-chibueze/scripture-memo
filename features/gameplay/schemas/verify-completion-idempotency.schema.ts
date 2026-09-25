@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/zod";
 import { DayLevel } from "@/lib/generated/prisma/enums";
 
 /** Validates the completed challenge day selected for an administrator QA probe. */
