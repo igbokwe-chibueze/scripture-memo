@@ -244,7 +244,7 @@ The server and database are the only sources of truth for all security-sensitive
 | 12.8 | Indexes exist on `(totalGlowPoints DESC)` and `(currentStreak DESC)` for leaderboard queries | 🟡 Medium | ☑ Implemented | `UserProfile` and `UserStreak` include descending leaderboard indexes; country also has a composite ranking index |
 | 12.9 | Database transactions are used for security-sensitive multi-write operations | 🔴 Critical | ✅ Verified 2026-09-24 | Source review confirmed completion/unlock, Glow and badge awards, shop purchases, role changes, and audited admin mutations use repository transactions; one-write operations remain atomic single statements |
 | 12.10 | The database user in `DATABASE_URL` has only the permissions needed (not superuser) | 🟠 High | ☐ Pending | Principle of least privilege |
-| 12.11 | `prisma migrate dev` is never run against the production database | 🔴 Critical | ☐ Pending | Use `prisma migrate deploy` in production |
+| 12.11 | `prisma migrate dev` is never run against the production database | 🔴 Critical | ☐ Pending | The repository has no production deployment workflow or configured production database to verify. Local startup and the guarded test migration wrapper use `prisma migrate deploy`; require the selected host's production release process to run only `prisma migrate deploy` and verify that before launch. |
 
 ---
 
@@ -271,7 +271,7 @@ The server and database are the only sources of truth for all security-sensitive
 | 14.4 | Sonner toast messages never expose stack traces, raw Prisma errors, secrets, private data, or internal IDs | 🟡 Medium | ✅ Verified 2026-09-24 | Phase 31 toast audit reviewed player-facing action and error copy; failures use fixed messages or safe catalogue entries |
 | 14.5 | Error boundaries render safe, generic messages — no internal stack traces | 🟡 Medium | ✅ Verified 2026-09-24 | App error boundaries show generic recovery UI and do not render underlying error objects |
 | 14.6 | `prefers-reduced-motion` preference is respected — animations disabled when set | 🟢 Low | ✅ Verified 2026-09-24 | OS preference and saved in-app preference both reach Framer Motion; independent and combined manual checks were accepted in Phase 31 |
-| 14.7 | Security headers are configured in `next.config.ts` | 🟡 Medium | 🟡 In progress | X-Frame-Options, X-Content-Type-Options, Referrer-Policy, and Permissions-Policy are configured. Proxy now enforces the per-document nonce-based CSP; same-origin lazy chunks are allowed, with three exact inline style hashes observed in review (two from Sonner 2.0.7 and one from the Settings theme flow). Zod browser schemas use `jitless` to avoid eval probing. Owner confirmed `/game/map`, `/`, `/login`, `/register`, the prepared gameplay preview, Oil Shop tab switching, and Light/Dark/System changes in Settings were clear under report-only CSP on 2026-09-25. Pending: repeat representative flows with the enforcing header active and confirm each page still works with no CSP violations. |
+| 14.7 | Security headers are configured in `next.config.ts` | 🟡 Medium | ✅ Verified 2026-09-25 | X-Frame-Options, X-Content-Type-Options, Referrer-Policy, and Permissions-Policy are configured. Proxy enforces the per-document nonce-based CSP; same-origin lazy chunks are allowed, with three exact inline style hashes observed in review (two from Sonner 2.0.7 and one from the Settings theme flow). Zod browser schemas use `jitless` to avoid eval probing. Owner confirmed `/game/map`, `/`, `/login`, `/register`, the prepared gameplay preview, Oil Shop tab switching, and Light/Dark/System changes in Settings worked with no Console CSP violations after enforcement. |
 | 14.8 | Error-reference entries are safe for browser delivery and the reference route verifies ADMIN authorization server-side | 🟡 Medium | ✅ Verified 2026-09-24 | Reference is generated from the safe error catalogue and the route/action performs server role checks |
 
 Recommended security headers configuration:
@@ -338,7 +338,7 @@ Execute all of these test cases before approving any production deployment.
 
 ### Test 1 — Unauthenticated Route Access
 1. Log out completely.
-2. Visit `/app/map` directly in the browser.
+2. Visit `/game/map` directly in the browser.
 3. **Expected:** Redirected to `/login`. The map page does not render.
 
 ### Test 2 — Non-Admin Admin Route Access

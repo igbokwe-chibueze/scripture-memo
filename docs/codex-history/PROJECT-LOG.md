@@ -3989,3 +3989,31 @@ concurrency subtests remain explicitly skipped as documented above.
 - Next manual check: restart the production server, repeat the representative
   routes and interactions listed above, and confirm the pages work without
   CSP errors or blocked scripts/styles.
+
+### 2026-09-25 - Enforcing CSP browser review passed
+
+- The owner repeated the public/auth, map, prepared gameplay, Oil Shop tab, and
+  Settings theme checks with the enforcing CSP and confirmed all tests passed
+  with a clear Console. Security Audit item 14.7 is now verified.
+- Next Phase 32 focus: continue in checklist order with Critical pending item
+  12.11, production migration safety. Inspect the deployment and migration
+  workflow before changing any production database behavior; no production
+  database is configured in the current local-development environment.
+
+### 2026-09-25 - Production migration workflow review
+
+- Reviewed `package.json`, `prisma.config.ts`, the local integration migration
+  wrapper, README setup guidance, and repository deployment files. There is no
+  production deployment pipeline or production database configured. The local
+  startup guidance and guarded test migration wrapper use
+  `prisma migrate deploy`; the only `migrate dev` reference is the historical
+  local-bootstrap roadmap step.
+- Security Audit item 12.11 remains pending until a hosting provider and its
+  production release workflow exist and are verified to use only
+  `prisma migrate deploy`. No database command was run and no database was
+  changed.
+- Continuing Phase 32 with the local source checks that do not depend on
+  production infrastructure.
+- Corrected the first manual security test to use the actual protected route,
+  `/game/map`, instead of the stale `/app/map` path. Next owner check: visit
+  `/game/map` while fully logged out and confirm the app redirects to `/login`.
