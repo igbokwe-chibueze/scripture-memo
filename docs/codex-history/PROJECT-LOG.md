@@ -3959,3 +3959,33 @@ concurrency subtests remain explicitly skipped as documented above.
 - CSP remains report-only while the final theme flow is checked. Next manual
   check: open `/settings`, switch Appearance through Light, Dark, and System,
   and confirm the Console stays clear after each change.
+
+### 2026-09-25 - CSP theme transition nonce follow-up
+
+- The Settings theme review reported two inline-style hashes. Matched
+  `skqujXORqzxt1aE0NNXxujEanPTX6raoqSscTV/Ww/Y=` to the exact temporary
+  transition stylesheet injected by the installed `next-themes` version when
+  `disableTransitionOnChange` is enabled.
+- Settings calls `router.refresh()` after saving. The Proxy adds a fresh nonce
+  only to document requests, so an RSC refresh can re-render the mounted theme
+  provider with no nonce even though the current document CSP still requires
+  its original nonce. The provider now keeps that document-scoped nonce for its
+  lifetime, including across server-component refreshes.
+- The remaining `kLmv…` report persisted after the nonce fix. Added only that
+  browser-reported hash to the element-level style allowlist; did not broaden
+  the policy with `unsafe-inline`. The owner repeated Light, Dark, and System
+  Settings changes on a fresh production build and confirmed the Console was
+  clear.
+
+### 2026-09-25 - CSP report-only review passed; enforcement enabled
+
+- Report-only browser review passed on `/`, `/login`, `/register`, `/game/map`,
+  the prepared gameplay preview, Oil Shop tab switching, and Light/Dark/System
+  changes in Settings. No Console CSP violations were reported.
+- Promoted the reviewed nonce policy to the enforcing `Content-Security-Policy`
+  response header. The same policy is forwarded to Next.js for nonce injection;
+  report-only delivery has ended. The policy is not considered fully verified
+  until representative flows are repeated with enforcement active.
+- Next manual check: restart the production server, repeat the representative
+  routes and interactions listed above, and confirm the pages work without
+  CSP errors or blocked scripts/styles.

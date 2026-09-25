@@ -6,14 +6,14 @@ import type { UserRole } from "@/lib/generated/prisma/enums";
 import { PROTECTED_PATH_PREFIXES } from "@/features/auth/constants/protected-paths";
 
 /**
- * Adds a nonce-based CSP in report-only mode to document responses.
+ * Adds an enforcing nonce-based CSP to document responses.
  *
  * Next.js reads the request-side `Content-Security-Policy` value while it
- * renders so it can nonce its framework scripts and styles. The browser only
- * receives `Content-Security-Policy-Report-Only` for now, which reports policy
- * conflicts without blocking the UI while representative routes are reviewed.
+ * renders so it can nonce its framework scripts and styles. The same policy
+ * is returned to the browser as an enforcing response header after the
+ * representative production routes passed report-only review.
  */
-function continueWithCspReportOnly(request: NextRequest): NextResponse {
+function continueWithCsp(request: NextRequest): NextResponse {
   // WHY: A fresh, unpredictable value is required for every rendered document;
   // reusing one across requests would let injected markup reuse trusted scripts.
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
@@ -27,14 +27,16 @@ function continueWithCspReportOnly(request: NextRequest): NextResponse {
     [
       "style-src 'self'",
       isDevelopment ? "'unsafe-inline'" : `'nonce-${nonce}'`,
-      // Sonner 2.0.7 injects its fixed stylesheet as a style element without
-      // exposing a nonce prop. These exact hashes came from the production
-      // report-only review; they permit only those two observed style blocks.
+      // Sonner 2.0.7 injects fixed styles as a style element without exposing
+      // a nonce prop. The Settings theme flow also reported one fixed inline
+      // style hash. These exact hashes permit only the observed style blocks;
+      // avoid allowing arbitrary inline styles in the element-level policy.
       ...(isDevelopment
         ? []
         : [
             "'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='",
             "'sha256-CIxDM5jnsGiKqXs2v7NKCY5MzdR9gu6TtiMJrDw29AY='",
+            "'sha256-kLmvWqfziFavKtqHqRsb90f006UAK2Dmd0It5Iz2KFA='",
           ]),
     ].join(" "),
     // Current gameplay and map surfaces use computed React style attributes
@@ -53,10 +55,9 @@ function continueWithCspReportOnly(request: NextRequest): NextResponse {
   ].join("; ");
 
   // WHY: These request headers are consumed by the Next.js renderer and the
-  // root layout. They are forwarded upstream but are not exposed as enforcing
-  // response headers during this observation phase.
+  // root layout. Forward the policy and nonce so Next can mark its own inline
+  // scripts/styles; the response then enforces the identical policy in-browser.
   const requestHeaders = new Headers(request.headers);
-  requestHeaders.delete("Content-Security-Policy-Report-Only");
   requestHeaders.set("Content-Security-Policy", cspHeader);
   requestHeaders.set("x-nonce", nonce);
 
@@ -65,7 +66,7 @@ function continueWithCspReportOnly(request: NextRequest): NextResponse {
       headers: requestHeaders,
     },
   });
-  response.headers.set("Content-Security-Policy-Report-Only", cspHeader);
+  response.headers.set("Content-Security-Policy", cspHeader);
 
   return response;
 }
@@ -79,7 +80,7 @@ function continueRequest(request: NextRequest): NextResponse {
   const acceptHeader = request.headers.get("accept") ?? "";
 
   if (acceptHeader.includes("text/html")) {
-    return continueWithCspReportOnly(request);
+    return continueWithCsp(request);
   }
 
   return NextResponse.next();
