@@ -269,16 +269,16 @@ export function CueMode({
       )}
       <section className="w-full max-w-2xl text-left" aria-labelledby="cue-title">
         <div className="text-center">
-          <p className="text-xs font-black tracking-[0.16em] text-violet-700 uppercase dark:text-violet-300">
+          <p className="text-xs font-bold tracking-[0.16em] text-violet-700 uppercase dark:text-violet-300">
             {t("recallFirst")}
           </p>
-          <h2 id="cue-title" className="mt-2 font-heading text-3xl font-black">
+          <h2 id="cue-title" className="mt-2 font-heading text-3xl font-bold">
             {t("cue")}
           </h2>
         </div>
 
         <div
-          className="mt-6 rounded-2xl border border-border bg-muted/35 p-4 text-lg leading-[3.5rem] font-semibold dark:border-white/10 dark:bg-white/5 sm:p-6 sm:text-xl"
+          className="mt-6 rounded-2xl border border-border bg-muted/35 p-4 text-lg leading-[3.5rem] font-medium dark:border-white/10 dark:bg-white/5 sm:p-6 sm:text-xl"
           aria-label="Verse with first-letter cues"
         >
           {tokens.map((token) => {
@@ -320,7 +320,7 @@ export function CueMode({
                     }}
                     type="text"
                     value={answers[token.index] ?? ""}
-                    className="min-w-12 bg-transparent px-0.5 font-black text-inherit outline-none placeholder:font-black placeholder:text-muted-foreground/55"
+                    className="min-w-12 bg-transparent px-0.5 font-bold text-inherit outline-none placeholder:font-bold placeholder:text-muted-foreground/55"
                     style={{
                       width: `${Math.max(4, Array.from(expectedWord).length + 1)}ch`,
                     }}
@@ -352,7 +352,7 @@ export function CueMode({
               <LightbulbIcon className="size-5" aria-hidden="true" />
             </span>
             <div>
-              <h3 className="text-sm font-black text-foreground">{t("firstLetterCue")}</h3>
+              <h3 className="font-heading text-sm font-bold text-foreground">{t("firstLetterCue")}</h3>
               <p className="mt-1 text-xs leading-5 text-muted-foreground">
                 {t("cueHelp")}
               </p>
@@ -376,7 +376,7 @@ export function CueMode({
           <LoadingButton
             isPending={isPending}
             pendingLabel={t("checking")}
-            className="min-h-12 rounded-xl bg-amber-400 font-black text-slate-950 hover:bg-amber-300"
+            className="min-h-12 rounded-xl bg-amber-400 font-bold text-slate-950 hover:bg-amber-300"
             disabled={isComplete}
             onClick={checkAnswer}
           >

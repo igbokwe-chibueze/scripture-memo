@@ -213,7 +213,7 @@ export function BadgeAdminManager({
       <section className="rounded-2xl border bg-card p-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="font-heading text-xl font-black">Badge definitions</h2>
+            <h2 className="font-heading text-xl font-bold">Badge definitions</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               New badges use trusted server metrics and rarity-owned rewards.
             </p>
@@ -237,7 +237,7 @@ export function BadgeAdminManager({
                 className="rounded-xl border border-red-400/40 bg-red-50 p-4 text-sm text-red-900 dark:bg-red-950/30 dark:text-red-100"
                 role="alert"
               >
-                <p className="font-black">Please correct these fields:</p>
+                <p className="font-bold">Please correct these fields:</p>
                 <ul className="mt-2 list-disc space-y-1 pl-5">
                   {Object.entries(formErrors).flatMap(([field, messages]) =>
                     messages.map((message) => (
@@ -367,7 +367,7 @@ export function BadgeAdminManager({
                   label="Reward"
                   explanation="Glow Points awarded once when the badge unlocks. The amount is automatically determined by rarity and cannot be entered manually."
                 />
-                <p className="mt-1 text-lg font-black">
+                <p className="mt-1 text-lg font-bold">
                   {BADGE_REWARD_BY_RARITY[draft.rarity]} Glow
                 </p>
               </div>
@@ -404,7 +404,7 @@ export function BadgeAdminManager({
               </select>
             </label>
             {!isBadgeCriterionAvailable(draft.criteriaKey) && (
-              <p className="rounded-xl bg-violet-100 p-3 text-sm font-semibold text-violet-900 dark:bg-violet-950/40 dark:text-violet-100">
+              <p className="rounded-xl bg-violet-100 p-3 text-sm font-medium text-violet-900 dark:bg-violet-950/40 dark:text-violet-100">
                 This definition can be saved for planning, but remains paused
                 until its roadmap feature provides trusted progress events.
               </p>
@@ -464,7 +464,7 @@ export function BadgeAdminManager({
           id="manual-badge-award"
           className="scroll-mt-6 rounded-2xl border bg-card p-5"
         >
-          <h2 className="flex items-center gap-2 font-heading text-xl font-black">
+          <h2 className="flex items-center gap-2 font-heading text-xl font-bold">
             <AwardIcon className="size-5 text-amber-500" aria-hidden="true" />
             Manual award
           </h2>
@@ -520,7 +520,7 @@ export function BadgeAdminManager({
             onChange={(event) => setSearchQuery(event.currentTarget.value)}
           />
         </label>
-        <p className="mt-2 text-xs font-semibold text-muted-foreground">
+        <p className="mt-2 text-xs font-medium text-muted-foreground">
           Showing {visibleBadges.length} of {badges.length} badges
         </p>
       </section>
@@ -536,14 +536,14 @@ export function BadgeAdminManager({
             </span>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
-                <h2 className="font-black">{badge.name}</h2>
+                <h2 className="font-bold">{badge.name}</h2>
                 {!isBadgeCriterionAvailable(badge.criteriaKey) && (
-                  <span className="rounded-full bg-violet-100 px-2 py-1 text-[0.65rem] font-black text-violet-800 uppercase dark:bg-violet-950/50 dark:text-violet-200">
+                  <span className="rounded-full bg-violet-100 px-2 py-1 text-[0.65rem] font-bold text-violet-800 uppercase dark:bg-violet-950/50 dark:text-violet-200">
                     Future feature
                   </span>
                 )}
                 {!badge.isActive && (
-                  <span className="rounded-full bg-muted px-2 py-1 text-[0.65rem] font-black uppercase">
+                  <span className="rounded-full bg-muted px-2 py-1 text-[0.65rem] font-bold uppercase">
                     Paused
                   </span>
                 )}
@@ -601,7 +601,7 @@ export function BadgeAdminManager({
         {visibleBadges.length === 0 && (
           <div className="rounded-2xl border border-dashed bg-card p-8 text-center">
             <SearchIcon className="mx-auto size-7 text-muted-foreground" aria-hidden="true" />
-            <p className="mt-3 font-black">No badges match that search.</p>
+            <p className="mt-3 font-bold">No badges match that search.</p>
             <Button
               type="button"
               variant="ghost"

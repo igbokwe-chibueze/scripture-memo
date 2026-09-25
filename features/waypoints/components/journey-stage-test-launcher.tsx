@@ -78,7 +78,7 @@ export function JourneyStageTestLauncher({
               <FlaskConicalIcon aria-hidden="true" />
             </span>
             <div>
-              <p className="font-heading text-lg font-black">
+              <p className="font-heading text-lg font-bold">
                 Journey Stage testing
               </p>
               <p className="mt-0.5 text-sm text-muted-foreground">
@@ -98,7 +98,7 @@ export function JourneyStageTestLauncher({
             <select
               id="journey-test-waypoint"
               name="journeyTestWaypoint"
-              className="min-h-11 w-full rounded-xl border border-input bg-background px-3 text-sm font-semibold outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="min-h-11 w-full rounded-xl border border-input bg-background px-3 text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring"
               value={waypointId}
               disabled={isPending || assignedWaypoints.length === 0}
               onChange={(event) => setWaypointId(event.target.value)}
@@ -116,7 +116,7 @@ export function JourneyStageTestLauncher({
             <select
               id="journey-test-mode"
               name="journeyTestMode"
-              className="min-h-11 w-full rounded-xl border border-input bg-background px-3 text-sm font-semibold outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="min-h-11 w-full rounded-xl border border-input bg-background px-3 text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring"
               value={gameMode}
               disabled={isPending || assignedWaypoints.length === 0}
               onChange={(event) => setGameMode(event.target.value as GameMode)}

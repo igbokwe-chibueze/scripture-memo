@@ -72,7 +72,7 @@ function AnimatedBalanceValue({
 
   return (
     <motion.p
-      className="mt-1 font-heading text-2xl font-black"
+      className="mt-1 font-heading text-2xl font-bold"
       animate={
         isComplete && !shouldReduceMotion
           ? { scale: [1, 1.3, 1, 1.3, 1, 1.3, 1] }
@@ -207,10 +207,10 @@ export function WaypointCompletionScreen({
             ))}
           </div>
 
-          <p className="mt-6 text-xs font-black tracking-[0.18em] text-orange-700 uppercase dark:text-orange-300">
+          <p className="mt-6 text-xs font-bold tracking-[0.18em] text-orange-700 uppercase dark:text-orange-300">
             {t("threeKindled")}
           </p>
-          <h2 id="waypoint-complete-title" className="mt-2 font-heading text-4xl font-black">
+          <h2 id="waypoint-complete-title" className="mt-2 font-heading text-4xl font-bold">
             {t("waypointNumberComplete", { number: waypointNumber })}
           </h2>
           <p className="mt-3 text-lg font-bold text-foreground/75 dark:text-slate-200">
@@ -263,10 +263,10 @@ export function WaypointCompletionScreen({
                     }
               }
             >
-              <p className="text-xs font-black tracking-wide text-orange-700 uppercase dark:text-orange-300">
+              <p className="text-xs font-bold tracking-wide text-orange-700 uppercase dark:text-orange-300">
                 {t("waypointRewards")}
               </p>
-              <p className="mt-1 font-heading text-2xl font-black">
+              <p className="mt-1 font-heading text-2xl font-bold">
                 +{waypointRewardTotal.toLocaleString()}
               </p>
             </motion.div>
@@ -304,7 +304,7 @@ export function WaypointCompletionScreen({
                     }
               }
             >
-              <p className="text-xs font-black tracking-wide text-violet-700 uppercase dark:text-violet-300">
+              <p className="text-xs font-bold tracking-wide text-violet-700 uppercase dark:text-violet-300">
                 {t("totalBalance")}
               </p>
               <AnimatedBalanceValue
@@ -316,7 +316,7 @@ export function WaypointCompletionScreen({
 
           <Button
             type="button"
-            className="mt-7 min-h-12 w-full rounded-xl bg-orange-500 font-black text-white hover:bg-orange-400"
+            className="mt-7 min-h-12 w-full rounded-xl bg-orange-500 font-bold text-white hover:bg-orange-400"
             onClick={onContinue}
           >
             {t("enterSanctuary")}

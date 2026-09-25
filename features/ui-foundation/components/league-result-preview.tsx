@@ -14,10 +14,10 @@ export function LeagueResultPreview(): React.ReactNode {
   return (
     <section className="space-y-4 rounded-3xl border bg-card p-4">
       <div>
-        <p className="text-xs font-black tracking-[0.18em] text-primary uppercase">
+        <p className="text-xs font-bold tracking-[0.18em] text-primary uppercase">
           Weekly result
         </p>
-        <h2 className="mt-1 font-heading text-xl font-black">League notices</h2>
+        <h2 className="mt-1 font-heading text-xl font-bold">League notices</h2>
       </div>
       <div className="grid grid-cols-3 gap-2">
         {(["promoted", "stayed", "demoted"] as const).map((value) => (

@@ -17,7 +17,7 @@ export function OilShopHeader({
       {/* Independent columns keep translated copy clear of Luna on mobile.
        * The cutout provides character while code owns every background color. */}
       <div className="min-w-0">
-        <Heading className="font-heading text-3xl font-black leading-tight sm:text-5xl">
+        <Heading className="font-heading text-3xl font-bold leading-tight sm:text-5xl">
           {t("title")}
         </Heading>
         <p className="mt-2 text-sm font-medium text-muted-foreground sm:text-lg">

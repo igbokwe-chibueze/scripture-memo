@@ -13,7 +13,7 @@ export function GlobalNotFound(): React.ReactNode {
     <main className="flex min-h-screen items-center justify-center bg-background px-6 text-foreground">
       <section className="max-w-md space-y-4 text-center" aria-labelledby="not-found-title">
         <p className="text-sm font-medium text-muted-foreground">404</p>
-        <h1 id="not-found-title" className="text-2xl font-semibold">
+        <h1 id="not-found-title" className="font-heading text-2xl font-bold">
           Page not found
         </h1>
         <p className="text-muted-foreground">

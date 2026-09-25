@@ -19,12 +19,12 @@ export async function SanctuaryLocked({
         <span className="mx-auto grid size-20 place-items-center rounded-full bg-violet-500/10 text-violet-600 dark:text-violet-300">
           <LockKeyholeIcon className="size-9" aria-hidden="true" />
         </span>
-        <p className="mt-6 text-xs font-black tracking-[0.16em] text-violet-700 uppercase dark:text-violet-300">{reference}</p>
-        <h1 className="mt-2 font-heading text-3xl font-black">{t("practiceInProgress")}</h1>
+        <p className="mt-6 text-xs font-bold tracking-[0.16em] text-violet-700 uppercase dark:text-violet-300">{reference}</p>
+        <h1 className="mt-2 font-heading text-3xl font-bold">{t("practiceInProgress")}</h1>
         <p className="mt-3 text-sm text-muted-foreground">{t("reopensAfterRadiance")}</p>
         <Link
           href={waypointId ? `/game/waypoints/${waypointId}` : "/game/map"}
-          className={cn(buttonVariants(), "mt-7 min-h-12 w-full rounded-xl bg-violet-600 font-black text-white hover:bg-violet-500")}
+          className={cn(buttonVariants(), "mt-7 min-h-12 w-full rounded-xl bg-violet-600 font-bold text-white hover:bg-violet-500")}
         >
           <MapIcon aria-hidden="true" /> {t("returnToJourney")}
         </Link>

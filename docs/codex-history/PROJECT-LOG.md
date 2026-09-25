@@ -4070,3 +4070,17 @@ concurrency subtests remain explicitly skipped as documented above.
   listener. TypeScript and full ESLint pass after the follow-up change. Next:
   start this fresh production build on port 3001 and recheck `/settings` and
   `/vault` in the browser.
+
+### 2026-09-25 - App-wide typography weight consistency
+
+- Standardized the registered display and text faces with the selected pairing:
+  Lilita One at 700 for headings, Fredoka at 700 for actions and emphasized
+  labels, and Fredoka at 500 for body and supporting text. Removed unsupported
+  Fredoka weight requests across app-owned UI and made shared Lilita headings
+  consistently request 700.
+- Updated the typography comparison preview to use the same global Fredoka
+  faces as the app, so DevTools reports the shared family instead of separate
+  locally generated aliases. Documented the weight rules in `UI-UX-GUIDE.md`.
+- Verification passed: TypeScript, ESLint, gameplay tests (28), map tests (20),
+  production build, typography source scan, and `git diff --check`. The local
+  server was not started.

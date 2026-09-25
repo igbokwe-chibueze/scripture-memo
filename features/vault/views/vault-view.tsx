@@ -39,10 +39,10 @@ export async function VaultView(): Promise<React.ReactNode> {
       <div className="mx-auto max-w-6xl">
         <header className="overflow-hidden rounded-[2rem] border border-violet-300/20 bg-linear-to-br from-violet-700 via-indigo-800 to-slate-950 p-6 text-white shadow-xl sm:p-9">
           <VaultIcon className="size-11 text-amber-300" aria-hidden="true" />
-          <p className="mt-5 text-xs font-black tracking-[0.2em] text-violet-200 uppercase">
+          <p className="mt-5 text-xs font-bold tracking-[0.2em] text-violet-200 uppercase">
             {t("permanentCollection")}
           </p>
-          <h1 className="mt-2 font-heading text-4xl font-black sm:text-5xl">{t("title")}</h1>
+          <h1 className="mt-2 font-heading text-4xl font-bold sm:text-5xl">{t("title")}</h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-violet-100">
             {t("longDescription")}
           </p>

@@ -41,8 +41,8 @@ export function FellowshipJoinRequestContent({
   return (
     <section className="rounded-[2rem] border bg-card p-5 shadow-lg sm:p-7" aria-labelledby="join-requests-title">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div><p className="text-xs font-black tracking-[0.16em] text-violet-600 uppercase dark:text-violet-300">{t("leaderTools")}</p><h2 id="join-requests-title" className="mt-1 font-heading text-2xl font-black">{t("joinRequests")}</h2></div>
-        <span className="inline-flex items-center gap-2 rounded-full bg-violet-500/10 px-4 py-2 font-black"><Clock3Icon className="size-4" />{t("pendingCount", { count: pendingRequests.length })}</span>
+        <div><p className="text-xs font-bold tracking-[0.16em] text-violet-600 uppercase dark:text-violet-300">{t("leaderTools")}</p><h2 id="join-requests-title" className="mt-1 font-heading text-2xl font-bold">{t("joinRequests")}</h2></div>
+        <span className="inline-flex items-center gap-2 rounded-full bg-violet-500/10 px-4 py-2 font-bold"><Clock3Icon className="size-4" />{t("pendingCount", { count: pendingRequests.length })}</span>
       </div>
 
       {pendingRequests.length > 0 ? (
@@ -53,7 +53,7 @@ export function FellowshipJoinRequestContent({
               className="grid gap-4 rounded-2xl border p-4 sm:grid-cols-[1fr_auto] sm:items-center"
             >
               <div>
-                <p className="font-heading text-lg font-black">{request.displayName}</p>
+                <p className="font-heading text-lg font-bold">{request.displayName}</p>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {t(request.source === "INVITE" ? "fromInvite" : "fromDirectory")}
                 </p>
@@ -100,7 +100,7 @@ export function FellowshipJoinRequestContent({
         </p>
       )}
 
-      {resolvedRequests.length > 0 && <details className="mt-5"><summary className="cursor-pointer font-black">{t("requestHistory")}</summary><div className="mt-3 grid gap-2">{resolvedRequests.map((request) => <div key={request.id} className="flex items-center justify-between gap-3 rounded-xl bg-muted/60 px-4 py-3"><span className="font-bold">{request.displayName}</span><span className="text-xs font-black uppercase text-muted-foreground">{t(`requestStatuses.${request.status}`)}</span></div>)}</div></details>}
+      {resolvedRequests.length > 0 && <details className="mt-5"><summary className="cursor-pointer font-bold">{t("requestHistory")}</summary><div className="mt-3 grid gap-2">{resolvedRequests.map((request) => <div key={request.id} className="flex items-center justify-between gap-3 rounded-xl bg-muted/60 px-4 py-3"><span className="font-bold">{request.displayName}</span><span className="text-xs font-bold uppercase text-muted-foreground">{t(`requestStatuses.${request.status}`)}</span></div>)}</div></details>}
     </section>
   );
 }

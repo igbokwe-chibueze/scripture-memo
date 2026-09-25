@@ -34,7 +34,7 @@ export function ErrorReferenceList({ entries }: ErrorReferenceListProps): React.
   return (
     <section className="space-y-5" aria-labelledby="error-reference-search-heading">
       <div className="rounded-2xl border bg-card p-4 shadow-sm sm:p-5">
-        <h2 id="error-reference-search-heading" className="font-heading text-lg font-semibold">
+        <h2 id="error-reference-search-heading" className="font-heading text-lg font-bold">
           Search error documentation
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -77,7 +77,7 @@ export function ErrorReferenceList({ entries }: ErrorReferenceListProps): React.
               </CardHeader>
               <CardContent className="space-y-5">
                 <div>
-                  <h3 className="font-semibold">What it means</h3>
+                  <h3 className="font-bold">What it means</h3>
                   <p className="mt-1 leading-6 text-muted-foreground">{entry.explanation}</p>
                 </div>
                 <ReferenceList title="Common causes" items={entry.commonCauses} />
@@ -103,7 +103,7 @@ function ReferenceList({ title, items, ordered = false }: ReferenceListProps): R
   const List = ordered ? "ol" : "ul";
   return (
     <div>
-      <h3 className="font-semibold">{title}</h3>
+      <h3 className="font-bold">{title}</h3>
       <List className={`mt-1 space-y-1 pl-5 leading-6 text-muted-foreground ${ordered ? "list-decimal" : "list-disc"}`}>
         {items.map((item) => <li key={item}>{item}</li>)}
       </List>

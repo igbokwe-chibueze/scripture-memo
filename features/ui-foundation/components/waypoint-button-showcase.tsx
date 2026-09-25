@@ -48,12 +48,12 @@ export function WaypointButtonShowcase(): React.ReactNode {
       aria-labelledby="waypoint-button-showcase-title"
     >
       <div>
-        <p className="text-xs font-black tracking-[0.18em] text-primary uppercase">
+        <p className="text-xs font-bold tracking-[0.18em] text-primary uppercase">
           Custom map controls
         </p>
         <h2
           id="waypoint-button-showcase-title"
-          className="mt-1 font-heading text-2xl font-black"
+          className="mt-1 font-heading text-2xl font-bold"
         >
           Waypoint buttons
         </h2>
@@ -66,7 +66,7 @@ export function WaypointButtonShowcase(): React.ReactNode {
 
       <div className="space-y-4 rounded-2xl border bg-background p-3 sm:p-4">
         <div className="space-y-2">
-          <h3 className="font-heading font-black">Waypoint state</h3>
+          <h3 className="font-heading font-bold">Waypoint state</h3>
           <div className="flex flex-wrap gap-2">
             {WAYPOINT_STATES.map((item) => (
               <Button
@@ -95,7 +95,7 @@ export function WaypointButtonShowcase(): React.ReactNode {
         </div>
 
         <div className="space-y-2">
-          <h3 className="font-heading font-black">Completed challenge days</h3>
+          <h3 className="font-heading font-bold">Completed challenge days</h3>
           <div className="flex flex-wrap gap-2" aria-label="Flame progress">
             {[0, 1, 2, 3].map((count) => (
               <Button
@@ -116,7 +116,7 @@ export function WaypointButtonShowcase(): React.ReactNode {
 
       <div className="grid items-start gap-4 lg:grid-cols-2">
         <article className="min-w-0 rounded-2xl border bg-background p-4">
-          <h3 className="font-heading text-lg font-black">Map A · Trail node</h3>
+          <h3 className="font-heading text-lg font-bold">Map A · Trail node</h3>
           <p className="mt-1 text-sm text-muted-foreground">
             Layered sprite puck, live number, current marker, and day flames.
           </p>
@@ -126,7 +126,7 @@ export function WaypointButtonShowcase(): React.ReactNode {
         </article>
 
         <article className="min-w-0 rounded-2xl border bg-background p-4">
-          <h3 className="font-heading text-lg font-black">Map B · Waypoint card</h3>
+          <h3 className="font-heading text-lg font-bold">Map B · Waypoint card</h3>
           <p className="mt-1 text-sm text-muted-foreground">
             Reference, Journey Stage, status, and flame progress in one touch target.
           </p>

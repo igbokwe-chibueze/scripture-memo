@@ -332,10 +332,10 @@ export function PuzzleMode({
       >
         <section className="w-full max-w-2xl text-left" aria-labelledby="puzzle-title">
           <div className="text-center">
-            <p className="text-xs font-black tracking-[0.16em] text-violet-700 uppercase dark:text-violet-300">
+            <p className="text-xs font-bold tracking-[0.16em] text-violet-700 uppercase dark:text-violet-300">
               {t("restoreStructure")}
             </p>
-            <h2 id="puzzle-title" className="mt-2 font-heading text-3xl font-black">
+            <h2 id="puzzle-title" className="mt-2 font-heading text-3xl font-bold">
               {t("puzzle")}
             </h2>
           </div>
@@ -418,7 +418,7 @@ export function PuzzleMode({
             <LoadingButton
               isPending={isPending}
               pendingLabel={t("checking")}
-              className="min-h-12 rounded-xl bg-amber-400 font-black text-slate-950 hover:bg-amber-300"
+              className="min-h-12 rounded-xl bg-amber-400 font-bold text-slate-950 hover:bg-amber-300"
               disabled={isComplete}
               onClick={checkAnswer}
             >

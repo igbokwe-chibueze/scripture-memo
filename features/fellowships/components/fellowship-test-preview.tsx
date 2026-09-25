@@ -170,7 +170,7 @@ export function FellowshipTestPreview(): React.ReactNode {
   const [rejectFirst, setRejectFirst] = useState(false);
   return (
     <section id="fellowship-testing" className="space-y-5">
-      <h2 className="font-heading text-2xl font-black">Fellowship testing</h2>
+      <h2 className="font-heading text-2xl font-bold">Fellowship testing</h2>
       <p className="text-sm text-muted-foreground">
         Sample groups and applicants are ready below. Try join, request, cancel,
         invite-code entry, approve, and reject at 375px. Only the selected action

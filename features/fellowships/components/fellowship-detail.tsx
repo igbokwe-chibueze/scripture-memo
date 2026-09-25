@@ -55,7 +55,7 @@ function MemberProgressMetric({
         render={
           <button
             type="button"
-            className={`inline-flex min-h-11 w-full min-w-11 items-center justify-center gap-1.5 rounded-xl border bg-muted/60 px-3 font-black outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 sm:w-auto ${accent ? "text-amber-700 dark:text-amber-300" : "text-foreground"}`}
+            className={`inline-flex min-h-11 w-full min-w-11 items-center justify-center gap-1.5 rounded-xl border bg-muted/60 px-3 font-bold outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 sm:w-auto ${accent ? "text-amber-700 dark:text-amber-300" : "text-foreground"}`}
             aria-label={`${label}: ${formattedValue}`}
           />
         }
@@ -128,10 +128,10 @@ export function FellowshipDetail({
               className="size-24 rounded-2xl"
             />
             <div className="mt-4 min-w-0 sm:mt-0">
-              <p className="text-xs font-black tracking-[0.18em] text-amber-300 uppercase">
+              <p className="text-xs font-bold tracking-[0.18em] text-amber-300 uppercase">
                 {fellowship.isPublic ? t("public") : t("private")}
               </p>
-              <h1 className="mt-2 break-words font-heading text-3xl leading-tight font-black sm:text-4xl">
+              <h1 className="mt-2 break-words font-heading text-3xl leading-tight font-bold sm:text-4xl">
                 {fellowship.name}
               </h1>
             </div>
@@ -139,7 +139,7 @@ export function FellowshipDetail({
 
           {/* Mobile keeps the count readable above two equally sized actions. */}
           <div className="grid w-full grid-cols-2 gap-3 sm:flex sm:w-auto sm:flex-wrap">
-            <span className="col-span-2 inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-white/8 px-4 py-3 font-black sm:col-span-1">
+            <span className="col-span-2 inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-white/8 px-4 py-3 font-bold sm:col-span-1">
               <UsersRoundIcon aria-hidden="true" />
               {t("members", { count: fellowship.memberCount })}
             </span>
@@ -177,7 +177,7 @@ export function FellowshipDetail({
         >
           <TabsTrigger
             value="members"
-            className="min-h-10 rounded-xl px-1 text-xs font-black sm:px-3 sm:text-sm"
+            className="min-h-10 rounded-xl px-1 text-xs font-bold sm:px-3 sm:text-sm"
           >
             <UsersRoundIcon className="hidden sm:block" aria-hidden="true" />
             {t("membersTab")}
@@ -186,7 +186,7 @@ export function FellowshipDetail({
           {fellowship.isLeader && (
             <TabsTrigger
               value="requests"
-              className="min-h-10 rounded-xl px-1 text-xs font-black sm:px-3 sm:text-sm"
+              className="min-h-10 rounded-xl px-1 text-xs font-bold sm:px-3 sm:text-sm"
             >
               <Clock3Icon className="hidden sm:block" aria-hidden="true" />
               {t("requestsTab")}
@@ -200,7 +200,7 @@ export function FellowshipDetail({
 
           <TabsTrigger
             value="about"
-            className="min-h-10 rounded-xl px-1 text-xs font-black sm:px-3 sm:text-sm"
+            className="min-h-10 rounded-xl px-1 text-xs font-bold sm:px-3 sm:text-sm"
           >
             <InfoIcon className="hidden sm:block" aria-hidden="true" />
             {t("aboutTab")}
@@ -210,7 +210,7 @@ export function FellowshipDetail({
         <TabsContent value="members">
           <section>
             <div className="flex items-center justify-between gap-3">
-              <h2 className="font-heading text-xl leading-tight font-black sm:text-2xl">
+              <h2 className="font-heading text-xl leading-tight font-bold sm:text-2xl">
                 {t("leaderboard")}
               </h2>
               {fellowship.isMember && !fellowship.isLeader && (
@@ -227,7 +227,7 @@ export function FellowshipDetail({
 
             <div className="mt-4 overflow-hidden rounded-3xl border bg-card">
               {/* The column header is useful on desktop but redundant on cards. */}
-              <div className="hidden grid-cols-[3rem_1fr_auto] gap-3 border-b bg-muted/60 px-4 py-3 text-xs font-black uppercase sm:grid">
+              <div className="hidden grid-cols-[3rem_1fr_auto] gap-3 border-b bg-muted/60 px-4 py-3 text-xs font-bold uppercase sm:grid">
                 <span>#</span>
                 <span>{t("member")}</span>
                 <span>{t("progress")}</span>
@@ -238,12 +238,12 @@ export function FellowshipDetail({
                   key={`${member.rank}-${member.displayName}`}
                   className="grid grid-cols-[2rem_minmax(0,1fr)] items-start gap-x-3 border-b px-4 py-4 last:border-0 sm:grid-cols-[3rem_1fr_auto] sm:items-center sm:gap-3"
                 >
-                  <span className="grid size-8 place-items-center rounded-full bg-amber-500/12 font-heading text-base font-black text-amber-600 sm:bg-transparent sm:text-xl">
+                  <span className="grid size-8 place-items-center rounded-full bg-amber-500/12 font-heading text-base font-bold text-amber-600 sm:bg-transparent sm:text-xl">
                     {member.rank}
                   </span>
 
                   <div className="min-w-0">
-                    <p className="truncate font-black">
+                    <p className="truncate font-bold">
                       {member.displayName}
                       {member.isLeader && (
                         <CrownIcon
@@ -298,7 +298,7 @@ export function FellowshipDetail({
               <span className="grid size-11 place-items-center rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-300">
                 <InfoIcon aria-hidden="true" />
               </span>
-              <h2 className="mt-4 font-heading text-xl font-black">
+              <h2 className="mt-4 font-heading text-xl font-bold">
                 {t("aboutFellowship")}
               </h2>
               <p className="mt-2 text-muted-foreground">
@@ -314,7 +314,7 @@ export function FellowshipDetail({
                   <LockKeyholeIcon aria-hidden="true" />
                 )}
               </span>
-              <h2 className="mt-4 font-heading text-xl font-black">
+              <h2 className="mt-4 font-heading text-xl font-bold">
                 {fellowship.isPublic ? t("public") : t("private")}
               </h2>
               <p className="mt-2 text-muted-foreground">

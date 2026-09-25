@@ -29,7 +29,7 @@ export function WaypointCompletionPreview(): React.ReactNode {
         </div>
         <Button
           type="button"
-          className="min-h-11 rounded-xl bg-orange-500 font-black text-white hover:bg-orange-400"
+          className="min-h-11 rounded-xl bg-orange-500 font-bold text-white hover:bg-orange-400"
           onClick={openPreview}
         >
           <FlameIcon className="fill-current" aria-hidden="true" />

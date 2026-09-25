@@ -159,10 +159,10 @@ export function PurchaseCelebrationDialog({
               ))}
             </div>
             <div className="px-12">
-              <p className="text-[0.6rem] font-black tracking-[0.2em] text-amber-700 uppercase min-[390px]:text-xs dark:text-amber-300">
+              <p className="text-[0.6rem] font-bold tracking-[0.2em] text-amber-700 uppercase min-[390px]:text-xs dark:text-amber-300">
                 {t("purchaseComplete")}
               </p>
-              <h2 className="mt-1 font-heading text-3xl font-black min-[390px]:text-4xl">
+              <h2 className="mt-1 font-heading text-3xl font-bold min-[390px]:text-4xl">
                 {t("trailSupplied")}
               </h2>
             </div>
@@ -207,7 +207,7 @@ export function PurchaseCelebrationDialog({
             </div>
             <div className="mx-auto grid w-full max-w-sm grid-cols-[1fr_auto] items-center gap-3 rounded-2xl border border-border bg-background p-3 text-left text-foreground min-[390px]:p-4">
               <div>
-                <p className="font-heading text-lg font-black min-[390px]:text-xl">
+                <p className="font-heading text-lg font-bold min-[390px]:text-xl">
                   {celebration.item.name}
                 </p>
                 <p className="text-xs text-muted-foreground min-[390px]:text-sm">
@@ -306,7 +306,7 @@ export function OilShopContent({
       <aside className="flex h-full min-h-0 flex-col p-3 text-card-foreground" aria-label={t("selectedItem")}>
         {activeTab === "donations" ? (
           <div className="grid min-h-48 place-items-center text-center">
-            <div><span className="mx-auto grid size-20 place-items-center rounded-3xl bg-muted"><GiftIcon className="size-10 text-violet-700 dark:text-violet-300" /></span><h2 className="mt-5 font-heading text-2xl font-black">{t("donationsSoon")}</h2></div>
+            <div><span className="mx-auto grid size-20 place-items-center rounded-3xl bg-muted"><GiftIcon className="size-10 text-violet-700 dark:text-violet-300" /></span><h2 className="mt-5 font-heading text-2xl font-bold">{t("donationsSoon")}</h2></div>
           </div>
         ) : selected ? (
           <div className="flex min-h-0 flex-1 flex-col gap-2">
@@ -318,15 +318,15 @@ export function OilShopContent({
                 className="object-contain p-2"
                 sizes="144px"
               />
-              <span className="absolute right-1 top-1 grid size-8 place-items-center rounded-full border-[3px] border-card bg-primary text-primary-foreground text-sm font-black ring-[3px] ring-border shadow-sm">{selected.hintQuantity}</span>
+              <span className="absolute right-1 top-1 grid size-8 place-items-center rounded-full border-[3px] border-card bg-primary text-primary-foreground text-sm font-bold ring-[3px] ring-border shadow-sm">{selected.hintQuantity}</span>
             </div>
-            <h2 className="shrink-0 font-heading text-lg font-black leading-tight">{selected.name}</h2>
+            <h2 className="shrink-0 font-heading text-lg font-bold leading-tight">{selected.name}</h2>
             <p className="shrink-0 text-sm leading-snug text-muted-foreground">{selected.description}</p>
             <div className="grid shrink-0 gap-2 rounded-2xl border border-border bg-muted/50 p-2">
-              <span className="flex items-center justify-center gap-2 text-xl font-black text-amber-700 dark:text-amber-300"><GemIcon />{selected.cost}</span>
+              <span className="flex items-center justify-center gap-2 text-xl font-bold text-amber-700 dark:text-amber-300"><GemIcon />{selected.cost}</span>
               <LoadingButton
                 size="lg"
-                className="min-h-11 text-sm font-black"
+                className="min-h-11 text-sm font-bold"
                 isPending={isPending}
                 pendingLabel={t("purchasing")}
                 disabled={data.balance < selected.cost}
@@ -349,26 +349,26 @@ export function OilShopContent({
         <section className="grid grid-cols-2 gap-2" aria-label={t("balances")}>
           <div className="min-w-0 rounded-2xl border border-border bg-muted/50 p-3 text-card-foreground">
             <GemIcon className="size-6 text-amber-700 dark:text-amber-300" aria-hidden="true" />
-            <p className="mt-1 text-[0.65rem] font-black tracking-wider text-amber-700 uppercase dark:text-amber-300">
+            <p className="mt-1 text-[0.65rem] font-bold tracking-wider text-amber-700 uppercase dark:text-amber-300">
               {t("glowBalance")}
             </p>
-            <p className="break-all font-heading text-2xl font-black">
+            <p className="break-all font-heading text-2xl font-bold">
               {data.balance.toLocaleString(locale)}
             </p>
           </div>
           <div className="min-w-0 rounded-2xl border border-border bg-muted/50 p-3 text-card-foreground">
             <LightbulbIcon className="size-6 text-violet-700 dark:text-violet-300" aria-hidden="true" />
-            <p className="mt-1 text-[0.65rem] font-black tracking-wider text-violet-700 uppercase dark:text-violet-300">
+            <p className="mt-1 text-[0.65rem] font-bold tracking-wider text-violet-700 uppercase dark:text-violet-300">
               {t("hintsAvailable")}
             </p>
-            <p className="break-all font-heading text-2xl font-black">{data.hintsRemaining.toLocaleString(locale)}</p>
+            <p className="break-all font-heading text-2xl font-bold">{data.hintsRemaining.toLocaleString(locale)}</p>
           </div>
         </section>
       </OilShopHeader>
 
       {isAdministrator && (
         <section className="mt-4 rounded-2xl border border-sky-400/35 bg-sky-500/10 p-3 text-sky-950 dark:text-sky-100">
-          <div className="flex items-center gap-2 font-black">
+          <div className="flex items-center gap-2 font-bold">
             <ShieldCheckIcon className="size-5" aria-hidden="true" />
             <h2>Admin testing</h2>
           </div>
@@ -406,7 +406,7 @@ export function OilShopContent({
               role="tab"
               aria-selected={activeTab === "hints"}
               onClick={() => setActiveTab("hints")}
-              className={`relative flex min-h-14 items-center justify-center gap-2 px-3 text-sm font-black transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${activeTab === "hints" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+              className={`relative flex min-h-14 items-center justify-center gap-2 px-3 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${activeTab === "hints" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
             >
               <ShoppingBagIcon className="size-5" aria-hidden="true" /> {t("hintPacks")}
               {activeTab === "hints" && <span className="absolute inset-x-5 bottom-0 h-1 rounded-t-full bg-primary" />}
@@ -416,7 +416,7 @@ export function OilShopContent({
               role="tab"
               aria-selected={activeTab === "donations"}
               onClick={() => setActiveTab("donations")}
-              className={`relative flex min-h-14 items-center justify-center gap-2 px-3 text-sm font-black transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${activeTab === "donations" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+              className={`relative flex min-h-14 items-center justify-center gap-2 px-3 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${activeTab === "donations" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
             >
               <GiftIcon className="size-5" aria-hidden="true" /> {t("donations")}
               {activeTab === "donations" && <span className="absolute inset-x-5 bottom-0 h-1 rounded-t-full bg-primary" />}
@@ -425,10 +425,10 @@ export function OilShopContent({
           {activeTab === "donations" ? (
             <div role="tabpanel" className="px-5 py-12 text-center">
               <span className="mx-auto grid size-16 place-items-center rounded-3xl border border-border bg-muted"><GiftIcon className="size-8 text-violet-700 dark:text-violet-300" aria-hidden="true" /></span>
-              <h2 className="mt-4 font-heading text-2xl font-black">{t("donationsSoon")}</h2>
+              <h2 className="mt-4 font-heading text-2xl font-bold">{t("donationsSoon")}</h2>
             </div>
           ) : data.items.length === 0 ? (
-            <div className="p-10 text-center"><PackageOpenIcon className="mx-auto size-12 text-violet-700 dark:text-violet-300" /><h2 className="mt-4 font-heading text-2xl font-black">{t("restocking")}</h2></div>
+            <div className="p-10 text-center"><PackageOpenIcon className="mx-auto size-12 text-violet-700 dark:text-violet-300" /><h2 className="mt-4 font-heading text-2xl font-bold">{t("restocking")}</h2></div>
           ) : (
             <div role="tabpanel" className="space-y-3 p-3 sm:p-4">
               {data.items.map((item) => (
@@ -448,23 +448,23 @@ export function OilShopContent({
                       className="object-contain p-2"
                       sizes="112px"
                     />
-                    <span className="absolute right-1 top-1 grid size-9 place-items-center rounded-full border-2 border-card bg-primary font-black text-primary-foreground ring-2 ring-border shadow-sm">
+                    <span className="absolute right-1 top-1 grid size-9 place-items-center rounded-full border-2 border-card bg-primary font-bold text-primary-foreground ring-2 ring-border shadow-sm">
                       {item.hintQuantity}
                     </span>
                   </button>
                   <button type="button" onClick={() => previewItem(item)} className="min-w-0 self-end overflow-hidden text-left sm:self-center">
-                    <h2 className="text-wrap font-heading text-base font-black leading-tight min-[390px]:text-lg sm:text-xl">{item.name}</h2>
+                    <h2 className="text-wrap font-heading text-base font-bold leading-tight min-[390px]:text-lg sm:text-xl">{item.name}</h2>
                     <p className="mt-1 line-clamp-2 text-xs text-muted-foreground sm:text-sm">
                       {item.description}
                     </p>
                   </button>
                   <div className="col-start-2 grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 sm:col-start-3 sm:flex sm:flex-col sm:items-stretch">
-                    <span className="inline-flex min-h-9 min-w-0 items-center justify-center gap-1 rounded-xl bg-muted px-2 font-black text-amber-700 dark:text-amber-300"><GemIcon className="size-4" />{item.cost}</span>
+                    <span className="inline-flex min-h-9 min-w-0 items-center justify-center gap-1 rounded-xl bg-muted px-2 font-bold text-amber-700 dark:text-amber-300"><GemIcon className="size-4" />{item.cost}</span>
                     <Button
                       onClick={() => previewItem(item)}
                       variant={selected?.id === item.id ? "default" : "outline"}
                       aria-pressed={selected?.id === item.id}
-                      className="min-h-11 px-3 font-black sm:px-5"
+                      className="min-h-11 px-3 font-bold sm:px-5"
                     >
                       {common("view")}
                     </Button>
@@ -508,18 +508,18 @@ export function OilShopContent({
                   className="object-contain p-2"
                   sizes="208px"
                 />
-                <span className="absolute right-3 top-3 grid size-12 place-items-center rounded-full border-[3px] border-card bg-primary text-primary-foreground text-xl font-black ring-[3px] ring-border shadow-sm">
+                <span className="absolute right-3 top-3 grid size-12 place-items-center rounded-full border-[3px] border-card bg-primary text-primary-foreground text-xl font-bold ring-[3px] ring-border shadow-sm">
                   {selected.hintQuantity}
                 </span>
               </div>
-              <DialogTitle className="mt-4 font-heading text-3xl font-black">{selected.name}</DialogTitle>
+              <DialogTitle className="mt-4 font-heading text-3xl font-bold">{selected.name}</DialogTitle>
               <DialogDescription className="max-w-xs text-base text-muted-foreground">{selected.description}</DialogDescription>
             </DialogHeader>
             <div className="mt-2 grid grid-cols-[1fr_1.25fr] gap-3 rounded-2xl border border-border bg-muted/50 p-3">
-              <span className="flex items-center justify-center gap-2 text-xl font-black text-amber-700 dark:text-amber-300"><GemIcon />{selected.cost}</span>
+              <span className="flex items-center justify-center gap-2 text-xl font-bold text-amber-700 dark:text-amber-300"><GemIcon />{selected.cost}</span>
               <LoadingButton
                 size="lg"
-                className="min-h-12 text-base font-black"
+                className="min-h-12 text-base font-bold"
                 isPending={isPending}
                 pendingLabel={t("purchasing")}
                 disabled={data.balance < selected.cost}

@@ -31,7 +31,7 @@ export function OilShopPurchasePreview(): React.ReactNode {
           <h2 className="font-heading text-xl font-bold">Shop purchase celebration</h2>
           <p className="mt-1 text-sm text-muted-foreground">Replay the real success screen without spending Glow Points.</p>
         </div>
-        <Button type="button" className="min-h-11 rounded-xl font-black" onClick={() => setIsOpen(true)}>
+        <Button type="button" className="min-h-11 rounded-xl font-bold" onClick={() => setIsOpen(true)}>
           <ShoppingBagIcon aria-hidden="true" /> Preview purchase
         </Button>
       </div>

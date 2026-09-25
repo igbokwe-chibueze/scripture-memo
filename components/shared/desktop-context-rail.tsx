@@ -62,11 +62,11 @@ export function DesktopContextRailProvider({
                   className="size-14 shrink-0 object-contain"
                 />
                 <div className="min-w-0">
-                  <span className="inline-flex items-center gap-1 text-[0.65rem] font-black tracking-[0.12em] text-primary uppercase">
+                  <span className="inline-flex items-center gap-1 text-[0.65rem] font-bold tracking-[0.12em] text-primary uppercase">
                     <HeartHandshakeIcon className="size-3.5" aria-hidden="true" />
                     {t("partner")}
                   </span>
-                  <h2 className="font-heading text-base leading-tight font-black">
+                  <h2 className="font-heading text-base leading-tight font-bold">
                     {t("becomePartner")}
                   </h2>
                 </div>

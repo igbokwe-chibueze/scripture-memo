@@ -37,7 +37,7 @@ export async function OilShopView({
   return (
     <main className="min-h-dvh bg-background px-4 py-6 text-foreground sm:px-6 sm:py-10">
       <div className="mx-auto max-w-7xl">
-        <Link href="/game" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "min-h-11 gap-2 rounded-xl px-4 font-black")}>
+        <Link href="/game" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "min-h-11 gap-2 rounded-xl px-4 font-bold")}>
           <ArrowLeftIcon className="size-4" aria-hidden="true" /> {t("journeyHome")}
         </Link>
         <div className="mt-6" />

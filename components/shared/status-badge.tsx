@@ -45,7 +45,7 @@ export function StatusBadge({
   return (
     <Badge
       variant="outline"
-      className={cn("h-7 gap-1.5 px-2.5 font-semibold", toneClasses[tone], className)}
+      className={cn("h-7 gap-1.5 px-2.5 font-bold", toneClasses[tone], className)}
     >
       {icon}
       <span>{status}</span>

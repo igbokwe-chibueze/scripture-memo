@@ -96,7 +96,7 @@ export function GameplayTestPreview(): React.ReactNode {
 
   return (
     <section id="gameplay-testing" className="space-y-5">
-      <h2 className="font-heading text-2xl font-black">Gameplay screen testing</h2>
+      <h2 className="font-heading text-2xl font-bold">Gameplay screen testing</h2>
       <p className="text-sm text-muted-foreground">
         At 375px, inspect the header, progress, Beacon bar, mode card, menu, and
         hint control. Begin Drag &amp; Drop to check pending feedback and the first

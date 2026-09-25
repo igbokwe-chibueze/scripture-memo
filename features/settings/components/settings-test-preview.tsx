@@ -55,7 +55,7 @@ export function SettingsTestPreview(): React.ReactNode {
 
   return (
     <section id="settings-testing" className="space-y-5">
-      <h2 className="font-heading text-2xl font-black">Settings save testing</h2>
+      <h2 className="font-heading text-2xl font-bold">Settings save testing</h2>
       <p className="text-sm text-muted-foreground">
         Edit the sample name, then save. All fields should lock while saving.
         Rejection and connection failure keep your draft; retry succeeds.

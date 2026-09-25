@@ -31,7 +31,7 @@ export async function AdminGameplayTestingView(): Promise<React.ReactNode> {
         <GameplayTestPreview />
       </section>
       <section id="reward-test-previews" className="scroll-mt-24 space-y-6">
-        <h2 className="font-heading text-2xl font-black">Completion and reward previews</h2>
+        <h2 className="font-heading text-2xl font-bold">Completion and reward previews</h2>
         <ModeCompletionPreview />
         <WaypointCompletionPreview />
         <StreakCompletionPreview />

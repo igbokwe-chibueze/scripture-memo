@@ -246,14 +246,14 @@ export function GameShell({
         <header className="border-b border-border px-5 py-5 dark:border-white/10 sm:px-8">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <p className="whitespace-nowrap text-xs font-black tracking-[0.12em] text-amber-700 uppercase dark:text-amber-300 sm:tracking-[0.16em]">
+              <p className="whitespace-nowrap text-xs font-bold tracking-[0.12em] text-amber-700 uppercase dark:text-amber-300 sm:tracking-[0.16em]">
                 {gameSession.isAdminTest
                   ? t("adminTesting")
                   : gameSession.isVaultReplay
                   ? t("vaultReplay")
                   : t("dayWaypoint", { day: dayLabel, number: gameSession.waypoint?.number ?? 0 })}
               </p>
-              <h1 className="mt-1 font-heading text-2xl font-black sm:text-3xl">
+              <h1 className="mt-1 font-heading text-2xl font-bold sm:text-3xl">
                 {gameSession.verse.reference}
               </h1>
             </div>
@@ -269,7 +269,7 @@ export function GameShell({
                 className="w-64 rounded-xl border border-border p-2 dark:border-white/10"
               >
                 <DropdownMenuGroup>
-                  <DropdownMenuLabel className="px-2 py-1.5 font-black text-foreground">
+                  <DropdownMenuLabel className="px-2 py-1.5 font-bold text-foreground">
                     {t("gameMenu")}
                   </DropdownMenuLabel>
                   <DropdownMenuItem
@@ -291,7 +291,7 @@ export function GameShell({
                   <>
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
-                      <DropdownMenuLabel className="px-2 py-1.5 font-black text-foreground">
+                      <DropdownMenuLabel className="px-2 py-1.5 font-bold text-foreground">
                         {t("adminTesting")}
                       </DropdownMenuLabel>
                       {canVerifyLearnHint && (
@@ -321,7 +321,7 @@ export function GameShell({
                     <>
                       <DropdownMenuSeparator />
                       <DropdownMenuGroup>
-                        <DropdownMenuLabel className="px-2 py-1.5 font-black text-foreground">
+                        <DropdownMenuLabel className="px-2 py-1.5 font-bold text-foreground">
                           {t("adminTesting")}
                         </DropdownMenuLabel>
                         {testReplayMode ? (
@@ -339,7 +339,7 @@ export function GameShell({
                               className="min-h-11 cursor-pointer gap-3 rounded-lg px-3 py-2 font-bold"
                               onClick={() => setTestReplayMode(mode)}
                             >
-                              <span className="grid size-6 place-items-center rounded-md bg-sky-500/15 text-xs font-black text-sky-700 dark:text-sky-200">
+                              <span className="grid size-6 place-items-center rounded-md bg-sky-500/15 text-xs font-bold text-sky-700 dark:text-sky-200">
                                 {GAME_MODE_ORDER.indexOf(mode) + 1}
                               </span>
                               {t("replayMode", { mode: modeLabels[mode] })}
@@ -404,7 +404,7 @@ export function GameShell({
           </ol>
 
           <div className="mt-4 rounded-2xl border border-violet-400/20 bg-violet-500/8 p-3">
-            <div className="flex items-center justify-between gap-3 text-xs font-black">
+            <div className="flex items-center justify-between gap-3 text-xs font-bold">
               <span>{t("beaconLevel", { level: gameSession.beaconProgress.level })}</span>
               <span className="text-violet-700 dark:text-violet-300">
                 {t("beaconXp", { count: gameSession.beaconProgress.lifetimeXp })}
@@ -610,10 +610,10 @@ export function GameShell({
             />
           ) : (
             <div className="my-auto w-full max-w-xl overflow-hidden rounded-[2rem] border border-violet-300/45 bg-linear-to-br from-card via-card to-violet-100/80 p-5 text-left dark:to-violet-950/40 sm:p-8">
-              <p className="text-xs font-black tracking-[0.16em] text-violet-700 uppercase dark:text-violet-300">
+              <p className="text-xs font-bold tracking-[0.16em] text-violet-700 uppercase dark:text-violet-300">
                 {t("upNext")}
               </p>
-              <h2 className="mt-2 font-heading text-2xl leading-tight font-black sm:text-3xl">
+              <h2 className="mt-2 font-heading text-2xl leading-tight font-bold sm:text-3xl">
                 {currentMode ? modeLabels[currentMode] : t("dayComplete")}
               </h2>
 
@@ -622,7 +622,7 @@ export function GameShell({
                   <div className="rounded-2xl border border-violet-300/40 bg-background/75 p-3 sm:p-4">
                     {modeTimeLimitMinutes ? (
                       <>
-                        <p className="flex items-center gap-2 text-sm font-black sm:text-base">
+                        <p className="flex items-center gap-2 text-sm font-bold sm:text-base">
                           <Clock3Icon
                             className="size-5 shrink-0 text-violet-600"
                             aria-hidden="true"
@@ -637,7 +637,7 @@ export function GameShell({
                       </>
                     ) : (
                       <>
-                        <p className="flex items-center gap-2 text-sm font-black sm:text-base">
+                        <p className="flex items-center gap-2 text-sm font-bold sm:text-base">
                           <SparklesIcon
                             className="size-5 shrink-0 text-amber-500"
                             aria-hidden="true"
@@ -664,7 +664,7 @@ export function GameShell({
                 <Button
                   type="button"
                   size="lg"
-                  className="mt-4 min-h-12 w-full rounded-xl bg-amber-400 px-4 font-black text-slate-950 hover:bg-amber-300 sm:mt-5 sm:px-7"
+                  className="mt-4 min-h-12 w-full rounded-xl bg-amber-400 px-4 font-bold text-slate-950 hover:bg-amber-300 sm:mt-5 sm:px-7"
                   disabled={isPending}
                   onClick={beginMode}
                 >

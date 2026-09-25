@@ -105,7 +105,7 @@ export function VerseLibraryTable({
         id: "reference",
         header: "Reference",
         cell: (verse) => (
-          <span className="font-semibold">{verse.reference}</span>
+          <span className="font-bold">{verse.reference}</span>
         ),
       },
       book: {

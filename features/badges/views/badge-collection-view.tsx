@@ -31,16 +31,16 @@ export async function BadgeCollectionView(): Promise<React.ReactNode> {
         </Link>
         <header className="mt-6 rounded-[2rem] bg-linear-to-br from-violet-600 via-indigo-700 to-slate-950 p-6 text-white shadow-xl sm:p-9">
           <AwardIcon className="size-10 text-amber-300" aria-hidden="true" />
-          <p className="mt-5 text-xs font-black tracking-[0.2em] text-violet-200 uppercase">
+          <p className="mt-5 text-xs font-bold tracking-[0.2em] text-violet-200 uppercase">
             {t("eyebrow")}
           </p>
-          <h1 className="mt-2 font-heading text-4xl font-black sm:text-5xl">
+          <h1 className="mt-2 font-heading text-4xl font-bold sm:text-5xl">
             {t("title")}
           </h1>
           <p className="mt-3 max-w-xl text-sm leading-6 text-violet-100">
             {t("milestoneDescription")}
           </p>
-          <p className="mt-5 font-black text-amber-300">
+          <p className="mt-5 font-bold text-amber-300">
             {t("unlockedCount", { unlocked: unlockedCount, total: badges.length })}
           </p>
         </header>

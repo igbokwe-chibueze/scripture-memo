@@ -122,13 +122,13 @@ export function SanctuaryContent({
             className="relative mx-auto size-7 text-violet-500"
             aria-hidden="true"
           />
-          <div className="relative mt-3 flex flex-wrap items-center justify-center gap-2 text-xs font-black tracking-[0.14em] uppercase">
+          <div className="relative mt-3 flex flex-wrap items-center justify-center gap-2 text-xs font-bold tracking-[0.14em] uppercase">
             <span className="rounded-full bg-violet-500/10 px-3 py-1 text-violet-700 dark:text-violet-300">
               {data.translation}
             </span>
             <span className="text-muted-foreground">{t("eyebrow")}</span>
           </div>
-          <h1 className="relative mt-3 font-heading text-3xl font-black sm:text-4xl">
+          <h1 className="relative mt-3 font-heading text-3xl font-bold sm:text-4xl">
             {data.reference}
           </h1>
           <blockquote className="relative mx-auto mt-5 max-w-4xl font-sans text-lg leading-8 font-medium text-foreground/88 sm:text-2xl sm:leading-10">
@@ -148,7 +148,7 @@ export function SanctuaryContent({
             aria-controls="sanctuary-study-panel"
             aria-selected={activeView === "study"}
             className={cn(
-              "flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 text-sm font-black transition-colors",
+              "flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 text-sm font-bold transition-colors",
               activeView === "study"
                 ? "bg-violet-600 text-white shadow-sm"
                 : "text-muted-foreground",
@@ -165,7 +165,7 @@ export function SanctuaryContent({
             aria-controls="sanctuary-notes-panel"
             aria-selected={activeView === "notes"}
             className={cn(
-              "flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 text-sm font-black transition-colors",
+              "flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 text-sm font-bold transition-colors",
               activeView === "notes"
                 ? "bg-violet-600 text-white shadow-sm"
                 : "text-muted-foreground",
@@ -214,7 +214,7 @@ export function SanctuaryContent({
                     />
                     <h2
                       id="private-note-title"
-                      className="font-heading text-xl font-black"
+                      className="font-heading text-xl font-bold"
                     >
                       {t("yourNotes")}
                     </h2>

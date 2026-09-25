@@ -87,7 +87,7 @@ export function LoginForm({ nextPath }: LoginFormProps): React.ReactNode {
             <FieldLabel htmlFor="login-password">{t("password")}</FieldLabel>
             <Link
               href="/forgot-password"
-              className="rounded-md px-1 py-2 text-sm font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="rounded-md px-1 py-2 text-sm font-bold text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {t("forgotPassword")}
             </Link>

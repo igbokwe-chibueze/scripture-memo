@@ -163,7 +163,7 @@ export function AdminDayTestingMenu({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-72 rounded-xl p-2">
         <DropdownMenuGroup>
-          <DropdownMenuLabel className="px-2 py-1.5 font-black text-foreground">
+          <DropdownMenuLabel className="px-2 py-1.5 font-bold text-foreground">
             {t("adminTesting")}
           </DropdownMenuLabel>
           {cooldownCards.flatMap((card) => {
@@ -198,7 +198,7 @@ export function AdminDayTestingMenu({
 
         {replayCards.length > 0 && (
           <DropdownMenuGroup>
-            <DropdownMenuLabel className="px-2 py-1.5 font-black text-foreground">
+            <DropdownMenuLabel className="px-2 py-1.5 font-bold text-foreground">
               {t("completedDayTests")}
             </DropdownMenuLabel>
             {replayCards.map((card) => {

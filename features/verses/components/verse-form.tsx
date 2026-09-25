@@ -106,8 +106,8 @@ export function VerseForm({ mode, initialValues }: VerseFormProps): React.ReactN
                 <BookOpenText className="size-5" aria-hidden="true" />
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-semibold tracking-wider text-primary uppercase">Generated reference</p>
-                <output className="mt-1 block wrap-break-word text-lg font-semibold tracking-tight sm:text-xl" aria-live="polite">
+                <p className="text-xs font-bold tracking-wider text-primary uppercase">Generated reference</p>
+                <output className="mt-1 block wrap-break-word text-lg font-bold tracking-tight sm:text-xl" aria-live="polite">
                   {referencePreview}
                 </output>
               </div>

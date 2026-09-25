@@ -90,7 +90,7 @@ export function GlobalLoading(): React.ReactNode {
           </motion.div>
         </div>
 
-        <h1 className="font-heading text-4xl leading-tight font-black tracking-tight sm:text-5xl">
+        <h1 className="font-heading text-4xl leading-tight font-bold tracking-tight sm:text-5xl">
           Luna is lighting the way
         </h1>
 
@@ -128,7 +128,7 @@ export function GlobalLoading(): React.ReactNode {
               </motion.span>
             ))}
           </div>
-          <p className="mt-4 text-xs font-black tracking-[0.16em] text-violet-700 uppercase dark:text-violet-200">
+          <p className="mt-4 text-xs font-bold tracking-[0.16em] text-violet-700 uppercase dark:text-violet-200">
             Kindling the next moment
           </p>
         </div>

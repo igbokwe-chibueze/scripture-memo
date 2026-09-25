@@ -52,12 +52,12 @@ function StudyMarkdown({
       remarkPlugins={[remarkGfm]}
       skipHtml
       components={{
-        h1: ({ children: value }) => <h3 className="mb-3 font-heading text-xl font-black">{value}</h3>,
-        h2: ({ children: value }) => <h3 className="mb-3 font-heading text-xl font-black">{value}</h3>,
-        h3: ({ children: value }) => <h4 className="mb-2 mt-5 font-heading font-black first:mt-0">{value}</h4>,
+        h1: ({ children: value }) => <h3 className="mb-3 font-heading text-xl font-bold">{value}</h3>,
+        h2: ({ children: value }) => <h3 className="mb-3 font-heading text-xl font-bold">{value}</h3>,
+        h3: ({ children: value }) => <h4 className="mb-2 mt-5 font-heading font-bold first:mt-0">{value}</h4>,
         p: ({ children: value }) => <p className="mb-4 leading-7 text-foreground/78 last:mb-0 sm:leading-8">{value}</p>,
         ul: ({ children: value }) => <ul className="mb-4 list-disc space-y-3 pl-5 marker:text-violet-500">{value}</ul>,
-        ol: ({ children: value }) => <ol className="mb-4 list-decimal space-y-3 pl-5 marker:font-black marker:text-violet-500">{value}</ol>,
+        ol: ({ children: value }) => <ol className="mb-4 list-decimal space-y-3 pl-5 marker:font-bold marker:text-violet-500">{value}</ol>,
         li: ({ children: value }) => <li className="pl-1 leading-7 text-foreground/78">{value}</li>,
         blockquote: ({ children: value }) => (
           <blockquote className="my-5 rounded-2xl border border-amber-300/60 bg-amber-50/70 p-4 font-sans italic text-foreground/85 dark:border-amber-300/15 dark:bg-amber-950/20">
@@ -65,7 +65,7 @@ function StudyMarkdown({
           </blockquote>
         ),
         strong: ({ children: value }) => (
-          <strong className={cn("text-foreground", softenEmphasis ? "font-normal" : "font-black")}>{value}</strong>
+          <strong className={cn("text-foreground", softenEmphasis ? "font-normal" : "font-bold")}>{value}</strong>
         ),
         a: ({ children: value, href }) => (
           <a href={href} target="_blank" rel="noreferrer noopener" className="font-bold text-violet-700 underline underline-offset-4 dark:text-violet-300">
@@ -127,7 +127,7 @@ export async function SanctuaryStudyContent({ data }: { data: SanctuaryData }): 
     <>
       {path.length > 0 && (
         <details className="rounded-2xl border bg-card/90 p-4 lg:hidden">
-          <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 font-black text-violet-700 dark:text-violet-300">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 font-bold text-violet-700 dark:text-violet-300">
             <ListTreeIcon className="size-5" aria-hidden="true" />
             {t("contents")}
           </summary>
@@ -148,7 +148,7 @@ export async function SanctuaryStudyContent({ data }: { data: SanctuaryData }): 
         <section id="study-tags" className="scroll-mt-6 rounded-3xl border border-violet-200/70 bg-card/82 p-5 dark:border-violet-300/15 sm:p-7">
           <div className="flex items-center gap-3">
             <SparklesIcon className="size-5 shrink-0 text-violet-500" aria-hidden="true" />
-            <h2 className="font-heading text-xl font-black">{t("tags")}</h2>
+            <h2 className="font-heading text-xl font-bold">{t("tags")}</h2>
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
             {data.tags.map((tag) => <span key={tag} className="rounded-full border border-violet-200/70 bg-violet-500/8 px-3 py-1.5 text-sm font-normal text-foreground/78 dark:border-violet-300/15">{tag}</span>)}
@@ -160,7 +160,7 @@ export async function SanctuaryStudyContent({ data }: { data: SanctuaryData }): 
         <section id="study-reflection" className="scroll-mt-6 rounded-3xl border border-emerald-300/60 bg-emerald-50/70 p-5 dark:border-emerald-300/15 dark:bg-emerald-950/20 sm:p-7">
           <div className="flex items-center gap-3">
             <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-emerald-500/12 text-emerald-700 dark:text-emerald-300"><BookHeartIcon className="size-5" aria-hidden="true" /></span>
-            <h2 className="font-heading text-xl font-black">{t("reflection")}</h2>
+            <h2 className="font-heading text-xl font-bold">{t("reflection")}</h2>
           </div>
           <p className="mt-4 leading-7 text-foreground/78 sm:leading-8">{data.reflection}</p>
         </section>
@@ -170,14 +170,14 @@ export async function SanctuaryStudyContent({ data }: { data: SanctuaryData }): 
         <section key={section.id} id={section.id} className={cn("scroll-mt-6 rounded-3xl border p-5 sm:p-7", sectionTreatment(section.type))}>
           <div className="mb-4 flex items-center gap-3">
             <SparklesIcon className="size-5 shrink-0 text-violet-500" aria-hidden="true" />
-            <h2 className="font-heading text-xl font-black sm:text-2xl">{section.title}</h2>
+            <h2 className="font-heading text-xl font-bold sm:text-2xl">{section.title}</h2>
           </div>
           <StudyMarkdown softenEmphasis={usesRegularBodyWeight(section.type)}>{section.markdown}</StudyMarkdown>
         </section>
       )) : (
         <section className="rounded-3xl border border-dashed bg-card/70 p-7 text-center sm:p-10">
           <BookOpenIcon className="mx-auto size-9 text-violet-500" aria-hidden="true" />
-          <h2 className="mt-4 font-heading text-xl font-black">{t("studyComingSoon")}</h2>
+          <h2 className="mt-4 font-heading text-xl font-bold">{t("studyComingSoon")}</h2>
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">{t("studyComingSoonBody")}</p>
         </section>
       )}
@@ -192,11 +192,11 @@ export async function SanctuaryContentsNavigation({ data }: { data: SanctuaryDat
   if (path.length === 0) return null;
   return (
     <nav className="hidden rounded-3xl border bg-card/82 p-4 lg:block" aria-label={t("contents")}>
-      <p className="text-xs font-black tracking-[0.14em] text-violet-700 uppercase dark:text-violet-300">{t("contents")}</p>
+      <p className="text-xs font-bold tracking-[0.14em] text-violet-700 uppercase dark:text-violet-300">{t("contents")}</p>
       <ol className="mt-2 space-y-0.5">
         {path.map((section, index) => (
           <li key={section.id}>
-            <a href={`#${section.id}`} className="flex min-h-8 items-center gap-2 rounded-lg px-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-violet-500/8 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
+            <a href={`#${section.id}`} className="flex min-h-8 items-center gap-2 rounded-lg px-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-violet-500/8 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
               <span className="grid size-5 shrink-0 place-items-center rounded-md bg-violet-500/10 text-[0.65rem] text-violet-700 dark:text-violet-300">{index + 1}</span>
               <span className="line-clamp-1">{section.title}</span>
             </a>

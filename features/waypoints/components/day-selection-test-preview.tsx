@@ -101,7 +101,7 @@ export function DaySelectionTestPreview(): React.ReactNode {
 
   return (
     <section id="day-selection-testing" className="space-y-5">
-      <h2 className="font-heading text-2xl font-black">Day Selection testing</h2>
+      <h2 className="font-heading text-2xl font-bold">Day Selection testing</h2>
       <p className="text-sm text-muted-foreground">
         At 375px, verify the verse header, stage rule, and all three day cards
         fit without horizontal overflow. Start Glow to check pending feedback.

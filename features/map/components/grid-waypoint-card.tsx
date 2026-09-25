@@ -67,7 +67,7 @@ export function GridWaypointCard({
       <span className="relative flex min-w-0 items-start justify-between gap-2 sm:gap-3">
         <span
           className={cn(
-            "grid size-12 shrink-0 place-items-center rounded-2xl bg-muted text-lg font-black",
+            "grid size-12 shrink-0 place-items-center rounded-2xl bg-muted text-lg font-bold",
             !isLocked && "bg-primary text-primary-foreground",
             waypoint.status === WaypointStatus.COMPLETED && "bg-emerald-600 text-white",
             waypoint.isCurrent && "bg-amber-500 text-amber-950",
@@ -81,13 +81,13 @@ export function GridWaypointCard({
         />
       </span>
 
-      <span className="relative mt-4 line-clamp-2 min-h-10 min-w-0 break-words text-sm font-semibold text-foreground">
+      <span className="relative mt-4 line-clamp-2 min-h-10 min-w-0 break-words text-sm font-bold text-foreground">
         {/* Two lines preserve context without displacing footer feedback. */}
         {waypoint.reference}
       </span>
 
       <span className="relative mt-auto flex min-w-0 items-end justify-between gap-1.5 pt-4 sm:gap-3">
-        <span className="inline-flex min-w-0 items-center gap-1 text-[0.7rem] font-semibold whitespace-nowrap sm:gap-1.5 sm:text-xs [&_svg]:size-4">
+        <span className="inline-flex min-w-0 items-center gap-1 text-[0.7rem] font-bold whitespace-nowrap sm:gap-1.5 sm:text-xs [&_svg]:size-4">
           {presentation.icon}
           {presentation.label}
         </span>
@@ -96,7 +96,7 @@ export function GridWaypointCard({
 
       {waypoint.isCurrent && (
         // Text supplements the highlight so location never relies on color alone.
-        <span className="absolute right-4 bottom-12 rounded-full bg-amber-500 px-2 py-0.5 text-[0.65rem] font-black tracking-wider text-amber-950 uppercase">
+        <span className="absolute right-4 bottom-12 rounded-full bg-amber-500 px-2 py-0.5 text-[0.65rem] font-bold tracking-wider text-amber-950 uppercase">
           You are here
         </span>
       )}

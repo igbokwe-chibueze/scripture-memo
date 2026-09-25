@@ -84,9 +84,9 @@ function SortablePackVerse({ item, index, total, disabled, onMove, onRemove }: S
       >
         <GripVertical aria-hidden="true" />
       </Button>
-      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">{index + 1}</span>
+      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">{index + 1}</span>
       <div className="min-w-0 flex-1">
-        <p className="truncate font-semibold">{item.verse.reference}</p>
+        <p className="truncate font-bold">{item.verse.reference}</p>
         <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
           <span>{item.verse.book}</span>
           {!item.verse.isActive && <Badge variant="outline">Archived verse</Badge>}

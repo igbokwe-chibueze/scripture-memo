@@ -65,10 +65,10 @@ export function HintModal({
         <div className="flex items-end gap-2 sm:gap-4">
           <div className="relative z-10 min-w-0 flex-1">
             <DialogHeader className="text-left">
-              <p className="text-xs font-black tracking-[0.16em] text-amber-700 uppercase dark:text-amber-300">
+              <p className="text-xs font-bold tracking-[0.16em] text-amber-700 uppercase dark:text-amber-300">
                 {t("lunaLight")}
               </p>
-              <DialogTitle className="font-heading text-2xl font-black">
+              <DialogTitle className="font-heading text-2xl font-bold">
                 {reference}
               </DialogTitle>
               <DialogDescription>

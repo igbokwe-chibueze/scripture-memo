@@ -130,7 +130,7 @@ export function ModeCompletionScreen({
             />
           </motion.div>
 
-          <p className="mt-2 text-xs font-black tracking-[0.18em] text-emerald-700 uppercase dark:text-emerald-300 sm:mt-3">
+          <p className="mt-2 text-xs font-bold tracking-[0.18em] text-emerald-700 uppercase dark:text-emerald-300 sm:mt-3">
             {isTestReplay
                 ? t("adminReplay")
               : isVaultReplay
@@ -139,16 +139,16 @@ export function ModeCompletionScreen({
                   ? t("adminTest")
                 : t("modeRestored")}
           </p>
-          <h2 id="mode-complete-title" className="mt-2 font-heading text-4xl font-black">
+          <h2 id="mode-complete-title" className="mt-2 font-heading text-4xl font-bold">
             {t("beautifulWork")}
           </h2>
-          <p className="mt-3 text-lg font-bold text-foreground/80 dark:text-slate-200">
+          <p className="mt-3 text-lg font-medium text-foreground/80 dark:text-slate-200">
             {t("modeComplete", { mode: modeLabels[completedMode] })}
           </p>
 
           <div className="mt-5 rounded-2xl border border-amber-400/30 bg-amber-100/70 p-4 dark:border-amber-300/20 dark:bg-amber-300/8 sm:mt-7">
             <SparklesIcon className="mx-auto size-6 text-amber-600 dark:text-amber-300" aria-hidden="true" />
-            <p className="mt-2 text-sm font-semibold text-muted-foreground dark:text-slate-300">
+            <p className="mt-2 text-sm font-medium text-muted-foreground dark:text-slate-300">
               {isTestReplay || (isAdminTest && !isVaultReplay)
                 ? t("testingComplete")
                 : isVaultReplay
@@ -161,13 +161,13 @@ export function ModeCompletionScreen({
             </p>
             {!isTestReplay && reward && (
               <div className="mt-3">
-                <p className="text-xs font-black tracking-[0.14em] text-amber-700 uppercase dark:text-amber-300">
+                <p className="text-xs font-bold tracking-[0.14em] text-amber-700 uppercase dark:text-amber-300">
                   {t("glowEarned")}
                 </p>
-                <p className="font-heading text-3xl font-black text-amber-700 dark:text-amber-300">
+                <p className="font-heading text-3xl font-bold text-amber-700 dark:text-amber-300">
                   +{reward.amount}
                 </p>
-                <p className="text-xs font-semibold text-muted-foreground dark:text-slate-300">
+                <p className="text-xs font-bold text-muted-foreground dark:text-slate-300">
                   {t("newBalance", { balance: reward.balance })}
                 </p>
               </div>
@@ -183,14 +183,14 @@ export function ModeCompletionScreen({
             >
               <div className="flex items-end justify-between gap-3">
                 <div>
-                  <p className="text-xs font-black tracking-[0.14em] text-violet-700 uppercase dark:text-violet-300">
+                  <p className="text-xs font-bold tracking-[0.14em] text-violet-700 uppercase dark:text-violet-300">
                     {t("beaconXpEarned", { count: beaconProgression.earnedXp })}
                   </p>
-                  <p className="mt-1 font-heading text-lg font-black">
+                  <p className="mt-1 font-heading text-lg font-bold">
                     {t("beaconLevel", { level: beaconProgression.level })}
                   </p>
                 </div>
-                <span className="font-heading text-2xl font-black text-violet-700 dark:text-violet-300">
+                <span className="font-heading text-2xl font-bold text-violet-700 dark:text-violet-300">
                   +{beaconProgression.earnedXp}
                 </span>
               </div>
@@ -211,7 +211,7 @@ export function ModeCompletionScreen({
               </div>
               {beaconProgression.leveledUp && (
                 <motion.p
-                  className="mt-3 text-center font-heading text-lg font-black text-fuchsia-700 dark:text-fuchsia-300"
+                  className="mt-3 text-center font-heading text-lg font-bold text-fuchsia-700 dark:text-fuchsia-300"
                   initial={shouldReduceMotion ? false : { scale: 0.7 }}
                   animate={
                     shouldReduceMotion
@@ -229,7 +229,7 @@ export function ModeCompletionScreen({
           <div className="mt-5 grid gap-3 sm:mt-7">
             <Button
               type="button"
-              className="min-h-12 rounded-xl bg-emerald-400 font-black text-slate-950 hover:bg-emerald-300"
+              className="min-h-12 rounded-xl bg-emerald-400 font-bold text-slate-950 hover:bg-emerald-300"
               onClick={onContinue}
             >
               {isTestReplay

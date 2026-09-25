@@ -61,7 +61,7 @@ export function EditFellowshipForm({ fellowship }: { fellowship: FellowshipEditD
           <ShieldCheckIcon aria-hidden="true" />
         </span>
         <div className="flex-1">
-          <label htmlFor="edit-fellowship-public" className="font-black">
+          <label htmlFor="edit-fellowship-public" className="font-bold">
             {t("publicFellowship")}
           </label>
           <p className="text-sm text-muted-foreground">
@@ -80,7 +80,7 @@ export function EditFellowshipForm({ fellowship }: { fellowship: FellowshipEditD
         type="submit"
         isPending={isPending}
         pendingLabel={t("saving")}
-        className="min-h-12 w-full font-black"
+        className="min-h-12 w-full font-bold"
       >
         <SaveIcon aria-hidden="true" />
         {t("saveChanges")}

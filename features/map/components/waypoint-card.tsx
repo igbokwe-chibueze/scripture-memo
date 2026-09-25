@@ -67,7 +67,7 @@ export function WaypointCard({
         {waypoint.isCurrent && (
           <span
             className={cn(
-              "absolute top-1/2 z-30 w-max -translate-y-1/2 rounded-lg border border-amber-300/70 bg-amber-50 px-2 py-1 text-center text-[0.55rem] font-black tracking-[0.1em] whitespace-nowrap text-amber-900 uppercase shadow-lg shadow-amber-500/15 sm:rounded-xl sm:px-3 sm:py-1.5 sm:text-[0.65rem] sm:tracking-[0.14em] dark:border-amber-500/35 dark:bg-amber-950/90 dark:text-amber-200",
+              "absolute top-1/2 z-30 w-max -translate-y-1/2 rounded-lg border border-amber-300/70 bg-amber-50 px-2 py-1 text-center text-[0.55rem] font-bold tracking-[0.1em] whitespace-nowrap text-amber-900 uppercase shadow-lg shadow-amber-500/15 sm:rounded-xl sm:px-3 sm:py-1.5 sm:text-[0.65rem] sm:tracking-[0.14em] dark:border-amber-500/35 dark:bg-amber-950/90 dark:text-amber-200",
               mobileCalloutPosition,
               largeCalloutPosition,
             )}

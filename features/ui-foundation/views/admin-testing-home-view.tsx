@@ -73,7 +73,7 @@ export async function AdminTestingHomeView(): Promise<React.ReactNode> {
               <div className="grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary">
                 <Icon className="size-6" aria-hidden="true" />
               </div>
-              <h2 className="mt-4 font-heading text-xl font-black">{area.title}</h2>
+              <h2 className="mt-4 font-heading text-xl font-bold">{area.title}</h2>
               <p className="mt-2 grow text-sm leading-6 text-muted-foreground">
                 {area.description}
               </p>

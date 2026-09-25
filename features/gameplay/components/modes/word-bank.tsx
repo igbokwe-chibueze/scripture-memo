@@ -22,7 +22,7 @@ export function WordBank({
   const t = useTranslations("Gameplay");
   return (
     <section aria-labelledby="word-bank-title" className="rounded-2xl bg-muted/70 p-4 dark:bg-black/20">
-      <h3 id="word-bank-title" className="text-sm font-black text-foreground">
+      <h3 id="word-bank-title" className="font-heading text-sm font-bold text-foreground">
         {t("wordBank")}
       </h3>
       <p className="mt-1 text-xs text-muted-foreground">{t("dragInstruction")}</p>
@@ -38,7 +38,7 @@ export function WordBank({
           />
         ))}
         {tokenIndexes.length === 0 && (
-          <p className="py-2 text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+          <p className="py-2 text-sm font-medium text-emerald-700 dark:text-emerald-300">
             {t("allWordsPlaced")}
           </p>
         )}

@@ -80,7 +80,7 @@ export function TranslationSelectionForm({ nextPath }: { nextPath: string }): Re
                 {translation.code}
               </span>
               <span className="flex-1">
-                <span className="block font-semibold">{translation.name}</span>
+                <span className="block font-bold">{translation.name}</span>
                 <span className="block text-sm text-muted-foreground">{translation.description}</span>
               </span>
               {selected && <CheckIcon className="size-5 text-primary" aria-hidden="true" />}

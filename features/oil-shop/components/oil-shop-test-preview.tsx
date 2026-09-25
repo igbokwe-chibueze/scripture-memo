@@ -83,7 +83,7 @@ export function OilShopTestPreview(): React.ReactNode {
   const [run, setRun] = useState(0);
   return (
     <section id="oil-shop-testing" className="space-y-5">
-      <h2 className="font-heading text-2xl font-black">Oil Shop control testing</h2>
+      <h2 className="font-heading text-2xl font-bold">Oil Shop control testing</h2>
       <p className="text-sm text-muted-foreground">
         Review all three pack illustrations in light and dark themes at 375px
         and desktop widths. Tap View for details and buy with sample Glow Points

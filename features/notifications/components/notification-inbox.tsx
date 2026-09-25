@@ -168,7 +168,7 @@ export function NotificationInbox({
       >
         <BellIcon aria-hidden="true" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1.5 -right-1.5 grid min-h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[0.65rem] font-black text-primary-foreground ring-2 ring-background">
+          <span className="absolute -top-1.5 -right-1.5 grid min-h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[0.65rem] font-bold text-primary-foreground ring-2 ring-background">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -180,7 +180,7 @@ export function NotificationInbox({
           className="w-[min(90vw,24rem)] border-border bg-card"
         >
           <SheetHeader className="border-b pr-16">
-            <SheetTitle className="font-heading text-2xl font-black">
+            <SheetTitle className="font-heading text-2xl font-bold">
               {t("title")}
             </SheetTitle>
             <SheetDescription>{t("description")}</SheetDescription>
@@ -206,7 +206,7 @@ export function NotificationInbox({
               <div className="grid min-h-56 place-items-center rounded-3xl border border-dashed text-center">
                 <div>
                   <BellIcon className="mx-auto size-9 text-muted-foreground" />
-                  <p className="mt-3 font-heading text-lg font-black">
+                  <p className="mt-3 font-heading text-lg font-bold">
                     {t("empty")}
                   </p>
                 </div>
@@ -240,7 +240,7 @@ export function NotificationInbox({
                           <Icon aria-hidden="true" />
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className="block font-heading font-black">
+                          <span className="block font-heading font-bold">
                             {isBadgeAward
                               ? t("badgeAwardedTitle")
                               : itemOutcome

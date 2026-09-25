@@ -65,7 +65,7 @@ export function VaultAdminTestingMenu({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-72 rounded-xl p-2">
         <DropdownMenuGroup>
-          <DropdownMenuLabel className="px-2 py-1.5 font-black">
+          <DropdownMenuLabel className="px-2 py-1.5 font-bold">
             Admin testing
           </DropdownMenuLabel>
           <DropdownMenuItem

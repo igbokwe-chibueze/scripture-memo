@@ -56,7 +56,7 @@ export function BadgeCollection({
             key={option}
             type="button"
             className={cn(
-              "min-h-11 shrink-0 rounded-full border px-4 text-xs font-black tracking-wide",
+              "min-h-11 shrink-0 rounded-full border px-4 text-xs font-bold tracking-wide",
               filter === option
                 ? "border-amber-400 bg-amber-400 text-slate-950"
                 : "border-border bg-card text-muted-foreground",
@@ -69,12 +69,12 @@ export function BadgeCollection({
         ))}
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
-        <label className="grid gap-1 text-xs font-black tracking-wide uppercase">
+        <label className="grid gap-1 text-xs font-bold tracking-wide uppercase">
           {t("category")}
           <select
             id="badge-category-filter"
             name="badgeCategory"
-            className="min-h-11 rounded-xl border border-input bg-background px-3 text-sm font-semibold normal-case"
+            className="min-h-11 rounded-xl border border-input bg-background px-3 text-sm font-medium normal-case"
             value={category}
             onChange={(event) => setCategory(event.currentTarget.value as BadgeCategory | "ALL")}
           >
@@ -84,12 +84,12 @@ export function BadgeCollection({
             ))}
           </select>
         </label>
-        <label className="grid gap-1 text-xs font-black tracking-wide uppercase">
+        <label className="grid gap-1 text-xs font-bold tracking-wide uppercase">
           {t("rarity")}
           <select
             id="badge-rarity-filter"
             name="badgeRarity"
-            className="min-h-11 rounded-xl border border-input bg-background px-3 text-sm font-semibold normal-case"
+            className="min-h-11 rounded-xl border border-input bg-background px-3 text-sm font-medium normal-case"
             value={rarity}
             onChange={(event) => setRarity(event.currentTarget.value as BadgeRarity | "ALL")}
           >
@@ -136,11 +136,11 @@ export function BadgeCollection({
                   <span className="grid size-16 place-items-center rounded-2xl bg-muted text-3xl">
                     {secret ? <HelpCircleIcon aria-hidden="true" /> : (badge.icon ?? "🏅")}
                   </span>
-                  <span className="rounded-full bg-muted px-3 py-1 text-[0.65rem] font-black tracking-wider uppercase">
+                  <span className="rounded-full bg-muted px-3 py-1 text-[0.65rem] font-bold tracking-wider uppercase">
                     {badge.rarity}
                   </span>
                 </div>
-                <h2 className="mt-4 font-heading text-xl font-black">
+                <h2 className="mt-4 font-heading text-xl font-bold">
                   {secret ? t("secretBadge") : badge.name}
                 </h2>
                 <p className="mt-1 min-h-10 text-sm text-muted-foreground">
@@ -162,7 +162,7 @@ export function BadgeCollection({
                   </span>
                 </div>
                 {unlocked && badge.unlockedAt && (
-                  <p className="mt-3 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+                  <p className="mt-3 text-xs font-medium text-emerald-700 dark:text-emerald-300">
                     {t("unlockedOn", { date: new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(badge.unlockedAt) })}
                   </p>
                 )}

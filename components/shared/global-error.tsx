@@ -60,11 +60,11 @@ export function GlobalError({
 
         <h1
           id="error-title"
-          className="font-heading text-4xl leading-tight font-black tracking-tight sm:text-5xl"
+          className="font-heading text-4xl leading-tight font-bold tracking-tight sm:text-5xl"
         >
           Oops we hit a snag
         </h1>
-        <p className="mx-auto mt-3 max-w-sm text-sm leading-6 font-semibold text-slate-600 dark:text-slate-300">
+        <p className="mx-auto mt-3 max-w-sm text-sm leading-6 font-medium text-slate-600 dark:text-slate-300">
           Luna could not load this. Try again.
         </p>
 

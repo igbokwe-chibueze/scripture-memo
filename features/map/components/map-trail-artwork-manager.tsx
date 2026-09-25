@@ -81,7 +81,7 @@ export function MapTrailArtworkManager({
 
             <div className="min-w-0 space-y-3">
               <div>
-                <h2 className="font-heading text-lg font-black">
+                <h2 className="font-heading text-lg font-bold">
                   Trail {row.trailNumber}
                 </h2>
                 <p className="text-sm text-muted-foreground">

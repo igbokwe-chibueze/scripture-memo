@@ -83,7 +83,7 @@ function LunaGallery({ collection }: LunaGalleryProps): React.ReactNode {
               )}
             </div>
             <div className="p-3">
-              <h3 className="font-heading text-sm font-black">{item.label}</h3>
+              <h3 className="font-heading text-sm font-bold">{item.label}</h3>
               <p className="mt-1 text-xs leading-5 text-muted-foreground">{item.use}</p>
             </div>
           </article>
@@ -97,10 +97,10 @@ export function LunaMascotPreview(): React.ReactNode {
   return (
     <section className="space-y-4" aria-labelledby="luna-gallery-title">
       <div>
-        <p className="text-xs font-black tracking-[0.18em] text-primary uppercase">
+        <p className="text-xs font-bold tracking-[0.18em] text-primary uppercase">
           Mascot system
         </p>
-        <h2 id="luna-gallery-title" className="mt-1 font-heading text-2xl font-black">
+        <h2 id="luna-gallery-title" className="mt-1 font-heading text-2xl font-bold">
           Luna gallery
         </h2>
         <p className="mt-1 max-w-2xl text-sm text-muted-foreground">

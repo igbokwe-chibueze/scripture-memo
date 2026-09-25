@@ -32,10 +32,10 @@ export function VaultVerseCard({
     <article className="rounded-3xl border border-violet-500/15 bg-card/90 p-5 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-black tracking-[0.14em] text-violet-700 uppercase dark:text-violet-300">
+          <p className="text-xs font-bold tracking-[0.14em] text-violet-700 uppercase dark:text-violet-300">
             {verse.translation}
           </p>
-          <h3 className="mt-1 font-heading text-xl font-black">
+          <h3 className="mt-1 font-heading text-xl font-bold">
             {verse.reference}
           </h3>
         </div>
@@ -72,7 +72,7 @@ export function VaultVerseCard({
         {verse.completedStages.map((stage) => (
           <span
             key={stage}
-            className="rounded-full bg-violet-500/10 px-2.5 py-1 text-[0.65rem] font-black tracking-wide text-violet-700 uppercase dark:text-violet-300"
+            className="rounded-full bg-violet-500/10 px-2.5 py-1 text-[0.65rem] font-bold tracking-wide text-violet-700 uppercase dark:text-violet-300"
           >
             {stage}
           </span>

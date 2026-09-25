@@ -59,7 +59,7 @@ export function StreakCompletionPreview(): React.ReactNode {
           </Button>
           <Button
             type="button"
-            className="bg-orange-500 font-black text-white hover:bg-orange-400"
+            className="bg-orange-500 font-bold text-white hover:bg-orange-400"
             onClick={() => setVariant("level")}
           >
             <FlameIcon className="fill-current" aria-hidden="true" />

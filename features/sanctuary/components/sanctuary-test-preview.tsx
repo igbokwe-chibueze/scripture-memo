@@ -64,7 +64,7 @@ export function SanctuaryTestPreview({
   const [run, setRun] = useState(0);
   return (
     <section id="sanctuary-testing" className="space-y-5">
-      <h2 className="font-heading text-2xl font-black">Sanctuary control testing</h2>
+      <h2 className="font-heading text-2xl font-bold">Sanctuary control testing</h2>
       <p className="text-sm text-muted-foreground">
         At 375px, open Notes, edit the sample reflection and save. Check pending
         feedback and retry after rejection. Toggle the heart: rejection keeps it

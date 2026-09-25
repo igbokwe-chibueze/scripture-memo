@@ -156,8 +156,12 @@ classes before changing `components/ui/button.tsx`.
 - Use Fredoka Medium 500 for paragraphs, scripture, instructions, and other
   sustained reading. The shared sans token and page body default provide this
   face so supporting copy remains consistent across routes.
-- Use Lilita One through the shared heading token for page headings, game
-  headings, and major moments.
+- Fredoka is registered at weights 500 and 700 only. Use `font-medium` for the
+  500 face and `font-bold` for the 700 face; do not request `font-semibold`,
+  `font-extrabold`, or `font-black` for Fredoka text.
+- Use Lilita One at its registered 700 display weight through the shared
+  heading token. Pair `font-heading` with `font-bold` consistently so headings
+  do not depend on browser-synthesized weight differences.
 - Use Fredoka Bold 700 through the shared action token for Button,
   LoadingButton, and NavigationButton labels. Keep these components on the same
   shared `buttonVariants` styling path.

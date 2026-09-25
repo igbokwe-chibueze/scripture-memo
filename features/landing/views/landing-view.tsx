@@ -119,7 +119,7 @@ export function LandingView(): React.ReactNode {
                   icon={<SparklesIcon aria-hidden="true" />}
                   className="mb-5"
                 />
-                <h1 className="text-balance font-heading text-4xl font-black tracking-[-0.04em] sm:text-6xl lg:text-7xl">
+                <h1 className="text-balance font-heading text-4xl font-bold tracking-[-0.04em] sm:text-6xl lg:text-7xl">
                   Carry the Word.
                   <span className="block bg-linear-to-r from-amber-500 via-orange-500 to-violet-600 bg-clip-text text-transparent">
                     One journey at a time.
@@ -165,7 +165,7 @@ export function LandingView(): React.ReactNode {
                 <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-card/90 p-5 shadow-2xl ring-1 ring-foreground/10 backdrop-blur">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">
                         Your journey
                       </p>
                       <p className="mt-1 font-heading text-xl font-bold">The First Light</p>
@@ -185,7 +185,7 @@ export function LandingView(): React.ReactNode {
                         <div key={waypoint} className="relative flex items-center gap-4">
                           <div
                             className={cn(
-                              "relative z-10 grid size-14 shrink-0 place-items-center rounded-2xl border-4 border-card font-heading text-lg font-black shadow-md",
+                              "relative z-10 grid size-14 shrink-0 place-items-center rounded-2xl border-4 border-card font-heading text-lg font-bold shadow-md",
                               active
                                 ? "bg-linear-to-br from-amber-300 to-orange-500 text-zinc-950"
                                 : "bg-muted text-muted-foreground",
@@ -195,7 +195,7 @@ export function LandingView(): React.ReactNode {
                           </div>
                           <div className="min-w-0 flex-1 rounded-2xl border border-border/70 bg-background/70 p-3">
                             <div className="flex items-center justify-between gap-2">
-                              <p className="truncate font-semibold">
+                              <p className="truncate font-bold">
                                 {waypoint === 1 ? "Psalm 119:105" : `Waypoint ${waypoint}`}
                               </p>
                               {waypoint === 1 && <StatusBadge status="Learn" tone="success" />}
@@ -224,7 +224,7 @@ export function LandingView(): React.ReactNode {
               <p className="text-sm font-bold uppercase tracking-[0.18em] text-primary">
                 Three days. Deeper memory.
               </p>
-              <h2 className="mt-3 text-balance font-heading text-3xl font-black tracking-tight sm:text-4xl">
+              <h2 className="mt-3 text-balance font-heading text-3xl font-bold tracking-tight sm:text-4xl">
                 From a glimmer to lasting radiance
               </h2>
               <p className="mt-4 text-pretty leading-7 text-muted-foreground">
@@ -260,7 +260,7 @@ export function LandingView(): React.ReactNode {
                 <div className="grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary">
                   <Gamepad2Icon className="size-7" aria-hidden="true" />
                 </div>
-                <h2 className="mt-5 text-balance font-heading text-3xl font-black tracking-tight sm:text-4xl">
+                <h2 className="mt-5 text-balance font-heading text-3xl font-bold tracking-tight sm:text-4xl">
                   Practice that feels like play
                 </h2>
                 <p className="mt-4 max-w-xl leading-7 text-muted-foreground">
@@ -274,10 +274,10 @@ export function LandingView(): React.ReactNode {
                     key={mode}
                     className="flex min-h-16 items-center gap-3 rounded-2xl border border-border/70 bg-card p-4 shadow-sm"
                   >
-                    <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 font-heading text-sm font-black text-primary">
+                    <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 font-heading text-sm font-bold text-primary">
                       {index + 1}
                     </span>
-                    <span className="font-semibold">{mode}</span>
+                    <span className="font-bold">{mode}</span>
                     <CheckIcon className="ml-auto size-4 text-emerald-500" aria-hidden="true" />
                   </li>
                 ))}

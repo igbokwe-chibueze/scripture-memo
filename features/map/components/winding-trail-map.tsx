@@ -246,13 +246,13 @@ export function WindingTrailMap({
             >
               <div className="flex items-center justify-between gap-4 px-2">
                 <div>
-                  <p className="flex items-center gap-1.5 text-[0.65rem] font-black tracking-[0.16em] text-emerald-700 uppercase dark:text-emerald-300">
+                  <p className="flex items-center gap-1.5 text-[0.65rem] font-bold tracking-[0.16em] text-emerald-700 uppercase dark:text-emerald-300">
                     <MapIcon className="size-3.5" aria-hidden="true" />
                     {t("trail", { number: group.index + 1 })}
                   </p>
                   <h2
                     id={`trail-map-heading-${group.index}`}
-                    className="font-heading text-lg font-black"
+                    className="font-heading text-lg font-bold"
                   >
                     {t("waypoints", { start: group.startNumber, end: group.endNumber })}
                   </h2>
@@ -321,7 +321,7 @@ export function WindingTrailMap({
 
       <div ref={bottomSentinelRef} className="h-px" aria-hidden="true" />
       {visibleRange.end === groups.length - 1 && (
-        <p className="py-8 text-center text-sm font-semibold text-muted-foreground">
+        <p className="py-8 text-center text-sm font-medium text-muted-foreground">
           End of the currently published trail
         </p>
       )}

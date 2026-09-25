@@ -89,7 +89,7 @@ export function TrailNavigator({
         className="w-[85vw] max-w-[23.75rem] gap-0 overflow-hidden p-0 sm:max-w-[23.75rem]"
       >
         <SheetHeader className="shrink-0 border-b px-5 py-5 pr-14">
-          <SheetTitle className="text-xl font-black">Trail Navigator</SheetTitle>
+          <SheetTitle className="text-xl font-bold">Trail Navigator</SheetTitle>
           <SheetDescription>
             Jump to any unlocked trail. Locked trails show what lies ahead.
           </SheetDescription>
@@ -145,7 +145,7 @@ export function TrailNavigator({
 
                   <span className="flex min-w-0 flex-col justify-center gap-1.5 px-3 py-2.5">
                     <span className="flex items-start justify-between gap-2">
-                      <span className="font-heading text-base font-black text-foreground">
+                      <span className="font-heading text-base font-bold text-foreground">
                         Trail {group.index + 1}
                       </span>
                       {isCurrent ? (
@@ -165,7 +165,7 @@ export function TrailNavigator({
                         />
                       ) : null}
                     </span>
-                    <span className="text-xs font-semibold text-muted-foreground">
+                    <span className="text-xs font-medium text-muted-foreground">
                       Waypoints {group.startNumber}–{group.endNumber}
                     </span>
                     <span className="flex items-center gap-2">

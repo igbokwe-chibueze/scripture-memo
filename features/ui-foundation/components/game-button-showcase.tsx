@@ -89,12 +89,12 @@ export function GameButtonShowcase(): React.ReactNode {
       aria-labelledby="game-button-showcase-title"
     >
       <div>
-        <p className="text-xs font-black tracking-[0.18em] text-primary uppercase">
+        <p className="text-xs font-bold tracking-[0.18em] text-primary uppercase">
           Shared game controls
         </p>
         <h2
           id="game-button-showcase-title"
-          className="mt-1 font-heading text-2xl font-black"
+          className="mt-1 font-heading text-2xl font-bold"
         >
           Button types and styles
         </h2>
@@ -106,7 +106,7 @@ export function GameButtonShowcase(): React.ReactNode {
       </div>
 
       <div className="space-y-3" aria-labelledby="button-appearance-title">
-        <h3 id="button-appearance-title" className="font-heading text-lg font-black">
+        <h3 id="button-appearance-title" className="font-heading text-lg font-bold">
           Appearance variants
         </h3>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -142,7 +142,7 @@ export function GameButtonShowcase(): React.ReactNode {
           aria-labelledby="button-behavior-title"
         >
           <div>
-            <h3 id="button-behavior-title" className="font-heading text-lg font-black">
+            <h3 id="button-behavior-title" className="font-heading text-lg font-bold">
               Behavior types
             </h3>
             <p className="text-sm text-muted-foreground">
@@ -181,7 +181,7 @@ export function GameButtonShowcase(): React.ReactNode {
           aria-labelledby="button-size-title"
         >
           <div>
-            <h3 id="button-size-title" className="font-heading text-lg font-black">
+            <h3 id="button-size-title" className="font-heading text-lg font-bold">
               Sizes and states
             </h3>
             <p className="text-sm text-muted-foreground">

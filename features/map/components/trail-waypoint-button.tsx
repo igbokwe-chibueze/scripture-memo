@@ -147,7 +147,7 @@ export function TrailWaypointButton({
           aria-hidden="true"
           className={cn(
             "pointer-events-none absolute top-[36%] left-0 z-10 w-full text-center leading-none text-white",
-            "font-[family-name:var(--font-lilita-one)] [text-shadow:0_2px_2px_rgb(4_49_130/0.8)]",
+            "font-heading font-bold [text-shadow:0_2px_2px_rgb(4_49_130/0.8)]",
             isCurrent
               ? "text-[1.375rem] sm:text-[1.625rem]"
               : "text-xl sm:text-2xl",

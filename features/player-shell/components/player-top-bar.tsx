@@ -89,7 +89,7 @@ export function PlayerTopBar({
           {/* WHY: Narrow phones do not have enough horizontal room for a route
            * label plus three counters and notifications. The icon communicates
            * the current section without clipping an unfinished word. */}
-          <span className="hidden truncate font-heading text-sm font-black sm:inline sm:text-base">
+          <span className="hidden truncate font-heading text-sm font-bold sm:inline sm:text-base">
             {section.label}
           </span>
         </div>
@@ -107,7 +107,7 @@ export function PlayerTopBar({
                   className={`size-4 shrink-0 ${stat.className}`}
                   aria-hidden="true"
                 />
-                <span className="text-xs font-black tabular-nums sm:text-sm">
+                <span className="text-xs font-bold tabular-nums sm:text-sm">
                   {numberFormatter.format(stat.value)}
                 </span>
                 <span className="sr-only">{stat.label}</span>

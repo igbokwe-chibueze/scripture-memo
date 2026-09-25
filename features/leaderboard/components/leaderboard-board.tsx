@@ -126,7 +126,7 @@ function RankPlate({
   return (
     <span
       className={cn(
-        "grid min-h-12 grid-cols-[auto_auto] place-content-center gap-0.5 rounded-lg border px-1 font-heading text-base font-black shadow-[0_3px_0_rgb(0_0_0/0.18)] sm:min-h-16 sm:gap-1 sm:rounded-2xl sm:px-2 sm:text-xl",
+        "grid min-h-12 grid-cols-[auto_auto] place-content-center gap-0.5 rounded-lg border px-1 font-heading text-base font-bold shadow-[0_3px_0_rgb(0_0_0/0.18)] sm:min-h-16 sm:gap-1 sm:rounded-2xl sm:px-2 sm:text-xl",
         position === 1 &&
           "border-yellow-500 bg-linear-to-br from-yellow-200 via-amber-300 to-yellow-500 text-amber-950",
         position === 2 &&
@@ -205,7 +205,7 @@ function RankingRow({
         loading={displayedPosition <= 3 ? "eager" : "lazy"}
       />
       <div className="min-w-0">
-        <p className="truncate text-sm font-black sm:text-lg">
+        <p className="truncate text-sm font-bold sm:text-lg">
           {visibleDisplayName}
           {isRival && (
             <Tooltip>
@@ -226,7 +226,7 @@ function RankingRow({
           className="mt-1.5 h-5 w-7 sm:h-6 sm:w-9"
         />
       </div>
-      <div className="text-sm font-black sm:text-lg">
+      <div className="text-sm font-bold sm:text-lg">
         <span className="inline-flex min-h-10 items-center gap-1 rounded-xl bg-primary/10 px-2 py-2 text-primary sm:min-h-12 sm:gap-2 sm:rounded-2xl sm:px-4 sm:py-3">
           <SparklesIcon className="size-4 shrink-0 sm:size-5" aria-hidden="true" />
           {(scope === "all-time" ? entry.beaconXp : entry.weeklyXp).toLocaleString()}
@@ -259,7 +259,7 @@ function PlayerDetailsDialog({
                 size="lg"
                 isOnline={entry.isOnline}
               />
-              <DialogTitle className="text-2xl font-black">
+              <DialogTitle className="text-2xl font-bold">
                 {entry.displayName}
               </DialogTitle>
               <DialogDescription>
@@ -277,7 +277,7 @@ function PlayerDetailsDialog({
                 <p className="text-xs font-bold text-muted-foreground">
                   {t("weeklyBeaconPoints")}
                 </p>
-                <p className="mt-1 text-xl font-black">
+                <p className="mt-1 text-xl font-bold">
                   {entry.weeklyXp.toLocaleString()}
                 </p>
               </div>
@@ -291,7 +291,7 @@ function PlayerDetailsDialog({
                     <p className="text-xs font-bold text-muted-foreground">
                       {t("beaconLevel")}
                     </p>
-                    <p className="mt-1 text-xl font-black">
+                    <p className="mt-1 text-xl font-bold">
                       {entry.beaconLevel.toLocaleString()}
                     </p>
                   </div>
@@ -303,7 +303,7 @@ function PlayerDetailsDialog({
                     <p className="text-xs font-bold text-muted-foreground">
                       {t("lifetimeBeaconPoints")}
                     </p>
-                    <p className="mt-1 text-xl font-black">
+                    <p className="mt-1 text-xl font-bold">
                       {entry.beaconXp.toLocaleString()}
                     </p>
                   </div>
@@ -315,7 +315,7 @@ function PlayerDetailsDialog({
                     <p className="text-xs font-bold text-muted-foreground">
                       {t("crownsLabel")}
                     </p>
-                    <p className="mt-1 text-xl font-black">
+                    <p className="mt-1 text-xl font-bold">
                       {entry.crowns.toLocaleString()}
                     </p>
                   </div>
@@ -407,7 +407,7 @@ export function LeaderboardBoard({
     return (
       <div className="mt-5 flex min-h-56 flex-col items-center justify-center gap-4 rounded-3xl border bg-card p-6 text-center">
         <LoadingSpinner size="lg" label={t("joiningLeague")} />
-        <p className="font-heading text-xl font-black">{t("joiningLeague")}</p>
+        <p className="font-heading text-xl font-bold">{t("joiningLeague")}</p>
       </div>
     );
   }
@@ -490,7 +490,7 @@ export function LeaderboardBoard({
           <div className="flex min-h-5 items-center justify-between gap-2">
             <label
               htmlFor="leaderboard-fellowship"
-              className="text-xs font-black tracking-wide text-muted-foreground uppercase"
+              className="text-xs font-bold tracking-wide text-muted-foreground uppercase"
             >
               {t("chooseFellowship")}
             </label>
@@ -539,12 +539,12 @@ export function LeaderboardBoard({
               )}
             </div>
             <div className="min-w-0">
-              <p className="text-[0.6875rem] font-black tracking-[0.14em] text-violet-700 uppercase dark:text-violet-300 sm:text-xs sm:tracking-[0.16em]">
+              <p className="text-[0.6875rem] font-bold tracking-[0.14em] text-violet-700 uppercase dark:text-violet-300 sm:text-xs sm:tracking-[0.16em]">
                 {data.scope === "league"
                   ? t("leagueCompetition")
                   : t("weeklyCompetition")}
               </p>
-              <p className="mt-1 font-heading text-xl leading-tight font-black max-[359px]:text-lg max-[359px]:whitespace-nowrap sm:text-3xl">
+              <p className="mt-1 font-heading text-xl leading-tight font-bold max-[359px]:text-lg max-[359px]:whitespace-nowrap sm:text-3xl">
                 {data.scope === "league"
                   ? t("leagueName", { league: t(`leagues.${data.league}`) })
                   : data.activeFellowshipName ?? t("country")}
@@ -561,7 +561,7 @@ export function LeaderboardBoard({
                 <p className="text-[0.6875rem] font-bold leading-tight text-muted-foreground sm:text-xs">
                   {t("weekEnds")}
                 </p>
-                <p className="mt-0.5 text-xs leading-tight font-black sm:text-sm">
+                <p className="mt-0.5 text-xs leading-tight font-bold sm:text-sm">
                   {new Intl.DateTimeFormat(undefined, {
                     weekday: "short",
                     month: "short",
@@ -575,7 +575,7 @@ export function LeaderboardBoard({
           </div>
           {data.scope === "league" && (
             <div className="mt-4 rounded-2xl border bg-background/65 p-3 sm:mt-5">
-              <div className="grid grid-cols-3 text-center text-[0.65rem] font-black sm:text-xs">
+              <div className="grid grid-cols-3 text-center text-[0.65rem] font-bold sm:text-xs">
                 <span className="grid gap-0.5 text-emerald-700 dark:text-emerald-300">
                   <span>{t("promote")}</span>
                   <span>{t("topCount", { count: data.promotionCount })}</span>
@@ -606,7 +606,7 @@ export function LeaderboardBoard({
                 />
                 {data.currentUser && (
                   <span
-                    className="absolute top-1/2 grid size-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-xl bg-violet-600 font-heading text-xs font-black text-white shadow-lg ring-2 ring-white dark:ring-slate-950"
+                    className="absolute top-1/2 grid size-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-xl bg-violet-600 font-heading text-xs font-bold text-white shadow-lg ring-2 ring-white dark:ring-slate-950"
                     style={{
                       left: `${Math.min(
                         98,
@@ -657,7 +657,7 @@ export function LeaderboardBoard({
         <>
           <section className="mt-6" aria-labelledby="rankings-title">
             <div className="flex items-center justify-between gap-3">
-              <h2 id="rankings-title" className="font-heading text-2xl font-black">
+              <h2 id="rankings-title" className="font-heading text-2xl font-bold">
                 {t("rankings")}
               </h2>
               {/*
@@ -673,7 +673,7 @@ export function LeaderboardBoard({
             </div>
             {visibleEntries.length > 0 ? (
               <div className="mt-4 overflow-hidden rounded-3xl border bg-card shadow-lg">
-                <div className="grid min-h-14 grid-cols-[2.75rem_2.75rem_minmax(0,1fr)_auto] items-center gap-x-2 border-b bg-muted/45 px-3 py-3 text-[0.6875rem] font-black tracking-wide text-muted-foreground uppercase sm:min-h-16 sm:grid-cols-[4rem_3.5rem_minmax(0,1fr)_auto] sm:gap-x-3 sm:px-4 sm:text-xs">
+                <div className="grid min-h-14 grid-cols-[2.75rem_2.75rem_minmax(0,1fr)_auto] items-center gap-x-2 border-b bg-muted/45 px-3 py-3 text-[0.6875rem] font-bold tracking-wide text-muted-foreground uppercase sm:min-h-16 sm:grid-cols-[4rem_3.5rem_minmax(0,1fr)_auto] sm:gap-x-3 sm:px-4 sm:text-xs">
                   <span>{t("rankHeader")}</span>
                   <span className="col-span-2">{t("playerHeader")}</span>
                   <span className="max-w-20 text-center leading-tight">
@@ -737,7 +737,7 @@ export function LeaderboardBoard({
 
           {data.currentUser && !currentUserAlreadyVisible && (
             <aside className="sticky bottom-24 z-20 mt-5" aria-label={t("yourRank")}>
-              <p className="mb-2 text-xs font-black tracking-wider text-amber-700 uppercase dark:text-amber-300">
+              <p className="mb-2 text-xs font-bold tracking-wider text-amber-700 uppercase dark:text-amber-300">
                 {t("yourRank")}
               </p>
               <RankingRow

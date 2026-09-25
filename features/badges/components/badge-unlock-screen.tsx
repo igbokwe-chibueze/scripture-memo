@@ -145,22 +145,22 @@ export function BadgeUnlockScreen({
               {badge.icon ?? "🏅"}
             </motion.div>
 
-            <p className="mt-6 text-xs font-black tracking-[0.2em] uppercase">
+            <p className="mt-6 text-xs font-bold tracking-[0.2em] uppercase">
               {t("unlocked")}
             </p>
-            <h2 id="badge-unlock-title" className="mt-2 font-heading text-4xl font-black">
+            <h2 id="badge-unlock-title" className="mt-2 font-heading text-4xl font-bold">
               {badge.name}
             </h2>
             <p className="mt-3 text-sm font-bold opacity-75">{badge.description}</p>
-            <span className="mt-5 inline-flex rounded-full border border-current/20 bg-white/35 px-4 py-2 text-xs font-black tracking-[0.16em] uppercase dark:bg-black/15">
+            <span className="mt-5 inline-flex rounded-full border border-current/20 bg-white/35 px-4 py-2 text-xs font-bold tracking-[0.16em] uppercase dark:bg-black/15">
               {badge.rarity}
             </span>
 
             <div className="mt-6 rounded-2xl border border-current/15 bg-white/45 p-4 dark:bg-black/15">
-              <p className="text-xs font-black tracking-[0.14em] uppercase">
+              <p className="text-xs font-bold tracking-[0.14em] uppercase">
                 {t("pointsEarned")}
               </p>
-              <p className="mt-1 font-heading text-3xl font-black" aria-label={`${badge.rewardAmount} Glow Points earned`}>
+              <p className="mt-1 font-heading text-3xl font-bold" aria-label={`${badge.rewardAmount} Glow Points earned`}>
                 +<AnimatedBadgeReward amount={badge.rewardAmount} reducedMotion={Boolean(shouldReduceMotion)} />
               </p>
               <p className="text-xs font-bold opacity-70">{t("newBalance", { balance: badge.balance.toLocaleString(locale) })}</p>
@@ -169,7 +169,7 @@ export function BadgeUnlockScreen({
             <div className="mt-6 grid grid-cols-[minmax(0,1fr)_auto] gap-3">
               <Button
                 type="button"
-                className="min-h-12 rounded-xl bg-slate-950 font-black text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100"
+                className="min-h-12 rounded-xl bg-slate-950 font-bold text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100"
                 onClick={onContinue}
               >
                 {common("continue")}

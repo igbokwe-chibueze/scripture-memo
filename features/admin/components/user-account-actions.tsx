@@ -119,7 +119,7 @@ export function UserAccountActions({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56 rounded-xl p-2">
           <DropdownMenuGroup>
-            <DropdownMenuLabel className="px-2 py-1.5 font-black">
+            <DropdownMenuLabel className="px-2 py-1.5 font-bold">
               Account actions
             </DropdownMenuLabel>
             <DropdownMenuItem

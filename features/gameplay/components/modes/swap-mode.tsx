@@ -258,10 +258,10 @@ export function SwapMode({
       )}
       <section className="w-full max-w-2xl text-left" aria-labelledby="swap-title">
         <div className="text-center">
-          <p className="text-xs font-black tracking-[0.16em] text-violet-700 uppercase dark:text-violet-300">
+          <p className="text-xs font-bold tracking-[0.16em] text-violet-700 uppercase dark:text-violet-300">
             {t("returnWords")}
           </p>
-          <h2 id="swap-title" className="mt-2 font-heading text-3xl font-black">
+          <h2 id="swap-title" className="mt-2 font-heading text-3xl font-bold">
             {t("swap")}
           </h2>
           <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground">
@@ -270,7 +270,7 @@ export function SwapMode({
         </div>
 
         <div
-          className="mt-6 rounded-2xl border border-border bg-muted/35 p-4 text-lg leading-[3.5rem] font-semibold dark:border-white/10 dark:bg-white/5 sm:p-6 sm:text-xl"
+          className="mt-6 rounded-2xl border border-border bg-muted/35 p-4 text-lg leading-[3.5rem] font-medium dark:border-white/10 dark:bg-white/5 sm:p-6 sm:text-xl"
           aria-label="Verse with words to swap"
         >
           {tokens.map((token) => {
@@ -294,7 +294,7 @@ export function SwapMode({
                 <button
                   type="button"
                   className={cn(
-                    "inline-flex min-h-11 touch-manipulation items-center justify-center rounded-xl border px-3 py-1 align-middle font-black transition",
+                    "inline-flex min-h-11 touch-manipulation items-center justify-center rounded-xl border px-3 py-1 align-middle font-bold transition",
                     "border-amber-500 bg-amber-200 text-amber-950 shadow-sm hover:bg-amber-300 focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:outline-none dark:border-amber-300 dark:bg-amber-300/20 dark:text-amber-100 dark:hover:bg-amber-300/30",
                     selectedPosition === token.position &&
                       "scale-105 border-violet-700! bg-violet-600! text-white! ring-2 ring-violet-500/30 dark:border-violet-300! dark:bg-violet-500! dark:text-white!",
@@ -326,7 +326,7 @@ export function SwapMode({
               <ShuffleIcon className="size-5" aria-hidden="true" />
             </span>
             <div>
-              <h3 className="text-sm font-black text-foreground">{t("howToSwap")}</h3>
+              <h3 className="font-heading text-sm font-bold text-foreground">{t("howToSwap")}</h3>
               <p className="mt-1 text-xs leading-5 text-muted-foreground">
                 {t("swapHelp")}
               </p>
@@ -348,7 +348,7 @@ export function SwapMode({
           <LoadingButton
             isPending={isPending}
             pendingLabel={t("checking")}
-            className="min-h-12 rounded-xl bg-amber-400 font-black text-slate-950 hover:bg-amber-300"
+            className="min-h-12 rounded-xl bg-amber-400 font-bold text-slate-950 hover:bg-amber-300"
             disabled={isComplete}
             onClick={checkAnswer}
           >

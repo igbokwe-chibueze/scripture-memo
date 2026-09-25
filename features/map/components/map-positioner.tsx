@@ -685,7 +685,7 @@ export function MapPositioner(): React.ReactNode {
       <TooltipProvider>
         <div className="sticky top-2 z-40 flex min-h-14 items-center gap-1.5 overflow-x-auto rounded-2xl border bg-background/95 p-1.5 shadow-lg backdrop-blur-xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <div className="hidden min-w-40 px-2 lg:block">
-            <p className="font-heading text-sm font-black">Trail positioner</p>
+            <p className="font-heading text-sm font-bold">Trail positioner</p>
             <p className="truncate text-[0.65rem] text-muted-foreground">
               {imagePreview?.name ?? "No image selected"}
             </p>
@@ -748,7 +748,7 @@ export function MapPositioner(): React.ReactNode {
                 </div>
                 {imagePreview && (
                   <p className="rounded-xl bg-muted/50 p-3 text-xs text-muted-foreground sm:col-span-2">
-                    <span className="font-semibold text-foreground">{imagePreview.name}</span>
+                    <span className="font-bold text-foreground">{imagePreview.name}</span>
                     <br />
                     Natural size: {imagePreview.naturalWidth || "..."} x{" "}
                     {imagePreview.naturalHeight || "..."}px
@@ -865,7 +865,7 @@ export function MapPositioner(): React.ReactNode {
             </SheetContent>
           </Sheet>
 
-          <span className="ml-auto hidden whitespace-nowrap px-2 text-xs font-semibold text-muted-foreground md:inline">
+          <span className="ml-auto hidden whitespace-nowrap px-2 text-xs font-medium text-muted-foreground md:inline">
             {mode} / {previewScaleMode} / {Math.round(renderedScale * 100)}%
           </span>
         </div>
@@ -927,7 +927,7 @@ export function MapPositioner(): React.ReactNode {
               <div className="absolute inset-0 grid place-items-center p-8 text-center text-muted-foreground">
                 <div>
                   <ImagePlusIcon className="mx-auto size-10" aria-hidden="true" />
-                  <p className="mt-3 font-semibold text-foreground">No trail image selected</p>
+                  <p className="mt-3 font-medium text-foreground">No trail image selected</p>
                   <p className="mt-1 text-sm">Choose a PNG to place real-size controls.</p>
                 </div>
               </div>
@@ -952,7 +952,7 @@ export function MapPositioner(): React.ReactNode {
                     onPointerMove={(event) => handleMarkerPointerMove(event, index)}
                     onKeyDown={(event) => handleMarkerKeyDown(event, index)}
                     className={cn(
-                      "absolute z-10 grid -translate-x-1/2 -translate-y-1/2 touch-none place-items-center rounded-full border-4 text-base font-black shadow-[0_5px_0_rgb(0_0_0/0.3)] outline-none transition focus-visible:ring-4 focus-visible:ring-ring/60 motion-reduce:transition-none",
+                      "absolute z-10 grid -translate-x-1/2 -translate-y-1/2 touch-none place-items-center rounded-full border-4 text-base font-bold shadow-[0_5px_0_rgb(0_0_0/0.3)] outline-none transition focus-visible:ring-4 focus-visible:ring-ring/60 motion-reduce:transition-none",
                       isClipped
                         ? "border-red-200 bg-red-600 text-white"
                         : selectedIndex === index

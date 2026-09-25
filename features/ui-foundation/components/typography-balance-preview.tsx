@@ -1,28 +1,6 @@
 import { BookOpenIcon, FlameIcon, SparklesIcon } from "lucide-react";
-import localFont from "next/font/local";
-
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-/**
- * Loads Fredoka through the comparison card's generated local font face.
- * The application now uses the shared CSS faces globally; the isolated local
- * face keeps this card's sample explicitly pinned to the exact candidate file.
- */
-const fredokaBold = localFont({
-  src: "../../../public/fonts/fredoka-bold-latin.woff2",
-  display: "swap",
-  style: "normal",
-  weight: "700",
-});
-
-/** Loads Fredoka Medium only for the reading-copy comparison sample. */
-const fredokaMedium = localFont({
-  src: "../../../public/fonts/fredoka-medium-latin.woff2",
-  display: "swap",
-  style: "normal",
-  weight: "500",
-});
 
 type DisplayFont = "geist" | "lilita" | "fredoka";
 type ReadingFont = "geist" | "fredoka-medium";
@@ -48,9 +26,9 @@ const DISPLAY_FONT_TREATMENTS: Record<DisplayFont, FontTreatment> = {
     },
   },
   fredoka: {
-    className: fredokaBold.className,
+    className: "",
     style: {
-      fontFamily: fredokaBold.style.fontFamily,
+      fontFamily: "var(--font-fredoka)",
       fontWeight: 700,
     },
   },
@@ -65,9 +43,9 @@ const READING_FONT_TREATMENTS: Record<ReadingFont, FontTreatment> = {
     },
   },
   "fredoka-medium": {
-    className: fredokaMedium.className,
+    className: "",
     style: {
-      fontFamily: fredokaMedium.style.fontFamily,
+      fontFamily: "var(--font-fredoka)",
       fontWeight: 500,
     },
   },
@@ -91,12 +69,12 @@ export function TypographyBalancePreview(): React.ReactNode {
       aria-labelledby="typography-balance-title"
     >
       <div>
-        <p className="text-xs font-black tracking-[0.18em] text-primary uppercase">
+        <p className="text-xs font-bold tracking-[0.18em] text-primary uppercase">
           Typography experiment
         </p>
         <h2
           id="typography-balance-title"
-          className="mt-1 font-heading text-2xl font-black"
+          className="mt-1 font-heading text-2xl font-bold"
         >
           Typography pairings
         </h2>
@@ -161,7 +139,7 @@ function TypographySample({
 
   return (
     <article className="space-y-5 rounded-2xl border bg-background p-4 sm:p-5">
-      <p className="text-xs font-black tracking-[0.16em] text-muted-foreground uppercase">
+      <p className="text-xs font-bold tracking-[0.16em] text-muted-foreground uppercase">
         {treatment}
       </p>
 

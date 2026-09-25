@@ -54,7 +54,7 @@ export function CreateFellowshipForm(): React.ReactNode {
           <div className="flex-1">
             <label
               htmlFor="create-fellowship-public"
-              className="font-black"
+              className="font-bold"
             >
               {t("publicFellowship")}
             </label>
@@ -74,7 +74,7 @@ export function CreateFellowshipForm(): React.ReactNode {
           type="submit"
           isPending={isPending}
           pendingLabel={t("creating")}
-          className="min-h-12 w-full font-black"
+          className="min-h-12 w-full font-bold"
         >
           <SparklesIcon aria-hidden="true" />
           {t("create")}

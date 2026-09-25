@@ -46,8 +46,8 @@ export function DataTablePagination({
       )}
     >
       <p className="text-sm text-muted-foreground" aria-live="polite">
-        Page <span className="font-semibold text-foreground">{safePage}</span> of{" "}
-        <span className="font-semibold text-foreground">{safePageCount}</span>
+        Page <span className="font-bold text-foreground">{safePage}</span> of{" "}
+        <span className="font-bold text-foreground">{safePageCount}</span>
         {typeof totalItems === "number" && ` · ${totalItems} total`}
       </p>
       <div className="grid grid-cols-2 gap-2">

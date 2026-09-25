@@ -186,7 +186,7 @@ export function WaypointManager({ initialWaypoints, publishedVerses }: WaypointM
 
       <div className="flex flex-col gap-3 rounded-xl border bg-card p-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <p className="font-semibold">Curriculum order</p>
+          <p className="font-bold">Curriculum order</p>
           <p className="text-sm text-muted-foreground">
             {hasUnsavedOrder ? `${proposedMoves.length} positions will change. Save before editing assignments or visibility.` : "New waypoints append to the end as hidden, unassigned drafts."}
           </p>
@@ -204,7 +204,7 @@ export function WaypointManager({ initialWaypoints, publishedVerses }: WaypointM
 
       {hasUnsavedOrder && (
         <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4" aria-live="polite">
-          <p className="font-semibold text-amber-800 dark:text-amber-200">Proposed movement</p>
+          <p className="font-bold text-amber-800 dark:text-amber-200">Proposed movement</p>
           <ul className="mt-2 space-y-1 text-sm text-amber-900/80 dark:text-amber-100/80">
             {proposedMoves.slice(0, 5).map((move) => <li key={move.id}>{move.reference}: waypoint {move.from} → {move.to}</li>)}
             {proposedMoves.length > 5 && <li>Plus {proposedMoves.length - 5} more position changes.</li>}
@@ -217,11 +217,11 @@ export function WaypointManager({ initialWaypoints, publishedVerses }: WaypointM
           <caption className="sr-only">All administrative waypoint records</caption>
           <thead className="bg-muted/60 text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
-              <th scope="col" className="h-11 px-4 text-left font-semibold">Waypoint</th>
-              <th scope="col" className="h-11 px-4 text-left font-semibold">Assigned verse</th>
-              <th scope="col" className="h-11 px-4 text-left font-semibold">Journey Stage</th>
-              <th scope="col" className="h-11 px-4 text-left font-semibold">Status</th>
-              <th scope="col" className="h-11 px-4 text-right font-semibold">Actions</th>
+              <th scope="col" className="h-11 px-4 text-left font-bold">Waypoint</th>
+              <th scope="col" className="h-11 px-4 text-left font-bold">Assigned verse</th>
+              <th scope="col" className="h-11 px-4 text-left font-bold">Journey Stage</th>
+              <th scope="col" className="h-11 px-4 text-left font-bold">Status</th>
+              <th scope="col" className="h-11 px-4 text-right font-bold">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border/70">
@@ -272,7 +272,7 @@ export function WaypointManager({ initialWaypoints, publishedVerses }: WaypointM
                     </div>
                   </td>
                   <td className="px-4 py-3 align-middle">
-                    {waypoint.verse ? <div><p className="font-semibold">{waypoint.verse.reference}</p><p className="text-xs text-muted-foreground">{waypoint.verse.book}</p></div> : <span className="text-muted-foreground">Unassigned</span>}
+                    {waypoint.verse ? <div><p className="font-bold">{waypoint.verse.reference}</p><p className="text-xs text-muted-foreground">{waypoint.verse.book}</p></div> : <span className="text-muted-foreground">Unassigned</span>}
                   </td>
                   <td className="px-4 py-3 align-middle"><Badge variant="outline" className={stageClasses[waypoint.journeyStage]}>{stageLabels[waypoint.journeyStage]}</Badge></td>
                   <td className="px-4 py-3 align-middle"><Badge variant={waypoint.isActive ? "default" : "outline"}>{waypoint.isActive ? "Published" : "Hidden"}</Badge></td>

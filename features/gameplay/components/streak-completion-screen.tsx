@@ -134,14 +134,14 @@ export function StreakCompletionScreen({
             <AnimatedFlame reducedMotion={Boolean(shouldReduceMotion)} />
           </motion.div>
 
-          <p className="relative mt-3 text-xs font-black tracking-[0.2em] text-orange-700 uppercase dark:text-orange-300">
+          <p className="relative mt-3 text-xs font-bold tracking-[0.2em] text-orange-700 uppercase dark:text-orange-300">
             {streak.reachedNewLevel
               ? t("newLevel")
               : streak.status === "reset"
                 ? t("freshRhythm")
                 : t("dailyRhythm")}
           </p>
-          <h2 id="streak-complete-title" className="relative mt-2 font-heading text-5xl font-black">
+          <h2 id="streak-complete-title" className="relative mt-2 font-heading text-5xl font-bold">
             {t("dayStreak", { count: streak.currentStreak })}
           </h2>
           <p className="relative mt-3 text-lg font-bold text-slate-700 dark:text-slate-200">
@@ -151,7 +151,7 @@ export function StreakCompletionScreen({
           </p>
 
           <motion.div
-            className="relative mx-auto mt-5 w-fit rounded-full border border-orange-400/40 bg-orange-500 px-5 py-2 font-heading text-lg font-black text-white shadow-lg shadow-orange-500/25"
+            className="relative mx-auto mt-5 w-fit rounded-full border border-orange-400/40 bg-orange-500 px-5 py-2 font-heading text-lg font-bold text-white shadow-lg shadow-orange-500/25"
             initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.65, y: 14 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={
@@ -169,22 +169,22 @@ export function StreakCompletionScreen({
           </motion.div>
 
           <div className="relative mt-6 rounded-2xl border border-orange-300/35 bg-white/65 p-3 dark:bg-white/5">
-            <p className="text-xs font-black tracking-[0.12em] text-orange-700 uppercase dark:text-orange-300">
+            <p className="text-xs font-bold tracking-[0.12em] text-orange-700 uppercase dark:text-orange-300">
               {t("nextStreakLevel")}
             </p>
             {streak.nextLevel ? (
               <>
-                <p className="mt-2 font-heading text-xl font-black">
+                <p className="mt-2 font-heading text-xl font-bold">
                   {nextLevelName}
                 </p>
-                <p className="mt-1 text-sm font-semibold text-muted-foreground dark:text-slate-300">
+                <p className="mt-1 text-sm font-medium text-muted-foreground dark:text-slate-300">
                   {t("daysRemaining", { count: streak.nextLevel.daysRemaining })}
                   {" · "}
                   {new Intl.DateTimeFormat(locale, { month: "short", day: "numeric" }).format(new Date(`${streak.nextLevel.projectedDateKey}T12:00:00Z`))}
                 </p>
               </>
             ) : (
-              <p className="mt-2 font-heading text-xl font-black">
+              <p className="mt-2 font-heading text-xl font-bold">
                 {t("highestReached")}
               </p>
             )}
@@ -192,7 +192,7 @@ export function StreakCompletionScreen({
               {streak.forecast.map((day) => (
                 <div key={day.dateKey} className="text-center">
                   <div
-                    className={`mx-auto grid size-9 place-items-center text-xs font-black ${
+                    className={`mx-auto grid size-9 place-items-center text-xs font-bold ${
                       day.state === "today"
                         ? ""
                         : day.state === "milestone"
@@ -228,7 +228,7 @@ export function StreakCompletionScreen({
                 </div>
               ))}
             </div>
-            <p className="mt-3 text-xs font-semibold text-orange-800/75 dark:text-orange-100/75">
+            <p className="mt-3 text-xs font-medium text-orange-800/75 dark:text-orange-100/75">
               {streak.nextLevel
                 ? t("nextLevel", { level: nextLevelName ?? "" })
                 : t("eternalLight")}
@@ -243,13 +243,13 @@ export function StreakCompletionScreen({
               transition={{ delay: shouldReduceMotion ? 0 : 0.42 }}
             >
               <SparklesIcon className="mx-auto size-6 text-amber-600 dark:text-amber-300" aria-hidden="true" />
-              <p className="mt-2 font-black text-amber-800 dark:text-amber-200">
+              <p className="mt-2 font-bold text-amber-800 dark:text-amber-200">
                 {streak.status === "reset"
                   ? t("previousBest", { count: streak.previousBestStreak })
                   : t("personalBest")}
               </p>
               {streak.status === "reset" && (
-                <p className="mt-1 text-sm font-semibold text-amber-900/70 dark:text-amber-100/70">
+                <p className="mt-1 text-sm font-medium text-amber-900/70 dark:text-amber-100/70">
                   {t("newFlame")}
                 </p>
               )}
@@ -259,7 +259,7 @@ export function StreakCompletionScreen({
           <div className="relative mt-6 grid grid-cols-[minmax(0,1fr)_auto] gap-3">
             <Button
               type="button"
-              className="min-h-12 rounded-xl bg-orange-500 font-black text-white hover:bg-orange-400"
+              className="min-h-12 rounded-xl bg-orange-500 font-bold text-white hover:bg-orange-400"
               onClick={onContinue}
             >
               {commonT("continue")}

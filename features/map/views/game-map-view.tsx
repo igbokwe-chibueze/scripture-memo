@@ -35,10 +35,10 @@ export async function GameMapView(): Promise<React.ReactNode> {
           <span className="mb-3 grid size-14 place-items-center rounded-2xl bg-linear-to-br from-emerald-400 to-emerald-600 text-white shadow-lg shadow-emerald-500/20">
             <MapPinnedIcon className="size-7" aria-hidden="true" />
           </span>
-          <p className="text-xs font-black tracking-[0.2em] text-emerald-700 uppercase dark:text-emerald-300">
+          <p className="text-xs font-bold tracking-[0.2em] text-emerald-700 uppercase dark:text-emerald-300">
             {t("eyebrow")}
           </p>
-          <h1 className="mt-1 font-heading text-3xl font-black tracking-tight sm:text-4xl">
+          <h1 className="mt-1 font-heading text-3xl font-bold tracking-tight sm:text-4xl">
             {t("title")}
           </h1>
           <p className="mt-2 max-w-lg text-sm leading-6 text-muted-foreground sm:text-base">

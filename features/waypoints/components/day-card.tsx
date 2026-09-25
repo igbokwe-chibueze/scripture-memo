@@ -94,7 +94,7 @@ export function DayCard({
       <CardHeader className="grid grid-cols-[3.25rem_1fr_auto] items-center gap-3 px-4 pt-4">
         <span
           className={cn(
-            "grid size-13 place-items-center rounded-2xl text-lg font-black shadow-inner",
+            "grid size-13 place-items-center rounded-2xl text-lg font-bold shadow-inner",
             card.status === "COMPLETE"
               ? "bg-emerald-500 text-white"
               : card.status === "READY"
@@ -105,8 +105,8 @@ export function DayCard({
           {index + 1}
         </span>
         <span className="min-w-0">
-          <span className="font-heading block text-xl font-black">{dayName}</span>
-          <span className="block text-xs font-semibold text-muted-foreground">
+          <span className="font-heading block text-xl font-bold">{dayName}</span>
+          <span className="block text-xs font-medium text-muted-foreground">
             {daySubtitle}
           </span>
         </span>
@@ -118,11 +118,11 @@ export function DayCard({
 
       <CardContent className="space-y-4 px-4 pb-4">
         <div className="flex items-center justify-between gap-3 rounded-xl bg-muted/65 px-3 py-2.5">
-          <span className="inline-flex items-center gap-2 text-sm font-semibold">
+          <span className="inline-flex items-center gap-2 text-sm font-bold">
             <SparklesIcon className="size-4 text-amber-500" aria-hidden="true" />
             {t("rewardPreview")}
           </span>
-          <span className="font-heading font-black text-amber-700 dark:text-amber-300">
+          <span className="font-heading font-bold text-amber-700 dark:text-amber-300">
             {t("glowPoints", { points: card.reward })}
           </span>
         </div>
@@ -137,11 +137,11 @@ export function DayCard({
         {card.status === "COOLDOWN" && card.unlocksAt && (
           <div className="relative -mx-1 flex min-h-44 overflow-hidden rounded-2xl border border-violet-300/40 bg-linear-to-br from-background via-violet-50/80 to-violet-100/90 p-4 dark:via-violet-950/30 dark:to-violet-950/60">
             <div className="relative z-10 min-w-0 flex-1">
-              <p className="text-xs font-black tracking-[0.14em] text-violet-700 uppercase dark:text-violet-300">{t("restFlame")}</p>
-              <p className="mt-1 font-heading text-lg font-black">{t("preparing", { day: dayName })}</p>
+              <p className="text-xs font-bold tracking-[0.14em] text-violet-700 uppercase dark:text-violet-300">{t("restFlame")}</p>
+              <p className="mt-1 font-heading text-lg font-bold">{t("preparing", { day: dayName })}</p>
               <p className="mt-1 max-w-56 text-xs leading-5 text-muted-foreground">{t("lunaKeepsPlace")}</p>
               <div className="mt-3 w-fit rounded-xl border border-violet-300/40 bg-background/80 px-3 py-2 shadow-sm">
-                <p className="text-[0.6rem] font-black tracking-wide text-violet-700 uppercase dark:text-violet-300">{t("readyIn")}</p>
+                <p className="text-[0.6rem] font-bold tracking-wide text-violet-700 uppercase dark:text-violet-300">{t("readyIn")}</p>
                 <CountdownTimer targetDate={card.unlocksAt} label={t("unlocksIn", { day: dayName })} className="mt-1" onExpire={() => router.refresh()} />
               </div>
             </div>
@@ -156,7 +156,7 @@ export function DayCard({
             isPending={isPending}
             pendingLabel={t("preparingChallenge")}
             onClick={startDay}
-            className="h-12 w-full rounded-xl text-base font-black"
+            className="h-12 w-full rounded-xl text-base font-bold"
           >
             <PlayIcon className="size-5" aria-hidden="true" />
             {t("startDay", { day: dayName })}
