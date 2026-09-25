@@ -3950,3 +3950,12 @@ concurrency subtests remain explicitly skipped as documented above.
   `/admin/testing/shared-ui` and representative player routes at 375px and
   desktop, especially headings, navigation, game controls, and longer scripture
   passages. Confirm no text clipping or unwanted wrapping.
+
+### 2026-09-25 - CSP Oil Shop tab check passed
+
+- The owner switched between Hint packs and Donations on `/oil-shop` in the
+  production browser and reported no Console output. The Oil Shop CSP check
+  passed without making a purchase.
+- CSP remains report-only while the final theme flow is checked. Next manual
+  check: open `/settings`, switch Appearance through Light, Dark, and System,
+  and confirm the Console stays clear after each change.
