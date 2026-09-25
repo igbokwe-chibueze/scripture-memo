@@ -4084,3 +4084,18 @@ concurrency subtests remain explicitly skipped as documented above.
 - Verification passed: TypeScript, ESLint, gameplay tests (28), map tests (20),
   production build, typography source scan, and `git diff --check`. The local
   server was not started.
+
+### 2026-09-25 - Confirmed local-development and production database plan
+
+- The owner confirmed that all development must continue using the existing
+  Prisma Postgres Local database and that production should reuse the previously
+  hosted Prisma PostgreSQL database, not provision another database.
+- At the initial production cutover, the owner intends to replace the hosted
+  database contents with current, verified local release data. Recorded this as
+  a deliberate one-time operation requiring a verified backup and transfer
+  procedure; local test fixtures, development-only accounts, and environment
+  secrets must be excluded. Once live production data exists, production is
+  authoritative and must never be overwritten from development.
+- Updated the README and Product Overview to make this database policy explicit.
+  No database connection, hosted resource, local data, schema, or credential was
+  changed or accessed.

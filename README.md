@@ -55,6 +55,23 @@ Hosted test credentials are retired from the active `.env`; archived credentials
 are not a fallback. Production migration/data transfer remains a separate future
 deployment task; test fixtures must never be transferred to production.
 
+#### Production database plan
+
+All application development continues against the existing local development
+database on port 51214; do not reconnect routine development to a hosted
+database or create another local development database. For production, the
+project plans to reuse the previously provisioned Prisma-hosted PostgreSQL
+database rather than create a replacement. At the initial production cutover,
+its existing contents are intended to be replaced with a verified,
+production-ready snapshot of the local release data. This is a deliberate,
+one-time cutover operation, not an automatic sync: first back up the hosted
+database, verify the target and the supported PostgreSQL transfer method, and
+exclude local test fixtures, development-only accounts, and environment
+secrets. `DATABASE_URL` selects a database but does not copy its data, and
+`prisma migrate deploy` applies schema migrations but does not transfer records.
+After production users begin creating data, production becomes its own source
+of truth; never overwrite it with the development database.
+
 #### Inspecting local data
 
 Prisma remains the only ORM, schema authority, and migration system. DBeaver

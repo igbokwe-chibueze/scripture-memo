@@ -1421,6 +1421,21 @@ Use Prisma with PostgreSQL. This section lists required models. The implementati
 - Routine local development uses Prisma Postgres Local through `prisma dev` (or
   another explicitly approved local PostgreSQL instance), never the hosted
   production database.
+- For this project, continue using the existing Prisma Postgres Local development
+  database. Do not reconnect routine development to the hosted database or
+  provision another local development database. The intended production target
+  is the same previously provisioned Prisma-hosted PostgreSQL database; do not
+  create a replacement production database unless the owner changes this
+  decision.
+- Before the first production launch, the owner intends to replace that hosted
+  database's old contents with a verified snapshot of current local release
+  data. Treat this as an explicit one-time cutover: take and verify a backup,
+  validate the target and transfer procedure, and exclude local test fixtures,
+  development-only accounts, and environment secrets. Setting `DATABASE_URL`
+  only changes the connection target; `prisma migrate deploy` updates schema
+  state and does not copy records. Once production is live, never overwrite
+  production with the development database; production becomes the source of
+  truth for live user data.
 - Automated tests use a separate local instance on port 51224; development stays
   on 51214. Changing only a Prisma Local database name does not isolate data.
   Tests must not consume hosted operations or mutate development data.
