@@ -131,7 +131,7 @@ export function SanctuaryContent({
           <h1 className="relative mt-3 font-heading text-3xl font-black sm:text-4xl">
             {data.reference}
           </h1>
-          <blockquote className="relative mx-auto mt-5 max-w-4xl font-heading text-lg leading-8 font-bold text-foreground/88 sm:text-2xl sm:leading-10">
+          <blockquote className="relative mx-auto mt-5 max-w-4xl font-sans text-lg leading-8 font-medium text-foreground/88 sm:text-2xl sm:leading-10">
             “{data.verseText}”
           </blockquote>
         </header>

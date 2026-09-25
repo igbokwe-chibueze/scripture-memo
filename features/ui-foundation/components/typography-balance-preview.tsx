@@ -1,25 +1,87 @@
 import { BookOpenIcon, FlameIcon, SparklesIcon } from "lucide-react";
+import localFont from "next/font/local";
+
 import { Button } from "@/components/ui/button";
-
-const DISPLAY_FONT_STYLE = {
-  fontFamily: "var(--font-lilita-one)",
-} as const;
-
-const READING_FONT_STYLE = {
-  fontFamily: "var(--font-geist-sans)",
-} as const;
-
-const SAMPLE_VERSE =
-  "Thy word is a lamp unto my feet, and a light unto my path.";
+import { cn } from "@/lib/utils";
 
 /**
- * Compares the established Geist treatment with a restrained game-display
- * treatment that uses Lilita One only for headings and short game labels.
+ * Loads Fredoka through the comparison card's generated local font face.
+ * The application now uses the shared CSS faces globally; the isolated local
+ * face keeps this card's sample explicitly pinned to the exact candidate file.
+ */
+const fredokaBold = localFont({
+  src: "../../../public/fonts/fredoka-bold-latin.woff2",
+  display: "swap",
+  style: "normal",
+  weight: "700",
+});
+
+/** Loads Fredoka Medium only for the reading-copy comparison sample. */
+const fredokaMedium = localFont({
+  src: "../../../public/fonts/fredoka-medium-latin.woff2",
+  display: "swap",
+  style: "normal",
+  weight: "500",
+});
+
+type DisplayFont = "geist" | "lilita" | "fredoka";
+type ReadingFont = "geist" | "fredoka-medium";
+
+type FontTreatment = {
+  className: string;
+  style: React.CSSProperties;
+};
+
+const DISPLAY_FONT_TREATMENTS: Record<DisplayFont, FontTreatment> = {
+  geist: {
+    className: "",
+    style: {
+      fontFamily: "var(--font-geist-sans)",
+      fontWeight: 700,
+    },
+  },
+  lilita: {
+    className: "",
+    style: {
+      fontFamily: "var(--font-lilita-one)",
+      fontWeight: 700,
+    },
+  },
+  fredoka: {
+    className: fredokaBold.className,
+    style: {
+      fontFamily: fredokaBold.style.fontFamily,
+      fontWeight: 700,
+    },
+  },
+};
+
+const READING_FONT_TREATMENTS: Record<ReadingFont, FontTreatment> = {
+  geist: {
+    className: "font-sans",
+    style: {
+      fontFamily: "var(--font-geist-sans)",
+      fontWeight: 400,
+    },
+  },
+  "fredoka-medium": {
+    className: fredokaMedium.className,
+    style: {
+      fontFamily: fredokaMedium.style.fontFamily,
+      fontWeight: 500,
+    },
+  },
+};
+
+const SAMPLE_VERSE =
+  "For I am persuaded, that neither death, nor life, nor angels, nor principalities, nor powers, nor things present, nor things to come, Nor height, nor depth, nor any other creature, shall be able to separate us from the love of God, which is in Christ Jesus our Lord.";
+
+/**
+ * Compares five heading, action-label, and reading-copy pairings using
+ * identical game copy.
  *
- * The component is an isolated ADMIN-only design preview. Inline font-family
- * overrides keep the comparison samples distinct after the application-wide
- * heading and shared-button migration. The samples do not change production
- * button variants or any player-facing route.
+ * This ADMIN-only design preview keeps each comparison treatment scoped to its
+ * card while the chosen fifth pairing is now also the application-wide system.
  */
 export function TypographyBalancePreview(): React.ReactNode {
   return (
@@ -36,23 +98,45 @@ export function TypographyBalancePreview(): React.ReactNode {
           id="typography-balance-title"
           className="mt-1 font-heading text-2xl font-black"
         >
-          Geist and Lilita One
+          Typography pairings
         </h2>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-          Compare Geist with the adopted balance: Lilita One for titles,
-          rewards, and short actions; Geist for reading and supporting text.
-          The left sample preserves the previous typography for reference.
+          Compare the same game copy across five combinations. The final card
+          uses Lilita One for its headline, Fredoka Bold 700 for labels and
+          actions, and Fredoka Medium 500 for supporting copy and scripture.
         </p>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
         <TypographySample
-          treatment="Current typography"
-          displayFont="geist"
+          treatment="Geist"
+          headingFont="geist"
+          labelFont="geist"
+          readingFont="geist"
         />
         <TypographySample
-          treatment="Balanced preview"
-          displayFont="lilita"
+          treatment="Lilita One + Geist"
+          headingFont="lilita"
+          labelFont="lilita"
+          readingFont="geist"
+        />
+        <TypographySample
+          treatment="Fredoka Bold 700 + Geist"
+          headingFont="fredoka"
+          labelFont="fredoka"
+          readingFont="geist"
+        />
+        <TypographySample
+          treatment="Fredoka Bold 700 + Medium 500"
+          headingFont="fredoka"
+          labelFont="fredoka"
+          readingFont="fredoka-medium"
+        />
+        <TypographySample
+          treatment="Lilita + Fredoka"
+          headingFont="lilita"
+          labelFont="fredoka"
+          readingFont="fredoka-medium"
         />
       </div>
     </section>
@@ -62,13 +146,18 @@ export function TypographyBalancePreview(): React.ReactNode {
 /** Renders identical game copy so the type treatment is the only variable. */
 function TypographySample({
   treatment,
-  displayFont,
+  headingFont,
+  labelFont,
+  readingFont,
 }: {
   treatment: string;
-  displayFont: "geist" | "lilita";
+  headingFont: DisplayFont;
+  labelFont: DisplayFont;
+  readingFont: ReadingFont;
 }): React.ReactNode {
-  const displayStyle =
-    displayFont === "lilita" ? DISPLAY_FONT_STYLE : READING_FONT_STYLE;
+  const headingTreatment = DISPLAY_FONT_TREATMENTS[headingFont];
+  const labelTreatment = DISPLAY_FONT_TREATMENTS[labelFont];
+  const readingTreatment = READING_FONT_TREATMENTS[readingFont];
 
   return (
     <article className="space-y-5 rounded-2xl border bg-background p-4 sm:p-5">
@@ -78,18 +167,30 @@ function TypographySample({
 
       <div className="space-y-3">
         <p
-          className="text-xs font-black tracking-[0.18em] text-primary uppercase"
-          style={displayStyle}
+          className={cn(
+            "text-xs font-bold tracking-[0.18em] text-primary uppercase",
+            labelTreatment.className,
+          )}
+          style={labelTreatment.style}
         >
           Your journey
         </p>
         <h3
-          className="text-3xl leading-tight font-black tracking-tight sm:text-4xl"
-          style={displayStyle}
+          className={cn(
+            "text-3xl leading-tight font-bold tracking-tight sm:text-4xl",
+            headingTreatment.className,
+          )}
+          style={headingTreatment.style}
         >
           A Light for Your Path
         </h3>
-        <p className="text-base leading-7 text-muted-foreground">
+        <p
+          className={cn(
+            "text-base leading-7 text-muted-foreground",
+            readingTreatment.className,
+          )}
+          style={readingTreatment.style}
+        >
           Your next verse is ready. Learn at your pace and return whenever you
           need to practice.
         </p>
@@ -100,23 +201,40 @@ function TypographySample({
           className="mb-2 size-5 text-primary"
           aria-hidden="true"
         />
-        <p className="font-sans text-base leading-7">“{SAMPLE_VERSE}”</p>
-        <cite className="mt-2 block text-sm not-italic text-muted-foreground">
-          Psalm 119:105 · KJV
+        <p
+          className={cn("text-base leading-7", readingTreatment.className)}
+          style={readingTreatment.style}
+        >
+          “{SAMPLE_VERSE}”
+        </p>
+        <cite
+          className={cn(
+            "mt-2 block text-sm not-italic text-muted-foreground",
+            readingTreatment.className,
+          )}
+          style={readingTreatment.style}
+        >
+          Romans 8:38–39 · KJV
         </cite>
       </blockquote>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div
-          className="inline-flex min-h-11 items-center gap-2 rounded-full border bg-card px-4 text-primary"
-          style={displayStyle}
+          className={cn(
+            "inline-flex min-h-11 items-center gap-2 rounded-full border bg-card px-4 font-bold text-primary",
+            labelTreatment.className,
+          )}
+          style={labelTreatment.style}
         >
           <FlameIcon className="size-4" aria-hidden="true" />
           <span>GLOW +150</span>
         </div>
         <div
-          className="inline-flex min-h-11 items-center gap-2 rounded-full bg-muted px-4 text-sm font-bold"
-          style={displayStyle}
+          className={cn(
+            "inline-flex min-h-11 items-center gap-2 rounded-full bg-muted px-4 text-sm font-bold",
+            labelTreatment.className,
+          )}
+          style={labelTreatment.style}
         >
           <SparklesIcon className="size-4" aria-hidden="true" />
           <span>Day 1 complete</span>
@@ -125,8 +243,8 @@ function TypographySample({
 
       <Button
         type="button"
-        className="min-h-12 w-full"
-        style={displayStyle}
+        className={cn("min-h-12 w-full", labelTreatment.className)}
+        style={labelTreatment.style}
       >
         Continue journey
       </Button>

@@ -3914,3 +3914,39 @@ concurrency subtests remain explicitly skipped as documented above.
 - Next manual check: open `/oil-shop`, switch from Hint packs to Donations and
   back, and confirm the Console has no CSP messages or violations. Do not make
   a purchase for this check.
+
+### 2026-09-25 - Typography comparison expanded to five pairings
+
+- Expanded the ADMIN-only Typography experiment on `/admin/testing/shared-ui`
+  to five pairings: Geist; Lilita One with Geist reading copy; Fredoka Bold 700
+  with Geist reading copy; Fredoka Bold 700 with Fredoka Medium 500 for
+  supporting copy and scripture; and a combined option using Lilita One for the
+  headline, Fredoka Bold 700 for labels/actions, and Fredoka Medium 500 for
+  supporting copy and scripture. Every card uses the same sample text.
+- Added locally hosted Fredoka Bold and Medium Latin web-font files plus the
+  OFL license. Both candidate weights are loaded through `next/font/local` only
+  in the preview component; the app-wide heading token is unchanged.
+- Replaced the short Psalm 119:105 sample with Romans 8:38–39 (KJV) so the
+  comparison shows longer reading copy and realistic line wrapping.
+- TypeScript, ESLint, and the production build passed for the five-card version.
+  Next: review all five cards at 375px and desktop in
+  the shared UI testing page before choosing any application-wide font change.
+
+### 2026-09-25 - Apply the approved typography pairing app-wide
+
+- Applied the selected fifth pairing: Lilita One for headings, Fredoka Bold
+  700 for shared button labels/actions, and Fredoka Medium 500 for reading and
+  supporting copy.
+- Changed the shared sans token and body weight to Fredoka Medium. Updated the
+  shared button variant to use the Fredoka action token and weight 700, keeping
+  Button, LoadingButton, and NavigationButton on the same visual path.
+- Added self-hosted Fredoka Latin and Latin Extended subsets for both weights
+  and retained the OFL license. The Latin Extended files support the shipped
+  French and Spanish locales.
+- Scripture quotations now use the shared reading face. Geist remains locally
+  available for the admin comparison card and Geist Mono remains the code face.
+- Updated the UI/UX typography rules. Production build, lint, and type checks
+  pass for this app-wide update. Next: visually review
+  `/admin/testing/shared-ui` and representative player routes at 375px and
+  desktop, especially headings, navigation, game controls, and longer scripture
+  passages. Confirm no text clipping or unwanted wrapping.

@@ -153,12 +153,16 @@ classes before changing `components/ui/button.tsx`.
 
 ## 7. Typography and Copy Density
 
-- Use Geist for paragraphs, scripture, and other sustained reading.
-- Use Lilita One through the shared heading token for game headings and short
-  display labels; use the same token for shared button labels so Button,
-  LoadingButton, and NavigationButton stay visually consistent.
-- Keep compact game rewards and status labels display-oriented, while preserving
-  Geist for supporting descriptions and instructions.
+- Use Fredoka Medium 500 for paragraphs, scripture, instructions, and other
+  sustained reading. The shared sans token and page body default provide this
+  face so supporting copy remains consistent across routes.
+- Use Lilita One through the shared heading token for page headings, game
+  headings, and major moments.
+- Use Fredoka Bold 700 through the shared action token for Button,
+  LoadingButton, and NavigationButton labels. Keep these components on the same
+  shared `buttonVariants` styling path.
+- Use Fredoka Bold 700 for compact action, reward, and status labels; use
+  Fredoka Medium 500 for supporting descriptions and instructions.
 - One clear page heading.
 - Use the heading family for major game moments and hierarchy.
 - Keep player-facing labels and instructions short.

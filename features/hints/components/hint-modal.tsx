@@ -75,7 +75,7 @@ export function HintModal({
                 {t("hintEncouragement")}
               </DialogDescription>
             </DialogHeader>
-            <blockquote className="mt-5 rounded-2xl border border-amber-300/35 bg-background/85 p-4 text-base leading-7 font-bold text-foreground shadow-inner sm:text-lg sm:leading-8">
+            <blockquote className="mt-5 rounded-2xl border border-amber-300/35 bg-background/85 p-4 text-base leading-7 font-medium text-foreground shadow-inner sm:text-lg sm:leading-8">
               {verseText}
             </blockquote>
           </div>

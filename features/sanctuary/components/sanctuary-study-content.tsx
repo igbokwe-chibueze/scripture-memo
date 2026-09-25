@@ -60,7 +60,7 @@ function StudyMarkdown({
         ol: ({ children: value }) => <ol className="mb-4 list-decimal space-y-3 pl-5 marker:font-black marker:text-violet-500">{value}</ol>,
         li: ({ children: value }) => <li className="pl-1 leading-7 text-foreground/78">{value}</li>,
         blockquote: ({ children: value }) => (
-          <blockquote className="my-5 rounded-2xl border border-amber-300/60 bg-amber-50/70 p-4 font-heading italic text-foreground/85 dark:border-amber-300/15 dark:bg-amber-950/20">
+          <blockquote className="my-5 rounded-2xl border border-amber-300/60 bg-amber-50/70 p-4 font-sans italic text-foreground/85 dark:border-amber-300/15 dark:bg-amber-950/20">
             {value}
           </blockquote>
         ),
