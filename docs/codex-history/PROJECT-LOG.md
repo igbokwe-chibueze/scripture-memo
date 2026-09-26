@@ -84,6 +84,14 @@
   Resend reset email, reset link, new-password sign-in, and old-session
   invalidation flow.
 
+### 2026-09-27 - Generic login errors verified
+
+- The owner confirmed login attempts for an existing account with a wrong
+  password and for an unregistered email return the same generic error.
+- Marked `SECURITY-AUDIT.md` item 2.5 verified. The active Phase 32 sequence
+  remains at 32.2, the dependency audit, pending authorization for the public
+  npm registry request.
+
 ### 2026-09-24 - Lilita One display typography adopted
 
 - Switched the shared `font-heading` token to the already-loaded Lilita One
@@ -1562,8 +1570,10 @@ long-term verse difficulty. Glow Points are the only currency.
 ## Current Roadmap Position
 
 Phases through Phase 31 are complete. Phase 32 — Final Security Audit is in
-progress. Phase 32.1 email-verification implementation is complete; owner
-browser acceptance and production Resend/domain configuration remain pending.
+progress. Phase 32.1 email-verification implementation and owner browser
+acceptance are complete, and development Resend delivery has passed. Phase 32.2
+is next; its online npm audit remains pending authorization for the dependency
+metadata sent to the public registry. Production deployment checks remain open.
 
 ## Completed Work
 

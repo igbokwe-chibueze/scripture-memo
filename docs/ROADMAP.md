@@ -1693,8 +1693,8 @@ Phase 31 is complete. Phase 32 — Final Security Audit is next.
 
 ## Phase 32 — Final Security Audit
 
-**Status:** In progress — source review and focused remediation underway as of
-2026-09-24. Do not treat this phase or the production approval checklist as
+**Status:** In progress. The ordered 32.1–32.9 closeout sequence below is the
+active plan. Do not treat this phase or the production approval checklist as
 complete while deployment configuration, dependency audit access, or required
 owner acceptance remains unresolved.
 
@@ -1704,9 +1704,9 @@ owner acceptance remains unresolved.
 
 #### 32.1 — Email verification and legacy-account continuity
 
-**Implementation status:** Complete; owner browser acceptance for registration,
-latest-link invalidation, real Resend verification, and post-verification sign-in
-passed on 2026-09-26/27. Protected-route access was already verified under
+**Status:** Complete. Owner browser acceptance for registration, latest-link
+invalidation, real Resend verification, and post-verification sign-in passed on
+2026-09-26/27. Protected-route access was already verified under
 `SECURITY-AUDIT.md` item 2.1 and does not need to be repeated here.
 
 - Use Better Auth's built-in email-verification lifecycle and generic duplicate
@@ -1741,6 +1741,52 @@ passed on 2026-09-26/27. Protected-route access was already verified under
 - Passed: the owner opened the real Resend verification email, verified the
   account, and confirmed the link returned to `/login`. Successful sign-in and
   first-login onboarding for this newly verified account also succeeded.
+
+#### 32.2 — Complete the dependency audit (`SECURITY-AUDIT.md` 16.10, High)
+
+**Status:** Pending. The npm registry audit request was blocked by automatic
+approval review because it would disclose dependency names and versions to the
+public registry. Obtain authorization for that disclosure before running the
+online audit, then address any Critical or High findings.
+
+#### 32.3 — Confirm the production app host and proxy behavior (`SECURITY-AUDIT.md` 11.9, High)
+
+**Status:** Pending production app-host selection. Verify its forwarded-client-IP
+contract before configuring the production rate-limit IP source.
+
+#### 32.4 — Verify security settings on the existing hosted Prisma database (`SECURITY-AUDIT.md` 12.10, 16.6, 16.7; High)
+
+**Status:** Pending production-readiness review of the existing hosted database:
+least-privilege credentials, SSL, and network exposure. Development continues
+to use the existing local database; do not create another database.
+
+#### 32.5 — Separate production secrets from development secrets (`SECURITY-AUDIT.md` 13.4, High)
+
+**Status:** Pending production environment setup. Keep hosted database
+credentials, the production Resend key, and other production secrets in the
+production secret store, separate from local `.env.local` values.
+
+#### 32.6 — Verify production migrations use `prisma migrate deploy` (`SECURITY-AUDIT.md` 12.11, Critical)
+
+**Status:** Pending production release-process verification after the app host
+is selected. Production must use `prisma migrate deploy`, never
+`prisma migrate dev`.
+
+#### 32.7 — Verify HTTPS and production runtime settings (`SECURITY-AUDIT.md` 16.5, 16.8; Critical/High)
+
+**Status:** Pending production deployment. Verify HTTPS enforcement and
+`NODE_ENV=production` on the selected app host.
+
+#### 32.8 — Define production backups and recovery (`SECURITY-AUDIT.md` 16.9, Medium)
+
+**Status:** Pending. Document and verify the backup and restore process for the
+existing hosted database.
+
+#### 32.9 — Record decisions and close the audit
+
+**Status:** Pending completion of 32.1–32.8. Record any accepted Medium/Low
+risks, update checklist statuses from evidence, and confirm Phase 32 acceptance
+criteria before declaring production review ready.
 
 1. Open `SECURITY-AUDIT.md`.
 2. Work through every checklist item systematically.
