@@ -3,15 +3,17 @@
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth/auth";
 import { rateLimit } from "@/lib/rate-limit";
-import { logger } from "@/lib/logger";
 import type { ActionResult } from "@/types/api";
-import { authRepository } from "@/features/auth/repositories/auth.repository";
 import { registerSchema } from "@/features/auth/schemas/register.schema";
-import { progressionRepository } from "@/features/progression/repositories/progression.repository";
+import { captureVerificationEmail } from "@/features/auth/lib/email-verification-delivery";
+import { getSafePostLoginPath } from "@/features/auth/lib/get-safe-post-login-path";
 
-type RegisterResult = { redirectTo: "/select-translation" };
+type RegisterResult = {
+  verificationPending: true;
+  lightDevDownload?: { fileName: string; content: string };
+};
 
-/** Creates a Better Auth identity and the application-owned player foundation. */
+/** Creates an unverified Better Auth identity and starts email verification. */
 export async function registerAction(
   input: unknown,
 ): Promise<ActionResult<RegisterResult>> {
@@ -40,42 +42,55 @@ export async function registerAction(
   }
 
   try {
-    const result = await auth.api.signUpEmail({
-      body: {
-        name: parsed.data.name,
-        email: parsed.data.email,
-        password: parsed.data.password,
-      },
-      headers: requestHeaders,
-    });
+    const safeNextPath = getSafePostLoginPath(parsed.data.nextPath);
+    const callbackURL = `/login?verified=1&next=${encodeURIComponent(safeNextPath)}`;
+    const capture = await captureVerificationEmail(() =>
+      auth.api.signUpEmail({
+        body: {
+          name: parsed.data.name,
+          email: parsed.data.email,
+          password: parsed.data.password,
+          callbackURL,
+        },
+        headers: requestHeaders,
+      }),
+    );
 
-    await authRepository.ensureUserFoundation(result.user.id, result.user.name);
-    // WHY: Better Auth signs the new learner in during registration. Progression
-    // initialization is idempotent, so a retry repairs a partial onboarding run
-    // while still creating only the first currently playable waypoint record.
-    await progressionRepository.initializeFirstWaypoint(result.user.id).catch((error: unknown) => {
-      // WHY: Identity creation has already committed in Better Auth. Returning a
-      // false registration failure would encourage a duplicate attempt, whereas
-      // progression can be repaired idempotently at login or game entry.
-      logger.error("Progression initialization failed after registration.", {
-        error,
-        userId: result.user.id,
-      });
-    });
+    if (!capture.success) {
+      return {
+        success: false,
+        message: "We could not start email verification. Please try again later.",
+      };
+    }
 
     return {
       success: true,
-      message: "Account created successfully.",
-      data: { redirectTo: "/select-translation" },
+      // WHY: Keep the message identical for new and existing addresses. Better
+      // Auth deliberately returns a synthetic user for duplicate registrations
+      // when verification is required, so this action must not initialize
+      // profile or progression rows using the returned ID.
+      message: "Check your email for a verification link before logging in.",
+      data: {
+        verificationPending: true,
+        lightDevDownload: capture.verificationUrl
+          ? {
+              fileName: "scripture-memo-email-verification.txt",
+              content: [
+                "Scripture Memo — local verification link",
+                "",
+                "Open this Better Auth link to verify your email address:",
+                capture.verificationUrl,
+                "",
+                "This link expires in 60 minutes and should not be shared.",
+              ].join("\r\n"),
+            }
+          : undefined,
+      },
     };
   } catch {
     return {
       success: false,
-      // WHY: Use neutral copy rather than repeating provider-specific errors.
-      // This does not hide the action's success status; full duplicate-address
-      // protection requires an email-verification or equivalent signup flow.
-      message:
-        "We could not create your account. Please review your details or try again later.",
+      message: "We could not start email verification. Please try again later.",
     };
   }
 }

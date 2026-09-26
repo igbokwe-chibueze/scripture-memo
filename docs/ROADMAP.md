@@ -1699,6 +1699,30 @@ owner acceptance remains unresolved.
 
 ### Tasks
 
+#### 32.1 — Email verification and legacy-account continuity
+
+**Implementation status:** Complete; owner browser acceptance remains pending.
+
+- Use Better Auth's built-in email-verification lifecycle and generic duplicate
+  registration response.
+- Let registration finish with a clear pending-verification state; do not issue
+  a session or initialize player progression before the address is verified.
+- Use a local-only Light Dev link download and a production Resend delivery
+  boundary. Keep Better Auth as the sole token owner.
+- On resend, invalidate every earlier link. Accept only the latest unexpired
+  link and consume it on use so the same link cannot be replayed. Store only a
+  keyed digest in the existing `Verification` table; this adds no schema
+  migration and leaves token creation, signature checks, and expiry with Better
+  Auth.
+- Grandfather only pre-rollout accounts through the one-time local migration;
+  never connect this workflow to the hosted database during development.
+- Owner acceptance: register a new local test address, open the downloaded
+  verification link, confirm the return to login, then verify a valid login
+  succeeds and reaches normal onboarding. Also confirm an unverified account
+  cannot enter protected gameplay and valid credentials offer a fresh link.
+  Request two links in succession; verify the first is rejected, the second
+  succeeds, and the successfully used link is rejected on replay.
+
 1. Open `SECURITY-AUDIT.md`.
 2. Work through every checklist item systematically.
 3. Fix all Critical items before proceeding.

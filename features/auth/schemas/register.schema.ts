@@ -12,6 +12,9 @@ export const registerSchema = z
       .min(2, "Name must contain at least 2 characters.")
       .max(50, "Name cannot exceed 50 characters."),
     email: z.email("Enter a valid email address.").trim().toLowerCase(),
+    // The value only chooses a post-verification destination. The server
+    // validates it again with getSafePostLoginPath before building a callback.
+    nextPath: z.string().max(2048).optional(),
     password: z
       .string()
       .min(8, "Password must contain at least 8 characters.")

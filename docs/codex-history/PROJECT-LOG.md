@@ -1,5 +1,44 @@
 # Scripture Memo Project Log
 
+### 2026-09-26 - Phase 32.1 email verification implemented
+
+- Enabled Better Auth email verification with one-hour links, no automatic
+  sign-in after verification, and resend-on-sign-in for unverified accounts.
+  Signup now reports a pending state and does not initialize profile or
+  progression data until the first verified login. Duplicate-email signup
+  responses remain generic.
+- Added `LIGHT_DEV` link downloads for local testing and a production Resend
+  delivery adapter. Production requires a Resend API key and a sender address
+  on a verified domain; those deployment values are not in source control.
+- Applied `20260926100000_grandfather_existing_email_accounts` to the local
+  Prisma Postgres database at `localhost:51214`; no hosted database was touched.
+  The migration grandfathered only accounts created before 2026-09-27 00:00
+  UTC. The initial SQL table-name mismatch failed before changing data, was
+  marked rolled back, corrected to the mapped `user` table, and then applied.
+- Focused delivery tests pass (6/6), locale contract tests pass (2/2), and full
+  repository lint plus TypeScript checks pass. Owner browser acceptance remains
+  pending. Installing Resend reported 21 dependency-audit findings; no
+  automated dependency changes were made.
+
+### 2026-09-26 - Phase 32.1 latest-link verification behavior
+
+- Resending a verification message now invalidates earlier links. A keyed
+  digest of the current Better Auth token is kept in the existing `Verification`
+  table; the record is replaced on resend and atomically consumed on successful
+  verification. Raw token values are not stored by the application layer.
+- Stale, expired, malformed, and already-used verification URLs return to
+  login with an inactive-link message. Better Auth remains responsible for JWT
+  signature validation and expiration. No schema migration or hosted database
+  changes were needed.
+- Reset the sole account created in the recent local-test window to
+  `emailVerified = false`, removed its sessions and current verification digest,
+  and left its profile/progression data intact. Only local port 51214 was used.
+- TypeScript, focused ESLint, and auth-delivery/token parsing unit tests pass.
+  The isolated integration-test listener on port 51224 was unavailable, so its
+  repository-level latest-token integration check could not run. Browser
+  acceptance for old-link rejection, newest-link success, and replay rejection
+  remains pending.
+
 ### 2026-09-24 - Lilita One display typography adopted
 
 - Switched the shared `font-heading` token to the already-loaded Lilita One
@@ -1477,8 +1516,9 @@ long-term verse difficulty. Glow Points are the only currency.
 
 ## Current Roadmap Position
 
-Phases through Phase 30 are complete. Phase 31 — Performance and Polish is
-in progress. Phase 32 — Final Security Audit follows Phase 31 acceptance.
+Phases through Phase 31 are complete. Phase 32 — Final Security Audit is in
+progress. Phase 32.1 email-verification implementation is complete; owner
+browser acceptance and production Resend/domain configuration remain pending.
 
 ## Completed Work
 

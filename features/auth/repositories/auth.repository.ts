@@ -1,10 +1,110 @@
-import { createHmac } from "node:crypto";
+import { createHmac, randomUUID } from "node:crypto";
 
 import type { TranslationCode } from "@/lib/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 
 /** Database operations owned by authentication and first-login onboarding. */
 export const authRepository = {
+  /**
+   * Replaces the sole active verification-link digest for one normalized
+   * address. Only the Better Auth signed token's keyed digest is retained;
+   * possession of the database row alone cannot produce a usable link.
+   *
+   * A PostgreSQL advisory transaction lock serializes concurrent resends so
+   * exactly one token becomes current. The shared Better Auth Verification
+   * table is reused with an application-specific identifier, avoiding a new
+   * schema or database. Expired/replaced rows are removed before the new digest
+   * is inserted, and the expiry is supplied by the caller from the configured
+   * Better Auth token lifetime.
+   */
+  async replaceLatestEmailVerificationToken(
+    email: string,
+    token: string,
+    expiresAt: Date,
+  ): Promise<void> {
+    const identifier = createEmailVerificationIdentifier(email);
+    const value = createEmailVerificationTokenDigest(token);
+    const now = new Date();
+
+    await prisma.$transaction(async (transaction) => {
+      await transaction.$executeRaw`
+        SELECT pg_advisory_xact_lock(hashtext(${identifier}))
+      `;
+
+      await transaction.verification.deleteMany({
+        where: { identifier },
+      });
+
+      await transaction.verification.create({
+        data: {
+          id: randomUUID(),
+          identifier,
+          value,
+          expiresAt,
+          createdAt: now,
+          updatedAt: now,
+        },
+      });
+    });
+  },
+
+  /**
+   * Checks that a token is the current, unexpired verification link for an
+   * address. The request adapter uses this before handing a browser link to
+   * Better Auth so replaced links can receive a friendly redirect instead of
+   * reaching its API error response.
+   */
+  async isLatestEmailVerificationToken(
+    email: string,
+    token: string,
+    now: Date,
+  ): Promise<boolean> {
+    const identifier = createEmailVerificationIdentifier(email);
+    const value = createEmailVerificationTokenDigest(token);
+    const activeToken = await prisma.verification.findFirst({
+      where: {
+        identifier,
+        value,
+        expiresAt: { gt: now },
+      },
+      select: { id: true },
+    });
+
+    return activeToken !== null;
+  },
+
+  /**
+   * Atomically consumes only the latest unexpired verification token. This is
+   * called from Better Auth's before-verification hook, after Better Auth has
+   * already checked the JWT signature and expiry. Deleting by both identifier
+   * and keyed digest rejects older, reused, or superseded links and makes two
+   * concurrent redemption attempts race for the same single database row.
+   */
+  async consumeLatestEmailVerificationToken(
+    email: string,
+    token: string,
+    now: Date,
+  ): Promise<boolean> {
+    const identifier = createEmailVerificationIdentifier(email);
+    const value = createEmailVerificationTokenDigest(token);
+
+    return prisma.$transaction(async (transaction) => {
+      await transaction.$executeRaw`
+        SELECT pg_advisory_xact_lock(hashtext(${identifier}))
+      `;
+
+      const consumed = await transaction.verification.deleteMany({
+        where: {
+          identifier,
+          value,
+          expiresAt: { gt: now },
+        },
+      });
+
+      return consumed.count === 1;
+    });
+  },
+
   /**
    * Atomically limits password-reset requests for one normalized email address.
    *
@@ -164,3 +264,29 @@ export const authRepository = {
     });
   },
 } as const;
+
+/** Derives a non-reversible database key for one normalized email address. */
+function createEmailVerificationIdentifier(email: string): string {
+  const authSecret = process.env.BETTER_AUTH_SECRET;
+  if (!authSecret) {
+    throw new Error("The auth secret is unavailable for verification tokens.");
+  }
+
+  const addressDigest = createHmac("sha256", authSecret)
+    .update(email.trim().toLowerCase())
+    .digest("hex");
+
+  return `scripture-memo:email-verification:${addressDigest}`;
+}
+
+/** Stores a keyed digest instead of the bearer token itself. */
+function createEmailVerificationTokenDigest(token: string): string {
+  const authSecret = process.env.BETTER_AUTH_SECRET;
+  if (!authSecret) {
+    throw new Error("The auth secret is unavailable for verification tokens.");
+  }
+
+  return createHmac("sha256", authSecret)
+    .update(`scripture-memo:email-verification-token:${token}`)
+    .digest("hex");
+}

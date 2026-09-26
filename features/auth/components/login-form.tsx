@@ -1,14 +1,16 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { CircleAlertIcon, DownloadIcon, MailCheckIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { FormError } from "@/components/shared/form-error";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { loginAction } from "@/features/auth/actions/login.action";
@@ -19,18 +21,44 @@ import {
   type LoginInput,
 } from "@/features/auth/schemas/login.schema";
 
-export type LoginFormProps = { nextPath?: string };
+type VerificationDownload = { fileName: string; content: string };
+
+export type LoginFormProps = {
+  nextPath?: string;
+  verificationComplete?: boolean;
+  invalidVerificationLink?: boolean;
+};
 
 /** Collects credentials and surfaces validated Server Action results. */
-export function LoginForm({ nextPath }: LoginFormProps): React.ReactNode {
+export function LoginForm({
+  nextPath,
+  verificationComplete = false,
+  invalidVerificationLink = false,
+}: LoginFormProps): React.ReactNode {
   const t = useTranslations("Auth");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [verificationDownload, setVerificationDownload] =
+    useState<VerificationDownload>();
+  const [verificationRequired, setVerificationRequired] = useState(false);
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "", nextPath },
   });
   const emailField = form.register("email");
+
+  function downloadVerificationFile(file: VerificationDownload): void {
+    // WHY: The local Light Dev bearer URL remains transient and is never kept
+    // in browser storage, history, analytics, or a server-owned token table.
+    const blobUrl = URL.createObjectURL(
+      new Blob([file.content], { type: "text/plain;charset=utf-8" }),
+    );
+    const anchor = document.createElement("a");
+    anchor.href = blobUrl;
+    anchor.download = file.fileName;
+    anchor.click();
+    URL.revokeObjectURL(blobUrl);
+  }
 
   function submit(input: LoginInput): void {
     form.clearErrors("root");
@@ -48,6 +76,15 @@ export function LoginForm({ nextPath }: LoginFormProps): React.ReactNode {
         return;
       }
 
+      if (result.data?.status === "verification-required") {
+        const localDownload = result.data.lightDevDownload;
+        setVerificationRequired(true);
+        setVerificationDownload(localDownload);
+        if (localDownload) downloadVerificationFile(localDownload);
+        toast.info(result.message);
+        return;
+      }
+
       toast.success(result.message);
       sessionStorage.removeItem(PENDING_REGISTRATION_EMAIL_KEY);
       router.replace(result.data?.redirectTo ?? "/game");
@@ -57,6 +94,47 @@ export function LoginForm({ nextPath }: LoginFormProps): React.ReactNode {
   return (
     <form method="post" onSubmit={form.handleSubmit(submit)} noValidate>
       <FieldGroup>
+        {verificationComplete && (
+          <p
+            className="flex items-start gap-2 rounded-xl border border-emerald-600/25 bg-emerald-600/5 p-4 text-sm text-foreground"
+            role="status"
+          >
+            <MailCheckIcon className="mt-0.5 size-5 shrink-0 text-emerald-700" aria-hidden="true" />
+            <span>{t("verificationComplete")}</span>
+          </p>
+        )}
+        {invalidVerificationLink && (
+          <p
+            className="flex items-start gap-2 rounded-xl border border-amber-600/25 bg-amber-600/5 p-4 text-sm text-foreground"
+            role="status"
+          >
+            <CircleAlertIcon className="mt-0.5 size-5 shrink-0 text-amber-700" aria-hidden="true" />
+            <span>{t("verificationLinkInactive")}</span>
+          </p>
+        )}
+        {verificationRequired && (
+          <div
+            className="space-y-3 rounded-xl border border-primary/20 bg-primary/5 p-4"
+            role="status"
+          >
+            <p className="flex items-start gap-2 text-sm text-foreground">
+              <MailCheckIcon className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden="true" />
+              <span>{t("verificationRequired")}</span>
+            </p>
+            {verificationDownload && (
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                className="w-full"
+                onClick={() => downloadVerificationFile(verificationDownload)}
+              >
+                <DownloadIcon aria-hidden="true" />
+                {t("downloadVerification")}
+              </Button>
+            )}
+          </div>
+        )}
         <Field data-invalid={Boolean(form.formState.errors.email)}>
           <FieldLabel htmlFor="login-email">{t("email")}</FieldLabel>
           <Input

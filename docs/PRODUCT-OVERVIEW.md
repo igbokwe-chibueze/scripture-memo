@@ -69,6 +69,43 @@ When the environment variable is omitted, non-production environments default
 to `LIGHT_DEV` and production defaults to `PROD`. Recovery responses remain
 generic so the public UI does not confirm whether an email address is registered.
 
+### 2.2 Email verification and account activation
+
+Better Auth owns email-verification token generation, one-hour expiry,
+validation, and the `emailVerified` state. Email/password registration creates
+the account and reports that verification is pending without opening a game
+session. Each newly sent link replaces the previously issued link: only the
+latest unexpired link can verify the account, and a link can be used only once.
+A valid-credential sign-in attempt for an unverified account sends a fresh link
+and remains blocked until that link is used. Verification returns the player to
+login; successful login then performs the normal idempotent player foundation
+and first-waypoint setup.
+
+Email delivery uses `AUTH_EMAIL_DELIVERY_MODE`:
+
+- `LIGHT_DEV` captures the Better Auth link in the current Server Action and
+  downloads it for local manual testing. It is rejected in production and does
+  not store verification tokens in application tables or browser storage.
+- `RESEND` sends the Better Auth link through Resend. Production defaults to
+  this mode and requires `RESEND_API_KEY` plus `RESEND_FROM_EMAIL` from a sender
+  domain verified in Resend.
+
+To enforce latest-link-only behavior without changing the Prisma schema or
+creating a second token system, the application stores a keyed digest of the
+current Better Auth token in the existing `Verification` table. Sending a new
+link replaces its prior record; successful verification consumes the current
+record. Raw verification tokens are never persisted by this layer. Better Auth
+still validates token signatures and expiration.
+
+At rollout, the one-time
+`20260926100000_grandfather_existing_email_accounts` migration verifies
+pre-rollout accounts created before 2026-09-27 00:00 UTC so existing local test
+users are not locked out. Accounts created after that cutoff remain subject to
+verification. The hosted production database is not used for development; the
+previously selected hosted database remains the production target, with its
+pre-launch contents refreshed from the approved local release snapshot under
+the documented production cutover procedure.
+
 ---
 
 ## 3. Architecture Rules
