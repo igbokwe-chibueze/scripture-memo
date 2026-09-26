@@ -299,8 +299,13 @@ Confirm the following before proceeding:
 - `PROD` sends Better Auth's reset URL through the shared Resend provider and
   the same sender configuration as email verification; Better Auth still owns
   token creation, expiry, validation, and reset behavior.
-- Manual browser acceptance remains required for the request, file download,
-  reset-link callback, new password, and old-session invalidation flow.
+- Passed 2026-09-27: the owner confirmed a real Resend password-reset email
+  arrived, its reset link worked, and sign-in succeeded with the new password.
+- Remaining manual acceptance: verify that a session established before the
+  password reset is rejected afterward. Because Better Auth session cookie
+  caching is configured for 60 seconds, wait at least 60 seconds after reset
+  before refreshing the old session; cached session data can otherwise delay
+  observing revocation.
 
 ---
 
@@ -1702,9 +1707,10 @@ owner acceptance remains unresolved.
 
 #### 32.1 — Email verification and legacy-account continuity
 
-**Implementation status:** Complete; email-verification and latest-link browser
-checks passed on 2026-09-26. Confirm the remaining unverified-route denial check
-below before closing this acceptance item.
+**Implementation status:** Complete; owner browser acceptance for registration,
+latest-link invalidation, real Resend verification, and post-verification sign-in
+passed on 2026-09-26/27. Protected-route access was already verified under
+`SECURITY-AUDIT.md` item 2.1 and does not need to be repeated here.
 
 - Use Better Auth's built-in email-verification lifecycle and generic duplicate
   registration response.
@@ -1728,14 +1734,16 @@ below before closing this acceptance item.
 - Passed 2026-09-26: the owner confirmed the older resent link was rejected,
   the newest link verified the account, and using the newest link again was
   rejected.
-- Remaining owner check: with an unverified account signed out, open
-  `/game/map` directly and confirm it returns to `/login`. Then submit that
-  account's valid credentials and confirm it remains signed out while a fresh
-  verification link is issued.
-- Resend setup progress: the owner verified `scripturememo.com` through Resend
-  and created a development API key. The key must be stored locally before a
-  real-mail test; production will use a separate key stored in deployment
-  secrets.
+- Protected-route access has already been manually verified and recorded under
+  `SECURITY-AUDIT.md` item 2.1; do not repeat it for this email-verification
+  task.
+- Resend setup progress: the owner verified `mail.scripturememo.com` through Resend
+  and created a development API key. The key is now configured locally, and
+  the owner confirmed Resend sent a real verification email. Production will
+  use a separate key stored in deployment secrets.
+- Passed: the owner opened the real Resend verification email, verified the
+  account, and confirmed the link returned to `/login`. Successful sign-in and
+  first-login onboarding for this newly verified account also succeeded.
 
 1. Open `SECURITY-AUDIT.md`.
 2. Work through every checklist item systematically.

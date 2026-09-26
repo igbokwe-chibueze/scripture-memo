@@ -51,10 +51,30 @@
   DNS; domain verification, scoped key creation, and production secret setup
   remain to be completed in the Resend and Namecheap dashboards.
 - The owner reports that `mail.scripturememo.com` is verified in Resend and a
-  development API key has been created. The key has not been placed in the
-  local environment; live sending acceptance remains pending that step. A
-  separate production key will be created for deployment.
+  development API key has been created. At that point the key had not yet been
+  placed in the local environment; live sending acceptance remained pending.
+  A separate production key will be created for deployment.
 - Added configuration and HTML-escaping tests that make no network requests.
+
+### 2026-09-26 - Resend development verification email sent
+
+- The owner configured the development-only Resend API key in ignored
+  `.env.local`; the sender is `Scripture Memo <auth@mail.scripturememo.com>`.
+- The owner confirmed Resend sent a real verification email, then opened its
+  link and saw the account verify and return to `/login`. The owner then signed
+  in successfully and reached first-login onboarding. Production will use a
+  separate API key. The protected-route check was already verified under
+  security audit item 2.1 and does not need to be repeated.
+
+### 2026-09-27 - Resend password-reset acceptance
+
+- The owner confirmed that a real Resend password-reset email arrived, its
+  reset link completed successfully, and the account accepted the new password
+  at sign-in.
+- Existing-session revocation remains a separate manual check for
+  `SECURITY-AUDIT.md` item 2.9. Better Auth session cookie caching is configured
+  for 60 seconds, so the prior session should be refreshed only after that
+  cache period has elapsed.
 
 ### 2026-09-24 - Lilita One display typography adopted
 

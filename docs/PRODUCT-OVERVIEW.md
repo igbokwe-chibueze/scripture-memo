@@ -93,9 +93,8 @@ Email delivery uses `AUTH_EMAIL_DELIVERY_MODE`:
 Password reset and email verification use the same Resend sender and
 domain-scoped sending key. The owner reports that `mail.scripturememo.com` is
 verified in Resend and its DNS is managed by Namecheap. A development API key
-has been created but still needs to be added to the local environment before a
-real delivery test. Local development can remain on `LIGHT_DEV` until that key
-is configured; production requires its own key and deployment secrets.
+has been configured locally, and the owner confirms Resend sent a real
+verification email. Production requires its own key and deployment secrets.
 
 To enforce latest-link-only behavior without changing the Prisma schema or
 creating a second token system, the application stores a keyed digest of the
