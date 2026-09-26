@@ -35,9 +35,10 @@
   and left its profile/progression data intact. Only local port 51214 was used.
 - TypeScript, focused ESLint, and auth-delivery/token parsing unit tests pass.
   The isolated integration-test listener on port 51224 was unavailable, so its
-  repository-level latest-token integration check could not run. Browser
-  acceptance for old-link rejection, newest-link success, and replay rejection
-  remains pending.
+  repository-level latest-token integration check could not run. The owner
+  confirmed browser acceptance: the old link was rejected, the newest link
+  succeeded, and replaying the newest link was rejected. Direct protected-route
+  denial while the account remains unverified is the next manual check.
 
 ### 2026-09-24 - Lilita One display typography adopted
 

@@ -1701,7 +1701,9 @@ owner acceptance remains unresolved.
 
 #### 32.1 — Email verification and legacy-account continuity
 
-**Implementation status:** Complete; owner browser acceptance remains pending.
+**Implementation status:** Complete; email-verification and latest-link browser
+checks passed on 2026-09-26. Confirm the remaining unverified-route denial check
+below before closing this acceptance item.
 
 - Use Better Auth's built-in email-verification lifecycle and generic duplicate
   registration response.
@@ -1722,6 +1724,13 @@ owner acceptance remains unresolved.
   cannot enter protected gameplay and valid credentials offer a fresh link.
   Request two links in succession; verify the first is rejected, the second
   succeeds, and the successfully used link is rejected on replay.
+- Passed 2026-09-26: the owner confirmed the older resent link was rejected,
+  the newest link verified the account, and using the newest link again was
+  rejected.
+- Remaining owner check: with an unverified account signed out, open
+  `/game/map` directly and confirm it returns to `/login`. Then submit that
+  account's valid credentials and confirm it remains signed out while a fresh
+  verification link is issued.
 
 1. Open `SECURITY-AUDIT.md`.
 2. Work through every checklist item systematically.
