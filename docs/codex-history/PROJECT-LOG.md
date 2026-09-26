@@ -76,6 +76,14 @@
   for 60 seconds, so the prior session should be refreshed only after that
   cache period has elapsed.
 
+### 2026-09-27 - Password-reset session revocation verified
+
+- The owner confirmed that the session created before the password reset was
+  rejected after the 60-second Better Auth session-cookie cache period elapsed.
+- Security audit item 2.9 is now verified, completing manual acceptance of the
+  Resend reset email, reset link, new-password sign-in, and old-session
+  invalidation flow.
+
 ### 2026-09-24 - Lilita One display typography adopted
 
 - Switched the shared `font-heading` token to the already-loaded Lilita One

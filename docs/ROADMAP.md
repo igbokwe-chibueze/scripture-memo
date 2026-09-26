@@ -301,11 +301,8 @@ Confirm the following before proceeding:
   token creation, expiry, validation, and reset behavior.
 - Passed 2026-09-27: the owner confirmed a real Resend password-reset email
   arrived, its reset link worked, and sign-in succeeded with the new password.
-- Remaining manual acceptance: verify that a session established before the
-  password reset is rejected afterward. Because Better Auth session cookie
-  caching is configured for 60 seconds, wait at least 60 seconds after reset
-  before refreshing the old session; cached session data can otherwise delay
-  observing revocation.
+- Passed 2026-09-27: the owner confirmed a session established before the
+  password reset was rejected after the 60-second session-cookie cache expired.
 
 ---
 
