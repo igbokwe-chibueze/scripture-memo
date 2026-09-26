@@ -14,7 +14,7 @@ test("the common sender requires a Resend API key", (context) => {
   const previousApiKey = process.env.RESEND_API_KEY;
   const previousSender = process.env.RESEND_FROM_EMAIL;
   delete process.env.RESEND_API_KEY;
-  process.env.RESEND_FROM_EMAIL = "Scripture Memo <auth@scripturememo.com>";
+  process.env.RESEND_FROM_EMAIL = "Scripture Memo <auth@mail.scripturememo.com>";
   context.after(() => restoreEnvironment(previousApiKey, previousSender));
 
   assert.throws(
@@ -47,7 +47,7 @@ test("configured credentials create a sender without making a network request", 
   const previousApiKey = process.env.RESEND_API_KEY;
   const previousSender = process.env.RESEND_FROM_EMAIL;
   process.env.RESEND_API_KEY = "re_local_test_key";
-  process.env.RESEND_FROM_EMAIL = "Scripture Memo <auth@scripturememo.com>";
+  process.env.RESEND_FROM_EMAIL = "Scripture Memo <auth@mail.scripturememo.com>";
   context.after(() => restoreEnvironment(previousApiKey, previousSender));
 
   assert.equal(typeof createResendAuthEmailSender(), "function");

@@ -46,12 +46,15 @@
   sender with the `RESEND_API_KEY` and `RESEND_FROM_EMAIL` secrets. Reset mail
   no longer points at a placeholder adapter; Better Auth remains responsible
   for all reset and verification tokens and state.
-- Set the planned sender to `Scripture Memo <auth@scripturememo.com>` in the
-  example environment. The owner confirmed `scripturememo.com` and Namecheap
+- Set the planned sender to `Scripture Memo <auth@mail.scripturememo.com>` in
+  the example environment. The owner confirmed `mail.scripturememo.com` and Namecheap
   DNS; domain verification, scoped key creation, and production secret setup
   remain to be completed in the Resend and Namecheap dashboards.
+- The owner reports that `mail.scripturememo.com` is verified in Resend and a
+  development API key has been created. The key has not been placed in the
+  local environment; live sending acceptance remains pending that step. A
+  separate production key will be created for deployment.
 - Added configuration and HTML-escaping tests that make no network requests.
-  Live sending acceptance is pending verified DNS and a real Resend API key.
 
 ### 2026-09-24 - Lilita One display typography adopted
 

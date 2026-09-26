@@ -91,10 +91,11 @@ Email delivery uses `AUTH_EMAIL_DELIVERY_MODE`:
   domain verified in Resend.
 
 Password reset and email verification use the same Resend sender and
-domain-scoped sending key. `scripturememo.com` is the planned sending domain;
-its DNS records must be added at the authoritative DNS provider (currently
-Namecheap) before production mail can be tested. Local development keeps both
-delivery modes set to `LIGHT_DEV` and never sends through Resend.
+domain-scoped sending key. The owner reports that `mail.scripturememo.com` is
+verified in Resend and its DNS is managed by Namecheap. A development API key
+has been created but still needs to be added to the local environment before a
+real delivery test. Local development can remain on `LIGHT_DEV` until that key
+is configured; production requires its own key and deployment secrets.
 
 To enforce latest-link-only behavior without changing the Prisma schema or
 creating a second token system, the application stores a keyed digest of the

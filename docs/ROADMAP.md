@@ -1732,6 +1732,10 @@ below before closing this acceptance item.
   `/game/map` directly and confirm it returns to `/login`. Then submit that
   account's valid credentials and confirm it remains signed out while a fresh
   verification link is issued.
+- Resend setup progress: the owner verified `scripturememo.com` through Resend
+  and created a development API key. The key must be stored locally before a
+  real-mail test; production will use a separate key stored in deployment
+  secrets.
 
 1. Open `SECURITY-AUDIT.md`.
 2. Work through every checklist item systematically.
