@@ -296,8 +296,9 @@ Confirm the following before proceeding:
   replacement, and existing-session revocation.
 - Local testing uses the guarded `LIGHT_DEV` delivery mode, which downloads a
   request-scoped text file containing the reset URL and cannot run in production.
-- `PROD` is the stable future email-delivery seam. A transactional provider can
-  be connected there without replacing Better Auth or changing the recovery UI.
+- `PROD` sends Better Auth's reset URL through the shared Resend provider and
+  the same sender configuration as email verification; Better Auth still owns
+  token creation, expiry, validation, and reset behavior.
 - Manual browser acceptance remains required for the request, file download,
   reset-link callback, new password, and old-session invalidation flow.
 

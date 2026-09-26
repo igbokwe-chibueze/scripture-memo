@@ -40,6 +40,19 @@
   succeeded, and replaying the newest link was rejected. Direct protected-route
   denial while the account remains unverified is the next manual check.
 
+### 2026-09-26 - Shared Resend auth-email transport prepared
+
+- Verification and password-reset messages now use one server-only Resend
+  sender with the `RESEND_API_KEY` and `RESEND_FROM_EMAIL` secrets. Reset mail
+  no longer points at a placeholder adapter; Better Auth remains responsible
+  for all reset and verification tokens and state.
+- Set the planned sender to `Scripture Memo <auth@scripturememo.com>` in the
+  example environment. The owner confirmed `scripturememo.com` and Namecheap
+  DNS; domain verification, scoped key creation, and production secret setup
+  remain to be completed in the Resend and Namecheap dashboards.
+- Added configuration and HTML-escaping tests that make no network requests.
+  Live sending acceptance is pending verified DNS and a real Resend API key.
+
 ### 2026-09-24 - Lilita One display typography adopted
 
 - Switched the shared `font-heading` token to the already-loaded Lilita One

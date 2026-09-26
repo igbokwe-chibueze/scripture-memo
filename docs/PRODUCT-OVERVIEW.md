@@ -61,9 +61,9 @@ The delivery boundary supports two explicit modes through
   reset URL. It exists only for local testing, keeps no token in application
   storage, and must throw if enabled while `NODE_ENV=production`.
 - `PROD` delegates the Better Auth URL to the production transactional-email
-  adapter. That adapter is intentionally unconfigured until an email provider is
-  selected; selecting a provider must not alter the recovery screens or token
-  lifecycle.
+  adapter, which sends through the shared Resend provider. It uses
+  `RESEND_API_KEY` and `RESEND_FROM_EMAIL`, the same credentials as verification
+  email; Better Auth's recovery screens and token lifecycle are unchanged.
 
 When the environment variable is omitted, non-production environments default
 to `LIGHT_DEV` and production defaults to `PROD`. Recovery responses remain
@@ -89,6 +89,12 @@ Email delivery uses `AUTH_EMAIL_DELIVERY_MODE`:
 - `RESEND` sends the Better Auth link through Resend. Production defaults to
   this mode and requires `RESEND_API_KEY` plus `RESEND_FROM_EMAIL` from a sender
   domain verified in Resend.
+
+Password reset and email verification use the same Resend sender and
+domain-scoped sending key. `scripturememo.com` is the planned sending domain;
+its DNS records must be added at the authoritative DNS provider (currently
+Namecheap) before production mail can be tested. Local development keeps both
+delivery modes set to `LIGHT_DEV` and never sends through Resend.
 
 To enforce latest-link-only behavior without changing the Prisma schema or
 creating a second token system, the application stores a keyed digest of the

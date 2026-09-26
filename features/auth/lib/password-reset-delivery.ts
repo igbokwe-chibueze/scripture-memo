@@ -70,10 +70,9 @@ export async function deliverPasswordReset(
     return;
   }
 
-  // Better Auth recommends that production delivery not extend response timing.
-  // The future adapter should hand work to a durable provider before resolving.
-  void sendProductionPasswordReset({ recipientEmail, resetUrl }).catch((error: unknown) => {
-    logger.error("Production password-reset delivery failed.", { error });
-  });
+  // Better Auth recommends keeping production delivery off the response path.
+  // The Resend adapter attaches its send operation to Next.js after() so the
+  // generic recovery result can return before the provider finishes.
+  await sendProductionPasswordReset({ recipientEmail, resetUrl });
 }
 

@@ -2,8 +2,11 @@ import "server-only";
 
 import { AsyncLocalStorage } from "node:async_hooks";
 import { after } from "next/server";
-import { Resend } from "resend";
 import { logger } from "@/lib/logger";
+import {
+  createResendAuthEmailSender,
+  escapeAuthEmailHtml,
+} from "@/features/auth/lib/resend-auth-email";
 
 export const AUTH_EMAIL_DELIVERY_MODES = {
   LIGHT_DEV: "LIGHT_DEV",
@@ -132,13 +135,12 @@ export function deliverVerificationEmail(
     return;
   }
 
-  const client = getResendClient();
+  const sendEmail = createResendAuthEmailSender();
 
   after(async () => {
     try {
-      const { error } = await client.emails.send({
-        from: getResendSender(),
-        to: [message.recipientEmail],
+      await sendEmail({
+        recipientEmail: message.recipientEmail,
         subject: "Verify your Scripture Memo email",
         text: [
           "Welcome to Scripture Memo.",
@@ -150,12 +152,6 @@ export function deliverVerificationEmail(
         ].join("\n"),
         html: buildVerificationEmailHtml(message.verificationUrl),
       });
-
-      if (error) {
-        logger.error("Resend rejected a verification email.", {
-          provider: "Resend",
-        });
-      }
     } catch {
       logger.error("Verification email delivery failed.", {
         provider: "Resend",
@@ -164,45 +160,9 @@ export function deliverVerificationEmail(
   });
 }
 
-/** Creates a server-only Resend client after validating the required secret. */
-function getResendClient(): Resend {
-  const apiKey = process.env.RESEND_API_KEY?.trim();
-
-  if (!apiKey) {
-    throw new Error("RESEND_API_KEY is required for production auth email.");
-  }
-
-  if (!process.env.RESEND_FROM_EMAIL?.trim()) {
-    throw new Error("RESEND_FROM_EMAIL is required for production auth email.");
-  }
-
-  return new Resend(apiKey);
-}
-
-/** Returns the configured sender address without exposing it to client code. */
-function getResendSender(): string {
-  const sender = process.env.RESEND_FROM_EMAIL?.trim();
-
-  if (!sender) {
-    throw new Error("RESEND_FROM_EMAIL is required for production auth email.");
-  }
-
-  return sender;
-}
-
-/** Escapes a URL before embedding it in the HTML email body. */
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
-
 /** Builds a small, readable email body using only Better Auth's signed URL. */
 function buildVerificationEmailHtml(verificationUrl: string): string {
-  const safeUrl = escapeHtml(verificationUrl);
+  const safeUrl = escapeAuthEmailHtml(verificationUrl);
 
   return [
     "<main style=\"font-family:Arial,sans-serif;line-height:1.6;color:#191827\">",
