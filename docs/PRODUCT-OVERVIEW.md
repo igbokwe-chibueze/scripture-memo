@@ -31,7 +31,7 @@ These two systems are independent but complementary. A user always plays the ful
 
 | Category | Technology |
 |---|---|
-| Framework | Next.js 16.2.10 with App Router |
+| Framework | Next.js 16.3.6 with App Router |
 | Language | TypeScript (strict mode, no `any`) |
 | ORM | Prisma |
 | Database | PostgreSQL |

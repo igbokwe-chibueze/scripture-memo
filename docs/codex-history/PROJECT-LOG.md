@@ -1,5 +1,37 @@
 # Scripture Memo Project Log
 
+### 2026-09-27 - Phase 32.2 dependency audit completed
+
+- The owner authorized sharing dependency names and versions with the public
+  npm registry for the online security audit. The initial report had one
+  Critical and thirteen High findings.
+- Upgraded Next.js and its matching ESLint config to 16.3.6, the patched
+  security release. Kept Prisma on major version 7 and updated the adapter,
+  client, CLI, and Prisma dev runtime to supported 7.10.0 / 0.24.17 versions.
+- Applied compatible transitive updates and narrow, pinned overrides for
+  `deepmerge-ts` and `mysql2`; no `--force` or major Prisma downgrade was used.
+  The final `npm audit` result is zero vulnerabilities.
+- Reviewed the required Prisma, esbuild, and resolver install scripts, allowed
+  only those exact installed versions, and left unrelated optional native build
+  scripts unapproved. The manifest and lockfile record the resulting graph.
+- Updated current framework-version references and marked Security Audit 16.10
+  and Phase 32.2 complete.
+- Reconciled Security Audit Section 17 against the accepted Phase 28/30 records.
+  Passed or source-verified coverage is linked there; client-timer manipulation
+  is consolidated with the already-passed server cooldown test. No owner
+  regression flow is being requested again.
+- The two progression lock-race tests remain pending. The isolated Prisma Local
+  launcher could not start because another process holds its durable-stream
+  SQLite file (`EBUSY`); it did not reach the test ports. Do not remove that
+  database file or use the hosted database. A supported local multi-connection
+  PostgreSQL runtime is still required for genuine lock-race coverage.
+- Prisma Client generation with Prisma 7.10.0, the optimized Next.js 16.3.6
+  production build, full ESLint, and `tsc --noEmit` all pass.
+- All 109 database-free unit tests pass. The separate PostgreSQL integration
+  suites were not rerun because the isolated Prisma Local test launcher remains
+  blocked by a locked durable-stream SQLite file; the two multi-connection race
+  cases remain pending and are not marked passed.
+
 ### 2026-09-26 - Phase 32.1 email verification implemented
 
 - Enabled Better Auth email verification with one-hour links, no automatic

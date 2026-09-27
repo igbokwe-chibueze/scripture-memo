@@ -26,7 +26,7 @@ all differ from your training data. Read the relevant guide in
 
 | Layer | Technology |
 |---|---|
-| Framework | Next.js 16.2.10 App Router |
+| Framework | Next.js 16.3.6 App Router |
 | Language | TypeScript (strict mode) |
 | ORM | Prisma |
 | Database | PostgreSQL |

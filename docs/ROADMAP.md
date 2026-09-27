@@ -1608,10 +1608,12 @@ Phase 29 is complete and accepted. Phase 30 — Testing and QA is next.
 **Status:** Complete — all 16 manual regression flows passed by 2026-09-01.
 TypeScript, ESLint, and the non-database test baseline pass. On 2026-09-14,
 waypoint, progression, reward, and Fellowship integration suites ran on the
-separate local test instance. Two progression lock-race subtests remain explicitly
-skipped because Prisma Local uses one connection; real concurrent lock coverage
-remains pending. The retired hosted test resource is no longer a development
-dependency. Completed manual acceptance remains unchanged.
+separate local test instance. Two progression lock-race subtests remain pending:
+Prisma Local's single-connection setup skips them. A 2026-09-27 retry could not
+start the isolated test instance because another process held its durable-stream
+SQLite file; no development or hosted database was used. Real concurrent lock
+coverage still requires a supported local multi-connection PostgreSQL runtime.
+Completed manual acceptance remains unchanged.
 
 ### Manual Test Flows
 
@@ -1744,10 +1746,11 @@ invalidation, real Resend verification, and post-verification sign-in passed on
 
 #### 32.2 — Complete the dependency audit (`SECURITY-AUDIT.md` 16.10, High)
 
-**Status:** Pending. The npm registry audit request was blocked by automatic
-approval review because it would disclose dependency names and versions to the
-public registry. Obtain authorization for that disclosure before running the
-online audit, then address any Critical or High findings.
+**Status:** Complete (2026-09-27). The owner authorized the public npm registry
+request. Upgraded Next.js to 16.3.6 for the patched security release, kept Prisma
+on supported major version 7 and updated it to 7.10.0, applied compatible
+transitive updates, and pinned narrow Prisma dependency overrides. `npm audit`
+now reports zero vulnerabilities; no forced major downgrade was used.
 
 #### 32.3 — Confirm the production app host and proxy behavior (`SECURITY-AUDIT.md` 11.9, High)
 

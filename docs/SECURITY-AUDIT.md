@@ -327,14 +327,40 @@ const nextConfig = {
 | 16.7 | Database is not publicly accessible — only accessible from the application server | 🟠 High | ☐ Pending | Network-level protection |
 | 16.8 | `NODE_ENV=production` is set in the deployment environment | 🟠 High | ☐ Pending | Disables Prisma query logging, enables production optimizations |
 | 16.9 | Database backup strategy is in place | 🟡 Medium | ☐ Pending | Recovery planning |
-| 16.10 | npm audit shows no critical or high vulnerabilities | 🟠 High | ☐ Pending | Registry audit was blocked by automatic approval review because it would disclose dependency names and versions to the public npm registry; explicit owner approval is pending |
+| 16.10 | npm audit shows no critical or high vulnerabilities | 🟠 High | ✅ Verified 2026-09-27 | Owner authorized the registry audit. After patched Next.js, supported Prisma 7 updates, and compatible transitive fixes, `npm audit` reports zero vulnerabilities. No forced major downgrade was used. |
 | 16.11 | Dependency versions are pinned or regularly audited | 🟡 Medium | ✅ Verified 2026-09-24 | `package-lock.json` pins the installed dependency graph; vulnerability audit remains a separate deployment gate |
 
 ---
 
 ## Section 17 — Manual Security Test Cases
 
-Execute all of these test cases before approving any production deployment.
+Use the evidence map below before asking for more manual testing. Phase 30 flows
+and security checklist entries already accepted by the owner count as evidence;
+do not repeat them. Items marked **source-verified** have documented controls,
+but the specific manual scenario is not separately recorded. The open concurrent
+database tests are tracked in Phase 30 of `ROADMAP.md` and can run on a suitable
+local test database; they do not require production.
+
+| Test | Existing evidence and disposition |
+|---|---|
+| 1 — Unauthenticated route access | Covered by `SECURITY-AUDIT.md` 2.1 and Phase 30 Flow 1; do not repeat. |
+| 2 — Non-admin route access | Covered by Phase 30 Flow 2 and `SECURITY-AUDIT.md` 3.1; do not repeat. |
+| 3 — Direct Server Action privilege bypass | Server-side role checks are verified in `SECURITY-AUDIT.md` 3.2–3.8. A separately recorded crafted request is absent; this is source-verified, not claimed as a manual bypass attempt. |
+| 4 — Cooldown bypass | Covered by Phase 30 Flow 7: the production start action returned the server-owned cooldown rejection; do not repeat. |
+| 5 — Client timer manipulation | Subsumed by Test 4: the same server-side start action is authoritative regardless of the displayed client timer. Do not repeat as a separate scenario. |
+| 6 — Duplicate reward | Covered by Phase 30 Flow 9 and `SECURITY-AUDIT.md` 5.8/6.4; do not repeat. |
+| 7 — Strengthen/Master hint bypass | Covered by Phase 30 Flow 11 and `SECURITY-AUDIT.md` 5.11; do not repeat. |
+| 8 — Learn/Recall hint availability | Covered by Phase 30 Flows 5 and 11; do not repeat. |
+| 9 — Leaderboard email privacy | Covered by Phase 30 Flow 13 and `SECURITY-AUDIT.md` 9.1–9.3; do not repeat. |
+| 10 — Private note ownership | Covered by Phase 30 Flow 14 and `SECURITY-AUDIT.md` 9.4; do not repeat. |
+| 11 — Oil Shop negative balance | Covered by Phase 30 Flow 12 and the guarded zero-balance purchase verification; do not repeat. |
+| 12 — Game mode order enforcement | Server enforcement is verified in `SECURITY-AUDIT.md` 5.9–5.10. A separately recorded forged out-of-order action is absent; this is source-verified, not claimed as a manual bypass attempt. |
+| 13 — Badge duplicate prevention | Phase 30 Flow 10 confirmed one First Steps award and matching ledger. A repeated trigger was not separately recorded; duplicate prevention is source-verified in `SECURITY-AUDIT.md` 5.8/6.4/6.5. Do not reset progress or repeat the award. |
+| 14 — Manual badge award audit trail | Phase 28 owner acceptance covered the badge-award flow. `SECURITY-AUDIT.md` 3.8/7.5/15.9 verifies the actor-linked transactional audit write; a separate manual AuditLog field inspection is not recorded. Source-verified; no repeat award needed. |
+| 15 — Mobile gameplay completeness | Covered by Phase 30 Flow 15 at 375px; do not repeat. |
+
+The remaining test cases below are retained as their canonical descriptions;
+the evidence map above determines whether a new owner action is needed.
 
 ### Test 1 — Unauthenticated Route Access
 1. Log out completely.
@@ -480,14 +506,14 @@ Accepted risk justification (if applicable):
 - [ ] `NODE_ENV=production` is set.
 - [ ] HTTPS is enforced.
 - [ ] Database is on a private network.
-- [ ] `npm audit` shows no critical or high vulnerabilities.
+- [x] `npm audit` shows no critical or high vulnerabilities (zero findings on 2026-09-27).
 
 ### Manual Tests
-- [ ] All 15 manual security test cases in Section 17 have been executed and passed.
-- [ ] Mobile gameplay has been tested on a real or emulated device.
-- [ ] All five game modes complete successfully end-to-end.
-- [ ] Badge unlock celebration fires correctly.
-- [ ] Leaderboard privacy confirmed — no emails visible.
+- [x] Section 17 evidence reconciled against accepted Phase 28/30 flows and source audits; already-covered scenarios will not be repeated.
+- [x] Mobile gameplay was tested at 375px in Phase 30 Flow 15.
+- [x] All five game modes completed end-to-end in Phase 30 Flows 15 and 16.
+- [x] Badge unlock was verified in Phase 30 Flow 10.
+- [x] Leaderboard privacy was verified in Phase 30 Flow 13; no emails were exposed.
 
 ---
 
