@@ -7,6 +7,8 @@ export type FellowshipSummary = {
   memberCount: number;
   isMember: boolean;
   isLeader: boolean;
+  isClosing: boolean;
+  closureCancelDeadline: Date | null;
   insigniaKey: string;
   requestStatus: FellowshipJoinRequestStatus | null;
   requestId: string | null;
@@ -45,6 +47,35 @@ export type FellowshipDetailData = FellowshipSummary & {
   inviteCode: string | null;
   members: FellowshipMemberRanking[];
   joinRequests: FellowshipJoinRequestItem[];
+  governance: FellowshipGovernanceData;
+};
+
+export type FellowshipGovernanceData = {
+  isClosing: boolean;
+  dissolutionId: string | null;
+  cancellationDeadline: Date | null;
+  pendingTransfer: {
+    id: string;
+    targetDisplayName: string;
+    isRecipient: boolean;
+  } | null;
+  transferCandidates: Array<{ membershipId: string; displayName: string }>;
+};
+
+export type FellowshipModerationItem = {
+  id: string;
+  slug: string;
+  name: string;
+  isPublic: boolean;
+  leaderDisplayName: string;
+  memberCount: number;
+  transferCandidates: Array<{ membershipId: string; displayName: string }>;
+  closure: {
+    reason: string;
+    status: "SCHEDULED" | "CANCELLED" | "FORCED";
+    createdAt: Date;
+    cancellationDeadline: Date | null;
+  } | null;
 };
 
 export type FellowshipEditData = Pick<
@@ -73,4 +104,12 @@ export type FellowshipConflictCode =
   | "NOT_LEADER"
   | "REQUEST_PENDING"
   | "REQUEST_NOT_FOUND"
-  | "REQUEST_NOT_PENDING";
+  | "REQUEST_NOT_PENDING"
+  | "TRANSFER_PENDING"
+  | "TRANSFER_NOT_FOUND"
+  | "TRANSFER_NOT_RECIPIENT"
+  | "MEMBER_NOT_FOUND"
+  | "DISSOLUTION_PENDING"
+  | "DISSOLUTION_NOT_CANCELABLE"
+  | "NAME_CONFIRMATION_MISMATCH"
+  | "FELLOWSHIP_CLOSED";

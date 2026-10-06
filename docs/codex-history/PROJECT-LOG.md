@@ -1,5 +1,28 @@
 # Scripture Memo Project Log
 
+### 2026-10-06 — Fellowship leadership and closure governance implemented
+
+- Added member-accepted leadership offers with leader cancellation, seven-day
+  reversible leader closure, and narrow Super Admin emergency recovery.
+- Closure removes the Fellowship from discovery, blocks joins and invitations,
+  cancels pending leadership offers and join requests, and notifies both members
+  and pending applicants. Membership and learning history are preserved.
+- Emergency transfer and closure require Super Admin authorization, current
+  password reauthentication, exact-name confirmation, and a reason in the audit
+  record. Recovery data is bounded and excludes account email addresses.
+- Added transactional repository operations, per-Fellowship advisory locking,
+  supporting notification types, an additive migration, and the Super Admin-only
+  `/admin/fellowships` workspace. This work uses the existing local development
+  database; it does not connect to or modify the hosted production database.
+- Applied the additive migration to the existing development database at
+  `localhost:51214`; Prisma reports the database schema up to date. No hosted
+  database was used.
+- TypeScript, full ESLint, optimized production build, 10 Fellowship schema
+  tests, locale parity, and `git diff --check` pass. The separate integration
+  listener at `localhost:51224` was unavailable; its guarded migration stopped
+  before applying anything. Database-backed governance integration coverage
+  and the owner’s consolidated browser acceptance remain pending.
+
 ### 2026-10-06 — Super Admin defaults and audit viewer accepted
 
 - Added the Super Admin-only `/admin/settings` workspace, persisted singleton
@@ -26,8 +49,9 @@
   correct, a changed setting persisted after refresh, the corresponding audit
   event appeared, and defaults were restored. This post-roadmap extra is
   complete.
-- Translation-catalog administration and Super Admin Fellowship moderation
-  remain unimplemented pending the owner's answers to the scope questions.
+- Translation-catalog administration remained unimplemented at this point in
+  the log. Super Admin Fellowship moderation was subsequently implemented; see
+  the newer Fellowship governance entry above.
 
 ### 2026-09-27 - Phase 32.2 dependency audit completed
 

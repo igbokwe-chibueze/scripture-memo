@@ -1361,8 +1361,16 @@ Social group system.
 - Rotated, malformed, or unknown invitation codes show a recoverable expired
   state and disclose no private membership data.
 - Leave a fellowship
-- Fellowship creators remain leaders and cannot leave until leadership is
-  transferred; leadership transfer and dissolution are deferred moderation work.
+- Fellowship creators remain leaders until they offer leadership to a current
+  member and that member accepts. The leader may cancel an unanswered offer;
+  former leaders remain members and may leave through the ordinary leave flow.
+- A leader may close a Fellowship after password reauthentication and exact-name
+  confirmation. It is removed from discovery immediately, pending invitations
+  and join requests are disabled, and the leader can cancel closure for seven
+  days. Membership and historical records are retained.
+- Super Admins have a separate recovery workspace for reasoned, password-
+  reauthenticated emergency leadership transfer or immediate closure. Actions
+  are audited; emergency closure preserves Fellowship membership and history.
 - Creation is limited to three fellowships per account per rolling 24 hours to
   reduce spam at the server boundary.
 

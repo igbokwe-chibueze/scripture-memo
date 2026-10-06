@@ -2,6 +2,7 @@ import "server-only";
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { evaluateBadgeProgress } from "@/features/badges/lib/badge-engine";
+import { FellowshipGovernanceError } from "@/features/fellowships/repositories/fellowship-governance.repository";
 import { FellowshipConflictError } from "@/features/fellowships/repositories/fellowship.repository";
 import type { FellowshipMutationData } from "@/features/fellowships/types/fellowship.types";
 import { logger } from "@/lib/logger";
@@ -10,6 +11,14 @@ import type { ActionResult } from "@/types/api";
 export async function fellowshipConflictMessage(error: FellowshipConflictError): Promise<string> {
   const t = await getTranslations("Fellowships");
   if (error.code.startsWith("REQUEST_")) return t(`requestErrors.${error.code}`);
+  return t(`errors.${error.code}`);
+}
+
+/** Maps governance races and stale operations to the existing safe copy catalog. */
+export async function fellowshipGovernanceMessage(
+  error: FellowshipGovernanceError,
+): Promise<string> {
+  const t = await getTranslations("Fellowships");
   return t(`errors.${error.code}`);
 }
 

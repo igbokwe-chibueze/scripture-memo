@@ -116,6 +116,19 @@ enum FellowshipJoinRequestSource {
   INVITE
 }
 
+enum FellowshipLeadershipTransferStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  CANCELLED
+}
+
+enum FellowshipDissolutionStatus {
+  SCHEDULED
+  CANCELLED
+  FORCED
+}
+
 enum BeaconLeague {
   TRAVELER
   DISCIPLE
@@ -137,6 +150,8 @@ enum UserNotificationType {
   LEAGUE_STAYED
   FELLOWSHIP_INVITE
   FELLOWSHIP_REQUEST
+  FELLOWSHIP_LEADERSHIP
+  FELLOWSHIP_CLOSING
   COOLDOWN_READY
   STREAK_RISK
   SYSTEM
@@ -171,16 +186,19 @@ model User {
   streak                     UserStreak?
   badgeProgress              UserBadgeProgress[]
   fellowshipMemberships      FellowshipMember[]
-  fellowshipJoinRequests     FellowshipJoinRequest[]  @relation("FellowshipJoinRequester")
-  fellowshipRequestsReviewed FellowshipJoinRequest[]  @relation("FellowshipJoinReviewer")
-  fellowshipsCreated         Fellowship[]             @relation("FellowshipCreator")
+  fellowshipJoinRequests     FellowshipJoinRequest[]        @relation("FellowshipJoinRequester")
+  fellowshipRequestsReviewed FellowshipJoinRequest[]        @relation("FellowshipJoinReviewer")
+  fellowshipTransfersFrom    FellowshipLeadershipTransfer[] @relation("FellowshipTransferFrom")
+  fellowshipTransfersTo      FellowshipLeadershipTransfer[] @relation("FellowshipTransferTarget")
+  fellowshipDissolutions     FellowshipDissolution[]        @relation("FellowshipDissolutionInitiator")
+  fellowshipsCreated         Fellowship[]                   @relation("FellowshipCreator")
   shopPurchases              UserShopPurchase[]
   verseNotes                 UserVerseNote[]
   favoriteVerses             UserFavoriteVerse[]
-  versesCreated              Verse[]                  @relation("VerseCreator")
-  badgesCreated              Badge[]                  @relation("BadgeCreator")
-  shopItemsCreated           ShopItem[]               @relation("ShopItemCreator")
-  auditLogs                  AuditLog[]               @relation("AuditActor")
+  versesCreated              Verse[]                        @relation("VerseCreator")
+  badgesCreated              Badge[]                        @relation("BadgeCreator")
+  shopItemsCreated           ShopItem[]                     @relation("ShopItemCreator")
+  auditLogs                  AuditLog[]                     @relation("AuditActor")
   beaconXpEntries            BeaconXpLedger[]
   beaconWeeklyScores         BeaconWeeklyScore[]
   beaconLeagueMemberships    BeaconLeagueMembership[]
@@ -618,19 +636,21 @@ model UserBadgeProgress {
 }
 
 model Fellowship {
-  id           String                  @id @default(cuid())
-  name         String
-  slug         String                  @unique
-  description  String?
-  isPublic     Boolean                 @default(true)
-  insigniaKey  String                  @default("word-star")
-  inviteCode   String                  @unique
-  createdById  String
-  createdAt    DateTime                @default(now())
-  updatedAt    DateTime                @updatedAt
-  createdBy    User                    @relation("FellowshipCreator", fields: [createdById], references: [id], onDelete: Restrict)
-  members      FellowshipMember[]
-  joinRequests FellowshipJoinRequest[]
+  id                  String                         @id @default(cuid())
+  name                String
+  slug                String                         @unique
+  description         String?
+  isPublic            Boolean                        @default(true)
+  insigniaKey         String                         @default("word-star")
+  inviteCode          String                         @unique
+  createdById         String
+  createdAt           DateTime                       @default(now())
+  updatedAt           DateTime                       @updatedAt
+  createdBy           User                           @relation("FellowshipCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  members             FellowshipMember[]
+  joinRequests        FellowshipJoinRequest[]
+  leadershipTransfers FellowshipLeadershipTransfer[]
+  dissolutions        FellowshipDissolution[]
 
   @@index([isPublic, name])
   @@index([createdById])
@@ -668,6 +688,39 @@ model FellowshipMember {
   @@unique([fellowshipId, userId])
   @@index([userId, fellowshipId])
   @@index([fellowshipId, joinedAt])
+}
+
+/// Records each ownership proposal or emergency transfer without deleting member history.
+model FellowshipLeadershipTransfer {
+  id           String                             @id @default(cuid())
+  fellowshipId String
+  fromLeaderId String
+  targetUserId String
+  status       FellowshipLeadershipTransferStatus @default(PENDING)
+  requestedAt  DateTime                           @default(now())
+  resolvedAt   DateTime?
+  fellowship   Fellowship                         @relation(fields: [fellowshipId], references: [id], onDelete: Restrict)
+  fromLeader   User                               @relation("FellowshipTransferFrom", fields: [fromLeaderId], references: [id], onDelete: Restrict)
+  targetUser   User                               @relation("FellowshipTransferTarget", fields: [targetUserId], references: [id], onDelete: Restrict)
+
+  @@index([fellowshipId, status, requestedAt(sort: Desc)])
+  @@index([targetUserId, status, requestedAt(sort: Desc)])
+}
+
+/// Stores reversible leader closure or an immediate audited Super Admin closure.
+model FellowshipDissolution {
+  id                   String                      @id @default(cuid())
+  fellowshipId         String
+  initiatedById        String
+  reason               String
+  status               FellowshipDissolutionStatus @default(SCHEDULED)
+  createdAt            DateTime                    @default(now())
+  cancellationDeadline DateTime?
+  cancelledAt          DateTime?
+  fellowship           Fellowship                  @relation(fields: [fellowshipId], references: [id], onDelete: Restrict)
+  initiatedBy          User                        @relation("FellowshipDissolutionInitiator", fields: [initiatedById], references: [id], onDelete: Restrict)
+
+  @@index([fellowshipId, status, createdAt(sort: Desc)])
 }
 
 model ShopItem {

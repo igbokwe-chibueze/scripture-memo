@@ -27,6 +27,7 @@ import { leaveFellowshipAction } from "@/features/fellowships/actions/leave-fell
 import { FellowshipInsignia } from "@/features/fellowships/components/fellowship-insignia";
 import { FellowshipInvitePanel } from "@/features/fellowships/components/fellowship-invite-panel";
 import { FellowshipJoinRequestManager } from "@/features/fellowships/components/fellowship-join-request-manager";
+import { FellowshipGovernancePanel } from "@/features/fellowships/components/fellowship-governance-panel";
 import { getFellowshipInsignia } from "@/features/fellowships/constants/fellowship-insignias";
 import type { FellowshipDetailData } from "@/features/fellowships/types/fellowship.types";
 
@@ -144,7 +145,7 @@ export function FellowshipDetail({
               {t("members", { count: fellowship.memberCount })}
             </span>
 
-            {fellowship.isLeader && fellowship.inviteCode && (
+            {fellowship.isLeader && !fellowship.governance.isClosing && fellowship.inviteCode && (
               <FellowshipInvitePanel
                 fellowshipId={fellowship.id}
                 fellowshipName={fellowship.name}
@@ -152,7 +153,7 @@ export function FellowshipDetail({
               />
             )}
 
-            {fellowship.isLeader && (
+            {fellowship.isLeader && !fellowship.governance.isClosing && (
               <NavigationButton
                 href={`/fellowships/${fellowship.slug}/edit`}
                 pendingLabel={t("openingSettings")}
@@ -166,6 +167,13 @@ export function FellowshipDetail({
           </div>
         </div>
       </section>
+
+      <FellowshipGovernancePanel
+        fellowshipId={fellowship.id}
+        fellowshipName={fellowship.name}
+        isLeader={fellowship.isLeader}
+        governance={fellowship.governance}
+      />
 
       <Tabs defaultValue={defaultTab} className="mt-6 gap-5 sm:mt-8">
         {/*

@@ -24,6 +24,8 @@ function createDirectory(): FellowshipDirectoryData {
     memberCount: 12,
     isMember: false,
     isLeader: false,
+    isClosing: false,
+    closureCancelDeadline: null,
     insigniaKey: "word-star",
     requestStatus: null,
     requestId: null,

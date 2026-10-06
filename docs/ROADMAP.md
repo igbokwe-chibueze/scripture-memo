@@ -1400,6 +1400,18 @@ resolved decisions remain visible as bounded management history. Repository
 authorization, advisory locks, unique request identity, and transactional
 approval prevent forged decisions and duplicate membership.
 
+**Governance extension (2026-10-06):** Leadership transfer, recoverable leader
+closure, and Super Admin emergency recovery are implemented. Pending offers
+require acceptance by an existing member; closure immediately disables access
+and is cancellable for seven days. Emergency actions require a Super Admin,
+password reauthentication, exact Fellowship-name confirmation, and an audit
+reason. Membership and history remain stored. Local automated checks are being
+completed: TypeScript, ESLint, production build, 10 Fellowship schema tests,
+and locale parity pass. The migration is applied to the existing local
+development database. The isolated integration listener at `localhost:51224`
+was unavailable, so database integration coverage remains pending alongside
+the consolidated browser acceptance.
+
 ---
 
 ## Phase 27 — Leaderboard (The Great Beacon)

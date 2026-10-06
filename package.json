@@ -32,7 +32,7 @@
     "test:day-selection": "tsx --test features/waypoints/lib/day-selection.test.ts",
     "test:map": "tsx --test features/map/data/map-themes.test.ts features/map/lib/map-positioner.test.ts features/map/lib/map-utils.test.ts features/map/lib/map-variant.test.ts",
     "test:i18n": "tsx --test i18n/config.test.ts",
-    "test:fellowships": "tsx --test features/fellowships/schemas/fellowship.schema.test.ts",
+    "test:fellowships": "tsx --test features/fellowships/schemas/fellowship.schema.test.ts features/fellowships/schemas/fellowship-governance.schema.test.ts",
     "test:beacon": "tsx --test features/beacon/lib/beacon-progression.test.ts",
     "test:auth-rate-limit:integration": "tsx --conditions=react-server --test features/auth/repositories/auth.repository.test.ts",
     "test:auth-delivery": "tsx --conditions=react-server --test features/auth/lib/email-verification-delivery.test.ts features/auth/lib/email-verification-token.test.ts features/auth/lib/resend-auth-email.test.ts",

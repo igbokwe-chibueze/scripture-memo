@@ -41,6 +41,11 @@ function FellowshipCard({
       </div>
       <h2 className="mt-4 font-heading text-xl font-bold">{fellowship.name}</h2>
       <p className="mt-2 line-clamp-3 min-h-12 text-sm text-muted-foreground">{fellowship.description || t("noDescription")}</p>
+      {fellowship.isClosing && (
+        <p className="mt-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm font-bold text-amber-800 dark:text-amber-200">
+          {t("governance.closingBanner")}
+        </p>
+      )}
       {/* Stack translated actions at the mobile baseline; shared loading
        * controls expose pending work and prevent duplicate mutations. */}
       <div className="mt-5 grid gap-2">

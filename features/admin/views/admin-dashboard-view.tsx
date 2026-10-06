@@ -47,6 +47,13 @@ const ADMIN_DESTINATIONS = [
     superAdminOnly: true,
   },
   {
+    href: "/admin/fellowships",
+    label: "Fellowship recovery",
+    description: "Transfer leadership or close a Fellowship in an emergency.",
+    icon: UsersIcon,
+    superAdminOnly: true,
+  },
+  {
     href: "/admin/waypoints",
     label: "Waypoints",
     description: "Control the permanent curriculum trail.",

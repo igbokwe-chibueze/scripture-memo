@@ -10,6 +10,8 @@ import {
   MinusIcon,
   TrendingDownIcon,
   TrendingUpIcon,
+  UsersRoundIcon,
+  ShieldAlertIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -38,6 +40,30 @@ function leagueOutcome(item: NotificationItem): LeagueResultOutcome | null {
   if (item.type === "LEAGUE_PROMOTED") return "promoted";
   if (item.type === "LEAGUE_DEMOTED") return "demoted";
   if (item.type === "LEAGUE_STAYED") return "stayed";
+  return null;
+}
+
+/** Resolves Fellowship notices to their localized, stable event names. */
+function fellowshipNoticeKey(item: NotificationItem): string | null {
+  if (item.type === "FELLOWSHIP_LEADERSHIP") {
+    switch (item.payload.event) {
+      case "OFFER": return "leadershipOffer";
+      case "ACCEPTED": return "leadershipAccepted";
+      case "DECLINED": return "leadershipDeclined";
+      case "CANCELLED": return "leadershipCancelled";
+      case "BECAME_LEADER": return "leadershipReceived";
+      case "ADMIN_TRANSFERRED": return "leadershipAdminTransferred";
+      default: return "leadershipUpdate";
+    }
+  }
+  if (item.type === "FELLOWSHIP_CLOSING") {
+    switch (item.payload.event) {
+      case "SCHEDULED": return "closureScheduled";
+      case "CANCELLED": return "closureCancelled";
+      case "CLOSED": return "closureCompleted";
+      default: return "closureUpdate";
+    }
+  }
   return null;
 }
 
@@ -130,6 +156,16 @@ export function NotificationInbox({
     if (item.type === "BADGE_AWARDED") {
       setSheetOpen(false);
       router.push("/vault/badges");
+      return;
+    }
+
+    if (
+      (item.type === "FELLOWSHIP_LEADERSHIP" ||
+        item.type === "FELLOWSHIP_CLOSING") &&
+      typeof item.payload.fellowshipSlug === "string"
+    ) {
+      setSheetOpen(false);
+      router.push(`/fellowships/${item.payload.fellowshipSlug}`);
     }
   };
 
@@ -216,9 +252,14 @@ export function NotificationInbox({
                 {items.map((item) => {
                   const itemOutcome = leagueOutcome(item);
                   const isBadgeAward = item.type === "BADGE_AWARDED";
+                  const fellowshipNotice = fellowshipNoticeKey(item);
                   const Icon =
                     isBadgeAward
                       ? AwardIcon
+                      : item.type === "FELLOWSHIP_LEADERSHIP"
+                        ? UsersRoundIcon
+                        : item.type === "FELLOWSHIP_CLOSING"
+                          ? ShieldAlertIcon
                       : itemOutcome === "promoted"
                       ? TrendingUpIcon
                       : itemOutcome === "demoted"
@@ -243,6 +284,8 @@ export function NotificationInbox({
                           <span className="block font-heading font-bold">
                             {isBadgeAward
                               ? t("badgeAwardedTitle")
+                              : fellowshipNotice
+                                ? t(`${fellowshipNotice}Title`)
                               : itemOutcome
                                 ? t(`${itemOutcome}Title`)
                                 : t("systemTitle")}
@@ -253,6 +296,10 @@ export function NotificationInbox({
                                   badge: item.payload.badgeName ?? "",
                                   reward: item.payload.rewardAmount ?? 0,
                                 })
+                              : fellowshipNotice
+                                ? t(`${fellowshipNotice}Body`, {
+                                    fellowship: item.payload.fellowshipName ?? "",
+                                  })
                               : itemOutcome
                               ? t(`${itemOutcome}Body`, {
                                   league: readableLeague(item.payload.currentLeague),

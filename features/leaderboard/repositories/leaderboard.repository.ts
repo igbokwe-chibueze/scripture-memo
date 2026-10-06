@@ -227,7 +227,12 @@ export const leaderboardRepository = {
     userId: string,
   ): Promise<LeaderboardFellowshipOption[]> {
     const memberships = await prisma.fellowshipMember.findMany({
-      where: { userId },
+      where: {
+        userId,
+        fellowship: {
+          dissolutions: { none: { status: { in: ["SCHEDULED", "FORCED"] } } },
+        },
+      },
       select: { fellowship: { select: { id: true, name: true } } },
       orderBy: { fellowship: { name: "asc" } },
     });
