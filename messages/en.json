@@ -460,6 +460,7 @@
     "updating": "Updating",
     "privateOnly": "Only you can see this.",
     "openingVault": "Opening Vault",
+    "contextSectionCount": "Study sections: {count}",
     "viewOptions": "Sanctuary views",
     "studyTab": "Study",
     "notesTab": "My Notes",
@@ -526,7 +527,10 @@
     "secretBadge": "Secret Badge",
     "secretDescription": "Unlock this achievement to discover it.",
     "rewardShort": "+{points} Glow",
-    "unlockedOn": "Unlocked {date}"
+    "unlockedOn": "Unlocked {date}",
+    "selectedAchievement": "Selected achievement",
+    "selectAchievement": "View {name} details",
+    "badgeProgress": "{current} / {target} progress"
   },
   "Auth": {
     "loginTitle": "Welcome back",

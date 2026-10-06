@@ -1832,12 +1832,25 @@ criteria before declaring production review ready.
 - Consider an optional right-side contextual panel for sufficiently wide player
   screens while preserving the focused single-column mobile and tablet layouts.
 - Keep the shell consistent, but adapt its primary content to the current route:
-  current journey action on Home and Map, verse context in Vault and Sanctuary,
+  current journey action on Home, verse context in Vault and Sanctuary,
   selected product in the Oil Shop, and selected achievement in Badges.
+- Preserve the Map's existing full-width composition; the owner explicitly chose
+  to keep its right rail disabled.
+- Let learners select a badge for its details panel. Initially feature the first
+  in-progress badge, then the most recently earned badge, then the first
+  available catalog entry. Keep mobile badge cards free of desktop selection
+  behavior because the right rail is hidden at that size.
 - Reuse existing systems such as Glow balance, available hints, streak progress,
   cooldowns, badges, and Luna reactions rather than inventing filler systems.
 - Prioritize one visual action card and minimal supporting information so the
   result still feels like a game rather than a conventional SaaS dashboard.
+
+**Implementation status (2026-10-06):** Home, Vault, and Sanctuary now provide
+context from their existing page data; Oil Shop and Leaderboard already did.
+Badge details are selectable at desktop widths; mobile cards have no extra
+selection panel or interaction. The map remains full-width as requested.
+TypeScript, focused ESLint, localization contract tests, and `git diff --check`
+pass. Manual browser verification is pending.
 
 ### Player Map Replay
 
@@ -1874,7 +1887,7 @@ hint-free.
 
 **Implementation status (2026-10-06):** Implemented in `features/home/` and
 connected to `/game`. TypeScript, focused ESLint, localization contract tests,
-and `git diff --check` pass. Manual browser verification remains pending.
+and `git diff --check` pass. Manual browser verification passed (2026-10-06).
 
 ---
 

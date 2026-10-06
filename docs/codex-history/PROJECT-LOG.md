@@ -4267,5 +4267,22 @@ concurrency subtests remain explicitly skipped as documented above.
   protected shell during the same render.
 - No schema, migration, or hosted database work was involved. TypeScript,
   focused ESLint, localization contract tests, and `git diff --check` pass.
-  Manual browser verification is still needed for resume behavior and the
-  no-current-waypoint state.
+  The owner manually verified Game Home and confirmed the test passed
+  (2026-10-06).
+
+### 2026-10-06 - Route-adaptive player context panel
+
+- Added concise large-screen rail content for Home, Vault, and Sanctuary using
+  data each page already loads. The existing Oil Shop selected-product and
+  Leaderboard progress panels remain in place. No context-panel database reads
+  were added.
+- Made Badge Collection cards selectable so the desktop rail can show the
+  inspected achievement. The initial selection favors the first in-progress
+  badge, then the most recently earned one, then the first catalog entry. Mobile
+  badge cards remain unchanged and do not expose a selection control because
+  the desktop rail is hidden there.
+- The owner chose to preserve Map's full-width desktop layout, so the map rail
+  remains disabled.
+- No schema, migration, or database changes were made. TypeScript, focused
+  ESLint, localization contract tests, and `git diff --check` pass. Manual
+  browser verification remains pending.

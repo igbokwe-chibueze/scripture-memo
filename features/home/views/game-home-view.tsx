@@ -9,7 +9,9 @@ import {
   TrophyIcon,
 } from "lucide-react";
 import { redirect } from "next/navigation";
+import { ContextPanelCard } from "@/components/shared/context-panel-card";
 import { EmptyState } from "@/components/shared/empty-state";
+import { GamePageColumns } from "@/components/shared/game-page-columns";
 import { NavigationButton } from "@/components/shared/navigation-button";
 import { ResponsiveContainer } from "@/components/shared/responsive-container";
 import { StatCard } from "@/components/shared/stat-card";
@@ -49,125 +51,165 @@ export async function GameHomeView(): Promise<React.ReactNode> {
   );
 
   return (
-    <main className="py-6 text-foreground sm:py-9">
-      <ResponsiveContainer size="lg" className="space-y-5 sm:space-y-7">
-        <header className="rounded-[2rem] border border-primary/15 bg-linear-to-br from-primary/10 via-card to-amber-400/8 p-5 shadow-sm sm:p-8">
-          <p className="text-xs font-bold tracking-[0.18em] text-primary uppercase">
-            {t("eyebrow")}
-          </p>
-          <h1 className="mt-2 font-heading text-3xl leading-tight font-bold sm:text-4xl">
-            {t("welcome", { name: session.user.name ?? "" })}
-          </h1>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground sm:text-base">
-            {t("ready")}
-          </p>
-        </header>
+    <GamePageColumns
+      contextPanel={
+        <ContextPanelCard
+          icon={<MapPinnedIcon aria-hidden="true" />}
+          eyebrow={t("currentWaypoint")}
+          title={
+            currentWaypoint
+              ? t("waypoint", { number: currentWaypoint.number })
+              : t("noCurrentWaypoint")
+          }
+          description={
+            currentWaypoint
+              ? currentWaypoint.reference
+              : t("noCurrentWaypointDescription")
+          }
+          detail={
+            currentWaypoint ? (
+              <JourneyStageBadge stage={currentWaypoint.journeyStage} />
+            ) : undefined
+          }
+          action={
+            <NavigationButton
+              href={
+                currentWaypoint
+                  ? `/game/waypoints/${currentWaypoint.id}`
+                  : "/game/map"
+              }
+              pendingLabel={
+                currentWaypoint ? t("openingWaypoint") : t("openingMap")
+              }
+              size="sm"
+              className="w-full"
+            >
+              {currentWaypoint ? t("continueJourney") : t("openMap")}
+            </NavigationButton>
+          }
+        />
+      }
+    >
+      <main className="py-6 text-foreground sm:py-9">
+        <ResponsiveContainer size="lg" className="space-y-5 sm:space-y-7">
+          <header className="rounded-[2rem] border border-primary/15 bg-linear-to-br from-primary/10 via-card to-amber-400/8 p-5 shadow-sm sm:p-8">
+            <p className="text-xs font-bold tracking-[0.18em] text-primary uppercase">
+              {t("eyebrow")}
+            </p>
+            <h1 className="mt-2 font-heading text-3xl leading-tight font-bold sm:text-4xl">
+              {t("welcome", { name: session.user.name ?? "" })}
+            </h1>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground sm:text-base">
+              {t("ready")}
+            </p>
+          </header>
 
-        <section
-          className="grid grid-cols-2 gap-3 sm:gap-4"
-          aria-label={t("journeySummary")}
-        >
-          <StatCard
-            label={t("glowPoints")}
-            value={numberFormat.format(playerSummary.glowPoints)}
-            icon={<GemIcon className="text-amber-600 dark:text-amber-300" />}
-          />
-          <StatCard
-            label={t("streak")}
-            value={numberFormat.format(playerSummary.streakDays)}
-            supportingText={t("streakDays", {
-              count: playerSummary.streakDays,
-            })}
-            icon={<FlameIcon className="text-orange-600 dark:text-orange-300" />}
-          />
-        </section>
+          <section
+            className="grid grid-cols-2 gap-3 sm:gap-4"
+            aria-label={t("journeySummary")}
+          >
+            <StatCard
+              label={t("glowPoints")}
+              value={numberFormat.format(playerSummary.glowPoints)}
+              icon={<GemIcon className="text-amber-600 dark:text-amber-300" />}
+            />
+            <StatCard
+              label={t("streak")}
+              value={numberFormat.format(playerSummary.streakDays)}
+              supportingText={t("streakDays", {
+                count: playerSummary.streakDays,
+              })}
+              icon={<FlameIcon className="text-orange-600 dark:text-orange-300" />}
+            />
+          </section>
 
-        {currentWaypoint ? (
-          <section className="overflow-hidden rounded-[2rem] border border-primary/20 bg-card shadow-sm">
-            <div className="flex items-start gap-4 p-5 sm:items-center sm:p-7">
-              <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary/12 text-primary sm:size-14">
-                <MapPinnedIcon className="size-6 sm:size-7" aria-hidden="true" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold tracking-[0.16em] text-primary uppercase">
-                  {t("currentWaypoint")}
-                </p>
-                <h2 className="mt-1 font-heading text-2xl font-bold sm:text-3xl">
-                  {t("waypoint", { number: currentWaypoint.number })}
-                </h2>
-                <p className="mt-1 truncate text-sm text-muted-foreground sm:text-base">
-                  {currentWaypoint.reference}
-                </p>
-                <div className="mt-3">
-                  <JourneyStageBadge stage={currentWaypoint.journeyStage} />
+          {currentWaypoint ? (
+            <section className="overflow-hidden rounded-[2rem] border border-primary/20 bg-card shadow-sm">
+              <div className="flex items-start gap-4 p-5 sm:items-center sm:p-7">
+                <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary/12 text-primary sm:size-14">
+                  <MapPinnedIcon className="size-6 sm:size-7" aria-hidden="true" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-bold tracking-[0.16em] text-primary uppercase">
+                    {t("currentWaypoint")}
+                  </p>
+                  <h2 className="mt-1 font-heading text-2xl font-bold sm:text-3xl">
+                    {t("waypoint", { number: currentWaypoint.number })}
+                  </h2>
+                  <p className="mt-1 truncate text-sm text-muted-foreground sm:text-base">
+                    {currentWaypoint.reference}
+                  </p>
+                  <div className="mt-3">
+                    <JourneyStageBadge stage={currentWaypoint.journeyStage} />
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="border-t border-border bg-muted/30 p-4 sm:px-7 sm:py-5">
-              <NavigationButton
-                href={`/game/waypoints/${currentWaypoint.id}`}
-                pendingLabel={t("openingWaypoint")}
-                size="lg"
-                className="min-h-12 w-full rounded-xl text-base sm:w-auto sm:min-w-64"
-              >
-                <MapIcon data-icon="inline-start" aria-hidden="true" />
-                {t("continueJourney")}
-              </NavigationButton>
-            </div>
-          </section>
-        ) : (
-          <EmptyState
-            icon={<MapPinnedIcon aria-hidden="true" />}
-            title={t("noCurrentWaypoint")}
-            description={t("noCurrentWaypointDescription")}
-            action={
-              <NavigationButton
-                href="/game/map"
-                pendingLabel={t("openingMap")}
-                size="lg"
-                className="min-h-12 rounded-xl"
-              >
-                <MapIcon data-icon="inline-start" aria-hidden="true" />
-                {t("openMap")}
-              </NavigationButton>
-            }
-          />
-        )}
+              <div className="border-t border-border bg-muted/30 p-4 sm:px-7 sm:py-5">
+                <NavigationButton
+                  href={`/game/waypoints/${currentWaypoint.id}`}
+                  pendingLabel={t("openingWaypoint")}
+                  size="lg"
+                  className="min-h-12 w-full rounded-xl text-base sm:w-auto sm:min-w-64"
+                >
+                  <MapIcon data-icon="inline-start" aria-hidden="true" />
+                  {t("continueJourney")}
+                </NavigationButton>
+              </div>
+            </section>
+          ) : (
+            <EmptyState
+              icon={<MapPinnedIcon aria-hidden="true" />}
+              title={t("noCurrentWaypoint")}
+              description={t("noCurrentWaypointDescription")}
+              action={
+                <NavigationButton
+                  href="/game/map"
+                  pendingLabel={t("openingMap")}
+                  size="lg"
+                  className="min-h-12 rounded-xl"
+                >
+                  <MapIcon data-icon="inline-start" aria-hidden="true" />
+                  {t("openMap")}
+                </NavigationButton>
+              }
+            />
+          )}
 
-        <nav
-          className="grid grid-cols-2 gap-3"
-          aria-label={t("moreDestinations")}
-        >
-          <NavigationButton
-            href="/leaderboard"
-            pendingLabel={t("openingLeaderboard")}
-            variant="outline"
-            className="min-h-12 justify-start rounded-xl px-4"
+          <nav
+            className="grid grid-cols-2 gap-3"
+            aria-label={t("moreDestinations")}
           >
-            <TrophyIcon data-icon="inline-start" aria-hidden="true" />
-            {t("leaderboard")}
-          </NavigationButton>
-          <NavigationButton
-            href="/vault/badges"
-            pendingLabel={t("openingBadges")}
-            variant="outline"
-            className="min-h-12 justify-start rounded-xl px-4"
-          >
-            <AwardIcon data-icon="inline-start" aria-hidden="true" />
-            {t("badges")}
-          </NavigationButton>
-          {administrator ? (
             <NavigationButton
-              href="/admin"
-              pendingLabel={t("openingAdmin")}
+              href="/leaderboard"
+              pendingLabel={t("openingLeaderboard")}
               variant="outline"
-              className="col-span-2 min-h-12 justify-center rounded-xl"
+              className="min-h-12 justify-start rounded-xl px-4"
             >
-              {t("admin")}
+              <TrophyIcon data-icon="inline-start" aria-hidden="true" />
+              {t("leaderboard")}
             </NavigationButton>
-          ) : null}
-        </nav>
-      </ResponsiveContainer>
-    </main>
+            <NavigationButton
+              href="/vault/badges"
+              pendingLabel={t("openingBadges")}
+              variant="outline"
+              className="min-h-12 justify-start rounded-xl px-4"
+            >
+              <AwardIcon data-icon="inline-start" aria-hidden="true" />
+              {t("badges")}
+            </NavigationButton>
+            {administrator ? (
+              <NavigationButton
+                href="/admin"
+                pendingLabel={t("openingAdmin")}
+                variant="outline"
+                className="col-span-2 min-h-12 justify-center rounded-xl"
+              >
+                {t("admin")}
+              </NavigationButton>
+            ) : null}
+          </nav>
+        </ResponsiveContainer>
+      </main>
+    </GamePageColumns>
   );
 }

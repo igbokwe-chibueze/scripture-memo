@@ -460,6 +460,7 @@
     "updating": "Actualizando",
     "privateOnly": "Solo tú puedes ver esto.",
     "openingVault": "Abriendo la Bóveda",
+    "contextSectionCount": "Secciones de estudio: {count}",
     "viewOptions": "Vistas del Santuario",
     "studyTab": "Estudio",
     "notesTab": "Mis notas",
@@ -526,7 +527,10 @@
     "secretBadge": "Insignia secreta",
     "secretDescription": "Desbloquea este logro para descubrirlo.",
     "rewardShort": "+{points} Brillo",
-    "unlockedOn": "Desbloqueada el {date}"
+    "unlockedOn": "Desbloqueada el {date}",
+    "selectedAchievement": "Logro seleccionado",
+    "selectAchievement": "Ver detalles de {name}",
+    "badgeProgress": "Progreso: {current} / {target}"
   },
   "Auth": {
     "loginTitle": "Qué bueno verte de nuevo",
