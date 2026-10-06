@@ -4284,5 +4284,12 @@ concurrency subtests remain explicitly skipped as documented above.
 - The owner chose to preserve Map's full-width desktop layout, so the map rail
   remains disabled.
 - No schema, migration, or database changes were made. TypeScript, focused
-  ESLint, localization contract tests, and `git diff --check` pass. Manual
-  browser verification remains pending.
+  ESLint, localization contract tests, and `git diff --check` pass. The owner
+  manually confirmed the large-screen panels on Home, Vault, and Sanctuary,
+  including badge-selection updates; browser review passed.
+
+### 2026-10-06 - Vault badge collection at 320px
+
+- The owner confirmed the category and rarity filters fit correctly and badge
+  cards show their full contents at 320px after the narrow-screen layout fix.
+  The check passed.

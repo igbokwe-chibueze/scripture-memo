@@ -1850,7 +1850,9 @@ context from their existing page data; Oil Shop and Leaderboard already did.
 Badge details are selectable at desktop widths; mobile cards have no extra
 selection panel or interaction. The map remains full-width as requested.
 TypeScript, focused ESLint, localization contract tests, and `git diff --check`
-pass. Manual browser verification is pending.
+pass. The owner confirmed the Vault badge layout works at 320px and that the
+large-screen contextual panels work on Home, Vault, and Sanctuary, including
+badge selection updates (2026-10-06).
 
 ### Player Map Replay
 
