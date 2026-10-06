@@ -1,5 +1,34 @@
 # Scripture Memo Project Log
 
+### 2026-10-06 — Super Admin defaults and audit viewer accepted
+
+- Added the Super Admin-only `/admin/settings` workspace, persisted singleton
+  settings model, and additive migration. Defaults preserve the current behavior:
+  KJV, 100 base Glow, five starting hints, and administrator cooldown testing
+  enabled. New account profiles snapshot the configured hint allowance; reward
+  changes affect future completions while completed-day cards retain their
+  recorded award.
+- Added `/admin/audit-logs`, a bounded/filterable, read-only viewer. It displays
+  event, record type, time, actor display name, and allowlisted platform-setting
+  changes. It does not send email, IP addresses, raw metadata, or identifiers to
+  the browser. The existing admin Settings card now points to platform settings.
+- Aligned the product overview with the current 400-waypoint seed and KJV/WEB/BSB
+  learner catalog. KJV remains the default. Updated the root project summary to
+  the actual 400-waypoint seed size.
+- Prisma generation and schema validation pass. TypeScript, full ESLint, the
+  production build, `git diff --check`, and all 18 focused tests pass (hint
+  balance, reward calculation, day selection, error catalogue, platform
+  settings validation, and audit-summary privacy).
+- Applied the additive migration to the existing local development database at
+  `localhost:51214`; `prisma migrate status` confirms the schema is up to date.
+  No new database was created and no hosted database was accessed.
+- The owner passed the consolidated browser review: default values were
+  correct, a changed setting persisted after refresh, the corresponding audit
+  event appeared, and defaults were restored. This post-roadmap extra is
+  complete.
+- Translation-catalog administration and Super Admin Fellowship moderation
+  remain unimplemented pending the owner's answers to the scope questions.
+
 ### 2026-09-27 - Phase 32.2 dependency audit completed
 
 - The owner authorized sharing dependency names and versions with the public

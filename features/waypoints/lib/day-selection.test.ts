@@ -12,6 +12,7 @@ test("derives ready, locked, cooldown, and complete states from persisted timest
   const now = new Date("2026-07-22T12:00:00.000Z");
   const initial = buildDayCards([], now);
   assert.deepEqual(initial.map(({ status }) => status), ["READY", "LOCKED", "LOCKED"]);
+  assert.deepEqual(initial.map(({ reward }) => reward), [100, 150, 200]);
 
   const afterGlimmer = buildDayCards([
     { dayLevel: DayLevel.GLIMMER, status: CompletionStatus.COMPLETED, unlocksAt: null },
@@ -35,6 +36,29 @@ test("makes an elapsed cooldown ready without trusting a client-provided flag", 
   ], new Date("2026-07-22T12:00:00.000Z"));
 
   assert.equal(cards[1]?.status, "READY");
+});
+
+test("shows rewards derived from the current platform base amount", () => {
+  const cards = buildDayCards([], new Date("2026-07-22T12:00:00.000Z"), 120);
+  assert.deepEqual(cards.map(({ reward }) => reward), [120, 180, 240]);
+});
+
+test("keeps the original recorded reward visible for completed days", () => {
+  const cards = buildDayCards(
+    [
+      {
+        dayLevel: DayLevel.GLIMMER,
+        status: CompletionStatus.COMPLETED,
+        unlocksAt: null,
+        glowPointsAwarded: 100,
+      },
+    ],
+    new Date("2026-07-22T12:00:00.000Z"),
+    120,
+  );
+
+  assert.equal(cards[0]?.reward, 100);
+  assert.equal(cards[1]?.reward, 180);
 });
 
 test("exposes only persisted completed modes on the completed day card", () => {

@@ -30,6 +30,25 @@ Proxy providing the navigation-level check.
 
 ## Corrections completed
 
+### Platform defaults — 2026-10-06
+
+- Platform settings are one singleton row. Day Selection, new campaign-session
+  creation, Vault, and Sanctuary read only the fields needed for reward display
+  or translation fallback, once per page/session operation; there is no polling.
+- A server-verified day completion reads the base reward once inside the reward
+  transaction. This is at most three settings reads for a learner who completes
+  all three challenge days at a waypoint, and keeps each future award consistent
+  with the current saved value. The same transaction records the immutable
+  reward ledger event.
+- Successful login's foundation-repair path uses one narrow relation read to
+  determine whether profile/settings defaults are missing. It reads the global
+  settings row only for an incomplete account; established accounts do not
+  repeat that settings lookup. Existing profiles retain their stored hint
+  allowance.
+- Audit history uses one bounded newest-first page query plus its count in a
+  single transaction. It selects actor display name and safe setting changes;
+  emails, IP addresses, raw metadata, and entity identifiers are not serialized.
+
 ### Database operations
 
 - The Vault summary previously loaded profile, streak, and settings with three

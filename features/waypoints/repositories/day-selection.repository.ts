@@ -52,6 +52,7 @@ export const daySelectionRepository = {
             dayLevel: true,
             status: true,
             unlocksAt: true,
+            glowPointsAwarded: true,
             gameSessions: {
               where: {
                 userId,
@@ -79,22 +80,37 @@ export const daySelectionRepository = {
       return null;
     }
 
-    const settings = await prisma.userSettings.findUnique({
-      where: { userId },
-      select: { preferredTranslation: true },
-    });
-    const preferredTranslation = settings?.preferredTranslation ?? TranslationCode.KJV;
+    const [settings, platformSettings] = await Promise.all([
+      prisma.userSettings.findUnique({
+        where: { userId },
+        select: { preferredTranslation: true },
+      }),
+      prisma.platformSettings.findUnique({
+        where: { id: "global" },
+        select: {
+          baseGlowPoints: true,
+          defaultTranslation: true,
+        },
+      }),
+    ]);
+    const defaultTranslation =
+      platformSettings?.defaultTranslation ?? TranslationCode.KJV;
+    const preferredTranslation =
+      settings?.preferredTranslation ?? defaultTranslation;
     const selectedTranslation =
       waypoint.verse.translations.find(
         ({ translation }) => translation === preferredTranslation,
       ) ??
       waypoint.verse.translations.find(
-        ({ translation }) => translation === TranslationCode.KJV,
+        ({ translation }) =>
+          translation ===
+          defaultTranslation,
       ) ??
       waypoint.verse.translations[0];
     if (!selectedTranslation) return null;
 
     return {
+      baseGlowPoints: platformSettings?.baseGlowPoints ?? 100,
       waypointId: waypoint.id,
       verseId: waypoint.verse.id,
       waypointNumber: waypoint.number,

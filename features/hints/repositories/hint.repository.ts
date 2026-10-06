@@ -49,14 +49,22 @@ export const hintRepository = {
    * guessed to be hint credits.
    */
   async getHintBalance(userId: string): Promise<number> {
-    const [usedHints, purchased] = await Promise.all([
+    const [usedHints, purchased, profile] = await Promise.all([
       prisma.hintUsage.count({ where: { userId } }),
       prisma.userShopPurchase.aggregate({
         where: { userId, shopItem: { itemType: "HINT_PACK" } },
         _sum: { entitlementQuantity: true },
       }),
+      prisma.userProfile.findUnique({
+        where: { userId },
+        select: { startingHintAllowance: true },
+      }),
     ]);
-    return calculateHintBalance(usedHints, purchased._sum.entitlementQuantity ?? 0);
+    return calculateHintBalance(
+      usedHints,
+      purchased._sum.entitlementQuantity ?? 0,
+      profile?.startingHintAllowance,
+    );
   },
 
   /**
@@ -125,16 +133,21 @@ export const hintRepository = {
       // remain a read-only path and avoid an unnecessary database lock/write.
       await lockHintBalance(transaction, userId);
 
-      const [usedHints, purchased] = await Promise.all([
+      const [usedHints, purchased, profile] = await Promise.all([
         transaction.hintUsage.count({ where: { userId } }),
         transaction.userShopPurchase.aggregate({
           where: { userId, shopItem: { itemType: "HINT_PACK" } },
           _sum: { entitlementQuantity: true },
         }),
+        transaction.userProfile.findUnique({
+          where: { userId },
+          select: { startingHintAllowance: true },
+        }),
       ]);
       const remainingBeforeUse = calculateHintBalance(
         usedHints,
         purchased._sum.entitlementQuantity ?? 0,
+        profile?.startingHintAllowance,
       );
       if (remainingBeforeUse <= 0) {
         throw new HintConflictError("NO_HINTS_REMAINING");

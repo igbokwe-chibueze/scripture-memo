@@ -40,7 +40,7 @@ all differ from your training data. Read the relevant guide in
 
 **What this app does:**
 Scripture Memo helps users memorize Bible verses through an expanding sequential
-waypoint curriculum bootstrapped with 220 records. Administrators append new
+waypoint curriculum bootstrapped with 400 records. Administrators append new
 waypoints to the same continuous history. Each waypoint is assigned one verse
 and a Journey Stage. Users complete a Three-Day Challenge (Glimmer → Glow →
 Radiance) at every waypoint using five game modes per day (Drag & Drop → Puzzle

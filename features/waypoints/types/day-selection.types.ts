@@ -14,12 +14,14 @@ export type DayProgressSnapshot = {
   dayLevel: DayLevel;
   status: CompletionStatus;
   unlocksAt: Date | null;
+  glowPointsAwarded?: number;
   completedSessionId?: string | null;
   completedModes?: GameMode[];
 };
 
 /** Authenticated, serializable data displayed by the Day Selection screen. */
 export type DaySelectionData = {
+  baseGlowPoints: number;
   waypointId: string;
   verseId: string;
   waypointNumber: number;

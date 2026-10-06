@@ -16,6 +16,8 @@
     "auth:generate": "auth generate --config ./lib/auth/auth.ts",
     "lint": "eslint",
     "test:errors": "tsx --test lib/errors/error-catalog.test.ts",
+    "test:platform-settings": "tsx --test features/platform-settings/schemas/update-platform-settings.schema.test.ts",
+    "test:audit-logs": "tsx --test features/audit-logs/lib/safe-audit-summary.test.ts",
     "test:database-guard": "tsx --test lib/testing/test-database-guard.test.ts",
     "test:database:reset": "tsx --conditions=react-server scripts/reset-integration-test-database.ts",
     "test:local-fixtures": "tsx --test features/dev-fixtures/lib/assert-local-database-url.test.ts",

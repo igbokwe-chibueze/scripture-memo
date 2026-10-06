@@ -11,6 +11,13 @@ test("day rewards use the approved server-owned amounts", () => {
   assert.equal(getDayRewardAmount("RADIANCE"), 200);
 });
 
+test("configured base changes only the amounts calculated for future completions", () => {
+  assert.equal(getDayRewardAmount("GLIMMER", 120), 120);
+  assert.equal(getDayRewardAmount("GLOW", 120), 180);
+  assert.equal(getDayRewardAmount("RADIANCE", 120), 240);
+  assert.throws(() => getDayRewardAmount("GLOW", 0), RangeError);
+});
+
 test("day reward identity is stable per learner, waypoint, and day", () => {
   const first = getDayRewardIdempotencyKey("user-1", "waypoint-1", "GLOW");
   const retry = getDayRewardIdempotencyKey("user-1", "waypoint-1", "GLOW");

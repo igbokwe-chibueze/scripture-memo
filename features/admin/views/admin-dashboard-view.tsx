@@ -40,6 +40,13 @@ const ADMIN_DESTINATIONS = [
     icon: PackageOpenIcon,
   },
   {
+    href: "/admin/audit-logs",
+    label: "Audit log",
+    description: "Review immutable administrative and system events.",
+    icon: ShieldCheckIcon,
+    superAdminOnly: true,
+  },
+  {
     href: "/admin/waypoints",
     label: "Waypoints",
     description: "Control the permanent curriculum trail.",
@@ -127,7 +134,9 @@ export async function AdminDashboardView(): Promise<React.ReactNode> {
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {ADMIN_DESTINATIONS.map((destination) => {
+            {ADMIN_DESTINATIONS.filter(
+              (destination) => !("superAdminOnly" in destination) || isSuper,
+            ).map((destination) => {
               const Icon = destination.icon;
               return (
                 <article
@@ -177,15 +186,15 @@ export async function AdminDashboardView(): Promise<React.ReactNode> {
                   </div>
                   <h3 className="font-heading text-lg font-bold">Settings</h3>
                   <p className="mt-1 grow text-sm leading-6 text-muted-foreground">
-                    Review the current account and experience preferences.
+                    Set the platform translation, new-player hints, and Glow rewards.
                   </p>
                   <NavigationButton
-                    href="/settings"
-                    pendingLabel="Opening settings"
+                    href="/admin/settings"
+                    pendingLabel="Opening platform settings"
                     variant="outline"
                     className="mt-5 w-full"
                   >
-                    Open settings
+                    Platform settings
                   </NavigationButton>
                 </article>
               </>

@@ -61,7 +61,7 @@ export const oilShopQaRepository = {
       await Promise.all([
         prisma.userProfile.findUnique({
           where: { userId },
-          select: { totalGlowPoints: true },
+          select: { totalGlowPoints: true, startingHintAllowance: true },
         }),
         prisma.hintUsage.count({ where: { userId } }),
         prisma.userShopPurchase.aggregate({
@@ -86,10 +86,15 @@ export const oilShopQaRepository = {
     const balanceAfter = profile?.totalGlowPoints ?? 0;
     const purchasedHints =
       purchasedHintTotal._sum.entitlementQuantity ?? 0;
-    const hintsAfter = calculateHintBalance(usedHintCount, purchasedHints);
+    const hintsAfter = calculateHintBalance(
+      usedHintCount,
+      purchasedHints,
+      profile?.startingHintAllowance,
+    );
     const hintsBefore = calculateHintBalance(
       usedHintCount,
       purchasedHints - latestPurchase.entitlementQuantity,
+      profile?.startingHintAllowance,
     );
     const ledgerMatches =
       matchingLedger?.userId === userId &&

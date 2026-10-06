@@ -15,6 +15,7 @@ import {
 } from "@/lib/generated/prisma/enums";
 
 const sampleData: DaySelectionData = {
+  baseGlowPoints: 100,
   waypointId: "sample-waypoint",
   verseId: "sample-verse",
   waypointNumber: 12,

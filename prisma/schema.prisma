@@ -199,6 +199,7 @@ model UserProfile {
   totalGlowPoints         Int       @default(0)
   totalWaypointsCompleted Int       @default(0)
   totalHintsUsed          Int       @default(0)
+  startingHintAllowance   Int       @default(5)
   beaconXp                Int       @default(0)
   beaconLevel             Int       @default(1)
   beaconCrowns            Int       @default(0)
@@ -803,6 +804,18 @@ model RateLimit {
   lastRequest BigInt
 
   @@map("rateLimit")
+}
+
+// One row stores Super Admin-controlled defaults for future account setup and
+// server-owned reward calculations. Product repositories own every query.
+model PlatformSettings {
+  id                          String          @id @default("global")
+  defaultTranslation          TranslationCode @default(KJV)
+  baseGlowPoints              Int             @default(100)
+  defaultHintAllowance        Int             @default(5)
+  adminCooldownTestingEnabled Boolean         @default(true)
+  createdAt                   DateTime        @default(now())
+  updatedAt                   DateTime        @updatedAt
 }
 
 /// Stores an explicit bundled-artwork choice for a one-based Map A trail.

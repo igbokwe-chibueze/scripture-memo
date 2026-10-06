@@ -9,6 +9,7 @@ import { isAdmin } from "@/lib/permissions";
 import { getRequestIp } from "@/lib/request-ip";
 import type { ActionResult } from "@/types/api";
 import { progressionRepository } from "@/features/progression/repositories/progression.repository";
+import { platformSettingsRepository } from "@/features/platform-settings/repositories/platform-settings.repository";
 import { overrideCooldownSchema } from "@/features/progression/schemas/override-cooldown.schema";
 
 /**
@@ -31,8 +32,15 @@ export async function overrideCooldownAction(input: unknown): Promise<ActionResu
   if (!isAdmin(session.user.role as UserRole | undefined)) {
     return { success: false, message: "Administrator access is required." };
   }
-
   try {
+    const platformSettings = await platformSettingsRepository.get();
+    if (!platformSettings.adminCooldownTestingEnabled) {
+      return {
+        success: false,
+        message: "Administrator cooldown testing is disabled by platform settings.",
+      };
+    }
+
     const requestHeaders = await headers();
     const result = await progressionRepository.overrideOwnCooldown(
       session.user.id,

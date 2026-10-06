@@ -214,23 +214,54 @@ export const authRepository = {
     userId: string,
     displayName: string,
   ): Promise<void> {
-    await prisma.$transaction([
-      prisma.userProfile.upsert({
-        where: { userId },
-        update: {},
-        create: { userId, displayName },
-      }),
-      prisma.userSettings.upsert({
-        where: { userId },
-        update: {},
-        create: { userId },
-      }),
-      prisma.userStreak.upsert({
-        where: { userId },
-        update: {},
-        create: { userId },
-      }),
-    ]);
+    await prisma.$transaction(async (transaction) => {
+      const existingFoundation = await transaction.user.findUnique({
+        where: { id: userId },
+        select: {
+          profile: { select: { id: true } },
+          settings: { select: { id: true } },
+        },
+      });
+      const needsProfileDefaults = !existingFoundation?.profile;
+      const needsTranslationDefault = !existingFoundation?.settings;
+      const platformDefaults =
+        needsProfileDefaults || needsTranslationDefault
+          ? await transaction.platformSettings.findUnique({
+              where: { id: "global" },
+              select: {
+                defaultTranslation: true,
+                defaultHintAllowance: true,
+              },
+            })
+          : null;
+
+      await Promise.all([
+        transaction.userProfile.upsert({
+          where: { userId },
+          update: {},
+          create: {
+            userId,
+            displayName,
+            startingHintAllowance:
+              platformDefaults?.defaultHintAllowance ?? 5,
+          },
+        }),
+        transaction.userSettings.upsert({
+          where: { userId },
+          update: {},
+          create: {
+            userId,
+            preferredTranslation:
+              platformDefaults?.defaultTranslation ?? "KJV",
+          },
+        }),
+        transaction.userStreak.upsert({
+          where: { userId },
+          update: {},
+          create: { userId },
+        }),
+      ]);
+    });
   },
 
   /** Returns whether the user has completed one-time translation onboarding. */
@@ -241,6 +272,25 @@ export const authRepository = {
     });
 
     return settings?.hasSelectedTranslation ?? false;
+  },
+
+  /** Supplies a new learner's saved platform default to translation onboarding. */
+  async getTranslationOnboardingSettings(userId: string): Promise<{
+    hasSelectedTranslation: boolean;
+    preferredTranslation: TranslationCode;
+  }> {
+    const settings = await prisma.userSettings.findUnique({
+      where: { userId },
+      select: {
+        hasSelectedTranslation: true,
+        preferredTranslation: true,
+      },
+    });
+
+    return {
+      hasSelectedTranslation: settings?.hasSelectedTranslation ?? false,
+      preferredTranslation: settings?.preferredTranslation ?? "KJV",
+    };
   },
 
   /** Persists the one-time translation choice for the authenticated user. */

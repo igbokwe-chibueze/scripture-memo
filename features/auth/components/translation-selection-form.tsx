@@ -12,6 +12,7 @@ import {
   TRANSLATION_NAMES,
 } from "@/features/verses/constants/translations";
 import type { SelectTranslationInput } from "@/features/auth/schemas/select-translation.schema";
+import type { TranslationCode } from "@/lib/generated/prisma/enums";
 
 const translationDescriptions = {
   KJV: "Classic traditional language.",
@@ -30,9 +31,18 @@ const translations: Array<{
 }));
 
 /** Saves the player's required first-login translation preference. */
-export function TranslationSelectionForm({ nextPath }: { nextPath: string }): React.ReactNode {
+export function TranslationSelectionForm({
+  nextPath,
+  initialTranslation,
+}: {
+  nextPath: string;
+  initialTranslation: TranslationCode;
+}): React.ReactNode {
   const router = useRouter();
-  const [selection, setSelection] = useState<SelectTranslationInput["translation"]>("KJV");
+  const [selection, setSelection] = useState<SelectTranslationInput["translation"]>(
+    AVAILABLE_TRANSLATION_CODES.find((code) => code === initialTranslation) ??
+      "KJV",
+  );
   const [isPending, startTransition] = useTransition();
 
   return (

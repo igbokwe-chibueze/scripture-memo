@@ -8,7 +8,7 @@
 
 Scripture Memo is a full-stack, interactive scripture memorization web
 application. It guides users through a structured learning journey using an
-expanding **Waypoint System** bootstrapped with 220 sequential records. Each
+expanding **Waypoint System** bootstrapped with 400 sequential records. Each
 waypoint represents one scripture memory unit—normally one verse or verse range.
 
 The platform is built on four scientifically grounded memorization principles:
@@ -464,7 +464,10 @@ recorded in `AuditLog` without copying Scripture text into audit metadata.
 
 ### 6.3 Translation Fallback
 
-If a verse does not have the user's preferred translation, the system falls back to the default platform translation (configurable by Super Admin, defaulting to NIV).
+If a verse does not have the user's preferred translation, the system falls
+back to the default platform translation. The current default is KJV; Super
+Admins may choose among KJV, WEB, and BSB, the translations currently offered
+to learners. NIV and ESV remain schema values for future licensed content.
 
 ---
 
@@ -473,7 +476,7 @@ If a verse does not have the user's preferred translation, the system falls back
 ### 7.1 What Is a Waypoint?
 
 A waypoint is a sequential learning checkpoint in the user's journey. The
-bootstrap curriculum contains **220 waypoints**, but 220 is not a permanent
+bootstrap curriculum contains **400 waypoints**, but 400 is not a permanent
 maximum. Administrators append new waypoints as the curriculum grows. Numbers
 remain one continuous sequence without year or cycle grouping. Each waypoint is
 assigned one verse, which may appear at other waypoints in a different Journey
@@ -491,9 +494,10 @@ Stage.
 | `journeyStage` | The stage of this verse appearance: `LEARN`, `RECALL`, `STRENGTHEN`, or `MASTER` |
 | `isActive` | Whether the waypoint is published |
 
-The first 220 waypoint records are seeded as hidden, unassigned placeholders. Because
-the database requires a Journey Stage before a verse is assigned, new
-placeholders use `LEARN` provisionally. That provisional value has no gameplay
+The approved seed currently creates 400 permanently numbered waypoint
+assignments across 100 verses. New waypoints are appended as hidden,
+unassigned drafts. Because the database requires a Journey Stage before a verse
+is assigned, new drafts use `LEARN` provisionally. That value has no gameplay
 effect while the waypoint is hidden. Assignment requires the administrator to
 explicitly choose the intended Journey Stage, and a waypoint cannot be
 published until it has a currently published verse.
@@ -1398,7 +1402,7 @@ Display:
 User settings:
 - Display name
 - Country (used for country leaderboard)
-- Preferred Bible translation (NIV / ESV / KJV)
+- Preferred Bible translation (KJV / WEB / BSB; KJV is the platform default)
 - Preferred interface language (English / Spanish / French initially; independently
   expandable without changing the player's Bible translation)
 - Audio effects on/off
@@ -1406,10 +1410,16 @@ User settings:
 - Theme preference (light/dark/system)
 
 Admin settings (Super Admin only):
-- Default platform translation
-- Base Glow Points amount (X)
-- Default hint allowance per user
-- Cooldown override policy
+- Default platform translation (KJV by default; currently selectable: KJV, WEB,
+  and BSB)
+- Base Glow reward (Glimmer = X, Glow = 1.5×, Radiance = 2×). A change applies
+  only to future completions; earned ledger entries and balances remain intact.
+- Starting hint allowance for new accounts. Existing profiles retain their
+  saved allowance when this setting changes.
+- Administrator self-cooldown testing bypass (enabled by default; player
+  cooldown enforcement is unchanged)
+- Read-only, filterable access to immutable audit events. IP addresses and raw
+  event metadata are withheld from the browser view.
 
 ---
 
@@ -1851,7 +1861,7 @@ if (isUnlocked) { ... }
 - Admin pack management
 - Admin waypoint management with Journey Stage assignment
 - Admin badge management
-- Expandable game map initialized with the 220 bootstrap waypoints
+- Expandable game map initialized with the 400 bootstrap waypoints
 - Journey Stage display on all relevant screens
 - Day Selection screen with cooldown countdown
 - All five game modes (Drag & Drop, Puzzle, Swap, Cue, Fill)

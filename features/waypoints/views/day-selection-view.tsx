@@ -34,7 +34,11 @@ export async function DaySelectionView({
   // whether a waypoint is unpublished, archived, missing, or merely locked for
   // this learner.
   if (!data) notFound();
-  const cards = buildDayCards(data.dayProgress, new Date());
+  const cards = buildDayCards(
+    data.dayProgress,
+    new Date(),
+    data.baseGlowPoints,
+  );
 
   return (
     <main className="min-h-svh bg-linear-to-b from-sky-100/70 via-background to-amber-100/40 py-5 dark:from-sky-950/30 dark:to-amber-950/20 sm:py-8">

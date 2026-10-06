@@ -24,7 +24,14 @@ export async function awardDayCompletionRewardInTransaction(
   waypointId: string,
   dayLevel: DayLevel,
 ): Promise<DayRewardResult> {
-  const amount = getDayRewardAmount(dayLevel);
+  const platformSettings = await transaction.platformSettings.findUnique({
+    where: { id: "global" },
+    select: { baseGlowPoints: true },
+  });
+  const amount = getDayRewardAmount(
+    dayLevel,
+    platformSettings?.baseGlowPoints,
+  );
   await transaction.rewardLedger.create({
     data: {
       userId,

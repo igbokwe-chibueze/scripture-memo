@@ -86,7 +86,7 @@ export const hintQaRepository = {
         }),
         prisma.userProfile.findUnique({
           where: { userId },
-          select: { totalHintsUsed: true },
+          select: { totalHintsUsed: true, startingHintAllowance: true },
         }),
       ]);
 
@@ -95,6 +95,7 @@ export const hintQaRepository = {
     const remainingHints = calculateHintBalance(
       totalUsage,
       purchasedHints._sum.entitlementQuantity ?? 0,
+      profile?.startingHintAllowance,
     );
 
     return {

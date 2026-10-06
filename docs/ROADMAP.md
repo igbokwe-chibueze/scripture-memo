@@ -1814,6 +1814,29 @@ criteria before declaring production review ready.
 
 ## Post-6Roadmap Extras
 
+### Super Admin platform settings and audit access
+
+- Give Super Admins one persisted platform settings workspace for the learner
+  translation default, base Glow reward, new-account hint allowance, and
+  administrator cooldown-testing bypass.
+- Keep KJV as the default. Current selectable translations are KJV, WEB, and
+  BSB; adding catalog entries remains a separate content/licensing decision.
+- Apply new reward amounts only to future completions. Snapshot each player's
+  starting hint allowance so changing the default cannot alter existing
+  balances.
+- Record each settings update atomically with the change. Provide bounded,
+  filterable Super Admin audit access while keeping audit rows immutable and
+  withholding private IP/raw metadata from the browser.
+
+**Implementation status (2026-10-06):** The settings and audit views, server
+authorization, repository logic, schema, and migration are implemented. The
+migration is applied to the existing Prisma Local database on port 51214, and
+`prisma migrate status` confirms the schema is up to date. Prisma validation and
+generation, TypeScript, ESLint, the production build, and 18 focused tests pass.
+The owner passed the consolidated browser review: defaults were correct, a
+setting persisted after refresh, the audit event appeared, and defaults were
+restored. This extra is complete.
+
 ### Independently Authored Fellowship Insignias
 
 - Replace the current atlas-derived Fellowship insignias after the main game is

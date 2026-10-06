@@ -291,6 +291,16 @@ export const ERROR_CATALOG = [
     solutions: ["Start a fresh attempt for the same mode. Earlier completed modes remain saved."],
   },
   {
+    code: "ADM-001",
+    title: "Platform settings could not be saved",
+    feature: "Administration",
+    userMessage: "Platform settings could not be saved.",
+    explanation: "The settings and their audit record are committed in one transaction, so a failure leaves the previous values active.",
+    commonCauses: ["A temporary database connection issue.", "A transaction or audit-write failure."],
+    examples: ["The platform settings row updates but its audit record cannot be committed; the transaction rolls back."],
+    solutions: ["Retry once.", "If the failure repeats, inspect sanitized server logs and local database availability."],
+  },
+  {
     code: "GME-005",
     title: "Gameplay answer was incorrect",
     feature: "Gameplay",

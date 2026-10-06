@@ -134,7 +134,7 @@ export const gameplayRepository = {
     startedAt: Date,
   ): Promise<GameSessionModel> {
     return prisma.$transaction(async (transaction) => {
-      const [waypoint, settings] = await Promise.all([
+      const [waypoint, settings, platformSettings] = await Promise.all([
         transaction.waypoint.findUnique({
           where: { id: waypointId },
           select: {
@@ -153,6 +153,10 @@ export const gameplayRepository = {
           where: { userId },
           select: { preferredTranslation: true },
         }),
+        transaction.platformSettings.findUnique({
+          where: { id: "global" },
+          select: { defaultTranslation: true },
+        }),
       ]);
 
       if (!waypoint?.verseId || !waypoint.verse) {
@@ -163,11 +167,15 @@ export const gameplayRepository = {
         waypoint.verse.translations.map(({ translation }) => translation),
       );
       const preferredTranslation =
-        settings?.preferredTranslation ?? TranslationCode.KJV;
+        settings?.preferredTranslation ??
+        platformSettings?.defaultTranslation ??
+        TranslationCode.KJV;
+      const fallbackTranslation =
+        platformSettings?.defaultTranslation ?? TranslationCode.KJV;
       const translation = availableTranslations.has(preferredTranslation)
         ? preferredTranslation
-        : availableTranslations.has(TranslationCode.KJV)
-          ? TranslationCode.KJV
+        : availableTranslations.has(fallbackTranslation)
+          ? fallbackTranslation
           : waypoint.verse.translations[0]?.translation;
 
       if (!translation) {
@@ -241,19 +249,29 @@ export const gameplayRepository = {
       });
       if (activeSession) return activeSession;
 
-      const settings = await transaction.userSettings.findUnique({
-        where: { userId },
-        select: { preferredTranslation: true },
-      });
+      const [settings, platformSettings] = await Promise.all([
+        transaction.userSettings.findUnique({
+          where: { userId },
+          select: { preferredTranslation: true },
+        }),
+        transaction.platformSettings.findUnique({
+          where: { id: "global" },
+          select: { defaultTranslation: true },
+        }),
+      ]);
       const preferredTranslation =
-        settings?.preferredTranslation ?? TranslationCode.KJV;
+        settings?.preferredTranslation ??
+        platformSettings?.defaultTranslation ??
+        TranslationCode.KJV;
+      const fallbackTranslation =
+        platformSettings?.defaultTranslation ?? TranslationCode.KJV;
       const availableTranslations = new Set(
         waypoint.verse.translations.map(({ translation }) => translation),
       );
       const translation = availableTranslations.has(preferredTranslation)
         ? preferredTranslation
-        : availableTranslations.has(TranslationCode.KJV)
-          ? TranslationCode.KJV
+        : availableTranslations.has(fallbackTranslation)
+          ? fallbackTranslation
           : waypoint.verse.translations[0]?.translation;
       if (!translation) {
         throw new Error("Playable verse has no translation.");
@@ -413,6 +431,7 @@ export const gameplayRepository = {
             select: {
               beaconXp: true,
               beaconLevel: true,
+              startingHintAllowance: true,
             },
           },
         },
@@ -464,6 +483,7 @@ export const gameplayRepository = {
       hintBalance: calculateHintBalance(
         usedHintCount,
         purchasedHints._sum.entitlementQuantity ?? 0,
+        profile?.startingHintAllowance,
       ),
       beaconProgress: {
         lifetimeXp: profile?.beaconXp ?? 0,
