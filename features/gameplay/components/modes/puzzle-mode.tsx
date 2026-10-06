@@ -44,6 +44,7 @@ import {
 import { tokenizeVerse } from "@/features/gameplay/lib/verse-tokenizer";
 import type {
   GameModeAttemptData,
+  LocalReplayKind,
   StreakCompletionResult,
 } from "@/features/gameplay/types/game-session.types";
 import type { DayLevel } from "@/lib/generated/prisma/enums";
@@ -73,25 +74,25 @@ export function PuzzleMode({
   dayLevel,
   verseText,
   attempt,
-  isTestReplay = false,
+  replayKind,
   isVaultReplay = false,
   isAdminTest = false,
   nextMode,
   onContinue,
   onCompletionShown,
-  onTestReplayExit,
+  onReplayExit,
 }: {
   sessionId: string;
   dayLevel: DayLevel;
   verseText: string;
   attempt: GameModeAttemptData | null;
-  isTestReplay?: boolean;
+  replayKind?: LocalReplayKind;
   isVaultReplay?: boolean;
   isAdminTest?: boolean;
   nextMode: GameModeAttemptData["gameMode"] | null;
   onContinue: () => void;
   onCompletionShown: () => void;
-  onTestReplayExit?: () => void;
+  onReplayExit?: () => void;
 }): React.ReactNode {
   const t = useTranslations("Gameplay");
   const playAudio = useAudioFeedback();
@@ -197,15 +198,20 @@ export function PuzzleMode({
       hiddenPhraseIndexes,
       placements,
     );
-    if (isTestReplay) {
+    if (replayKind) {
       setIsComplete(true);
       setShowConfetti(true);
       setShowCompletion(true);
       onCompletionShown();
       playAudio("correct");
-      toast.success("Admin Puzzle replay complete. Progress was not changed.", {
-        duration: 4_000,
-      });
+      toast.success(
+        t(
+          replayKind === "PLAYER_PRACTICE"
+            ? "practiceCompleteToast"
+            : "adminTestReplayCompleteToast",
+        ),
+        { duration: 4_000 },
+      );
       return;
     }
     if (!attempt) return;
@@ -295,12 +301,12 @@ export function PuzzleMode({
         <ModeCompletionScreen
           completedMode="PUZZLE"
           nextMode={nextMode}
-          isTestReplay={isTestReplay}
+          replayKind={replayKind}
           isAdminTest={isAdminTest}
           isVaultReplay={isVaultReplay}
           beaconProgression={beaconProgression}
           onContinue={() => {
-            if (isTestReplay) onTestReplayExit?.();
+            if (replayKind) onReplayExit?.();
             else if (badgeUnlocks[badgeUnlockIndex]) {
               setShowCompletion(false);
             }
@@ -309,7 +315,7 @@ export function PuzzleMode({
               setShowStreakCompletion(true);
             } else onContinue();
           }}
-          onReplay={isTestReplay ? replayTestMode : undefined}
+          onReplay={replayKind ? replayTestMode : undefined}
         />
       )}
       {showStreakCompletion && streak && (

@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import type { GameMode } from "@/lib/generated/prisma/enums";
 import type { DayRewardResult } from "@/features/rewards/types/reward.types";
 import type { BeaconProgressionResult } from "@/features/beacon/types/beacon.types";
+import type { LocalReplayKind } from "@/features/gameplay/types/game-session.types";
 
 /**
  * Pauses progression on a celebratory, explicit learner-controlled transition.
@@ -25,7 +26,7 @@ import type { BeaconProgressionResult } from "@/features/beacon/types/beacon.typ
 export function ModeCompletionScreen({
   completedMode,
   nextMode,
-  isTestReplay,
+  replayKind,
   isAdminTest = false,
   isVaultReplay = false,
   onContinue,
@@ -35,7 +36,7 @@ export function ModeCompletionScreen({
 }: {
   completedMode: GameMode;
   nextMode: GameMode | null;
-  isTestReplay: boolean;
+  replayKind?: LocalReplayKind;
   isAdminTest?: boolean;
   isVaultReplay?: boolean;
   onContinue: () => void;
@@ -45,6 +46,7 @@ export function ModeCompletionScreen({
 }): React.ReactNode {
   const t = useTranslations("Completion");
   const gameT = useTranslations("Gameplay");
+  const isLocalReplay = replayKind !== undefined;
   const modeLabels: Record<GameMode, string> = {
     DRAG_DROP: gameT("dragDrop"), PUZZLE: gameT("puzzle"), SWAP: gameT("swap"), CUE: gameT("cue"), FILL: gameT("fill"),
   };
@@ -131,7 +133,9 @@ export function ModeCompletionScreen({
           </motion.div>
 
           <p className="mt-2 text-xs font-bold tracking-[0.18em] text-emerald-700 uppercase dark:text-emerald-300 sm:mt-3">
-            {isTestReplay
+            {replayKind === "PLAYER_PRACTICE"
+                ? t("playerPractice")
+              : replayKind === "ADMIN_TEST"
                 ? t("adminReplay")
               : isVaultReplay
                 ? t("vaultReplay")
@@ -149,7 +153,9 @@ export function ModeCompletionScreen({
           <div className="mt-5 rounded-2xl border border-amber-400/30 bg-amber-100/70 p-4 dark:border-amber-300/20 dark:bg-amber-300/8 sm:mt-7">
             <SparklesIcon className="mx-auto size-6 text-amber-600 dark:text-amber-300" aria-hidden="true" />
             <p className="mt-2 text-sm font-medium text-muted-foreground dark:text-slate-300">
-              {isTestReplay || (isAdminTest && !isVaultReplay)
+              {replayKind === "PLAYER_PRACTICE"
+                ? t("playerPracticeComplete")
+                : isLocalReplay || (isAdminTest && !isVaultReplay)
                 ? t("testingComplete")
                 : isVaultReplay
                   ? nextMode
@@ -159,7 +165,7 @@ export function ModeCompletionScreen({
                   ? t("nextReady", { mode: modeLabels[nextMode] })
                   : t("dayComplete")}
             </p>
-            {!isTestReplay && reward && (
+            {!isLocalReplay && reward && (
               <div className="mt-3">
                 <p className="text-xs font-bold tracking-[0.14em] text-amber-700 uppercase dark:text-amber-300">
                   {t("glowEarned")}
@@ -174,7 +180,7 @@ export function ModeCompletionScreen({
             )}
           </div>
 
-          {beaconProgression && !isTestReplay && !isAdminTest && !isVaultReplay && (
+          {beaconProgression && !isLocalReplay && !isAdminTest && !isVaultReplay && (
             <motion.div
               className="mt-4 rounded-2xl border border-violet-400/30 bg-violet-500/10 p-4 text-left"
               initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.92 }}
@@ -232,8 +238,10 @@ export function ModeCompletionScreen({
               className="min-h-12 rounded-xl bg-emerald-400 font-bold text-slate-950 hover:bg-emerald-300"
               onClick={onContinue}
             >
-              {isTestReplay
-                ? t("returnCurrent")
+              {replayKind === "PLAYER_PRACTICE"
+                ? t("returnToChallengeDays")
+                : replayKind === "ADMIN_TEST"
+                  ? t("returnCurrent")
                 : nextMode
                   ? t("continueTo", { mode: modeLabels[nextMode] })
                   : isVaultReplay
@@ -243,7 +251,7 @@ export function ModeCompletionScreen({
                     : t("continueJourney")}
               <ArrowRightIcon data-icon="inline-end" aria-hidden="true" />
             </Button>
-            {isTestReplay && onReplay && (
+            {isLocalReplay && onReplay && (
               <Button
                 type="button"
                 variant="ghost"
@@ -251,7 +259,9 @@ export function ModeCompletionScreen({
                 onClick={onReplay}
               >
                 <RotateCcwIcon data-icon="inline-start" aria-hidden="true" />
-                Replay again
+                {replayKind === "PLAYER_PRACTICE"
+                  ? t("practiceAgain")
+                  : t("adminReplayAgain")}
               </Button>
             )}
           </div>

@@ -64,6 +64,7 @@ export function buildDayCards(
         unlocksAt: null,
         blockedReason: null,
         completedSessionId: progress.completedSessionId ?? null,
+        completedModes: progress.completedModes ?? [],
       };
     }
 
@@ -75,6 +76,7 @@ export function buildDayCards(
         unlocksAt: null,
         blockedReason: `Complete ${DAY_PRESENTATION[previousLevel!].name} first.`,
         completedSessionId: null,
+        completedModes: [],
       };
     }
 
@@ -86,6 +88,7 @@ export function buildDayCards(
         unlocksAt: progress.unlocksAt,
         blockedReason: `${presentation.name} is still gathering light.`,
         completedSessionId: null,
+        completedModes: [],
       };
     }
 
@@ -96,6 +99,7 @@ export function buildDayCards(
       unlocksAt: null,
       blockedReason: null,
       completedSessionId: null,
+      completedModes: [],
     };
   });
 }

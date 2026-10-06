@@ -42,6 +42,9 @@ export type GameplayConflictCode =
   | "ANSWER_INCORRECT"
   | "ALL_MODES_COMPLETED";
 
+/** Locally validated replay contexts that never submit a server attempt. */
+export type LocalReplayKind = "ADMIN_TEST" | "PLAYER_PRACTICE";
+
 /** Private server data required to render the shared gameplay shell. */
 export type GameplaySessionData = {
   id: string;

@@ -32,6 +32,7 @@ import {
 import { tokenizeVerse } from "@/features/gameplay/lib/verse-tokenizer";
 import type {
   GameModeAttemptData,
+  LocalReplayKind,
   StreakCompletionResult,
 } from "@/features/gameplay/types/game-session.types";
 import type { DayRewardResult } from "@/features/rewards/types/reward.types";
@@ -54,14 +55,14 @@ export function FillMode({
   verseReference,
   verseText,
   attempt,
-  isTestReplay = false,
+  replayKind,
   isVaultReplay = false,
   isAdminTest = false,
   nextMode,
   onContinue,
   onWaypointContinue,
   onCompletionShown,
-  onTestReplayExit,
+  onReplayExit,
 }: {
   sessionId: string;
   dayLevel: DayLevel;
@@ -69,14 +70,14 @@ export function FillMode({
   verseReference: string;
   verseText: string;
   attempt: GameModeAttemptData | null;
-  isTestReplay?: boolean;
+  replayKind?: LocalReplayKind;
   isVaultReplay?: boolean;
   isAdminTest?: boolean;
   nextMode: GameModeAttemptData["gameMode"] | null;
   onContinue: () => void;
   onWaypointContinue: () => void;
   onCompletionShown: () => void;
-  onTestReplayExit?: () => void;
+  onReplayExit?: () => void;
 }): React.ReactNode {
   const t = useTranslations("Gameplay");
   const playAudio = useAudioFeedback();
@@ -162,15 +163,20 @@ export function FillMode({
       hiddenTokenIndexes,
       answers,
     );
-    if (isTestReplay) {
+    if (replayKind) {
       setIsComplete(true);
       setShowConfetti(true);
       setShowCompletion(true);
       onCompletionShown();
       playAudio("correct");
-      toast.success("Admin Fill replay complete. Progress was not changed.", {
-        duration: 4_000,
-      });
+      toast.success(
+        t(
+          replayKind === "PLAYER_PRACTICE"
+            ? "practiceCompleteToast"
+            : "adminTestReplayCompleteToast",
+        ),
+        { duration: 4_000 },
+      );
       return;
     }
     if (!attempt) return;
@@ -297,13 +303,13 @@ export function FillMode({
         <ModeCompletionScreen
           completedMode="FILL"
           nextMode={nextMode}
-          isTestReplay={isTestReplay}
+          replayKind={replayKind}
           isAdminTest={isAdminTest}
           isVaultReplay={isVaultReplay}
           reward={earnedReward}
           beaconProgression={beaconProgression}
           onContinue={() => {
-            if (isTestReplay) onTestReplayExit?.();
+            if (replayKind) onReplayExit?.();
             else if (badgeUnlocks[badgeUnlockIndex]) {
               setShowCompletion(false);
             }
@@ -315,7 +321,7 @@ export function FillMode({
               setShowWaypointCompletion(true);
             } else onContinue();
           }}
-          onReplay={isTestReplay ? replayTestMode : undefined}
+          onReplay={replayKind ? replayTestMode : undefined}
         />
       )}
       {showStreakCompletion && streak && (

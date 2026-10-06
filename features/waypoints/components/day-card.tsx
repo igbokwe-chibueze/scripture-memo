@@ -21,6 +21,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { showActionError } from "@/lib/errors/show-action-error";
 import { cn } from "@/lib/utils";
 import { startGameSessionAction } from "@/features/gameplay/actions/start-game-session.action";
+import { CompletedModePracticeMenu } from "@/features/waypoints/components/completed-mode-practice-menu";
 import type { DayCardData } from "@/features/waypoints/types/day-selection.types";
 import type { ActionResult } from "@/types/api";
 
@@ -173,6 +174,12 @@ export function DayCard({
               {card.status === "COOLDOWN" ? t("coolingDown") : t("locked")}
             </Button>
           </div>
+        ) : card.completedSessionId && card.completedModes.length > 0 ? (
+          <CompletedModePracticeMenu
+            sessionId={card.completedSessionId}
+            dayLevel={card.dayLevel}
+            completedModes={card.completedModes}
+          />
         ) : (
           <p className="w-full text-center text-sm font-bold text-emerald-700 dark:text-emerald-300">
             {t("challengeComplete")}

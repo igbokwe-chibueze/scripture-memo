@@ -2,6 +2,7 @@ import "server-only";
 
 import {
   CompletionStatus,
+  GameModeAttemptStatus,
   TranslationCode,
   WaypointStatus,
 } from "@/lib/generated/prisma/client";
@@ -58,7 +59,14 @@ export const daySelectionRepository = {
                 isAdminTest: false,
                 status: CompletionStatus.COMPLETED,
               },
-              select: { id: true },
+              select: {
+                id: true,
+                attempts: {
+                  where: { status: GameModeAttemptStatus.COMPLETED },
+                  select: { gameMode: true },
+                  orderBy: { createdAt: "asc" },
+                },
+              },
               orderBy: { completedAt: "desc" },
               take: 1,
             },
@@ -100,6 +108,8 @@ export const daySelectionRepository = {
       dayProgress: waypoint.dayProgress.map(({ gameSessions, ...progressItem }) => ({
         ...progressItem,
         completedSessionId: gameSessions[0]?.id ?? null,
+        completedModes:
+          gameSessions[0]?.attempts.map(({ gameMode }) => gameMode) ?? [],
       })),
     };
   },

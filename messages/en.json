@@ -196,6 +196,9 @@
     "verifyDuplicateRewards": "Verify {day} duplicate protection",
     "verifyFirstStepsBadge": "Verify First Steps badge",
     "testReplay": "Test replay {day}",
+    "practiceMode": "Practice a completed mode",
+    "openingPractice": "Opening practice…",
+    "choosePracticeMode": "Choose a completed mode from {day}",
     "challengeComplete": "Challenge complete"
   },
   "Gameplay": {
@@ -245,6 +248,10 @@
     "audioOn": "Audio feedback enabled for this session.",
     "audioOff": "Audio feedback muted for this session.",
     "testingMode": "Testing {mode} · no progress changes",
+    "playerPractice": "Practice · untimed",
+    "playerPracticeBanner": "Untimed practice · hints are off; your progress and rewards stay unchanged.",
+    "practiceCompleteToast": "Practice complete. No progress or rewards changed.",
+    "adminTestReplayCompleteToast": "Test replay complete. No progress or rewards changed.",
     "returnCurrent": "Return to current mode",
     "replayCompleted": "Replay completed mode",
     "chooseCompleted": "Choose a completed mode",
@@ -285,6 +292,11 @@
   },
   "Completion": {
     "beautifulWork": "Beautiful work!",
+    "playerPractice": "Practice",
+    "playerPracticeComplete": "Untimed practice complete. No hints were used, and your progress, rewards, streaks, and cooldowns are unchanged.",
+    "returnToChallengeDays": "Return to challenge days",
+    "practiceAgain": "Practice this mode again",
+    "adminReplayAgain": "Test this mode again",
     "modeRestored": "Mode restored",
     "modeComplete": "{mode} complete",
     "dayComplete": "Every mode in this challenge day is complete.",

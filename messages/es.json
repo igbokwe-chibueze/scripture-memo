@@ -196,6 +196,9 @@
     "verifyDuplicateRewards": "Verificar protección duplicada de {day}",
     "verifyFirstStepsBadge": "Verificar insignia Primeros Pasos",
     "testReplay": "Probar de nuevo {day}",
+    "practiceMode": "Practicar un modo completado",
+    "openingPractice": "Abriendo práctica…",
+    "choosePracticeMode": "Elige un modo completado de {day}",
     "challengeComplete": "Desafío completado"
   },
   "Gameplay": {
@@ -245,6 +248,10 @@
     "audioOn": "Sonidos activados para esta sesión.",
     "audioOff": "Sonidos silenciados para esta sesión.",
     "testingMode": "Probando {mode} · sin cambios de progreso",
+    "playerPractice": "Práctica · sin límite de tiempo",
+    "playerPracticeBanner": "Práctica sin límite de tiempo · pistas desactivadas; tu progreso y recompensas no cambiarán.",
+    "practiceCompleteToast": "Práctica completada. No cambiaron el progreso ni las recompensas.",
+    "adminTestReplayCompleteToast": "Prueba completada. No cambiaron el progreso ni las recompensas.",
     "returnCurrent": "Volver al modo actual",
     "replayCompleted": "Repetir modo completado",
     "chooseCompleted": "Elige un modo completado",
@@ -285,6 +292,11 @@
   },
   "Completion": {
     "beautifulWork": "¡Excelente trabajo!",
+    "playerPractice": "Práctica",
+    "playerPracticeComplete": "Práctica sin límite de tiempo completada. No se usaron pistas ni cambiaron tu progreso, recompensas, rachas o esperas.",
+    "returnToChallengeDays": "Volver a los días del desafío",
+    "practiceAgain": "Practicar este modo de nuevo",
+    "adminReplayAgain": "Probar este modo de nuevo",
     "modeRestored": "Modo restaurado",
     "modeComplete": "{mode} completado",
     "dayComplete": "Todos los modos del desafío de hoy están completos.",

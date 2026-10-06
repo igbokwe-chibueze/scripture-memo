@@ -36,7 +36,8 @@ const sampleCards: DayCardData[] = [
     reward: 100,
     unlocksAt: null,
     blockedReason: null,
-    completedSessionId: "sample-completed-session",
+    completedSessionId: null,
+    completedModes: [],
   },
   {
     dayLevel: DayLevel.GLOW,
@@ -47,6 +48,7 @@ const sampleCards: DayCardData[] = [
     unlocksAt: null,
     blockedReason: null,
     completedSessionId: null,
+    completedModes: [],
   },
   {
     dayLevel: DayLevel.RADIANCE,
@@ -57,6 +59,7 @@ const sampleCards: DayCardData[] = [
     unlocksAt: null,
     blockedReason: "Complete Glow first.",
     completedSessionId: null,
+    completedModes: [],
   },
 ];
 

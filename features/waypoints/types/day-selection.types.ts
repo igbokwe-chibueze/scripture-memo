@@ -1,6 +1,7 @@
 import type {
   CompletionStatus,
   DayLevel,
+  GameMode,
   JourneyStage,
   TranslationCode,
 } from "@/lib/generated/prisma/enums";
@@ -14,6 +15,7 @@ export type DayProgressSnapshot = {
   status: CompletionStatus;
   unlocksAt: Date | null;
   completedSessionId?: string | null;
+  completedModes?: GameMode[];
 };
 
 /** Authenticated, serializable data displayed by the Day Selection screen. */
@@ -39,4 +41,5 @@ export type DayCardData = {
   unlocksAt: Date | null;
   blockedReason: string | null;
   completedSessionId: string | null;
+  completedModes: GameMode[];
 };

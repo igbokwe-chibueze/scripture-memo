@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { CompletionStatus, DayLevel } from "@/lib/generated/prisma/enums";
+import {
+  CompletionStatus,
+  DayLevel,
+  GameMode,
+} from "@/lib/generated/prisma/enums";
 import { buildDayCards } from "@/features/waypoints/lib/day-selection";
 
 /** Pure status tests never connect to either application database. */
@@ -31,4 +35,26 @@ test("makes an elapsed cooldown ready without trusting a client-provided flag", 
   ], new Date("2026-07-22T12:00:00.000Z"));
 
   assert.equal(cards[1]?.status, "READY");
+});
+
+test("exposes only persisted completed modes on the completed day card", () => {
+  const cards = buildDayCards(
+    [
+      {
+        dayLevel: DayLevel.GLIMMER,
+        status: CompletionStatus.COMPLETED,
+        unlocksAt: null,
+        completedSessionId: "completed-session",
+        completedModes: [GameMode.DRAG_DROP, GameMode.PUZZLE],
+      },
+    ],
+    new Date("2026-07-22T12:00:00.000Z"),
+  );
+
+  assert.deepEqual(cards[0]?.completedModes, [
+    GameMode.DRAG_DROP,
+    GameMode.PUZZLE,
+  ]);
+  assert.deepEqual(cards[1]?.completedModes, []);
+  assert.deepEqual(cards[2]?.completedModes, []);
 });

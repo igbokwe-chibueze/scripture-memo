@@ -274,6 +274,96 @@ export const gameplayRepository = {
     }, gameplayTransactionOptions);
   },
 
+  /**
+   * Loads only the learner-owned campaign data needed for a map practice run.
+   *
+   * The query is restricted to completed, ordinary campaign sessions and
+   * returns no mutable attempt, hint-usage, reward, or progression data. Keeping
+   * this as one selected read lets the player practise without starting a
+   * campaign attempt or paying for the extra balance and Beacon queries used by
+   * the live gameplay shell.
+   */
+  async getPlayerMapPracticeSession(
+    userId: string,
+    sessionId: string,
+  ): Promise<GameplaySessionData | null> {
+    const session = await prisma.gameSession.findFirst({
+      where: {
+        id: sessionId,
+        userId,
+        status: CompletionStatus.COMPLETED,
+        isVaultReplay: false,
+        isAdminTest: false,
+        waypointId: { not: null },
+        dayLevel: { not: null },
+      },
+      select: {
+        id: true,
+        waypointId: true,
+        dayLevel: true,
+        translation: true,
+        status: true,
+        waypoint: { select: { number: true, journeyStage: true } },
+        verse: {
+          select: {
+            id: true,
+            reference: true,
+            translations: {
+              select: { translation: true, text: true },
+            },
+          },
+        },
+        attempts: {
+          where: { status: GameModeAttemptStatus.COMPLETED },
+          select: { gameMode: true },
+        },
+        user: {
+          select: {
+            settings: { select: { audioEnabled: true } },
+          },
+        },
+      },
+    });
+    if (!session?.waypointId || !session.dayLevel || !session.waypoint) {
+      return null;
+    }
+
+    const translation =
+      session.verse.translations.find(
+        (item) => item.translation === session.translation,
+      ) ?? session.verse.translations[0];
+    if (!translation) return null;
+
+    return {
+      id: session.id,
+      waypointId: session.waypointId,
+      dayLevel: session.dayLevel,
+      translation: session.translation,
+      status: session.status,
+      isVaultReplay: false,
+      isAdminTest: false,
+      adminTestMode: null,
+      waypoint: session.waypoint,
+      verse: {
+        id: session.verse.id,
+        reference: session.verse.reference,
+        translationText: translation.text,
+      },
+      completedModes: GAME_MODE_ORDER.filter((mode) =>
+        session.attempts.some((attempt) => attempt.gameMode === mode),
+      ),
+      currentMode: null,
+      audioEnabled: session.user.settings?.audioEnabled ?? true,
+      hintBalance: 0,
+      beaconProgress: {
+        lifetimeXp: 0,
+        level: 1,
+        currentLevelStartXp: 0,
+          nextLevelXp: beaconLevelStartXp(2),
+      },
+    };
+  },
+
   /** Returns minimal learner-owned data for the shared shell. */
   async getSessionProgress(
     userId: string,

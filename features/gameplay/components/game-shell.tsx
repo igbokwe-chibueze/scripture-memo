@@ -43,6 +43,7 @@ import { TimedAttemptExpired } from "@/features/gameplay/components/timed-attemp
 import type {
   GameModeAttemptData,
   GameplaySessionData,
+  LocalReplayKind,
 } from "@/features/gameplay/types/game-session.types";
 import type { GameMode } from "@/lib/generated/prisma/enums";
 import type { ActionResult } from "@/types/api";
@@ -59,11 +60,13 @@ import { verifyStageHintBlockAction } from "@/features/hints/actions/verify-stag
 export function GameShell({
   gameSession,
   isAdmin,
+  playerPracticeMode = null,
   startModeAction = startGameModeAction,
   useSampleHint = false,
 }: {
   gameSession: GameplaySessionData;
   isAdmin: boolean;
+  playerPracticeMode?: GameMode | null;
   startModeAction?: (input: {
     sessionId: string;
     gameMode: GameMode;
@@ -85,7 +88,14 @@ export function GameShell({
     : "";
   const [attempt, setAttempt] = useState<GameModeAttemptData | null>(null);
   const [audioEnabled, setAudioEnabled] = useState(gameSession.audioEnabled);
-  const [testReplayMode, setTestReplayMode] = useState<GameMode | null>(null);
+  const [adminTestReplayMode, setAdminTestReplayMode] =
+    useState<GameMode | null>(null);
+  const replayMode = playerPracticeMode ?? adminTestReplayMode;
+  const replayKind: LocalReplayKind | undefined = playerPracticeMode
+    ? "PLAYER_PRACTICE"
+    : adminTestReplayMode || useSampleHint
+      ? "ADMIN_TEST"
+      : undefined;
   const [currentMode, setCurrentMode] = useState<GameMode | null>(
     gameSession.currentMode,
   );
@@ -100,12 +110,14 @@ export function GameShell({
     gameSession.waypoint?.journeyStage === "RECALL";
   const canVerifyLearnHint =
     isAdmin &&
+    !playerPracticeMode &&
     !gameSession.isAdminTest &&
     !gameSession.isVaultReplay &&
     gameSession.waypoint?.journeyStage === "LEARN" &&
     Boolean(currentMode);
   const canVerifyBlockedHint =
     isAdmin &&
+    !playerPracticeMode &&
     gameSession.isAdminTest &&
     (gameSession.waypoint?.journeyStage === "STRENGTHEN" ||
       gameSession.waypoint?.journeyStage === "MASTER");
@@ -235,8 +247,13 @@ export function GameShell({
   };
 
   /** Restores the live attempt after a client-only administrator replay. */
-  const exitTestReplay = (): void => {
-    setTestReplayMode(null);
+  const exitLocalReplay = (): void => {
+    if (playerPracticeMode && gameSession.waypointId) {
+      router.push(`/game/waypoints/${gameSession.waypointId}`);
+      return;
+    }
+
+    setAdminTestReplayMode(null);
     setIsAwaitingContinue(false);
   };
 
@@ -247,11 +264,16 @@ export function GameShell({
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
               <p className="whitespace-nowrap text-xs font-bold tracking-[0.12em] text-amber-700 uppercase dark:text-amber-300 sm:tracking-[0.16em]">
-                {gameSession.isAdminTest
-                  ? t("adminTesting")
-                  : gameSession.isVaultReplay
-                  ? t("vaultReplay")
-                  : t("dayWaypoint", { day: dayLabel, number: gameSession.waypoint?.number ?? 0 })}
+                {playerPracticeMode
+                  ? t("playerPractice")
+                  : gameSession.isAdminTest
+                    ? t("adminTesting")
+                    : gameSession.isVaultReplay
+                      ? t("vaultReplay")
+                      : t("dayWaypoint", {
+                          day: dayLabel,
+                          number: gameSession.waypoint?.number ?? 0,
+                        })}
               </p>
               <h1 className="mt-1 font-heading text-2xl font-bold sm:text-3xl">
                 {gameSession.verse.reference}
@@ -316,6 +338,7 @@ export function GameShell({
                   </>
                 )}
                 {isAdmin &&
+                  !playerPracticeMode &&
                   !gameSession.isAdminTest &&
                   gameSession.completedModes.length > 0 && (
                     <>
@@ -324,10 +347,10 @@ export function GameShell({
                         <DropdownMenuLabel className="px-2 py-1.5 font-bold text-foreground">
                           {t("adminTesting")}
                         </DropdownMenuLabel>
-                        {testReplayMode ? (
+                        {adminTestReplayMode ? (
                           <DropdownMenuItem
                             className="min-h-11 cursor-pointer gap-3 rounded-lg px-3 py-2 font-bold"
-                            onClick={exitTestReplay}
+                            onClick={exitLocalReplay}
                           >
                             <RotateCcwIcon aria-hidden="true" />
                             {t("returnCurrent")}
@@ -337,7 +360,7 @@ export function GameShell({
                             <DropdownMenuItem
                               key={mode}
                               className="min-h-11 cursor-pointer gap-3 rounded-lg px-3 py-2 font-bold"
-                              onClick={() => setTestReplayMode(mode)}
+                              onClick={() => setAdminTestReplayMode(mode)}
                             >
                               <span className="grid size-6 place-items-center rounded-md bg-sky-500/15 text-xs font-bold text-sky-700 dark:text-sky-200">
                                 {GAME_MODE_ORDER.indexOf(mode) + 1}
@@ -357,7 +380,9 @@ export function GameShell({
                       className="min-h-11 cursor-pointer gap-3 rounded-lg px-3 py-2 font-bold"
                       onClick={() =>
                         router.push(
-                          gameSession.isAdminTest
+                          playerPracticeMode
+                            ? `/game/waypoints/${gameSession.waypointId}`
+                            : gameSession.isAdminTest
                             ? "/admin/waypoints"
                             : gameSession.isVaultReplay
                             ? "/vault"
@@ -378,64 +403,88 @@ export function GameShell({
             {gameSession.waypoint && (
               <JourneyStageBadge stage={gameSession.waypoint.journeyStage} />
             )}
-            <p className="text-sm font-bold text-muted-foreground">
-              {t("modeProgress", { current: Math.min(currentModeIndex + 1, GAME_MODE_ORDER.length), total: GAME_MODE_ORDER.length })}
-            </p>
+            {!playerPracticeMode && (
+              <p className="text-sm font-bold text-muted-foreground">
+                {t("modeProgress", {
+                  current: Math.min(
+                    currentModeIndex + 1,
+                    GAME_MODE_ORDER.length,
+                  ),
+                  total: GAME_MODE_ORDER.length,
+                })}
+              </p>
+            )}
           </div>
 
-          <ol className="mt-4 grid grid-cols-5 gap-1.5" aria-label={t("progress")}>
-            {GAME_MODE_ORDER.map((mode, index) => (
-              <li
-                key={mode}
-                className={cn(
-                  "h-2 rounded-full bg-muted",
-                  index < currentModeIndex && "bg-emerald-400",
-                  index === currentModeIndex && "bg-amber-400",
-                )}
-                aria-label={`${modeLabels[mode]}: ${
-                  index < currentModeIndex
-                    ? t("completeState")
-                    : index === currentModeIndex
-                      ? t("currentState")
-                      : t("upcomingState")
-                }`}
-              />
-            ))}
-          </ol>
-
-          <div className="mt-4 rounded-2xl border border-violet-400/20 bg-violet-500/8 p-3">
-            <div className="flex items-center justify-between gap-3 text-xs font-bold">
-              <span>{t("beaconLevel", { level: gameSession.beaconProgress.level })}</span>
-              <span className="text-violet-700 dark:text-violet-300">
-                {t("beaconXp", { count: gameSession.beaconProgress.lifetimeXp })}
-              </span>
-            </div>
-            <div
-              className="mt-2 h-2.5 overflow-hidden rounded-full bg-violet-950/15 dark:bg-black/35"
-              role="progressbar"
-              aria-label={t("beaconProgress")}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={Math.round(beaconLevelProgress)}
+          {!playerPracticeMode && (
+            <ol
+              className="mt-4 grid grid-cols-5 gap-1.5"
+              aria-label={t("progress")}
             >
-              <div
-                className="h-full rounded-full bg-linear-to-r from-violet-500 to-fuchsia-400"
-                style={{ width: `${beaconLevelProgress}%` }}
-              />
-            </div>
-          </div>
+              {GAME_MODE_ORDER.map((mode, index) => (
+                <li
+                  key={mode}
+                  className={cn(
+                    "h-2 rounded-full bg-muted",
+                    index < currentModeIndex && "bg-emerald-400",
+                    index === currentModeIndex && "bg-amber-400",
+                  )}
+                  aria-label={`${modeLabels[mode]}: ${
+                    index < currentModeIndex
+                      ? t("completeState")
+                      : index === currentModeIndex
+                        ? t("currentState")
+                        : t("upcomingState")
+                  }`}
+                />
+              ))}
+            </ol>
+          )}
 
-          {gameSession.isAdminTest && (
+          {!playerPracticeMode && (
+            <div className="mt-4 rounded-2xl border border-violet-400/20 bg-violet-500/8 p-3">
+              <div className="flex items-center justify-between gap-3 text-xs font-bold">
+                <span>
+                  {t("beaconLevel", {
+                    level: gameSession.beaconProgress.level,
+                  })}
+                </span>
+                <span className="text-violet-700 dark:text-violet-300">
+                  {t("beaconXp", {
+                    count: gameSession.beaconProgress.lifetimeXp,
+                  })}
+                </span>
+              </div>
+              <div
+                className="mt-2 h-2.5 overflow-hidden rounded-full bg-violet-950/15 dark:bg-black/35"
+                role="progressbar"
+                aria-label={t("beaconProgress")}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(beaconLevelProgress)}
+              >
+                <div
+                  className="h-full rounded-full bg-linear-to-r from-violet-500 to-fuchsia-400"
+                  style={{ width: `${beaconLevelProgress}%` }}
+                />
+              </div>
+            </div>
+          )}
+
+          {(gameSession.isAdminTest || playerPracticeMode) && (
             <div className="mt-4 flex min-h-11 items-center gap-2 rounded-xl border border-sky-400/25 bg-sky-100/70 px-3 py-2 text-xs font-bold text-sky-800 dark:border-sky-300/20 dark:bg-sky-300/8 dark:text-sky-200">
               <ShieldCheckIcon className="size-4 shrink-0" aria-hidden="true" />
-              {t("adminTesting")}
+              {playerPracticeMode ? t("playerPracticeBanner") : t("adminTesting")}
             </div>
           )}
 
         </header>
 
         <div className="flex flex-1 flex-col items-center px-5 py-8 text-center sm:px-10">
-          {attempt?.expiresAt && !isAwaitingContinue && !testReplayMode && (
+          {attempt?.expiresAt &&
+            !isAwaitingContinue &&
+            !replayMode &&
+            !playerPracticeMode && (
             <div className="mb-6 flex flex-col items-center gap-2">
               <span className="inline-flex items-center gap-2 text-sm font-bold text-amber-700 dark:text-amber-200">
                 <Clock3Icon className="size-4" aria-hidden="true" />
@@ -452,55 +501,55 @@ export function GameShell({
             </div>
           )}
 
-          {testReplayMode === "DRAG_DROP" && gameSession.dayLevel ? (
+          {replayMode === "DRAG_DROP" && gameSession.dayLevel ? (
             <DragDropMode
               sessionId={gameSession.id}
               dayLevel={gameSession.dayLevel}
               verseText={gameSession.verse.translationText}
               attempt={null}
-              isTestReplay
+              replayKind={replayKind}
               nextMode={currentMode}
-              onContinue={exitTestReplay}
+              onContinue={exitLocalReplay}
               onCompletionShown={() => setIsAwaitingContinue(true)}
-              onTestReplayExit={exitTestReplay}
+              onReplayExit={exitLocalReplay}
             />
-          ) : testReplayMode === "PUZZLE" && gameSession.dayLevel ? (
+          ) : replayMode === "PUZZLE" && gameSession.dayLevel ? (
             <PuzzleMode
               sessionId={gameSession.id}
               dayLevel={gameSession.dayLevel}
               verseText={gameSession.verse.translationText}
               attempt={null}
-              isTestReplay
+              replayKind={replayKind}
               nextMode={currentMode}
-              onContinue={exitTestReplay}
+              onContinue={exitLocalReplay}
               onCompletionShown={() => setIsAwaitingContinue(true)}
-              onTestReplayExit={exitTestReplay}
+              onReplayExit={exitLocalReplay}
             />
-          ) : testReplayMode === "SWAP" && gameSession.dayLevel ? (
+          ) : replayMode === "SWAP" && gameSession.dayLevel ? (
             <SwapMode
               sessionId={gameSession.id}
               dayLevel={gameSession.dayLevel}
               verseText={gameSession.verse.translationText}
               attempt={null}
-              isTestReplay
+              replayKind={replayKind}
               nextMode={currentMode}
-              onContinue={exitTestReplay}
+              onContinue={exitLocalReplay}
               onCompletionShown={() => setIsAwaitingContinue(true)}
-              onTestReplayExit={exitTestReplay}
+              onReplayExit={exitLocalReplay}
             />
-          ) : testReplayMode === "CUE" && gameSession.dayLevel ? (
+          ) : replayMode === "CUE" && gameSession.dayLevel ? (
             <CueMode
               sessionId={gameSession.id}
               dayLevel={gameSession.dayLevel}
               verseText={gameSession.verse.translationText}
               attempt={null}
-              isTestReplay
+              replayKind={replayKind}
               nextMode={currentMode}
-              onContinue={exitTestReplay}
+              onContinue={exitLocalReplay}
               onCompletionShown={() => setIsAwaitingContinue(true)}
-              onTestReplayExit={exitTestReplay}
+              onReplayExit={exitLocalReplay}
             />
-          ) : testReplayMode === "FILL" && gameSession.dayLevel ? (
+          ) : replayMode === "FILL" && gameSession.dayLevel ? (
             <FillMode
               sessionId={gameSession.id}
               dayLevel={gameSession.dayLevel}
@@ -508,12 +557,12 @@ export function GameShell({
               verseReference={gameSession.verse.reference}
               verseText={gameSession.verse.translationText}
               attempt={null}
-              isTestReplay
+              replayKind={replayKind}
               nextMode={currentMode}
-              onContinue={exitTestReplay}
+              onContinue={exitLocalReplay}
               onWaypointContinue={continueToSanctuary}
               onCompletionShown={() => setIsAwaitingContinue(true)}
-              onTestReplayExit={exitTestReplay}
+              onReplayExit={exitLocalReplay}
             />
           ) : currentMode === "DRAG_DROP" && attempt && gameSession.dayLevel ? (
             <DragDropMode
@@ -676,13 +725,15 @@ export function GameShell({
           )}
         </div>
 
-        {hintsAllowed && (currentMode || testReplayMode) && (
+        {!playerPracticeMode &&
+          hintsAllowed &&
+          (currentMode || adminTestReplayMode) && (
           <footer className="border-t border-border px-5 py-4 dark:border-white/10 sm:px-8">
             <HintButton
               sessionId={gameSession.id}
               initialBalance={gameSession.hintBalance}
               disabled={isAwaitingContinue}
-              isTestReplay={Boolean(testReplayMode) || useSampleHint}
+              isTestReplay={Boolean(adminTestReplayMode) || useSampleHint}
               isAdminTest={gameSession.isAdminTest}
               testReference={gameSession.verse.reference}
               testVerseText={gameSession.verse.translationText}

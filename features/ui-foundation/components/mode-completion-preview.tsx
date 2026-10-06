@@ -38,7 +38,7 @@ export function ModeCompletionPreview(): React.ReactNode {
         <ModeCompletionScreen
           completedMode="DRAG_DROP"
           nextMode="PUZZLE"
-          isTestReplay={false}
+          replayKind="ADMIN_TEST"
           onContinue={() => setIsOpen(false)}
         />
       )}

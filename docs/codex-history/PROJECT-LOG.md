@@ -4226,3 +4226,27 @@ concurrency subtests remain explicitly skipped as documented above.
 - Updated the README and Product Overview to make this database policy explicit.
   No database connection, hosted resource, local data, schema, or credential was
   changed or accessed.
+
+### 2026-10-06 - Player Map Replay implementation started
+
+- Added a Day Selection action that lists only modes with completed attempts in
+  the completed challenge day. The sample Day Selection preview does not link
+  to a fake replay session.
+- Added an owner-scoped, read-only practice-session query and server validation
+  requiring a completed ordinary campaign session and a mode with a completed
+  attempt. Invalid or repeated practice query values are rejected.
+- Reused the five local answer-checking mode surfaces for player practice.
+  Practice completion does not call gameplay completion actions or create an
+  attempt, and it returns to the challenge-day screen without rewards or
+  progression changes. Updated the shared completion preview to the typed
+  replay-kind API and added English, Spanish, and French labels.
+- No schema or migration changes were needed. TypeScript, ESLint on changed
+  TypeScript files, the Day Selection tests, the replay eligibility tests,
+  localization contract tests, and `git diff --check` pass.
+- Resolved the practice policy as untimed and hint-free. This avoids charging
+  hint balance and keeps the journey-stage timer tied to its server-created
+  campaign attempt. The UI states this policy explicitly and guards the timer
+  and hint surfaces from appearing during player practice.
+- The owner manually tested Player Map Replay and confirmed all tests passed.
+  Marked the feature implemented and accepted; practice shows no timer or hint
+  control, completes locally, and leaves campaign progress unchanged.

@@ -1847,11 +1847,18 @@ criteria before declaring production review ready.
   administrator-only Test Replay label.
 - Create no campaign attempts and change no progression, cooldown, streak,
   waypoint history, or reward state.
+- Keep practice untimed and hint-free so it requires no campaign attempt and
+  cannot consume the player's hint balance.
 - Award no Glow Points by default. If replay rewards are reconsidered, design a
   separately approved, rate-limited daily-review reward rather than an
   infinitely repeatable point.
 - Keep Vault replay as the filtered, long-term mastery library; map replay is
   the convenient route back to recently completed challenge content.
+
+**Implementation status (2026-10-06):** The entry point, completed-mode list,
+server ownership and eligibility checks, and local reward-free replay are
+implemented and manually accepted (2026-10-06). Practice is untimed and
+hint-free.
 
 ---
 
