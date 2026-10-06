@@ -4250,3 +4250,22 @@ concurrency subtests remain explicitly skipped as documented above.
 - The owner manually tested Player Map Replay and confirmed all tests passed.
   Marked the feature implemented and accepted; practice shows no timer or hint
   control, completes locally, and leaves campaign progress unchanged.
+
+### 2026-10-06 - Game Home implementation
+
+- Replaced the authenticated `/game` placeholder with the documented player
+  landing page: Glow Points, streak, the earliest playable published waypoint,
+  its Journey Stage, and a resume action. When no waypoint is playable, Home
+  guides the learner back to the map.
+- Added leaderboard and badge shortcuts; the existing protected navigation
+  continues to provide the main section links. Added English, Spanish, and
+  French strings for the new page.
+- Kept rendering read-only. The waypoint lookup filters to the signed-in
+  learner's unlocked, in-progress, or cooldown progress and selects only the
+  fields needed by the UI. Wrapped the existing player-shell summary in
+  request-scoped React cache so Home shares its Glow/streak query with the
+  protected shell during the same render.
+- No schema, migration, or hosted database work was involved. TypeScript,
+  focused ESLint, localization contract tests, and `git diff --check` pass.
+  Manual browser verification is still needed for resume behavior and the
+  no-current-waypoint state.

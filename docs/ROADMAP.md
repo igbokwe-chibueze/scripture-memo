@@ -1860,6 +1860,22 @@ server ownership and eligibility checks, and local reward-free replay are
 implemented and manually accepted (2026-10-06). Practice is untimed and
 hint-free.
 
+### Game Home
+
+- Replace the temporary authenticated `/game` placeholder with the player
+  landing page specified in `PRODUCT-OVERVIEW.md` §15.1.
+- Show Glow Points, current streak, the learner's earliest published waypoint
+  that remains playable, its Journey Stage, and a resume action. If there is no
+  playable waypoint, offer a route back to the map.
+- Keep the screen read-only: do not initialize progression or update rewards as
+  part of rendering the home page. Reuse request-cached shell/settings reads.
+- Provide shortcuts to the leaderboard and badges while the persistent player
+  navigation continues to expose the main sections.
+
+**Implementation status (2026-10-06):** Implemented in `features/home/` and
+connected to `/game`. TypeScript, focused ESLint, localization contract tests,
+and `git diff --check` pass. Manual browser verification remains pending.
+
 ---
 
 *End of Scripture Memo AI Build Roadmap v2.0*
