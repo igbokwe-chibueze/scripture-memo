@@ -140,13 +140,13 @@ export function BadgeCollection({
           </button>
         ))}
       </div>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <label className="grid gap-1 text-xs font-bold tracking-wide uppercase">
+      <div className="grid grid-cols-2 gap-2 sm:gap-3">
+        <label className="grid gap-1 text-xs font-bold tracking-wide uppercase max-[340px]:min-w-0">
           {t("category")}
           <select
             id="badge-category-filter"
             name="badgeCategory"
-            className="min-h-11 rounded-xl border border-input bg-background px-3 text-sm font-medium normal-case"
+            className="min-h-11 rounded-xl border border-input bg-background px-3 text-sm font-medium normal-case max-[340px]:w-full max-[340px]:min-w-0 max-[340px]:px-2 max-[340px]:text-[0.8rem]"
             value={category}
             onChange={(event) => setCategory(event.currentTarget.value as BadgeCategory | "ALL")}
           >
@@ -156,12 +156,12 @@ export function BadgeCollection({
             ))}
           </select>
         </label>
-        <label className="grid gap-1 text-xs font-bold tracking-wide uppercase">
+        <label className="grid gap-1 text-xs font-bold tracking-wide uppercase max-[340px]:min-w-0">
           {t("rarity")}
           <select
             id="badge-rarity-filter"
             name="badgeRarity"
-            className="min-h-11 rounded-xl border border-input bg-background px-3 text-sm font-medium normal-case"
+            className="min-h-11 rounded-xl border border-input bg-background px-3 text-sm font-medium normal-case max-[340px]:w-full max-[340px]:min-w-0 max-[340px]:px-2 max-[340px]:text-[0.8rem]"
             value={rarity}
             onChange={(event) => setRarity(event.currentTarget.value as BadgeRarity | "ALL")}
           >
@@ -187,7 +187,7 @@ export function BadgeCollection({
           }
         />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
           {visibleBadges.map((badge) => {
             const unlocked = badge.status === "COMPLETED";
             const secret = badge.isHidden && !unlocked;
@@ -200,7 +200,7 @@ export function BadgeCollection({
               <article
                 key={badge.id}
                 className={cn(
-                  "relative block w-full rounded-3xl border-2 bg-card p-5 text-left shadow-sm transition-[border-color,box-shadow] xl:cursor-pointer",
+                  "relative block aspect-square w-full overflow-hidden rounded-3xl border-2 bg-card p-2 pb-3 text-left shadow-sm transition-[border-color,box-shadow] max-[340px]:aspect-auto max-[340px]:min-h-[11.5rem] sm:aspect-auto sm:p-5 xl:cursor-pointer",
                   RARITY_RING[badge.rarity],
                   unlocked && badge.rarity === "LEGENDARY" && "shadow-xl",
                   selected && "xl:border-primary xl:ring-2 xl:ring-primary/25",
@@ -215,37 +215,39 @@ export function BadgeCollection({
                   onClick={() => setSelectedBadgeId(badge.id)}
                   className="absolute inset-0 z-10 hidden rounded-[inherit] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none xl:block"
                 />
-                <div className="flex items-start justify-between gap-3">
-                  <span className="grid size-16 place-items-center rounded-2xl bg-muted text-3xl">
+                <div className="flex items-start justify-between gap-2 sm:gap-3">
+                  <span className="grid size-8 place-items-center rounded-2xl bg-muted text-lg sm:size-16 sm:text-3xl">
                     {secret ? <HelpCircleIcon aria-hidden="true" /> : (badge.icon ?? "🏅")}
                   </span>
-                  <span className="rounded-full bg-muted px-3 py-1 text-[0.65rem] font-bold tracking-wider uppercase">
+                  <span className="rounded-full bg-muted px-1.5 py-1 text-[0.55rem] font-bold tracking-wide uppercase sm:px-3 sm:text-[0.65rem] sm:tracking-wider">
                     {badge.rarity}
                   </span>
                 </div>
-                <h2 className="mt-4 font-heading text-xl font-bold">
+                <h2 className="mt-1 line-clamp-2 min-h-8 font-heading text-sm leading-4 font-bold sm:mt-4 sm:min-h-0 sm:text-xl sm:leading-normal">
                   {secret ? t("secretBadge") : badge.name}
                 </h2>
-                <p className="mt-1 min-h-10 text-sm text-muted-foreground">
+                <p className="mt-1 line-clamp-2 min-h-8 text-xs leading-4 text-muted-foreground sm:min-h-10 sm:text-sm sm:leading-normal sm:line-clamp-none">
                   {secret
                     ? t("secretDescription")
                     : badge.description}
                 </p>
-                <div className="mt-4 h-2 overflow-hidden rounded-full bg-muted">
+                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted sm:mt-4 sm:h-2">
                   <div
                     className="h-full rounded-full bg-amber-400 transition-[width]"
                     style={{ width: `${progressPercent}%` }}
                   />
                 </div>
-                <div className="mt-2 flex items-center justify-between text-xs font-bold text-muted-foreground">
+                <div className="mt-1 flex items-center justify-between gap-1 text-[0.6rem] font-bold text-muted-foreground sm:mt-2 sm:text-xs">
                   <span>{badge.progress} / {badge.targetValue}</span>
                   <span className="inline-flex items-center gap-1">
-                    {unlocked ? <CheckIcon className="size-3.5" /> : <LockIcon className="size-3.5" />}
-                    {unlocked ? t("earned") : t("rewardShort", { points: badge.rewardAmount })}
+                    {unlocked ? <CheckIcon className="size-3 sm:size-3.5" /> : <LockIcon className="size-3 sm:size-3.5" />}
+                    <span className="truncate">
+                      {unlocked ? t("earned") : t("rewardShort", { points: badge.rewardAmount })}
+                    </span>
                   </span>
                 </div>
                 {unlocked && badge.unlockedAt && (
-                  <p className="mt-3 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+                  <p className="mt-1 line-clamp-1 text-center text-[0.6rem] leading-3 font-medium text-emerald-700 dark:text-emerald-300 min-[425px]:text-left sm:mt-3 sm:text-xs sm:leading-normal">
                     {t("unlockedOn", { date: new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(badge.unlockedAt) })}
                   </p>
                 )}
