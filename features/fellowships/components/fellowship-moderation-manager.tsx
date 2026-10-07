@@ -12,6 +12,7 @@ import {
   emergencyTransferLeadershipAction,
 } from "@/features/fellowships/actions/emergency-fellowship-actions.action";
 import type { FellowshipModerationItem } from "@/features/fellowships/types/fellowship.types";
+import { FellowshipSuspensionModerator } from "@/features/fellowships/components/fellowship-suspension-moderator";
 
 /**
  * Gives Super Admins bounded, reasoned recovery controls for each result.
@@ -19,7 +20,8 @@ import type { FellowshipModerationItem } from "@/features/fellowships/types/fell
  */
 export function FellowshipModerationManager({
   fellowships,
-}: Readonly<{ fellowships: FellowshipModerationItem[] }>): React.ReactNode {
+  viewerId,
+}: Readonly<{ fellowships: FellowshipModerationItem[]; viewerId: string }>): React.ReactNode {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [selectedMembers, setSelectedMembers] = useState<Record<string, string>>(
@@ -66,7 +68,8 @@ export function FellowshipModerationManager({
       {fellowships.map((fellowship) => {
         const governanceLocked =
           fellowship.closure?.status === "FORCED" ||
-          fellowship.closure?.status === "SCHEDULED";
+          fellowship.closure?.status === "SCHEDULED" ||
+          fellowship.suspension?.status === "ACTIVE";
 
         return (
           <article
@@ -97,10 +100,17 @@ export function FellowshipModerationManager({
               )}
             </div>
 
+            <div className="mt-5 grid gap-4 lg:grid-cols-2">
+              {(!governanceLocked || fellowship.suspension?.status === "ACTIVE") && (
+                <FellowshipSuspensionModerator fellowship={fellowship} viewerId={viewerId} />
+              )}
+            </div>
+
             {governanceLocked ? (
               <p className="mt-5 rounded-2xl bg-muted p-4 text-sm text-muted-foreground">
-                This Fellowship is closed or in its recovery period. Recovery
-                actions are unavailable.
+                {fellowship.suspension?.status === "ACTIVE"
+                  ? "Leadership transfer and closure controls are disabled until this suspension is restored."
+                  : "This Fellowship is closed or in its recovery period. Recovery actions are unavailable."}
               </p>
             ) : (
               <div className="mt-5 grid gap-4 lg:grid-cols-2">
@@ -151,12 +161,16 @@ export function FellowshipModerationManager({
                           name="targetMemberId"
                           required
                           value={selectedMembers[fellowship.id] ?? ""}
-                          onChange={(event) =>
+                          onChange={(event) => {
+                            // React clears currentTarget after this handler. Read
+                            // the value now, before the deferred updater runs.
+                            const selectedMembershipId =
+                              event.currentTarget.value;
                             setSelectedMembers((current) => ({
                               ...current,
-                              [fellowship.id]: event.currentTarget.value,
-                            }))
-                          }
+                              [fellowship.id]: selectedMembershipId,
+                            }));
+                          }}
                           className="min-h-11 w-full rounded-xl border bg-background px-3"
                         >
                           {fellowship.transferCandidates.map((member) => (

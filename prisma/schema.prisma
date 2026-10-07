@@ -129,6 +129,17 @@ enum FellowshipDissolutionStatus {
   FORCED
 }
 
+enum FellowshipSuspensionStatus {
+  ACTIVE
+  RESTORED
+}
+
+enum FellowshipSuspensionAppealStatus {
+  PENDING
+  RESTORED
+  UPHELD
+}
+
 enum BeaconLeague {
   TRAVELER
   DISCIPLE
@@ -152,6 +163,8 @@ enum UserNotificationType {
   FELLOWSHIP_REQUEST
   FELLOWSHIP_LEADERSHIP
   FELLOWSHIP_CLOSING
+  FELLOWSHIP_SUSPENSION
+  FELLOWSHIP_APPEAL
   COOLDOWN_READY
   STREAK_RISK
   SYSTEM
@@ -191,6 +204,10 @@ model User {
   fellowshipTransfersFrom    FellowshipLeadershipTransfer[] @relation("FellowshipTransferFrom")
   fellowshipTransfersTo      FellowshipLeadershipTransfer[] @relation("FellowshipTransferTarget")
   fellowshipDissolutions     FellowshipDissolution[]        @relation("FellowshipDissolutionInitiator")
+  fellowshipSuspensionsMade  FellowshipSuspension[]         @relation("FellowshipSuspensionActor")
+  fellowshipSuspensionsEnded FellowshipSuspension[]         @relation("FellowshipSuspensionRestorer")
+  fellowshipAppealsMade      FellowshipSuspensionAppeal[]   @relation("FellowshipSuspensionAppellant")
+  fellowshipAppealsReviewed  FellowshipSuspensionAppeal[]   @relation("FellowshipSuspensionReviewer")
   fellowshipsCreated         Fellowship[]                   @relation("FellowshipCreator")
   shopPurchases              UserShopPurchase[]
   verseNotes                 UserVerseNote[]
@@ -651,6 +668,7 @@ model Fellowship {
   joinRequests        FellowshipJoinRequest[]
   leadershipTransfers FellowshipLeadershipTransfer[]
   dissolutions        FellowshipDissolution[]
+  suspensions         FellowshipSuspension[]
 
   @@index([isPublic, name])
   @@index([createdById])
@@ -721,6 +739,46 @@ model FellowshipDissolution {
   initiatedBy          User                        @relation("FellowshipDissolutionInitiator", fields: [initiatedById], references: [id], onDelete: Restrict)
 
   @@index([fellowshipId, status, createdAt(sort: Desc)])
+}
+
+/// Stores reversible platform enforcement without deleting Fellowship history.
+model FellowshipSuspension {
+  id                String                      @id @default(cuid())
+  fellowshipId      String
+  suspendedById     String
+  reason            String
+  status            FellowshipSuspensionStatus  @default(ACTIVE)
+  createdAt         DateTime                    @default(now())
+  appealDeadline    DateTime
+  restoredAt        DateTime?
+  restoredById      String?
+  restorationReason String?
+  fellowship        Fellowship                  @relation(fields: [fellowshipId], references: [id], onDelete: Restrict)
+  suspendedBy       User                        @relation("FellowshipSuspensionActor", fields: [suspendedById], references: [id], onDelete: Restrict)
+  restoredBy        User?                       @relation("FellowshipSuspensionRestorer", fields: [restoredById], references: [id], onDelete: Restrict)
+  appeal            FellowshipSuspensionAppeal?
+
+  @@index([fellowshipId, status, createdAt(sort: Desc)])
+  @@index([suspendedById, createdAt(sort: Desc)])
+}
+
+/// Allows one leader appeal per suspension and keeps its independent decision.
+model FellowshipSuspensionAppeal {
+  id             String                           @id @default(cuid())
+  suspensionId   String                           @unique
+  appellantId    String
+  statement      String
+  status         FellowshipSuspensionAppealStatus @default(PENDING)
+  submittedAt    DateTime                         @default(now())
+  reviewedAt     DateTime?
+  reviewerId     String?
+  decisionReason String?
+  suspension     FellowshipSuspension             @relation(fields: [suspensionId], references: [id], onDelete: Restrict)
+  appellant      User                             @relation("FellowshipSuspensionAppellant", fields: [appellantId], references: [id], onDelete: Restrict)
+  reviewer       User?                            @relation("FellowshipSuspensionReviewer", fields: [reviewerId], references: [id], onDelete: Restrict)
+
+  @@index([status, submittedAt(sort: Desc)])
+  @@index([appellantId, submittedAt(sort: Desc)])
 }
 
 model ShopItem {

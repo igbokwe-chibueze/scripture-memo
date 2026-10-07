@@ -88,7 +88,10 @@ export function FellowshipDetail({
     (request) => request.status === "PENDING",
   ).length;
   const defaultTab =
-    fellowship.isLeader && pendingRequestCount > 0 ? "requests" : "members";
+    fellowship.isLeader && !fellowship.isSuspended && pendingRequestCount > 0
+      ? "requests"
+      : "members";
+  const canReviewRequests = fellowship.isLeader && !fellowship.isSuspended;
 
   /**
    * Leaves the fellowship through the authorized server action, then returns
@@ -145,7 +148,7 @@ export function FellowshipDetail({
               {t("members", { count: fellowship.memberCount })}
             </span>
 
-            {fellowship.isLeader && !fellowship.governance.isClosing && fellowship.inviteCode && (
+            {fellowship.isLeader && !fellowship.governance.isClosing && !fellowship.isSuspended && fellowship.inviteCode && (
               <FellowshipInvitePanel
                 fellowshipId={fellowship.id}
                 fellowshipName={fellowship.name}
@@ -153,7 +156,7 @@ export function FellowshipDetail({
               />
             )}
 
-            {fellowship.isLeader && !fellowship.governance.isClosing && (
+            {fellowship.isLeader && !fellowship.governance.isClosing && !fellowship.isSuspended && (
               <NavigationButton
                 href={`/fellowships/${fellowship.slug}/edit`}
                 pendingLabel={t("openingSettings")}
@@ -181,7 +184,7 @@ export function FellowshipDetail({
          * `sm`, where all three controls have room without squeezing the text.
          */}
         <TabsList
-          className={`grid h-auto min-h-12 w-full rounded-2xl p-1 ${fellowship.isLeader ? "grid-cols-3" : "grid-cols-2"}`}
+          className={`grid h-auto min-h-12 w-full rounded-2xl p-1 ${canReviewRequests ? "grid-cols-3" : "grid-cols-2"}`}
         >
           <TabsTrigger
             value="members"
@@ -191,7 +194,7 @@ export function FellowshipDetail({
             {t("membersTab")}
           </TabsTrigger>
 
-          {fellowship.isLeader && (
+          {canReviewRequests && (
             <TabsTrigger
               value="requests"
               className="min-h-10 rounded-xl px-1 text-xs font-bold sm:px-3 sm:text-sm"
@@ -292,7 +295,7 @@ export function FellowshipDetail({
           </section>
         </TabsContent>
 
-        {fellowship.isLeader && (
+        {canReviewRequests && (
           <TabsContent value="requests">
             <FellowshipJoinRequestManager
               requests={fellowship.joinRequests}

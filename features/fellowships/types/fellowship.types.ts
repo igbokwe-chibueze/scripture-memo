@@ -9,6 +9,7 @@ export type FellowshipSummary = {
   isLeader: boolean;
   isClosing: boolean;
   closureCancelDeadline: Date | null;
+  isSuspended: boolean;
   insigniaKey: string;
   requestStatus: FellowshipJoinRequestStatus | null;
   requestId: string | null;
@@ -60,6 +61,22 @@ export type FellowshipGovernanceData = {
     isRecipient: boolean;
   } | null;
   transferCandidates: Array<{ membershipId: string; displayName: string }>;
+  suspension: FellowshipSuspensionData | null;
+};
+
+export type FellowshipSuspensionData = {
+  id: string;
+  reason: string;
+  suspendedAt: Date;
+  appealDeadline: Date;
+  appeal: {
+    id: string;
+    statement: string;
+    status: "PENDING" | "RESTORED" | "UPHELD";
+    submittedAt: Date;
+    reviewedAt: Date | null;
+    decisionReason: string | null;
+  } | null;
 };
 
 export type FellowshipModerationItem = {
@@ -75,6 +92,26 @@ export type FellowshipModerationItem = {
     status: "SCHEDULED" | "CANCELLED" | "FORCED";
     createdAt: Date;
     cancellationDeadline: Date | null;
+  } | null;
+  suspension: {
+    id: string;
+    reason: string;
+    status: "ACTIVE" | "RESTORED";
+    createdAt: Date;
+    appealDeadline: Date;
+    suspendedById: string;
+    suspendedByDisplayName: string;
+    appeal: {
+      id: string;
+      appellantDisplayName: string;
+      appellantId: string;
+      statement: string;
+      status: "PENDING" | "RESTORED" | "UPHELD";
+      submittedAt: Date;
+      decisionReason: string | null;
+      reviewedAt: Date | null;
+      reviewerId: string | null;
+    } | null;
   } | null;
 };
 
@@ -112,4 +149,10 @@ export type FellowshipConflictCode =
   | "DISSOLUTION_PENDING"
   | "DISSOLUTION_NOT_CANCELABLE"
   | "NAME_CONFIRMATION_MISMATCH"
-  | "FELLOWSHIP_CLOSED";
+  | "FELLOWSHIP_CLOSED"
+  | "FELLOWSHIP_SUSPENDED"
+  | "SUSPENSION_NOT_FOUND"
+  | "APPEAL_WINDOW_CLOSED"
+  | "APPEAL_ALREADY_SUBMITTED"
+  | "APPEAL_NOT_PENDING"
+  | "APPEAL_REVIEWER_CONFLICT";

@@ -1371,6 +1371,14 @@ Social group system.
 - Super Admins have a separate recovery workspace for reasoned, password-
   reauthenticated emergency leadership transfer or immediate closure. Actions
   are audited; emergency closure preserves Fellowship membership and history.
+- Super Admins may also suspend a Fellowship with a reason, exact-name
+  confirmation, password reauthentication, and an audit entry. Suspension hides
+  it from discovery and blocks new members, invites, edits, closure, and leader
+  changes while existing members retain read access. The current leader may
+  submit one written appeal within 30 days. A different Super Admin must record
+  a reasoned decision to restore or uphold it. An upheld appeal is final; an
+  expired appeal does not restore the Fellowship automatically. A Super Admin
+  may restore an unappealed suspension with a recorded reason.
 - Creation is limited to three fellowships per account per rolling 24 hours to
   reduce spam at the server boundary.
 

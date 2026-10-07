@@ -46,6 +46,11 @@ function FellowshipCard({
           {t("governance.closingBanner")}
         </p>
       )}
+      {fellowship.isSuspended && (
+        <p className="mt-3 rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-sm font-bold text-destructive">
+          {t("governance.suspensionTitle")}
+        </p>
+      )}
       {/* Stack translated actions at the mobile baseline; shared loading
        * controls expose pending work and prevent duplicate mutations. */}
       <div className="mt-5 grid gap-2">

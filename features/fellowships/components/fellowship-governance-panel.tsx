@@ -24,6 +24,7 @@ import {
 import {
   scheduleFellowshipDissolutionAction,
 } from "@/features/fellowships/actions/schedule-fellowship-dissolution.action";
+import { submitFellowshipSuspensionAppealAction } from "@/features/fellowships/actions/submit-fellowship-suspension-appeal.action";
 import type { FellowshipGovernanceData } from "@/features/fellowships/types/fellowship.types";
 
 /**
@@ -101,10 +102,90 @@ export function FellowshipGovernancePanel({
     );
   };
 
-  if (!isLeader && !governance.pendingTransfer?.isRecipient) return null;
+  const submitAppeal = (event: FormEvent<HTMLFormElement>): void => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    runMutation(
+      () =>
+        submitFellowshipSuspensionAppealAction({
+          suspensionId: governance.suspension?.id ?? "",
+          statement: String(formData.get("appealStatement") ?? ""),
+        }),
+      () => form.reset(),
+    );
+  };
+
+  if (
+    !isLeader &&
+    !governance.pendingTransfer?.isRecipient &&
+    !governance.suspension
+  ) return null;
 
   return (
     <section className="mt-6 space-y-4" aria-label={t("sectionTitle")}>
+      {governance.suspension && (
+        <div className="rounded-3xl border border-destructive/30 bg-destructive/5 p-5">
+          <div className="flex items-start gap-3">
+            <ShieldAlertIcon className="mt-1 size-5 shrink-0 text-destructive" aria-hidden="true" />
+            <div className="min-w-0 flex-1 space-y-2">
+              <h2 className="font-heading text-lg font-bold">{t("suspensionTitle")}</h2>
+              <p className="text-sm text-muted-foreground">{t("suspensionDescription")}</p>
+              <p className="text-sm font-semibold">{t("suspensionReason", { reason: governance.suspension.reason })}</p>
+              <p className="text-sm">
+                {t(
+                  governance.suspension.appealDeadline > new Date()
+                    ? "appealDeadline"
+                    : "appealDeadlinePassed",
+                  {
+                    date: new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(
+                      governance.suspension.appealDeadline,
+                    ),
+                  },
+                )}
+              </p>
+              {governance.suspension.appeal ? (
+                <div className="space-y-2 rounded-2xl bg-background/80 p-4">
+                  <p className="font-bold">{t(`appeal${governance.suspension.appeal.status}`)}</p>
+                  {isLeader && (
+                    <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+                      {governance.suspension.appeal.statement}
+                    </p>
+                  )}
+                  {governance.suspension.appeal.decisionReason && (
+                    <p className="text-sm">{t("appealDecisionReason", {
+                      reason: governance.suspension.appeal.decisionReason,
+                    })}</p>
+                  )}
+                </div>
+              ) : isLeader && governance.suspension.appealDeadline > new Date() ? (
+                <form onSubmit={submitAppeal} className="space-y-3 rounded-2xl bg-background/80 p-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="fellowship-suspension-appeal">{t("appealStatement")}</Label>
+                    <textarea
+                      id="fellowship-suspension-appeal"
+                      name="appealStatement"
+                      required
+                      minLength={30}
+                      maxLength={2_000}
+                      className="min-h-32 w-full rounded-xl border bg-background p-3 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                    />
+                  </div>
+                  <LoadingButton
+                    type="submit"
+                    disabled={isPending}
+                    isPending={isPending}
+                    pendingLabel={t("submittingAppeal")}
+                  >
+                    {t("submitAppeal")}
+                  </LoadingButton>
+                </form>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      )}
+      {!governance.suspension && <>
       {governance.isClosing && (
         <div className="rounded-3xl border border-amber-500/35 bg-amber-500/10 p-5">
           <div className="flex items-start gap-3">
@@ -323,6 +404,7 @@ export function FellowshipGovernancePanel({
           </form>
         </div>
       )}
+      </>}
     </section>
   );
 }

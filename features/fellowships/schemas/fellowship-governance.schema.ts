@@ -54,6 +54,35 @@ export const fellowshipModerationSearchSchema = z.object({
   query: z.string().trim().max(50).default(""),
 });
 
+/** Requires a reauthenticated Super Admin and clear suspension reason. */
+export const suspendFellowshipSchema = z.object({
+  fellowshipId,
+  password,
+  confirmationName,
+  reason,
+});
+
+/** Permits one written appeal by the current leader within the 30-day window. */
+export const submitFellowshipSuspensionAppealSchema = z.object({
+  suspensionId: z.string().cuid(),
+  statement: z.string().trim().min(30).max(2_000),
+});
+
+/** Requires a reasoned, reauthenticated Super Admin review decision. */
+export const resolveFellowshipSuspensionAppealSchema = z.object({
+  suspensionId: z.string().cuid(),
+  password,
+  decision: z.enum(["RESTORE", "UPHOLD"]),
+  decisionReason: reason,
+});
+
+/** Allows a Super Admin to restore a case even when the leader did not appeal. */
+export const restoreFellowshipSuspensionSchema = z.object({
+  suspensionId: z.string().cuid(),
+  password,
+  reason,
+});
+
 export type RequestLeadershipTransferInput = z.infer<
   typeof requestLeadershipTransferSchema
 >;

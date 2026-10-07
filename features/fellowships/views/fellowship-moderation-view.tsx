@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export async function FellowshipModerationView({
   searchParams,
 }: Readonly<{ searchParams: Promise<{ q?: string }> }>): Promise<React.ReactNode> {
-  await getSuperAdminSession();
+  const session = await getSuperAdminSession();
   const rawSearch = await searchParams;
   const query = rawSearch.q?.trim().slice(0, 50) ?? "";
   const result = await getFellowshipModerationListAction({
@@ -44,7 +44,7 @@ export async function FellowshipModerationView({
             className="min-h-12 rounded-2xl pl-12"
           />
         </form>
-        <FellowshipModerationManager fellowships={fellowships} />
+        <FellowshipModerationManager fellowships={fellowships} viewerId={session.user.id} />
       </ResponsiveContainer>
     </main>
   );

@@ -8,6 +8,7 @@ import type {
 
 const transactionOptions = { maxWait: 10_000, timeout: 30_000 } as const;
 const DISSOLUTION_GRACE_PERIOD_MS = 7 * 24 * 60 * 60 * 1000;
+const SUSPENSION_APPEAL_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
 
 /** Carries safe, stable Fellowship conditions back to the Server Action layer. */
 export class FellowshipGovernanceError extends Error {
@@ -74,6 +75,7 @@ export const fellowshipGovernanceRepository = {
           dissolutions: {
             none: { status: { in: ["SCHEDULED", "FORCED"] } },
           },
+          suspensions: { none: { status: "ACTIVE" } },
         },
         select: { slug: true, name: true },
       });
@@ -153,6 +155,7 @@ export const fellowshipGovernanceRepository = {
             dissolutions: {
               none: { status: { in: ["SCHEDULED", "FORCED"] } },
             },
+            suspensions: { none: { status: "ACTIVE" } },
           },
         },
         select: {
@@ -257,7 +260,10 @@ export const fellowshipGovernanceRepository = {
           id: transferId,
           status: "PENDING",
           fromLeaderId: leaderId,
-          fellowship: { createdById: leaderId },
+          fellowship: {
+            createdById: leaderId,
+            suspensions: { none: { status: "ACTIVE" } },
+          },
         },
         select: {
           id: true,
@@ -300,6 +306,7 @@ export const fellowshipGovernanceRepository = {
           dissolutions: {
             none: { status: { in: ["SCHEDULED", "FORCED"] } },
           },
+          suspensions: { none: { status: "ACTIVE" } },
         },
         select: {
           slug: true,
@@ -481,6 +488,455 @@ export const fellowshipGovernanceRepository = {
     }, transactionOptions);
   },
 
+  /**
+   * Starts a non-destructive platform suspension. The Fellowship advisory lock
+   * serializes this transition against joins, closure, and leadership changes;
+   * the partial unique index is the final guard against two active cases. One
+   * transaction stores the case and deadline, cancels pending requests/offers,
+   * updates the parent row, records the reason in the audit log, and notifies
+   * current members. It deliberately does not remove memberships or progress.
+   */
+  async suspendFellowship(input: {
+    adminId: string;
+    fellowshipId: string;
+    confirmationName: string;
+    reason: string;
+  }): Promise<{ slug: string; name: string; suspensionId: string }> {
+    return prisma.$transaction(async (transaction) => {
+      await lockFellowship(transaction, input.fellowshipId);
+      const existingSuspension = await transaction.fellowshipSuspension.findFirst({
+        where: { fellowshipId: input.fellowshipId, status: "ACTIVE" },
+        select: { id: true },
+      });
+      if (existingSuspension) {
+        throw new FellowshipGovernanceError("FELLOWSHIP_SUSPENDED");
+      }
+      const fellowship = await transaction.fellowship.findFirst({
+        where: {
+          id: input.fellowshipId,
+          dissolutions: { none: { status: { in: ["SCHEDULED", "FORCED"] } } },
+          suspensions: { none: { status: "ACTIVE" } },
+        },
+        select: {
+          slug: true,
+          name: true,
+          members: { select: { userId: true } },
+          joinRequests: {
+            where: { status: "PENDING" },
+            select: { userId: true },
+          },
+        },
+      });
+      if (!fellowship) {
+        throw new FellowshipGovernanceError("FELLOWSHIP_CLOSED");
+      }
+      if (fellowship.name !== input.confirmationName) {
+        throw new FellowshipGovernanceError("NAME_CONFIRMATION_MISMATCH");
+      }
+
+      const now = new Date();
+      const appealDeadline = new Date(
+        now.getTime() + SUSPENSION_APPEAL_WINDOW_MS,
+      );
+      const suspension = await transaction.fellowshipSuspension.create({
+        data: {
+          fellowshipId: input.fellowshipId,
+          suspendedById: input.adminId,
+          reason: input.reason,
+          createdAt: now,
+          appealDeadline,
+        },
+        select: { id: true },
+      });
+      const pendingTransfers =
+        await transaction.fellowshipLeadershipTransfer.findMany({
+          where: { fellowshipId: input.fellowshipId, status: "PENDING" },
+          select: { id: true, fromLeaderId: true, targetUserId: true },
+        });
+      await transaction.fellowshipLeadershipTransfer.updateMany({
+        where: { fellowshipId: input.fellowshipId, status: "PENDING" },
+        data: { status: "CANCELLED", resolvedAt: now },
+      });
+      await transaction.fellowshipJoinRequest.updateMany({
+        where: { fellowshipId: input.fellowshipId, status: "PENDING" },
+        data: { status: "CANCELLED", resolvedAt: now },
+      });
+      await transaction.fellowship.update({
+        where: { id: input.fellowshipId },
+        data: { updatedAt: now },
+      });
+
+      if (pendingTransfers.length > 0) {
+        await transaction.userNotification.createMany({
+          data: pendingTransfers.flatMap((transfer) =>
+            Array.from(
+              new Set([transfer.fromLeaderId, transfer.targetUserId]),
+              (userId) => ({
+                userId,
+                type: UserNotificationType.FELLOWSHIP_LEADERSHIP,
+                dedupeKey: `fellowship-transfer-suspended:${transfer.id}:${userId}`,
+                payload: {
+                  event: "CANCELLED",
+                  fellowshipSlug: fellowship.slug,
+                  fellowshipName: fellowship.name,
+                },
+              }),
+            ),
+          ),
+        });
+      }
+
+      await transaction.auditLog.create({
+        data: {
+          actorId: input.adminId,
+          action: "FELLOWSHIP_SUSPENDED",
+          entityType: "Fellowship",
+          entityId: input.fellowshipId,
+          metadata: {
+            suspensionId: suspension.id,
+            reason: input.reason,
+            appealDeadline: appealDeadline.toISOString(),
+          },
+        },
+      });
+      const affectedUserIds = new Set([
+        ...fellowship.members.map((member) => member.userId),
+      ]);
+      await transaction.userNotification.createMany({
+        data: Array.from(affectedUserIds, (userId) => ({
+          userId,
+          type: UserNotificationType.FELLOWSHIP_SUSPENSION,
+          dedupeKey: `fellowship-suspended:${suspension.id}:${userId}`,
+          payload: {
+            event: "SUSPENDED",
+            fellowshipSlug: fellowship.slug,
+            fellowshipName: fellowship.name,
+          },
+        })),
+      });
+
+      return { ...fellowship, suspensionId: suspension.id };
+    }, transactionOptions);
+  },
+
+  /**
+   * Accepts one appeal from the leader who owns the Fellowship when they submit.
+   * The database uniqueness constraint enforces one appeal per suspension, and
+   * the locked lookup checks that the case is still active and the stored
+   * 30-day deadline has not elapsed. The appeal statement remains visible only
+   * to the appellant and authorized Super Admin review screens; notices omit it.
+   */
+  async submitSuspensionAppeal(
+    leaderId: string,
+    suspensionId: string,
+    statement: string,
+  ): Promise<{ slug: string; name: string }> {
+    return prisma.$transaction(async (transaction) => {
+      const initial = await transaction.fellowshipSuspension.findUnique({
+        where: { id: suspensionId },
+        select: { fellowshipId: true },
+      });
+      if (!initial) {
+        throw new FellowshipGovernanceError("SUSPENSION_NOT_FOUND");
+      }
+      await lockFellowship(transaction, initial.fellowshipId);
+
+      const suspension = await transaction.fellowshipSuspension.findFirst({
+        where: {
+          id: suspensionId,
+          status: "ACTIVE",
+          appealDeadline: { gt: new Date() },
+          fellowship: { createdById: leaderId },
+        },
+        select: {
+          id: true,
+          appealDeadline: true,
+          suspendedById: true,
+          appeal: { select: { id: true } },
+          fellowship: { select: { slug: true, name: true } },
+        },
+      });
+      if (!suspension) {
+        throw new FellowshipGovernanceError("APPEAL_WINDOW_CLOSED");
+      }
+      if (suspension.appeal) {
+        throw new FellowshipGovernanceError("APPEAL_ALREADY_SUBMITTED");
+      }
+
+      const appeal = await transaction.fellowshipSuspensionAppeal.create({
+        data: {
+          suspensionId: suspension.id,
+          appellantId: leaderId,
+          statement,
+        },
+        select: { id: true },
+      });
+      const reviewers = await transaction.user.findMany({
+        where: {
+          role: "SUPER_ADMIN",
+          suspendedAt: null,
+          id: { notIn: [leaderId, suspension.suspendedById] },
+        },
+        select: { id: true },
+      });
+      await transaction.userNotification.createMany({
+        data: reviewers.map((reviewer) => ({
+          userId: reviewer.id,
+          type: UserNotificationType.FELLOWSHIP_APPEAL,
+          dedupeKey: `fellowship-appeal-submitted:${appeal.id}:${reviewer.id}`,
+          payload: {
+            event: "SUBMITTED",
+            fellowshipSlug: suspension.fellowship.slug,
+            fellowshipName: suspension.fellowship.name,
+          },
+        })),
+      });
+      await transaction.auditLog.create({
+        data: {
+          actorId: leaderId,
+          action: "FELLOWSHIP_SUSPENSION_APPEAL_SUBMITTED",
+          entityType: "FellowshipSuspensionAppeal",
+          entityId: appeal.id,
+          metadata: { suspensionId: suspension.id },
+        },
+      });
+
+      return suspension.fellowship;
+    }, transactionOptions);
+  },
+
+  /**
+   * Atomically resolves a pending appeal. The moderator must be a Super Admin
+   * at the action boundary and must differ from both the suspending admin and
+   * appellant. Upholding leaves the suspension active permanently; restoration
+   * changes both records. The reason, decision, and notices commit together.
+   */
+  async resolveSuspensionAppeal(input: {
+    adminId: string;
+    suspensionId: string;
+    decision: "RESTORE" | "UPHOLD";
+    decisionReason: string;
+  }): Promise<{ slug: string; name: string; restored: boolean }> {
+    return prisma.$transaction(async (transaction) => {
+      const initial = await transaction.fellowshipSuspension.findUnique({
+        where: { id: input.suspensionId },
+        select: { fellowshipId: true },
+      });
+      if (!initial) {
+        throw new FellowshipGovernanceError("SUSPENSION_NOT_FOUND");
+      }
+      await lockFellowship(transaction, initial.fellowshipId);
+
+      const suspension = await transaction.fellowshipSuspension.findFirst({
+        where: {
+          id: input.suspensionId,
+          status: "ACTIVE",
+          appeal: { is: { status: "PENDING" } },
+        },
+        select: {
+          id: true,
+          suspendedById: true,
+          fellowshipId: true,
+          appeal: {
+            select: { id: true, appellantId: true },
+          },
+          fellowship: {
+            select: {
+              slug: true,
+              name: true,
+              members: { select: { userId: true } },
+            },
+          },
+        },
+      });
+      if (!suspension?.appeal) {
+        throw new FellowshipGovernanceError("APPEAL_NOT_PENDING");
+      }
+      if (
+        input.adminId === suspension.suspendedById ||
+        input.adminId === suspension.appeal.appellantId
+      ) {
+        throw new FellowshipGovernanceError("APPEAL_REVIEWER_CONFLICT");
+      }
+
+      const now = new Date();
+      const restores = input.decision === "RESTORE";
+      await transaction.fellowshipSuspensionAppeal.update({
+        where: { id: suspension.appeal.id },
+        data: {
+          status: restores ? "RESTORED" : "UPHELD",
+          reviewedAt: now,
+          reviewerId: input.adminId,
+          decisionReason: input.decisionReason,
+        },
+      });
+      if (restores) {
+        await transaction.fellowshipSuspension.update({
+          where: { id: suspension.id },
+          data: {
+            status: "RESTORED",
+            restoredAt: now,
+            restoredById: input.adminId,
+            restorationReason: input.decisionReason,
+          },
+        });
+      }
+
+      await transaction.auditLog.create({
+        data: {
+          actorId: input.adminId,
+          action: restores
+            ? "FELLOWSHIP_SUSPENSION_APPEAL_RESTORED"
+            : "FELLOWSHIP_SUSPENSION_APPEAL_UPHELD",
+          entityType: "FellowshipSuspensionAppeal",
+          entityId: suspension.appeal.id,
+          metadata: {
+            suspensionId: suspension.id,
+            decisionReason: input.decisionReason,
+          },
+        },
+      });
+      if (restores) {
+        await transaction.userNotification.createMany({
+          data: suspension.fellowship.members.map((member) => ({
+            userId: member.userId,
+            type: UserNotificationType.FELLOWSHIP_SUSPENSION,
+            dedupeKey: `fellowship-restored:${suspension.id}:${member.userId}`,
+            payload: {
+              event: "RESTORED",
+              fellowshipSlug: suspension.fellowship.slug,
+              fellowshipName: suspension.fellowship.name,
+            },
+          })),
+        });
+      }
+      await createNotice(transaction, {
+        userId: suspension.appeal.appellantId,
+        type: UserNotificationType.FELLOWSHIP_APPEAL,
+        dedupeKey: `fellowship-appeal-decision:${suspension.appeal.id}:${suspension.appeal.appellantId}`,
+        payload: {
+          event: restores ? "RESTORED" : "UPHELD",
+          fellowshipSlug: suspension.fellowship.slug,
+          fellowshipName: suspension.fellowship.name,
+        },
+      });
+
+      return { ...suspension.fellowship, restored: restores };
+    }, transactionOptions);
+  },
+
+  /**
+   * Restores an active case with a reasoned Super Admin action. When an appeal
+   * is pending, this path applies the same independent-review rule and closes
+   * the appeal as restored in the same transaction. It refuses upheld appeals,
+   * preventing an alternate restore endpoint from bypassing finality.
+   */
+  async restoreSuspension(input: {
+    adminId: string;
+    suspensionId: string;
+    reason: string;
+  }): Promise<{ slug: string; name: string }> {
+    return prisma.$transaction(async (transaction) => {
+      const initial = await transaction.fellowshipSuspension.findUnique({
+        where: { id: input.suspensionId },
+        select: { fellowshipId: true },
+      });
+      if (!initial) {
+        throw new FellowshipGovernanceError("SUSPENSION_NOT_FOUND");
+      }
+      await lockFellowship(transaction, initial.fellowshipId);
+
+      const suspension = await transaction.fellowshipSuspension.findFirst({
+        where: { id: input.suspensionId, status: "ACTIVE" },
+        select: {
+          id: true,
+          suspendedById: true,
+          appeal: { select: { id: true, appellantId: true, status: true } },
+          fellowship: {
+            select: {
+              id: true,
+              slug: true,
+              name: true,
+              members: { select: { userId: true } },
+            },
+          },
+        },
+      });
+      if (!suspension) {
+        throw new FellowshipGovernanceError("SUSPENSION_NOT_FOUND");
+      }
+      if (suspension.appeal?.status === "UPHELD") {
+        throw new FellowshipGovernanceError("APPEAL_NOT_PENDING");
+      }
+      if (
+        suspension.appeal?.status === "PENDING" &&
+        (input.adminId === suspension.suspendedById ||
+          input.adminId === suspension.appeal.appellantId)
+      ) {
+        throw new FellowshipGovernanceError("APPEAL_REVIEWER_CONFLICT");
+      }
+
+      const now = new Date();
+      await transaction.fellowshipSuspension.update({
+        where: { id: suspension.id },
+        data: {
+          status: "RESTORED",
+          restoredAt: now,
+          restoredById: input.adminId,
+          restorationReason: input.reason,
+        },
+      });
+      if (suspension.appeal?.status === "PENDING") {
+        await transaction.fellowshipSuspensionAppeal.update({
+          where: { id: suspension.appeal.id },
+          data: {
+            status: "RESTORED",
+            reviewedAt: now,
+            reviewerId: input.adminId,
+            decisionReason: input.reason,
+          },
+        });
+      }
+      await transaction.auditLog.create({
+        data: {
+          actorId: input.adminId,
+          action: "FELLOWSHIP_SUSPENSION_RESTORED",
+          entityType: "FellowshipSuspension",
+          entityId: suspension.id,
+          metadata: {
+            reason: input.reason,
+            appealId: suspension.appeal?.id ?? null,
+          },
+        },
+      });
+      await transaction.userNotification.createMany({
+        data: suspension.fellowship.members.map((member) => ({
+          userId: member.userId,
+          type: UserNotificationType.FELLOWSHIP_SUSPENSION,
+          dedupeKey: `fellowship-restored:${suspension.id}:${member.userId}`,
+          payload: {
+            event: "RESTORED",
+            fellowshipSlug: suspension.fellowship.slug,
+            fellowshipName: suspension.fellowship.name,
+          },
+        })),
+      });
+      if (suspension.appeal?.status === "PENDING") {
+        await createNotice(transaction, {
+          userId: suspension.appeal.appellantId,
+          type: UserNotificationType.FELLOWSHIP_APPEAL,
+          dedupeKey: `fellowship-appeal-decision:${suspension.appeal.id}:${suspension.appeal.appellantId}`,
+          payload: {
+            event: "RESTORED",
+            fellowshipSlug: suspension.fellowship.slug,
+            fellowshipName: suspension.fellowship.name,
+          },
+        });
+      }
+      return suspension.fellowship;
+    }, transactionOptions);
+  },
+
   /** Performs reasoned, immediate leadership recovery for a Super Admin. */
   async emergencyTransferLeadership(input: {
     adminId: string;
@@ -497,6 +953,7 @@ export const fellowshipGovernanceRepository = {
           dissolutions: {
             none: { status: { in: ["SCHEDULED", "FORCED"] } },
           },
+          suspensions: { none: { status: "ACTIVE" } },
         },
         select: { slug: true, name: true, createdById: true },
       });
@@ -591,6 +1048,7 @@ export const fellowshipGovernanceRepository = {
           dissolutions: {
             none: { status: { in: ["SCHEDULED", "FORCED"] } },
           },
+          suspensions: { none: { status: "ACTIVE" } },
         },
         select: {
           slug: true,
@@ -725,6 +1183,36 @@ export const fellowshipGovernanceRepository = {
             cancellationDeadline: true,
           },
         },
+        suspensions: {
+          orderBy: { createdAt: "desc" },
+          take: 1,
+          select: {
+            id: true,
+            reason: true,
+            status: true,
+            createdAt: true,
+            appealDeadline: true,
+            suspendedById: true,
+            suspendedBy: {
+              select: { profile: { select: { displayName: true } } },
+            },
+            appeal: {
+              select: {
+                id: true,
+                appellantId: true,
+                statement: true,
+                status: true,
+                submittedAt: true,
+                reviewedAt: true,
+                decisionReason: true,
+                reviewerId: true,
+                appellant: {
+                  select: { profile: { select: { displayName: true } } },
+                },
+              },
+            },
+          },
+        },
       },
     });
 
@@ -749,6 +1237,32 @@ export const fellowshipGovernanceRepository = {
             status: row.dissolutions[0].status,
             createdAt: row.dissolutions[0].createdAt,
             cancellationDeadline: row.dissolutions[0].cancellationDeadline,
+          }
+        : null,
+      suspension: row.suspensions[0]
+        ? {
+            id: row.suspensions[0].id,
+            reason: row.suspensions[0].reason,
+            status: row.suspensions[0].status,
+            createdAt: row.suspensions[0].createdAt,
+            appealDeadline: row.suspensions[0].appealDeadline,
+            suspendedById: row.suspensions[0].suspendedById,
+            suspendedByDisplayName:
+              row.suspensions[0].suspendedBy.profile?.displayName ?? "Player",
+            appeal: row.suspensions[0].appeal
+              ? {
+                  id: row.suspensions[0].appeal.id,
+                  appellantDisplayName:
+                    row.suspensions[0].appeal.appellant.profile?.displayName ?? "Player",
+                  appellantId: row.suspensions[0].appeal.appellantId,
+                  statement: row.suspensions[0].appeal.statement,
+                  status: row.suspensions[0].appeal.status,
+                  submittedAt: row.suspensions[0].appeal.submittedAt,
+                  decisionReason: row.suspensions[0].appeal.decisionReason,
+                  reviewedAt: row.suspensions[0].appeal.reviewedAt,
+                  reviewerId: row.suspensions[0].appeal.reviewerId,
+                }
+              : null,
           }
         : null,
     }));

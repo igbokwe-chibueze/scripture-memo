@@ -64,6 +64,19 @@ function fellowshipNoticeKey(item: NotificationItem): string | null {
       default: return "closureUpdate";
     }
   }
+  if (item.type === "FELLOWSHIP_SUSPENSION") {
+    return item.payload.event === "RESTORED"
+      ? "suspensionRestored"
+      : "suspensionStarted";
+  }
+  if (item.type === "FELLOWSHIP_APPEAL") {
+    switch (item.payload.event) {
+      case "SUBMITTED": return "appealSubmitted";
+      case "RESTORED": return "appealAccepted";
+      case "UPHELD": return "appealDenied";
+      default: return null;
+    }
+  }
   return null;
 }
 
@@ -161,7 +174,9 @@ export function NotificationInbox({
 
     if (
       (item.type === "FELLOWSHIP_LEADERSHIP" ||
-        item.type === "FELLOWSHIP_CLOSING") &&
+        item.type === "FELLOWSHIP_CLOSING" ||
+        item.type === "FELLOWSHIP_SUSPENSION" ||
+        item.type === "FELLOWSHIP_APPEAL") &&
       typeof item.payload.fellowshipSlug === "string"
     ) {
       setSheetOpen(false);
@@ -258,7 +273,9 @@ export function NotificationInbox({
                       ? AwardIcon
                       : item.type === "FELLOWSHIP_LEADERSHIP"
                         ? UsersRoundIcon
-                        : item.type === "FELLOWSHIP_CLOSING"
+                        : item.type === "FELLOWSHIP_CLOSING" ||
+                            item.type === "FELLOWSHIP_SUSPENSION" ||
+                            item.type === "FELLOWSHIP_APPEAL"
                           ? ShieldAlertIcon
                       : itemOutcome === "promoted"
                       ? TrendingUpIcon

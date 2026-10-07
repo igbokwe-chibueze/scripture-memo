@@ -4,8 +4,11 @@ import test from "node:test";
 import {
   emergencyFellowshipActionSchema,
   requestLeadershipTransferSchema,
+  resolveFellowshipSuspensionAppealSchema,
   respondLeadershipTransferSchema,
   scheduleFellowshipDissolutionSchema,
+  submitFellowshipSuspensionAppealSchema,
+  suspendFellowshipSchema,
 } from "./fellowship-governance.schema";
 
 const fellowshipId = "cm12345678901234567890123";
@@ -71,6 +74,53 @@ test("emergency actions require a reason and reauthentication", () => {
   assert.equal(emergencyFellowshipActionSchema.safeParse(valid).success, true);
   assert.equal(
     emergencyFellowshipActionSchema.safeParse({ ...valid, reason: "Urgent" }).success,
+    false,
+  );
+});
+
+test("suspension requires exact-name confirmation, password, and a reason", () => {
+  const valid = {
+    fellowshipId,
+    password,
+    confirmationName: "Faith Circle",
+    reason: "The community needs a documented safety review.",
+  };
+  assert.equal(suspendFellowshipSchema.safeParse(valid).success, true);
+  assert.equal(suspendFellowshipSchema.safeParse({ ...valid, reason: "Urgent" }).success, false);
+  assert.equal(suspendFellowshipSchema.safeParse({ ...valid, confirmationName: "" }).success, false);
+});
+
+test("suspension appeals require one substantial statement", () => {
+  assert.equal(
+    submitFellowshipSuspensionAppealSchema.safeParse({
+      suspensionId: memberId,
+      statement: "Please review the suspension and consider the new information.",
+    }).success,
+    true,
+  );
+  assert.equal(
+    submitFellowshipSuspensionAppealSchema.safeParse({
+      suspensionId: memberId,
+      statement: "Too short",
+    }).success,
+    false,
+  );
+});
+
+test("appeal decisions require a password, supported outcome, and recorded reason", () => {
+  const valid = {
+    suspensionId: memberId,
+    password,
+    decision: "UPHOLD",
+    decisionReason: "The reviewed evidence supports the original suspension.",
+  };
+  assert.equal(resolveFellowshipSuspensionAppealSchema.safeParse(valid).success, true);
+  assert.equal(
+    resolveFellowshipSuspensionAppealSchema.safeParse({ ...valid, decision: "DEFER" }).success,
+    false,
+  );
+  assert.equal(
+    resolveFellowshipSuspensionAppealSchema.safeParse({ ...valid, decisionReason: "No" }).success,
     false,
   );
 });

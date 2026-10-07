@@ -4346,3 +4346,25 @@ concurrency subtests remain explicitly skipped as documented above.
 - The owner confirmed the category and rarity filters fit correctly and badge
   cards show their full contents at 320px after the narrow-screen layout fix.
   The check passed.
+
+### 2026-10-06 - Fellowship suspension and appeal
+
+- Added durable suspension and appeal records. Super Admin suspension requires
+  password reauthentication, exact Fellowship-name confirmation, and a reason.
+  It cancels pending joins and leadership offers while retaining membership,
+  learning history, and an auditable status record.
+- Active Fellowships remain readable to existing members but are excluded from
+  discovery and invites; joins, leader edits, transfer, closure, and leaderboard
+  selection are blocked at repository boundaries.
+- The current leader may submit one written appeal within 30 days. A different
+  Super Admin must reauthenticate and record a reasoned restore/uphold decision.
+  An upheld appeal is final. Expiration does not restore the Fellowship; an
+  unappealed suspension can be restored by a reasoned, reauthenticated Super
+  Admin action.
+- Added localized player suspension and appeal notices, a Super Admin
+  moderation panel, notification events, and schema validation coverage.
+- Prisma validation, TypeScript, focused ESLint, 13 Fellowship schema tests,
+  and locale parity pass. The additive migration was applied successfully to
+  the local development database at `localhost:51214`; no hosted database was
+  accessed. Isolated database-backed integration and browser acceptance remain
+  to be completed.

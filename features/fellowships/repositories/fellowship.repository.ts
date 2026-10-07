@@ -40,6 +40,7 @@ export const fellowshipRepository = {
       where: {
         inviteCode,
         dissolutions: { none: { status: { in: ["SCHEDULED", "FORCED"] } } },
+        suspensions: { none: { status: "ACTIVE" } },
       },
       select: {
         id: true,
@@ -100,12 +101,18 @@ export const fellowshipRepository = {
             take: 1,
             select: { cancellationDeadline: true },
           },
+          suspensions: {
+            where: { status: "ACTIVE" },
+            take: 1,
+            select: { id: true },
+          },
         },
       }),
       prisma.fellowship.findMany({
         where: {
           members: { none: { userId } },
           dissolutions: { none: { status: { in: ["SCHEDULED", "FORCED"] } } },
+          suspensions: { none: { status: "ACTIVE" } },
           ...(normalizedSearch ? { name: { contains: normalizedSearch, mode: "insensitive" } } : {}),
         },
         orderBy: [{ members: { _count: "desc" } }, { name: "asc" }],
@@ -113,8 +120,38 @@ export const fellowshipRepository = {
         include: { _count: { select: { members: true } }, joinRequests: { where: { userId }, select: { id: true, status: true }, take: 1 } },
       }),
     ]);
-    const memberMap = (item: (typeof memberships)[number]) => ({ id: item.id, slug: item.slug, name: item.name, description: item.description, isPublic: item.isPublic, memberCount: item._count.members, isMember: true, isLeader: item.createdById === userId, isClosing: item.dissolutions.length > 0, closureCancelDeadline: item.dissolutions[0]?.cancellationDeadline ?? null, insigniaKey: item.insigniaKey, requestStatus: null, requestId: null });
-    const discoveryMap = (item: (typeof discoverableFellowships)[number]) => ({ id: item.id, slug: item.slug, name: item.name, description: item.description, isPublic: item.isPublic, memberCount: item._count.members, isMember: false, isLeader: false, isClosing: false, closureCancelDeadline: null, insigniaKey: item.insigniaKey, requestStatus: item.joinRequests[0]?.status ?? null, requestId: item.joinRequests[0]?.id ?? null });
+    const memberMap = (item: (typeof memberships)[number]) => ({
+      id: item.id,
+      slug: item.slug,
+      name: item.name,
+      description: item.description,
+      isPublic: item.isPublic,
+      memberCount: item._count.members,
+      isMember: true,
+      isLeader: item.createdById === userId,
+      isClosing: item.dissolutions.length > 0,
+      closureCancelDeadline: item.dissolutions[0]?.cancellationDeadline ?? null,
+      isSuspended: item.suspensions.length > 0,
+      insigniaKey: item.insigniaKey,
+      requestStatus: null,
+      requestId: null,
+    });
+    const discoveryMap = (item: (typeof discoverableFellowships)[number]) => ({
+      id: item.id,
+      slug: item.slug,
+      name: item.name,
+      description: item.description,
+      isPublic: item.isPublic,
+      memberCount: item._count.members,
+      isMember: false,
+      isLeader: false,
+      isClosing: false,
+      closureCancelDeadline: null,
+      isSuspended: false,
+      insigniaKey: item.insigniaKey,
+      requestStatus: item.joinRequests[0]?.status ?? null,
+      requestId: item.joinRequests[0]?.id ?? null,
+    });
     return { memberships: memberships.map(memberMap), discoverableFellowships: discoverableFellowships.map(discoveryMap) };
   },
 
@@ -132,6 +169,7 @@ export const fellowshipRepository = {
           {
             isPublic: true,
             dissolutions: { none: { status: { in: ["SCHEDULED", "FORCED"] } } },
+            suspensions: { none: { status: "ACTIVE" } },
           },
           {
             members: { some: { userId } },
@@ -211,6 +249,28 @@ export const fellowshipRepository = {
           take: 1,
           select: { id: true, cancellationDeadline: true },
         },
+        suspensions: {
+          where: { status: "ACTIVE" },
+          orderBy: { createdAt: "desc" },
+          take: 1,
+          select: {
+            id: true,
+            reason: true,
+            createdAt: true,
+            appealDeadline: true,
+            appeal: {
+              select: {
+                id: true,
+                appellantId: true,
+                statement: true,
+                status: true,
+                submittedAt: true,
+                reviewedAt: true,
+                decisionReason: true,
+              },
+            },
+          },
+        },
         leadershipTransfers: {
           where: { status: "PENDING", OR: [{ fromLeaderId: userId }, { targetUserId: userId }] },
           orderBy: { requestedAt: "desc" },
@@ -226,7 +286,8 @@ export const fellowshipRepository = {
     });
     if (!fellowship) return null;
     const isMember = fellowship.members.some((member) => member.userId === userId);
-    if (!fellowship.isPublic && !isMember) return null;
+    const activeSuspension = fellowship.suspensions[0] ?? null;
+    if ((!fellowship.isPublic || activeSuspension) && !isMember) return null;
     const scheduledClosure = fellowship.dissolutions[0] ?? null;
     if (
       scheduledClosure &&
@@ -257,8 +318,9 @@ export const fellowshipRepository = {
       isLeader,
       isClosing: scheduledClosure !== null,
       closureCancelDeadline: scheduledClosure?.cancellationDeadline ?? null,
+      isSuspended: activeSuspension !== null,
       insigniaKey: fellowship.insigniaKey,
-      inviteCode: isLeader ? fellowship.inviteCode : null,
+      inviteCode: isLeader && !activeSuspension ? fellowship.inviteCode : null,
       requestStatus: null,
       requestId: null,
       members: ranked.map((member, index) => ({
@@ -298,6 +360,7 @@ export const fellowshipRepository = {
             }
           : null,
         transferCandidates: isLeader && !scheduledClosure
+          && !activeSuspension
           ? fellowship.members
               .filter((member) => member.userId !== fellowship.createdById)
               .map((member) => ({
@@ -305,6 +368,24 @@ export const fellowshipRepository = {
                 displayName: member.user.profile?.displayName ?? "Player",
               }))
           : [],
+        suspension: activeSuspension
+          ? {
+              id: activeSuspension.id,
+              reason: activeSuspension.reason,
+              suspendedAt: activeSuspension.createdAt,
+              appealDeadline: activeSuspension.appealDeadline,
+              appeal: activeSuspension.appeal
+                ? {
+                    id: activeSuspension.appeal.id,
+                    statement: isLeader ? activeSuspension.appeal.statement : "",
+                    status: activeSuspension.appeal.status,
+                    submittedAt: activeSuspension.appeal.submittedAt,
+                    reviewedAt: activeSuspension.appeal.reviewedAt,
+                    decisionReason: activeSuspension.appeal.decisionReason,
+                  }
+                : null,
+            }
+          : null,
       },
     };
   },
@@ -333,6 +414,7 @@ export const fellowshipRepository = {
         slug,
         createdById: userId,
         dissolutions: { none: { status: { in: ["SCHEDULED", "FORCED"] } } },
+        suspensions: { none: { status: "ACTIVE" } },
       },
       select: { id: true, slug: true, name: true, description: true, isPublic: true, insigniaKey: true, inviteCode: true },
     });
@@ -347,6 +429,7 @@ export const fellowshipRepository = {
           id: input.fellowshipId,
           createdById: userId,
           dissolutions: { none: { status: { in: ["SCHEDULED", "FORCED"] } } },
+          suspensions: { none: { status: "ACTIVE" } },
         },
         select: { slug: true },
       });
@@ -372,6 +455,7 @@ export const fellowshipRepository = {
           id: fellowshipId,
           isPublic: true,
           dissolutions: { none: { status: { in: ["SCHEDULED", "FORCED"] } } },
+          suspensions: { none: { status: "ACTIVE" } },
         },
         select: { id: true, slug: true },
       });
@@ -393,6 +477,7 @@ export const fellowshipRepository = {
           id: fellowshipId,
           createdById: userId,
           dissolutions: { none: { status: { in: ["SCHEDULED", "FORCED"] } } },
+          suspensions: { none: { status: "ACTIVE" } },
         },
         select: { slug: true },
       });
@@ -408,6 +493,7 @@ export const fellowshipRepository = {
       where: {
         inviteCode,
         dissolutions: { none: { status: { in: ["SCHEDULED", "FORCED"] } } },
+        suspensions: { none: { status: "ACTIVE" } },
       },
       select: { id: true, slug: true, isPublic: true },
     });
@@ -425,6 +511,7 @@ export const fellowshipRepository = {
           id: fellowshipId,
           isPublic: false,
           dissolutions: { none: { status: { in: ["SCHEDULED", "FORCED"] } } },
+          suspensions: { none: { status: "ACTIVE" } },
         },
         select: { slug: true },
       });
@@ -477,6 +564,7 @@ export const fellowshipRepository = {
           fellowship: {
             createdById: leaderId,
             dissolutions: { none: { status: { in: ["SCHEDULED", "FORCED"] } } },
+            suspensions: { none: { status: "ACTIVE" } },
           },
         },
         select: {
@@ -501,6 +589,7 @@ export const fellowshipRepository = {
         where: {
           id: fellowshipId,
           dissolutions: { none: { status: { in: ["SCHEDULED", "FORCED"] } } },
+          suspensions: { none: { status: "ACTIVE" } },
         },
         select: { slug: true },
       });

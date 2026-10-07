@@ -1405,12 +1405,23 @@ closure, and Super Admin emergency recovery are implemented. Pending offers
 require acceptance by an existing member; closure immediately disables access
 and is cancellable for seven days. Emergency actions require a Super Admin,
 password reauthentication, exact Fellowship-name confirmation, and an audit
-reason. Membership and history remain stored. Local automated checks are being
-completed: TypeScript, ESLint, production build, 10 Fellowship schema tests,
-and locale parity pass. The migration is applied to the existing local
-development database. The isolated integration listener at `localhost:51224`
-was unavailable, so database integration coverage remains pending alongside
-the consolidated browser acceptance.
+reason. Membership and history remain stored. The existing local-development
+migration is applied. TypeScript, focused ESLint, 13 Fellowship schema tests,
+Prisma validation, and locale parity pass. The isolated integration listener at
+`localhost:51224` was unavailable during earlier governance work, so database
+integration coverage remains pending alongside consolidated browser acceptance.
+
+**Suspension and appeal extension (2026-10-06):** Implemented additive
+Fellowship suspension records, one written leader appeal per suspension with a
+30-day deadline, independent Super Admin review, final upheld decisions,
+reasoned Super Admin restoration, and audit/notification history. Active
+suspensions preserve member read access but block discovery, invitations,
+joins, edits, closure, and leadership changes. The deadline does not restore a
+Fellowship automatically. Prisma validation, TypeScript, focused ESLint, 13
+Fellowship schema tests, and locale parity pass. The additive migration targets
+only the existing local development database at `localhost:51214`; it has been
+applied. Isolated database integration coverage and one consolidated browser
+acceptance pass remain pending.
 
 ---
 
