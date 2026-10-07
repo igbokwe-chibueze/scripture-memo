@@ -48,10 +48,10 @@ const ADMIN_DESTINATIONS = [
   },
   {
     href: "/admin/fellowships",
-    label: "Fellowship recovery",
-    description: "Transfer leadership or close a Fellowship in an emergency.",
+    label: "Fellowships",
+    description:
+      "Review Fellowships and their case histories. Governance actions are limited to Super Admins.",
     icon: UsersIcon,
-    superAdminOnly: true,
   },
   {
     href: "/admin/waypoints",

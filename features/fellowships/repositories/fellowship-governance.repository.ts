@@ -1,14 +1,290 @@
 import type { Prisma } from "@/lib/generated/prisma/client";
+import { randomUUID } from "node:crypto";
 import { UserNotificationType } from "@/lib/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import type {
   FellowshipConflictCode,
+  FellowshipModerationListItem,
   FellowshipModerationItem,
+  FellowshipModerationPage,
+  FellowshipModerationStatus,
+  FellowshipGovernanceHistoryEvent,
 } from "@/features/fellowships/types/fellowship.types";
+import type { FellowshipCaseFilters } from "@/features/fellowships/schemas/fellowship-case-filters.schema";
+import type {
+  FellowshipGovernanceCaseDetail,
+  FellowshipGovernanceCasePage,
+} from "@/features/fellowships/types/fellowship-case.types";
 
 const transactionOptions = { maxWait: 10_000, timeout: 30_000 } as const;
 const DISSOLUTION_GRACE_PERIOD_MS = 7 * 24 * 60 * 60 * 1000;
 const SUSPENSION_APPEAL_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
+
+/** Creates a globally unique, sequential case number without a race between admins. */
+async function createGovernanceCase(
+  transaction: Prisma.TransactionClient,
+  input: {
+    kind: "TRANSFER" | "SUSPENSION" | "CLOSURE";
+    currentStatus: string;
+    fellowshipId: string;
+    openedById: string;
+  },
+): Promise<{ id: string; caseNumber: string }> {
+  const created = await transaction.fellowshipGovernanceCase.create({
+    data: {
+      ...input,
+      // WHY: The database sequence is allocated by this insert. A temporary
+      // unique value lets the final human-readable number use that sequence in
+      // the same transaction, while concurrent transactions remain collision-safe.
+      caseNumber: `TEMP-${randomUUID()}`,
+    },
+    select: { id: true, caseSequence: true },
+  });
+  const caseNumber = `FEL-${String(created.caseSequence).padStart(6, "0")}`;
+  await transaction.fellowshipGovernanceCase.update({
+    where: { id: created.id },
+    data: { caseNumber },
+  });
+  return { id: created.id, caseNumber };
+}
+
+/** Writes one immutable audit event and ties it to its searchable case. */
+async function writeCaseAudit(
+  transaction: Prisma.TransactionClient,
+  input: {
+    governanceCaseId: string;
+    actorId: string;
+    action: string;
+    entityType: string;
+    entityId: string;
+    metadata?: Prisma.InputJsonValue;
+  },
+): Promise<void> {
+  await transaction.auditLog.create({
+    data: {
+      ...input,
+      governanceCaseId: input.governanceCaseId,
+    },
+  });
+}
+
+/** Reads only approved explanatory strings from JSON audit metadata. */
+function getCaseEventSummary(metadata: Prisma.JsonValue | null): string | null {
+  if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) {
+    return null;
+  }
+  const values = [metadata.reason, metadata.decisionReason];
+  const summary = values.find((value): value is string => typeof value === "string");
+  if (summary) return summary;
+
+  if (metadata.legacyRecord === true && typeof metadata.status === "string") {
+    return `Historical transfer status recorded as ${metadata.status.toLowerCase()}.`;
+  }
+  if (Array.isArray(metadata.cancelledTransferCaseNumbers)) {
+    const caseNumbers = metadata.cancelledTransferCaseNumbers.filter(
+      (value): value is string => typeof value === "string",
+    );
+    if (caseNumbers.length > 0) {
+      return `Also cancelled pending transfer cases: ${caseNumbers.join(", ")}.`;
+    }
+  }
+  if (typeof metadata.cancellationDeadline === "string") {
+    return `Cancellation deadline: ${metadata.cancellationDeadline}.`;
+  }
+  return null;
+}
+
+/** Turns stable audit action identifiers into readable timeline labels. */
+function formatCaseAction(action: string): string {
+  return action
+    .replace(/^FELLOWSHIP_/, "")
+    .replaceAll("_", " ")
+    .toLowerCase()
+    .replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
+/** Returns one bounded and searchable page of Fellowship governance cases. */
+async function getGovernanceCasePage(
+  filters: FellowshipCaseFilters,
+): Promise<FellowshipGovernanceCasePage> {
+  const query = filters.query.trim();
+  const where: Prisma.FellowshipGovernanceCaseWhereInput = {
+    ...(filters.fellowshipId ? { fellowshipId: filters.fellowshipId } : {}),
+    ...(filters.kind !== "ALL" ? { kind: filters.kind } : {}),
+    ...(filters.status !== "ALL" ? { currentStatus: filters.status } : {}),
+    ...(query
+      ? {
+          OR: [
+            { caseNumber: { contains: query, mode: "insensitive" } },
+            { fellowship: { name: { contains: query, mode: "insensitive" } } },
+          ],
+        }
+      : {}),
+  };
+  const pageSize = 25;
+  const [cases, total] = await prisma.$transaction([
+    prisma.fellowshipGovernanceCase.findMany({
+      where,
+      orderBy: [{ openedAt: "desc" }, { caseSequence: "desc" }],
+      skip: (filters.page - 1) * pageSize,
+      take: pageSize,
+      select: {
+        id: true,
+        caseNumber: true,
+        kind: true,
+        currentStatus: true,
+        openedAt: true,
+        fellowship: { select: { name: true } },
+        openedBy: {
+          select: {
+            name: true,
+            profile: { select: { displayName: true } },
+          },
+        },
+      },
+    }),
+    prisma.fellowshipGovernanceCase.count({ where }),
+  ]);
+
+  return {
+    total,
+    pageSize,
+    items: cases.map(({ fellowship, openedBy, ...governanceCase }) => ({
+      ...governanceCase,
+      fellowshipName: fellowship.name,
+      openedByName:
+        openedBy.profile?.displayName || openedBy.name || "Removed account",
+    })),
+  };
+}
+
+/** Loads the full case timeline while withholding raw metadata and private IDs. */
+async function getGovernanceCaseDetail(
+  caseNumber: string,
+): Promise<FellowshipGovernanceCaseDetail | null> {
+  const governanceCase = await prisma.fellowshipGovernanceCase.findUnique({
+    where: { caseNumber },
+    select: {
+      id: true,
+      caseNumber: true,
+      kind: true,
+      currentStatus: true,
+      openedAt: true,
+      fellowship: { select: { name: true } },
+      openedBy: {
+        select: {
+          name: true,
+          profile: { select: { displayName: true } },
+        },
+      },
+      transfer: {
+        select: {
+          fromLeader: {
+            select: {
+              name: true,
+              profile: { select: { displayName: true } },
+            },
+          },
+          targetUser: {
+            select: {
+              name: true,
+              profile: { select: { displayName: true } },
+            },
+          },
+        },
+      },
+      dissolution: { select: { reason: true } },
+      suspension: {
+        select: {
+          reason: true,
+          appeal: {
+            select: {
+              statement: true,
+              decisionReason: true,
+              appellant: {
+                select: {
+                  name: true,
+                  profile: { select: { displayName: true } },
+                },
+              },
+            },
+          },
+        },
+      },
+      auditLogs: {
+        orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+        select: {
+          id: true,
+          action: true,
+          createdAt: true,
+          metadata: true,
+          actor: {
+            select: {
+              name: true,
+              profile: { select: { displayName: true } },
+            },
+          },
+        },
+      },
+    },
+  });
+  if (!governanceCase) return null;
+
+  const participants = governanceCase.transfer
+    ? [
+        governanceCase.transfer.fromLeader.profile?.displayName ||
+          governanceCase.transfer.fromLeader.name ||
+          "Previous leader",
+        governanceCase.transfer.targetUser.profile?.displayName ||
+          governanceCase.transfer.targetUser.name ||
+          "Transfer recipient",
+      ]
+    : governanceCase.suspension?.appeal
+      ? [
+          governanceCase.suspension.appeal.appellant.profile?.displayName ||
+            governanceCase.suspension.appeal.appellant.name ||
+            "Appealing leader",
+        ]
+      : [];
+  const appeal = governanceCase.suspension?.appeal;
+  const events = governanceCase.auditLogs.map((event) => ({
+    id: event.id,
+    action: formatCaseAction(event.action),
+    createdAt: event.createdAt,
+    actorName:
+      event.actor?.profile?.displayName ||
+      event.actor?.name ||
+      "System or removed account",
+    summary: getCaseEventSummary(event.metadata),
+  }));
+  if (appeal?.statement) {
+    const appealEvent = events.find((event) =>
+      event.action.includes("Suspension Appeal Submitted"),
+    );
+    if (appealEvent) {
+      appealEvent.summary = `Appeal statement: ${appeal.statement}`;
+    }
+  }
+
+  return {
+    id: governanceCase.id,
+    caseNumber: governanceCase.caseNumber,
+    kind: governanceCase.kind,
+    currentStatus: governanceCase.currentStatus,
+    openedAt: governanceCase.openedAt,
+    fellowshipName: governanceCase.fellowship.name,
+    openedByName:
+      governanceCase.openedBy.profile?.displayName ||
+      governanceCase.openedBy.name ||
+      "Removed account",
+    reason:
+      governanceCase.suspension?.reason ??
+      governanceCase.dissolution?.reason ??
+      null,
+    participants,
+    events,
+  };
+}
 
 /** Carries safe, stable Fellowship conditions back to the Server Action layer. */
 export class FellowshipGovernanceError extends Error {
@@ -59,12 +335,15 @@ async function createNotice(
  * recovery. All state changes are transactional and retain Fellowship history.
  */
 export const fellowshipGovernanceRepository = {
+  getCasePage: getGovernanceCasePage,
+  getCaseDetail: getGovernanceCaseDetail,
+
   /** Creates a leader-initiated offer to an existing member. */
   async requestLeadershipTransfer(
     leaderId: string,
     fellowshipId: string,
     targetMembershipId: string,
-  ): Promise<{ transferId: string; slug: string; name: string }> {
+  ): Promise<{ transferId: string; caseNumber: string; slug: string; name: string }> {
     return prisma.$transaction(async (transaction) => {
       await lockFellowship(transaction, fellowshipId);
 
@@ -103,13 +382,28 @@ export const fellowshipGovernanceRepository = {
       });
       if (!target) throw new FellowshipGovernanceError("MEMBER_NOT_FOUND");
 
+      const governanceCase = await createGovernanceCase(transaction, {
+        kind: "TRANSFER",
+        currentStatus: "PENDING",
+        fellowshipId,
+        openedById: leaderId,
+      });
       const transfer = await transaction.fellowshipLeadershipTransfer.create({
         data: {
           fellowshipId,
           fromLeaderId: leaderId,
           targetUserId: target.userId,
+          governanceCaseId: governanceCase.id,
         },
         select: { id: true },
+      });
+      await writeCaseAudit(transaction, {
+        governanceCaseId: governanceCase.id,
+        actorId: leaderId,
+        action: "FELLOWSHIP_LEADERSHIP_TRANSFER_REQUESTED",
+        entityType: "FellowshipLeadershipTransfer",
+        entityId: transfer.id,
+        metadata: { caseNumber: governanceCase.caseNumber },
       });
 
       await createNotice(transaction, {
@@ -125,7 +419,11 @@ export const fellowshipGovernanceRepository = {
         },
       });
 
-      return { transferId: transfer.id, ...fellowship };
+      return {
+        transferId: transfer.id,
+        caseNumber: governanceCase.caseNumber,
+        ...fellowship,
+      };
     }, transactionOptions);
   },
 
@@ -163,6 +461,7 @@ export const fellowshipGovernanceRepository = {
           fellowshipId: true,
           fromLeaderId: true,
           targetUserId: true,
+          governanceCaseId: true,
           fellowship: {
             select: {
               slug: true,
@@ -193,26 +492,30 @@ export const fellowshipGovernanceRepository = {
           resolvedAt,
         },
       });
+      await transaction.fellowshipGovernanceCase.update({
+        where: { id: transfer.governanceCaseId },
+        data: { currentStatus: accepted ? "ACCEPTED" : "DECLINED" },
+      });
 
       if (accepted) {
         await transaction.fellowship.update({
           where: { id: transfer.fellowshipId },
           data: { createdById: recipientId },
         });
-        await transaction.auditLog.create({
-          data: {
-            actorId: recipientId,
-            action: "FELLOWSHIP_LEADERSHIP_TRANSFER_ACCEPTED",
-            entityType: "Fellowship",
-            entityId: transfer.fellowshipId,
-            metadata: {
-              previousLeaderId: transfer.fromLeaderId,
-              newLeaderId: recipientId,
-              transferId: transfer.id,
-            },
-          },
-        });
       }
+      await writeCaseAudit(transaction, {
+        governanceCaseId: transfer.governanceCaseId,
+        actorId: recipientId,
+        action: accepted
+          ? "FELLOWSHIP_LEADERSHIP_TRANSFER_ACCEPTED"
+          : "FELLOWSHIP_LEADERSHIP_TRANSFER_DECLINED",
+        entityType: "FellowshipLeadershipTransfer",
+        entityId: transfer.id,
+        metadata: {
+          previousLeaderId: transfer.fromLeaderId,
+          newLeaderId: accepted ? recipientId : null,
+        },
+      });
 
       await createNotice(transaction, {
         userId: transfer.fromLeaderId,
@@ -267,6 +570,7 @@ export const fellowshipGovernanceRepository = {
         },
         select: {
           id: true,
+          governanceCaseId: true,
           targetUserId: true,
           fellowship: { select: { slug: true, name: true } },
         },
@@ -276,6 +580,17 @@ export const fellowshipGovernanceRepository = {
       await transaction.fellowshipLeadershipTransfer.update({
         where: { id: transfer.id },
         data: { status: "CANCELLED", resolvedAt: new Date() },
+      });
+      await transaction.fellowshipGovernanceCase.update({
+        where: { id: transfer.governanceCaseId },
+        data: { currentStatus: "CANCELLED" },
+      });
+      await writeCaseAudit(transaction, {
+        governanceCaseId: transfer.governanceCaseId,
+        actorId: leaderId,
+        action: "FELLOWSHIP_LEADERSHIP_TRANSFER_CANCELLED",
+        entityType: "FellowshipLeadershipTransfer",
+        entityId: transfer.id,
       });
       await createNotice(transaction, {
         userId: transfer.targetUserId,
@@ -296,7 +611,7 @@ export const fellowshipGovernanceRepository = {
     leaderId: string,
     fellowshipId: string,
     confirmationName: string,
-  ): Promise<{ dissolutionId: string; slug: string; name: string; cancellationDeadline: Date }> {
+  ): Promise<{ dissolutionId: string; caseNumber: string; slug: string; name: string; cancellationDeadline: Date }> {
     return prisma.$transaction(async (transaction) => {
       await lockFellowship(transaction, fellowshipId);
       const fellowship = await transaction.fellowship.findFirst({
@@ -325,6 +640,12 @@ export const fellowshipGovernanceRepository = {
 
       const now = new Date();
       const cancellationDeadline = new Date(now.getTime() + DISSOLUTION_GRACE_PERIOD_MS);
+      const governanceCase = await createGovernanceCase(transaction, {
+        kind: "CLOSURE",
+        currentStatus: "SCHEDULED",
+        fellowshipId,
+        openedById: leaderId,
+      });
       const dissolution = await transaction.fellowshipDissolution.create({
         data: {
           fellowshipId,
@@ -333,6 +654,7 @@ export const fellowshipGovernanceRepository = {
           status: "SCHEDULED",
           createdAt: now,
           cancellationDeadline,
+          governanceCaseId: governanceCase.id,
         },
         select: { id: true },
       });
@@ -340,12 +662,32 @@ export const fellowshipGovernanceRepository = {
       const pendingTransfers =
         await transaction.fellowshipLeadershipTransfer.findMany({
           where: { fellowshipId, status: "PENDING" },
-          select: { id: true, fromLeaderId: true, targetUserId: true },
+          select: {
+            id: true,
+            fromLeaderId: true,
+            targetUserId: true,
+            governanceCaseId: true,
+            governanceCase: { select: { caseNumber: true } },
+          },
         });
       await transaction.fellowshipLeadershipTransfer.updateMany({
         where: { fellowshipId, status: "PENDING" },
         data: { status: "CANCELLED", resolvedAt: now },
       });
+      for (const transfer of pendingTransfers) {
+        await transaction.fellowshipGovernanceCase.update({
+          where: { id: transfer.governanceCaseId },
+          data: { currentStatus: "CANCELLED" },
+        });
+        await writeCaseAudit(transaction, {
+          governanceCaseId: transfer.governanceCaseId,
+          actorId: leaderId,
+          action: "FELLOWSHIP_LEADERSHIP_TRANSFER_CANCELLED_BY_CLOSURE",
+          entityType: "FellowshipLeadershipTransfer",
+          entityId: transfer.id,
+          metadata: { closureCaseNumber: governanceCase.caseNumber },
+        });
+      }
       await transaction.fellowshipJoinRequest.updateMany({
         where: { fellowshipId, status: "PENDING" },
         data: { status: "CANCELLED", resolvedAt: now },
@@ -375,16 +717,18 @@ export const fellowshipGovernanceRepository = {
           ),
         });
       }
-      await transaction.auditLog.create({
-        data: {
-          actorId: leaderId,
-          action: "FELLOWSHIP_DISSOLUTION_SCHEDULED",
-          entityType: "Fellowship",
-          entityId: fellowshipId,
-          metadata: {
-            dissolutionId: dissolution.id,
-            cancellationDeadline: cancellationDeadline.toISOString(),
-          },
+      await writeCaseAudit(transaction, {
+        governanceCaseId: governanceCase.id,
+        actorId: leaderId,
+        action: "FELLOWSHIP_DISSOLUTION_SCHEDULED",
+        entityType: "FellowshipDissolution",
+        entityId: dissolution.id,
+        metadata: {
+          caseNumber: governanceCase.caseNumber,
+          cancellationDeadline: cancellationDeadline.toISOString(),
+          cancelledTransferCaseNumbers: pendingTransfers.map(
+            (transfer) => transfer.governanceCase.caseNumber,
+          ),
         },
       });
 
@@ -407,7 +751,12 @@ export const fellowshipGovernanceRepository = {
         })),
       });
 
-      return { dissolutionId: dissolution.id, ...fellowship, cancellationDeadline };
+      return {
+        dissolutionId: dissolution.id,
+        caseNumber: governanceCase.caseNumber,
+        ...fellowship,
+        cancellationDeadline,
+      };
     }, transactionOptions);
   },
 
@@ -435,6 +784,7 @@ export const fellowshipGovernanceRepository = {
         select: {
           id: true,
           fellowshipId: true,
+          governanceCaseId: true,
           fellowship: {
             select: {
               slug: true,
@@ -452,20 +802,22 @@ export const fellowshipGovernanceRepository = {
         where: { id: dissolution.id },
         data: { status: "CANCELLED", cancelledAt: new Date() },
       });
+      await transaction.fellowshipGovernanceCase.update({
+        where: { id: dissolution.governanceCaseId },
+        data: { currentStatus: "CANCELLED" },
+      });
       const originalRecipients = await transaction.userNotification.findMany({
         where: {
           dedupeKey: { startsWith: `fellowship-closing:${dissolution.id}:` },
         },
         select: { userId: true },
       });
-      await transaction.auditLog.create({
-        data: {
-          actorId: leaderId,
-          action: "FELLOWSHIP_DISSOLUTION_CANCELLED",
-          entityType: "Fellowship",
-          entityId: dissolution.fellowshipId,
-          metadata: { dissolutionId: dissolution.id },
-        },
+      await writeCaseAudit(transaction, {
+        governanceCaseId: dissolution.governanceCaseId,
+        actorId: leaderId,
+        action: "FELLOWSHIP_DISSOLUTION_CANCELLED",
+        entityType: "FellowshipDissolution",
+        entityId: dissolution.id,
       });
       const recipients = new Set([
         ...dissolution.fellowship.members.map((member) => member.userId),
@@ -501,7 +853,12 @@ export const fellowshipGovernanceRepository = {
     fellowshipId: string;
     confirmationName: string;
     reason: string;
-  }): Promise<{ slug: string; name: string; suspensionId: string }> {
+  }): Promise<{
+    slug: string;
+    name: string;
+    suspensionId: string;
+    caseNumber: string;
+  }> {
     return prisma.$transaction(async (transaction) => {
       await lockFellowship(transaction, input.fellowshipId);
       const existingSuspension = await transaction.fellowshipSuspension.findFirst({
@@ -538,6 +895,12 @@ export const fellowshipGovernanceRepository = {
       const appealDeadline = new Date(
         now.getTime() + SUSPENSION_APPEAL_WINDOW_MS,
       );
+      const governanceCase = await createGovernanceCase(transaction, {
+        kind: "SUSPENSION",
+        currentStatus: "ACTIVE",
+        fellowshipId: input.fellowshipId,
+        openedById: input.adminId,
+      });
       const suspension = await transaction.fellowshipSuspension.create({
         data: {
           fellowshipId: input.fellowshipId,
@@ -545,18 +908,39 @@ export const fellowshipGovernanceRepository = {
           reason: input.reason,
           createdAt: now,
           appealDeadline,
+          governanceCaseId: governanceCase.id,
         },
         select: { id: true },
       });
       const pendingTransfers =
         await transaction.fellowshipLeadershipTransfer.findMany({
           where: { fellowshipId: input.fellowshipId, status: "PENDING" },
-          select: { id: true, fromLeaderId: true, targetUserId: true },
+          select: {
+            id: true,
+            fromLeaderId: true,
+            targetUserId: true,
+            governanceCaseId: true,
+            governanceCase: { select: { caseNumber: true } },
+          },
         });
       await transaction.fellowshipLeadershipTransfer.updateMany({
         where: { fellowshipId: input.fellowshipId, status: "PENDING" },
         data: { status: "CANCELLED", resolvedAt: now },
       });
+      for (const transfer of pendingTransfers) {
+        await transaction.fellowshipGovernanceCase.update({
+          where: { id: transfer.governanceCaseId },
+          data: { currentStatus: "CANCELLED" },
+        });
+        await writeCaseAudit(transaction, {
+          governanceCaseId: transfer.governanceCaseId,
+          actorId: input.adminId,
+          action: "FELLOWSHIP_LEADERSHIP_TRANSFER_CANCELLED_BY_SUSPENSION",
+          entityType: "FellowshipLeadershipTransfer",
+          entityId: transfer.id,
+          metadata: { suspensionCaseNumber: governanceCase.caseNumber },
+        });
+      }
       await transaction.fellowshipJoinRequest.updateMany({
         where: { fellowshipId: input.fellowshipId, status: "PENDING" },
         data: { status: "CANCELLED", resolvedAt: now },
@@ -586,17 +970,19 @@ export const fellowshipGovernanceRepository = {
         });
       }
 
-      await transaction.auditLog.create({
-        data: {
-          actorId: input.adminId,
-          action: "FELLOWSHIP_SUSPENDED",
-          entityType: "Fellowship",
-          entityId: input.fellowshipId,
-          metadata: {
-            suspensionId: suspension.id,
-            reason: input.reason,
-            appealDeadline: appealDeadline.toISOString(),
-          },
+      await writeCaseAudit(transaction, {
+        governanceCaseId: governanceCase.id,
+        actorId: input.adminId,
+        action: "FELLOWSHIP_SUSPENDED",
+        entityType: "FellowshipSuspension",
+        entityId: suspension.id,
+        metadata: {
+          caseNumber: governanceCase.caseNumber,
+          reason: input.reason,
+          appealDeadline: appealDeadline.toISOString(),
+          cancelledTransferCaseNumbers: pendingTransfers.map(
+            (transfer) => transfer.governanceCase.caseNumber,
+          ),
         },
       });
       const affectedUserIds = new Set([
@@ -615,7 +1001,11 @@ export const fellowshipGovernanceRepository = {
         })),
       });
 
-      return { ...fellowship, suspensionId: suspension.id };
+      return {
+        ...fellowship,
+        suspensionId: suspension.id,
+        caseNumber: governanceCase.caseNumber,
+      };
     }, transactionOptions);
   },
 
@@ -650,6 +1040,7 @@ export const fellowshipGovernanceRepository = {
         },
         select: {
           id: true,
+          governanceCaseId: true,
           appealDeadline: true,
           suspendedById: true,
           appeal: { select: { id: true } },
@@ -691,14 +1082,12 @@ export const fellowshipGovernanceRepository = {
           },
         })),
       });
-      await transaction.auditLog.create({
-        data: {
-          actorId: leaderId,
-          action: "FELLOWSHIP_SUSPENSION_APPEAL_SUBMITTED",
-          entityType: "FellowshipSuspensionAppeal",
-          entityId: appeal.id,
-          metadata: { suspensionId: suspension.id },
-        },
+      await writeCaseAudit(transaction, {
+        governanceCaseId: suspension.governanceCaseId,
+        actorId: leaderId,
+        action: "FELLOWSHIP_SUSPENSION_APPEAL_SUBMITTED",
+        entityType: "FellowshipSuspensionAppeal",
+        entityId: appeal.id,
       });
 
       return suspension.fellowship;
@@ -735,6 +1124,7 @@ export const fellowshipGovernanceRepository = {
         },
         select: {
           id: true,
+          governanceCaseId: true,
           suspendedById: true,
           fellowshipId: true,
           appeal: {
@@ -782,19 +1172,26 @@ export const fellowshipGovernanceRepository = {
         });
       }
 
-      await transaction.auditLog.create({
-        data: {
-          actorId: input.adminId,
-          action: restores
-            ? "FELLOWSHIP_SUSPENSION_APPEAL_RESTORED"
-            : "FELLOWSHIP_SUSPENSION_APPEAL_UPHELD",
-          entityType: "FellowshipSuspensionAppeal",
-          entityId: suspension.appeal.id,
-          metadata: {
-            suspensionId: suspension.id,
-            decisionReason: input.decisionReason,
-          },
-        },
+      if (restores) {
+        await transaction.fellowshipGovernanceCase.update({
+          where: { id: suspension.governanceCaseId },
+          data: { currentStatus: "RESTORED" },
+        });
+      } else {
+        await transaction.fellowshipGovernanceCase.update({
+          where: { id: suspension.governanceCaseId },
+          data: { currentStatus: "UPHELD" },
+        });
+      }
+      await writeCaseAudit(transaction, {
+        governanceCaseId: suspension.governanceCaseId,
+        actorId: input.adminId,
+        action: restores
+          ? "FELLOWSHIP_SUSPENSION_APPEAL_RESTORED"
+          : "FELLOWSHIP_SUSPENSION_APPEAL_UPHELD",
+        entityType: "FellowshipSuspensionAppeal",
+        entityId: suspension.appeal.id,
+        metadata: { decisionReason: input.decisionReason },
       });
       if (restores) {
         await transaction.userNotification.createMany({
@@ -850,6 +1247,7 @@ export const fellowshipGovernanceRepository = {
         where: { id: input.suspensionId, status: "ACTIVE" },
         select: {
           id: true,
+          governanceCaseId: true,
           suspendedById: true,
           appeal: { select: { id: true, appellantId: true, status: true } },
           fellowship: {
@@ -886,6 +1284,10 @@ export const fellowshipGovernanceRepository = {
           restorationReason: input.reason,
         },
       });
+      await transaction.fellowshipGovernanceCase.update({
+        where: { id: suspension.governanceCaseId },
+        data: { currentStatus: "RESTORED" },
+      });
       if (suspension.appeal?.status === "PENDING") {
         await transaction.fellowshipSuspensionAppeal.update({
           where: { id: suspension.appeal.id },
@@ -897,16 +1299,15 @@ export const fellowshipGovernanceRepository = {
           },
         });
       }
-      await transaction.auditLog.create({
-        data: {
-          actorId: input.adminId,
-          action: "FELLOWSHIP_SUSPENSION_RESTORED",
-          entityType: "FellowshipSuspension",
-          entityId: suspension.id,
-          metadata: {
-            reason: input.reason,
-            appealId: suspension.appeal?.id ?? null,
-          },
+      await writeCaseAudit(transaction, {
+        governanceCaseId: suspension.governanceCaseId,
+        actorId: input.adminId,
+        action: "FELLOWSHIP_SUSPENSION_RESTORED",
+        entityType: "FellowshipSuspension",
+        entityId: suspension.id,
+        metadata: {
+          reason: input.reason,
+          appealId: suspension.appeal?.id ?? null,
         },
       });
       await transaction.userNotification.createMany({
@@ -944,7 +1345,7 @@ export const fellowshipGovernanceRepository = {
     targetMembershipId: string;
     confirmationName: string;
     reason: string;
-  }): Promise<{ slug: string; name: string }> {
+  }): Promise<{ slug: string; name: string; caseNumber: string }> {
     return prisma.$transaction(async (transaction) => {
       await lockFellowship(transaction, input.fellowshipId);
       const fellowship = await transaction.fellowship.findFirst({
@@ -972,6 +1373,12 @@ export const fellowshipGovernanceRepository = {
       });
       if (!target) throw new FellowshipGovernanceError("MEMBER_NOT_FOUND");
 
+      const governanceCase = await createGovernanceCase(transaction, {
+        kind: "TRANSFER",
+        currentStatus: "ACCEPTED",
+        fellowshipId: input.fellowshipId,
+        openedById: input.adminId,
+      });
       const transfer = await transaction.fellowshipLeadershipTransfer.create({
         data: {
           fellowshipId: input.fellowshipId,
@@ -979,12 +1386,25 @@ export const fellowshipGovernanceRepository = {
           targetUserId: target.userId,
           status: "ACCEPTED",
           resolvedAt: new Date(),
+          governanceCaseId: governanceCase.id,
         },
         select: { id: true },
       });
       await transaction.fellowship.update({
         where: { id: input.fellowshipId },
         data: { createdById: target.userId },
+      });
+      const cancelledTransfers = await transaction.fellowshipLeadershipTransfer.findMany({
+        where: {
+          fellowshipId: input.fellowshipId,
+          status: "PENDING",
+          id: { not: transfer.id },
+        },
+        select: {
+          id: true,
+          governanceCaseId: true,
+          governanceCase: { select: { caseNumber: true } },
+        },
       });
       await transaction.fellowshipLeadershipTransfer.updateMany({
         where: {
@@ -994,18 +1414,35 @@ export const fellowshipGovernanceRepository = {
         },
         data: { status: "CANCELLED", resolvedAt: new Date() },
       });
-      await transaction.auditLog.create({
-        data: {
+      for (const cancelledTransfer of cancelledTransfers) {
+        await transaction.fellowshipGovernanceCase.update({
+          where: { id: cancelledTransfer.governanceCaseId },
+          data: { currentStatus: "CANCELLED" },
+        });
+        await writeCaseAudit(transaction, {
+          governanceCaseId: cancelledTransfer.governanceCaseId,
           actorId: input.adminId,
-          action: "FELLOWSHIP_EMERGENCY_LEADERSHIP_TRANSFER",
-          entityType: "Fellowship",
-          entityId: input.fellowshipId,
-          metadata: {
-            reason: input.reason,
-            previousLeaderId: fellowship.createdById,
-            newLeaderId: target.userId,
-            transferId: transfer.id,
-          },
+          action: "FELLOWSHIP_LEADERSHIP_TRANSFER_CANCELLED_BY_TRANSFER",
+          entityType: "FellowshipLeadershipTransfer",
+          entityId: cancelledTransfer.id,
+          metadata: { replacementCaseNumber: governanceCase.caseNumber },
+        });
+      }
+      await writeCaseAudit(transaction, {
+        governanceCaseId: governanceCase.id,
+        actorId: input.adminId,
+        action: "FELLOWSHIP_EMERGENCY_LEADERSHIP_TRANSFER",
+        entityType: "FellowshipLeadershipTransfer",
+        entityId: transfer.id,
+        metadata: {
+          caseNumber: governanceCase.caseNumber,
+          reason: input.reason,
+          previousLeaderId: fellowship.createdById,
+          newLeaderId: target.userId,
+          cancelledTransferCaseNumbers: cancelledTransfers.map(
+            (cancelledTransfer) =>
+              cancelledTransfer.governanceCase.caseNumber,
+          ),
         },
       });
       await createNotice(transaction, {
@@ -1029,7 +1466,11 @@ export const fellowshipGovernanceRepository = {
         },
       });
 
-      return { slug: fellowship.slug, name: fellowship.name };
+      return {
+        slug: fellowship.slug,
+        name: fellowship.name,
+        caseNumber: governanceCase.caseNumber,
+      };
     }, transactionOptions);
   },
 
@@ -1039,7 +1480,7 @@ export const fellowshipGovernanceRepository = {
     fellowshipId: string;
     confirmationName: string;
     reason: string;
-  }): Promise<{ slug: string; name: string }> {
+  }): Promise<{ slug: string; name: string; caseNumber: string }> {
     return prisma.$transaction(async (transaction) => {
       await lockFellowship(transaction, input.fellowshipId);
       const fellowship = await transaction.fellowship.findFirst({
@@ -1066,24 +1507,51 @@ export const fellowshipGovernanceRepository = {
         throw new FellowshipGovernanceError("NAME_CONFIRMATION_MISMATCH");
       }
 
+      const governanceCase = await createGovernanceCase(transaction, {
+        kind: "CLOSURE",
+        currentStatus: "FORCED",
+        fellowshipId: input.fellowshipId,
+        openedById: input.adminId,
+      });
       const dissolution = await transaction.fellowshipDissolution.create({
         data: {
           fellowshipId: input.fellowshipId,
           initiatedById: input.adminId,
           reason: input.reason,
           status: "FORCED",
+          governanceCaseId: governanceCase.id,
         },
         select: { id: true },
       });
       const pendingTransfers =
         await transaction.fellowshipLeadershipTransfer.findMany({
           where: { fellowshipId: input.fellowshipId, status: "PENDING" },
-          select: { id: true, fromLeaderId: true, targetUserId: true },
+          select: {
+            id: true,
+            fromLeaderId: true,
+            targetUserId: true,
+            governanceCaseId: true,
+          governanceCase: { select: { caseNumber: true } },
+          },
         });
       await transaction.fellowshipLeadershipTransfer.updateMany({
         where: { fellowshipId: input.fellowshipId, status: "PENDING" },
         data: { status: "CANCELLED", resolvedAt: new Date() },
       });
+      for (const transfer of pendingTransfers) {
+        await transaction.fellowshipGovernanceCase.update({
+          where: { id: transfer.governanceCaseId },
+          data: { currentStatus: "CANCELLED" },
+        });
+        await writeCaseAudit(transaction, {
+          governanceCaseId: transfer.governanceCaseId,
+          actorId: input.adminId,
+          action: "FELLOWSHIP_LEADERSHIP_TRANSFER_CANCELLED_BY_CLOSURE",
+          entityType: "FellowshipLeadershipTransfer",
+          entityId: transfer.id,
+          metadata: { closureCaseNumber: governanceCase.caseNumber },
+        });
+      }
       await transaction.fellowshipJoinRequest.updateMany({
         where: { fellowshipId: input.fellowshipId, status: "PENDING" },
         data: { status: "CANCELLED", resolvedAt: new Date() },
@@ -1113,16 +1581,18 @@ export const fellowshipGovernanceRepository = {
           ),
         });
       }
-      await transaction.auditLog.create({
-        data: {
-          actorId: input.adminId,
-          action: "FELLOWSHIP_EMERGENCY_DISSOLUTION",
-          entityType: "Fellowship",
-          entityId: input.fellowshipId,
-          metadata: {
-            reason: input.reason,
-            dissolutionId: dissolution.id,
-          },
+      await writeCaseAudit(transaction, {
+        governanceCaseId: governanceCase.id,
+        actorId: input.adminId,
+        action: "FELLOWSHIP_EMERGENCY_DISSOLUTION",
+        entityType: "FellowshipDissolution",
+        entityId: dissolution.id,
+        metadata: {
+          caseNumber: governanceCase.caseNumber,
+          reason: input.reason,
+          cancelledTransferCaseNumbers: pendingTransfers.map(
+            (transfer) => transfer.governanceCase.caseNumber,
+          ),
         },
       });
       const affectedUserIds = new Set([
@@ -1143,19 +1613,181 @@ export const fellowshipGovernanceRepository = {
         })),
       });
 
-      return { slug: fellowship.slug, name: fellowship.name };
+      return {
+        slug: fellowship.slug,
+        name: fellowship.name,
+        caseNumber: governanceCase.caseNumber,
+      };
     }, transactionOptions);
   },
 
-  /** Loads a bounded, email-free roster for Super Admin recovery decisions. */
-  async getModerationList(query: string): Promise<FellowshipModerationItem[]> {
-    const normalizedQuery = query.trim().slice(0, 50);
+  /**
+   * Returns a compact, searchable page without loading every member or case
+   * record. Only a single result page is hydrated for the table; management
+   * details and transfer candidates are loaded after an admin opens a row.
+   */
+  async getModerationPage(input: {
+    query: string;
+    status: FellowshipModerationStatus;
+    page: number;
+    pageSize: number;
+  }): Promise<FellowshipModerationPage> {
+    const normalizedQuery = input.query.trim().slice(0, 50);
+    const now = new Date();
+    const activeClosureCondition: Prisma.FellowshipDissolutionWhereInput = {
+      OR: [
+        { status: "FORCED" },
+        {
+          status: "SCHEDULED",
+          OR: [
+            { cancellationDeadline: null },
+            { cancellationDeadline: { lte: now } },
+          ],
+        },
+      ],
+    };
+    const statusWhere: Prisma.FellowshipWhereInput =
+      input.status === "ACTIVE"
+        ? {
+            suspensions: { none: { status: "ACTIVE" } },
+            dissolutions: { none: activeClosureCondition },
+          }
+        : input.status === "SUSPENDED"
+          ? { suspensions: { some: { status: "ACTIVE" } } }
+          : input.status === "APPEAL_PENDING"
+            ? {
+                suspensions: {
+                  some: {
+                    status: "ACTIVE",
+                    appeal: { is: { status: "PENDING" } },
+                  },
+                },
+              }
+            : input.status === "CLOSING"
+              ? {
+                  suspensions: { none: { status: "ACTIVE" } },
+                  dissolutions: {
+                    some: {
+                      status: "SCHEDULED",
+                      cancellationDeadline: { gt: now },
+                    },
+                  },
+                }
+              : input.status === "CLOSED"
+                ? {
+                    suspensions: { none: { status: "ACTIVE" } },
+                    dissolutions: { some: activeClosureCondition },
+                  }
+                : {};
+    const searchWhere: Prisma.FellowshipWhereInput = normalizedQuery
+      ? {
+          OR: [
+            { name: { contains: normalizedQuery, mode: "insensitive" } },
+            {
+              members: {
+                some: {
+                  user: {
+                    profile: {
+                      is: {
+                        displayName: {
+                          contains: normalizedQuery,
+                          mode: "insensitive",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          ],
+        }
+      : {};
+    const where: Prisma.FellowshipWhereInput = {
+      AND: [statusWhere, searchWhere],
+    };
+    const totalCount = await prisma.fellowship.count({ where });
+    const totalPages = Math.max(1, Math.ceil(totalCount / input.pageSize));
+    const page = Math.min(input.page, totalPages);
+    const skip = (page - 1) * input.pageSize;
     const rows = await prisma.fellowship.findMany({
-      where: normalizedQuery
-        ? { name: { contains: normalizedQuery, mode: "insensitive" } }
-        : undefined,
-      orderBy: { updatedAt: "desc" },
-      take: 100,
+        where,
+        orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
+        skip,
+        take: input.pageSize,
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          isPublic: true,
+          updatedAt: true,
+          createdBy: {
+            select: { profile: { select: { displayName: true } } },
+          },
+          _count: { select: { members: true } },
+          dissolutions: {
+            orderBy: { createdAt: "desc" },
+            take: 1,
+            select: { status: true, cancellationDeadline: true },
+          },
+          suspensions: {
+            orderBy: { createdAt: "desc" },
+            take: 1,
+            select: {
+              status: true,
+              appeal: { select: { status: true } },
+            },
+          },
+        },
+      });
+
+    const items: FellowshipModerationListItem[] = rows.map((row) => {
+      const latestSuspension = row.suspensions[0];
+      const latestClosure = row.dissolutions[0];
+      let status: FellowshipModerationListItem["status"] = "ACTIVE";
+
+      if (latestSuspension?.status === "ACTIVE") {
+        status =
+          latestSuspension.appeal?.status === "PENDING"
+            ? "APPEAL_PENDING"
+            : "SUSPENDED";
+      } else if (latestClosure?.status === "FORCED") {
+        status = "CLOSED";
+      } else if (latestClosure?.status === "SCHEDULED") {
+        status =
+          latestClosure.cancellationDeadline &&
+          latestClosure.cancellationDeadline > now
+            ? "CLOSING"
+            : "CLOSED";
+      }
+
+      return {
+        id: row.id,
+        slug: row.slug,
+        name: row.name,
+        isPublic: row.isPublic,
+        memberCount: row._count.members,
+        leaderDisplayName: row.createdBy.profile?.displayName ?? "Player",
+        updatedAt: row.updatedAt,
+        status,
+      };
+    });
+
+    return {
+      items,
+      page,
+      pageSize: input.pageSize,
+      totalCount,
+      totalPages,
+    };
+  },
+
+  /** Loads protected governance details and transfer candidates for one row. */
+  async getModerationDetail(
+    fellowshipId: string,
+  ): Promise<FellowshipModerationItem | null> {
+    const [row, totalGovernanceLogCount] = await Promise.all([
+      prisma.fellowship.findUnique({
+      where: { id: fellowshipId },
       select: {
         id: true,
         slug: true,
@@ -1175,17 +1807,23 @@ export const fellowshipGovernanceRepository = {
         },
         dissolutions: {
           orderBy: { createdAt: "desc" },
-          take: 1,
+          take: 5,
           select: {
             reason: true,
             status: true,
             createdAt: true,
             cancellationDeadline: true,
+            initiatedBy: {
+              select: { profile: { select: { displayName: true } } },
+            },
+            governanceCase: {
+              select: { caseNumber: true, currentStatus: true },
+            },
           },
         },
         suspensions: {
           orderBy: { createdAt: "desc" },
-          take: 1,
+          take: 5,
           select: {
             id: true,
             reason: true,
@@ -1206,17 +1844,108 @@ export const fellowshipGovernanceRepository = {
                 reviewedAt: true,
                 decisionReason: true,
                 reviewerId: true,
+                reviewer: {
+                  select: { profile: { select: { displayName: true } } },
+                },
                 appellant: {
                   select: { profile: { select: { displayName: true } } },
                 },
               },
             },
+            governanceCase: {
+              select: { caseNumber: true, currentStatus: true },
+            },
+          },
+        },
+        leadershipTransfers: {
+          orderBy: { requestedAt: "desc" },
+          take: 5,
+          select: {
+            status: true,
+            requestedAt: true,
+            fromLeader: {
+              select: { profile: { select: { displayName: true } } },
+            },
+            targetUser: {
+              select: { profile: { select: { displayName: true } } },
+            },
+            governanceCase: {
+              select: { caseNumber: true, currentStatus: true },
+            },
           },
         },
       },
-    });
+      }),
+      prisma.auditLog.count({
+        where: {
+          governanceCase: { is: { fellowshipId } },
+        },
+      }),
+    ]);
 
-    return rows.map((row) => ({
+    if (!row) return null;
+
+    const governanceHistory: FellowshipGovernanceHistoryEvent[] = [
+      ...row.leadershipTransfers.map((transfer) => ({
+        kind: "LEADERSHIP_TRANSFER" as const,
+        status: transfer.status,
+        createdAt: transfer.requestedAt,
+        actorDisplayName:
+          transfer.fromLeader.profile?.displayName ?? "Player",
+        targetDisplayName:
+          transfer.targetUser.profile?.displayName ?? "Player",
+        reason: null,
+        caseNumber: transfer.governanceCase.caseNumber,
+        caseStatus: transfer.governanceCase.currentStatus,
+      })),
+      ...row.dissolutions.map((dissolution) => ({
+        kind: "CLOSURE" as const,
+        status: dissolution.status,
+        createdAt: dissolution.createdAt,
+        actorDisplayName:
+          dissolution.initiatedBy.profile?.displayName ?? "Super Admin",
+        targetDisplayName: null,
+        reason: dissolution.reason,
+        caseNumber: dissolution.governanceCase.caseNumber,
+        caseStatus: dissolution.governanceCase.currentStatus,
+      })),
+      ...row.suspensions.flatMap((suspension) => {
+        const events: FellowshipGovernanceHistoryEvent[] = [
+          {
+            kind: "SUSPENSION",
+            status: suspension.status,
+            createdAt: suspension.createdAt,
+            actorDisplayName:
+              suspension.suspendedBy.profile?.displayName ?? "Super Admin",
+            targetDisplayName: null,
+            reason: suspension.reason,
+            caseNumber: suspension.governanceCase.caseNumber,
+            caseStatus: suspension.governanceCase.currentStatus,
+          },
+        ];
+        if (suspension.appeal) {
+          events.push({
+            kind: "APPEAL",
+            status: suspension.appeal.status,
+            createdAt:
+              suspension.appeal.reviewedAt ?? suspension.appeal.submittedAt,
+            actorDisplayName:
+              suspension.appeal.reviewer?.profile?.displayName ??
+              suspension.appeal.appellant.profile?.displayName ??
+              "Player",
+            targetDisplayName: null,
+            reason: suspension.appeal.decisionReason,
+            caseNumber: suspension.governanceCase.caseNumber,
+            caseStatus: suspension.governanceCase.currentStatus,
+          });
+        }
+        return events;
+      }),
+    ]
+      .sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime())
+      .slice(0, 3);
+
+    return {
       id: row.id,
       slug: row.slug,
       name: row.name,
@@ -1265,6 +1994,8 @@ export const fellowshipGovernanceRepository = {
               : null,
           }
         : null,
-    }));
+      governanceHistory,
+      totalGovernanceLogCount,
+    };
   },
 } as const;

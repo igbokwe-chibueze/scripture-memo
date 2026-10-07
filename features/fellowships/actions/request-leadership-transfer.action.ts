@@ -12,7 +12,7 @@ import type { ActionResult } from "@/types/api";
 /** Offers ownership to a current member after validating the leader's password. */
 export async function requestLeadershipTransferAction(
   input: unknown,
-): Promise<ActionResult> {
+): Promise<ActionResult<{ caseNumber: string }>> {
   const parsed = requestLeadershipTransferSchema.safeParse(input);
   if (!parsed.success) return { success: false, message: "Review the transfer details." };
 
@@ -36,7 +36,12 @@ export async function requestLeadershipTransferAction(
     );
     revalidatePath("/fellowships");
     revalidatePath(`/fellowships/${transfer.slug}`);
-    return { success: true, message: t("governance.transferOffered") };
+    revalidatePath("/admin/fellowship-cases");
+    return {
+      success: true,
+      message: `${t("governance.transferOffered")} Case ${transfer.caseNumber}.`,
+      data: { caseNumber: transfer.caseNumber },
+    };
   } catch (error) {
     if (error instanceof FellowshipGovernanceError) {
       return { success: false, message: t(`errors.${error.code}`) };

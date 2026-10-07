@@ -113,6 +113,77 @@ export type FellowshipModerationItem = {
       reviewerId: string | null;
     } | null;
   } | null;
+  governanceHistory: FellowshipGovernanceHistoryEvent[];
+  totalGovernanceLogCount: number;
+};
+
+export type FellowshipGovernanceHistoryEvent =
+  | {
+      kind: "LEADERSHIP_TRANSFER";
+      status: "PENDING" | "ACCEPTED" | "DECLINED" | "CANCELLED";
+      caseStatus: string;
+      createdAt: Date;
+      actorDisplayName: string;
+      targetDisplayName: string;
+      reason: null;
+      caseNumber: string;
+    }
+  | {
+      kind: "CLOSURE";
+      status: "SCHEDULED" | "CANCELLED" | "FORCED";
+      caseStatus: string;
+      createdAt: Date;
+      actorDisplayName: string;
+      targetDisplayName: null;
+      reason: string;
+      caseNumber: string;
+    }
+  | {
+      kind: "SUSPENSION";
+      status: "ACTIVE" | "RESTORED";
+      caseStatus: string;
+      createdAt: Date;
+      actorDisplayName: string;
+      targetDisplayName: null;
+      reason: string;
+      caseNumber: string;
+    }
+  | {
+      kind: "APPEAL";
+      status: "PENDING" | "RESTORED" | "UPHELD";
+      caseStatus: string;
+      createdAt: Date;
+      actorDisplayName: string;
+      targetDisplayName: null;
+      reason: string | null;
+      caseNumber: string;
+    };
+
+export type FellowshipModerationStatus =
+  | "ALL"
+  | "ACTIVE"
+  | "SUSPENDED"
+  | "APPEAL_PENDING"
+  | "CLOSING"
+  | "CLOSED";
+
+export type FellowshipModerationListItem = {
+  id: string;
+  slug: string;
+  name: string;
+  isPublic: boolean;
+  memberCount: number;
+  leaderDisplayName: string;
+  updatedAt: Date;
+  status: Exclude<FellowshipModerationStatus, "ALL">;
+};
+
+export type FellowshipModerationPage = {
+  items: FellowshipModerationListItem[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
 };
 
 export type FellowshipEditData = Pick<

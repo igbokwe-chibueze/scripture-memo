@@ -12,7 +12,7 @@ import type { ActionResult } from "@/types/api";
 /** Hides the Fellowship immediately but gives its leader seven days to cancel. */
 export async function scheduleFellowshipDissolutionAction(
   input: unknown,
-): Promise<ActionResult> {
+): Promise<ActionResult<{ caseNumber: string }>> {
   const parsed = scheduleFellowshipDissolutionSchema.safeParse(input);
   if (!parsed.success) return { success: false, message: "Review the closure confirmation." };
 
@@ -36,7 +36,12 @@ export async function scheduleFellowshipDissolutionAction(
     );
     revalidatePath("/fellowships");
     revalidatePath(`/fellowships/${result.slug}`);
-    return { success: true, message: t("governance.closureScheduled") };
+    revalidatePath("/admin/fellowship-cases");
+    return {
+      success: true,
+      message: `${t("governance.closureScheduled")} Case ${result.caseNumber}.`,
+      data: { caseNumber: result.caseNumber },
+    };
   } catch (error) {
     if (error instanceof FellowshipGovernanceError) {
       return { success: false, message: t(`errors.${error.code}`) };

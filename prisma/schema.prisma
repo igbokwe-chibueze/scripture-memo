@@ -140,6 +140,12 @@ enum FellowshipSuspensionAppealStatus {
   UPHELD
 }
 
+enum FellowshipGovernanceCaseKind {
+  TRANSFER
+  SUSPENSION
+  CLOSURE
+}
+
 enum BeaconLeague {
   TRAVELER
   DISCIPLE
@@ -216,6 +222,7 @@ model User {
   badgesCreated              Badge[]                        @relation("BadgeCreator")
   shopItemsCreated           ShopItem[]                     @relation("ShopItemCreator")
   auditLogs                  AuditLog[]                     @relation("AuditActor")
+  fellowshipCasesOpened      FellowshipGovernanceCase[]     @relation("FellowshipGovernanceCaseOpener")
   beaconXpEntries            BeaconXpLedger[]
   beaconWeeklyScores         BeaconWeeklyScore[]
   beaconLeagueMemberships    BeaconLeagueMembership[]
@@ -669,6 +676,7 @@ model Fellowship {
   leadershipTransfers FellowshipLeadershipTransfer[]
   dissolutions        FellowshipDissolution[]
   suspensions         FellowshipSuspension[]
+  governanceCases     FellowshipGovernanceCase[]
 
   @@index([isPublic, name])
   @@index([createdById])
@@ -710,16 +718,18 @@ model FellowshipMember {
 
 /// Records each ownership proposal or emergency transfer without deleting member history.
 model FellowshipLeadershipTransfer {
-  id           String                             @id @default(cuid())
-  fellowshipId String
-  fromLeaderId String
-  targetUserId String
-  status       FellowshipLeadershipTransferStatus @default(PENDING)
-  requestedAt  DateTime                           @default(now())
-  resolvedAt   DateTime?
-  fellowship   Fellowship                         @relation(fields: [fellowshipId], references: [id], onDelete: Restrict)
-  fromLeader   User                               @relation("FellowshipTransferFrom", fields: [fromLeaderId], references: [id], onDelete: Restrict)
-  targetUser   User                               @relation("FellowshipTransferTarget", fields: [targetUserId], references: [id], onDelete: Restrict)
+  id               String                             @id @default(cuid())
+  fellowshipId     String
+  fromLeaderId     String
+  targetUserId     String
+  status           FellowshipLeadershipTransferStatus @default(PENDING)
+  requestedAt      DateTime                           @default(now())
+  resolvedAt       DateTime?
+  governanceCaseId String                             @unique
+  fellowship       Fellowship                         @relation(fields: [fellowshipId], references: [id], onDelete: Restrict)
+  fromLeader       User                               @relation("FellowshipTransferFrom", fields: [fromLeaderId], references: [id], onDelete: Restrict)
+  targetUser       User                               @relation("FellowshipTransferTarget", fields: [targetUserId], references: [id], onDelete: Restrict)
+  governanceCase   FellowshipGovernanceCase           @relation(fields: [governanceCaseId], references: [id], onDelete: Restrict)
 
   @@index([fellowshipId, status, requestedAt(sort: Desc)])
   @@index([targetUserId, status, requestedAt(sort: Desc)])
@@ -735,8 +745,10 @@ model FellowshipDissolution {
   createdAt            DateTime                    @default(now())
   cancellationDeadline DateTime?
   cancelledAt          DateTime?
+  governanceCaseId     String                      @unique
   fellowship           Fellowship                  @relation(fields: [fellowshipId], references: [id], onDelete: Restrict)
   initiatedBy          User                        @relation("FellowshipDissolutionInitiator", fields: [initiatedById], references: [id], onDelete: Restrict)
+  governanceCase       FellowshipGovernanceCase    @relation(fields: [governanceCaseId], references: [id], onDelete: Restrict)
 
   @@index([fellowshipId, status, createdAt(sort: Desc)])
 }
@@ -753,13 +765,37 @@ model FellowshipSuspension {
   restoredAt        DateTime?
   restoredById      String?
   restorationReason String?
+  governanceCaseId  String                      @unique
   fellowship        Fellowship                  @relation(fields: [fellowshipId], references: [id], onDelete: Restrict)
   suspendedBy       User                        @relation("FellowshipSuspensionActor", fields: [suspendedById], references: [id], onDelete: Restrict)
   restoredBy        User?                       @relation("FellowshipSuspensionRestorer", fields: [restoredById], references: [id], onDelete: Restrict)
   appeal            FellowshipSuspensionAppeal?
+  governanceCase    FellowshipGovernanceCase    @relation(fields: [governanceCaseId], references: [id], onDelete: Restrict)
 
   @@index([fellowshipId, status, createdAt(sort: Desc)])
   @@index([suspendedById, createdAt(sort: Desc)])
+}
+
+/// Gives each material governance action a stable number and searchable case history.
+model FellowshipGovernanceCase {
+  id            String                        @id @default(cuid())
+  caseSequence  Int                           @unique @default(autoincrement())
+  caseNumber    String                        @unique
+  kind          FellowshipGovernanceCaseKind
+  currentStatus String
+  fellowshipId  String
+  openedById    String
+  openedAt      DateTime                      @default(now())
+  fellowship    Fellowship                    @relation(fields: [fellowshipId], references: [id], onDelete: Restrict)
+  openedBy      User                          @relation("FellowshipGovernanceCaseOpener", fields: [openedById], references: [id], onDelete: Restrict)
+  transfer      FellowshipLeadershipTransfer?
+  dissolution   FellowshipDissolution?
+  suspension    FellowshipSuspension?
+  auditLogs     AuditLog[]
+
+  @@index([kind, openedAt(sort: Desc)])
+  @@index([currentStatus, openedAt(sort: Desc)])
+  @@index([fellowshipId, openedAt(sort: Desc)])
 }
 
 /// Allows one leader appeal per suspension and keeps its independent decision.
@@ -842,19 +878,22 @@ model UserFavoriteVerse {
 }
 
 model AuditLog {
-  id         String   @id @default(cuid())
-  actorId    String?
-  action     String
-  entityType String
-  entityId   String?
-  metadata   Json?
-  ipAddress  String?
-  createdAt  DateTime @default(now())
-  actor      User?    @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+  id               String                    @id @default(cuid())
+  actorId          String?
+  action           String
+  entityType       String
+  entityId         String?
+  metadata         Json?
+  ipAddress        String?
+  createdAt        DateTime                  @default(now())
+  governanceCaseId String?
+  actor            User?                     @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+  governanceCase   FellowshipGovernanceCase? @relation(fields: [governanceCaseId], references: [id], onDelete: Restrict)
 
   @@index([actorId, createdAt(sort: Desc)])
   @@index([entityType, entityId, createdAt(sort: Desc)])
   @@index([action, createdAt])
+  @@index([governanceCaseId, createdAt(sort: Desc)])
 }
 
 // These four models must remain compatible with Better Auth's generated schema.

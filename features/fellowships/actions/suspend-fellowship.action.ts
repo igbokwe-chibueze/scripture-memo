@@ -19,7 +19,9 @@ import type { ActionResult } from "@/types/api";
  * path revalidation runs only after that transaction commits. Credentials are
  * never copied into repository data, audit metadata, or success responses.
  */
-export async function suspendFellowshipAction(input: unknown): Promise<ActionResult> {
+export async function suspendFellowshipAction(
+  input: unknown,
+): Promise<ActionResult<{ caseNumber: string }>> {
   const parsed = suspendFellowshipSchema.safeParse(input);
   if (!parsed.success) return { success: false, message: "Review the suspension details." };
 
@@ -44,7 +46,12 @@ export async function suspendFellowshipAction(input: unknown): Promise<ActionRes
     revalidatePath("/fellowships");
     revalidatePath(`/fellowships/${result.slug}`);
     revalidatePath("/admin/fellowships");
-    return { success: true, message: t("governance.suspensionComplete") };
+    revalidatePath("/admin/fellowship-cases");
+    return {
+      success: true,
+      message: `${t("governance.suspensionComplete")} Case ${result.caseNumber}.`,
+      data: { caseNumber: result.caseNumber },
+    };
   } catch (error) {
     if (error instanceof FellowshipGovernanceError) {
       return { success: false, message: t(`errors.${error.code}`) };

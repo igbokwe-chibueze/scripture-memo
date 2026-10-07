@@ -1937,6 +1937,33 @@ hint-free.
 connected to `/game`. TypeScript, focused ESLint, localization contract tests,
 and `git diff --check` pass. Manual browser verification passed (2026-10-06).
 
+### Fellowship Governance Case Register
+
+- Give every leadership transfer, suspension, and closure its own permanent
+  sequential case number. Keep responses, cancellations, appeals, and decisions
+  attached to the initiating case; a later independent governance action gets a
+  new number.
+- Provide an administrator-searchable register, with case type/status filters,
+  bounded pagination, and a chronological history of every action associated
+  with each case. Governance actions remain restricted to Super Admins.
+- Backfill existing governance records and connect historic audit entries.
+  Where a historic transfer's actor or reason was not retained, show only its
+  known status rather than inferring missing facts.
+
+**Implementation status (2026-10-07):** Implemented with additive local
+migrations and `/admin/fellowship-cases`. The development database at
+`localhost:51214` is up to date; no hosted database was accessed. TypeScript,
+focused ESLint, Fellowship schema tests, the production build, and
+`git diff --check` pass. Manual browser review remains pending.
+
+**Access update (2026-10-07):** The admin landing page now has one Fellowships
+destination. Both administrator roles can review Fellowships and case logs;
+only Super Admins see or can invoke governance action controls. The Fellowship
+overview previews three recent events, links each case number to its filtered
+history, and offers a Fellowship-ID-filtered case register when more audit
+events exist. Every preview item has a **View** button that filters by
+Fellowship, case number, kind, and current case status.
+
 ---
 
 *End of Scripture Memo AI Build Roadmap v2.0*

@@ -1379,6 +1379,16 @@ Social group system.
   a reasoned decision to restore or uphold it. An upheld appeal is final; an
   expired appeal does not restore the Fellowship automatically. A Super Admin
   may restore an unappealed suspension with a recorded reason.
+- Every transfer, suspension, and closure receives a permanent sequential case
+  number. Admins and Super Admins can search the protected case register by
+  number or Fellowship name and review the chronological audit history,
+  including transfer responses, cancellations, suspension appeals, and closure
+  decisions. Each initiating action opens one case; its responses, cancellations,
+  appeals, and decisions stay on that case until resolved. A later independent
+  transfer, suspension, or closure opens a new case. Only Super Admins can perform governance actions. Existing
+  governance records are backfilled; where historic transfer details were not
+  retained, the case timeline records only the known status and does not infer a
+  missing actor or reason.
 - Creation is limited to three fellowships per account per rolling 24 hours to
   reduce spam at the server boundary.
 

@@ -4368,3 +4368,57 @@ concurrency subtests remain explicitly skipped as documented above.
   the local development database at `localhost:51214`; no hosted database was
   accessed. Isolated database-backed integration and browser acceptance remain
   to be completed.
+
+### 2026-10-07 - Scalable Super Admin Fellowship workspace
+
+- Replaced the large per-Fellowship action cards with a compact, responsive
+  table-style list. Desktop rows show leader, member count, visibility, status,
+  and recent update; mobile rows collapse those details into a concise summary.
+- Added server-side search by Fellowship or leader, status filters for active,
+  suspended, appeal review, closing, and closed, and bounded 25-row pagination.
+  The list query selects member counts and latest status only; it does not load
+  every roster or appeal statement for every result.
+- Moved transfer, suspension/appeal review, and emergency closure into a
+  row-scoped management dialog with focused sections. Sensitive roster and case
+  details load only after a Super Admin opens that Fellowship. The direct
+  appeal-review menu item opens the relevant section, and the overview shows
+  the six most recent closure, suspension, appeal, or transfer events.
+- Existing server-side Super Admin checks, password reauthentication, exact
+  name confirmation, reason requirements, and audit behavior remain in place.
+  No schema, migration, or database changes were needed.
+- Fellowship schema tests (14), TypeScript, focused ESLint, `git diff --check`,
+  and the production build pass. Manual browser review remains pending.
+
+### 2026-10-07 - Fellowship governance case numbers and search
+
+- Added a permanent Fellowship governance case for every leadership transfer,
+  suspension, and closure, using sequential `FEL-000001`-style case numbers.
+  Existing governance rows receive numbers in a local-only additive migration.
+- Added an `/admin/fellowship-cases` register searchable by case
+  number or Fellowship name, with type/status filters, pagination, and a detail
+  timeline showing each associated immutable audit event.
+- Linked current and historical audit rows to cases, added audit coverage for
+  transfer requests, responses, cancellations, and transfers canceled by member
+  departure, suspension, closure, or emergency transfer. Legacy transfer gaps
+  are shown as known status snapshots rather than inferred facts.
+- The two migrations applied successfully to the configured local development
+  database at `localhost:51214`; no hosted database was accessed. Prisma
+  validation, migration status, TypeScript, focused ESLint, all 15 Fellowship
+  schema tests, the production build, and `git diff --check` pass. Manual browser
+  review remains pending.
+
+### 2026-10-07 - Fellowship workspace access and log previews
+
+- Consolidated the admin landing page to one Fellowships destination. ADMIN and
+  SUPER_ADMIN may browse Fellowships and search case histories; all governance
+  mutation actions remain server-authorized to SUPER_ADMIN only and their
+  controls are hidden from regular admins.
+- The Fellowship overview now previews three governance events. Each event links
+  to its case number in the case register, with a View button filtering by
+  Fellowship, case number, kind, and current status. “See more case logs” opens
+  the register filtered to that Fellowship by ID.
+- Verified that new leader and Super Admin transfer, closure, and suspension
+  actions each open a case. Follow-up events, including responses, cancellation,
+  appeal, appeal decisions, and restoration, append to that case; independent
+  later actions open new cases.
+- Manual browser review remains pending; local database schema is unchanged.

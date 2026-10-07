@@ -17,7 +17,7 @@ import type { ActionResult } from "@/types/api";
 /** Forces ownership recovery to an existing member with a reasoned audit event. */
 export async function emergencyTransferLeadershipAction(
   input: unknown,
-): Promise<ActionResult> {
+): Promise<ActionResult<{ caseNumber: string }>> {
   const parsed = emergencyTransferLeadershipSchema.safeParse(input);
   if (!parsed.success) return { success: false, message: "Review the recovery details." };
 
@@ -47,7 +47,12 @@ export async function emergencyTransferLeadershipAction(
     revalidatePath("/fellowships");
     revalidatePath(`/fellowships/${fellowship.slug}`);
     revalidatePath("/admin/fellowships");
-    return { success: true, message: t("governance.emergencyTransferComplete") };
+    revalidatePath("/admin/fellowship-cases");
+    return {
+      success: true,
+      message: `${t("governance.emergencyTransferComplete")} Case ${fellowship.caseNumber}.`,
+      data: { caseNumber: fellowship.caseNumber },
+    };
   } catch (error) {
     if (error instanceof FellowshipGovernanceError) {
       return { success: false, message: t(`errors.${error.code}`) };
@@ -60,7 +65,7 @@ export async function emergencyTransferLeadershipAction(
 /** Immediately closes a Fellowship after Super Admin re-authentication and review. */
 export async function emergencyDissolveFellowshipAction(
   input: unknown,
-): Promise<ActionResult> {
+): Promise<ActionResult<{ caseNumber: string }>> {
   const parsed = emergencyFellowshipActionSchema.safeParse(input);
   if (!parsed.success) return { success: false, message: "Review the emergency closure details." };
 
@@ -89,7 +94,12 @@ export async function emergencyDissolveFellowshipAction(
     revalidatePath("/fellowships");
     revalidatePath(`/fellowships/${fellowship.slug}`);
     revalidatePath("/admin/fellowships");
-    return { success: true, message: t("governance.emergencyClosureComplete") };
+    revalidatePath("/admin/fellowship-cases");
+    return {
+      success: true,
+      message: `${t("governance.emergencyClosureComplete")} Case ${fellowship.caseNumber}.`,
+      data: { caseNumber: fellowship.caseNumber },
+    };
   } catch (error) {
     if (error instanceof FellowshipGovernanceError) {
       return { success: false, message: t(`errors.${error.code}`) };

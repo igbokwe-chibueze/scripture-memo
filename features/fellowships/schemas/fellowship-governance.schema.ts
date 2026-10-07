@@ -52,6 +52,13 @@ export const emergencyTransferLeadershipSchema = emergencyFellowshipActionSchema
 /** Bounds platform-wide moderation search without exposing private accounts. */
 export const fellowshipModerationSearchSchema = z.object({
   query: z.string().trim().max(50).default(""),
+  status: z.enum(["ALL", "ACTIVE", "SUSPENDED", "APPEAL_PENDING", "CLOSING", "CLOSED"]).default("ALL"),
+  page: z.coerce.number().int().min(1).max(100_000).default(1),
+});
+
+/** Validates the focused, on-demand detail request for one Fellowship. */
+export const fellowshipModerationDetailSchema = z.object({
+  fellowshipId: fellowshipId,
 });
 
 /** Requires a reauthenticated Super Admin and clear suspension reason. */

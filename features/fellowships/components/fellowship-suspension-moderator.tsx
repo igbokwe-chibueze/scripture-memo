@@ -22,9 +22,11 @@ import type { FellowshipModerationItem } from "@/features/fellowships/types/fell
 export function FellowshipSuspensionModerator({
   fellowship,
   viewerId,
+  onComplete,
 }: Readonly<{
   fellowship: FellowshipModerationItem;
   viewerId: string;
+  onComplete?: () => void;
 }>): React.ReactNode {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -42,6 +44,7 @@ export function FellowshipSuspensionModerator({
           return;
         }
         toast.success(result.message);
+        onComplete?.();
         router.refresh();
       } catch {
         toast.error("The suspension action could not be completed. Please try again.", {

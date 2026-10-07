@@ -623,6 +623,7 @@ export const fellowshipRepository = {
           select: {
             id: true,
             fromLeaderId: true,
+            governanceCaseId: true,
             fellowship: { select: { slug: true, name: true } },
           },
         });
@@ -635,6 +636,21 @@ export const fellowshipRepository = {
           },
           data: { status: "CANCELLED", resolvedAt: new Date() },
         });
+        for (const offer of pendingOffers) {
+          await transaction.fellowshipGovernanceCase.update({
+            where: { id: offer.governanceCaseId },
+            data: { currentStatus: "CANCELLED" },
+          });
+          await transaction.auditLog.create({
+            data: {
+              actorId: userId,
+              action: "FELLOWSHIP_LEADERSHIP_TRANSFER_CANCELLED_MEMBER_LEFT",
+              entityType: "FellowshipLeadershipTransfer",
+              entityId: offer.id,
+              governanceCaseId: offer.governanceCaseId,
+            },
+          });
+        }
         await transaction.userNotification.createMany({
           data: pendingOffers.map((offer) => ({
             userId: offer.fromLeaderId,

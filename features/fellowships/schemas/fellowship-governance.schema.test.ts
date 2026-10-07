@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   emergencyFellowshipActionSchema,
+  fellowshipModerationSearchSchema,
   requestLeadershipTransferSchema,
   resolveFellowshipSuspensionAppealSchema,
   respondLeadershipTransferSchema,
@@ -14,6 +15,25 @@ import {
 const fellowshipId = "cm12345678901234567890123";
 const memberId = "cm98765432109876543210987";
 const password = "correct horse battery staple";
+
+test("Fellowship moderation search validates status filters and bounded pages", () => {
+  assert.deepEqual(
+    fellowshipModerationSearchSchema.parse({
+      query: "  Grace Circle  ",
+      status: "APPEAL_PENDING",
+      page: "3",
+    }),
+    { query: "Grace Circle", status: "APPEAL_PENDING", page: 3 },
+  );
+  assert.equal(
+    fellowshipModerationSearchSchema.safeParse({ status: "UNSUPPORTED" }).success,
+    false,
+  );
+  assert.equal(
+    fellowshipModerationSearchSchema.safeParse({ page: "0" }).success,
+    false,
+  );
+});
 
 test("leadership offers require a real target membership and password", () => {
   assert.equal(
