@@ -1887,6 +1887,39 @@ restored. This extra is complete.
 - Validate every replacement in the picker, Fellowship cards, and detail header
   at mobile and large-screen sizes before removing the atlas workflow.
 
+### Pre-Production Artwork Packaging and Mobile Image Audit
+
+**Status:** Planned for the broad pre-production UI and art pass. This is a
+production-readiness task, not a reason to reopen the completed Phase 31 audit.
+
+- Keep authoring masters and generated source artwork outside `public/`, while
+  retaining them in the project’s versioned authoring archive. Only approved,
+  production-ready exports should be directly served from `public/`.
+- Inventory each image by path, dimensions, file size, runtime consumer, and
+  intended audience. Separate player-facing exports from admin comparison
+  previews and unreferenced/archived files.
+- Preserve the current Concept Luna comparison preview only if it remains
+  useful in the deployed admin testing workspace; if retained, serve compact
+  preview exports there and keep full source artwork out of the public asset
+  directory.
+- For large player-facing artwork, compare visually approved WebP/AVIF exports
+  with the existing PNGs, preserving transparency and composition where needed.
+  Do not replace artwork solely to reduce byte counts if detail or appearance
+  degrades at its actual display size.
+- Review `next/image` `sizes`, lazy loading, and preload behavior for the chosen
+  runtime assets. Preload only an image confirmed to be the route’s likely
+  Largest Contentful Paint element.
+- Measure a production build at a 375px viewport with a cold browser cache and
+  mobile network throttling. Record actual transferred image bytes and LCP for
+  representative image-heavy routes, including Map and Oil Shop, before setting
+  route budgets or considering a separate image CDN.
+
+**Initial source inventory (2026-10-07):** `public/` contains 126,583,462 bytes
+across 141 files. Image files account for about 120.5 MiB. The Luna authoring
+sources use about 21.5 MiB, Concept Luna sources about 15.8 MiB, and Concept
+Luna preview exports about 13.7 MiB. This is repository asset size, not a claim
+about per-player transfer; browser delivery must be measured separately.
+
 ### Large-Screen Contextual Player Panel
 
 - Consider an optional right-side contextual panel for sufficiently wide player

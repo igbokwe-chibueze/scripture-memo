@@ -1,5 +1,21 @@
 # Scripture Memo Project Log
 
+### 2026-10-07 — Pre-production artwork packaging planned
+
+- Measured `public/` at 126,583,462 bytes across 141 files. Images account for
+  about 120.5 MiB. Luna authoring sources use about 21.5 MiB, Concept Luna
+  sources about 15.8 MiB, and Concept Luna preview exports about 13.7 MiB.
+- Confirmed that major player artwork uses `next/image`, so an individual
+  player's transfer depends on the images requested by their route and the
+  optimized responsive variant. The aggregate directory size is not a
+  per-player download measurement. `public/` assets remain directly addressable
+  by URL, so authoring masters should not stay there.
+- Added a bounded artwork-packaging task to the pre-production UI/art pass:
+  preserve source files in a versioned authoring archive outside `public/`,
+  retain only approved production and any deliberately retained preview exports
+  as public assets, compare modern image formats visually, and measure cold-cache
+  375px image transfer and LCP on representative routes. Phase 31 remains closed.
+
 ### 2026-10-07 — Current guidance aligned with progression and seed behavior
 
 - Clarified that Glow Points are the only spendable currency, while Beacon XP
