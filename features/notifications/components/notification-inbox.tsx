@@ -1,9 +1,9 @@
 /** Shared client-only inbox; imported by production and preview client entries. */
 
 import { useEffect, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import {
+  ArrowLeftIcon,
   AwardIcon,
   BellIcon,
   CheckCheckIcon,
@@ -16,6 +16,7 @@ import {
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/shared/loading-button";
+import { NavigationButton } from "@/components/shared/navigation-button";
 import { showActionError } from "@/lib/errors/show-action-error";
 import {
   Sheet,
@@ -80,12 +81,67 @@ function fellowshipNoticeKey(item: NotificationItem): string | null {
   return null;
 }
 
+/** Renders the established inbox icon for both the list and detail view. */
+function notificationIcon(item: NotificationItem): React.ReactNode {
+  if (item.type === "BADGE_AWARDED") {
+    return <AwardIcon aria-hidden="true" />;
+  }
+  if (item.type === "FELLOWSHIP_LEADERSHIP") {
+    return <UsersRoundIcon aria-hidden="true" />;
+  }
+  if (
+    item.type === "FELLOWSHIP_CLOSING" ||
+    item.type === "FELLOWSHIP_SUSPENSION" ||
+    item.type === "FELLOWSHIP_APPEAL"
+  ) {
+    return <ShieldAlertIcon aria-hidden="true" />;
+  }
+
+  const outcome = leagueOutcome(item);
+  if (outcome === "promoted") return <TrendingUpIcon aria-hidden="true" />;
+  if (outcome === "demoted") return <TrendingDownIcon aria-hidden="true" />;
+  return <MinusIcon aria-hidden="true" />;
+}
+
+/** Returns only known in-app destinations; payload text can never set an origin. */
+function notificationDestination(
+  item: NotificationItem,
+): {
+  href: string;
+  label: "viewBadges" | "openFellowship" | "viewLeaderboard";
+} | null {
+  if (item.type === "BADGE_AWARDED") {
+    return { href: "/vault/badges", label: "viewBadges" };
+  }
+
+  if (
+    item.type === "FELLOWSHIP_LEADERSHIP" ||
+    item.type === "FELLOWSHIP_CLOSING" ||
+    item.type === "FELLOWSHIP_SUSPENSION" ||
+    item.type === "FELLOWSHIP_APPEAL"
+  ) {
+    const slug = item.payload.fellowshipSlug;
+    return typeof slug === "string"
+      ? {
+          href: `/fellowships/${encodeURIComponent(slug)}`,
+          label: "openFellowship",
+        }
+      : null;
+  }
+
+  if (leagueOutcome(item)) {
+    return { href: "/leaderboard", label: "viewLeaderboard" };
+  }
+
+  return null;
+}
+
 /**
  * Provides an on-demand inbox and one-time weekly-result celebration.
  *
  * The component never polls. Server-rendered shell data changes during normal
- * navigation. Local read indicators change after server confirmation without
- * issuing a second read after each mutation, so failures remain retryable.
+ * navigation. Opening a notice updates its local read state immediately and
+ * restores it if the server cannot persist that acknowledgement.
  */
 export function NotificationInbox({
   data,
@@ -97,9 +153,9 @@ export function NotificationInbox({
   const t = useTranslations("Notifications");
   const leagueT = useTranslations("Leaderboard.leagues");
   const locale = useLocale();
-  const router = useRouter();
   const [items, setItems] = useState(data.items);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<NotificationItem | null>(null);
   const [resultOpen, setResultOpen] = useState(
     data.pendingLeagueResult !== null,
   );
@@ -125,6 +181,44 @@ export function NotificationInbox({
     }
   };
 
+  const notificationTitle = (item: NotificationItem): string => {
+    const outcome = leagueOutcome(item);
+    const fellowshipNotice = fellowshipNoticeKey(item);
+
+    if (item.type === "BADGE_AWARDED") return t("badgeAwardedTitle");
+    if (fellowshipNotice) return t(`${fellowshipNotice}Title`);
+    if (outcome) return t(`${outcome}Title`);
+    return t("systemTitle");
+  };
+
+  const notificationBody = (item: NotificationItem): string => {
+    const outcome = leagueOutcome(item);
+    const fellowshipNotice = fellowshipNoticeKey(item);
+
+    if (item.type === "BADGE_AWARDED") {
+      return t("badgeAwardedBody", {
+        badge: item.payload.badgeName ?? "",
+        reward: item.payload.rewardAmount ?? 0,
+      });
+    }
+    if (fellowshipNotice) {
+      return t(`${fellowshipNotice}Body`, {
+        fellowship: item.payload.fellowshipName ?? "",
+      });
+    }
+    if (outcome) {
+      return t(`${outcome}Body`, {
+        league: readableLeague(item.payload.currentLeague),
+      });
+    }
+    return t("systemBody");
+  };
+
+  const notificationDate = (item: NotificationItem): string =>
+    new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(
+      new Date(item.createdAt),
+    );
+
   useEffect(() => {
     if (!result) return;
 
@@ -139,50 +233,54 @@ export function NotificationInbox({
     });
   }, [result, actions]);
 
-  /** Retains unread state on rejected or interrupted server acknowledgements. */
+  /** Marks an opened notice read immediately and restores it if persistence fails. */
   const markRead = (notificationId: string): void => {
+    const wasUnread = items.some(
+      (item) => item.id === notificationId && !item.read,
+    );
+    if (!wasUnread) return;
+
+    // Opening a notice acknowledges it immediately in the interface. Restore
+    // the unread indicator if the server cannot persist that acknowledgement.
+    setItems((current) =>
+      current.map((item) =>
+        item.id === notificationId ? { ...item, read: true } : item,
+      ),
+    );
+
     startTransition(async () => {
       try {
         const response = await actions.markRead({ notificationId });
         if (!response.success) {
+          setItems((current) =>
+            current.map((item) =>
+              item.id === notificationId ? { ...item, read: false } : item,
+            ),
+          );
           showActionError(response);
           return;
         }
-        // Functional updates preserve other acknowledgements that complete
-        // concurrently; no stale whole-inbox snapshot is restored on failure.
-        setItems((current) =>
-          current.map((item) =>
-            item.id === notificationId ? { ...item, read: true } : item,
-          ),
-        );
         toast.success(response.message);
       } catch {
+        setItems((current) =>
+          current.map((item) =>
+            item.id === notificationId ? { ...item, read: false } : item,
+          ),
+        );
         toast.error(t("readFailed"), { duration: Infinity });
       }
     });
   };
 
-  /** A badge notice doubles as a direct path to the learner's collection. */
+  /** Opens a detail view in the existing sheet after acknowledging the notice. */
   const openNotification = (item: NotificationItem): void => {
     markRead(item.id);
-
-    if (item.type === "BADGE_AWARDED") {
-      setSheetOpen(false);
-      router.push("/vault/badges");
-      return;
-    }
-
-    if (
-      (item.type === "FELLOWSHIP_LEADERSHIP" ||
-        item.type === "FELLOWSHIP_CLOSING" ||
-        item.type === "FELLOWSHIP_SUSPENSION" ||
-        item.type === "FELLOWSHIP_APPEAL") &&
-      typeof item.payload.fellowshipSlug === "string"
-    ) {
-      setSheetOpen(false);
-      router.push(`/fellowships/${item.payload.fellowshipSlug}`);
-    }
+    setSelectedItem(item);
   };
+
+  const selectedDestination = selectedItem
+    ? notificationDestination(selectedItem)
+    : null;
 
   const markAllRead = (): void => {
     startTransition(async () => {
@@ -225,120 +323,135 @@ export function NotificationInbox({
         )}
       </Button>
 
-      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+      <Sheet
+        open={sheetOpen}
+        onOpenChange={(open) => {
+          setSheetOpen(open);
+          if (!open) setSelectedItem(null);
+        }}
+      >
         <SheetContent
           side="right"
           className="w-[min(90vw,24rem)] border-border bg-card"
         >
-          <SheetHeader className="border-b pr-16">
-            <SheetTitle className="font-heading text-2xl font-bold">
-              {t("title")}
-            </SheetTitle>
-            <SheetDescription>{t("description")}</SheetDescription>
-          </SheetHeader>
+          {selectedItem ? (
+            <>
+              <SheetHeader className="border-b pr-16">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="min-h-11 w-fit justify-start px-2"
+                  onClick={() => setSelectedItem(null)}
+                >
+                  <ArrowLeftIcon aria-hidden="true" />
+                  {t("backToNotifications")}
+                </Button>
+                <SheetTitle className="font-heading text-2xl font-bold">
+                  {t("detailTitle")}
+                </SheetTitle>
+              </SheetHeader>
 
-          <div className="flex items-center justify-end px-4">
-            <LoadingButton
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={unreadCount === 0}
-              isPending={isPending}
-              pendingLabel={t("markingRead")}
-              onClick={markAllRead}
-            >
-              <CheckCheckIcon aria-hidden="true" />
-              {t("markAllRead")}
-            </LoadingButton>
-          </div>
-
-          <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-6">
-            {items.length === 0 ? (
-              <div className="grid min-h-56 place-items-center rounded-3xl border border-dashed text-center">
-                <div>
-                  <BellIcon className="mx-auto size-9 text-muted-foreground" />
-                  <p className="mt-3 font-heading text-lg font-bold">
-                    {t("empty")}
+              <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-4 pb-6">
+                <div className="space-y-4 rounded-3xl border bg-background p-5">
+                  <span className="grid size-12 place-items-center rounded-2xl bg-muted">
+                    {notificationIcon(selectedItem)}
+                  </span>
+                  <h3 className="font-heading text-xl font-bold">
+                    {notificationTitle(selectedItem)}
+                  </h3>
+                  <p className="text-base text-muted-foreground">
+                    {notificationBody(selectedItem)}
+                  </p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    {notificationDate(selectedItem)}
                   </p>
                 </div>
-              </div>
-            ) : (
-              <ul className="space-y-3">
-                {items.map((item) => {
-                  const itemOutcome = leagueOutcome(item);
-                  const isBadgeAward = item.type === "BADGE_AWARDED";
-                  const fellowshipNotice = fellowshipNoticeKey(item);
-                  const Icon =
-                    isBadgeAward
-                      ? AwardIcon
-                      : item.type === "FELLOWSHIP_LEADERSHIP"
-                        ? UsersRoundIcon
-                        : item.type === "FELLOWSHIP_CLOSING" ||
-                            item.type === "FELLOWSHIP_SUSPENSION" ||
-                            item.type === "FELLOWSHIP_APPEAL"
-                          ? ShieldAlertIcon
-                      : itemOutcome === "promoted"
-                      ? TrendingUpIcon
-                      : itemOutcome === "demoted"
-                        ? TrendingDownIcon
-                        : MinusIcon;
 
-                  return (
-                    <li key={item.id}>
-                      <button
-                        type="button"
-                        disabled={isPending}
-                        onClick={() => openNotification(item)}
-                        className={cn(
-                          "flex w-full touch-manipulation items-start gap-3 rounded-3xl border p-4 text-left transition active:translate-y-0.5 disabled:opacity-50",
-                          !item.read && "border-primary/45 bg-primary/8",
-                        )}
-                      >
-                        <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-muted">
-                          <Icon aria-hidden="true" />
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block font-heading font-bold">
-                            {isBadgeAward
-                              ? t("badgeAwardedTitle")
-                              : fellowshipNotice
-                                ? t(`${fellowshipNotice}Title`)
-                              : itemOutcome
-                                ? t(`${itemOutcome}Title`)
-                                : t("systemTitle")}
-                          </span>
-                          <span className="mt-1 block text-sm text-muted-foreground">
-                            {isBadgeAward
-                              ? t("badgeAwardedBody", {
-                                  badge: item.payload.badgeName ?? "",
-                                  reward: item.payload.rewardAmount ?? 0,
-                                })
-                              : fellowshipNotice
-                                ? t(`${fellowshipNotice}Body`, {
-                                    fellowship: item.payload.fellowshipName ?? "",
-                                  })
-                              : itemOutcome
-                              ? t(`${itemOutcome}Body`, {
-                                  league: readableLeague(item.payload.currentLeague),
-                                })
-                              : t("systemBody")}
-                          </span>
-                          <span className="mt-2 block text-xs font-bold text-muted-foreground">
-                            {new Intl.DateTimeFormat(locale, {
-                              dateStyle: "medium",
-                            }).format(new Date(item.createdAt))}
-                          </span>
-                        </span>
-                        {!item.read && (
-                          <span className="mt-2 size-2.5 rounded-full bg-primary" />
-                        )}
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </div>
+                {selectedDestination && (
+                    <NavigationButton
+                      href={selectedDestination.href}
+                      pendingLabel={t("openingDestination")}
+                      className="min-h-12 w-full"
+                    >
+                      {t(selectedDestination.label)}
+                    </NavigationButton>
+                  )}
+              </div>
+            </>
+          ) : (
+            <>
+              <SheetHeader className="border-b pr-16">
+                <SheetTitle className="font-heading text-2xl font-bold">
+                  {t("title")}
+                </SheetTitle>
+                <SheetDescription>{t("description")}</SheetDescription>
+              </SheetHeader>
+
+              <div className="flex items-center justify-end px-4">
+                <LoadingButton
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={unreadCount === 0}
+                  isPending={isPending}
+                  pendingLabel={t("markingRead")}
+                  onClick={markAllRead}
+                >
+                  <CheckCheckIcon aria-hidden="true" />
+                  {t("markAllRead")}
+                </LoadingButton>
+              </div>
+
+              <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-6">
+                {items.length === 0 ? (
+                  <div className="grid min-h-56 place-items-center rounded-3xl border border-dashed text-center">
+                    <div>
+                      <BellIcon className="mx-auto size-9 text-muted-foreground" />
+                      <p className="mt-3 font-heading text-lg font-bold">
+                        {t("empty")}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <ul className="space-y-3">
+                    {items.map((item) => {
+                      return (
+                        <li key={item.id}>
+                          <button
+                            type="button"
+                            disabled={isPending}
+                            onClick={() => openNotification(item)}
+                            className={cn(
+                              "flex w-full touch-manipulation items-start gap-3 rounded-3xl border p-4 text-left transition active:translate-y-0.5 disabled:opacity-50",
+                              !item.read && "border-primary/45 bg-primary/8",
+                            )}
+                          >
+                            <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-muted">
+                              {notificationIcon(item)}
+                            </span>
+                            <span className="min-w-0 flex-1">
+                              <span className="block font-heading font-bold">
+                                {notificationTitle(item)}
+                              </span>
+                              <span className="mt-1 block text-sm text-muted-foreground">
+                                {notificationBody(item)}
+                              </span>
+                              <span className="mt-2 block text-xs font-bold text-muted-foreground">
+                                {notificationDate(item)}
+                              </span>
+                            </span>
+                            {!item.read && (
+                              <span className="mt-2 size-2.5 rounded-full bg-primary" />
+                            )}
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </div>
+            </>
+          )}
         </SheetContent>
       </Sheet>
 

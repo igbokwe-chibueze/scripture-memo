@@ -4,7 +4,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { NotificationInbox } from "@/features/notifications/components/notification-inbox";
 import type { NotificationInboxActions } from "@/features/notifications/types/notification-inbox.types";
-import type { NotificationShellData } from "@/features/notifications/types/notification.types";
+import type {
+  NotificationItem,
+  NotificationShellData,
+} from "@/features/notifications/types/notification.types";
 import type { ActionResult } from "@/types/api";
 
 type Scenario = "connection" | "rejected" | "success" | "empty";
@@ -48,15 +51,31 @@ function createPreviewActions(scenario: Scenario): NotificationInboxActions {
 /** Holds a stable transport per run; a new key resets the complete test inbox. */
 function PreviewRun({ scenario }: Readonly<{ scenario: Scenario }>): React.ReactNode {
   const [actions] = useState(() => createPreviewActions(scenario));
+  const previewNotices: ReadonlyArray<
+    Pick<NotificationItem, "type" | "payload">
+  > = [
+    {
+      type: "BADGE_AWARDED" as const,
+      payload: { badgeName: "First Steps", rewardAmount: 100 },
+    },
+    {
+      type: "LEAGUE_PROMOTED" as const,
+      payload: { currentLeague: "DISCIPLE", finalRank: 4, crownAward: 3 },
+    },
+    { type: "SYSTEM" as const, payload: {} },
+  ];
   const data: NotificationShellData = {
-    items: scenario === "empty" ? [] : [1, 2, 3].map((number) => ({
-      id: `notification-preview-${number}`,
-      type: "SYSTEM",
-      payload: {},
-      createdAt: `2026-09-${20 + number}T12:00:00.000Z`,
-      read: false,
-      presented: true,
-    })),
+    items:
+      scenario === "empty"
+        ? []
+        : previewNotices.map((notice, index) => ({
+            id: `notification-preview-${index + 1}`,
+            type: notice.type,
+            payload: notice.payload,
+            createdAt: `2026-09-${21 + index}T12:00:00.000Z`,
+            read: false,
+            presented: true,
+          })),
     unreadCount: scenario === "empty" ? 0 : 3,
     pendingLeagueResult: null,
   };
@@ -103,9 +122,10 @@ export function NotificationTestPreview(): React.ReactNode {
         ))}
       </div>
       <p className="text-sm text-muted-foreground">
-        Open the test bell below. In either failure scenario, tap a notice or
-        Read all: it must stay unread after the error. Repeat the same action
-        to succeed. Close the inbox and reset to start again.
+        Open a test notice to see its details and any destination. Opening it
+        marks it read. In either failure scenario, return to the inbox after
+        the error to confirm its unread state returns; retry to succeed. Read
+        all remains available in the inbox. Close and reset to start again.
       </p>
       <div className="flex flex-wrap items-center gap-4">
         <span className="text-sm font-bold">Test inbox</span>
