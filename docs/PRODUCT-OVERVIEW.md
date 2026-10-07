@@ -1528,9 +1528,12 @@ Use Prisma with PostgreSQL. This section lists required models. The implementati
   state and does not copy records. Once production is live, never overwrite
   production with the development database; production becomes the source of
   truth for live user data.
-- Automated tests use a separate local instance on port 51224; development stays
-  on 51214. Changing only a Prisma Local database name does not isolate data.
-  Tests must not consume hosted operations or mutate development data.
+- Routine automated integration tests use a separate local instance on port
+  51224; development stays on 51214. Multi-connection concurrency tests use
+  `npm run test:concurrency:local`, which starts an isolated embedded PostgreSQL
+  server on a temporary loopback port and removes its data after the run.
+  Changing only a Prisma Local database name does not isolate data. Tests must
+  not consume hosted operations or mutate development data.
 - Production credentials are supplied only through the deployment environment;
   they are not copied into the tracked local template.
 - Read paths must remain read-only. Lazy progression initialization occurs only

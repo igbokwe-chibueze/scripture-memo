@@ -16,10 +16,13 @@ import assert from "node:assert/strict";
 import { after, test } from "node:test";
 import { createHmac, randomUUID } from "node:crypto";
 import "dotenv/config";
+import { getPostgresPoolConfig } from "@/lib/database/get-postgres-pool-config";
 import { requireSafeTestDatabaseUrl } from "@/lib/testing/test-database-guard";
 
 const testDatabaseUrl = process.env.TEST_DATABASE_URL;
 const applicationDatabaseUrl = process.env.DATABASE_URL;
+const multiConnectionSkipReason =
+  "Requires multiple PostgreSQL connections; Prisma Local serializes requests.";
 let disconnectIntegrationPrisma: (() => Promise<void>) | undefined;
 
 after(async () => {
@@ -111,7 +114,13 @@ test(
 
 test(
   "custom auth action limiter is shared, concurrent-safe, and scope-specific",
-  { skip: testDatabaseUrl ? false : "TEST_DATABASE_URL is not configured." },
+  {
+    skip: !testDatabaseUrl
+      ? "TEST_DATABASE_URL is not configured."
+      : getPostgresPoolConfig(testDatabaseUrl).max === 1
+        ? multiConnectionSkipReason
+        : false,
+  },
   async () => {
     if (!testDatabaseUrl) return;
 

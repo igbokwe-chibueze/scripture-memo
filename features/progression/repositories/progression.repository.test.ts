@@ -187,6 +187,93 @@ test(
         data: { isActive: true },
       });
 
+      // Use a second synthetic learner to race the real day-completion
+      // transaction. This checks the per-user progression lock and persisted
+      // completed-state recheck, not only sequential duplicate handling.
+      await context.test("concurrent day completion commits only once", {
+        skip: getPostgresPoolConfig(testDatabaseUrl).max === 1
+          ? "Requires concurrent PostgreSQL connections; Prisma Local serializes them."
+          : false,
+      }, async () => {
+        const raceInitialization = await progressionRepository.initializeFirstWaypoint(
+          raceUserId,
+        );
+        assert.equal(raceInitialization.status, "ready");
+
+        await progressionRepository.prepareDayForGameplay(
+          raceUserId,
+          firstWaypoint.id,
+          "GLIMMER",
+          new Date("2026-07-01T07:55:00.000Z"),
+        );
+
+        const completedAt = new Date("2026-07-01T08:00:00.000Z");
+        const completionResults = await Promise.allSettled([
+          progressionRepository.markDayComplete(
+            raceUserId,
+            firstWaypoint.id,
+            "GLIMMER",
+            completedAt,
+          ),
+          progressionRepository.markDayComplete(
+            raceUserId,
+            firstWaypoint.id,
+            "GLIMMER",
+            completedAt,
+          ),
+        ]);
+
+        assert.equal(
+          completionResults.filter((result) => result.status === "fulfilled").length,
+          1,
+          "Only one simultaneous caller may complete the same challenge day.",
+        );
+        const rejectedCompletion = completionResults.find(
+          (result) => result.status === "rejected",
+        );
+        assert.ok(rejectedCompletion && rejectedCompletion.status === "rejected");
+        assert.ok(rejectedCompletion.reason instanceof ProgressionConflictError);
+        assert.equal(rejectedCompletion.reason.code, "DAY_ALREADY_COMPLETED");
+
+        const [completedDay, unlockedNextDay] = await Promise.all([
+          prisma.userDayProgress.findUniqueOrThrow({
+            where: {
+              userId_waypointId_dayLevel: {
+                userId: raceUserId,
+                waypointId: firstWaypoint.id,
+                dayLevel: "GLIMMER",
+              },
+            },
+            select: { status: true, completedAt: true },
+          }),
+          prisma.userDayProgress.findUniqueOrThrow({
+            where: {
+              userId_waypointId_dayLevel: {
+                userId: raceUserId,
+                waypointId: firstWaypoint.id,
+                dayLevel: "GLOW",
+              },
+            },
+            select: { unlocksAt: true },
+          }),
+        ]);
+
+        assert.equal(completedDay.status, "COMPLETED");
+        assert.equal(completedDay.completedAt?.toISOString(), completedAt.toISOString());
+        assert.equal(
+          unlockedNextDay.unlocksAt?.toISOString(),
+          "2026-07-02T08:00:00.000Z",
+          "The completed day should create one correctly scheduled next day.",
+        );
+        assert.equal(
+          await prisma.userDayProgress.count({
+            where: { userId: raceUserId, waypointId: firstWaypoint.id },
+          }),
+          2,
+          "The race should leave one completed day and one scheduled next day.",
+        );
+      });
+
       const initialized = await progressionRepository.initializeFirstWaypoint(userId);
       assert.deepEqual(initialized, {
         status: "ready",

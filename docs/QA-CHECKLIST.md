@@ -21,8 +21,11 @@ security issue remains unresolved.
 | TypeScript strict compilation | Passed | `npx tsc --noEmit` on 2026-08-29 |
 | Full ESLint pass | Passed | `npm run lint` on 2026-08-29 |
 | Non-database unit tests | Passed | 99 tests across errors, guards, progression, streaks, gameplay, rewards, hints, badges, Vault, map, localization, Fellowships, Beacon, and verse import |
-| Waypoint repository integration | Passed locally | 2026-09-14; lifecycle and ordered append outcomes pass. Actual concurrent lock contention remains unverified on Prisma Local. |
-| Progression repository integration | Passed with skips | 2026-09-14; cooldown, duplicate, and lazy unlock checks pass; two lock-race subtests explicitly skipped because the local pool has one connection. |
+| Waypoint repository integration | Passed locally | 2026-09-14; lifecycle and ordered append outcomes pass. Actual concurrent lock contention is covered by the separate concurrency runner. |
+| Progression repository integration | Passed | 2026-10-07; cooldown, duplicate, lazy unlock, curriculum lock races, and simultaneous day completion pass on disposable PostgreSQL with no skipped race checks. |
+| Auth and gameplay limiter integration | Passed | 2026-10-07; login/registration shared caps and gameplay submission throttling pass under concurrent PostgreSQL requests. |
+| Gameplay completion concurrency | Passed | 2026-10-07; two simultaneous submissions of one valid attempt yield one completion. |
+| Fellowship governance concurrency | Passed | 2026-10-07; duplicate offer/acceptance, closure-versus-suspension, and concurrent appeal races preserve one outcome and case history. |
 | Reward repository integration | Passed locally | 2026-09-14; committed balance and single ledger entry survive a duplicate award rejection. |
 | Fellowship repository integration | Passed locally | 2026-09-14; leader/member/visitor access, privacy, ranking, and request projection. |
 
@@ -34,7 +37,13 @@ Use `npm run local:test:start`, `npm run test:database:migrate`, then
 `npm run test:integration:all`. The test instance uses port 51224; development
 remains on 51214. The shared guard rejects hosted URLs and same-port aliases.
 `npm run test:database:reset` clears disposable local fixtures only. The former
-hosted quota blocker is retired; genuine concurrent race coverage remains pending.
+hosted quota blocker is retired.
+
+Run `npm run test:concurrency:local` for multi-connection race checks. This
+command starts an isolated PostgreSQL 16 process on a temporary loopback port,
+applies migrations only to its disposable database, executes all concurrency
+suites, and removes the database files when complete. It does not require Docker
+and never uses the development, Prisma Local test, or hosted database.
 
 ## Manual regression flows
 

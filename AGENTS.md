@@ -204,10 +204,13 @@ optimization.
 
 - Local development and automated tests must use isolated local/test databases;
   never use the hosted production database as the routine development backend.
-  Current development uses Prisma Local port 51214; integration tests use a
-  separate named local instance on 51224. Database-name changes on the same
-  Prisma Local port do not isolate data. Keep test guards local-only and reject
-  reuse of the development listener. Hosted test credentials are retired.
+  Current development uses Prisma Local port 51214; routine integration tests
+  use a separate named local instance on 51224. Multi-connection concurrency
+  tests use `npm run test:concurrency:local`, which starts a disposable embedded
+  PostgreSQL server on an ephemeral loopback port and removes its test data on
+  shutdown. Database-name changes on one Prisma Local port do not isolate data.
+  Keep test guards local-only and reject reuse of the development listener.
+  Hosted test credentials are retired.
 - Do not perform writes, transactions, advisory locks, or initialization during
   ordinary read requests. Initialization belongs at an explicit state transition
   or behind a cheap read that proves recovery is actually required.

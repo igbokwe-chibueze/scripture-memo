@@ -1636,14 +1636,16 @@ Phase 29 is complete and accepted. Phase 30 — Testing and QA is next.
 **Goal:** Verify all MVP flows work correctly and securely.
 
 **Status:** Complete — all 16 manual regression flows passed by 2026-09-01.
-TypeScript, ESLint, and the non-database test baseline pass. On 2026-09-14,
-waypoint, progression, reward, and Fellowship integration suites ran on the
-separate local test instance. Two progression lock-race subtests remain pending:
-Prisma Local's single-connection setup skips them. A 2026-09-27 retry could not
-start the isolated test instance because another process held its durable-stream
-SQLite file; no development or hosted database was used. Real concurrent lock
-coverage still requires a supported local multi-connection PostgreSQL runtime.
-Completed manual acceptance remains unchanged.
+TypeScript, ESLint, and the non-database test baseline pass. The concurrency
+coverage that previously skipped on Prisma Local was completed on 2026-10-07
+against a disposable embedded PostgreSQL 16 instance: progression curriculum
+locks and duplicate day completion, auth/gameplay submission limits, duplicate
+game-mode completion, and Fellowship transfer, closure/suspension, and appeal
+races all passed with no skipped tests. `npm run test:concurrency:local` starts
+the isolated server, applies checked-in migrations, runs the guarded suites, and
+removes temporary database files. No development or hosted database was used.
+Manual acceptance remains complete; this closes the previously recorded
+multi-connection concurrency exception without reopening the phase.
 
 ### Manual Test Flows
 

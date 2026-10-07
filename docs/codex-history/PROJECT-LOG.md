@@ -1,5 +1,49 @@
 # Scripture Memo Project Log
 
+### 2026-10-07 — Multi-connection PostgreSQL tests completed
+
+- Added a pinned, development-only PostgreSQL 16.14 runtime and
+  `npm run test:concurrency:local`. The runner starts a temporary server bound
+  only to loopback on an OS-assigned port, uses a random database password,
+  applies checked-in migrations through the guarded migration wrapper, then
+  stops the server and removes its unique temporary directory.
+- No `.env` file, application database on 51214, Prisma Local test instance on
+  51224, or hosted database was changed or used. All 40 migrations were applied
+  only to the temporary database.
+- All concurrency suites passed with zero skips: authentication login and
+  registration limiter races; progression initialization and next-waypoint
+  curriculum-lock races plus duplicate day completion; shared gameplay
+  throttling and duplicate game-mode submission; and Fellowship duplicate
+  transfer offer/acceptance, closure-versus-suspension, and duplicate appeal.
+- Added direct concurrent assertions for challenge-day completion and for
+  accepting the same transfer offer twice, then updated the roadmap, QA
+  checklist, Security Audit, performance record, product overview, README, and
+  root database guidance to reflect the completed coverage and repeatable test
+  command.
+- TypeScript and focused ESLint passed. PostgreSQL emitted a non-failing `pg`
+  deprecation warning from Prisma's PostgreSQL adapter while the duplicate
+  gameplay completion requests overlapped; the database results were correct.
+  Review the adapter warning before a future upgrade to `pg` 9.
+
+### 2026-10-07 — Multi-connection gameplay and Fellowship race coverage
+
+- Added guarded integration coverage for two simultaneous submissions of the
+  same game-mode attempt. The test uses an Admin Test session and asserts one
+  terminal completion with no learner rewards or Beacon XP.
+- Added Fellowship governance races for duplicate leadership offers, closure
+  versus Super Admin suspension, and two appeals submitted concurrently. The
+  assertions verify one valid state transition, a coherent case history, and
+  unique case numbers. The two pre-existing progression curriculum-lock race
+  subtests remain in place.
+- Restricted the single-connection pool workaround to Prisma Local's documented
+  development/test ports (51214 and 51224). Other local PostgreSQL ports now use
+  the normal multi-connection pool so the guarded races can execute there.
+- Pool configuration tests, TypeScript, and targeted ESLint pass. The new
+  PostgreSQL race suites correctly skip on the current Prisma Local test URL,
+  which serializes all connections. No native PostgreSQL, Docker, or WSL runtime
+  is available here; the Prisma Local test-service start attempt also failed.
+  No database was started or modified, and no production database was used.
+
 ### 2026-10-07 — Gameplay submission throttling
 
 - Added a shared per-user cap of 10 gameplay completion submissions per

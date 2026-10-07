@@ -47,13 +47,27 @@ for login or ordinary development. `Ctrl+C` stops the foreground test service.
 `npm run test:database:reset` clears **test data only**, preserving migrations;
 use it only to remove failed fixture leftovers, not to repair missing migrations.
 
-Prisma Local uses one connection. The two progression lock-race subtests are
-explicitly skipped; they still require verification against a separately
-approved local PostgreSQL setup supporting concurrent connections before release.
-The waypoint append test verifies ordered outcomes locally, not real lock contention.
-Hosted test credentials are retired from the active `.env`; archived credentials
-are not a fallback. Production migration/data transfer remains a separate future
-deployment task; test fixtures must never be transferred to production.
+#### Multi-connection concurrency tests
+
+Prisma Local serializes connections, so it cannot prove database lock behavior.
+The concurrency runner starts PostgreSQL 16 in a disposable temporary directory,
+binds only to loopback on an OS-assigned port, applies checked-in migrations to
+that empty database, runs the guarded races, then stops the server and removes
+the temporary data. It does not change `.env`, either Prisma Local instance, or
+the hosted database. On Windows, run it from a regular non-administrator
+terminal because PostgreSQL refuses to initialize as an administrator.
+
+```bash
+npm run test:concurrency:local
+```
+
+This runs auth login/registration limiter races, progression curriculum-lock
+and duplicate day-completion races, gameplay submission and duplicate-mode
+completion races, and Fellowship transfer, closure/suspension, and appeal races.
+The `embedded-postgres` package is development-only; no Docker or machine-wide
+PostgreSQL service is required. Hosted test credentials are never a fallback.
+Production migration/data transfer remains a separate future deployment task;
+test fixtures must never be transferred to production.
 
 #### Production database plan
 
