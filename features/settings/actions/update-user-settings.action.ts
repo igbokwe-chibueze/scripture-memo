@@ -1,10 +1,10 @@
 "use server";
 
+import { getSessionFromHeaders } from "@/lib/auth/get-session-from-headers";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { auth } from "@/lib/auth/auth";
 import type { ActionResult } from "@/types/api";
 import { settingsRepository } from "@/features/settings/repositories/settings.repository";
 import { updateUserSettingsSchema } from "@/features/settings/schemas/update-user-settings.schema";
@@ -26,7 +26,7 @@ export async function updateUserSettingsAction(
   }
 
   const t = await getTranslations("Settings");
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSessionFromHeaders(await headers() );
   if (!session?.user) {
     return { success: false, message: t("authRequired") };
   }

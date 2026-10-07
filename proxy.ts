@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth/auth";
+import { getSessionFromHeaders } from "@/lib/auth/get-session-from-headers";
 import { isAdmin, isSuperAdmin } from "@/lib/permissions";
 import type { UserRole } from "@/lib/generated/prisma/enums";
 import { PROTECTED_PATH_PREFIXES } from "@/features/auth/constants/protected-paths";
@@ -112,7 +112,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
 
   if (!isProtected) return continueRequest(request);
 
-  const session = await auth.api.getSession({ headers: request.headers });
+  const session = await getSessionFromHeaders(request.headers);
   if (!session) {
     const loginUrl = new URL("/login", request.url);
     // Preserve the query as part of the internal return path. Invitation and

@@ -311,6 +311,9 @@ export const adminRepository = {
           suspendedAt: anonymizedAt,
           suspendReason: "ACCOUNT_ANONYMIZED",
           suspendedUntil: null,
+          banned: true,
+          banReason: "ACCOUNT_ANONYMIZED",
+          banExpires: null,
           profile: {
             upsert: {
               create: {
@@ -389,6 +392,9 @@ export const adminRepository = {
           suspendedAt,
           suspendReason: suspended ? reason : null,
           suspendedUntil: null,
+          banned: suspended,
+          banReason: suspended ? reason : null,
+          banExpires: null,
         },
       });
 

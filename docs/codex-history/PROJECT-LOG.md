@@ -1,5 +1,26 @@
 # Scripture Memo Project Log
 
+### 2026-10-07 — Central account-suspension enforcement
+
+- Integrated Better Auth's Admin plugin so suspended accounts cannot create a
+  session through the direct `/api/auth/sign-in/email` endpoint. Plugin-provided
+  management routes remain unavailable; audited Super Admin Server Actions are
+  still the only account suspension and restoration controls.
+- Added Better Auth's ban fields and `session.impersonatedBy` to the Prisma
+  schema, with a local-only additive migration that backfills existing active
+  suspensions. Existing account suspension fields remain synchronized for admin
+  screens and leaderboard filtering.
+- Centralized uncached session reads across Proxy, protected Server Actions,
+  server-rendered views, and the browser session endpoint. A concurrent session
+  created during suspension is rejected and revoked on validation, preventing
+  it from returning after account restoration. Direct sign-in failures retain
+  the generic credential response.
+- Prisma validation, migration status, TypeScript, ESLint, the optimized
+  production build, and `git diff --check` pass. The guarded integration test
+  covers direct sign-in rejection and revocation of a pre-existing session, but
+  could not run because the local test service failed to start; no hosted
+  database was accessed.
+
 ### 2026-10-07 — Fellowship leadership and notification follow-through
 
 - Super Admin transfer notices now give the new leader the recorded reason;

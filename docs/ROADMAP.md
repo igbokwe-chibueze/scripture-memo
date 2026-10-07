@@ -1578,6 +1578,13 @@ shell. The Beacon Challenger activation migration has been applied successfully.
   requests neither repay the reward nor create duplicate notifications.
 - `/admin/users` is protected for Super Admins in Proxy, its server view, and
   every mutation.
+- Account suspension is enforced through Better Auth's Admin plugin at session
+  creation. Protected server reads and the browser-facing session endpoint
+  bypass cookie caching; if a concurrent sign-in leaves a session for a banned
+  account, validation rejects and revokes it. The public sign-in route retains
+  the generic credential error. The additive migration is applied to local
+  development. Its isolated database integration test is checked in but awaits
+  a successful start of the local 51224 test service.
 - The project owner completed the role, account-action, badge-award, predictive
   recipient lookup, and recipient-notification manual checks. Phase 28 is
   complete and accepted.

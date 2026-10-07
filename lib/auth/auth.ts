@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { APIError } from "better-auth/api";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { admin } from "better-auth/plugins";
 import { prisma } from "@/lib/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { deliverPasswordReset } from "@/features/auth/lib/password-reset-delivery";
@@ -81,19 +82,6 @@ export const auth = betterAuth({
             }
         },
     },
-    user: {
-        additionalFields: {
-            // WHY: Proxy and protected server code need the database-backed role
-            // on the trusted session user. It is never accepted from sign-up or
-            // profile input, preventing self-assigned administrator privileges.
-            role: {
-                type: "string",
-                required: false,
-                input: false,
-                defaultValue: "USER",
-            },
-        },
-    },
     rateLimit: {
         enabled: true,
         storage: "database",
@@ -113,6 +101,15 @@ export const auth = betterAuth({
         }
     },
     plugins: [
+        admin({
+            // Scripture Memo keeps audited role and suspension actions in its
+            // own Super Admin Server Actions. An empty list denies every app
+            // role access to the plugin's separate management endpoints while
+            // preserving its built-in session-creation ban check.
+            defaultRole: "USER",
+            adminRoles: [],
+            bannedUserMessage: "Email or password is incorrect.",
+        }),
         nextCookies(),
     ],
 });

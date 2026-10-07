@@ -1,8 +1,8 @@
 "use server";
 
+import { getSessionFromHeaders } from "@/lib/auth/get-session-from-headers";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
-import { auth } from "@/lib/auth/auth";
 import { isAdmin } from "@/lib/permissions";
 import { getRequestIp } from "@/lib/request-ip";
 import type { UserRole } from "@/lib/generated/prisma/enums";
@@ -21,7 +21,7 @@ export async function updateVerseAction(input: unknown): Promise<ActionResult> {
   if (!parsed.data.id) return { success: false, message: "Verse ID is required." };
 
   const requestHeaders = await headers();
-  const session = await auth.api.getSession({ headers: requestHeaders });
+  const session = await getSessionFromHeaders(requestHeaders);
   if (!session?.user) return { success: false, message: "Authentication required." };
   if (!isAdmin(session.user.role as UserRole | undefined)) return { success: false, message: "Administrator access is required." };
 

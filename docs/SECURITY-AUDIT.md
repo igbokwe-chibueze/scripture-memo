@@ -62,6 +62,7 @@ The server and database are the only sources of truth for all security-sensitive
 | 2.9 | After a password change, all existing sessions for that user are invalidated | 🟠 High | ✅ Verified 2026-09-27 | Better Auth is configured to revoke sessions after successful reset. Owner confirmed the old session was rejected after the 60-second session-cookie cache expired; Resend reset delivery and new-password sign-in also passed |
 | 2.10 | OAuth tokens are never stored in plaintext in the database | 🔴 Critical | N/A 2026-09-24 | No OAuth provider is configured; recheck before enabling OAuth |
 | 2.11 | Development reset-link delivery cannot run in production | 🔴 Critical | ✅ Implemented | `LIGHT_DEV` throws under `NODE_ENV=production`; production requires the dedicated delivery adapter |
+| 2.12 | Account suspension blocks direct Better Auth sign-in and invalidates existing sessions | 🟠 High | 🟨 Implemented 2026-10-07; integration test pending | Better Auth Admin plugin blocks session creation for banned accounts. Server and browser session reads bypass cookie cache; a session read that confirms a banned user rejects and revokes any raced session. The public sign-in route normalizes the failure to the generic credential error. The isolated 51224 end-to-end test is checked in but was not run because the local test service failed to start |
 
 ---
 
