@@ -1,5 +1,22 @@
 # Scripture Memo Project Log
 
+### 2026-10-07 — Shared rate limits for custom authentication actions
+
+- Replaced process-local action throttles for login, registration, password
+  reset requests, and password-reset completion with the existing PostgreSQL
+  `RateLimit` table. Action-specific windows and caps remain 10 per 15 minutes,
+  5 per hour, 5 per 15 minutes, and 10 per 15 minutes respectively.
+- Keys are HMAC-derived from action scope and the request IP, so neither raw
+  addresses nor IPs are written to the limiter table. Password reset requests
+  retain the separate HMAC-keyed per-email cap.
+- Each check uses a PostgreSQL advisory transaction lock, making simultaneous
+  attempts share one fixed-window count across app instances. No schema change
+  or migration is required. The protected action fails closed if the database
+  limiter cannot be reached.
+- Added guarded local PostgreSQL integration coverage for concurrent attempts
+  and scope isolation. It still needs to run against the isolated test database;
+  production proxy/IP trust remains a separate pending deployment check.
+
 ### 2026-10-07 — Central account-suspension enforcement
 
 - Integrated Better Auth's Admin plugin so suspended accounts cannot create a

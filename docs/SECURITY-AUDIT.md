@@ -219,15 +219,16 @@ The server and database are the only sources of truth for all security-sensitive
 
 | # | Check | Risk | Status | Notes |
 |---|---|---|---|---|
-| 11.1 | Login attempts are rate-limited per IP (e.g., 10 per 15 minutes) | 🟠 High | ✅ Verified 2026-09-24 | Better Auth database-backed limit: 10 sign-in attempts per IP per 15 minutes; deployment proxy/IP trust still needs host-specific verification |
-| 11.2 | Registration attempts are rate-limited per IP | 🟡 Medium | ✅ Verified 2026-09-24 | Better Auth database-backed limit: 5 sign-ups per IP per hour; deployment proxy/IP trust still needs host-specific verification |
-| 11.3 | Password reset requests are rate-limited per email | 🟠 High | ✅ Verified 2026-09-24 | Action uses a Better Auth secret-keyed HMAC of the normalized address in the existing `RateLimit` table, with an atomic PostgreSQL lock and five requests per fixed 15-minute window; the dedicated local integration test passed, and Better Auth also limits by IP |
+| 11.1 | Login attempts are rate-limited per IP (e.g., 10 per 15 minutes) | 🟠 High | ☑ Implemented | Custom login Server Action now uses a shared database-backed cap of 10 attempts per IP per 15 minutes. The guarded PostgreSQL concurrency test remains to be run; deployment proxy/IP trust still needs host-specific verification |
+| 11.2 | Registration attempts are rate-limited per IP | 🟡 Medium | ☑ Implemented | Custom registration Server Action now uses a shared database-backed cap of 5 attempts per IP per hour. The guarded PostgreSQL concurrency test remains to be run; deployment proxy/IP trust still needs host-specific verification |
+| 11.3 | Password reset requests are rate-limited per IP and email | 🟠 High | ☑ Implemented | Custom reset-request action uses shared database-backed caps of 5 per IP and 5 per normalized email per fixed 15-minute window. Email keys are HMAC-protected and its existing guarded PostgreSQL test passed; the added shared-IP concurrency coverage remains to be run |
 | 11.4 | Game completion submissions are protected against rapid repeated calls | 🟡 Medium | ✅ Verified 2026-09-24 | Transaction lock, completed-state check, and database uniqueness make repeated completion requests fail safely |
 | 11.5 | Hint usage action is rate-limited or guarded against rapid fire requests | 🟢 Low | ✅ Verified 2026-09-24 | Hint-balance lock and transaction recheck prevent rapid calls from consuming beyond persisted allowance |
 | 11.6 | Fellowship creation is rate-limited per user | 🟡 Medium | ☑ Implemented | Per-user advisory locking and a maximum of three creations per rolling 24 hours prevent rapid spam |
 | 11.7 | Private Fellowship requests are unique and leader-authorized | 🟠 High | ✅ Verified 2026-09-24 | One durable request per learner/fellowship prevents duplicate pending requests; repository ownership checks and locked transactions protect approval and membership creation |
 | 11.8 | Admin bulk actions are confirmation-gated in the UI | 🟡 Medium | ✅ Verified 2026-09-24 | CSV import requires explicit preview confirmation; destructive per-record admin mutations use confirmation controls |
 | 11.9 | Production client IP rate limits trust only forwarding headers from the selected hosting proxy | 🟠 High | ☐ Pending | The hosting provider is not selected; forwarded-header trust and `getRequestIp` must be verified against its proxy contract before launch |
+| 11.10 | Password reset completion attempts are rate-limited per IP | 🟡 Medium | ☑ Implemented | Custom reset-completion Server Action now uses a shared database-backed cap of 10 attempts per IP per 15 minutes; the guarded PostgreSQL concurrency test remains to be run |
 
 ---
 

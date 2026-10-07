@@ -2,7 +2,8 @@
 
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth/auth";
-import { rateLimit } from "@/lib/rate-limit";
+import { getRequestIp } from "@/lib/request-ip";
+import { authRepository } from "@/features/auth/repositories/auth.repository";
 import type { ActionResult } from "@/types/api";
 import { resetPasswordSchema } from "@/features/auth/schemas/reset-password.schema";
 
@@ -22,21 +23,20 @@ export async function resetPasswordAction(
   }
 
   const requestHeaders = await headers();
-  const forwardedFor = requestHeaders.get("x-forwarded-for") ?? "unknown";
-  const limit = rateLimit({
-    key: `password-reset-complete:${forwardedFor.split(",").at(-1)?.trim()}`,
-    limit: 10,
-    windowMs: 15 * 60 * 1000,
-  });
-
-  if (!limit.success) {
-    return {
-      success: false,
-      message: "Too many reset attempts. Please try again later.",
-    };
-  }
-
   try {
+    const withinLimit = await authRepository.consumeAuthActionRateLimit(
+      "passwordResetComplete",
+      getRequestIp(requestHeaders),
+      new Date(),
+    );
+
+    if (!withinLimit) {
+      return {
+        success: false,
+        message: "Too many reset attempts. Please try again later.",
+      };
+    }
+
     await auth.api.resetPassword({
       body: {
         token: parsed.data.token,

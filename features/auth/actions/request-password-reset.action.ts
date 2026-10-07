@@ -2,7 +2,7 @@
 
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth/auth";
-import { rateLimit } from "@/lib/rate-limit";
+import { getRequestIp } from "@/lib/request-ip";
 import type { ActionResult } from "@/types/api";
 import { authRepository } from "@/features/auth/repositories/auth.repository";
 import { captureLightDevResetUrl } from "@/features/auth/lib/password-reset-delivery";
@@ -29,21 +29,20 @@ export async function requestPasswordResetAction(
   }
 
   const requestHeaders = await headers();
-  const forwardedFor = requestHeaders.get("x-forwarded-for") ?? "unknown";
-  const limit = rateLimit({
-    key: `password-reset-request:${forwardedFor.split(",").at(-1)?.trim()}`,
-    limit: 5,
-    windowMs: 15 * 60 * 1000,
-  });
-
-  if (!limit.success) {
-    return {
-      success: false,
-      message: "Too many reset requests. Please try again later.",
-    };
-  }
-
   try {
+    const withinIpLimit = await authRepository.consumeAuthActionRateLimit(
+      "passwordResetRequest",
+      getRequestIp(requestHeaders),
+      new Date(),
+    );
+
+    if (!withinIpLimit) {
+      return {
+        success: false,
+        message: "Too many reset requests. Please try again later.",
+      };
+    }
+
     const maySendToAddress =
       await authRepository.consumePasswordResetEmailLimit(
         parsed.data.email,
