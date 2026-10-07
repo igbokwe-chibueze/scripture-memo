@@ -1,5 +1,18 @@
 # Scripture Memo Project Log
 
+### 2026-10-07 — Em-dash word boundaries in gameplay
+
+- Fixed shared gameplay tokenization so an em dash separates adjacent words
+  while remaining visibly attached to the preceding word. Typed-answer
+  normalization converts em dashes to spaces before stripping other punctuation,
+  preventing answers such as `salvation—whom` from becoming one joined word.
+- Confirmed the affected BSB seed verses include Psalm 27:1, Habakkuk 2:4, and
+  Philippians 4:8. Replaced em dashes with spaces in those canonical BSB verses
+  and added a scoped data migration, applied to the local development database.
+  The wording is otherwise unchanged; ordinary hyphenated words continue to be
+  one token. Future environments receive the correction through that migration.
+- Added a gameplay regression test using the full BSB Psalm 27:1 dash pattern.
+
 ### 2026-10-07 — Shared rate limits for custom authentication actions
 
 - Replaced process-local action throttles for login, registration, password

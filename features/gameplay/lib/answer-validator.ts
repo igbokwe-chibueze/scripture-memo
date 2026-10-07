@@ -2,6 +2,8 @@
  * Produces the comparison form shared by all five gameplay modes.
  *
  * WHY: User input is compared against normalized text, not raw verse text.
+ * Em dashes become whitespace before other punctuation is removed because an
+ * em dash separates words; deleting it would join the words on either side.
  * Lowercasing, removing punctuation, and collapsing whitespace lets “Lord”,
  * “lord,” and “LORD” compare as the same remembered word while retaining every
  * letter and number that affects the actual answer.
@@ -10,6 +12,7 @@ export function normalizeGameplayAnswer(value: string): string {
   return value
     .normalize("NFKC")
     .toLocaleLowerCase("en")
+    .replace(/—/gu, " ")
     .replace(/[^\p{L}\p{N}\s]/gu, "")
     .replace(/\s+/g, " ")
     .trim();

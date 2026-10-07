@@ -424,6 +424,10 @@ Translations are stored in a separate normalized table so additional translation
 
 **Important:** The `normalizedText` field is never shown to the user. It is used exclusively for server-side answer validation to allow case-insensitive, punctuation-tolerant comparisons.
 
+For gameplay, punctuation between separate words must be treated as a word
+boundary during tokenization and answer normalization. Em dashes remain visible
+with the verse text but do not join the words on either side.
+
 The administrative verse library can display Reference, Book, Tags,
 Translations, Status, Waypoints, and Packs. Administrators choose the visible
 columns from a checklist, with no more than five information columns shown at
