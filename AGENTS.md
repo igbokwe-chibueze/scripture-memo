@@ -1059,7 +1059,7 @@ Before starting any implementation task, confirm:
 - [ ] I will use Sonner for all user-facing feedback.
 - [ ] I will add loading, pending, success, error, and empty states.
 - [ ] I will use `CUE` (not `HINT`) as the game mode name in all code and UI.
-- [ ] I will use Glow Points only — no XP system exists.
+- [ ] I will treat Glow Points as the only spendable currency; Beacon XP is non-spendable progression, and Crowns are non-spendable prestige.
 - [ ] I will not introduce any `any` type.
 
 ---
@@ -1078,7 +1078,7 @@ Before declaring any task complete, verify all of the following:
 - [ ] Sonner toasts are implemented for all outcomes.
 - [ ] Reusable components were used where applicable.
 - [ ] Game Mode 4 is referenced as "Cue" throughout — never "Hint."
-- [ ] Glow Points is the only reward currency — no XP references.
+- [ ] Glow Points is the only spendable reward currency; Beacon XP and Crowns are never treated or described as spendable currency.
 - [ ] Journey Stage rules (hint/time) are enforced server-side.
 - [ ] Important logic is commented with explanations of why, not just what.
 - [ ] TypeScript passes with `tsc --noEmit`.
@@ -1105,7 +1105,7 @@ The following are architectural violations. Never do any of these:
 | Skip loading or error states | Leaves users with frozen/blank UI |
 | Skip Sonner toasts for important actions | Silent failures are bad UX |
 | Reference "Hint Mode" as a game mode | Mode 4 is Cue Mode |
-| Reference XP or experience points | Only Glow Points exist |
+| Treat Beacon XP or Crowns as spendable currency | Glow Points alone can be spent; Beacon XP tracks progression and Crowns track prestige |
 | Create barrel files inside sub-folders | Causes circular deps |
 | Leave `console.log` in production code | Log using `lib/logger.ts` |
 

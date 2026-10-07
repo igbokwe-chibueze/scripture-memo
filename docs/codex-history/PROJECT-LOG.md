@@ -1,5 +1,18 @@
 # Scripture Memo Project Log
 
+### 2026-10-07 — Current guidance aligned with progression and seed behavior
+
+- Clarified that Glow Points are the only spendable currency, while Beacon XP
+  remains non-spendable progression and Crowns remain non-spendable prestige.
+  Updated the active `AGENTS.md` checklists and roadmap requirements so they no
+  longer forbid accurate references to the implemented Beacon XP system.
+- Corrected the README's seed instructions: `prisma db seed` installs 100
+  active verses and 400 active waypoint assignments. Documented
+  `npm run local:fixtures` as an optional local test helper that replaces the
+  first five assignments only when they have no learner history.
+- Marked Phase 9's original 220-placeholder seed plan as historical and
+  superseded by the accepted Phase 29 curriculum seed.
+
 ### 2026-10-07 — CI quality job Prisma generation fix
 
 - The first GitHub Actions run passed ESLint and the complete PostgreSQL

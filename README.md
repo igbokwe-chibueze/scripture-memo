@@ -114,18 +114,29 @@ Because DBeaver is only a client for the same PostgreSQL database, this workflow
 does not create a second data format or require any later migration back to
 Prisma.
 
-#### Creating playable local fixtures
+#### Seeding the curriculum and local fixtures
 
-The production seed intentionally creates catalogues and hidden curriculum
-placeholders only. To publish five KJV waypoints for local gameplay testing, run:
+On a fresh database, `npx prisma db seed` installs the approved curriculum:
+100 active verses and 400 active waypoint assignments, along with the study
+guides, badges, and Oil Shop hint-pack catalogue. The curriculum includes KJV,
+WEB, and BSB translations; 31 verses have structured study guides, while the
+remaining 69 intentionally have no study material yet. The seed creates
+catalogue content, not player accounts. On reruns it inserts missing curriculum
+records without overwriting existing verse or waypoint assignments.
+
+`npm run local:fixtures` is a separate development-only helper for test
+scenarios that need a known set of five KJV verse assignments at waypoints 1–5.
+It replaces those assignments only while those waypoints have no learner
+history. It is not needed to publish waypoints in a freshly seeded database.
+The command refuses hosted URLs and production mode before constructing Prisma
+Client:
 
 ```bash
 npm run local:fixtures
 ```
 
-This command refuses hosted URLs and production mode before constructing Prisma
-Client. It is idempotent while fixture waypoints have no learner history and
-fails instead of overwriting progressed curriculum.
+It fails rather than replacing any of the five assignments after learner
+history exists.
 
 Register test accounts through the application so Better Auth remains the only
 owner of credentials. After registration, select KJV during onboarding or run

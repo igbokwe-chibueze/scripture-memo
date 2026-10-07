@@ -40,7 +40,7 @@ Confirm the following before proceeding:
 - AI can correctly describe the difference between the Three-Day Challenge System and the Journey Stage System.
 - AI can correctly describe the five game mode names and their order.
 - AI understands that hints are disabled for Strengthen and Master stages.
-- AI understands that Glow Points are the only currency — no XP system.
+- AI understands that Glow Points are the only spendable currency. Beacon XP is non-spendable progression, and Crowns are non-spendable prestige.
 
 ---
 
@@ -426,6 +426,11 @@ Confirm the following before proceeding:
 
 **Status:** Complete — automated verification and manual ADMIN acceptance passed;
 curriculum-history hardening implemented.
+
+**Historical plan note:** The original 220-slot placeholder seed plan below was
+superseded by Phase 29, which installed the approved 100-verse curriculum and
+400 active waypoint assignments. Keep these completed-phase details as history;
+the current seed behavior is documented in Phase 29 and `README.md`.
 
 **Goal:** Create and safely manage an expanding sequential waypoint curriculum.
 
