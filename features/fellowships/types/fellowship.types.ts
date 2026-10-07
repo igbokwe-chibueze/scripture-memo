@@ -189,7 +189,10 @@ export type FellowshipModerationPage = {
 export type FellowshipEditData = Pick<
   FellowshipSummary,
   "id" | "slug" | "name" | "description" | "isPublic" | "insigniaKey"
-> & { inviteCode: string };
+> & {
+  inviteCode: string;
+  governance: FellowshipGovernanceData;
+};
 
 export type FellowshipInvitePreview = Pick<
   FellowshipSummary,

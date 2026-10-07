@@ -37,11 +37,13 @@ export function FellowshipGovernancePanel({
   fellowshipName,
   isLeader,
   governance,
+  mode = "home",
 }: Readonly<{
   fellowshipId: string;
   fellowshipName: string;
   isLeader: boolean;
   governance: FellowshipGovernanceData;
+  mode?: "home" | "manage";
 }>): React.ReactNode {
   const t = useTranslations("Fellowships.governance");
   const locale = useLocale();
@@ -116,15 +118,42 @@ export function FellowshipGovernancePanel({
     );
   };
 
-  if (
-    !isLeader &&
-    !governance.pendingTransfer?.isRecipient &&
-    !governance.suspension
-  ) return null;
+  const hasHomeNotice =
+    governance.isClosing ||
+    governance.pendingTransfer !== null ||
+    governance.suspension !== null;
+  const showHomeClosure =
+    mode === "home" && !governance.suspension && governance.isClosing;
+  const showHomeTransfer =
+    mode === "home" &&
+    !governance.suspension &&
+    !governance.isClosing &&
+    governance.pendingTransfer !== null;
+  const showManagePendingTransfer =
+    mode === "manage" && governance.pendingTransfer !== null;
+  const showManageControls =
+    mode === "manage" && governance.pendingTransfer === null;
+
+  if (mode === "home" && !hasHomeNotice) return null;
+  if (mode === "manage" && !isLeader) return null;
 
   return (
-    <section className="mt-6 space-y-4" aria-label={t("sectionTitle")}>
-      {governance.suspension && (
+    <section
+      className="mt-6 space-y-4"
+      aria-label={mode === "home" ? t("sectionTitle") : undefined}
+      aria-labelledby={
+        mode === "manage" ? "fellowship-leadership-controls-title" : undefined
+      }
+    >
+      {mode === "manage" && (
+        <h2
+          id="fellowship-leadership-controls-title"
+          className="font-heading text-2xl font-bold"
+        >
+          {t("sectionTitle")}
+        </h2>
+      )}
+      {mode === "home" && governance.suspension && (
         <div className="rounded-3xl border border-destructive/30 bg-destructive/5 p-5">
           <div className="flex items-start gap-3">
             <ShieldAlertIcon className="mt-1 size-5 shrink-0 text-destructive" aria-hidden="true" />
@@ -185,8 +214,7 @@ export function FellowshipGovernancePanel({
           </div>
         </div>
       )}
-      {!governance.suspension && <>
-      {governance.isClosing && (
+      {showHomeClosure && (
         <div className="rounded-3xl border border-amber-500/35 bg-amber-500/10 p-5">
           <div className="flex items-start gap-3">
             <ShieldAlertIcon className="mt-1 size-5 shrink-0 text-amber-700 dark:text-amber-300" aria-hidden="true" />
@@ -230,7 +258,7 @@ export function FellowshipGovernancePanel({
         </div>
       )}
 
-      {!governance.isClosing && governance.pendingTransfer && (
+      {showHomeTransfer && governance.pendingTransfer && (
         <div className="rounded-3xl border border-violet-500/30 bg-violet-500/8 p-5">
           <div className="flex items-start gap-3">
             <HandshakeIcon className="mt-1 size-5 shrink-0 text-violet-600" aria-hidden="true" />
@@ -307,7 +335,23 @@ export function FellowshipGovernancePanel({
         </div>
       )}
 
-      {isLeader && !governance.isClosing && !governance.pendingTransfer && (
+      {showManagePendingTransfer && governance.pendingTransfer && (
+        <div className="rounded-3xl border border-violet-500/30 bg-violet-500/8 p-5">
+          <div className="flex items-start gap-3">
+            <HandshakeIcon className="mt-1 size-5 shrink-0 text-violet-600" aria-hidden="true" />
+            <div className="min-w-0">
+              <h2 className="font-heading text-lg font-bold">{t("offerWaitingTitle")}</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {t("offerWaitingDescription", {
+                  member: governance.pendingTransfer.targetDisplayName,
+                })}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showManageControls && (
         <div className="grid gap-4 lg:grid-cols-2">
           {governance.transferCandidates.length > 0 && (
             <form
@@ -404,7 +448,6 @@ export function FellowshipGovernancePanel({
           </form>
         </div>
       )}
-      </>}
     </section>
   );
 }

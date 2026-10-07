@@ -409,15 +409,72 @@ export const fellowshipRepository = {
 
   /** Returns settings only when the requesting learner owns the fellowship. */
   async getEditable(userId: string, slug: string): Promise<FellowshipEditData | null> {
-    return prisma.fellowship.findFirst({
+    const fellowship = await prisma.fellowship.findFirst({
       where: {
         slug,
         createdById: userId,
         dissolutions: { none: { status: { in: ["SCHEDULED", "FORCED"] } } },
         suspensions: { none: { status: "ACTIVE" } },
       },
-      select: { id: true, slug: true, name: true, description: true, isPublic: true, insigniaKey: true, inviteCode: true },
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        description: true,
+        isPublic: true,
+        insigniaKey: true,
+        inviteCode: true,
+        members: {
+          where: { userId: { not: userId } },
+          orderBy: { joinedAt: "asc" },
+          select: {
+            id: true,
+            user: { select: { profile: { select: { displayName: true } } } },
+          },
+        },
+        leadershipTransfers: {
+          where: { status: "PENDING", fromLeaderId: userId },
+          orderBy: { requestedAt: "desc" },
+          take: 1,
+          select: {
+            id: true,
+            targetUser: {
+              select: { profile: { select: { displayName: true } } },
+            },
+          },
+        },
+      },
     });
+    if (!fellowship) return null;
+
+    return {
+      id: fellowship.id,
+      slug: fellowship.slug,
+      name: fellowship.name,
+      description: fellowship.description,
+      isPublic: fellowship.isPublic,
+      insigniaKey: fellowship.insigniaKey,
+      inviteCode: fellowship.inviteCode,
+      governance: {
+        isClosing: false,
+        dissolutionId: null,
+        cancellationDeadline: null,
+        pendingTransfer: fellowship.leadershipTransfers[0]
+          ? {
+              id: fellowship.leadershipTransfers[0].id,
+              targetDisplayName:
+                fellowship.leadershipTransfers[0].targetUser.profile
+                  ?.displayName ?? "Player",
+              isRecipient: false,
+            }
+          : null,
+        transferCandidates: fellowship.members.map((member) => ({
+          membershipId: member.id,
+          displayName: member.user.profile?.displayName ?? "Player",
+        })),
+        suspension: null,
+      },
+    };
   },
 
   /** Updates identity under a leader-scoped lock and never accepts upload URLs. */
