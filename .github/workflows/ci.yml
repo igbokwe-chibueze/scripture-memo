@@ -49,6 +49,12 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
 
+      # Prisma's generated client is ignored by Git and therefore does not exist
+      # in a clean runner. TypeScript imports that generated client throughout
+      # the app, so create it before lint-adjacent type checks and tests run.
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
       - name: Run ESLint
         run: npm run lint
 

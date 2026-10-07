@@ -1,5 +1,20 @@
 # Scripture Memo Project Log
 
+### 2026-10-07 — CI quality job Prisma generation fix
+
+- The first GitHub Actions run passed ESLint and the complete PostgreSQL
+  integration/concurrency job, but strict TypeScript failed in the quality job.
+  The clean runner did not contain `lib/generated/prisma`, which is ignored by
+  Git, so imports of Prisma's generated client and enums failed and caused
+  cascading type errors.
+- Added `npx prisma generate` to the quality job immediately after `npm ci`,
+  matching the generation step already used by the passing database job. This
+  keeps generated artifacts out of source control and ensures typecheck, unit
+  tests, and build see the schema-derived client on fresh runners.
+- The workflow fix is local and needs to be pushed. The next GitHub run must
+  confirm all quality steps pass before the two job names are made required
+  branch-protection checks.
+
 ### 2026-10-07 — Pull-request CI checks
 
 - Added `.github/workflows/ci.yml` for pull requests, pushes, and manual runs.

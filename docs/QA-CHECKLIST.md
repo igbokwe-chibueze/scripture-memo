@@ -24,7 +24,7 @@ blocked when a check fails.
 
 | Check | Result | Evidence |
 |---|---|---|
-| GitHub Actions quality workflow | Configured | Lint, TypeScript, all discovered database-free tests, and production build run on pull requests and pushes. |
+| GitHub Actions quality workflow | Fix pending rerun | First GitHub run passed lint but TypeScript failed because the clean quality runner had not generated the Git-ignored Prisma Client. The workflow now generates it before checks; push the fix and confirm lint, typecheck, unit tests, and production build all pass. |
 | GitHub Actions PostgreSQL workflow | Configured | Checked-in migrations, repository integrations, concurrency tests, and account-suspension integration use a temporary PostgreSQL 16 service. |
 | TypeScript strict compilation | Passed | `npm run typecheck` on 2026-10-07 |
 | Full ESLint pass | Passed | `npm run lint` on 2026-10-07 |
