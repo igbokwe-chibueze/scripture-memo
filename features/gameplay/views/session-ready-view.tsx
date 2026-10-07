@@ -3,6 +3,10 @@ import { notFound } from "next/navigation";
 import { requireServerSession } from "@/lib/auth/session";
 import { GameShell } from "@/features/gameplay/components/game-shell";
 import { gameplayRepository } from "@/features/gameplay/repositories/gameplay.repository";
+import {
+  isGameModeSelection,
+  resolvePlayerMapReplayMode,
+} from "@/features/gameplay/lib/player-map-replay";
 import { isAdmin } from "@/lib/permissions";
 import type { UserRole } from "@/lib/generated/prisma/enums";
 
@@ -16,17 +20,36 @@ export const metadata: Metadata = {
 /** Renders only a session owned by the authenticated learner. */
 export async function SessionReadyView({
   params,
+  searchParams,
 }: {
   params: Promise<{ sessionId: string }>;
+  searchParams: Promise<{ practice?: string | string[] | undefined }>;
 }): Promise<React.ReactNode> {
   const session = await requireServerSession();
-  const { sessionId } = await params;
-  const gameSession = await gameplayRepository.getSessionProgress(
-    session.user.id,
-    sessionId,
+  const [{ sessionId }, query] = await Promise.all([params, searchParams]);
+  if (
+    query.practice !== undefined &&
+    !isGameModeSelection(query.practice)
+  ) {
+    notFound();
+  }
+
+  const administrator = isAdmin(
+    session.user.role as UserRole | null | undefined,
   );
+
+  const gameSession = query.practice === undefined
+    ? await gameplayRepository.getSessionProgress(session.user.id, sessionId)
+    : await gameplayRepository.getPlayerMapPracticeSession(
+        session.user.id,
+        sessionId,
+      );
+  const replay = resolvePlayerMapReplayMode(query.practice, gameSession);
+
   if (
     !gameSession ||
+    replay.kind === "INVALID" ||
+    (gameSession.isAdminTest && !administrator) ||
     (!gameSession.isVaultReplay &&
       (!gameSession.waypointId || !gameSession.dayLevel || !gameSession.waypoint))
   ) {
@@ -40,7 +63,8 @@ export async function SessionReadyView({
     <GameShell
       key={gameSession.id}
       gameSession={gameSession}
-      isAdmin={isAdmin(session.user.role as UserRole | null | undefined)}
+      isAdmin={administrator}
+      playerPracticeMode={replay.kind === "PRACTICE" ? replay.mode : null}
     />
   );
 }

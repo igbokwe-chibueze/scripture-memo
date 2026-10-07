@@ -67,7 +67,7 @@ export function EmptyState({
           </div>
         )}
         <div className={cn("space-y-1.5", compact && "min-w-0 flex-1")}>
-          <h2 className={cn("font-heading text-xl font-semibold", compact && "text-base")}>
+          <h2 className={cn("font-heading text-xl font-bold", compact && "text-base")}>
             {title}
           </h2>
           <p className={cn("text-sm leading-6 text-muted-foreground", compact && "leading-5")}>

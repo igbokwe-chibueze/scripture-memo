@@ -91,7 +91,7 @@ export function FoundationControls(): React.ReactNode {
       <div className="rounded-2xl border border-border/70 bg-card p-4 shadow-sm">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h3 className="font-semibold">Countdown callback</h3>
+            <h3 className="font-heading font-bold">Countdown callback</h3>
             <p className="text-sm text-muted-foreground">
               Start five seconds and wait for the expiration confirmation.
             </p>

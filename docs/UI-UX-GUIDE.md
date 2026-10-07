@@ -28,8 +28,8 @@ Use these references in order:
 
 1. `AGENTS.md` for mandatory implementation and accessibility rules.
 2. This guide for visual and interaction application.
-3. `/ui-foundation` for approved components and interactive treatments running
-   in the real application.
+3. `/admin/testing/shared-ui` for approved components and interactive treatments
+   running in the real application (administrator access required).
 4. `docs/PRODUCT-OVERVIEW.md` for feature-specific product requirements.
 5. Approved screenshots supplied by the project owner for the particular view.
 
@@ -153,6 +153,20 @@ classes before changing `components/ui/button.tsx`.
 
 ## 7. Typography and Copy Density
 
+- Use Fredoka Medium 500 for paragraphs, scripture, instructions, and other
+  sustained reading. The shared sans token and page body default provide this
+  face so supporting copy remains consistent across routes.
+- Fredoka is registered at weights 500 and 700 only. Use `font-medium` for the
+  500 face and `font-bold` for the 700 face; do not request `font-semibold`,
+  `font-extrabold`, or `font-black` for Fredoka text.
+- Use Lilita One at its registered 700 display weight through the shared
+  heading token. Pair `font-heading` with `font-bold` consistently so headings
+  do not depend on browser-synthesized weight differences.
+- Use Fredoka Bold 700 through the shared action token for Button,
+  LoadingButton, and NavigationButton labels. Keep these components on the same
+  shared `buttonVariants` styling path.
+- Use Fredoka Bold 700 for compact action, reward, and status labels; use
+  Fredoka Medium 500 for supporting descriptions and instructions.
 - One clear page heading.
 - Use the heading family for major game moments and hierarchy.
 - Keep player-facing labels and instructions short.
@@ -205,7 +219,8 @@ classes before changing `components/ui/button.tsx`.
   reserved for compositions where space supports it.
 - Luna is not mandatory decoration. Do not add her to a screen merely to fill
   empty space or weaken an already clear visual hierarchy.
-- The parallel Concept Luna collection is comparison-only in `/ui-foundation`.
+- The parallel Concept Luna collection is comparison-only in
+  `/admin/testing/shared-ui`.
   It may be proposed for a product screen, but requires explicit project-owner
   approval for that specific screen before it is integrated.
 
@@ -266,7 +281,11 @@ Before handing off a new or changed player-facing screen, verify:
 
 ### Interaction
 
-- [ ] Buttons match `/ui-foundation` in rest, hover, press, disabled, and pending states.
+- [ ] Buttons match `/admin/testing/shared-ui#button-showcase` in rest, hover,
+      press, disabled, and pending states.
+- [ ] Custom Map A and Map B waypoint controls match
+      `/admin/testing/shared-ui#waypoint-buttons` across locked, ready, active,
+      cooldown, completed, current, and flame-progress states.
 - [ ] Navigation gives immediate loading feedback.
 - [ ] Back and close controls are tactile, visible, and at least 44×44.
 - [ ] Modal/drawer motion and background scroll behavior are correct.

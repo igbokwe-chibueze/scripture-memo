@@ -19,17 +19,17 @@ import { CheckIcon, GripVerticalIcon, RotateCcwIcon } from "lucide-react";
 import { toast } from "sonner";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { Button } from "@/components/ui/button";
-import { BadgeUnlockSequence } from "@/features/badges/components/badge-unlock-screen";
+import { BadgeUnlockSequence } from "@/features/badges";
 import type { BadgeUnlockResult } from "@/features/badges/types/badge.types";
 import type { BeaconProgressionResult } from "@/features/beacon/types/beacon.types";
 import { showActionError } from "@/lib/errors/show-action-error";
 import { completeGameModeAction } from "@/features/gameplay/actions/complete-game-mode.action";
-import { ConfettiCelebration } from "@/features/gameplay/components/confetti-celebration";
+import { ConfettiCelebration } from "@/components/shared/confetti-celebration";
 import { ModeCompletionScreen } from "@/features/gameplay/components/mode-completion-screen";
 import { StreakCompletionScreen } from "@/features/gameplay/components/streak-completion-screen";
 import { PhraseBank } from "@/features/gameplay/components/modes/phrase-bank";
 import { PhraseSlot } from "@/features/gameplay/components/modes/phrase-slot";
-import { useAudioFeedback } from "@/features/gameplay/hooks/use-audio-feedback";
+import { useAudioFeedback } from "@/hooks/use-audio-feedback";
 import { getSessionHiddenPercent } from "@/features/gameplay/lib/hidden-word-generator";
 import { generateVersePhrases } from "@/features/gameplay/lib/phrase-generator";
 import {
@@ -44,6 +44,7 @@ import {
 import { tokenizeVerse } from "@/features/gameplay/lib/verse-tokenizer";
 import type {
   GameModeAttemptData,
+  LocalReplayKind,
   StreakCompletionResult,
 } from "@/features/gameplay/types/game-session.types";
 import type { DayLevel } from "@/lib/generated/prisma/enums";
@@ -73,23 +74,25 @@ export function PuzzleMode({
   dayLevel,
   verseText,
   attempt,
-  isTestReplay = false,
+  replayKind,
   isVaultReplay = false,
+  isAdminTest = false,
   nextMode,
   onContinue,
   onCompletionShown,
-  onTestReplayExit,
+  onReplayExit,
 }: {
   sessionId: string;
   dayLevel: DayLevel;
   verseText: string;
   attempt: GameModeAttemptData | null;
-  isTestReplay?: boolean;
+  replayKind?: LocalReplayKind;
   isVaultReplay?: boolean;
+  isAdminTest?: boolean;
   nextMode: GameModeAttemptData["gameMode"] | null;
   onContinue: () => void;
   onCompletionShown: () => void;
-  onTestReplayExit?: () => void;
+  onReplayExit?: () => void;
 }): React.ReactNode {
   const t = useTranslations("Gameplay");
   const playAudio = useAudioFeedback();
@@ -195,15 +198,20 @@ export function PuzzleMode({
       hiddenPhraseIndexes,
       placements,
     );
-    if (isTestReplay) {
+    if (replayKind) {
       setIsComplete(true);
       setShowConfetti(true);
       setShowCompletion(true);
       onCompletionShown();
       playAudio("correct");
-      toast.success("Admin Puzzle replay complete. Progress was not changed.", {
-        duration: 4_000,
-      });
+      toast.success(
+        t(
+          replayKind === "PLAYER_PRACTICE"
+            ? "practiceCompleteToast"
+            : "adminTestReplayCompleteToast",
+        ),
+        { duration: 4_000 },
+      );
       return;
     }
     if (!attempt) return;
@@ -293,11 +301,12 @@ export function PuzzleMode({
         <ModeCompletionScreen
           completedMode="PUZZLE"
           nextMode={nextMode}
-          isTestReplay={isTestReplay}
+          replayKind={replayKind}
+          isAdminTest={isAdminTest}
           isVaultReplay={isVaultReplay}
           beaconProgression={beaconProgression}
           onContinue={() => {
-            if (isTestReplay) onTestReplayExit?.();
+            if (replayKind) onReplayExit?.();
             else if (badgeUnlocks[badgeUnlockIndex]) {
               setShowCompletion(false);
             }
@@ -306,7 +315,7 @@ export function PuzzleMode({
               setShowStreakCompletion(true);
             } else onContinue();
           }}
-          onReplay={isTestReplay ? replayTestMode : undefined}
+          onReplay={replayKind ? replayTestMode : undefined}
         />
       )}
       {showStreakCompletion && streak && (
@@ -329,10 +338,10 @@ export function PuzzleMode({
       >
         <section className="w-full max-w-2xl text-left" aria-labelledby="puzzle-title">
           <div className="text-center">
-            <p className="text-xs font-black tracking-[0.16em] text-violet-700 uppercase dark:text-violet-300">
+            <p className="text-xs font-bold tracking-[0.16em] text-violet-700 uppercase dark:text-violet-300">
               {t("restoreStructure")}
             </p>
-            <h2 id="puzzle-title" className="mt-2 font-heading text-3xl font-black">
+            <h2 id="puzzle-title" className="mt-2 font-heading text-3xl font-bold">
               {t("puzzle")}
             </h2>
           </div>
@@ -415,7 +424,7 @@ export function PuzzleMode({
             <LoadingButton
               isPending={isPending}
               pendingLabel={t("checking")}
-              className="min-h-12 rounded-xl bg-amber-400 font-black text-slate-950 hover:bg-amber-300"
+              className="min-h-12 rounded-xl bg-amber-400 font-bold text-slate-950 hover:bg-amber-300"
               disabled={isComplete}
               onClick={checkAnswer}
             >

@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth/auth";
 import { rateLimit } from "@/lib/rate-limit";
 import type { ActionResult } from "@/types/api";
+import { authRepository } from "@/features/auth/repositories/auth.repository";
 import { captureLightDevResetUrl } from "@/features/auth/lib/password-reset-delivery";
 import { requestPasswordResetSchema } from "@/features/auth/schemas/request-password-reset.schema";
 
@@ -43,6 +44,21 @@ export async function requestPasswordResetAction(
   }
 
   try {
+    const maySendToAddress =
+      await authRepository.consumePasswordResetEmailLimit(
+        parsed.data.email,
+        new Date(),
+      );
+
+    if (!maySendToAddress) {
+      // WHY: Keep throttled and eligible addresses indistinguishable to prevent
+      // callers from inferring which addresses belong to registered accounts.
+      return {
+        success: true,
+        message: "If that account exists, password recovery is ready.",
+      };
+    }
+
     const resetUrl = await captureLightDevResetUrl(async () => {
       await auth.api.requestPasswordReset({
         body: {

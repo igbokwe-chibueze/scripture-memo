@@ -42,6 +42,9 @@ export type GameplayConflictCode =
   | "ANSWER_INCORRECT"
   | "ALL_MODES_COMPLETED";
 
+/** Locally validated replay contexts that never submit a server attempt. */
+export type LocalReplayKind = "ADMIN_TEST" | "PLAYER_PRACTICE";
+
 /** Private server data required to render the shared gameplay shell. */
 export type GameplaySessionData = {
   id: string;
@@ -49,6 +52,8 @@ export type GameplaySessionData = {
   dayLevel: DayLevel | null;
   status: CompletionStatus;
   isVaultReplay: boolean;
+  isAdminTest: boolean;
+  adminTestMode: GameMode | null;
   translation: TranslationCode;
   waypoint: { number: number; journeyStage: JourneyStage } | null;
   verse: {
@@ -83,6 +88,15 @@ export type CompleteModeResult =
       status: "incorrect" | "expired";
       gameMode: GameMode;
       dayCompletion: null;
+    }
+  | {
+      status: "admin-test-complete";
+      gameMode: GameMode;
+      nextMode: null;
+      dayCompletion: null;
+      streak: null;
+      badgeUnlocks: [];
+      beaconProgression: null;
     }
   | {
       status: "mode-complete";

@@ -296,10 +296,13 @@ Confirm the following before proceeding:
   replacement, and existing-session revocation.
 - Local testing uses the guarded `LIGHT_DEV` delivery mode, which downloads a
   request-scoped text file containing the reset URL and cannot run in production.
-- `PROD` is the stable future email-delivery seam. A transactional provider can
-  be connected there without replacing Better Auth or changing the recovery UI.
-- Manual browser acceptance remains required for the request, file download,
-  reset-link callback, new password, and old-session invalidation flow.
+- `PROD` sends Better Auth's reset URL through the shared Resend provider and
+  the same sender configuration as email verification; Better Auth still owns
+  token creation, expiry, validation, and reset behavior.
+- Passed 2026-09-27: the owner confirmed a real Resend password-reset email
+  arrived, its reset link worked, and sign-in succeeded with the new password.
+- Passed 2026-09-27: the owner confirmed a session established before the
+  password reset was rejected after the 60-second session-cookie cache expired.
 
 ---
 
@@ -1397,6 +1400,29 @@ resolved decisions remain visible as bounded management history. Repository
 authorization, advisory locks, unique request identity, and transactional
 approval prevent forged decisions and duplicate membership.
 
+**Governance extension (2026-10-06):** Leadership transfer, recoverable leader
+closure, and Super Admin emergency recovery are implemented. Pending offers
+require acceptance by an existing member; closure immediately disables access
+and is cancellable for seven days. Emergency actions require a Super Admin,
+password reauthentication, exact Fellowship-name confirmation, and an audit
+reason. Membership and history remain stored. The existing local-development
+migration is applied. TypeScript, focused ESLint, 13 Fellowship schema tests,
+Prisma validation, and locale parity pass. The isolated integration listener at
+`localhost:51224` was unavailable during earlier governance work, so database
+integration coverage remains pending alongside consolidated browser acceptance.
+
+**Suspension and appeal extension (2026-10-06):** Implemented additive
+Fellowship suspension records, one written leader appeal per suspension with a
+30-day deadline, independent Super Admin review, final upheld decisions,
+reasoned Super Admin restoration, and audit/notification history. Active
+suspensions preserve member read access but block discovery, invitations,
+joins, edits, closure, and leadership changes. The deadline does not restore a
+Fellowship automatically. Prisma validation, TypeScript, focused ESLint, 13
+Fellowship schema tests, and locale parity pass. The additive migration targets
+only the existing local development database at `localhost:51214`; it has been
+applied. Isolated database integration coverage and one consolidated browser
+acceptance pass remain pending.
+
 ---
 
 ## Phase 27 — Leaderboard (The Great Beacon)
@@ -1424,7 +1450,10 @@ shell. The Beacon Challenger activation migration has been applied successfully.
    - Logged-in user's row always highlighted and pinned visible
 4. **Never include email addresses, raw user IDs, or any private data in leaderboard responses.**
 5. Add skeleton loaders.
-6. Appearing in the global top 100 triggers "Beacon Challenger" badge evaluation.
+6. A real Beacon XP award recalculates an unearned learner's permanent global
+   rank inside the gameplay transaction. Entering the global top 100 queues the
+   idempotent "Beacon Challenger" unlock after mode success; viewing the All
+   Time leaderboard is read-only and never triggers badge evaluation.
 
 ### Acceptance Criteria
 
@@ -1599,6 +1628,16 @@ Phase 29 is complete and accepted. Phase 30 — Testing and QA is next.
 
 **Goal:** Verify all MVP flows work correctly and securely.
 
+**Status:** Complete — all 16 manual regression flows passed by 2026-09-01.
+TypeScript, ESLint, and the non-database test baseline pass. On 2026-09-14,
+waypoint, progression, reward, and Fellowship integration suites ran on the
+separate local test instance. Two progression lock-race subtests remain pending:
+Prisma Local's single-connection setup skips them. A 2026-09-27 retry could not
+start the isolated test instance because another process held its durable-stream
+SQLite file; no development or hosted database was used. Real concurrent lock
+coverage still requires a supported local multi-connection PostgreSQL runtime.
+Completed manual acceptance remains unchanged.
+
 ### Manual Test Flows
 
 1. **Auth**: Register → Login → Logout → Login again → correct redirect.
@@ -1606,6 +1645,10 @@ Phase 29 is complete and accepted. Phase 30 — Testing and QA is next.
 3. **Verse management**: Admin creates a verse with all translations → publishes it → regular user cannot call create action.
 4. **Waypoint assignment**: Admin assigns verse with LEARN stage to Waypoint 1, same verse with RECALL stage to Waypoint 5 → confirm both show correctly on map.
 5. **Journey Stage rules**: Play Waypoint 1 (LEARN stage) → confirm hints are available. Play Waypoint 5 (RECALL stage) → confirm time limit shows. Play a Strengthen stage waypoint → confirm hint button is absent.
+   - Regression testing may use the ADMIN-only Journey Stage launcher on
+     `/admin/waypoints`. It runs a selected real mode against the assigned
+     waypoint's server-authoritative stage rules without changing learner
+     progression, rewards, cooldowns, streaks, badges, flames, or hint balance.
 6. **Three-Day Challenge**: Complete all 5 modes for Day 1 → confirm flame added → confirm Day 2 shows cooldown → confirm server blocks Day 2 start before 24 hours.
 7. **Cooldown bypass test**: Manually alter client state or time → attempt to start Day 2 early → confirm server rejects.
 8. **Day 3 completion**: Complete Day 3 → confirm waypoint gets 3 flames → confirm next waypoint unlocks → confirm Glow Points awarded.
@@ -1622,8 +1665,10 @@ Phase 29 is complete and accepted. Phase 30 — Testing and QA is next.
     Vault, campaign progression/rewards/streaks/cooldowns remain unchanged, and
     Vault Explorer progress is evaluated once.
 
-**Deferred test note:** Vault replay remains on the final regression checklist
-until a test learner has mastered the same verse across all four Journey Stages.
+**Vault test note:** When the test account had no four-stage mastered verse, the
+administrator-only Vault fixture exercised the real five-mode replay sequence
+with a completed verse while suppressing progression, rewards, streaks, hints,
+badges, and cooldowns. The project owner accepted the result on 2026-09-01.
 
 ### Acceptance Criteria
 
@@ -1635,6 +1680,13 @@ until a test learner has mastered the same verse across all four Journey Stages.
 ## Phase 31 — Performance and Polish
 
 **Goal:** Make the application feel production-ready.
+
+**Status:** Complete — accepted and verified on 2026-09-24. Database/read-path
+review, representative local ranking plans, Server Component boundaries, route
+states, 375px regression coverage, independent reduced-motion sources, Sonner
+copy, strict TypeScript, full lint, explicit-`any`, debug-log, and repository
+boundary checks pass. Exact evidence and measurement limits are recorded in
+`PERFORMANCE-AUDIT.md`.
 
 ### Tasks
 
@@ -1660,13 +1712,107 @@ until a test learner has mastered the same verse across all four Journey Stages.
 - No `any` types.
 - `prefers-reduced-motion` is respected.
 
+Phase 31 is complete. Phase 32 — Final Security Audit is next.
+
 ---
 
 ## Phase 32 — Final Security Audit
 
+**Status:** In progress. The ordered 32.1–32.9 closeout sequence below is the
+active plan. Do not treat this phase or the production approval checklist as
+complete while deployment configuration, dependency audit access, or required
+owner acceptance remains unresolved.
+
 **Goal:** Verify the application against the complete security checklist before deployment.
 
 ### Tasks
+
+#### 32.1 — Email verification and legacy-account continuity
+
+**Status:** Complete. Owner browser acceptance for registration, latest-link
+invalidation, real Resend verification, and post-verification sign-in passed on
+2026-09-26/27. Protected-route access was already verified under
+`SECURITY-AUDIT.md` item 2.1 and does not need to be repeated here.
+
+- Use Better Auth's built-in email-verification lifecycle and generic duplicate
+  registration response.
+- Let registration finish with a clear pending-verification state; do not issue
+  a session or initialize player progression before the address is verified.
+- Use a local-only Light Dev link download and a production Resend delivery
+  boundary. Keep Better Auth as the sole token owner.
+- On resend, invalidate every earlier link. Accept only the latest unexpired
+  link and consume it on use so the same link cannot be replayed. Store only a
+  keyed digest in the existing `Verification` table; this adds no schema
+  migration and leaves token creation, signature checks, and expiry with Better
+  Auth.
+- Grandfather only pre-rollout accounts through the one-time local migration;
+  never connect this workflow to the hosted database during development.
+- Owner acceptance: register a new local test address, open the downloaded
+  verification link, confirm the return to login, then verify a valid login
+  succeeds and reaches normal onboarding. Also confirm an unverified account
+  cannot enter protected gameplay and valid credentials offer a fresh link.
+  Request two links in succession; verify the first is rejected, the second
+  succeeds, and the successfully used link is rejected on replay.
+- Passed 2026-09-26: the owner confirmed the older resent link was rejected,
+  the newest link verified the account, and using the newest link again was
+  rejected.
+- Protected-route access has already been manually verified and recorded under
+  `SECURITY-AUDIT.md` item 2.1; do not repeat it for this email-verification
+  task.
+- Resend setup progress: the owner verified `mail.scripturememo.com` through Resend
+  and created a development API key. The key is now configured locally, and
+  the owner confirmed Resend sent a real verification email. Production will
+  use a separate key stored in deployment secrets.
+- Passed: the owner opened the real Resend verification email, verified the
+  account, and confirmed the link returned to `/login`. Successful sign-in and
+  first-login onboarding for this newly verified account also succeeded.
+
+#### 32.2 — Complete the dependency audit (`SECURITY-AUDIT.md` 16.10, High)
+
+**Status:** Complete (2026-09-27). The owner authorized the public npm registry
+request. Upgraded Next.js to 16.3.6 for the patched security release, kept Prisma
+on supported major version 7 and updated it to 7.10.0, applied compatible
+transitive updates, and pinned narrow Prisma dependency overrides. `npm audit`
+now reports zero vulnerabilities; no forced major downgrade was used.
+
+#### 32.3 — Confirm the production app host and proxy behavior (`SECURITY-AUDIT.md` 11.9, High)
+
+**Status:** Pending production app-host selection. Verify its forwarded-client-IP
+contract before configuring the production rate-limit IP source.
+
+#### 32.4 — Verify security settings on the existing hosted Prisma database (`SECURITY-AUDIT.md` 12.10, 16.6, 16.7; High)
+
+**Status:** Pending production-readiness review of the existing hosted database:
+least-privilege credentials, SSL, and network exposure. Development continues
+to use the existing local database; do not create another database.
+
+#### 32.5 — Separate production secrets from development secrets (`SECURITY-AUDIT.md` 13.4, High)
+
+**Status:** Pending production environment setup. Keep hosted database
+credentials, the production Resend key, and other production secrets in the
+production secret store, separate from local `.env.local` values.
+
+#### 32.6 — Verify production migrations use `prisma migrate deploy` (`SECURITY-AUDIT.md` 12.11, Critical)
+
+**Status:** Pending production release-process verification after the app host
+is selected. Production must use `prisma migrate deploy`, never
+`prisma migrate dev`.
+
+#### 32.7 — Verify HTTPS and production runtime settings (`SECURITY-AUDIT.md` 16.5, 16.8; Critical/High)
+
+**Status:** Pending production deployment. Verify HTTPS enforcement and
+`NODE_ENV=production` on the selected app host.
+
+#### 32.8 — Define production backups and recovery (`SECURITY-AUDIT.md` 16.9, Medium)
+
+**Status:** Pending. Document and verify the backup and restore process for the
+existing hosted database.
+
+#### 32.9 — Record decisions and close the audit
+
+**Status:** Pending completion of 32.1–32.8. Record any accepted Medium/Low
+risks, update checklist statuses from evidence, and confirm Phase 32 acceptance
+criteria before declaring production review ready.
 
 1. Open `SECURITY-AUDIT.md`.
 2. Work through every checklist item systematically.
@@ -1689,7 +1835,30 @@ until a test learner has mastered the same verse across all four Journey Stages.
 
 ---
 
-## Post-Roadmap Extras
+## Post-6Roadmap Extras
+
+### Super Admin platform settings and audit access
+
+- Give Super Admins one persisted platform settings workspace for the learner
+  translation default, base Glow reward, new-account hint allowance, and
+  administrator cooldown-testing bypass.
+- Keep KJV as the default. Current selectable translations are KJV, WEB, and
+  BSB; adding catalog entries remains a separate content/licensing decision.
+- Apply new reward amounts only to future completions. Snapshot each player's
+  starting hint allowance so changing the default cannot alter existing
+  balances.
+- Record each settings update atomically with the change. Provide bounded,
+  filterable Super Admin audit access while keeping audit rows immutable and
+  withholding private IP/raw metadata from the browser.
+
+**Implementation status (2026-10-06):** The settings and audit views, server
+authorization, repository logic, schema, and migration are implemented. The
+migration is applied to the existing Prisma Local database on port 51214, and
+`prisma migrate status` confirms the schema is up to date. Prisma validation and
+generation, TypeScript, ESLint, the production build, and 18 focused tests pass.
+The owner passed the consolidated browser review: defaults were correct, a
+setting persisted after refresh, the audit event appeared, and defaults were
+restored. This extra is complete.
 
 ### Independently Authored Fellowship Insignias
 
@@ -1709,12 +1878,27 @@ until a test learner has mastered the same verse across all four Journey Stages.
 - Consider an optional right-side contextual panel for sufficiently wide player
   screens while preserving the focused single-column mobile and tablet layouts.
 - Keep the shell consistent, but adapt its primary content to the current route:
-  current journey action on Home and Map, verse context in Vault and Sanctuary,
+  current journey action on Home, verse context in Vault and Sanctuary,
   selected product in the Oil Shop, and selected achievement in Badges.
+- Preserve the Map's existing full-width composition; the owner explicitly chose
+  to keep its right rail disabled.
+- Let learners select a badge for its details panel. Initially feature the first
+  in-progress badge, then the most recently earned badge, then the first
+  available catalog entry. Keep mobile badge cards free of desktop selection
+  behavior because the right rail is hidden at that size.
 - Reuse existing systems such as Glow balance, available hints, streak progress,
   cooldowns, badges, and Luna reactions rather than inventing filler systems.
 - Prioritize one visual action card and minimal supporting information so the
   result still feels like a game rather than a conventional SaaS dashboard.
+
+**Implementation status (2026-10-06):** Home, Vault, and Sanctuary now provide
+context from their existing page data; Oil Shop and Leaderboard already did.
+Badge details are selectable at desktop widths; mobile cards have no extra
+selection panel or interaction. The map remains full-width as requested.
+TypeScript, focused ESLint, localization contract tests, and `git diff --check`
+pass. The owner confirmed the Vault badge layout works at 320px and that the
+large-screen contextual panels work on Home, Vault, and Sanctuary, including
+badge selection updates (2026-10-06).
 
 ### Player Map Replay
 
@@ -1724,11 +1908,62 @@ until a test learner has mastered the same verse across all four Journey Stages.
   administrator-only Test Replay label.
 - Create no campaign attempts and change no progression, cooldown, streak,
   waypoint history, or reward state.
+- Keep practice untimed and hint-free so it requires no campaign attempt and
+  cannot consume the player's hint balance.
 - Award no Glow Points by default. If replay rewards are reconsidered, design a
   separately approved, rate-limited daily-review reward rather than an
   infinitely repeatable point.
 - Keep Vault replay as the filtered, long-term mastery library; map replay is
   the convenient route back to recently completed challenge content.
+
+**Implementation status (2026-10-06):** The entry point, completed-mode list,
+server ownership and eligibility checks, and local reward-free replay are
+implemented and manually accepted (2026-10-06). Practice is untimed and
+hint-free.
+
+### Game Home
+
+- Replace the temporary authenticated `/game` placeholder with the player
+  landing page specified in `PRODUCT-OVERVIEW.md` §15.1.
+- Show Glow Points, current streak, the learner's earliest published waypoint
+  that remains playable, its Journey Stage, and a resume action. If there is no
+  playable waypoint, offer a route back to the map.
+- Keep the screen read-only: do not initialize progression or update rewards as
+  part of rendering the home page. Reuse request-cached shell/settings reads.
+- Provide shortcuts to the leaderboard and badges while the persistent player
+  navigation continues to expose the main sections.
+
+**Implementation status (2026-10-06):** Implemented in `features/home/` and
+connected to `/game`. TypeScript, focused ESLint, localization contract tests,
+and `git diff --check` pass. Manual browser verification passed (2026-10-06).
+
+### Fellowship Governance Case Register
+
+- Give every leadership transfer, suspension, and closure its own permanent
+  sequential case number. Keep responses, cancellations, appeals, and decisions
+  attached to the initiating case; a later independent governance action gets a
+  new number.
+- Provide an administrator-searchable register, with case type/status filters,
+  bounded pagination, and a chronological history of every action associated
+  with each case. Governance actions remain restricted to Super Admins.
+- Backfill existing governance records and connect historic audit entries.
+  Where a historic transfer's actor or reason was not retained, show only its
+  known status rather than inferring missing facts.
+
+**Implementation status (2026-10-07):** Implemented with additive local
+migrations and `/admin/fellowship-cases`. The development database at
+`localhost:51214` is up to date; no hosted database was accessed. TypeScript,
+focused ESLint, Fellowship schema tests, the production build, and
+`git diff --check` pass. The owner passed the browser review of governance
+actions, case history, and the related notification flows (2026-10-07).
+
+**Access update (2026-10-07):** The admin landing page now has one Fellowships
+destination. Both administrator roles can review Fellowships and case logs;
+only Super Admins see or can invoke governance action controls. The Fellowship
+overview previews three recent events, links each case number to its filtered
+history, and offers a Fellowship-ID-filtered case register when more audit
+events exist. Every preview item has a **View** button that filters by
+Fellowship, case number, kind, and current case status.
 
 ---
 

@@ -119,7 +119,7 @@ export function UserAccountActions({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56 rounded-xl p-2">
           <DropdownMenuGroup>
-            <DropdownMenuLabel className="px-2 py-1.5 font-black">
+            <DropdownMenuLabel className="px-2 py-1.5 font-bold">
               Account actions
             </DropdownMenuLabel>
             <DropdownMenuItem
@@ -190,6 +190,8 @@ export function UserAccountActions({
             <label className="grid gap-1.5 text-sm font-bold">
               Reason
               <Input
+                id={`suspension-reason-${user.id}`}
+                name={`suspensionReason-${user.id}`}
                 value={reason}
                 onChange={(event) => setReason(event.currentTarget.value)}
                 placeholder="Reason for suspending this account"
@@ -230,6 +232,8 @@ export function UserAccountActions({
           <label className="grid gap-1.5 text-sm font-bold">
             Type DELETE to confirm
             <Input
+              id={`delete-confirmation-${user.id}`}
+              name={`deleteConfirmation-${user.id}`}
               value={deleteConfirmation}
               onChange={(event) => setDeleteConfirmation(event.currentTarget.value)}
               autoComplete="off"

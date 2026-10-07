@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { AwardIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { BadgeUnlockScreen } from "@/features/badges/components/badge-unlock-screen";
+import { BadgeUnlockScreen } from "@/features/badges";
 import type { BadgeUnlockResult } from "@/features/badges/types/badge.types";
 
 const PREVIEWS = {

@@ -19,3 +19,8 @@ test("purchased hint entitlements extend the consumable balance", () => {
   assert.equal(calculateHintBalance(6, 5), 4);
   assert.throws(() => calculateHintBalance(0, -1), RangeError);
 });
+
+test("saved starting allowance remains independent of platform defaults", () => {
+  assert.equal(calculateHintBalance(2, 1, 8), 7);
+  assert.equal(calculateHintBalance(9, 0, 8), 0);
+});

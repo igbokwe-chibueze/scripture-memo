@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/zod";
 
 /** Accepts only session identity and the fixed mode requested by the shell. */
 export const startGameModeSchema = z.object({

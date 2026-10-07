@@ -65,7 +65,7 @@ function UserAdminCard({
         <div className="flex min-w-0 items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="truncate font-heading text-lg font-black">
+              <h2 className="truncate font-heading text-lg font-bold">
                 {displayName}
               </h2>
               {isCurrentUser && <Badge>You</Badge>}
@@ -83,14 +83,14 @@ function UserAdminCard({
         <div className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-3">
           <div className="rounded-2xl bg-muted/70 p-3">
             <SparklesIcon className="mb-2 size-4 text-primary" aria-hidden="true" />
-            <p className="font-heading text-lg font-black tabular-nums">
+            <p className="font-heading text-lg font-bold tabular-nums">
               {numberFormatter.format(user.totalGlowPoints)}
             </p>
             <p className="text-xs text-muted-foreground">Glow Points</p>
           </div>
           <div className="rounded-2xl bg-muted/70 p-3">
             <MapPinnedIcon className="mb-2 size-4 text-primary" aria-hidden="true" />
-            <p className="font-heading text-lg font-black tabular-nums">
+            <p className="font-heading text-lg font-bold tabular-nums">
               {numberFormatter.format(user.totalWaypointsCompleted)}
             </p>
             <p className="text-xs text-muted-foreground">Waypoints</p>
@@ -110,6 +110,8 @@ function UserAdminCard({
           <label className="grid gap-1.5 text-sm font-bold">
             Role
             <select
+              id={`user-role-${user.id}`}
+              name={`userRole-${user.id}`}
               value={selectedRole}
               onChange={(event) =>
                 setSelectedRole(event.currentTarget.value as UserRole)
@@ -176,7 +178,7 @@ function UserAdminTableRow({
     <article className="grid gap-4 border-t p-4 first:border-t-0 lg:grid-cols-[minmax(13rem,1.4fr)_minmax(10rem,0.8fr)_minmax(13rem,1fr)_auto] lg:items-center">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <h2 className="truncate font-heading font-black">{displayName}</h2>
+          <h2 className="truncate font-heading font-bold">{displayName}</h2>
           {isCurrentUser && <Badge>You</Badge>}
           {isDeleted ? (
             <Badge variant="destructive">Deleted</Badge>
@@ -193,6 +195,8 @@ function UserAdminTableRow({
       <label className="grid gap-1.5 text-sm font-bold">
         <span className="lg:sr-only">Role</span>
         <select
+          id={`user-role-${user.id}`}
+          name={`userRole-${user.id}`}
           value={selectedRole}
           onChange={(event) =>
             setSelectedRole(event.currentTarget.value as UserRole)
@@ -285,7 +289,7 @@ export function UserAdminManager({
 
       {view === "table" ? (
         <div className="overflow-hidden rounded-3xl border bg-card">
-          <div className="hidden grid-cols-[minmax(13rem,1.4fr)_minmax(10rem,0.8fr)_minmax(13rem,1fr)_auto] gap-4 bg-muted/60 px-4 py-3 text-xs font-black tracking-wide text-muted-foreground uppercase lg:grid">
+          <div className="hidden grid-cols-[minmax(13rem,1.4fr)_minmax(10rem,0.8fr)_minmax(13rem,1fr)_auto] gap-4 bg-muted/60 px-4 py-3 text-xs font-bold tracking-wide text-muted-foreground uppercase lg:grid">
             <span>Player</span>
             <span>Role</span>
             <span>Progress</span>

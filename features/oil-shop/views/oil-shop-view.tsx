@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { ArrowLeftIcon } from "lucide-react";
-import Image from "next/image";
+import type { UserRole } from "@/lib/generated/prisma/enums";
 import { requireServerSession } from "@/lib/auth/session";
+import { isAdmin } from "@/lib/permissions";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { OilShop } from "@/features/oil-shop/components/oil-shop";
@@ -34,21 +35,19 @@ export async function OilShopView({
   const initialTab = parameters.tab === "donations" ? "donations" : "hints";
 
   return (
-    <main className="min-h-dvh bg-linear-to-b from-violet-100 via-background to-amber-100/60 px-4 py-6 dark:from-[#120b25] dark:via-[#070913] dark:to-[#160d09] sm:px-6 sm:py-10">
+    <main className="min-h-dvh bg-background px-4 py-6 text-foreground sm:px-6 sm:py-10">
       <div className="mx-auto max-w-7xl">
-        <Link href="/game" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "min-h-11 gap-2 rounded-xl px-4 font-black")}>
+        <Link href="/game" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "min-h-11 gap-2 rounded-xl px-4 font-bold")}>
           <ArrowLeftIcon className="size-4" aria-hidden="true" /> {t("journeyHome")}
         </Link>
-        <header className="relative my-6 min-h-64 overflow-hidden rounded-[2rem] border border-violet-400/40 bg-slate-950 text-white shadow-2xl sm:min-h-80">
-          <Image src="/images/oil-shop/luna-shopkeeper-hero.png" alt={t("heroAlt")} fill priority className="object-cover object-[64%_center] sm:object-center" sizes="(max-width: 1024px) 100vw, 1024px" />
-          <div className="absolute inset-0 bg-linear-to-r from-[#090817] via-[#090817]/80 to-transparent" />
-          <div className="relative flex min-h-64 max-w-[62%] flex-col justify-center p-4 min-[390px]:max-w-[58%] min-[390px]:p-6 sm:min-h-80 sm:max-w-[52%] sm:p-9">
-            <p className="whitespace-nowrap text-[0.65rem] font-black tracking-[0.17em] text-amber-300 uppercase min-[390px]:text-xs min-[390px]:tracking-[0.2em]">{t("trailSupplies")}</p>
-            <h1 className="mt-2 whitespace-nowrap font-heading text-3xl font-black min-[390px]:text-4xl sm:text-6xl">{t("title")}</h1>
-            <p className="mt-3 whitespace-nowrap text-xs font-bold text-violet-100 min-[390px]:text-sm sm:text-lg">{t("subtitle")}</p>
-          </div>
-        </header>
-        <OilShop initialData={data} initialTab={initialTab} />
+        <div className="mt-6" />
+        <OilShop
+          initialData={data}
+          initialTab={initialTab}
+          isAdministrator={isAdmin(
+            session.user.role as UserRole | undefined,
+          )}
+        />
       </div>
     </main>
   );

@@ -92,7 +92,7 @@ export function PasswordInput({
           <div className="flex items-center justify-between gap-3 text-sm">
             <p className="font-medium">{strengthLabel} password. Must contain:</p>
             <span
-              className={cn("font-semibold transition-colors", strengthTextColors[score])}
+              className={cn("font-bold transition-colors", strengthTextColors[score])}
               aria-live="polite"
             >
               {strengthLabel}

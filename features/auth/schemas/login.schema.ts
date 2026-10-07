@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/zod";
 
 /** Validates credentials before the authentication provider is called. */
 export const loginSchema = z.object({

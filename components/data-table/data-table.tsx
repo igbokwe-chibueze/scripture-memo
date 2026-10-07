@@ -77,7 +77,7 @@ export function DataTable<TData>({
                 key={column.id}
                 scope="col"
                 className={cn(
-                  "h-11 px-4 font-semibold",
+                  "h-11 px-4 font-bold",
                   alignmentClasses[column.align ?? "left"],
                   column.className,
                 )}

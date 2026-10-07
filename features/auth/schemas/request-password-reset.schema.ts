@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/zod";
 
 /** Validates a recovery address before Better Auth receives it. */
 export const requestPasswordResetSchema = z.object({

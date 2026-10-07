@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/zod";
 
 /** Accepts only a bounded opaque verse identifier; mastery is checked server-side. */
 export const startVaultReplaySchema = z.object({

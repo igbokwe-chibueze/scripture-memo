@@ -9,10 +9,11 @@ import { getStudyAccessState, isStudyAvailable } from "@/features/sanctuary/lib/
 function selectTranslation(
   translations: Array<{ translation: TranslationCode; text: string }>,
   preferred: TranslationCode,
+  fallback: TranslationCode,
 ): { translation: TranslationCode; text: string } | null {
   return (
     translations.find((item) => item.translation === preferred) ??
-    translations.find((item) => item.translation === TranslationCode.KJV) ??
+    translations.find((item) => item.translation === fallback) ??
     translations[0] ??
     null
   );
@@ -36,7 +37,7 @@ export const sanctuaryRepository = {
 
   /** Returns devotional data only after proving this learner completed the verse. */
   async getSanctuary(userId: string, verseId: string): Promise<SanctuaryReadResult | null> {
-    const [verse, settings] = await Promise.all([
+    const [verse, settings, platformSettings] = await Promise.all([
       prisma.verse.findUnique({
         where: { id: verseId },
         select: {
@@ -88,6 +89,10 @@ export const sanctuaryRepository = {
         where: { userId },
         select: { preferredTranslation: true },
       }),
+      prisma.platformSettings.findUnique({
+        where: { id: "global" },
+        select: { defaultTranslation: true },
+      }),
     ]);
     if (!verse) return null;
 
@@ -105,7 +110,10 @@ export const sanctuaryRepository = {
 
     const selected = selectTranslation(
       verse.translations,
-      settings?.preferredTranslation ?? TranslationCode.KJV,
+      settings?.preferredTranslation ??
+        platformSettings?.defaultTranslation ??
+        TranslationCode.KJV,
+      platformSettings?.defaultTranslation ?? TranslationCode.KJV,
     );
     if (!selected) return null;
 

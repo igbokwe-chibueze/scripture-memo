@@ -10,16 +10,12 @@ import {
   BookOpenCheckIcon,
   FilterIcon,
   HeartIcon,
-  LockKeyholeIcon,
   MapPinIcon,
-  PlayIcon,
-  StickyNoteIcon,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { VaultVerseCard } from "@/features/vault/components/vault-verse-card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { showActionError } from "@/lib/errors/show-action-error";
-import { cn } from "@/lib/utils";
 import { startVaultReplayAction } from "@/features/vault/actions/start-vault-replay.action";
 import type {
   VaultLibraryData,
@@ -57,76 +53,13 @@ function VerseCard({
   };
 
   return (
-    <article className="rounded-3xl border border-violet-500/15 bg-card/90 p-5 shadow-sm">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-black tracking-[0.14em] text-violet-700 uppercase dark:text-violet-300">
-            {verse.translation}
-          </p>
-          <h3 className="mt-1 font-heading text-xl font-black">{verse.reference}</h3>
-        </div>
-        <div className="flex items-center gap-2">
-          {verse.hasPersonalNote && (
-            <StickyNoteIcon
-              className="size-5 text-violet-500"
-              aria-label={t("privateNote")}
-            />
-          )}
-          {verse.isFavorite && (
-            <HeartIcon
-              className="size-5 fill-rose-500 text-rose-500"
-              aria-label={t("favorite")}
-            />
-          )}
-        </div>
-      </div>
-      {verse.studyAccess === "LOCKED" ? (
-        <div className="mt-4 flex min-h-18 items-center justify-center gap-2 rounded-2xl border border-dashed border-violet-300/50 bg-violet-500/5 text-sm font-bold text-violet-700 dark:text-violet-300">
-          <LockKeyholeIcon className="size-4" aria-hidden="true" /> {t("practiceInProgress")}
-        </div>
-      ) : (
-        <p className="mt-4 line-clamp-3 text-sm leading-6 text-muted-foreground">
-          {verse.text}
-        </p>
-      )}
-      {verse.packNames.length > 0 && (
-        <p className="mt-3 text-xs font-bold text-muted-foreground">
-          {verse.packNames.join(" · ")}
-        </p>
-      )}
-      <div className="mt-3 flex flex-wrap gap-1.5" aria-label={t("completedStages")}>
-        {verse.completedStages.map((stage) => (
-          <span key={stage} className="rounded-full bg-violet-500/10 px-2.5 py-1 text-[0.65rem] font-black tracking-wide text-violet-700 uppercase dark:text-violet-300">
-            {stage}
-          </span>
-        ))}
-      </div>
-      <div className={cn("mt-5 grid gap-2", canReplay && verse.studyAccess === "AVAILABLE" && "grid-cols-2")}>
-        {verse.studyAccess === "AVAILABLE" ? (
-          <Link
-            href={`/sanctuary/${verse.verseId}`}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-violet-300/40 bg-background px-3 text-sm font-black hover:bg-violet-50 dark:hover:bg-violet-950/30"
-          >
-            <BookHeartIcon className="size-4" aria-hidden="true" /> {t("sanctuary")}
-          </Link>
-        ) : (
-          <Button type="button" variant="outline" className="min-h-11 rounded-xl" disabled>
-            <LockKeyholeIcon aria-hidden="true" /> {t("studyLocked")}
-          </Button>
-        )}
-        {canReplay && verse.studyAccess === "AVAILABLE" && (
-        <Button
-          type="button"
-          className="min-h-11 rounded-xl bg-violet-600 font-black text-white hover:bg-violet-500"
-          disabled={isPending}
-          onClick={replay}
-        >
-          <PlayIcon data-icon="inline-start" aria-hidden="true" />
-          {isPending ? t("opening") : t("replayFromVault")}
-        </Button>
-        )}
-      </div>
-    </article>
+    <VaultVerseCard
+      verse={verse}
+      canReplay={canReplay}
+      sanctuaryHref={`/sanctuary/${verse.verseId}`}
+      isPending={isPending}
+      onReplay={replay}
+    />
   );
 }
 
@@ -164,7 +97,7 @@ export function VaultLibrary({ data }: { data: VaultLibraryData }): React.ReactN
   return (
     <div className="space-y-9">
       <section className="rounded-2xl border border-border bg-card/70 p-4">
-        <div className="flex items-center gap-2 font-black">
+        <div className="flex items-center gap-2 font-bold">
           <FilterIcon className="size-4" aria-hidden="true" />
           {t("libraryFilters")}
         </div>
@@ -172,6 +105,8 @@ export function VaultLibrary({ data }: { data: VaultLibraryData }): React.ReactN
           <label className="grid gap-1 text-xs font-bold text-muted-foreground">
             {t("translation")}
             <select
+              id="vault-translation-filter"
+              name="vaultTranslation"
               className="min-h-11 rounded-xl border border-border bg-background px-3 text-sm text-foreground"
               value={translation}
               onChange={(event) => setTranslation(event.currentTarget.value)}
@@ -185,6 +120,8 @@ export function VaultLibrary({ data }: { data: VaultLibraryData }): React.ReactN
           <label className="grid gap-1 text-xs font-bold text-muted-foreground">
             {t("pack")}
             <select
+              id="vault-pack-filter"
+              name="vaultPack"
               className="min-h-11 rounded-xl border border-border bg-background px-3 text-sm text-foreground"
               value={pack}
               onChange={(event) => setPack(event.currentTarget.value)}
@@ -201,7 +138,7 @@ export function VaultLibrary({ data }: { data: VaultLibraryData }): React.ReactN
       <section aria-labelledby="completed-heading">
         <div className="flex items-center gap-3">
           <BookOpenIcon className="size-7 text-violet-500" aria-hidden="true" />
-          <h2 id="completed-heading" className="font-heading text-2xl font-black">{t("completedVerses")}</h2>
+          <h2 id="completed-heading" className="font-heading text-2xl font-bold">{t("completedVerses")}</h2>
         </div>
         {completed.length > 0 ? (
           <div className="mt-4 grid gap-4 md:grid-cols-2">
@@ -228,7 +165,7 @@ export function VaultLibrary({ data }: { data: VaultLibraryData }): React.ReactN
         <div className="flex items-center gap-3">
           <BookOpenCheckIcon className="size-7 text-emerald-500" aria-hidden="true" />
           <div>
-            <h2 id="mastered-heading" className="font-heading text-2xl font-black">{t("masteredVerses")}</h2>
+            <h2 id="mastered-heading" className="font-heading text-2xl font-bold">{t("masteredVerses")}</h2>
             <p className="text-sm text-muted-foreground">{t("allStagesComplete")}</p>
           </div>
         </div>
@@ -250,7 +187,7 @@ export function VaultLibrary({ data }: { data: VaultLibraryData }): React.ReactN
       <section aria-labelledby="progress-heading">
         <div className="flex items-center gap-3">
           <MapPinIcon className="size-7 text-amber-500" aria-hidden="true" />
-          <h2 id="progress-heading" className="font-heading text-2xl font-black">{t("inProgressWaypoints")}</h2>
+          <h2 id="progress-heading" className="font-heading text-2xl font-bold">{t("inProgressWaypoints")}</h2>
         </div>
         {data.inProgressWaypoints.length > 0 ? (
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -260,8 +197,8 @@ export function VaultLibrary({ data }: { data: VaultLibraryData }): React.ReactN
                 href={`/game/waypoints/${waypoint.waypointId}`}
                 className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 transition hover:-translate-y-0.5 hover:bg-amber-500/10"
               >
-                <p className="text-xs font-black text-amber-700 uppercase dark:text-amber-300">Waypoint {waypoint.number} · {waypoint.journeyStage}</p>
-                <h3 className="mt-1 font-heading text-lg font-black">{waypoint.reference}</h3>
+                <p className="text-xs font-bold text-amber-700 uppercase dark:text-amber-300">Waypoint {waypoint.number} · {waypoint.journeyStage}</p>
+                <h3 className="mt-1 font-heading text-lg font-bold">{waypoint.reference}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{t("flamesKindled", { count: waypoint.completedDays })}</p>
               </Link>
             ))}
@@ -274,7 +211,7 @@ export function VaultLibrary({ data }: { data: VaultLibraryData }): React.ReactN
       <section aria-labelledby="favorites-heading">
         <div className="flex items-center gap-3">
           <BookHeartIcon className="size-7 text-rose-500" aria-hidden="true" />
-          <h2 id="favorites-heading" className="font-heading text-2xl font-black">{t("favoriteVerses")}</h2>
+          <h2 id="favorites-heading" className="font-heading text-2xl font-bold">{t("favoriteVerses")}</h2>
         </div>
         {favorites.length > 0 ? (
           <div className="mt-4 grid gap-4 md:grid-cols-2">

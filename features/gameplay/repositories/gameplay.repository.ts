@@ -30,13 +30,21 @@ import {
 } from "@/features/beacon/constants/beacon-progression";
 import { updateStreakInTransaction } from "@/features/progression/repositories/streak.repository";
 import { calculateHintBalance } from "@/features/hints/lib/hint-balance";
+import {
+  isSingleModeAdminTest,
+  shouldAwardVaultReplayBadge,
+} from "@/features/gameplay/lib/gameplay-session-policy";
 import type {
   CompleteModeResult,
   GameModeAttemptData,
   GameplayConflictCode,
   GameplaySessionData,
 } from "@/features/gameplay/types/game-session.types";
-import { evaluateBadgeProgressInTransaction } from "@/features/badges/repositories/badge.repository";
+import {
+  badgeRepository,
+  evaluateBadgeProgressInTransaction,
+} from "@/features/badges/repositories/badge.repository";
+import { leaderboardRepository } from "@/features/leaderboard/repositories/leaderboard.repository";
 
 const gameplayTransactionOptions = { maxWait: 10_000, timeout: 60_000 } as const;
 
@@ -62,6 +70,43 @@ function getCurrentMode(completedModes: readonly GameMode[]): GameMode | null {
   return GAME_MODE_ORDER.find((mode) => !completed.has(mode)) ?? null;
 }
 
+/**
+ * Evaluates rank badges immediately after trusted Beacon XP changes rank.
+ *
+ * The cheap pending-badge lookup prevents permanent rank calculations after
+ * all active leaderboard badges are already earned. The existing badge engine
+ * remains responsible for locking, idempotency, reward ledger, and balance.
+ */
+async function evaluateLeaderboardBadgesAfterBeaconAward(
+  transaction: Prisma.TransactionClient,
+  userId: string,
+  completedAt: Date,
+): Promise<Awaited<ReturnType<typeof evaluateBadgeProgressInTransaction>>> {
+  const needsEvaluation =
+    await badgeRepository.hasPendingLeaderboardBadgeInTransaction(
+      transaction,
+      userId,
+    );
+  if (!needsEvaluation) return [];
+
+  const globalRank =
+    await leaderboardRepository.getUserAllTimeRankInTransaction(
+      transaction,
+      userId,
+    );
+  if (globalRank === null) return [];
+
+  return evaluateBadgeProgressInTransaction(
+    transaction,
+    userId,
+    {
+      type: "LEADERBOARD_POSITION_ESTABLISHED",
+      globalRank,
+    },
+    completedAt,
+  );
+}
+
 /** Calculates a persisted-attempt deadline without consulting client time. */
 function getAttemptExpiry(
   journeyStage: JourneyStage,
@@ -75,6 +120,84 @@ function getAttemptExpiry(
 
 /** Database boundary for server-created gameplay sessions and mode attempts. */
 export const gameplayRepository = {
+  /**
+   * Creates one isolated administrator test against the assigned waypoint.
+   *
+   * The session deliberately has no day-progress relation. `isAdminTest` is
+   * checked again by attempt completion before any learner progression branch,
+   * which makes the database record safe even if a client calls actions directly.
+   */
+  async startAdminTestSession(
+    userId: string,
+    waypointId: string,
+    gameMode: GameMode,
+    startedAt: Date,
+  ): Promise<GameSessionModel> {
+    return prisma.$transaction(async (transaction) => {
+      const [waypoint, settings, platformSettings] = await Promise.all([
+        transaction.waypoint.findUnique({
+          where: { id: waypointId },
+          select: {
+            id: true,
+            verseId: true,
+            verse: {
+              select: {
+                translations: {
+                  select: { translation: true },
+                },
+              },
+            },
+          },
+        }),
+        transaction.userSettings.findUnique({
+          where: { userId },
+          select: { preferredTranslation: true },
+        }),
+        transaction.platformSettings.findUnique({
+          where: { id: "global" },
+          select: { defaultTranslation: true },
+        }),
+      ]);
+
+      if (!waypoint?.verseId || !waypoint.verse) {
+        throw new GameplayConflictError("SESSION_UNAVAILABLE");
+      }
+
+      const availableTranslations = new Set(
+        waypoint.verse.translations.map(({ translation }) => translation),
+      );
+      const preferredTranslation =
+        settings?.preferredTranslation ??
+        platformSettings?.defaultTranslation ??
+        TranslationCode.KJV;
+      const fallbackTranslation =
+        platformSettings?.defaultTranslation ?? TranslationCode.KJV;
+      const translation = availableTranslations.has(preferredTranslation)
+        ? preferredTranslation
+        : availableTranslations.has(fallbackTranslation)
+          ? fallbackTranslation
+          : waypoint.verse.translations[0]?.translation;
+
+      if (!translation) {
+        throw new GameplayConflictError("SESSION_UNAVAILABLE");
+      }
+
+      return transaction.gameSession.create({
+        data: {
+          userId,
+          waypointId: waypoint.id,
+          verseId: waypoint.verseId,
+          dayLevel: DayLevel.GLIMMER,
+          translation,
+          status: CompletionStatus.IN_PROGRESS,
+          isAdminTest: true,
+          adminTestMode: gameMode,
+          startedAt,
+        },
+      });
+    }, gameplayTransactionOptions);
+  },
+
   /**
    * Starts or resumes one campaign session atomically with day preparation.
    *
@@ -119,25 +242,36 @@ export const gameplayRepository = {
           waypointId,
           dayLevel,
           isVaultReplay: false,
+          isAdminTest: false,
           status: CompletionStatus.IN_PROGRESS,
         },
         orderBy: { createdAt: "desc" },
       });
       if (activeSession) return activeSession;
 
-      const settings = await transaction.userSettings.findUnique({
-        where: { userId },
-        select: { preferredTranslation: true },
-      });
+      const [settings, platformSettings] = await Promise.all([
+        transaction.userSettings.findUnique({
+          where: { userId },
+          select: { preferredTranslation: true },
+        }),
+        transaction.platformSettings.findUnique({
+          where: { id: "global" },
+          select: { defaultTranslation: true },
+        }),
+      ]);
       const preferredTranslation =
-        settings?.preferredTranslation ?? TranslationCode.KJV;
+        settings?.preferredTranslation ??
+        platformSettings?.defaultTranslation ??
+        TranslationCode.KJV;
+      const fallbackTranslation =
+        platformSettings?.defaultTranslation ?? TranslationCode.KJV;
       const availableTranslations = new Set(
         waypoint.verse.translations.map(({ translation }) => translation),
       );
       const translation = availableTranslations.has(preferredTranslation)
         ? preferredTranslation
-        : availableTranslations.has(TranslationCode.KJV)
-          ? TranslationCode.KJV
+        : availableTranslations.has(fallbackTranslation)
+          ? fallbackTranslation
           : waypoint.verse.translations[0]?.translation;
       if (!translation) {
         throw new Error("Playable verse has no translation.");
@@ -158,12 +292,102 @@ export const gameplayRepository = {
     }, gameplayTransactionOptions);
   },
 
+  /**
+   * Loads only the learner-owned campaign data needed for a map practice run.
+   *
+   * The query is restricted to completed, ordinary campaign sessions and
+   * returns no mutable attempt, hint-usage, reward, or progression data. Keeping
+   * this as one selected read lets the player practise without starting a
+   * campaign attempt or paying for the extra balance and Beacon queries used by
+   * the live gameplay shell.
+   */
+  async getPlayerMapPracticeSession(
+    userId: string,
+    sessionId: string,
+  ): Promise<GameplaySessionData | null> {
+    const session = await prisma.gameSession.findFirst({
+      where: {
+        id: sessionId,
+        userId,
+        status: CompletionStatus.COMPLETED,
+        isVaultReplay: false,
+        isAdminTest: false,
+        waypointId: { not: null },
+        dayLevel: { not: null },
+      },
+      select: {
+        id: true,
+        waypointId: true,
+        dayLevel: true,
+        translation: true,
+        status: true,
+        waypoint: { select: { number: true, journeyStage: true } },
+        verse: {
+          select: {
+            id: true,
+            reference: true,
+            translations: {
+              select: { translation: true, text: true },
+            },
+          },
+        },
+        attempts: {
+          where: { status: GameModeAttemptStatus.COMPLETED },
+          select: { gameMode: true },
+        },
+        user: {
+          select: {
+            settings: { select: { audioEnabled: true } },
+          },
+        },
+      },
+    });
+    if (!session?.waypointId || !session.dayLevel || !session.waypoint) {
+      return null;
+    }
+
+    const translation =
+      session.verse.translations.find(
+        (item) => item.translation === session.translation,
+      ) ?? session.verse.translations[0];
+    if (!translation) return null;
+
+    return {
+      id: session.id,
+      waypointId: session.waypointId,
+      dayLevel: session.dayLevel,
+      translation: session.translation,
+      status: session.status,
+      isVaultReplay: false,
+      isAdminTest: false,
+      adminTestMode: null,
+      waypoint: session.waypoint,
+      verse: {
+        id: session.verse.id,
+        reference: session.verse.reference,
+        translationText: translation.text,
+      },
+      completedModes: GAME_MODE_ORDER.filter((mode) =>
+        session.attempts.some((attempt) => attempt.gameMode === mode),
+      ),
+      currentMode: null,
+      audioEnabled: session.user.settings?.audioEnabled ?? true,
+      hintBalance: 0,
+      beaconProgress: {
+        lifetimeXp: 0,
+        level: 1,
+        currentLevelStartXp: 0,
+          nextLevelXp: beaconLevelStartXp(2),
+      },
+    };
+  },
+
   /** Returns minimal learner-owned data for the shared shell. */
   async getSessionProgress(
     userId: string,
     sessionId: string,
   ): Promise<GameplaySessionData | null> {
-    const [session, settings, usedHintCount, purchasedHints, profile] = await Promise.all([
+    const [session, userSummary, usedHintCount, purchasedHints] = await Promise.all([
       prisma.gameSession.findFirst({
         where: { id: sessionId, userId },
         select: {
@@ -173,6 +397,8 @@ export const gameplayRepository = {
           translation: true,
           status: true,
           isVaultReplay: true,
+          isAdminTest: true,
+          adminTestMode: true,
           waypoint: { select: { number: true, journeyStage: true } },
           verse: {
             select: {
@@ -190,21 +416,36 @@ export const gameplayRepository = {
           },
         },
       }),
-      prisma.userSettings.findUnique({
-        where: { userId },
-        select: { audioEnabled: true },
+      // WHY: Settings and Beacon progress are one-to-one relations on the same
+      // learner. Selecting both through User removes one database operation
+      // from every gameplay render without broadening the returned data.
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          settings: {
+            select: {
+              audioEnabled: true,
+            },
+          },
+          profile: {
+            select: {
+              beaconXp: true,
+              beaconLevel: true,
+              startingHintAllowance: true,
+            },
+          },
+        },
       }),
       prisma.hintUsage.count({ where: { userId } }),
       prisma.userShopPurchase.aggregate({
         where: { userId, shopItem: { itemType: "HINT_PACK" } },
         _sum: { entitlementQuantity: true },
       }),
-      prisma.userProfile.findUnique({
-        where: { userId },
-        select: { beaconXp: true, beaconLevel: true },
-      }),
     ]);
     if (!session) return null;
+
+    const settings = userSummary?.settings;
+    const profile = userSummary?.profile;
 
     const translation =
       session.verse.translations.find(
@@ -215,6 +456,11 @@ export const gameplayRepository = {
     const completedModes = GAME_MODE_ORDER.filter((mode) =>
       session.attempts.some((attempt) => attempt.gameMode === mode),
     );
+    const currentMode = isSingleModeAdminTest(session)
+      ? session.status === CompletionStatus.IN_PROGRESS
+        ? session.adminTestMode
+        : null
+      : getCurrentMode(completedModes);
 
     return {
       id: session.id,
@@ -223,6 +469,8 @@ export const gameplayRepository = {
       translation: session.translation,
       status: session.status,
       isVaultReplay: session.isVaultReplay,
+      isAdminTest: session.isAdminTest,
+      adminTestMode: session.adminTestMode,
       waypoint: session.waypoint,
       verse: {
         id: session.verse.id,
@@ -230,11 +478,12 @@ export const gameplayRepository = {
         translationText: translation.text,
       },
       completedModes,
-      currentMode: getCurrentMode(completedModes),
+      currentMode,
       audioEnabled: settings?.audioEnabled ?? true,
       hintBalance: calculateHintBalance(
         usedHintCount,
         purchasedHints._sum.entitlementQuantity ?? 0,
+        profile?.startingHintAllowance,
       ),
       beaconProgress: {
         lifetimeXp: profile?.beaconXp ?? 0,
@@ -256,6 +505,7 @@ export const gameplayRepository = {
     sessionId: string,
     requestedMode: GameMode,
     startedAt: Date,
+    allowAdminTest: boolean,
   ): Promise<GameModeAttemptData> {
     return prisma.$transaction(async (transaction) => {
       await lockGameSession(transaction, sessionId);
@@ -267,6 +517,8 @@ export const gameplayRepository = {
         },
         select: {
           isVaultReplay: true,
+          isAdminTest: true,
+          adminTestMode: true,
           waypoint: { select: { journeyStage: true } },
           attempts: {
             select: {
@@ -283,6 +535,9 @@ export const gameplayRepository = {
       if (!session || (!session.isVaultReplay && !session.waypoint)) {
         throw new GameplayConflictError("SESSION_UNAVAILABLE");
       }
+      if (session.isAdminTest && !allowAdminTest) {
+        throw new GameplayConflictError("SESSION_UNAVAILABLE");
+      }
 
       const completedModes = GAME_MODE_ORDER.filter((mode) =>
         session.attempts.some(
@@ -291,7 +546,9 @@ export const gameplayRepository = {
             attempt.status === GameModeAttemptStatus.COMPLETED,
         ),
       );
-      const currentMode = getCurrentMode(completedModes);
+      const currentMode = isSingleModeAdminTest(session)
+        ? session.adminTestMode
+        : getCurrentMode(completedModes);
       if (!currentMode) throw new GameplayConflictError("ALL_MODES_COMPLETED");
       if (requestedMode !== currentMode) {
         throw new GameplayConflictError("MODE_OUT_OF_ORDER");
@@ -361,6 +618,7 @@ export const gameplayRepository = {
     requestedMode: GameMode,
     submittedAnswer: string,
     completedAt: Date,
+    allowAdminTest: boolean,
   ): Promise<CompleteModeResult> {
     return prisma.$transaction(async (transaction) => {
       await lockGameSession(transaction, sessionId);
@@ -375,6 +633,8 @@ export const gameplayRepository = {
           dayLevel: true,
           translation: true,
           isVaultReplay: true,
+          isAdminTest: true,
+          adminTestMode: true,
           waypoint: { select: { journeyStage: true } },
           verse: {
             select: {
@@ -401,6 +661,9 @@ export const gameplayRepository = {
       ) {
         throw new GameplayConflictError("SESSION_UNAVAILABLE");
       }
+      if (session.isAdminTest && !allowAdminTest) {
+        throw new GameplayConflictError("SESSION_UNAVAILABLE");
+      }
 
       const completedModes = GAME_MODE_ORDER.filter((mode) =>
         session.attempts.some(
@@ -409,7 +672,9 @@ export const gameplayRepository = {
             attempt.status === GameModeAttemptStatus.COMPLETED,
         ),
       );
-      const currentMode = getCurrentMode(completedModes);
+      const currentMode = isSingleModeAdminTest(session)
+        ? session.adminTestMode
+        : getCurrentMode(completedModes);
       if (!currentMode || requestedMode !== currentMode) {
         throw new GameplayConflictError("MODE_OUT_OF_ORDER");
       }
@@ -484,6 +749,28 @@ export const gameplayRepository = {
       const completedAfterSubmission = [...completedModes, requestedMode];
       const nextMode = getCurrentMode(completedAfterSubmission);
 
+      // WHY: An admin test proves the actual answer and server-owned deadline,
+      // then stops before streak, badge, Beacon, reward, day, or cooldown work.
+      // The terminal session remains only as a short audit/debug artifact.
+      if (isSingleModeAdminTest(session)) {
+        await transaction.gameSession.update({
+          where: { id: sessionId },
+          data: {
+            status: CompletionStatus.COMPLETED,
+            completedAt,
+          },
+        });
+        return {
+          status: "admin-test-complete",
+          gameMode: requestedMode,
+          nextMode: null,
+          dayCompletion: null,
+          streak: null,
+          badgeUnlocks: [],
+          beaconProgression: null,
+        };
+      }
+
       // WHY: Vault replay attempts prove real answers and ordered completion,
       // but never touch campaign progression, streaks, rewards, hints, or
       // cooldowns. Only the terminal replay session and its badge metric persist.
@@ -503,12 +790,14 @@ export const gameplayRepository = {
           where: { id: sessionId },
           data: { status: CompletionStatus.COMPLETED, completedAt },
         });
-        const badgeUnlocks = await evaluateBadgeProgressInTransaction(
-          transaction,
-          userId,
-          { type: "VAULT_REPLAY_COMPLETED" },
-          completedAt,
-        );
+        const badgeUnlocks = shouldAwardVaultReplayBadge(session)
+          ? await evaluateBadgeProgressInTransaction(
+              transaction,
+              userId,
+              { type: "VAULT_REPLAY_COMPLETED" },
+              completedAt,
+            )
+          : [];
         return {
           status: "vault-complete",
           gameMode: requestedMode,
@@ -556,13 +845,22 @@ export const gameplayRepository = {
             waypointCompleted: false,
           },
         );
+        const leaderboardBadgeUnlocks =
+          await evaluateLeaderboardBadgesAfterBeaconAward(
+            transaction,
+            userId,
+            completedAt,
+          );
         return {
           status: "mode-complete",
           gameMode: requestedMode,
           nextMode,
           dayCompletion: null,
           streak: streakResult,
-          badgeUnlocks: modeBadgeUnlocks,
+          badgeUnlocks: [
+            ...modeBadgeUnlocks,
+            ...leaderboardBadgeUnlocks,
+          ],
           beaconProgression,
         };
       }
@@ -602,6 +900,12 @@ export const gameplayRepository = {
           waypointCompleted,
         },
       );
+      const leaderboardBadgeUnlocks =
+        await evaluateLeaderboardBadgesAfterBeaconAward(
+          transaction,
+          userId,
+          completedAt,
+        );
       await transaction.gameSession.update({
         where: { id: sessionId },
         data: { status: CompletionStatus.COMPLETED, completedAt },
@@ -612,12 +916,17 @@ export const gameplayRepository = {
         { type: "DAY_COMPLETED" },
         completedAt,
       );
+      const allBadgeUnlocks = [
+        ...modeBadgeUnlocks,
+        ...leaderboardBadgeUnlocks,
+        ...dayBadgeUnlocks,
+      ];
       const finalReward =
-        dayBadgeUnlocks.length > 0
+        allBadgeUnlocks.length > 0
           ? {
               ...reward,
               balance:
-                dayBadgeUnlocks[dayBadgeUnlocks.length - 1]?.balance ??
+                allBadgeUnlocks[allBadgeUnlocks.length - 1]?.balance ??
                 reward.balance,
             }
           : reward;
@@ -627,7 +936,7 @@ export const gameplayRepository = {
         nextMode: null,
         dayCompletion: { ...dayCompletion, reward: finalReward },
         streak: streakResult,
-        badgeUnlocks: [...modeBadgeUnlocks, ...dayBadgeUnlocks],
+        badgeUnlocks: allBadgeUnlocks,
         beaconProgression,
       };
     }, gameplayTransactionOptions);

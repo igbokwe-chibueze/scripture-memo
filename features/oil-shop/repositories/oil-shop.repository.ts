@@ -37,7 +37,7 @@ export const oilShopRepository = {
     const [profile, items, usedHints, purchasedHints] = await Promise.all([
       prisma.userProfile.findUnique({
         where: { userId },
-        select: { totalGlowPoints: true },
+        select: { totalGlowPoints: true, startingHintAllowance: true },
       }),
       prisma.shopItem.findMany({
         where: { isActive: true, itemType: HINT_PACK_ITEM_TYPE },
@@ -50,7 +50,11 @@ export const oilShopRepository = {
 
     return {
       balance: profile?.totalGlowPoints ?? 0,
-      hintsRemaining: calculateHintBalance(usedHints, purchasedHints),
+      hintsRemaining: calculateHintBalance(
+        usedHints,
+        purchasedHints,
+        profile?.startingHintAllowance,
+      ),
       purchasedHints,
       items: items.map((item) => ({
         id: item.id,
@@ -86,14 +90,14 @@ export const oilShopRepository = {
           throw new OilShopConflictError("ITEM_UNAVAILABLE");
         }
         const [profile, usedHints, purchasedHints] = await Promise.all([
-          transaction.userProfile.findUnique({ where: { userId }, select: { totalGlowPoints: true } }),
+          transaction.userProfile.findUnique({ where: { userId }, select: { totalGlowPoints: true, startingHintAllowance: true } }),
           transaction.hintUsage.count({ where: { userId } }),
           getPurchasedHintTotal(transaction, userId),
         ]);
         return {
           itemName: prior.shopItem.name,
           balance: profile?.totalGlowPoints ?? 0,
-          hintsRemaining: calculateHintBalance(usedHints, purchasedHints),
+          hintsRemaining: calculateHintBalance(usedHints, purchasedHints, profile?.startingHintAllowance),
           purchasedHints,
         };
       }
@@ -135,14 +139,14 @@ export const oilShopRepository = {
       });
 
       const [profile, usedHints, purchasedHints] = await Promise.all([
-        transaction.userProfile.findUnique({ where: { userId }, select: { totalGlowPoints: true } }),
+        transaction.userProfile.findUnique({ where: { userId }, select: { totalGlowPoints: true, startingHintAllowance: true } }),
         transaction.hintUsage.count({ where: { userId } }),
         getPurchasedHintTotal(transaction, userId),
       ]);
       return {
         itemName: item.name,
         balance: profile?.totalGlowPoints ?? 0,
-        hintsRemaining: calculateHintBalance(usedHints, purchasedHints),
+        hintsRemaining: calculateHintBalance(usedHints, purchasedHints, profile?.startingHintAllowance),
         purchasedHints,
       };
     }, purchaseTransactionOptions);

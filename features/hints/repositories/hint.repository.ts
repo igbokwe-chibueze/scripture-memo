@@ -29,6 +29,16 @@ async function lockHintBalance(
   await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('scripture-memo-hints'), hashtext(${userId}))`;
 }
 
+/** Applies the single server-owned Journey Stage hint policy. */
+function assertStageAllowsHints(journeyStage: string): void {
+  if (
+    journeyStage === "STRENGTHEN" ||
+    journeyStage === "MASTER"
+  ) {
+    throw new HintConflictError("STAGE_DISALLOWS_HINTS");
+  }
+}
+
 /** Database boundary for server-authoritative hint balances and consumption. */
 export const hintRepository = {
   /**
@@ -39,14 +49,22 @@ export const hintRepository = {
    * guessed to be hint credits.
    */
   async getHintBalance(userId: string): Promise<number> {
-    const [usedHints, purchased] = await Promise.all([
+    const [usedHints, purchased, profile] = await Promise.all([
       prisma.hintUsage.count({ where: { userId } }),
       prisma.userShopPurchase.aggregate({
         where: { userId, shopItem: { itemType: "HINT_PACK" } },
         _sum: { entitlementQuantity: true },
       }),
+      prisma.userProfile.findUnique({
+        where: { userId },
+        select: { startingHintAllowance: true },
+      }),
     ]);
-    return calculateHintBalance(usedHints, purchased._sum.entitlementQuantity ?? 0);
+    return calculateHintBalance(
+      usedHints,
+      purchased._sum.entitlementQuantity ?? 0,
+      profile?.startingHintAllowance,
+    );
   },
 
   /**
@@ -57,9 +75,12 @@ export const hintRepository = {
    * Master verse, access another learner's session, or spend the same final
    * hint twice.
    */
-  async useHint(userId: string, sessionId: string): Promise<UseHintResult> {
+  async useHint(
+    userId: string,
+    sessionId: string,
+    allowAdminTest: boolean,
+  ): Promise<UseHintResult> {
     return prisma.$transaction(async (transaction) => {
-      await lockHintBalance(transaction, userId);
       const session = await transaction.gameSession.findFirst({
         where: {
           id: sessionId,
@@ -70,6 +91,7 @@ export const hintRepository = {
         select: {
           id: true,
           translation: true,
+          isAdminTest: true,
           waypoint: { select: { journeyStage: true } },
           verse: {
             select: {
@@ -84,27 +106,11 @@ export const hintRepository = {
         },
       });
       if (!session?.waypoint) throw new HintConflictError("SESSION_UNAVAILABLE");
-      if (
-        session.waypoint.journeyStage === "STRENGTHEN" ||
-        session.waypoint.journeyStage === "MASTER"
-      ) {
-        throw new HintConflictError("STAGE_DISALLOWS_HINTS");
+      if (session.isAdminTest && !allowAdminTest) {
+        throw new HintConflictError("SESSION_UNAVAILABLE");
       }
+      assertStageAllowsHints(session.waypoint.journeyStage);
 
-      const [usedHints, purchased] = await Promise.all([
-        transaction.hintUsage.count({ where: { userId } }),
-        transaction.userShopPurchase.aggregate({
-          where: { userId, shopItem: { itemType: "HINT_PACK" } },
-          _sum: { entitlementQuantity: true },
-        }),
-      ]);
-      const remainingBeforeUse = calculateHintBalance(
-        usedHints,
-        purchased._sum.entitlementQuantity ?? 0,
-      );
-      if (remainingBeforeUse <= 0) {
-        throw new HintConflictError("NO_HINTS_REMAINING");
-      }
       const completedModes = new Set(session.attempts.map(({ gameMode }) => gameMode));
       const currentMode = GAME_MODE_ORDER.find((mode) => !completedModes.has(mode));
       if (!currentMode) throw new HintConflictError("SESSION_UNAVAILABLE");
@@ -112,6 +118,40 @@ export const hintRepository = {
         ({ translation: code }) => code === session.translation,
       );
       if (!translation) throw new HintConflictError("SESSION_UNAVAILABLE");
+
+      // WHY: Admin stage testing must exercise the same server-side stage gate,
+      // but it must never consume inventory or increment hint statistics.
+      if (session.isAdminTest) {
+        return {
+          reference: session.verse.reference,
+          verseText: translation.text,
+          remainingHints: 0,
+        };
+      }
+
+      // Only real inventory consumption needs serialization. Admin diagnostics
+      // remain a read-only path and avoid an unnecessary database lock/write.
+      await lockHintBalance(transaction, userId);
+
+      const [usedHints, purchased, profile] = await Promise.all([
+        transaction.hintUsage.count({ where: { userId } }),
+        transaction.userShopPurchase.aggregate({
+          where: { userId, shopItem: { itemType: "HINT_PACK" } },
+          _sum: { entitlementQuantity: true },
+        }),
+        transaction.userProfile.findUnique({
+          where: { userId },
+          select: { startingHintAllowance: true },
+        }),
+      ]);
+      const remainingBeforeUse = calculateHintBalance(
+        usedHints,
+        purchased._sum.entitlementQuantity ?? 0,
+        profile?.startingHintAllowance,
+      );
+      if (remainingBeforeUse <= 0) {
+        throw new HintConflictError("NO_HINTS_REMAINING");
+      }
 
       await transaction.hintUsage.create({
         data: { userId, gameSessionId: session.id, gameMode: currentMode },
@@ -126,5 +166,36 @@ export const hintRepository = {
         remainingHints: remainingBeforeUse - 1,
       };
     }, hintTransactionOptions);
+  },
+
+  /**
+   * Exercises the production stage gate against an isolated admin session.
+   *
+   * Restricting the lookup to `isAdminTest` prevents a crafted diagnostic
+   * request from ever reaching the inventory-consuming path used by learners.
+   */
+  async verifyAdminTestStageBlock(
+    userId: string,
+    sessionId: string,
+  ): Promise<void> {
+    const session = await prisma.gameSession.findFirst({
+      where: {
+        id: sessionId,
+        userId,
+        isAdminTest: true,
+        isVaultReplay: false,
+        status: CompletionStatus.IN_PROGRESS,
+      },
+      select: {
+        waypoint: {
+          select: { journeyStage: true },
+        },
+      },
+    });
+    if (!session?.waypoint) {
+      throw new HintConflictError("SESSION_UNAVAILABLE");
+    }
+
+    assertStageAllowsHints(session.waypoint.journeyStage);
   },
 } as const;

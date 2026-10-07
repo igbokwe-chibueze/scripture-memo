@@ -1,0 +1,78 @@
+# Phase 30 — Testing and QA Checklist
+
+**Started:** 2026-08-29  
+**Status:** Complete — all 16 manual flows passed on 2026-09-01
+**Acceptance gate:** All 16 manual flows pass and no known Critical or High
+security issue remains unresolved.
+
+## Result legend
+
+| Result | Meaning |
+|---|---|
+| Not run | The flow still requires verification. |
+| Passed | The complete flow produced the expected result. |
+| Failed | A reproducible product defect was found. |
+| Blocked | The environment cannot currently execute the flow reliably. |
+
+## Automated baseline
+
+| Check | Result | Evidence |
+|---|---|---|
+| TypeScript strict compilation | Passed | `npx tsc --noEmit` on 2026-08-29 |
+| Full ESLint pass | Passed | `npm run lint` on 2026-08-29 |
+| Non-database unit tests | Passed | 99 tests across errors, guards, progression, streaks, gameplay, rewards, hints, badges, Vault, map, localization, Fellowships, Beacon, and verse import |
+| Waypoint repository integration | Passed locally | 2026-09-14; lifecycle and ordered append outcomes pass. Actual concurrent lock contention remains unverified on Prisma Local. |
+| Progression repository integration | Passed with skips | 2026-09-14; cooldown, duplicate, and lazy unlock checks pass; two lock-race subtests explicitly skipped because the local pool has one connection. |
+| Reward repository integration | Passed locally | 2026-09-14; committed balance and single ledger entry survive a duplicate award rejection. |
+| Fellowship repository integration | Passed locally | 2026-09-14; leader/member/visitor access, privacy, ranking, and request projection. |
+
+Integration suites must run **sequentially**, because the waypoint and
+progression suites both own the complete temporary curriculum and require the
+same dedicated database to be empty at startup.
+
+Use `npm run local:test:start`, `npm run test:database:migrate`, then
+`npm run test:integration:all`. The test instance uses port 51224; development
+remains on 51214. The shared guard rejects hosted URLs and same-port aliases.
+`npm run test:database:reset` clears disposable local fixtures only. The former
+hosted quota blocker is retired; genuine concurrent race coverage remains pending.
+
+## Manual regression flows
+
+| # | Flow | Expected evidence | Result |
+|---:|---|---|---|
+| 1 | Authentication | Register, login, logout, and login again return to the correct protected destination. | Passed — project-owner manual verification on 2026-08-29. |
+| 2 | Admin route protection | A Player cannot open `/admin`; Admin and Super Admin permissions remain distinct. | Passed — project-owner manual verification on 2026-08-29. |
+| 3 | Verse management | Admin can create an unpublished KJV-backed verse, enrich and publish it; a Player cannot invoke the mutation. | Passed — project-owner manual verification on 2026-08-29. |
+| 4 | Waypoint assignment | The same verse can occupy different permanent waypoints with different Journey Stages; a hidden waypoint without learner history can be unassigned, while published or history-linked waypoints reject unassignment. | Passed — project-owner manual verification on 2026-08-29. |
+| 5 | Journey Stage rules | From `/admin/waypoints`, use **Journey Stage testing** to launch an assigned Learn waypoint and confirm Test hint is available with no timer; launch Recall and confirm a 5-minute server attempt; launch Strengthen and Master and confirm no hint control with 3-minute and 2-minute attempts. Return to the waypoint list after each test and verify no learner progress, rewards, streak, badges, flames, cooldown, or hint balance changed. | Passed — project-owner manual verification on 2026-08-31. |
+| 6 | Three-Day Challenge | Five Glimmer modes complete the day, add one flame, and place Glow behind its 24-hour server cooldown. | Passed — project-owner manual verification on 2026-08-31. |
+| 7 | Cooldown bypass | From the Day Selection **Admin testing** menu, **Verify server lock** calls the real session-start action while the client card remains locked. Only the server's specific `PRG-004` cooldown response produces the successful verification notice; no day or session starts. | Passed — project-owner manual verification on 2026-08-31. |
+| 8 | Radiance completion | The third flame, Glow reward, waypoint completion, next published waypoint unlock, immediate next Glimmer readiness, and completed-verse Vault/Sanctuary access occur together. | Passed — project-owner manual verification on 2026-08-31. |
+| 9 | Duplicate reward prevention | From the completed day's **Admin testing** menu, run **Verify duplicate protection**. The completed session must be terminal, duplicate Glow and Beacon ledger identities must be rejected inside forced-rollback probes, and balances must remain unchanged. | Passed — project-owner manual verification on 2026-08-31. |
+| 10 | Badge trigger | On a completed Learn waypoint, open **Admin testing** and run **Verify First Steps badge**. The read-only check must confirm trusted Learn completion, exactly one completed First Steps record, and exactly one matching Glow reward ledger. The live completion sequence remains mode success → badge celebration → streak celebration. | Passed — project-owner manual verification on 2026-08-31. |
+| 11 | Hint accounting | In one real active Learn mode, use one hint, then select **Verify hint accounting** from the gameplay **Admin testing** menu. It must confirm one usage, a matching profile counter, and the recomputed balance. From `/admin/waypoints`, launch isolated Strengthen and Master Journey Stage tests and select **Verify blocked hint** in each gameplay menu; only the real server stage rejection passes. | Passed — project-owner manual verification on 2026-09-01. |
+| 12 | Oil Shop | As an administrator, open `/oil-shop`, note Glow and hints, buy one affordable hint pack, close the celebration, then run **Verify latest purchase** and **Verify balance guard** under **Admin testing**. The first check must report exact before/after Glow and hint values backed by the purchase and reward ledger; the second must reject an amount one point above the current balance and leave the balance unchanged. | Passed — project-owner manual verification on 2026-09-01. |
+| 13 | Leaderboard privacy | Open `/leaderboard` and inspect **My League**, **Country**, **Fellowships**, and **All Time**, including one player-details modal in each available scope. Rows and modals may show only display name, avatar/frame, country flag, online state, rank, weekly/lifetime Beacon values, level, league, waypoint count, and Crowns—never email, account ID, or another private identifier. | Passed — project-owner manual verification and repository projection audit on 2026-09-01. |
+| 14 | Private notes | With two accounts that can open the same verse in Sanctuary, User A saves a unique private note. User B opens that exact Sanctuary URL and must not see User A's text; User B then saves different text. After User A signs back in, User A's original note must remain unchanged. Repository reads filter by the authenticated `userId`, while note mutations derive `userId` from the server session and upsert through the `(userId, verseId)` ownership key. | Passed — project-owner manual verification on 2026-09-01. |
+| 15 | Mobile gameplay | At a 375px touch viewport, open a completed challenge day through its **Admin testing** replay. Use the gameplay three-dot menu to replay Drag & Drop, Puzzle, Swap, Cue, and Fill individually. Complete Drag & Drop and Puzzle with tap-to-select/tap-to-place (and drag one tile), Swap with two taps, and Cue/Fill with the mobile keyboard. Every mode, word bank, blank, Check control, and completion screen must remain readable and operable without horizontal overflow, touching blanks, clipped controls, drag-created scrollbars, or background scrolling during overlays. Admin replays must not change progression or rewards. | Passed — project-owner manual verification on 2026-09-01. |
+| 16 | Vault replay | A four-stage mastered verse normally replays from the **Mastered** section. When none exists, an administrator opens the Vault header's three-dot **Admin testing** menu and starts **Test Vault replay** with a completed verse. Complete all five ordered modes, confirm Continue returns to the Vault, and verify rewards, progression, streaks, hints, badges, and cooldowns remain unchanged. | Passed — project-owner manual verification on 2026-09-01. |
+
+## Deferred natural-time checks
+
+These checks cannot be accepted from a shortened admin clock alone:
+
+- A genuine next learner-local calendar day increments the streak exactly once.
+- A missed learner-local calendar day resets the current streak while preserving
+  the best streak.
+- Weekly Beacon XP and league placement finalize at Monday 00:00 UTC without
+  timezone-dependent advantages.
+
+## Test-data safety
+
+- Use only local development accounts and the dedicated integration database.
+- Never run destructive fixtures against the routine development or hosted
+  production database.
+- Reset one learner through the guarded local progress-reset command when a flow
+  needs a fresh campaign; do not delete Better Auth identity or credentials.
+- Record a defect as Failed only after it reproduces independently of stale
+  `.next` output, browser extensions, and test-database connectivity.

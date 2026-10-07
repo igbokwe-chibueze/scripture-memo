@@ -23,7 +23,7 @@ import { FlagIcon, LocateFixedIcon, MapIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TrailNavigator } from "@/features/map/components/trail-navigator";
 import { WaypointCard } from "@/features/map/components/waypoint-card";
-import { getMapTheme } from "@/features/map/data/map-themes";
+import { getMapThemeForTrail } from "@/features/map/data/map-themes";
 import { groupMapWaypoints } from "@/features/map/lib/map-utils";
 import type { MapWaypoint } from "@/features/map/types/map.types";
 
@@ -113,9 +113,9 @@ export function WindingTrailMap({
 
     // Respect the operating-system motion preference even when the saved app
     // setting has not hydrated yet. Navigation remains immediate and complete.
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    const prefersReducedMotion =
+      document.documentElement.classList.contains("reduce-motion") ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     destination.scrollIntoView({
       block: "start",
       behavior: prefersReducedMotion ? "auto" : "smooth",
@@ -207,7 +207,7 @@ export function WindingTrailMap({
 
   return (
     <div ref={trailRef} className="mx-auto w-full max-w-[30rem]">
-      <div className="fixed right-4 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-40 flex items-center gap-2 sm:right-6">
+      <div className="fixed right-4 bottom-[calc(env(safe-area-inset-bottom)+6.25rem)] z-40 flex items-center gap-2 sm:right-6 md:bottom-4">
         <Button
           type="button"
           aria-label={t("backToCurrent")}
@@ -229,7 +229,13 @@ export function WindingTrailMap({
 
       <div className="space-y-7">
         {visibleGroups.map((group) => {
-          const theme = getMapTheme(group.index);
+          const firstWaypoint = group.waypoints[0];
+          if (!firstWaypoint) return null;
+
+          const theme = getMapThemeForTrail(
+            group.index + 1,
+            firstWaypoint.trailThemeId,
+          );
 
           return (
             <section
@@ -240,13 +246,13 @@ export function WindingTrailMap({
             >
               <div className="flex items-center justify-between gap-4 px-2">
                 <div>
-                  <p className="flex items-center gap-1.5 text-[0.65rem] font-black tracking-[0.16em] text-emerald-700 uppercase dark:text-emerald-300">
+                  <p className="flex items-center gap-1.5 text-[0.65rem] font-bold tracking-[0.16em] text-emerald-700 uppercase dark:text-emerald-300">
                     <MapIcon className="size-3.5" aria-hidden="true" />
                     {t("trail", { number: group.index + 1 })}
                   </p>
                   <h2
                     id={`trail-map-heading-${group.index}`}
-                    className="font-heading text-lg font-black"
+                    className="font-heading text-lg font-bold"
                   >
                     {t("waypoints", { start: group.startNumber, end: group.endNumber })}
                   </h2>
@@ -296,6 +302,12 @@ export function WindingTrailMap({
                     >
                       <WaypointCard
                         waypoint={waypoint}
+                        mobileCalloutSide={
+                          mobilePosition.x <= 50 ? "right" : "left"
+                        }
+                        largeCalloutSide={
+                          largePosition.x <= 50 ? "right" : "left"
+                        }
                         onSelect={onSelectWaypoint}
                       />
                     </div>
@@ -309,7 +321,7 @@ export function WindingTrailMap({
 
       <div ref={bottomSentinelRef} className="h-px" aria-hidden="true" />
       {visibleRange.end === groups.length - 1 && (
-        <p className="py-8 text-center text-sm font-semibold text-muted-foreground">
+        <p className="py-8 text-center text-sm font-medium text-muted-foreground">
           End of the currently published trail
         </p>
       )}

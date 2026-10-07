@@ -20,7 +20,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { getMapTheme } from "@/features/map/data/map-themes";
+import { getMapThemeForTrail } from "@/features/map/data/map-themes";
 import type { MapWaypointGroup } from "@/features/map/types/map.types";
 import { WaypointStatus } from "@/lib/generated/prisma/enums";
 import { cn } from "@/lib/utils";
@@ -89,7 +89,7 @@ export function TrailNavigator({
         className="w-[85vw] max-w-[23.75rem] gap-0 overflow-hidden p-0 sm:max-w-[23.75rem]"
       >
         <SheetHeader className="shrink-0 border-b px-5 py-5 pr-14">
-          <SheetTitle className="text-xl font-black">Trail Navigator</SheetTitle>
+          <SheetTitle className="text-xl font-bold">Trail Navigator</SheetTitle>
           <SheetDescription>
             Jump to any unlocked trail. Locked trails show what lies ahead.
           </SheetDescription>
@@ -98,7 +98,13 @@ export function TrailNavigator({
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4">
           <div className="space-y-3">
             {groups.map((group) => {
-              const theme = getMapTheme(group.index);
+              const firstWaypoint = group.waypoints[0];
+              if (!firstWaypoint) return null;
+
+              const theme = getMapThemeForTrail(
+                group.index + 1,
+                firstWaypoint.trailThemeId,
+              );
               const isCurrent = group.index === currentGroupIndex;
               const isLocked = group.waypoints.every(
                 ({ status }) => status === WaypointStatus.LOCKED,
@@ -139,7 +145,7 @@ export function TrailNavigator({
 
                   <span className="flex min-w-0 flex-col justify-center gap-1.5 px-3 py-2.5">
                     <span className="flex items-start justify-between gap-2">
-                      <span className="font-heading text-base font-black text-foreground">
+                      <span className="font-heading text-base font-bold text-foreground">
                         Trail {group.index + 1}
                       </span>
                       {isCurrent ? (
@@ -159,7 +165,7 @@ export function TrailNavigator({
                         />
                       ) : null}
                     </span>
-                    <span className="text-xs font-semibold text-muted-foreground">
+                    <span className="text-xs font-medium text-muted-foreground">
                       Waypoints {group.startNumber}–{group.endNumber}
                     </span>
                     <span className="flex items-center gap-2">

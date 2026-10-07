@@ -31,7 +31,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { showActionError } from "@/lib/errors/show-action-error";
-import { UserEmailAutocomplete } from "@/features/admin/components/user-email-autocomplete";
+import { UserEmailAutocomplete } from "@/features/admin";
 import { awardBadgeAction } from "@/features/badges/actions/award-badge.action";
 import { deleteBadgeAction } from "@/features/badges/actions/delete-badge.action";
 import { saveBadgeAction } from "@/features/badges/actions/save-badge.action";
@@ -213,7 +213,7 @@ export function BadgeAdminManager({
       <section className="rounded-2xl border bg-card p-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="font-heading text-xl font-black">Badge definitions</h2>
+            <h2 className="font-heading text-xl font-bold">Badge definitions</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               New badges use trusted server metrics and rarity-owned rewards.
             </p>
@@ -237,7 +237,7 @@ export function BadgeAdminManager({
                 className="rounded-xl border border-red-400/40 bg-red-50 p-4 text-sm text-red-900 dark:bg-red-950/30 dark:text-red-100"
                 role="alert"
               >
-                <p className="font-black">Please correct these fields:</p>
+                <p className="font-bold">Please correct these fields:</p>
                 <ul className="mt-2 list-disc space-y-1 pl-5">
                   {Object.entries(formErrors).flatMap(([field, messages]) =>
                     messages.map((message) => (
@@ -256,6 +256,8 @@ export function BadgeAdminManager({
               <label className="grid gap-1 text-sm font-bold">
                 Icon
                 <input
+                  id="badge-icon"
+                  name="badgeIcon"
                   className="min-h-11 rounded-xl border border-input bg-background px-3 aria-invalid:border-red-500"
                   aria-invalid={Boolean(formErrors.icon)}
                   value={draft.icon}
@@ -269,6 +271,8 @@ export function BadgeAdminManager({
               <label className="grid gap-1 text-sm font-bold">
                 Name
                 <input
+                  id="badge-name"
+                  name="badgeName"
                   className="min-h-11 rounded-xl border border-input bg-background px-3 aria-invalid:border-red-500"
                   aria-invalid={Boolean(formErrors.name)}
                   value={draft.name}
@@ -281,6 +285,8 @@ export function BadgeAdminManager({
             <label className="grid gap-1 text-sm font-bold">
               Description
               <textarea
+                id="badge-description"
+                name="badgeDescription"
                 className="min-h-24 rounded-xl border border-input bg-background p-3 aria-invalid:border-red-500"
                 aria-invalid={Boolean(formErrors.description)}
                 value={draft.description}
@@ -296,6 +302,8 @@ export function BadgeAdminManager({
                   explanation="Groups related achievements in the player's collection. It does not change how progress is calculated."
                 />
                 <select
+                  id="badge-category"
+                  name="badgeCategory"
                   className="min-h-11 rounded-xl border border-input bg-background px-3"
                   value={draft.category}
                   onChange={(event) =>
@@ -316,6 +324,8 @@ export function BadgeAdminManager({
                   explanation="Controls the celebration style and server-owned Glow reward: Common 50 through Legendary 500."
                 />
                 <select
+                  id="badge-rarity"
+                  name="badgeRarity"
                   className="min-h-11 rounded-xl border border-input bg-background px-3"
                   value={draft.rarity}
                   onChange={(event) =>
@@ -336,6 +346,8 @@ export function BadgeAdminManager({
                   explanation="The criterion value required to unlock the badge. For example, Streak Days with a target of 7 unlocks at a seven-day streak."
                 />
                 <input
+                  id="badge-target-value"
+                  name="badgeTargetValue"
                   type="number"
                   min={1}
                   max={1_000_000}
@@ -355,7 +367,7 @@ export function BadgeAdminManager({
                   label="Reward"
                   explanation="Glow Points awarded once when the badge unlocks. The amount is automatically determined by rarity and cannot be entered manually."
                 />
-                <p className="mt-1 text-lg font-black">
+                <p className="mt-1 text-lg font-bold">
                   {BADGE_REWARD_BY_RARITY[draft.rarity]} Glow
                 </p>
               </div>
@@ -366,6 +378,8 @@ export function BadgeAdminManager({
                 explanation="The server-owned measurement used for progress. Future-feature criteria stay paused until their trusted gameplay event exists."
               />
               <select
+                id="badge-criteria"
+                name="badgeCriteria"
                 className="min-h-11 rounded-xl border border-input bg-background px-3"
                 value={draft.criteriaKey}
                 onChange={(event) => {
@@ -390,7 +404,7 @@ export function BadgeAdminManager({
               </select>
             </label>
             {!isBadgeCriterionAvailable(draft.criteriaKey) && (
-              <p className="rounded-xl bg-violet-100 p-3 text-sm font-semibold text-violet-900 dark:bg-violet-950/40 dark:text-violet-100">
+              <p className="rounded-xl bg-violet-100 p-3 text-sm font-medium text-violet-900 dark:bg-violet-950/40 dark:text-violet-100">
                 This definition can be saved for planning, but remains paused
                 until its roadmap feature provides trusted progress events.
               </p>
@@ -398,6 +412,8 @@ export function BadgeAdminManager({
             <div className="flex flex-wrap gap-5">
               <label className="inline-flex min-h-11 items-center gap-2 text-sm font-bold">
                 <input
+                  id="badge-is-hidden"
+                  name="badgeIsHidden"
                   type="checkbox"
                   checked={draft.isHidden}
                   onChange={(event) =>
@@ -408,6 +424,8 @@ export function BadgeAdminManager({
               </label>
               <label className="inline-flex min-h-11 items-center gap-2 text-sm font-bold">
                 <input
+                  id="badge-is-active"
+                  name="badgeIsActive"
                   type="checkbox"
                   checked={draft.isActive}
                   disabled={!isBadgeCriterionAvailable(draft.criteriaKey)}
@@ -446,7 +464,7 @@ export function BadgeAdminManager({
           id="manual-badge-award"
           className="scroll-mt-6 rounded-2xl border bg-card p-5"
         >
-          <h2 className="flex items-center gap-2 font-heading text-xl font-black">
+          <h2 className="flex items-center gap-2 font-heading text-xl font-bold">
             <AwardIcon className="size-5 text-amber-500" aria-hidden="true" />
             Manual award
           </h2>
@@ -454,7 +472,12 @@ export function BadgeAdminManager({
             Super Admin grants are permanent, rewarded once, and written to the audit trail.
           </p>
           <div className="mt-4 grid gap-3 md:grid-cols-[1fr_1fr_auto]">
+            <label htmlFor="manual-award-badge" className="sr-only">
+              Badge to award
+            </label>
             <select
+              id="manual-award-badge"
+              name="manualAwardBadge"
               className="min-h-11 rounded-xl border border-input bg-background px-3"
               value={awardBadgeId}
               onChange={(event) => setAwardBadgeId(event.currentTarget.value)}
@@ -488,6 +511,8 @@ export function BadgeAdminManager({
             aria-hidden="true"
           />
           <input
+            id="badge-search"
+            name="badgeSearch"
             type="search"
             className="min-h-12 w-full rounded-xl border border-input bg-background pr-4 pl-10"
             placeholder="Find by name, description, category, rarity, or criterion"
@@ -495,7 +520,7 @@ export function BadgeAdminManager({
             onChange={(event) => setSearchQuery(event.currentTarget.value)}
           />
         </label>
-        <p className="mt-2 text-xs font-semibold text-muted-foreground">
+        <p className="mt-2 text-xs font-medium text-muted-foreground">
           Showing {visibleBadges.length} of {badges.length} badges
         </p>
       </section>
@@ -511,14 +536,14 @@ export function BadgeAdminManager({
             </span>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
-                <h2 className="font-black">{badge.name}</h2>
+                <h2 className="font-bold">{badge.name}</h2>
                 {!isBadgeCriterionAvailable(badge.criteriaKey) && (
-                  <span className="rounded-full bg-violet-100 px-2 py-1 text-[0.65rem] font-black text-violet-800 uppercase dark:bg-violet-950/50 dark:text-violet-200">
+                  <span className="rounded-full bg-violet-100 px-2 py-1 text-[0.65rem] font-bold text-violet-800 uppercase dark:bg-violet-950/50 dark:text-violet-200">
                     Future feature
                   </span>
                 )}
                 {!badge.isActive && (
-                  <span className="rounded-full bg-muted px-2 py-1 text-[0.65rem] font-black uppercase">
+                  <span className="rounded-full bg-muted px-2 py-1 text-[0.65rem] font-bold uppercase">
                     Paused
                   </span>
                 )}
@@ -576,7 +601,7 @@ export function BadgeAdminManager({
         {visibleBadges.length === 0 && (
           <div className="rounded-2xl border border-dashed bg-card p-8 text-center">
             <SearchIcon className="mx-auto size-7 text-muted-foreground" aria-hidden="true" />
-            <p className="mt-3 font-black">No badges match that search.</p>
+            <p className="mt-3 font-bold">No badges match that search.</p>
             <Button
               type="button"
               variant="ghost"

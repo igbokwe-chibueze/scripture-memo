@@ -4,7 +4,9 @@ import {
   BookOpenIcon,
   CircleGaugeIcon,
   Clock3Icon,
+  FlaskConicalIcon,
   MapPinnedIcon,
+  MapIcon,
   PackageOpenIcon,
   SettingsIcon,
   ShieldCheckIcon,
@@ -38,10 +40,30 @@ const ADMIN_DESTINATIONS = [
     icon: PackageOpenIcon,
   },
   {
+    href: "/admin/audit-logs",
+    label: "Audit log",
+    description: "Review immutable administrative and system events.",
+    icon: ShieldCheckIcon,
+    superAdminOnly: true,
+  },
+  {
+    href: "/admin/fellowships",
+    label: "Fellowships",
+    description:
+      "Review Fellowships and their case histories. Governance actions are limited to Super Admins.",
+    icon: UsersIcon,
+  },
+  {
     href: "/admin/waypoints",
     label: "Waypoints",
     description: "Control the permanent curriculum trail.",
     icon: MapPinnedIcon,
+  },
+  {
+    href: "/admin/map-trails",
+    label: "Map artwork",
+    description: "Choose Map A illustrations for each published trail.",
+    icon: MapIcon,
   },
   {
     href: "/admin/badges",
@@ -54,6 +76,12 @@ const ADMIN_DESTINATIONS = [
     label: "Error guide",
     description: "Look up safe operational error codes.",
     icon: CircleGaugeIcon,
+  },
+  {
+    href: "/admin/testing",
+    label: "Testing",
+    description: "Review shared UI, gameplay, and feature scenarios.",
+    icon: FlaskConicalIcon,
   },
 ] as const;
 
@@ -80,7 +108,7 @@ export async function AdminDashboardView(): Promise<React.ReactNode> {
         />
 
         <section aria-labelledby="admin-stats-title" className="space-y-3">
-          <h2 id="admin-stats-title" className="font-heading text-xl font-black">
+          <h2 id="admin-stats-title" className="font-heading text-xl font-bold">
             Platform pulse
           </h2>
           <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 lg:grid-cols-5">
@@ -105,7 +133,7 @@ export async function AdminDashboardView(): Promise<React.ReactNode> {
 
         <section aria-labelledby="admin-tools-title" className="space-y-3">
           <div>
-            <h2 id="admin-tools-title" className="font-heading text-xl font-black">
+            <h2 id="admin-tools-title" className="font-heading text-xl font-bold">
               Admin tools
             </h2>
             <p className="text-sm text-muted-foreground">
@@ -113,7 +141,9 @@ export async function AdminDashboardView(): Promise<React.ReactNode> {
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {ADMIN_DESTINATIONS.map((destination) => {
+            {ADMIN_DESTINATIONS.filter(
+              (destination) => !("superAdminOnly" in destination) || isSuper,
+            ).map((destination) => {
               const Icon = destination.icon;
               return (
                 <article
@@ -123,7 +153,7 @@ export async function AdminDashboardView(): Promise<React.ReactNode> {
                   <div className="mb-4 grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary">
                     <Icon className="size-6" aria-hidden="true" />
                   </div>
-                  <h3 className="font-heading text-lg font-black">{destination.label}</h3>
+                  <h3 className="font-heading text-lg font-bold">{destination.label}</h3>
                   <p className="mt-1 grow text-sm leading-6 text-muted-foreground">
                     {destination.description}
                   </p>
@@ -144,7 +174,7 @@ export async function AdminDashboardView(): Promise<React.ReactNode> {
                   <div className="mb-4 grid size-12 place-items-center rounded-2xl bg-primary text-primary-foreground">
                     <UsersIcon className="size-6" aria-hidden="true" />
                   </div>
-                  <h3 className="font-heading text-lg font-black">Users</h3>
+                  <h3 className="font-heading text-lg font-bold">Users</h3>
                   <p className="mt-1 grow text-sm leading-6 text-muted-foreground">
                     Search accounts, change roles, and control access.
                   </p>
@@ -161,17 +191,17 @@ export async function AdminDashboardView(): Promise<React.ReactNode> {
                   <div className="mb-4 grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary">
                     <SettingsIcon className="size-6" aria-hidden="true" />
                   </div>
-                  <h3 className="font-heading text-lg font-black">Settings</h3>
+                  <h3 className="font-heading text-lg font-bold">Settings</h3>
                   <p className="mt-1 grow text-sm leading-6 text-muted-foreground">
-                    Review the current account and experience preferences.
+                    Set the platform translation, new-player hints, and Glow rewards.
                   </p>
                   <NavigationButton
-                    href="/settings"
-                    pendingLabel="Opening settings"
+                    href="/admin/settings"
+                    pendingLabel="Opening platform settings"
                     variant="outline"
                     className="mt-5 w-full"
                   >
-                    Open settings
+                    Platform settings
                   </NavigationButton>
                 </article>
               </>

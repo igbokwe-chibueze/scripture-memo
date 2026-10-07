@@ -169,7 +169,7 @@ export function VerseImportDialog(): React.ReactNode {
           {preview && (
             <section className="grid gap-3" aria-labelledby="verse-import-preview-title">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <h3 id="verse-import-preview-title" className="font-semibold">Import preview</h3>
+                <h3 id="verse-import-preview-title" className="font-heading font-bold">Import preview</h3>
                 <div className="flex flex-wrap gap-2" aria-label="Import totals">
                   <Badge>{preview.readyCount} ready</Badge>
                   <Badge variant="outline">{preview.duplicateCount} duplicate</Badge>

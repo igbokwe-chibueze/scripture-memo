@@ -2,7 +2,7 @@
  * PostgreSQL integration coverage for the permanent waypoint curriculum rules.
  *
  * Run with `TEST_DATABASE_URL` pointing to an empty, migrated PostgreSQL database
- * whose database name contains "test", then execute `npm run test:integration`.
+ * on a separate local port, then execute `npm run test:integration`.
  * The explicit separate URL and empty-database checks prevent this fixture suite
  * from mutating development or production data. Prisma and the repositories are
  * imported only after the test URL replaces `DATABASE_URL`, so they cannot open a

@@ -1,6 +1,7 @@
 "use server";
 
 import { headers } from "next/headers";
+import { isAPIError } from "better-auth/api";
 import { auth } from "@/lib/auth/auth";
 import { rateLimit } from "@/lib/rate-limit";
 import { logger } from "@/lib/logger";
@@ -8,9 +9,15 @@ import type { ActionResult } from "@/types/api";
 import { authRepository } from "@/features/auth/repositories/auth.repository";
 import { loginSchema } from "@/features/auth/schemas/login.schema";
 import { getSafePostLoginPath } from "@/features/auth/lib/get-safe-post-login-path";
+import { captureVerificationEmail } from "@/features/auth/lib/email-verification-delivery";
 import { progressionRepository } from "@/features/progression/repositories/progression.repository";
 
-type LoginResult = { redirectTo: string };
+type LoginResult =
+  | { status: "authenticated"; redirectTo: string }
+  | {
+      status: "verification-required";
+      lightDevDownload?: { fileName: string; content: string };
+    };
 
 /** Validates credentials, creates a session, and determines onboarding redirect. */
 export async function loginAction(input: unknown): Promise<ActionResult<LoginResult>> {
@@ -52,13 +59,53 @@ export async function loginAction(input: unknown): Promise<ActionResult<LoginRes
       };
     }
 
-    const result = await auth.api.signInEmail({
-      body: {
-        email: parsed.data.email,
-        password: parsed.data.password,
-      },
-      headers: requestHeaders,
-    });
+    const capture = await captureVerificationEmail(() =>
+      auth.api.signInEmail({
+        body: {
+          email: parsed.data.email,
+          password: parsed.data.password,
+          callbackURL: `/login?verified=1&next=${encodeURIComponent(
+            getSafePostLoginPath(parsed.data.nextPath),
+          )}`,
+        },
+        headers: requestHeaders,
+      }),
+    );
+
+    if (!capture.success) {
+      if (
+        isAPIError(capture.error) &&
+        capture.error.body?.code === "EMAIL_NOT_VERIFIED"
+      ) {
+        return {
+          success: true,
+          message: "Verify your email before logging in. We sent another link.",
+          data: {
+            status: "verification-required",
+            lightDevDownload: capture.verificationUrl
+              ? {
+                  fileName: "scripture-memo-email-verification.txt",
+                  content: [
+                    "Scripture Memo — local verification link",
+                    "",
+                    "Open this Better Auth link to verify your email address:",
+                    capture.verificationUrl,
+                    "",
+                    "This link expires in 60 minutes and should not be shared.",
+                  ].join("\r\n"),
+                }
+              : undefined,
+          },
+        };
+      }
+
+      return {
+        success: false,
+        message: "Email or password is incorrect.",
+      };
+    }
+
+    const result = capture.value;
 
     await authRepository.ensureUserFoundation(result.user.id, result.user.name);
     // WHY: Login is a safe repair point for identities created before the
@@ -81,6 +128,7 @@ export async function loginAction(input: unknown): Promise<ActionResult<LoginRes
       success: true,
       message: "Welcome back!",
       data: {
+        status: "authenticated",
         // WHY: Translation onboarding always takes precedence. Returning users
         // resume only a validated internal destination from the login URL.
         redirectTo: hasSelectedTranslation

@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/zod";
 import { MAX_VERSE_IMPORT_BYTES } from "@/features/verses/constants/verse-import";
 
 /** Untrusted CSV payload contract shared by preview and confirmation actions. */

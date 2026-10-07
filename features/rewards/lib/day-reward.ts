@@ -2,15 +2,22 @@ import { DayLevel, type DayLevel as DayLevelValue } from "@/lib/generated/prisma
 import { BASE_GLOW_POINTS } from "@/lib/constants";
 
 /** Server-owned campaign reward amounts; clients never submit these values. */
-const DAY_REWARD_AMOUNTS = {
-  [DayLevel.GLIMMER]: BASE_GLOW_POINTS,
-  [DayLevel.GLOW]: Math.round(BASE_GLOW_POINTS * 1.5),
-  [DayLevel.RADIANCE]: BASE_GLOW_POINTS * 2,
-} as const satisfies Record<DayLevelValue, number>;
+/** Returns one reward from the current base without changing ledger history. */
+export function getDayRewardAmount(
+  dayLevel: DayLevelValue,
+  baseGlowPoints = BASE_GLOW_POINTS,
+): number {
+  if (!Number.isInteger(baseGlowPoints) || baseGlowPoints < 1) {
+    throw new RangeError("The base Glow reward must be a positive integer.");
+  }
 
-/** Returns the configured reward for one server-verified challenge day. */
-export function getDayRewardAmount(dayLevel: DayLevelValue): number {
-  return DAY_REWARD_AMOUNTS[dayLevel];
+  const multipliers = {
+    [DayLevel.GLIMMER]: 1,
+    [DayLevel.GLOW]: 1.5,
+    [DayLevel.RADIANCE]: 2,
+  } as const satisfies Record<DayLevelValue, number>;
+
+  return Math.round(baseGlowPoints * multipliers[dayLevel]);
 }
 
 /** Creates the stable database identity that prevents duplicate day rewards. */

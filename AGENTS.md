@@ -26,7 +26,7 @@ all differ from your training data. Read the relevant guide in
 
 | Layer | Technology |
 |---|---|
-| Framework | Next.js 16.2.10 App Router |
+| Framework | Next.js 16.3.6 App Router |
 | Language | TypeScript (strict mode) |
 | ORM | Prisma |
 | Database | PostgreSQL |
@@ -40,7 +40,7 @@ all differ from your training data. Read the relevant guide in
 
 **What this app does:**
 Scripture Memo helps users memorize Bible verses through an expanding sequential
-waypoint curriculum bootstrapped with 220 records. Administrators append new
+waypoint curriculum bootstrapped with 400 records. Administrators append new
 waypoints to the same continuous history. Each waypoint is assigned one verse
 and a Journey Stage. Users complete a Three-Day Challenge (Glimmer → Glow →
 Radiance) at every waypoint using five game modes per day (Drag & Drop → Puzzle
@@ -204,6 +204,10 @@ optimization.
 
 - Local development and automated tests must use isolated local/test databases;
   never use the hosted production database as the routine development backend.
+  Current development uses Prisma Local port 51214; integration tests use a
+  separate named local instance on 51224. Database-name changes on the same
+  Prisma Local port do not isolate data. Keep test guards local-only and reject
+  reuse of the development listener. Hosted test credentials are retired.
 - Do not perform writes, transactions, advisory locks, or initialization during
   ordinary read requests. Initialization belongs at an explicit state transition
   or behind a cheap read that proves recovery is actually required.
@@ -920,10 +924,11 @@ Use **database transactions** for all operations that involve more than one writ
   resource is separate and its relevant fixture tables are empty.
 - Never fall back from a missing test URL to `DATABASE_URL`. A missing or
   ambiguous test configuration must skip or fail closed.
-- Use `TEST_DIRECT_URL` only for Prisma CLI migrations against the dedicated test
-  resource. Setting it as `DATABASE_URL` is permitted only as a process-local
-  override for that explicitly approved command; never rewrite the application's
-  persisted `DATABASE_URL`.
+- Use `npm run test:database:migrate` for local test migrations. It validates
+  `TEST_DATABASE_URL` and sets only the migration child's `DATABASE_URL`.
+  Legacy `TEST_DIRECT_URL` is not a fallback; if retained in local configuration,
+  it must point to that same local test instance. Never rewrite the application's
+  persisted `DATABASE_URL` to run tests or test migrations.
 - Keep all database credentials in gitignored environment files. Never print,
   commit, document, or paste connection strings into chat.
 - Prisma MCP database creation, deletion, SQL execution, schema changes,

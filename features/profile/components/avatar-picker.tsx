@@ -44,7 +44,7 @@ export function AvatarPicker({
           loading="eager"
         />
         <div className="min-w-0">
-          <h3 id="avatar-picker-title" className="font-heading text-xl font-black">
+          <h3 id="avatar-picker-title" className="font-heading text-xl font-bold">
             {t("chooseAvatar")}
           </h3>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -92,13 +92,13 @@ export function AvatarPicker({
       <div>
         <div className="mb-3 flex items-center justify-between gap-3">
           <div>
-            <h3 className="font-heading text-lg font-black">{t("profileFrame")}</h3>
+            <h3 className="font-heading text-lg font-bold">{t("profileFrame")}</h3>
             <p className="text-sm text-muted-foreground">
               {isPartner ? t("partnerFrameDescription") : t("standardFrameDescription")}
             </p>
           </div>
           {!isPartner ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-violet-500/15 px-3 py-1 text-xs font-black text-violet-600 dark:text-violet-300">
+            <span className="inline-flex items-center gap-1 rounded-full bg-violet-500/15 px-3 py-1 text-xs font-bold text-violet-600 dark:text-violet-300">
               <LockIcon className="size-3.5" aria-hidden="true" />
               {t("partnerOnly")}
             </span>

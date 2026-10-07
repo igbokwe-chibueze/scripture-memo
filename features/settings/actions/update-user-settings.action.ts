@@ -14,9 +14,10 @@ import { LOCALE_COOKIE_NAME } from "@/i18n/config";
 export async function updateUserSettingsAction(
   input: unknown,
 ): Promise<ActionResult> {
-  const t = await getTranslations("Settings");
   const parsed = updateUserSettingsSchema.safeParse(input);
   if (!parsed.success) {
+    const t = await getTranslations("Settings");
+
     return {
       success: false,
       message: t("checkHighlighted"),
@@ -24,6 +25,7 @@ export async function updateUserSettingsAction(
     };
   }
 
+  const t = await getTranslations("Settings");
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) {
     return { success: false, message: t("authRequired") };

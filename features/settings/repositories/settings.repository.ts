@@ -16,8 +16,24 @@ export type UserSettingsValues = {
 
 /** Persistence operations owned by the user-settings feature. */
 export const settingsRepository = {
+  /** Loads only the preferences consumed by the request-scoped settings cache. */
   async getByUserId(userId: string): Promise<UserSettingsValues | null> {
-    const settings = await prisma.userSettings.findUnique({ where: { userId } });
+    // WHY: This shared read runs across protected screens. Internal row IDs and
+    // audit timestamps are not presentation preferences, so leave them in the
+    // database. Keep the same unique owner lookup and missing-row fallback.
+    const settings = await prisma.userSettings.findUnique({
+      where: { userId },
+      select: {
+        preferredTranslation: true,
+        locale: true,
+        audioEnabled: true,
+        reducedMotion: true,
+        theme: true,
+        timeZone: true,
+        hasConfiguredTimeZone: true,
+        hasSelectedTranslation: true,
+      },
+    });
     if (!settings) return null;
 
     return {

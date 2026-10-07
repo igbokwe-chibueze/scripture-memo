@@ -26,10 +26,11 @@ function selectTranslation(
     text: string;
   }>,
   preferred: TranslationCode,
+  fallback: TranslationCode,
 ): { translation: TranslationCode; text: string } | null {
   return (
     translations.find(({ translation }) => translation === preferred) ??
-    translations.find(({ translation }) => translation === TranslationCode.KJV) ??
+    translations.find(({ translation }) => translation === fallback) ??
     translations[0] ??
     null
   );
@@ -51,8 +52,9 @@ function mapVerse(
     }>;
   },
   preferred: TranslationCode,
+  fallback: TranslationCode,
 ): VaultVerseItem | null {
-  const selected = selectTranslation(verse.translations, preferred);
+  const selected = selectTranslation(verse.translations, preferred, fallback);
   if (!selected) return null;
   const studyState = getStudyAccessState(
     verse.waypoints.flatMap((waypoint) =>
@@ -121,23 +123,34 @@ const vaultVerseSelect = (userId: string) => ({
 /** Database boundary for private Vault reads and isolated replay creation. */
 export const vaultRepository = {
   async getLibrary(userId: string): Promise<VaultLibraryData> {
-    const [profile, streak, settings, completedProgress, purchasedHints, favorites, activeProgress] =
+    const [userSummary, completedProgress, purchasedHints, favorites, activeProgress, platformSettings] =
       await Promise.all([
-        prisma.userProfile.findUnique({
-          where: { userId },
+        // WHY: Profile, streak, and settings are one-to-one relations owned by
+        // the same learner. Reading them through User replaces three database
+        // operations with one narrow relation query on every Vault visit.
+        prisma.user.findUnique({
+          where: { id: userId },
           select: {
-            totalWaypointsCompleted: true,
-            totalGlowPoints: true,
-            totalHintsUsed: true,
+            profile: {
+              select: {
+                totalWaypointsCompleted: true,
+                totalGlowPoints: true,
+                totalHintsUsed: true,
+                startingHintAllowance: true,
+              },
+            },
+            streak: {
+              select: {
+                currentStreak: true,
+                bestStreak: true,
+              },
+            },
+            settings: {
+              select: {
+                preferredTranslation: true,
+              },
+            },
           },
-        }),
-        prisma.userStreak.findUnique({
-          where: { userId },
-          select: { currentStreak: true, bestStreak: true },
-        }),
-        prisma.userSettings.findUnique({
-          where: { userId },
-          select: { preferredTranslation: true },
         }),
         prisma.userWaypointProgress.findMany({
           where: { userId, status: WaypointStatus.COMPLETED },
@@ -188,9 +201,20 @@ export const vaultRepository = {
           },
           orderBy: { waypoint: { number: "asc" } },
         }),
+        prisma.platformSettings.findUnique({
+          where: { id: "global" },
+          select: { defaultTranslation: true },
+        }),
       ]);
 
-    const preferred = settings?.preferredTranslation ?? TranslationCode.KJV;
+    const profile = userSummary?.profile;
+    const streak = userSummary?.streak;
+    const preferred =
+      userSummary?.settings?.preferredTranslation ??
+      platformSettings?.defaultTranslation ??
+      TranslationCode.KJV;
+    const fallback =
+      platformSettings?.defaultTranslation ?? TranslationCode.KJV;
     const stagesByVerse = new Map<
       string,
       {
@@ -212,7 +236,7 @@ export const vaultRepository = {
 
     const completedVerses = [...stagesByVerse.values()]
       .flatMap(({ verse }) => {
-        const item = mapVerse(verse, preferred);
+        const item = mapVerse(verse, preferred, fallback);
         return item ? [item] : [];
       })
       .sort((left, right) => left.reference.localeCompare(right.reference));
@@ -220,7 +244,7 @@ export const vaultRepository = {
       hasCompletedEveryJourneyStage(new Set(verse.completedStages)),
     );
     const favoriteVerses = favorites.flatMap(({ verse }) => {
-      const item = mapVerse(verse, preferred);
+      const item = mapVerse(verse, preferred, fallback);
       return item ? [item] : [];
     });
     const packs = new Map<string, string>();
@@ -241,6 +265,7 @@ export const vaultRepository = {
         hintsRemaining: calculateHintBalance(
           totalHintsUsed,
           purchasedHints._sum.entitlementQuantity ?? 0,
+          profile?.startingHintAllowance,
         ),
         totalHintsUsed,
       },
@@ -317,7 +342,7 @@ export const vaultRepository = {
       });
       if (active) return active.id;
 
-      const [verse, settings] = await Promise.all([
+      const [verse, settings, platformSettings] = await Promise.all([
         transaction.verse.findUnique({
           where: { id: verseId },
           select: { translations: { select: { translation: true } } },
@@ -326,14 +351,23 @@ export const vaultRepository = {
           where: { userId },
           select: { preferredTranslation: true },
         }),
+        transaction.platformSettings.findUnique({
+          where: { id: "global" },
+          select: { defaultTranslation: true },
+        }),
       ]);
       if (!verse) return null;
-      const preferred = settings?.preferredTranslation ?? TranslationCode.KJV;
+      const preferred =
+        settings?.preferredTranslation ??
+        platformSettings?.defaultTranslation ??
+        TranslationCode.KJV;
+      const fallback =
+        platformSettings?.defaultTranslation ?? TranslationCode.KJV;
       const available = verse.translations.map(({ translation }) => translation);
       const translation = available.includes(preferred)
         ? preferred
-        : available.includes(TranslationCode.KJV)
-          ? TranslationCode.KJV
+        : available.includes(fallback)
+          ? fallback
           : available[0];
       if (!translation) return null;
 
@@ -350,6 +384,84 @@ export const vaultRepository = {
         select: { id: true },
       });
       return session.id;
+    }, vaultTransactionOptions);
+  },
+
+  /**
+   * Starts a no-progress Vault fixture for an administrator's completed verse.
+   *
+   * WHY: QA must exercise the real five-mode replay without creating artificial
+   * mastery. The completed-progress predicate still prevents arbitrary verse
+   * access, while the two session flags suppress every reward and progression
+   * side effect in the gameplay transaction.
+   */
+  async startAdminReplay(
+    userId: string,
+    verseId: string,
+    startedAt: Date,
+  ): Promise<string | null> {
+    return prisma.$transaction(async (transaction) => {
+      const [verse, settings, active, platformSettings] = await Promise.all([
+        transaction.verse.findFirst({
+          where: {
+            id: verseId,
+            waypoints: {
+              some: {
+                userProgress: {
+                  some: { userId, status: WaypointStatus.COMPLETED },
+                },
+              },
+            },
+          },
+          select: {
+            translations: { select: { translation: true, text: true } },
+          },
+        }),
+        transaction.userSettings.findUnique({
+          where: { userId },
+          select: { preferredTranslation: true },
+        }),
+        transaction.gameSession.findFirst({
+          where: {
+            userId,
+            verseId,
+            isVaultReplay: true,
+            isAdminTest: true,
+            status: CompletionStatus.IN_PROGRESS,
+          },
+          orderBy: { createdAt: "desc" },
+          select: { id: true },
+        }),
+        transaction.platformSettings.findUnique({
+          where: { id: "global" },
+          select: { defaultTranslation: true },
+        }),
+      ]);
+
+      if (active) return active.id;
+      if (!verse) return null;
+
+      const fallback =
+        platformSettings?.defaultTranslation ?? TranslationCode.KJV;
+      const preferred = settings?.preferredTranslation ?? fallback;
+      const selected = selectTranslation(verse.translations, preferred, fallback);
+      if (!selected) return null;
+
+      const replay = await transaction.gameSession.create({
+        data: {
+          userId,
+          verseId,
+          dayLevel: VAULT_REPLAY_DAY_LEVEL,
+          translation: selected.translation,
+          status: CompletionStatus.IN_PROGRESS,
+          isVaultReplay: true,
+          isAdminTest: true,
+          startedAt,
+        },
+        select: { id: true },
+      });
+
+      return replay.id;
     }, vaultTransactionOptions);
   },
 } as const;

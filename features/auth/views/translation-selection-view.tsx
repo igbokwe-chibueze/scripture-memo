@@ -17,7 +17,10 @@ export async function TranslationSelectionView({ searchParams }: { searchParams:
   const session = await requireServerSession();
   const next = (await searchParams).next;
   const nextPath = getSafePostLoginPath(typeof next === "string" ? next : undefined);
-  if (await authRepository.hasSelectedTranslation(session.user.id)) redirect(nextPath);
+  const settings = await authRepository.getTranslationOnboardingSettings(
+    session.user.id,
+  );
+  if (settings.hasSelectedTranslation) redirect(nextPath);
 
   return (
     <main className="flex min-h-svh items-center justify-center bg-linear-to-b from-primary/10 via-background to-amber-100/50 px-4 py-10 dark:to-amber-950/20">
@@ -31,7 +34,12 @@ export async function TranslationSelectionView({ searchParams }: { searchParams:
             This will be your default throughout the journey. You can change it later in Settings.
           </p>
         </CardHeader>
-        <CardContent><TranslationSelectionForm nextPath={nextPath} /></CardContent>
+        <CardContent>
+          <TranslationSelectionForm
+            nextPath={nextPath}
+            initialTranslation={settings.preferredTranslation}
+          />
+        </CardContent>
       </Card>
     </main>
   );

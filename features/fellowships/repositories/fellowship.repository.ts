@@ -1,4 +1,6 @@
 import { randomBytes } from "node:crypto";
+import type { Prisma } from "@/lib/generated/prisma/client";
+import { UserNotificationType } from "@/lib/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import type { CreateFellowshipInput, UpdateFellowshipInput } from "@/features/fellowships/schemas/fellowship.schema";
 import type { FellowshipConflictCode, FellowshipDetailData, FellowshipDirectoryData, FellowshipEditData, FellowshipInvitePreview } from "@/features/fellowships/types/fellowship.types";
@@ -17,12 +19,29 @@ function slugify(value: string): string {
   return value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 42) || "fellowship";
 }
 
+/** Serializes mutations that could race with Fellowship closure or handoff. */
+async function lockFellowship(
+  transaction: Prisma.TransactionClient,
+  fellowshipId: string,
+): Promise<void> {
+  await transaction.$executeRaw`
+    SELECT pg_advisory_xact_lock(
+      hashtext('scripture-memo-fellowship-governance'),
+      hashtext(${fellowshipId})
+    )
+  `;
+}
+
 /** Owns all Fellowship reads and locked membership mutations. */
 export const fellowshipRepository = {
   /** Resolves only the minimal, non-sensitive identity needed by a public invitation landing page. */
   async getInvitePreview(inviteCode: string, userId?: string): Promise<FellowshipInvitePreview | null> {
-    const fellowship = await prisma.fellowship.findUnique({
-      where: { inviteCode },
+    const fellowship = await prisma.fellowship.findFirst({
+      where: {
+        inviteCode,
+        dissolutions: { none: { status: { in: ["SCHEDULED", "FORCED"] } } },
+        suspensions: { none: { status: "ACTIVE" } },
+      },
       select: {
         id: true,
         slug: true,
@@ -53,35 +72,321 @@ export const fellowshipRepository = {
     const normalizedSearch = search.trim().slice(0, 50);
     const [memberships, discoverableFellowships] = await Promise.all([
       prisma.fellowship.findMany({
-        where: { members: { some: { userId } } },
+        where: {
+          members: { some: { userId } },
+          OR: [
+            { dissolutions: { none: { status: { in: ["SCHEDULED", "FORCED"] } } } },
+            {
+              dissolutions: {
+                some: {
+                  status: "SCHEDULED",
+                  cancellationDeadline: { gt: new Date() },
+                },
+              },
+            },
+          ],
+        },
         orderBy: { name: "asc" },
-        include: { _count: { select: { members: true } } },
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          description: true,
+          isPublic: true,
+          createdById: true,
+          insigniaKey: true,
+          _count: { select: { members: true } },
+          dissolutions: {
+            where: { status: "SCHEDULED" },
+            take: 1,
+            select: { cancellationDeadline: true },
+          },
+          suspensions: {
+            where: { status: "ACTIVE" },
+            take: 1,
+            select: { id: true },
+          },
+        },
       }),
       prisma.fellowship.findMany({
-        where: { members: { none: { userId } }, ...(normalizedSearch ? { name: { contains: normalizedSearch, mode: "insensitive" } } : {}) },
+        where: {
+          members: { none: { userId } },
+          dissolutions: { none: { status: { in: ["SCHEDULED", "FORCED"] } } },
+          suspensions: { none: { status: "ACTIVE" } },
+          ...(normalizedSearch ? { name: { contains: normalizedSearch, mode: "insensitive" } } : {}),
+        },
         orderBy: [{ members: { _count: "desc" } }, { name: "asc" }],
         take: 50,
         include: { _count: { select: { members: true } }, joinRequests: { where: { userId }, select: { id: true, status: true }, take: 1 } },
       }),
     ]);
-    const memberMap = (item: (typeof memberships)[number]) => ({ id: item.id, slug: item.slug, name: item.name, description: item.description, isPublic: item.isPublic, memberCount: item._count.members, isMember: true, isLeader: item.createdById === userId, insigniaKey: item.insigniaKey, requestStatus: null, requestId: null });
-    const discoveryMap = (item: (typeof discoverableFellowships)[number]) => ({ id: item.id, slug: item.slug, name: item.name, description: item.description, isPublic: item.isPublic, memberCount: item._count.members, isMember: false, isLeader: false, insigniaKey: item.insigniaKey, requestStatus: item.joinRequests[0]?.status ?? null, requestId: item.joinRequests[0]?.id ?? null });
+    const memberMap = (item: (typeof memberships)[number]) => ({
+      id: item.id,
+      slug: item.slug,
+      name: item.name,
+      description: item.description,
+      isPublic: item.isPublic,
+      memberCount: item._count.members,
+      isMember: true,
+      isLeader: item.createdById === userId,
+      isClosing: item.dissolutions.length > 0,
+      closureCancelDeadline: item.dissolutions[0]?.cancellationDeadline ?? null,
+      isSuspended: item.suspensions.length > 0,
+      insigniaKey: item.insigniaKey,
+      requestStatus: null,
+      requestId: null,
+    });
+    const discoveryMap = (item: (typeof discoverableFellowships)[number]) => ({
+      id: item.id,
+      slug: item.slug,
+      name: item.name,
+      description: item.description,
+      isPublic: item.isPublic,
+      memberCount: item._count.members,
+      isMember: false,
+      isLeader: false,
+      isClosing: false,
+      closureCancelDeadline: null,
+      isSuspended: false,
+      insigniaKey: item.insigniaKey,
+      requestStatus: item.joinRequests[0]?.status ?? null,
+      requestId: item.joinRequests[0]?.id ?? null,
+    });
     return { memberships: memberships.map(memberMap), discoverableFellowships: discoverableFellowships.map(discoveryMap) };
   },
 
-  async getDetail(userId: string, slug: string): Promise<FellowshipDetailData | null> {
+  /** Loads an accessible roster and only the leader's reviewable request data. */
+  async getDetail(
+    userId: string,
+    slug: string,
+  ): Promise<FellowshipDetailData | null> {
     const fellowship = await prisma.fellowship.findUnique({
-      where: { slug },
-      include: { members: { orderBy: { joinedAt: "asc" }, include: { user: { select: { id: true, profile: { select: { displayName: true, countryCode: true, totalWaypointsCompleted: true, totalGlowPoints: true } } } } } }, joinRequests: { orderBy: { requestedAt: "desc" }, take: 50, include: { user: { select: { profile: { select: { displayName: true, countryCode: true, totalWaypointsCompleted: true, totalGlowPoints: true } } } } } }, _count: { select: { members: true } } },
+      // Apply the existing visibility rule before materializing private rosters.
+      // The caller supplies the authenticated identity, never a browser user ID.
+      where: {
+        slug,
+        OR: [
+          {
+            isPublic: true,
+            dissolutions: { none: { status: { in: ["SCHEDULED", "FORCED"] } } },
+            suspensions: { none: { status: "ACTIVE" } },
+          },
+          {
+            members: { some: { userId } },
+            dissolutions: { none: { status: "FORCED" } },
+            OR: [
+              { dissolutions: { none: { status: "SCHEDULED" } } },
+              {
+                dissolutions: {
+                  some: {
+                    status: "SCHEDULED",
+                    cancellationDeadline: { gt: new Date() },
+                  },
+                },
+              },
+            ],
+          },
+        ],
+      },
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        description: true,
+        isPublic: true,
+        createdById: true,
+        insigniaKey: true,
+        inviteCode: true,
+        members: {
+          orderBy: { joinedAt: "asc" },
+          select: {
+            id: true,
+            userId: true,
+            joinedAt: true,
+            user: {
+              select: {
+                profile: {
+                  select: {
+                    displayName: true,
+                    countryCode: true,
+                    totalWaypointsCompleted: true,
+                    totalGlowPoints: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        joinRequests: {
+          // Non-leaders receive no request rows from the database. Filtering
+          // here avoids fetching applicant profiles only to discard them later.
+          where: { fellowship: { createdById: userId } },
+          orderBy: { requestedAt: "desc" },
+          take: 50,
+          select: {
+            id: true,
+            source: true,
+            status: true,
+            requestedAt: true,
+            resolvedAt: true,
+            user: {
+              select: {
+                profile: {
+                  select: {
+                    displayName: true,
+                    countryCode: true,
+                    totalWaypointsCompleted: true,
+                    totalGlowPoints: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        dissolutions: {
+          where: { status: "SCHEDULED" },
+          orderBy: { createdAt: "desc" },
+          take: 1,
+          select: { id: true, cancellationDeadline: true },
+        },
+        suspensions: {
+          where: { status: "ACTIVE" },
+          orderBy: { createdAt: "desc" },
+          take: 1,
+          select: {
+            id: true,
+            reason: true,
+            createdAt: true,
+            appealDeadline: true,
+            appeal: {
+              select: {
+                id: true,
+                appellantId: true,
+                statement: true,
+                status: true,
+                submittedAt: true,
+                reviewedAt: true,
+                decisionReason: true,
+              },
+            },
+          },
+        },
+        leadershipTransfers: {
+          where: { status: "PENDING", OR: [{ fromLeaderId: userId }, { targetUserId: userId }] },
+          orderBy: { requestedAt: "desc" },
+          take: 1,
+          select: {
+            id: true,
+            fromLeaderId: true,
+            targetUserId: true,
+            targetUser: { select: { profile: { select: { displayName: true } } } },
+          },
+        },
+      },
     });
     if (!fellowship) return null;
     const isMember = fellowship.members.some((member) => member.userId === userId);
-    if (!fellowship.isPublic && !isMember) return null;
-    const ranked = [...fellowship.members].sort((left, right) => (right.user.profile?.totalWaypointsCompleted ?? 0) - (left.user.profile?.totalWaypointsCompleted ?? 0) || (right.user.profile?.totalGlowPoints ?? 0) - (left.user.profile?.totalGlowPoints ?? 0) || left.joinedAt.getTime() - right.joinedAt.getTime());
+    const activeSuspension = fellowship.suspensions[0] ?? null;
+    if ((!fellowship.isPublic || activeSuspension) && !isMember) return null;
+    const scheduledClosure = fellowship.dissolutions[0] ?? null;
+    if (
+      scheduledClosure &&
+      (!scheduledClosure.cancellationDeadline || scheduledClosure.cancellationDeadline <= new Date())
+    ) {
+      return null;
+    }
+    const isLeader = fellowship.createdById === userId;
+    // Preserve the complete roster and existing rank/tie ordering. Pagination
+    // would change visible membership behavior and is not part of this repair.
+    const ranked = [...fellowship.members].sort(
+      (left, right) =>
+        (right.user.profile?.totalWaypointsCompleted ?? 0) -
+          (left.user.profile?.totalWaypointsCompleted ?? 0) ||
+        (right.user.profile?.totalGlowPoints ?? 0) -
+          (left.user.profile?.totalGlowPoints ?? 0) ||
+        left.joinedAt.getTime() - right.joinedAt.getTime(),
+    );
     return {
-      id: fellowship.id, slug: fellowship.slug, name: fellowship.name, description: fellowship.description, isPublic: fellowship.isPublic, memberCount: fellowship._count.members, isMember, isLeader: fellowship.createdById === userId, insigniaKey: fellowship.insigniaKey, inviteCode: fellowship.createdById === userId ? fellowship.inviteCode : null, requestStatus: null, requestId: null,
-      members: ranked.map((member, index) => ({ rank: index + 1, displayName: member.user.profile?.displayName ?? "Player", countryCode: member.user.profile?.countryCode ?? null, waypointsCompleted: member.user.profile?.totalWaypointsCompleted ?? 0, glowPoints: member.user.profile?.totalGlowPoints ?? 0, joinedAt: member.joinedAt, isLeader: member.userId === fellowship.createdById })),
-      joinRequests: fellowship.createdById === userId ? fellowship.joinRequests.map((request) => ({ id: request.id, displayName: request.user.profile?.displayName ?? "Player", countryCode: request.user.profile?.countryCode ?? null, waypointsCompleted: request.user.profile?.totalWaypointsCompleted ?? 0, glowPoints: request.user.profile?.totalGlowPoints ?? 0, source: request.source, status: request.status, requestedAt: request.requestedAt, resolvedAt: request.resolvedAt })) : [],
+      id: fellowship.id,
+      slug: fellowship.slug,
+      name: fellowship.name,
+      description: fellowship.description,
+      isPublic: fellowship.isPublic,
+      // The complete roster is already loaded; a second relation count is redundant.
+      memberCount: fellowship.members.length,
+      isMember,
+      isLeader,
+      isClosing: scheduledClosure !== null,
+      closureCancelDeadline: scheduledClosure?.cancellationDeadline ?? null,
+      isSuspended: activeSuspension !== null,
+      insigniaKey: fellowship.insigniaKey,
+      inviteCode: isLeader && !activeSuspension ? fellowship.inviteCode : null,
+      requestStatus: null,
+      requestId: null,
+      members: ranked.map((member, index) => ({
+        rank: index + 1,
+        displayName: member.user.profile?.displayName ?? "Player",
+        countryCode: member.user.profile?.countryCode ?? null,
+        waypointsCompleted: member.user.profile?.totalWaypointsCompleted ?? 0,
+        glowPoints: member.user.profile?.totalGlowPoints ?? 0,
+        joinedAt: member.joinedAt,
+        isLeader: member.userId === fellowship.createdById,
+      })),
+      // Retain the output guard as well as the database filter so leader-only
+      // review data stays private if this selection is extended in the future.
+      joinRequests: isLeader
+        ? fellowship.joinRequests.map((request) => ({
+            id: request.id,
+            displayName: request.user.profile?.displayName ?? "Player",
+            countryCode: request.user.profile?.countryCode ?? null,
+            waypointsCompleted: request.user.profile?.totalWaypointsCompleted ?? 0,
+            glowPoints: request.user.profile?.totalGlowPoints ?? 0,
+            source: request.source,
+            status: request.status,
+            requestedAt: request.requestedAt,
+            resolvedAt: request.resolvedAt,
+          }))
+        : [],
+      governance: {
+        isClosing: scheduledClosure !== null,
+        dissolutionId: scheduledClosure?.id ?? null,
+        cancellationDeadline: scheduledClosure?.cancellationDeadline ?? null,
+        pendingTransfer: fellowship.leadershipTransfers[0]
+          ? {
+              id: fellowship.leadershipTransfers[0].id,
+              targetDisplayName:
+                fellowship.leadershipTransfers[0].targetUser.profile?.displayName ?? "Player",
+              isRecipient: fellowship.leadershipTransfers[0].targetUserId === userId,
+            }
+          : null,
+        transferCandidates: isLeader && !scheduledClosure
+          && !activeSuspension
+          ? fellowship.members
+              .filter((member) => member.userId !== fellowship.createdById)
+              .map((member) => ({
+                membershipId: member.id,
+                displayName: member.user.profile?.displayName ?? "Player",
+              }))
+          : [],
+        suspension: activeSuspension
+          ? {
+              id: activeSuspension.id,
+              reason: activeSuspension.reason,
+              suspendedAt: activeSuspension.createdAt,
+              appealDeadline: activeSuspension.appealDeadline,
+              appeal: activeSuspension.appeal
+                ? {
+                    id: activeSuspension.appeal.id,
+                    statement: isLeader ? activeSuspension.appeal.statement : "",
+                    status: activeSuspension.appeal.status,
+                    submittedAt: activeSuspension.appeal.submittedAt,
+                    reviewedAt: activeSuspension.appeal.reviewedAt,
+                    decisionReason: activeSuspension.appeal.decisionReason,
+                  }
+                : null,
+            }
+          : null,
+      },
     };
   },
 
@@ -104,18 +409,85 @@ export const fellowshipRepository = {
 
   /** Returns settings only when the requesting learner owns the fellowship. */
   async getEditable(userId: string, slug: string): Promise<FellowshipEditData | null> {
-    return prisma.fellowship.findFirst({
-      where: { slug, createdById: userId },
-      select: { id: true, slug: true, name: true, description: true, isPublic: true, insigniaKey: true, inviteCode: true },
+    const fellowship = await prisma.fellowship.findFirst({
+      where: {
+        slug,
+        createdById: userId,
+        dissolutions: { none: { status: { in: ["SCHEDULED", "FORCED"] } } },
+        suspensions: { none: { status: "ACTIVE" } },
+      },
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        description: true,
+        isPublic: true,
+        insigniaKey: true,
+        inviteCode: true,
+        members: {
+          where: { userId: { not: userId } },
+          orderBy: { joinedAt: "asc" },
+          select: {
+            id: true,
+            user: { select: { profile: { select: { displayName: true } } } },
+          },
+        },
+        leadershipTransfers: {
+          where: { status: "PENDING", fromLeaderId: userId },
+          orderBy: { requestedAt: "desc" },
+          take: 1,
+          select: {
+            id: true,
+            targetUser: {
+              select: { profile: { select: { displayName: true } } },
+            },
+          },
+        },
+      },
     });
+    if (!fellowship) return null;
+
+    return {
+      id: fellowship.id,
+      slug: fellowship.slug,
+      name: fellowship.name,
+      description: fellowship.description,
+      isPublic: fellowship.isPublic,
+      insigniaKey: fellowship.insigniaKey,
+      inviteCode: fellowship.inviteCode,
+      governance: {
+        isClosing: false,
+        dissolutionId: null,
+        cancellationDeadline: null,
+        pendingTransfer: fellowship.leadershipTransfers[0]
+          ? {
+              id: fellowship.leadershipTransfers[0].id,
+              targetDisplayName:
+                fellowship.leadershipTransfers[0].targetUser.profile
+                  ?.displayName ?? "Player",
+              isRecipient: false,
+            }
+          : null,
+        transferCandidates: fellowship.members.map((member) => ({
+          membershipId: member.id,
+          displayName: member.user.profile?.displayName ?? "Player",
+        })),
+        suspension: null,
+      },
+    };
   },
 
   /** Updates identity under a leader-scoped lock and never accepts upload URLs. */
   async update(userId: string, input: UpdateFellowshipInput): Promise<{ slug: string }> {
     return prisma.$transaction(async (transaction) => {
-      await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('scripture-memo-fellowship-update'), hashtext(${input.fellowshipId}))`;
+      await lockFellowship(transaction, input.fellowshipId);
       const fellowship = await transaction.fellowship.findFirst({
-        where: { id: input.fellowshipId, createdById: userId },
+        where: {
+          id: input.fellowshipId,
+          createdById: userId,
+          dissolutions: { none: { status: { in: ["SCHEDULED", "FORCED"] } } },
+          suspensions: { none: { status: "ACTIVE" } },
+        },
         select: { slug: true },
       });
       if (!fellowship) throw new FellowshipConflictError("NOT_LEADER");
@@ -134,8 +506,16 @@ export const fellowshipRepository = {
 
   async joinPublic(userId: string, fellowshipId: string): Promise<{ slug: string }> {
     return prisma.$transaction(async (transaction) => {
-      await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('scripture-memo-fellowship-member'), hashtext(${userId}))`;
-      const fellowship = await transaction.fellowship.findFirst({ where: { id: fellowshipId, isPublic: true }, select: { id: true, slug: true } });
+      await lockFellowship(transaction, fellowshipId);
+      const fellowship = await transaction.fellowship.findFirst({
+        where: {
+          id: fellowshipId,
+          isPublic: true,
+          dissolutions: { none: { status: { in: ["SCHEDULED", "FORCED"] } } },
+          suspensions: { none: { status: "ACTIVE" } },
+        },
+        select: { id: true, slug: true },
+      });
       if (!fellowship) throw new FellowshipConflictError("NOT_FOUND");
       const exists = await transaction.fellowshipMember.findUnique({ where: { fellowshipId_userId: { fellowshipId, userId } }, select: { id: true } });
       if (exists) throw new FellowshipConflictError("ALREADY_MEMBER");
@@ -148,9 +528,14 @@ export const fellowshipRepository = {
   /** Rotates the secret under a Fellowship-scoped lock so concurrent requests cannot restore a stale code. */
   async regenerateInvite(userId: string, fellowshipId: string): Promise<{ slug: string; inviteCode: string }> {
     return prisma.$transaction(async (transaction) => {
-      await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('scripture-memo-fellowship-invite'), hashtext(${fellowshipId}))`;
+      await lockFellowship(transaction, fellowshipId);
       const fellowship = await transaction.fellowship.findFirst({
-        where: { id: fellowshipId, createdById: userId },
+        where: {
+          id: fellowshipId,
+          createdById: userId,
+          dissolutions: { none: { status: { in: ["SCHEDULED", "FORCED"] } } },
+          suspensions: { none: { status: "ACTIVE" } },
+        },
         select: { slug: true },
       });
       if (!fellowship) throw new FellowshipConflictError("NOT_LEADER");
@@ -161,7 +546,14 @@ export const fellowshipRepository = {
   },
 
   async joinByInvite(userId: string, inviteCode: string): Promise<{ slug: string; joined: boolean }> {
-    const fellowship = await prisma.fellowship.findUnique({ where: { inviteCode }, select: { id: true, slug: true, isPublic: true } });
+    const fellowship = await prisma.fellowship.findFirst({
+      where: {
+        inviteCode,
+        dissolutions: { none: { status: { in: ["SCHEDULED", "FORCED"] } } },
+        suspensions: { none: { status: "ACTIVE" } },
+      },
+      select: { id: true, slug: true, isPublic: true },
+    });
     if (!fellowship) throw new FellowshipConflictError("NOT_FOUND");
     if (fellowship.isPublic) return { ...(await this.joinById(userId, fellowship.id)), joined: true };
     return { ...(await this.requestJoin(userId, fellowship.id, "INVITE")), joined: false };
@@ -170,8 +562,16 @@ export const fellowshipRepository = {
   /** Creates or renews one learner-owned request for a private fellowship. */
   async requestJoin(userId: string, fellowshipId: string, source: "DIRECTORY" | "INVITE"): Promise<{ slug: string }> {
     return prisma.$transaction(async (transaction) => {
-      await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('scripture-memo-fellowship-request'), hashtext(${`${fellowshipId}:${userId}`}))`;
-      const fellowship = await transaction.fellowship.findFirst({ where: { id: fellowshipId, isPublic: false }, select: { slug: true } });
+      await lockFellowship(transaction, fellowshipId);
+      const fellowship = await transaction.fellowship.findFirst({
+        where: {
+          id: fellowshipId,
+          isPublic: false,
+          dissolutions: { none: { status: { in: ["SCHEDULED", "FORCED"] } } },
+          suspensions: { none: { status: "ACTIVE" } },
+        },
+        select: { slug: true },
+      });
       if (!fellowship) throw new FellowshipConflictError("NOT_FOUND");
       const membership = await transaction.fellowshipMember.findUnique({ where: { fellowshipId_userId: { fellowshipId, userId } }, select: { id: true } });
       if (membership) throw new FellowshipConflictError("ALREADY_MEMBER");
@@ -189,7 +589,16 @@ export const fellowshipRepository = {
   /** Cancels only the authenticated learner's own pending request. */
   async cancelJoinRequest(userId: string, requestId: string): Promise<{ slug: string }> {
     return prisma.$transaction(async (transaction) => {
-      const request = await transaction.fellowshipJoinRequest.findFirst({ where: { id: requestId, userId, status: "PENDING" }, select: { id: true, fellowship: { select: { slug: true } } } });
+      const initialRequest = await transaction.fellowshipJoinRequest.findFirst({
+        where: { id: requestId, userId, status: "PENDING" },
+        select: { fellowshipId: true },
+      });
+      if (!initialRequest) throw new FellowshipConflictError("REQUEST_NOT_FOUND");
+      await lockFellowship(transaction, initialRequest.fellowshipId);
+      const request = await transaction.fellowshipJoinRequest.findFirst({
+        where: { id: requestId, userId, status: "PENDING" },
+        select: { id: true, fellowship: { select: { slug: true } } },
+      });
       if (!request) throw new FellowshipConflictError("REQUEST_NOT_FOUND");
       await transaction.fellowshipJoinRequest.update({ where: { id: request.id }, data: { status: "CANCELLED", resolvedAt: new Date(), reviewedById: null } });
       return request.fellowship;
@@ -199,8 +608,29 @@ export const fellowshipRepository = {
   /** Lets only the fellowship leader resolve a pending request. */
   async resolveJoinRequest(leaderId: string, requestId: string, decision: "APPROVE" | "REJECT"): Promise<{ slug: string; applicantUserId: string; joined: boolean }> {
     return prisma.$transaction(async (transaction) => {
-      await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('scripture-memo-fellowship-request-resolve'), hashtext(${requestId}))`;
-      const request = await transaction.fellowshipJoinRequest.findFirst({ where: { id: requestId, status: "PENDING", fellowship: { createdById: leaderId } }, select: { id: true, userId: true, fellowshipId: true, fellowship: { select: { slug: true } } } });
+      const initialRequest = await transaction.fellowshipJoinRequest.findFirst({
+        where: { id: requestId, status: "PENDING" },
+        select: { fellowshipId: true },
+      });
+      if (!initialRequest) throw new FellowshipConflictError("REQUEST_NOT_PENDING");
+      await lockFellowship(transaction, initialRequest.fellowshipId);
+      const request = await transaction.fellowshipJoinRequest.findFirst({
+        where: {
+          id: requestId,
+          status: "PENDING",
+          fellowship: {
+            createdById: leaderId,
+            dissolutions: { none: { status: { in: ["SCHEDULED", "FORCED"] } } },
+            suspensions: { none: { status: "ACTIVE" } },
+          },
+        },
+        select: {
+          id: true,
+          userId: true,
+          fellowshipId: true,
+          fellowship: { select: { slug: true } },
+        },
+      });
       if (!request) throw new FellowshipConflictError("REQUEST_NOT_PENDING");
       const approved = decision === "APPROVE";
       if (approved) await transaction.fellowshipMember.create({ data: { fellowshipId: request.fellowshipId, userId: request.userId } });
@@ -211,8 +641,15 @@ export const fellowshipRepository = {
 
   async joinById(userId: string, fellowshipId: string): Promise<{ slug: string }> {
     return prisma.$transaction(async (transaction) => {
-      await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('scripture-memo-fellowship-member'), hashtext(${userId}))`;
-      const fellowship = await transaction.fellowship.findUnique({ where: { id: fellowshipId }, select: { slug: true } });
+      await lockFellowship(transaction, fellowshipId);
+      const fellowship = await transaction.fellowship.findFirst({
+        where: {
+          id: fellowshipId,
+          dissolutions: { none: { status: { in: ["SCHEDULED", "FORCED"] } } },
+          suspensions: { none: { status: "ACTIVE" } },
+        },
+        select: { slug: true },
+      });
       if (!fellowship) throw new FellowshipConflictError("NOT_FOUND");
       const exists = await transaction.fellowshipMember.findUnique({ where: { fellowshipId_userId: { fellowshipId, userId } }, select: { id: true } });
       if (exists) throw new FellowshipConflictError("ALREADY_MEMBER");
@@ -224,12 +661,66 @@ export const fellowshipRepository = {
 
   async leave(userId: string, fellowshipId: string): Promise<void> {
     await prisma.$transaction(async (transaction) => {
-      await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('scripture-memo-fellowship-member'), hashtext(${userId}))`;
-      const fellowship = await transaction.fellowship.findUnique({ where: { id: fellowshipId }, select: { createdById: true } });
+      await lockFellowship(transaction, fellowshipId);
+      const fellowship = await transaction.fellowship.findFirst({
+        where: {
+          id: fellowshipId,
+          dissolutions: { none: { status: "FORCED" } },
+        },
+        select: { createdById: true },
+      });
       if (!fellowship) throw new FellowshipConflictError("NOT_FOUND");
       if (fellowship.createdById === userId) throw new FellowshipConflictError("LEADER_CANNOT_LEAVE");
       const removed = await transaction.fellowshipMember.deleteMany({ where: { fellowshipId, userId } });
       if (removed.count !== 1) throw new FellowshipConflictError("NOT_MEMBER");
+
+      const pendingOffers =
+        await transaction.fellowshipLeadershipTransfer.findMany({
+          where: { fellowshipId, targetUserId: userId, status: "PENDING" },
+          select: {
+            id: true,
+            fromLeaderId: true,
+            governanceCaseId: true,
+            fellowship: { select: { slug: true, name: true } },
+          },
+        });
+      if (pendingOffers.length > 0) {
+        await transaction.fellowshipLeadershipTransfer.updateMany({
+          where: {
+            fellowshipId,
+            targetUserId: userId,
+            status: "PENDING",
+          },
+          data: { status: "CANCELLED", resolvedAt: new Date() },
+        });
+        for (const offer of pendingOffers) {
+          await transaction.fellowshipGovernanceCase.update({
+            where: { id: offer.governanceCaseId },
+            data: { currentStatus: "CANCELLED" },
+          });
+          await transaction.auditLog.create({
+            data: {
+              actorId: userId,
+              action: "FELLOWSHIP_LEADERSHIP_TRANSFER_CANCELLED_MEMBER_LEFT",
+              entityType: "FellowshipLeadershipTransfer",
+              entityId: offer.id,
+              governanceCaseId: offer.governanceCaseId,
+            },
+          });
+        }
+        await transaction.userNotification.createMany({
+          data: pendingOffers.map((offer) => ({
+            userId: offer.fromLeaderId,
+            type: UserNotificationType.FELLOWSHIP_LEADERSHIP,
+            dedupeKey: `fellowship-transfer-member-left:${offer.id}:${offer.fromLeaderId}`,
+            payload: {
+              event: "DECLINED",
+              fellowshipSlug: offer.fellowship.slug,
+              fellowshipName: offer.fellowship.name,
+            },
+          })),
+        });
+      }
     }, transactionOptions);
   },
 } as const;

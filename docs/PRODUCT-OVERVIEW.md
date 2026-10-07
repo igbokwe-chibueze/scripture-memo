@@ -8,7 +8,7 @@
 
 Scripture Memo is a full-stack, interactive scripture memorization web
 application. It guides users through a structured learning journey using an
-expanding **Waypoint System** bootstrapped with 220 sequential records. Each
+expanding **Waypoint System** bootstrapped with 400 sequential records. Each
 waypoint represents one scripture memory unit—normally one verse or verse range.
 
 The platform is built on four scientifically grounded memorization principles:
@@ -31,7 +31,7 @@ These two systems are independent but complementary. A user always plays the ful
 
 | Category | Technology |
 |---|---|
-| Framework | Next.js 16.2.10 with App Router |
+| Framework | Next.js 16.3.6 with App Router |
 | Language | TypeScript (strict mode, no `any`) |
 | ORM | Prisma |
 | Database | PostgreSQL |
@@ -61,13 +61,56 @@ The delivery boundary supports two explicit modes through
   reset URL. It exists only for local testing, keeps no token in application
   storage, and must throw if enabled while `NODE_ENV=production`.
 - `PROD` delegates the Better Auth URL to the production transactional-email
-  adapter. That adapter is intentionally unconfigured until an email provider is
-  selected; selecting a provider must not alter the recovery screens or token
-  lifecycle.
+  adapter, which sends through the shared Resend provider. It uses
+  `RESEND_API_KEY` and `RESEND_FROM_EMAIL`, the same credentials as verification
+  email; Better Auth's recovery screens and token lifecycle are unchanged.
 
 When the environment variable is omitted, non-production environments default
 to `LIGHT_DEV` and production defaults to `PROD`. Recovery responses remain
 generic so the public UI does not confirm whether an email address is registered.
+
+### 2.2 Email verification and account activation
+
+Better Auth owns email-verification token generation, one-hour expiry,
+validation, and the `emailVerified` state. Email/password registration creates
+the account and reports that verification is pending without opening a game
+session. Each newly sent link replaces the previously issued link: only the
+latest unexpired link can verify the account, and a link can be used only once.
+A valid-credential sign-in attempt for an unverified account sends a fresh link
+and remains blocked until that link is used. Verification returns the player to
+login; successful login then performs the normal idempotent player foundation
+and first-waypoint setup.
+
+Email delivery uses `AUTH_EMAIL_DELIVERY_MODE`:
+
+- `LIGHT_DEV` captures the Better Auth link in the current Server Action and
+  downloads it for local manual testing. It is rejected in production and does
+  not store verification tokens in application tables or browser storage.
+- `RESEND` sends the Better Auth link through Resend. Production defaults to
+  this mode and requires `RESEND_API_KEY` plus `RESEND_FROM_EMAIL` from a sender
+  domain verified in Resend.
+
+Password reset and email verification use the same Resend sender and
+domain-scoped sending key. The owner reports that `mail.scripturememo.com` is
+verified in Resend and its DNS is managed by Namecheap. A development API key
+has been configured locally, and the owner confirms Resend sent a real
+verification email. Production requires its own key and deployment secrets.
+
+To enforce latest-link-only behavior without changing the Prisma schema or
+creating a second token system, the application stores a keyed digest of the
+current Better Auth token in the existing `Verification` table. Sending a new
+link replaces its prior record; successful verification consumes the current
+record. Raw verification tokens are never persisted by this layer. Better Auth
+still validates token signatures and expiration.
+
+At rollout, the one-time
+`20260926100000_grandfather_existing_email_accounts` migration verifies
+pre-rollout accounts created before 2026-09-27 00:00 UTC so existing local test
+users are not locked out. Accounts created after that cutoff remain subject to
+verification. The hosted production database is not used for development; the
+previously selected hosted database remains the production target, with its
+pre-launch contents refreshed from the approved local release snapshot under
+the documented production cutover procedure.
 
 ---
 
@@ -351,6 +394,11 @@ A verse is the core content unit of the entire platform.
 | `updatedAt` | Audit timestamp |
 | `translations` | Related `VerseTranslation` records |
 
+The structured canonical book name is **Psalms**. Human-readable references use
+the conventional singular form, such as **Psalm 23:1**. Tags have
+case-insensitive identity and use one canonical human-readable Title Case label
+throughout forms, filters, and verse displays.
+
 `reflection` and `tags` retain their own structured fields and are not embedded
 inside study-section Markdown. The legacy `studyNote` database column is retained
 temporarily for rollback safety, but new application reads and writes use the
@@ -375,6 +423,11 @@ Translations are stored in a separate normalized table so additional translation
 | `normalizedText` | Lowercase, punctuation-stripped version — used for answer validation only |
 
 **Important:** The `normalizedText` field is never shown to the user. It is used exclusively for server-side answer validation to allow case-insensitive, punctuation-tolerant comparisons.
+
+The administrative verse library can display Reference, Book, Tags,
+Translations, Status, Waypoints, and Packs. Administrators choose the visible
+columns from a checklist, with no more than five information columns shown at
+once. Row actions remain available independently of that limit.
 
 ### 6.3 Administrative CSV Import
 
@@ -411,7 +464,10 @@ recorded in `AuditLog` without copying Scripture text into audit metadata.
 
 ### 6.3 Translation Fallback
 
-If a verse does not have the user's preferred translation, the system falls back to the default platform translation (configurable by Super Admin, defaulting to NIV).
+If a verse does not have the user's preferred translation, the system falls
+back to the default platform translation. The current default is KJV; Super
+Admins may choose among KJV, WEB, and BSB, the translations currently offered
+to learners. NIV and ESV remain schema values for future licensed content.
 
 ---
 
@@ -420,7 +476,7 @@ If a verse does not have the user's preferred translation, the system falls back
 ### 7.1 What Is a Waypoint?
 
 A waypoint is a sequential learning checkpoint in the user's journey. The
-bootstrap curriculum contains **220 waypoints**, but 220 is not a permanent
+bootstrap curriculum contains **400 waypoints**, but 400 is not a permanent
 maximum. Administrators append new waypoints as the curriculum grows. Numbers
 remain one continuous sequence without year or cycle grouping. Each waypoint is
 assigned one verse, which may appear at other waypoints in a different Journey
@@ -438,9 +494,10 @@ Stage.
 | `journeyStage` | The stage of this verse appearance: `LEARN`, `RECALL`, `STRENGTHEN`, or `MASTER` |
 | `isActive` | Whether the waypoint is published |
 
-The first 220 waypoint records are seeded as hidden, unassigned placeholders. Because
-the database requires a Journey Stage before a verse is assigned, new
-placeholders use `LEARN` provisionally. That provisional value has no gameplay
+The approved seed currently creates 400 permanently numbered waypoint
+assignments across 100 verses. New waypoints are appended as hidden,
+unassigned drafts. Because the database requires a Journey Stage before a verse
+is assigned, new drafts use `LEARN` provisionally. That value has no gameplay
 effect while the waypoint is hidden. Assignment requires the administrator to
 explicitly choose the intended Journey Stage, and a waypoint cannot be
 published until it has a currently published verse.
@@ -449,6 +506,11 @@ Additional waypoints are created individually by administrators and always
 append after the current final waypoint. They use the same hidden, unassigned,
 provisional-`LEARN` defaults. The curriculum has no year grouping and historical
 waypoints are never renumbered merely because new content is appended.
+
+An administrator may delete only the final waypoint, and only while it remains
+hidden, unassigned, and free of learner-linked progress, day progress, and game
+sessions. This narrowly removes an accidental unused append without renumbering
+curriculum history. No other waypoint deletion is permitted.
 
 The administrative waypoint screen summarizes total, assigned, unassigned,
 published, and hidden records so curriculum readiness is visible at a glance.
@@ -467,7 +529,9 @@ learner-history restrictions before the server performs its authoritative
 validation.
 
 Waypoint and verse history becomes permanent at the first learner-linked record.
-A hidden waypoint with no history remains freely editable. A published but
+A hidden waypoint with no history remains freely editable and may be returned
+to an unassigned placeholder; unassignment resets its provisional Journey Stage
+to `LEARN` until an administrator makes a new explicit assignment. A published but
 unstarted waypoint must be hidden before its verse or Journey Stage can change.
 Once any waypoint progress, day progress, or waypoint-linked game session exists,
 the waypoint cannot be reassigned, hidden, or reordered. Its verse content also
@@ -564,6 +628,21 @@ or changing the device clock does not pause or extend an attempt.
 
 Every waypoint clearly displays its Journey Stage label. On the Day Selection screen and the Game Map, the stage badge is always visible so the player understands whether they are learning a new verse or revisiting one from memory.
 
+### 8.4A Administrator Journey Stage Testing
+
+The waypoint administration page includes an isolated Journey Stage test
+launcher. An Admin or Super Admin may select any assigned waypoint and one of
+the five game modes. The launcher creates a server-owned test session using the
+waypoint's real verse, translation, Journey Stage, timer, answer validation, and
+hint-availability rules.
+
+Administrator test sessions never create or update learner day/waypoint
+progress, cooldowns, flames, Glow Points, Beacon XP, streaks, badges, hint
+inventory, or profile hint statistics. They are excluded from learner-history
+counts and cannot make an editable waypoint permanent. Every mutation endpoint
+rechecks both the session's test marker and the caller's current administrator
+role; hiding the launcher in the browser is not treated as authorization.
+
 ### 8.5 Verse Mastery
 
 After successfully completing the **Master** stage waypoint for a verse (all three days complete), that verse is considered **permanently mastered** within the main progression. The Vault displays mastered verses in a dedicated section. Players may replay any mastered verse from the Vault at any time without affecting main campaign progression.
@@ -603,6 +682,9 @@ Each waypoint contains three challenge days. The days must be completed in order
 - Cooldowns are enforced **server-side**. Client-side countdowns are display only and cannot be used to bypass the server check.
 - Users see a real-time countdown timer on the Day Selection screen when a day is locked in cooldown.
 - Regular Admins and Super Admins can bypass cooldowns for testing via a protected override action.
+- Player-facing cards remain visually identical for administrators; contextual
+  cooldown verification, cooldown override, and completed-day replay controls
+  are grouped inside the page's **Admin testing** menu.
 - Every cooldown override is recorded in the audit log.
 
 ### 9.5 Cooldown Calculation
@@ -1148,9 +1230,9 @@ The landing page after login. Shows:
 
 ### 15.2 Game Map (🗺️)
 
-Mobile-first winding campaign trail of all current waypoints. The presentation
-uses original code-native scenery and tactile circular nodes rather than a
-dashboard grid, while keeping progress readable in light and dark themes.
+Mobile-first winding campaign trail of all current waypoints. Map A places
+tactile waypoint controls over replaceable trail illustrations, while Map B
+keeps its responsive card-grid presentation for comparison.
 
 During pre-launch comparative testing, the map exposes two interchangeable
 presentations over the same progress data and gameplay navigation:
@@ -1166,15 +1248,19 @@ original Scripture reference and Journey Stage preview for comparison.
 
 - Waypoints rendered in scrollable groups of 10—not the entire expanding
   curriculum at once.
-- Map A shows each waypoint's number, status treatment, flame count, and an
-  honest three-segment ring representing the three challenge days. Map B also
-  previews the Scripture reference and Journey Stage. Day Selection remains the
-  authoritative full-detail screen for both variants.
+- Map A shows each waypoint's number, status icon, and three progress flames on
+  its illustrated button. Map B also previews the Scripture reference and
+  Journey Stage. Day Selection remains the authoritative full-detail screen
+  for both variants.
 - Map A includes a full-height right-side Trail Navigator on mobile and larger
   screens. It lists every published five-waypoint trail as `Trail N`, shows its
   artwork, waypoint range, completion progress, and current/locked/completed
   state, and jumps to unlocked trails without changing progression. Locked
   trails remain visible but cannot be selected.
+- Administrators can assign one of the built-in illustrations to each published
+  Map A trail from `/admin/map-trails`. Trails without an explicit assignment
+  retain the original Coastal → Desert → Temple repeating sequence, so the map
+  and navigator stay consistent without writing during learner reads.
 - Map A keeps two icon-only controls near the bottom-right viewport edge: one
   opens the Trail Navigator and one returns directly to the current trail.
 - Nodes alternate along an original connected trail, with the current waypoint
@@ -1275,8 +1361,43 @@ Social group system.
 - Rotated, malformed, or unknown invitation codes show a recoverable expired
   state and disclose no private membership data.
 - Leave a fellowship
-- Fellowship creators remain leaders and cannot leave until leadership is
-  transferred; leadership transfer and dissolution are deferred moderation work.
+- Fellowship creators remain leaders until they offer leadership to a current
+  member and that member accepts. The leader may cancel an unanswered offer;
+  former leaders remain members and may leave through the ordinary leave flow.
+- A leader may close a Fellowship after password reauthentication and exact-name
+  confirmation. It is removed from discovery immediately, pending invitations
+  and join requests are disabled, and the leader can cancel closure for seven
+  days. Membership and historical records are retained.
+- Super Admins have a separate recovery workspace for reasoned, password-
+  reauthenticated emergency leadership transfer or immediate closure. Actions
+  are audited; emergency closure preserves Fellowship membership and history.
+- A completed leadership change notifies every current member. The former and
+  new leaders receive role-specific notices; other members are told who now
+  leads the Fellowship. For a Super Admin transfer, only the new leader's
+  notice includes the administrator's recorded reason.
+- Super Admins may also suspend a Fellowship with a reason, exact-name
+  confirmation, password reauthentication, and an audit entry. Suspension hides
+  it from discovery and blocks new members, invites, edits, closure, and leader
+  changes while existing members retain read access. The current leader may
+  submit one written appeal within 30 days. A different Super Admin must record
+  a reasoned decision to restore or uphold it. An upheld appeal is final; an
+  expired appeal does not restore the Fellowship automatically. A Super Admin
+  may restore an unappealed suspension with a recorded reason.
+- Every transfer, suspension, and closure receives a permanent sequential case
+  number. Admins and Super Admins can search the protected case register by
+  number or Fellowship name and review the chronological audit history,
+  including transfer responses, cancellations, suspension appeals, and closure
+  decisions. Each initiating action opens one case; its responses, cancellations,
+  appeals, and decisions stay on that case until resolved. A later independent
+  transfer, suspension, or closure opens a new case. Only Super Admins can perform governance actions. Existing
+  governance records are backfilled; where historic transfer details were not
+  retained, the case timeline records only the known status and does not infer a
+  missing actor or reason.
+- Fellowship notifications open a detail view and are marked read when opened.
+  Scheduled or cancelled closure notices link to the Fellowship; a completed
+  closure notice links to the Fellowship directory because the closed detail
+  route is no longer available. Choosing a notification destination closes the
+  notification panel as navigation begins.
 - Creation is limited to three fellowships per account per rolling 24 hours to
   reduce spam at the server boundary.
 
@@ -1316,7 +1437,7 @@ Display:
 User settings:
 - Display name
 - Country (used for country leaderboard)
-- Preferred Bible translation (NIV / ESV / KJV)
+- Preferred Bible translation (KJV / WEB / BSB; KJV is the platform default)
 - Preferred interface language (English / Spanish / French initially; independently
   expandable without changing the player's Bible translation)
 - Audio effects on/off
@@ -1324,10 +1445,16 @@ User settings:
 - Theme preference (light/dark/system)
 
 Admin settings (Super Admin only):
-- Default platform translation
-- Base Glow Points amount (X)
-- Default hint allowance per user
-- Cooldown override policy
+- Default platform translation (KJV by default; currently selectable: KJV, WEB,
+  and BSB)
+- Base Glow reward (Glimmer = X, Glow = 1.5×, Radiance = 2×). A change applies
+  only to future completions; earned ledger entries and balances remain intact.
+- Starting hint allowance for new accounts. Existing profiles retain their
+  saved allowance when this setting changes.
+- Administrator self-cooldown testing bypass (enabled by default; player
+  cooldown enforcement is unchanged)
+- Read-only, filterable access to immutable audit events. IP addresses and raw
+  event metadata are withheld from the browser view.
 
 ---
 
@@ -1382,8 +1509,24 @@ Use Prisma with PostgreSQL. This section lists required models. The implementati
 - Routine local development uses Prisma Postgres Local through `prisma dev` (or
   another explicitly approved local PostgreSQL instance), never the hosted
   production database.
-- Automated tests use their own test database and must not consume production
-  operations or mutate development data.
+- For this project, continue using the existing Prisma Postgres Local development
+  database. Do not reconnect routine development to the hosted database or
+  provision another local development database. The intended production target
+  is the same previously provisioned Prisma-hosted PostgreSQL database; do not
+  create a replacement production database unless the owner changes this
+  decision.
+- Before the first production launch, the owner intends to replace that hosted
+  database's old contents with a verified snapshot of current local release
+  data. Treat this as an explicit one-time cutover: take and verify a backup,
+  validate the target and transfer procedure, and exclude local test fixtures,
+  development-only accounts, and environment secrets. Setting `DATABASE_URL`
+  only changes the connection target; `prisma migrate deploy` updates schema
+  state and does not copy records. Once production is live, never overwrite
+  production with the development database; production becomes the source of
+  truth for live user data.
+- Automated tests use a separate local instance on port 51224; development stays
+  on 51214. Changing only a Prisma Local database name does not isolate data.
+  Tests must not consume hosted operations or mutate development data.
 - Production credentials are supplied only through the deployment environment;
   they are not copied into the tracked local template.
 - Read paths must remain read-only. Lazy progression initialization occurs only
@@ -1627,7 +1770,8 @@ campaign or award Glow Points.
 
 Implementation details for these requirements are consolidated in
 `docs/UI-UX-GUIDE.md`. Agents and developers must read that guide before
-changing player-facing UI; `/ui-foundation` remains the living visual reference.
+changing player-facing UI; `/admin/testing/shared-ui` remains the living visual
+reference and is restricted to administrators.
 
 ### 19.1 Required States
 
@@ -1752,7 +1896,7 @@ if (isUnlocked) { ... }
 - Admin pack management
 - Admin waypoint management with Journey Stage assignment
 - Admin badge management
-- Expandable game map initialized with the 220 bootstrap waypoints
+- Expandable game map initialized with the 400 bootstrap waypoints
 - Journey Stage display on all relevant screens
 - Day Selection screen with cooldown countdown
 - All five game modes (Drag & Drop, Puzzle, Swap, Cue, Fill)

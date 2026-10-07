@@ -21,7 +21,7 @@ type PackRow = Awaited<ReturnType<typeof getPacksListData>>[number];
 export async function PacksListView(): Promise<React.ReactNode> {
   const packs = await getPacksListData();
   const columns: DataTableColumn<PackRow>[] = [
-    { id: "name", header: "Pack", cell: (pack) => <div><p className="font-semibold">{pack.name}</p><p className="text-xs text-muted-foreground">/{pack.slug}</p></div> },
+    { id: "name", header: "Pack", cell: (pack) => <div><p className="font-bold">{pack.name}</p><p className="text-xs text-muted-foreground">/{pack.slug}</p></div> },
     { id: "description", header: "Description", cell: (pack) => <span className="line-clamp-2 max-w-md text-muted-foreground">{pack.description || "No description"}</span> },
     { id: "verses", header: "Verses", cell: (pack) => pack._count.verses, align: "center" },
     { id: "status", header: "Status", cell: (pack) => <Badge variant={pack.isActive ? "default" : "outline"}>{pack.isActive ? "Published" : "Hidden"}</Badge> },

@@ -2,6 +2,8 @@
 
 import { getServerSession } from "@/lib/auth/session";
 import { logger } from "@/lib/logger";
+import { isAdmin } from "@/lib/permissions";
+import type { UserRole } from "@/lib/generated/prisma/enums";
 import type { ActionResult } from "@/types/api";
 import {
   HintConflictError,
@@ -26,7 +28,11 @@ export async function useHintAction(
   if (!session?.user) return { success: false, message: "Authentication required." };
 
   try {
-    const result = await hintRepository.useHint(session.user.id, parsed.data.sessionId);
+    const result = await hintRepository.useHint(
+      session.user.id,
+      parsed.data.sessionId,
+      isAdmin(session.user.role as UserRole | null | undefined),
+    );
     return {
       success: true,
       message: `Hint used. ${result.remainingHints} hints remaining.`,

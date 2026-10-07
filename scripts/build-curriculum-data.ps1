@@ -181,9 +181,18 @@ function Read-CurriculumWorkbook {
   $verses = @(
     foreach ($row in ($verseXml.worksheet.sheetData.row | Select-Object -Skip 1)) {
       $values = Get-RowValues $row
+      # The canonical Bible book is "Psalms", while an individual reference is
+      # singular (for example, "Psalm 23:1"). Older source workbooks used the
+      # singular value in both places, which created duplicate admin filters
+      # once a verse was added through the canonical book selector.
+      $book = ([string]$values.B).Trim()
+      if ($book -eq "Psalm") {
+        $book = "Psalms"
+      }
+
       [ordered]@{
         reference = ([string]$values.A).Trim()
-        book = ([string]$values.B).Trim()
+        book = $book
         chapter = [int]$values.C
         verseStart = [int]$values.D
         verseEnd = if ([string]::IsNullOrWhiteSpace([string]$values.E)) {

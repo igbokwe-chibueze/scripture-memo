@@ -1,5 +1,516 @@
 # Scripture Memo Project Log
 
+### 2026-10-07 — Fellowship leadership and notification follow-through
+
+- Super Admin transfer notices now give the new leader the recorded reason;
+  other members receive a concise leadership-change notice without that reason.
+- Completed member-accepted and Super Admin leadership changes now notify all
+  current Fellowship members, with role-specific notices for the former and new
+  leaders and a new-leader summary for other members.
+- Completed-closure notices link to `/fellowships`, while scheduled and
+  cancelled closure notices continue linking to their Fellowship. Selecting a
+  notification destination now closes the inbox panel as navigation starts.
+- Updated English, Spanish, and French notification copy and the product
+  overview. The owner passed the browser checks for Super Admin transfer
+  reasons, leadership notices to all members, closure destinations, panel
+  dismissal, read persistence, and Read all (2026-10-07).
+
+### 2026-10-06 — Fellowship leadership and closure governance implemented
+
+- Added member-accepted leadership offers with leader cancellation, seven-day
+  reversible leader closure, and narrow Super Admin emergency recovery.
+- Closure removes the Fellowship from discovery, blocks joins and invitations,
+  cancels pending leadership offers and join requests, and notifies both members
+  and pending applicants. Membership and learning history are preserved.
+- Emergency transfer and closure require Super Admin authorization, current
+  password reauthentication, exact-name confirmation, and a reason in the audit
+  record. Recovery data is bounded and excludes account email addresses.
+- Added transactional repository operations, per-Fellowship advisory locking,
+  supporting notification types, an additive migration, and the Super Admin-only
+  `/admin/fellowships` workspace. This work uses the existing local development
+  database; it does not connect to or modify the hosted production database.
+- Applied the additive migration to the existing development database at
+  `localhost:51214`; Prisma reports the database schema up to date. No hosted
+  database was used.
+- TypeScript, full ESLint, optimized production build, 10 Fellowship schema
+  tests, locale parity, and `git diff --check` pass. The separate integration
+  listener at `localhost:51224` was unavailable; its guarded migration stopped
+  before applying anything. Database-backed governance integration coverage
+  and the owner’s consolidated browser acceptance remain pending.
+
+### 2026-10-06 — Super Admin defaults and audit viewer accepted
+
+- Added the Super Admin-only `/admin/settings` workspace, persisted singleton
+  settings model, and additive migration. Defaults preserve the current behavior:
+  KJV, 100 base Glow, five starting hints, and administrator cooldown testing
+  enabled. New account profiles snapshot the configured hint allowance; reward
+  changes affect future completions while completed-day cards retain their
+  recorded award.
+- Added `/admin/audit-logs`, a bounded/filterable, read-only viewer. It displays
+  event, record type, time, actor display name, and allowlisted platform-setting
+  changes. It does not send email, IP addresses, raw metadata, or identifiers to
+  the browser. The existing admin Settings card now points to platform settings.
+- Aligned the product overview with the current 400-waypoint seed and KJV/WEB/BSB
+  learner catalog. KJV remains the default. Updated the root project summary to
+  the actual 400-waypoint seed size.
+- Prisma generation and schema validation pass. TypeScript, full ESLint, the
+  production build, `git diff --check`, and all 18 focused tests pass (hint
+  balance, reward calculation, day selection, error catalogue, platform
+  settings validation, and audit-summary privacy).
+- Applied the additive migration to the existing local development database at
+  `localhost:51214`; `prisma migrate status` confirms the schema is up to date.
+  No new database was created and no hosted database was accessed.
+- The owner passed the consolidated browser review: default values were
+  correct, a changed setting persisted after refresh, the corresponding audit
+  event appeared, and defaults were restored. This post-roadmap extra is
+  complete.
+- Translation-catalog administration remained unimplemented at this point in
+  the log. Super Admin Fellowship moderation was subsequently implemented; see
+  the newer Fellowship governance entry above.
+
+### 2026-09-27 - Phase 32.2 dependency audit completed
+
+- The owner authorized sharing dependency names and versions with the public
+  npm registry for the online security audit. The initial report had one
+  Critical and thirteen High findings.
+- Upgraded Next.js and its matching ESLint config to 16.3.6, the patched
+  security release. Kept Prisma on major version 7 and updated the adapter,
+  client, CLI, and Prisma dev runtime to supported 7.10.0 / 0.24.17 versions.
+- Applied compatible transitive updates and narrow, pinned overrides for
+  `deepmerge-ts` and `mysql2`; no `--force` or major Prisma downgrade was used.
+  The final `npm audit` result is zero vulnerabilities.
+- Reviewed the required Prisma, esbuild, and resolver install scripts, allowed
+  only those exact installed versions, and left unrelated optional native build
+  scripts unapproved. The manifest and lockfile record the resulting graph.
+- Updated current framework-version references and marked Security Audit 16.10
+  and Phase 32.2 complete.
+- Reconciled Security Audit Section 17 against the accepted Phase 28/30 records.
+  Passed or source-verified coverage is linked there; client-timer manipulation
+  is consolidated with the already-passed server cooldown test. No owner
+  regression flow is being requested again.
+- The two progression lock-race tests remain pending. The isolated Prisma Local
+  launcher could not start because another process holds its durable-stream
+  SQLite file (`EBUSY`); it did not reach the test ports. Do not remove that
+  database file or use the hosted database. A supported local multi-connection
+  PostgreSQL runtime is still required for genuine lock-race coverage.
+- Prisma Client generation with Prisma 7.10.0, the optimized Next.js 16.3.6
+  production build, full ESLint, and `tsc --noEmit` all pass.
+- All 109 database-free unit tests pass. The separate PostgreSQL integration
+  suites were not rerun because the isolated Prisma Local test launcher remains
+  blocked by a locked durable-stream SQLite file; the two multi-connection race
+  cases remain pending and are not marked passed.
+
+### 2026-09-26 - Phase 32.1 email verification implemented
+
+- Enabled Better Auth email verification with one-hour links, no automatic
+  sign-in after verification, and resend-on-sign-in for unverified accounts.
+  Signup now reports a pending state and does not initialize profile or
+  progression data until the first verified login. Duplicate-email signup
+  responses remain generic.
+- Added `LIGHT_DEV` link downloads for local testing and a production Resend
+  delivery adapter. Production requires a Resend API key and a sender address
+  on a verified domain; those deployment values are not in source control.
+- Applied `20260926100000_grandfather_existing_email_accounts` to the local
+  Prisma Postgres database at `localhost:51214`; no hosted database was touched.
+  The migration grandfathered only accounts created before 2026-09-27 00:00
+  UTC. The initial SQL table-name mismatch failed before changing data, was
+  marked rolled back, corrected to the mapped `user` table, and then applied.
+- Focused delivery tests pass (6/6), locale contract tests pass (2/2), and full
+  repository lint plus TypeScript checks pass. Owner browser acceptance remains
+  pending. Installing Resend reported 21 dependency-audit findings; no
+  automated dependency changes were made.
+
+### 2026-09-26 - Phase 32.1 latest-link verification behavior
+
+- Resending a verification message now invalidates earlier links. A keyed
+  digest of the current Better Auth token is kept in the existing `Verification`
+  table; the record is replaced on resend and atomically consumed on successful
+  verification. Raw token values are not stored by the application layer.
+- Stale, expired, malformed, and already-used verification URLs return to
+  login with an inactive-link message. Better Auth remains responsible for JWT
+  signature validation and expiration. No schema migration or hosted database
+  changes were needed.
+- Reset the sole account created in the recent local-test window to
+  `emailVerified = false`, removed its sessions and current verification digest,
+  and left its profile/progression data intact. Only local port 51214 was used.
+- TypeScript, focused ESLint, and auth-delivery/token parsing unit tests pass.
+  The isolated integration-test listener on port 51224 was unavailable, so its
+  repository-level latest-token integration check could not run. The owner
+  confirmed browser acceptance: the old link was rejected, the newest link
+  succeeded, and replaying the newest link was rejected. Direct protected-route
+  denial while the account remains unverified is the next manual check.
+
+### 2026-09-26 - Shared Resend auth-email transport prepared
+
+- Verification and password-reset messages now use one server-only Resend
+  sender with the `RESEND_API_KEY` and `RESEND_FROM_EMAIL` secrets. Reset mail
+  no longer points at a placeholder adapter; Better Auth remains responsible
+  for all reset and verification tokens and state.
+- Set the planned sender to `Scripture Memo <auth@mail.scripturememo.com>` in
+  the example environment. The owner confirmed `mail.scripturememo.com` and Namecheap
+  DNS; domain verification, scoped key creation, and production secret setup
+  remain to be completed in the Resend and Namecheap dashboards.
+- The owner reports that `mail.scripturememo.com` is verified in Resend and a
+  development API key has been created. At that point the key had not yet been
+  placed in the local environment; live sending acceptance remained pending.
+  A separate production key will be created for deployment.
+- Added configuration and HTML-escaping tests that make no network requests.
+
+### 2026-09-26 - Resend development verification email sent
+
+- The owner configured the development-only Resend API key in ignored
+  `.env.local`; the sender is `Scripture Memo <auth@mail.scripturememo.com>`.
+- The owner confirmed Resend sent a real verification email, then opened its
+  link and saw the account verify and return to `/login`. The owner then signed
+  in successfully and reached first-login onboarding. Production will use a
+  separate API key. The protected-route check was already verified under
+  security audit item 2.1 and does not need to be repeated.
+
+### 2026-09-27 - Resend password-reset acceptance
+
+- The owner confirmed that a real Resend password-reset email arrived, its
+  reset link completed successfully, and the account accepted the new password
+  at sign-in.
+- Existing-session revocation remains a separate manual check for
+  `SECURITY-AUDIT.md` item 2.9. Better Auth session cookie caching is configured
+  for 60 seconds, so the prior session should be refreshed only after that
+  cache period has elapsed.
+
+### 2026-09-27 - Password-reset session revocation verified
+
+- The owner confirmed that the session created before the password reset was
+  rejected after the 60-second Better Auth session-cookie cache period elapsed.
+- Security audit item 2.9 is now verified, completing manual acceptance of the
+  Resend reset email, reset link, new-password sign-in, and old-session
+  invalidation flow.
+
+### 2026-09-27 - Generic login errors verified
+
+- The owner confirmed login attempts for an existing account with a wrong
+  password and for an unregistered email return the same generic error.
+- Marked `SECURITY-AUDIT.md` item 2.5 verified. The active Phase 32 sequence
+  remains at 32.2, the dependency audit, pending authorization for the public
+  npm registry request.
+
+### 2026-09-24 - Lilita One display typography adopted
+
+- Switched the shared `font-heading` token to the already-loaded Lilita One
+  face. Existing semantic game headings and reward numbers now use the display
+  font throughout the app, while Geist remains the body, paragraph, and
+  scripture-reading face.
+- Added `font-heading` to the shared `buttonVariants` base so Button,
+  LoadingButton, and NavigationButton labels receive the same typography through
+  their existing shared styling path. Colors, bevels, shadows, sizing, and motion
+  classes are unchanged.
+- Updated the UI/UX guide and kept `/admin/testing/shared-ui#typography-balance`
+  as a side-by-side reference. TypeScript, focused ESLint, repository lint, and
+  whitespace checks pass. Owner visual acceptance at 375px/desktop in light and
+  dark themes remains pending.
+
+### 2026-09-24 - Admin assignment for Map A trail artwork
+
+- Added an ADMIN/SUPER_ADMIN page at `/admin/map-trails` to assign the existing
+  coastal, desert, or temple illustration to each published five-waypoint trail.
+  Clearing a selection restores the original Coastal → Desert → Temple sequence;
+  the bundled artwork remains allow-listed, with image uploads outside this implementation.
+- Persisted only explicit choices in `MapTrailArtwork`. Map A and Trail Navigator
+  receive one batched assignment lookup; unassigned trail imagery follows the
+  deterministic original sequence with no ordinary-read writes.
+- Added an admin action with Zod catalogue validation and server role checks,
+  route revalidation, responsive image previews, pending/error/success feedback,
+  and a link from the Admin control center.
+- Applied additive migration `20260924170000_add_map_trail_artwork` to the
+  verified local development database on port 51214; no reset, seed, test-database,
+  hosted-database, or learner-data operation occurred. Prisma `migrate dev
+  --create-only` could not replay the pre-existing Better Auth migration into its
+  shadow database (`user` already exists), so read-only status was verified first
+  and only the reviewed additive migration was then deployed locally.
+- Prisma validation/generation, strict TypeScript, ESLint, all 20 map tests,
+  migration status, and whitespace checks passed. The database-to-Prisma diff
+  confirms the new table matches; it also reports one pre-existing, unrelated
+  BeaconWeeklyScore index-name difference, which was left untouched. Admin
+  browser review was completed and passed by the project owner: assigning a
+  bundled image, matching Map A and Trail Navigator previews, persistence after
+  refresh, and restoring the original repeating sequence.
+
+### 2026-09-24 - Phase 32 final security audit started
+
+- Source review verified the root-only structure, single-line page re-exports,
+  Prisma repository boundary, no Prisma imports in actions, no explicit `any`
+  types, server-side Journey Stage hint enforcement, server-owned reward amounts,
+  transactional ledger writes, and duplicate reward defenses.
+- TypeScript, full ESLint, and the 20 Map tests passed. The only application-adjacent
+  `console.log` is a local integration-database startup message, not production
+  request code. Public leaderboard DTOs omit email and raw identity.
+- Added global `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`,
+  and `Permissions-Policy` response headers and disabled `X-Powered-By`. Local
+  HTTP checks confirmed the headers on the public home response and unauthenticated
+  admin redirect. A nonce CSP remains under review:
+  installed Next.js guidance says nonce CSP makes pages dynamic, so compatibility
+  and performance need verification before enforcing it.
+- Production HTTPS, database network/SSL/access controls, deployment secrets and
+  backups remain outside this local source audit. Phase 32 is still in progress.
+
+### 2026-09-24 - Map A waypoint puck artwork integrated
+
+- Replaced Map A's CSS-only circular face with the supplied proportional oval
+  base, status sprite, live Lilita One waypoint number positioned on the lower
+  button face beneath its status icon, and three flame sprites along the rim.
+  The owner's font choice takes precedence over the asset README's suggested
+  Fredoka face; Map B's rectangular cards remain unchanged.
+- Mapped Locked to the muted base/lock; Unlocked to blue/play; In Progress and
+  Cooldown to blue/book; and Completed to blue/check. Filled flames follow the
+  existing completed-day count. Cooldown remains selectable and keeps the same
+  server-controlled timer and progression behavior.
+- Kept Map A's original 64/72px mobile and 80/96px larger button targets. The
+  former visible flame counter is now visually hidden while reserving its exact
+  layout space, so map node alignment does not shift. A 375px browser preview
+  confirmed the 101 completed state fits above the flame sprites; the
+  authenticated Map A manual check remains for owner acceptance.
+
+### 2026-09-25 - Map A current-waypoint callout moved beside the node
+
+- The current waypoint sits near the top edge of each trail canvas, whose
+  rounded viewport clips overflow. Its previous callout was positioned above
+  the node, leaving only the pointer visible in the owner's screenshot.
+- Moved the callout beside the current node. Its side is chosen separately for
+  mobile and larger layouts based on the node's existing horizontal position,
+  keeping the node, image positions, and map layout unchanged.
+- TypeScript, full ESLint, and all 20 Map tests pass. The production server was
+  left stopped for the owner to run and visually review the updated callout.
+
+### 2026-09-24 - Internal testing gallery organized by category
+
+- Split the former all-in-one UI foundation gallery into administrator-only
+  Testing workspaces for Shared UI, Gameplay, Feature checks, and Accessibility.
+  The Admin control center now links to the testing index; `/ui-foundation`
+  remains as a server-authorized redirect for old bookmarks.
+- Added a Shared UI button showcase for all three production button behavior
+  components, every shared appearance variant, text and icon sizes, pending,
+  disabled, and route-navigation states. Its async action is simulated locally
+  and the route sample stays inside administrator testing.
+- Added the actual custom Map A trail node and Map B waypoint card to Shared UI.
+  Local controls preview all five waypoint statuses, current-node emphasis, and
+  zero through three completed-day flames without changing learner progress.
+- Removed public landing-page links to internal test tooling. Updated the UI/UX
+  guide and product overview to point at the protected shared reference. Manual
+  browser review of the reorganized pages remains for the project owner.
+
+### 2026-09-23 - Gameplay mobile preview accepted
+
+- The owner directed work to proceed after the mobile entry-card correction.
+  Record the prepared gameplay layout and interaction scenarios as accepted; do
+  not repeat them.
+- Phase 31 continues with the next unfinished 375px player-route review.
+
+### 2026-09-23 - Gameplay entry card mobile correction
+
+- Owner rejected the first 375px gameplay preview because the entry composition
+  produced cramped copy, awkward title wrapping, clipped Luna artwork, and a
+  competing button placement.
+- Gave the mode title full width, placed the rule panel beside a contained Luna,
+  and moved the primary Begin action to a full-width row beneath both.
+- TypeScript, focused ESLint, diff checks, and preview HTTP verification pass.
+  The corrected 375px visual still needs owner acceptance.
+
+### 2026-09-23 - Trail Navigator animation work reverted and closed
+
+- At the owner's request, removed all recent panel-animation changes: CSS
+  overrides, Framer Motion integration, manual unmounting, and scroll timing
+  changes. Restored the original shared Sheet behavior and list centering.
+- Preserved the mobile floating-button visibility fix and unlimited future-map
+  scrolling. Both the animation request and future-scrolling question are closed
+  with no follow-up work; gameplay preview acceptance was handled separately.
+
+### 2026-09-23 - Map A mobile controls restored
+
+- Found the fixed Map A controls underneath the fixed mobile navigation because
+  both occupied the viewport bottom at the same stacking level.
+- Raised the controls above the mobile navigation and safe-area inset while
+  preserving their desktop position and behavior.
+- Per the owner's direction, future-trail scrolling remains unchanged and is not
+  a project to-do item.
+- TypeScript, focused ESLint, diff checks, and all 10 focused map tests pass.
+- Subsequent panel-animation experiments were reverted at the owner's request;
+  only the mobile floating-button visibility correction remains.
+
+### 2026-09-23 - Gameplay mobile scenarios prepared
+
+- Added `/ui-foundation#gameplay-testing` immediately after recording the passed
+  Day Selection check. It renders the production shell and first mode with sample
+  Glimmer/Learn data.
+- Begin success and reject-once/retry are delayed in memory; the hint opens from
+  local sample content. Production retains its authenticated start and hint paths.
+- Next: at 375px, inspect shell fit, menu, progress, Beacon bar, local hint,
+  pending/retry behavior, and the initial Drag & Drop layout. Do not submit the
+  sample answer; completion is outside this isolated check.
+- TypeScript, focused ESLint, diff checks, and HTTP 200/section verification pass.
+
+### 2026-09-23 - Day Selection mobile scenarios accepted
+
+- The project owner passed the prepared 375px Day Selection layout, pending,
+  reject-once/retry, and locked-day explanation checks. Do not repeat them.
+- Phase 31 remains in progress. The next route review is the active gameplay
+  screen at 375px, prepared without requiring a real timed attempt or progress.
+
+### 2026-09-23 - Day Selection mobile scenarios prepared
+
+- Continued Phase 31 after the owner accepted the Sanctuary rendering regression.
+- Added `/ui-foundation#day-selection-testing` with the production Day Selection
+  composition and representative completed, ready, and locked states.
+- Start success and reject-once/retry are delayed and in memory. The production
+  action remains the default outside the preview; no gameplay session, cooldown,
+  reward, learner progress, or database record is changed by this check.
+- Next: inspect the prepared section at 375px for fit and hierarchy, then verify
+  Glow pending/retry feedback and Radiance's blocked explanation.
+- TypeScript, focused ESLint, diff checks, and HTTP 200/section verification pass.
+
+### 2026-09-01 — Immediate Beacon Challenger evaluation
+
+- The project owner accepted the leaderboard privacy flow. Phase 30 Flow 13 is
+  complete.
+- Removed the All Time leaderboard's page-view badge mutation. Opening any
+  leaderboard scope is now read-only with respect to achievements and rewards.
+- A genuine mode completion now evaluates an active, unearned leaderboard badge
+  immediately after its trusted Beacon XP award. The permanent rank is computed
+  inside the same gameplay transaction and the resulting unlock joins the
+  established mode-success → badge-celebration queue.
+- The pending-badge check prevents permanent rank recalculation after every
+  active leaderboard badge has already been earned. Existing badge locks,
+  unique progress, reward-ledger idempotency, and Glow balance updates remain
+  the authority against duplicate awards.
+- TypeScript, focused ESLint, badge tests, Beacon tests, gameplay tests, and
+  whitespace validation pass.
+
+### 2026-09-01 — Oil Shop accepted and leaderboard privacy audited
+
+- The project owner confirmed both Oil Shop verification checks passed. Phase
+  30 Flow 12 is accepted.
+- Audited every leaderboard scope and its player-details modal. The ranking SQL
+  does not select account email, and the repository converts raw rows into a
+  public allowlisted DTO that drops the temporary internal user ID before data
+  reaches a client component.
+- League, country, Fellowship, all-time, and generated rival entries share the
+  same public row contract. Flow 13 is ready for short visual verification; no
+  product-code change was necessary.
+
+### 2026-09-01 — Repeatable Oil Shop transaction verification
+
+- Added an administrator-only Oil Shop acceptance panel for Phase 30 Flow 12.
+- **Verify latest purchase** reconstructs exact Glow and hint before/after values
+  from the latest immutable purchase snapshot, current inventory, and matching
+  negative reward-ledger row without changing state.
+- **Verify balance guard** uses the production conditional-decrement pattern
+  with an intentionally unaffordable amount while holding the learner purchase
+  lock. It passes only when zero rows change and the balance remains nonnegative
+  and exactly unchanged.
+- The real purchase remains the only state-changing test step. TypeScript,
+  focused ESLint, i18n contract tests, and whitespace validation pass.
+
+### 2026-09-01 — Hint accounting regression accepted
+
+- The project owner confirmed that one real Learn hint was recorded once with
+  the expected remaining balance, and that isolated Strengthen and Master
+  requests were both rejected by the production server stage gate. Phase 30
+  Flow 11 is accepted.
+
+### 2026-09-01 — Repeatable hint accounting and stage-gate verification
+
+- Kept **Verify hint accounting** visible throughout a real active Learn
+  session. The existing hint control is usable before **Begin mode**, so the QA
+  entry must not depend on client attempt state.
+- Added a read-only check for one real Learn hint that compares the current
+  mode usage, aggregate usage counter, purchased allowance, and recomputed
+  remaining balance without consuming another hint.
+- Added an isolated Strengthen/Master diagnostic that calls the production
+  server hint gate and passes only for its explicit Journey Stage rejection.
+- Kept both controls inside existing administrator testing menus so ordinary
+  learner gameplay remains unchanged.
+
+### 2026-08-31 — First Steps badge regression accepted
+
+- The project owner ran the read-only completed-Learn verification and
+  confirmed that First Steps unlocked once with exactly one matching Glow
+  reward ledger. Phase 30 Flow 10 is accepted.
+
+### 2026-08-31 — Read-only First Steps badge verification
+
+- Added a repeatable, read-only Phase 30 badge acceptance check to completed
+  Learn waypoints. The administrator menu now verifies that trusted waypoint
+  completion unlocked First Steps once and recorded its Glow reward once,
+  without re-evaluating badges or changing learner balances.
+
+### 2026-08-31 — Rollback-only duplicate reward verification
+
+- The project owner ran the completed-Radiance probe and received the protected,
+  balances-unchanged result; Phase 30 Flow 9 is accepted.
+- Added an ADMIN-only completed-day check that proves the gameplay session is
+  terminal before reward, badge, streak, or progression logic can run again.
+- Added forced-rollback probes for the existing Glow and Beacon idempotency
+  identities. PostgreSQL must reject both duplicates; even a missing constraint
+  cannot let the diagnostic insert commit.
+- Re-read Glow and Beacon balances after the probes and fail verification unless
+  both remain unchanged.
+- Placed the check inside the consolidated Day Selection **Admin testing** menu.
+
+### 2026-08-31 — Radiance completion regression accepted
+
+- The project owner completed the accelerated but production-backed Glow and
+  Radiance path for Phase 30 Flow 8.
+- Confirmed the third flame, one Glow award, waypoint completion, automatic next
+  published waypoint unlock, immediate next Glimmer readiness, and completed
+  verse access through the Vault and Sanctuary.
+- Preserved this completed waypoint as the fixture for the remaining duplicate
+  reward, badge, and Vault regression checks.
+
+### 2026-08-31 — Player surfaces normalized around admin testing menus
+
+- Recorded project-owner acceptance of Phase 30 Flow 7 after the production
+  start action returned the expected server-owned cooldown rejection.
+- Removed administrator-only testing buttons and completed-day replay controls
+  from individual challenge cards so their normal presentation matches players.
+- Consolidated cooldown verification, audited cooldown override, and day replay
+  into one contextual **Admin testing** menu on Day Selection.
+- Moved completed-mode replay into the existing gameplay three-dot menu instead
+  of rendering a separate administrator banner in the gameplay header.
+- Retained the explicit test-session identity notice because isolated tests must
+  never be mistaken for reward-bearing learner progression.
+
+### 2026-08-31 — Three-Day Challenge accepted and cooldown QA exposed
+
+- Recorded project-owner acceptance of Phase 30 Flow 6 after the five Glimmer
+  modes produced one flame and a persisted 24-hour Glow cooldown.
+- Added an ADMIN-only **Verify server lock** control to active cooldown cards.
+  It invokes the production session-start action and reports success only for
+  the specific server-owned `PRG-004` cooldown rejection.
+- Kept cooldown override separate so verification cannot silently unlock or
+  alter learner progression.
+
+### 2026-08-31 — Journey Stage regression accepted
+
+- The project owner manually verified the ADMIN Journey Stage launcher across
+  Learn, Recall, Strengthen, and Master.
+- Confirmed the production timer and hint restrictions while preserving learner
+  progress, rewards, streaks, badges, flames, cooldowns, and hint balances.
+- Marked Phase 30 manual Flow 5 as passed. Manual flows 6–16 remain.
+
+### 2026-08-29 — Isolated Journey Stage QA launcher
+
+- Added an ADMIN-only launcher to `/admin/waypoints` for selecting any assigned
+  waypoint and any of the five real game modes without playing through earlier
+  curriculum or waiting for cooldowns.
+- Added persisted admin-test session identity and target-mode fields so Recall,
+  Strengthen, and Master tests use the production server-owned attempt timers,
+  answer validation, and Journey Stage hint gates.
+- Terminated successful test submissions before learner progression, Glow,
+  Beacon XP, streak, badge, flame, reward, cooldown, or hint-inventory branches.
+- Excluded test sessions from learner-history locks, active campaign resumption,
+  completed-day detection, and badge metrics; every test mutation also rechecks
+  the caller's current administrator role.
+- Applied migration `20260829170000_add_admin_gameplay_test_sessions` to the
+  local database and regenerated the Prisma client.
+- Updated the Phase 30 Flow 5 checklist with a short, repeatable manual path.
+
 ### 2026-08-28 — Sanctuary study-reader redesign
 
 - Rebuilt the Sanctuary as a mobile-first devotional reader with a compact
@@ -1111,8 +1622,12 @@ long-term verse difficulty. Glow Points are the only currency.
 
 ## Current Project State
 
-- Branch: `badge-system`.
-- Current committed HEAD at this update: `4cebadf`.
+- Branch: `testing`.
+- Current committed HEAD at this update: `1ecb7d6`.
+- Phase 30 is complete: all 16 manual regression flows passed. Phase 31 is
+  in progress; its current evidence is tracked in `docs/PERFORMANCE-AUDIT.md`.
+- The Oil Shop purchase preview passed all three in-app Reduced Motion checks
+  on 2026-09-14. Remaining query, route-state, and mobile audits are next.
 - Phases 0–9 are complete and manually accepted, including bulk CSV import,
   dynamic verse-list search, and admin pack management.
 - The public landing page and internal UI-foundation preview are implemented.
@@ -1154,8 +1669,11 @@ long-term verse difficulty. Glow Points are the only currency.
 
 ## Current Roadmap Position
 
-Phases 0–22 are complete and manually accepted.
-Phase 23 — Vault is next.
+Phases through Phase 31 are complete. Phase 32 — Final Security Audit is in
+progress. Phase 32.1 email-verification implementation and owner browser
+acceptance are complete, and development Resend delivery has passed. Phase 32.2
+is next; its online npm audit remains pending authorization for the dependency
+metadata sent to the public registry. Production deployment checks remain open.
 
 ## Completed Work
 
@@ -1204,12 +1722,34 @@ Phase 23 — Vault is next.
 
 ## Current Task
 
-Begin Phase 23 — Vault.
+Continue Phase 31 — Performance and Polish: query payloads, client boundaries,
+route states, and mobile review. The purchase preview is accepted.
 
 ## Exact Next Task
 
-Inspect the Phase 23 Vault requirements and current replay infrastructure, then
-implement the private progress archive and mastered-verse replay flow.
+Continue the remaining visual/state and performance checks in
+`docs/PERFORMANCE-AUDIT.md`. Fellowship/Oil Shop pending controls are corrected.
+Local test isolation is now configured: development uses 51214 and tests use
+51224, both with 31 migrations. Fellowship integration passes. Two progression
+lock-race subtests remain skipped on the single-connection local runtime; do not
+resume the retired hosted test migration plan.
+The Vault header 375px check has passed.
+Do not repeat the accepted purchase preview or Vault check. Small-population local
+ranking plans were inspected on 2026-09-15; representative-scale SQL plans and
+browser bundle measurements remain unverified. The owner passed all prepared
+notification, Vault verse-card, and Fellowship scenarios on 2026-09-23.
+Oil Shop controls and the latest no-inner-scroll selected-pack correction are
+accepted. Settings save scenarios also passed per the owner. Do not repeat those
+checks. Sanctuary sample note/favorite scenarios also passed per the owner.
+The owner also passed the prepared OS-only reduced-motion check. Do not repeat
+accepted motion and Sanctuary rendering scenarios. Sanctuary study Markdown now renders on the server;
+the identical analyzer measured 149,329 fewer route-associated browser JS bytes
+(11.4%) and removed the Markdown family from the client graph. Next: visually
+The owner passed the Study/Notes regression after this rendering-boundary change;
+do not repeat it. Defer gameplay lazy-loading until timed-attempt loading is
+addressed. Next: remaining read-only high-read repository and index review. Other
+Phase 31 checks remain open.
+Phase 31 remains in progress.
 
 ## Important Decisions
 
@@ -2814,3 +3354,1088 @@ implement the private progress archive and mastered-verse replay flow.
 - Phase 30 — Testing and QA is the next roadmap stage. Its final regression pass
   retains the previously deferred natural streak, restricted-stage hint, and
   mastered-verse Vault replay checks.
+
+### 2026-08-29 — Phase 30 QA baseline opened
+
+- Opened `docs/QA-CHECKLIST.md` as the durable result ledger for all 16 roadmap
+  flows, deferred natural-time checks, automated evidence, and test-data safety.
+- TypeScript, full ESLint, and all 99 non-database tests pass.
+- Repository integration tests remain blocked by a dirty/unstable dedicated test
+  database. The initial parallel attempt also confirmed these curriculum suites
+  must run sequentially because each requires exclusive ownership of an empty
+  temporary waypoint curriculum.
+- Phase 30 remains in progress; no manual flow has been marked passed without
+  project-owner verification.
+
+### 2026-08-29 — Guarded integration database reset
+
+- Added `npm run test:database:reset`, which requires the existing exact test
+  acknowledgement and a PostgreSQL URL distinct from the application database.
+- The reset performs one server-side application-table cleanup, preserves the
+  migrated schema and `_prisma_migrations`, verifies that users and waypoints are
+  empty, and never prints or shell-interpolates database credentials.
+- Prisma currently refuses the dedicated hosted test-resource operation with
+  `planLimitReached`. Repository integration checks remain Blocked—not Failed—
+  until the workspace quota resets or the plan restriction is removed.
+
+### 2026-08-29 — Phase 30 authentication flow passed
+
+- The project owner manually verified registration, login, logout, repeat login,
+  and the expected protected-route redirect behavior.
+- Phase 30 manual Flow 1 is Passed. Flow 2 — admin route and role protection —
+  is next.
+
+### 2026-08-29 — Phase 30 admin protection flow passed
+
+- The project owner manually verified that Player, Admin, and Super Admin
+  accounts receive their intended route access.
+- Phase 30 manual Flow 2 is Passed. Flow 3 — verse management — is next.
+
+### 2026-08-29 — Phase 30 verse management flow passed
+
+- The project owner manually verified the administrator verse-management flow
+  and Player route protection.
+- Phase 30 manual Flow 3 is Passed. Before Flow 4, curriculum administration is
+  receiving a focused taxonomy and safe-placeholder cleanup correction.
+
+### 2026-08-29 — Psalms, tags, and unused-waypoint correction
+
+- Canonicalized the structured Bible book name to `Psalms` while retaining
+  singular human-readable references such as `Psalm 23:1`. The checked-in
+  curriculum generator and dataset now agree with the 66-book selector.
+- Added and applied a non-destructive data migration to the local database. All
+  ten matching local verses now store `Psalms`; references, assignments, and
+  learner history were not changed.
+- Standardized tag input to a case-insensitive slug identity with a consistent
+  human-readable Title Case label. Case-only variants collapse before writes,
+  and the local tag catalogue contains no case-duplicate records.
+- Added administrator deletion for only the final hidden, unassigned waypoint
+  with no learner history. The repository rechecks every condition under the
+  curriculum advisory lock and records successful deletion in the audit log.
+- Focused tag/import tests pass (5/5), TypeScript passes, targeted ESLint passes,
+  and `git diff --check` reports no whitespace errors.
+
+### 2026-08-29 — Hidden-waypoint unassignment
+
+- Added a confirmation-gated Unassign control to the existing waypoint
+  assignment dialog.
+- A waypoint can be unassigned only while hidden and free of learner-linked
+  progress, day progress, and game sessions. The repository rechecks these
+  rules under the curriculum advisory lock before clearing the verse.
+- Unassignment retains the waypoint, resets its provisional Journey Stage to
+  `LEARN`, and records the previous verse and stage in the audit log.
+
+### 2026-08-29 — Configurable verse-library columns
+
+- Added Waypoints and Packs as optional columns in the administrative verse
+  library. Waypoint cells show the waypoint number and Journey Stage; pack cells
+  show the learning-pack names linked to the verse.
+- Added a checklist menu that keeps the existing five information columns as
+  the default and enforces a maximum of five visible information columns. Row
+  actions remain permanently available and do not count toward the limit.
+- Kept column selection inside a focused client component, so toggling columns
+  performs no database request. The list repository loads only the relationship
+  fields required by this screen.
+- TypeScript, targeted ESLint, and whitespace validation pass.
+
+### 2026-08-29 — Phase 30 waypoint assignment flow passed
+
+- The project owner manually verified repeated verse assignment across distinct
+  Journey Stages, correct administrative display, and guarded hidden-waypoint
+  unassignment behavior.
+- Phase 30 manual Flow 4 is Passed. Flow 5 — Journey Stage rules — is next.
+### 2026-09-01 — Phase 30 private-note isolation audited
+
+- Audited the complete Sanctuary private-note read and mutation path before
+  manual Flow 14. Sanctuary reads select notes only for the authenticated
+  learner, and note saves derive the owner from the server session rather than
+  accepting a client-provided user ID.
+- Confirmed that persistence uses the database-enforced `(userId, verseId)`
+  ownership key, so one learner's save cannot update another learner's note.
+- Expanded the Flow 14 checklist into a two-account read-and-mutation isolation
+  test. No gameplay or cooldown wait is required when both test accounts use the
+  same verse during its pre-study window.
+
+### 2026-09-01 — Phase 30 private-note isolation passed
+
+- The project owner manually verified that a second authenticated account could
+  neither read nor overwrite the first learner's Sanctuary note.
+- Phase 30 manual Flow 14 is Passed. Flow 15 — mobile gameplay at 375px — is
+  next; Flow 16 remains the deferred mastered-verse Vault replay check.
+
+### 2026-09-01 — Phase 30 mobile gameplay check prepared
+
+- Prepared a non-progressing Flow 15 path that reuses a completed challenge
+  day's administrator replay and the gameplay replay menu, avoiding another
+  campaign playthrough or cooldown wait.
+- The 375px acceptance pass covers all five modes, touch placement, one real
+  drag interaction, mobile keyboard input, wrapping, clipping, horizontal
+  overflow, drag-created scrollbars, overlay scroll locking, and confirmation
+  that administrator replays do not change progression or rewards.
+
+### 2026-09-01 — Phase 30 mobile gameplay passed
+
+- The project owner manually completed all five gameplay modes at a 375px touch
+  viewport, including tap placement, dragging, swapping, and mobile keyboard
+  input, without clipping, overflow, accidental scrolling, or reward/progress
+  changes from administrator replay.
+- Phase 30 manual Flow 15 is Passed. Flow 16 — mastered-verse Vault replay — is
+  the only remaining manual regression flow.
+### 2026-09-01 — Phase 30 Flow 16 Vault fixture ready
+
+- Clarified that the normal instruction is to go to the **Mastered** section;
+  “Mastered” is not a selectable action.
+- Added an administrator-only Vault replay fixture for an account with a
+  completed verse but no fully mastered verse.
+- The fixture follows the real five-mode Vault sequence while server logic
+  suppresses progression, rewards, streaks, hints, badges, and cooldowns.
+- Updated the QA checklist with the exact administrator testing path.
+### 2026-09-01 — Vault fixture navigation correction
+
+- Corrected the combined administrator/Vault fixture so Continue remains in the
+  same session between all five modes and returns only to `/vault` after Fill.
+- Corrected completion-screen precedence so the fixture uses Vault replay copy
+  and next-mode actions instead of the single-mode waypoint test treatment.
+### 2026-09-01 — Vault replay continuation labels corrected
+
+- Corrected the combined administrator/Vault fixture's completion labels.
+- Modes 1–4 now identify their real next mode (Puzzle, Swap, Cue, or Fill),
+  while only the terminal Fill screen says **Return to Vault**.
+### 2026-09-01 — Phase 30 completed
+
+- Recorded project-owner acceptance of Flow 16 after the administrator Vault
+  fixture completed all five modes, used correct continuation labels, and
+  returned to the Vault only after Fill.
+- All 16 Phase 30 manual regression flows are now passed.
+- Marked Phase 30 complete in the roadmap and QA checklist. Phase 31 —
+  Performance and Polish — is next.
+
+### 2026-09-01 — Phase 31 audit and first correction batch
+
+- Started the evidence-based performance and polish audit and added
+  `docs/PERFORMANCE-AUDIT.md` to distinguish automated evidence from pending
+  route-by-route visual checks.
+- Reduced a normal Vault load from seven database queries to five by selecting
+  the learner's profile, streak, and settings through one narrow relation read.
+- Reduced shared gameplay-session rendering from five database queries to four
+  by loading audio settings and Beacon progress through one learner query.
+- Added complete reduced-motion handling to the Oil Shop purchase celebration
+  and removed the remaining Beacon level-up pulse for reduced-motion users.
+- TypeScript, lint, whitespace validation, and all 100 non-database automated
+  tests pass. Phase 31 remains in progress pending the remaining audit and
+  manual visual checks.
+
+### 2026-09-02 — Unified reduced-motion behavior
+
+- Corrected the first Phase 31 implementation after manual testing established
+  that Framer Motion observed only the operating-system media preference while
+  Scripture Memo's saved setting was represented by a document class.
+- Added one shared hook that combines both signals and reacts immediately when
+  the saved app setting changes, without polling or database reads.
+- Applied the shared signal across route loading/error feedback, hints, badges,
+  mode, streak, waypoint, and Oil Shop celebrations. Confetti and purchase
+  particles are now omitted entirely, and JavaScript count-ups resolve directly
+  to their final values under reduced motion.
+- Map jumps also use immediate scrolling when either reduced-motion source is
+  active. TypeScript, ESLint, and whitespace checks pass.
+
+### 2026-09-14 — In-app reduced-motion purchase preview accepted
+
+- The project owner confirmed all three pending purchase-preview checks passed:
+  particles are absent, entrance/radial motion is absent, and the final hint
+  balance appears immediately without counting up.
+- Recorded acceptance in the performance audit and corrected the stale branch,
+  roadmap position, current task, and next-task handoff fields.
+- The owner subsequently directed work to continue with the remaining audit;
+  do not repeat the accepted preview. Phase 31 remains in progress.
+- Documentation only; no application code or learner data changed.
+
+### 2026-09-14 — High-read source review and narrower settings selection
+
+- Reviewed map/day progress batching, badge collection reads, notification
+  bounds, presence frequency, request memoization, and principal schema indexes.
+- Narrowed the shared settings read to eight returned fields without changing
+  its result, query count, authorization, or persistence behavior.
+- Recorded evidence and limits in the performance audit, including the need
+  for actual SQL plans rather than inferring physical query counts from Prisma
+  calls. Fellowship payloads and Vault navigation feedback are next.
+- TypeScript and focused ESLint passed. No database commands were run.
+
+### 2026-09-14 — Fellowship detail payload and Vault navigation corrections
+
+- Scoped Fellowship detail reads to public/member visibility and filtered join
+  requests by leader ownership in the database. Narrowed selected fields and
+  removed the redundant relation count while preserving the full roster,
+  rankings, request limit, and output privacy guards.
+- Replaced Vault header route links with shared NavigationButton controls using
+  existing localized pending copy; controls stack at mobile widths and keep
+  44px touch heights. Shared button implementation remains unchanged.
+- TypeScript, focused ESLint, Fellowship schema tests (6), i18n tests (2), and
+  whitespace checks passed. No database integration or browser test ran.
+- Next: visual verification of Vault navigation at 375px and runtime Fellowship
+  detail visibility, then the remaining Phase 31 route-state/mobile audit.
+
+### 2026-09-14 — Local database recovery and Vault mobile acceptance
+
+- Read-only authentication diagnostics found the app reachable on port 3000
+  while its configured local database port 51214 refused IPv4 and IPv6
+  connections. Generic auth catch responses concealed the service outage.
+- The owner restarted the existing local database and reported the test passed.
+  No authentication code, credentials, or account data were changed by the agent.
+- The owner then confirmed the requested Vault navigation check at 375px passed.
+  Recorded acceptance in the performance audit; this check need not be repeated.
+- Next: Fellowship detail visibility verification, followed by remaining Phase
+  31 route-state/mobile checks. Phase 31 is still in progress.
+
+### 2026-09-14 — Fellowship runtime preflight and route-state continuation
+
+- Added a guarded Fellowship repository integration test for public/private
+  leader/member/visitor reads and privacy/ranking contracts. The separate test
+  database is reachable but lacks `FellowshipJoinRequest`; preflight stopped
+  before fixtures. No application data or database schema was changed.
+- Continued independently: all 21 audited player/auth/public pages resolve
+  loading and error boundaries. Recorded source evidence and pending gaps in
+  the performance audit rather than treating file presence as visual acceptance.
+- Added shared pending feedback to Vault verse-card Sanctuary/replay actions,
+  with stacked mobile controls, and enlarged the error retry target to 44px.
+  The accepted Vault header and purchase preview remain unchanged.
+- Vault/i18n tests pass. Runtime Fellowship coverage remains blocked by test
+  schema drift; no claim of a passing integration test or browser check is made.
+- Continue with Fellowship pending controls and notification failure recovery;
+  separately review test migration status before altering the test resource.
+
+### 2026-09-14 — Notification read failure recovery
+
+- Continued the audit without another handoff: individual/bulk notification
+  read state now changes after server success. Returned failures and thrown
+  connection errors preserve unread indicators and show persistent feedback.
+- Added shared Read all loading feedback, disabled notice rows during pending
+  acknowledgements, and English/Spanish/French pending and retry copy.
+- TypeScript, focused lint, and Vault/i18n tests passed. No extra database calls
+  were introduced; runtime browser checks remain unverified.
+- Remaining work includes Fellowship/Oil Shop pending controls, rendered mobile
+  states, and test-schema review to unblock the Fellowship integration suite.
+
+### 2026-09-14 — Fellowship/Oil Shop pending controls and test migration inventory
+
+- Added shared loading controls for Fellowship joins, requests, cancellations,
+  invite-code entry, and leader decisions. The selected action spins while
+  competing mutations disable; mobile controls stack with 44px minimum targets.
+- Both Oil Shop purchase surfaces use LoadingButton with existing pending copy,
+  visual classes, balance checks, and purchase behavior preserved.
+- TypeScript, focused ESLint, six Fellowship schema tests, two i18n tests, and
+  whitespace checks pass. Accepted header/celebration checks were not repeated.
+- Read-only dedicated-test migration status found 27 pending migrations out of
+  31. No migrations were applied. Review migration contents and test data before
+  updating that resource was the initial proposal. Superseded by the local-only
+  resolution below: this was the retired hosted test resource, not development.
+- Remaining work: rendered state/mobile acceptance and the outstanding query,
+  index, client-boundary, and feedback checks in the performance audit.
+
+### 2026-09-14 - Local-only development and integration isolation resolved
+
+- Owner authorized the complete setup while preserving existing development
+  accounts/data. Development already had all 31 migrations; the 27 pending
+  migrations belonged to stale hosted TEST_DATABASE_URL settings. No Cloud
+  connection or modification was made during the local setup.
+- A read-only alternate-database-name probe still returned template1 from the
+  existing local listener. Therefore test isolation uses the separate named
+  scripture-memo-tests instance (HTTP 51223, database 51224, shadow 51225),
+  provisioned with the already-installed @prisma/dev 0.24.3 runtime. The existing
+  scripture-memo development instance remains on database port 51214.
+- Updated only active test connection settings in the ignored .env; preserved
+  DATABASE_URL and the ignored cloud archive. Applied all 31 checked-in migrations
+  to tests, with no seed/reset/migration applied to development. Read-only final
+  development inventory: 3 users, 402 waypoints, 4 waypoint progress rows. Test
+  fixtures cleaned up to zero users, waypoints, and waypoint progress.
+- Added local:test:start, test:database:migrate, test:fellowships:integration,
+  and test:integration:all. The shared guard rejects hosted connections,
+  production, unsafe query overrides, and same-port URL aliases.
+- Local suites cover waypoint lifecycle, progression/cooldowns/duplicates, reward
+  idempotency, and Fellowship access/privacy. Two progression race subtests are
+  explicitly skipped: Prisma Local and the local pool use one connection. Real
+  concurrent lock coverage remains required before production. No production
+  repository or connection-pool behavior was weakened to make tests pass.
+- The old progression fixture needed a profile for the current completion-total
+  update. Reward assertions now reconnect after the intentional constraint error
+  to verify durable state despite Prisma Local socket response behavior.
+- Updated README, environment template, QA, roadmap, and performance records.
+  Resume Phase 31 open checks; accepted purchase and Vault header checks stand.
+
+Local setup validation (2026-09-14): strict TypeScript, full ESLint, four guard
+unit tests, and all four integration suite commands passed; the two progression
+concurrency subtests remain explicitly skipped as documented above.
+
+### 2026-09-15 - Phase 31 local ranking plans and read-path review
+
+- Inspected leaderboard SQL with read-only local EXPLAIN ANALYZE. Existing score,
+  cohort, and Fellowship membership indexes appear in plans; ranking still sorts
+  before pagination. Three local profiles cannot establish production latency.
+  Country performance remains unmeasured because the selected profile has no country.
+- Oil Shop and Sanctuary reads contain no per-result query loops. Filter/index
+  evidence and measurement limits are recorded in PERFORMANCE-AUDIT.md.
+- No production code, schema, or database data changed; no hosted connection was
+  made. Corrected stale Fellowship preflight wording to reference its local pass.
+- Next manual check: notification failure/retry. With an unread notice, go offline
+  before marking it read or using Read all. It should remain unread, show a
+  persistent error, and re-enable the control. Reconnect and retry: acknowledgement
+  should succeed and update the unread state. Accepted UI checks remain valid.
+
+### 2026-09-23 - Repeatable notification recovery preview
+
+- Owner clarified that AI should prepare test prerequisites so manual QA does not
+  require playing the game to produce the relevant state. Reuse isolated previews
+  and admin test tools while preserving production rules and learner progress.
+- Added /ui-foundation#notification-testing with three unread synthetic notices,
+  connection failure, rejected request, success, empty inbox, and reset controls.
+- Extracted the existing inbox rendering/read handling into NotificationInbox.
+  Production binds real authenticated actions through NotificationCenter; preview
+  uses local promises only. No database or account data was read or changed.
+- First attempt fails in either failure scenario, then retry succeeds; individual
+  reads and Read all have independent counters. Pending is visible for 800 ms.
+- TypeScript and focused lint passed. An unrelated malformed generated dev route
+  declaration was replaced with fresh Next.js typegen output before TypeScript
+  verification. Manual rendering at 375px remains pending; this preview does not
+  establish server persistence or authorization coverage.
+- Next: owner opens the prepared test bell and checks unread retention, persistent
+  failure feedback, re-enabled controls, successful retry, and reset. No Offline
+  toggle, earned notification, or gameplay prerequisite is needed.
+
+### 2026-09-23 - Notification test scenarios accepted
+
+- Owner reported all prepared notification tests passed. Recorded acceptance of
+  the client preview scenarios; server persistence coverage is not implied.
+- Notification testing is no longer the next manual task. Next: prepare remaining
+  Vault verse-card controls for 375px review without requiring gameplay setup.
+- Previously accepted purchase celebration and Vault header remain accepted.
+
+### 2026-09-23 - Vault verse-card scenario prepared
+
+- Added /ui-foundation#vault-card-testing with mastered and locked synthetic
+  cards; no gameplay, database fixtures, or earned mastery is required.
+- Extracted shared VaultVerseCard markup. Production keeps its existing replay
+  action and real Sanctuary URL. Preview uses a delayed local replay response
+  and a real NavigationButton targeting the preview page with a test query.
+- This covers UI layout, locked controls, and replay pending feedback, not real
+  session creation or Sanctuary authorization. No database data was changed.
+- TypeScript, focused ESLint, both Vault tests, and diff checks passed. Manual
+  375px acceptance remains pending. Accepted notification, Vault header, and
+  purchase-preview checks must not be repeated.
+
+### 2026-09-23 - Vault card preview accepted
+
+- Owner reported the prepared Vault card check passed after the local preview
+  route and section were verified available. Recorded 375px scenario acceptance.
+- Accepted coverage remains scoped to preview layout, pending/recovery, locked
+  controls, and preview navigation, not real Sanctuary or replay persistence.
+- Next: prepare isolated Fellowship pending-control scenarios. Do not repeat
+  accepted notification, purchase celebration, Vault header, or Vault card tests.
+
+### 2026-09-23 - Fellowship pending-control scenarios prepared
+
+- Added /ui-foundation#fellowship-testing with public/private/pending directory
+  cards, prefilled invite entry, and two leader request fixtures. Success and
+  reject-once/retry modes plus reset remove all manual setup prerequisites.
+- Extracted shared directory and leader queue content; production wrappers retain
+  authenticated actions and real router effects. Preview responses are delayed
+  in-memory mutations, with no account, membership, reward, or database writes.
+- Preview links remain on UI Foundation, including prefetch destinations. Search
+  submission is contained. Production navigation destinations are unchanged.
+- TypeScript, focused ESLint, six Fellowship schema tests, and diff checks passed.
+  Running localhost preview returned HTTP 200 with the test section present.
+- Next: owner verifies controls at 375px. Pending spins only on the selected
+  operation, competing mutations within its panel disable, invite input disables,
+  and rejection leaves the action retryable. This is not server authorization
+  or persistence verification. Earlier accepted previews remain accepted.
+
+### 2026-09-23 - Fellowship scenario selection highlight corrected
+
+- Owner found that selecting reject-once changed behavior but left Success
+  highlighted. The button variants were fixed constants instead of state-driven.
+- Both variants now follow the same rejectFirst state as aria-pressed and the
+  simulated response mode. No production membership behavior changed.
+- Manual Fellowship acceptance remains pending; verify the selector switches
+  highlight in both directions, then continue the existing prepared scenarios.
+
+### 2026-09-23 - Fellowship accepted; Oil Shop controls prepared
+
+- Owner reported Fellowship tests passed after the scenario highlight correction.
+  Marked prepared Fellowship scenarios accepted; no repeat is required.
+- Added /ui-foundation#oil-shop-testing using the real shop UI with a synthetic
+  pack/balance and delayed in-memory purchase responses. Success, rejection/retry,
+  insufficient balance, and reset are available without real spending.
+- Production OilShop binds unchanged authenticated actions through a wrapper;
+  preview imports no persistence actions. The approved celebration is unchanged.
+- TypeScript, focused ESLint, and three hint-balance tests passed. Local HTTP
+  returned 200 and confirmed the new test section. No database data changed.
+- Next manual check: mobile purchase pending/disabled/retry controls at 375px and
+  desktop purchase controls at 1024px or wider. This does not establish actual
+  ledger transactions or authorization. Do not repeat accepted celebrations.
+
+### 2026-09-23 - Oil Shop controls accepted; shared card palette applied
+
+- Owner reported all Oil Shop tests passed, then requested card-color uniformity
+  after providing a screenshot of dark navy/purple cards on the light preview.
+- Replaced storefront-specific backgrounds, gradients, borders, white copy, and
+  yellow button overrides with existing semantic theme tokens/shared variants.
+  Applied to balance cards, catalogue/tabs, item rows, desktop detail, and mobile
+  modal. Real page background follows the shared background token too.
+- Artwork retains its identity; small currency accents adapt to light/dark. The
+  previously accepted celebration source remains unchanged, verified against
+  the staged version. No global palette, gameplay, or persistence change.
+- TypeScript and focused lint passed; localhost returned 200 with theme-aware
+  balance-card markup. Visual light/dark acceptance remains pending.
+- Next: review colors on the prepared preview at mobile and desktop widths.
+  Do not repeat already accepted purchase/retry/balance functional checks.
+
+### 2026-09-23 - Purchase success palette aligned
+
+- Owner explicitly requested the purchase success screen follow the shared theme
+  too. Replaced its fixed purple/night gradient, white copy, purple close-button
+  overrides, reward panel, and hint-counter surfaces with semantic theme tokens.
+- Warm celebratory accents, Luna and item artwork, animation timing, audio,
+  count-up, reduced-motion handling, and purchase logic remain unchanged.
+- This extends the preceding storefront-only palette correction. Color review
+  of the success screen in light/dark themes is now pending; prior functional
+  and reduced-motion acceptance remains recorded.
+
+### 2026-09-23 - Transparent Oil Shop product artwork
+
+- Owner approved preserving only the spark, backpack, and lantern objects.
+  Built-in reference-image edits removed purple scenery, arches, and platforms.
+  New sibling cutout PNGs preserve original assets; prompts are recorded in
+  OIL-SHOP-ARTWORK.md.
+- Catalogue, desktop detail, mobile modal, and purchase success thumbnail use
+  transparent assets with contained sizing and semantic muted backgrounds.
+- Isolated Oil Shop preview now includes all three static catalogue items;
+  purchases remain in memory with no database or real balance changes.
+- All three alpha checks, TypeScript, focused ESLint, and preview/asset HTTP
+  checks passed. Visual inspection of generated assets passed; browser light/
+  dark and 375px visual acceptance remains pending.
+- Next: review artwork and palette at /ui-foundation#oil-shop-testing, including
+  a sample purchase success screen. Do not repeat accepted functional checks.
+
+### 2026-09-23 - Compact theme-aware Oil Shop header
+
+- Owner approved replacing the dark scenery header with isolated Luna holding
+  the oil bottle, shared theme surfaces/text, and a shorter mobile-first layout.
+- Added OilShopHeader shared by the production view and existing isolated preview.
+  Removed Trail supplies from the rendered header. Separate grid columns allow
+  copy to wrap without overlapping the artwork; loading header dimensions align.
+- Built-in reference-image edit saved luna-shopkeeper-cutout.png; original retained
+  and exact prompt recorded in OIL-SHOP-ARTWORK.md. Alpha validation passed.
+- Next visual check: /ui-foundation#oil-shop-testing header in light/dark at 375px
+  and desktop. Previously accepted purchase and reduced-motion behavior stays accepted.
+- Validation: TypeScript, focused ESLint, and diff checks passed. Initial local HTTP preview request timed out; browser appearance remains unverified.
+- HTTP retry passed (200) and confirmed the new header asset in preview markup.
+
+### 2026-09-23 - Shop overview and selected-pack rail
+
+- Owner approved placing desktop pack details above Partner in the existing
+  shell rail, selected-only View highlighting, and balances inside the header.
+- Reused GamePageColumns/rail portal with current shop state. A compact detail
+  panel scrolls locally when needed; standalone previews use an inline fallback.
+  The detail modal applies below the shell's 1280px breakpoint.
+- Header receives live balances, keeps wrapping mobile columns, and adds a faint
+  warm glow behind Luna. Selected cards have a subtle ring; other View buttons
+  use outline. Loading composition now reserves the combined header.
+- TypeScript, focused ESLint, diff checks, and preview HTTP 200 passed.
+  Browser appearance and interaction acceptance remain pending.
+- Next: at /ui-foundation#oil-shop-testing, switch packs and confirm only one
+  View is filled, check right-side details at desktop width, then make a sample
+  purchase to see header balances update. Inspect at 375px and light/dark.
+
+### 2026-09-23 - Shop detail panel without nested scrolling
+
+- Owner requested no independent scrollbar in selected-pack details and removal
+  of the Hint pack label. This supersedes the earlier locally scrolling panel.
+- Removed the label and both rail/standalone-preview scroll containers. Artwork
+  flexes down with available height; tighter spacing and smaller badge preserve
+  room for the name, description, price, and touch-sized Buy control.
+- Next visual check: all three selected packs above Partner at the owner's
+  desktop window size; confirm the Buy button is visible without inner scrolling.
+- Validation: TypeScript and diff checks passed; visual fit requires browser review.
+- Focused ESLint also passed.
+
+### 2026-09-23 - Shop accepted; Settings save scenarios prepared
+
+- Owner accepted the selected-pack no-scroll correction and directed continuation.
+- Settings source review found name, language, translation, theme and switches
+  editable during Save. Disabled them consistently to avoid losing mid-save edits.
+- Shared SettingsFormContent owns validation, pending, draft and toast handling;
+  production wrapper alone binds the action and browser preference synchronization.
+  Connection failures now preserve the draft with persistent error feedback.
+- Added /ui-foundation#settings-testing with synthetic preferences, delayed success,
+  rejection-once and connection-failure-once; retries succeed. No server action,
+  theme/language/motion change, cookie or database write occurs in the preview.
+- TypeScript passed. Manual Settings acceptance is pending.
+- Focused ESLint and diff checks passed; HTTP 200 confirmed settings-testing exists.
+
+### 2026-09-23 - Settings accepted; Sanctuary controls prepared
+
+- Owner reported Settings tests passed and directed continuation. Phase 31 remains
+  in progress; accepted Settings and Shop checks must not be repeated.
+- Added /ui-foundation#sanctuary-testing with a public-domain sample verse, note,
+  and favorite state. Success and independent reject-once/retry operations use
+  delayed in-memory callbacks. Reset restores all prerequisites.
+- Production and preview share SanctuaryContent. Production wrapper alone binds
+  unchanged authenticated Server Actions; preview back navigation remains local
+  to UI Foundation. No real note, favorite, progression or database changes.
+- Next: inspect 375px Notes/save and heart controls, pending state, preserved draft
+  and favorite on rejection, and successful retry. Manual acceptance pending.
+- Validation: TypeScript, focused ESLint, diff checks and HTTP 200/section verification passed.
+
+### 2026-09-23 - Sanctuary scenarios accepted
+
+- Owner reported Sanctuary testing passed. Updated the audit and active handoff; no repeat required. Phase 31 remains in progress. No application code changed.
+
+### 2026-09-23 - OS-only motion coverage prepared
+
+- Source review confirmed shared JavaScript preference use in loading, errors,
+  hints, confetti and celebrations; map scrolling checks OS and app independently.
+- Global CSS claimed an OS fallback but only implemented the app class rule.
+  Added a prefers-reduced-motion media rule for CSS animation/transition duration,
+  repetition and smooth scrolling. Retained minimal duration for completion events.
+- Added read-only /ui-foundation#motion-testing status for OS/app/effective sources
+  plus spinner/pulse samples deliberately exercising the global CSS rule. Existing
+  real loading/celebration previews immediately below supply the manual scenarios.
+- No settings, database or gameplay changes. TypeScript and focused lint passed.
+- Next: OS-only manual coverage with app option off; status On/Off/On, static CSS
+  samples, no animated entrances/particles/confetti/count-ups, working controls.
+- Preview HTTP 200 confirmed the motion section; compiled CSS contains the OS
+  media query. Diff checks passed. Browser animation behavior is not yet verified.
+
+### 2026-09-23 - Independent toast and client-boundary review
+
+- Continued source checks while OS-only motion acceptance remains pending.
+- AST review: 485 TS/TSX files, 47 persistent direct error toasts, 83 non-error
+  toast calls, and 45 feature view files without client directives.
+- Confirmed root toast duration 4000 and recorded client bundle candidates:
+  Sanctuary Markdown renderer and eager imports of all five gameplay modes.
+- No application changes were justified by source evidence alone. Production
+  bundle sizes and browser behavior are still unmeasured.
+- Next manual check remains /ui-foundation#motion-testing with OS On/App Off.
+  Independent performance work can continue without treating that check as passed.
+
+### 2026-09-23 - OS-only motion scenarios accepted
+
+- Owner reported the prepared motion test passed. Updated the audit and active handoff; no repeat required. Remaining bundle, database-performance and route reviews keep Phase 31 open. No application code changed.
+
+### 2026-09-23 - Production client bundle baseline measured
+
+- Ran installed Next.js 16.2.10 experimental-analyze --output successfully using
+  bundled documentation; no dependency install or application configuration edit.
+- Browser JS attribution across route-associated chunks: Sanctuary 1,304,448 bytes
+  / 26 chunks; gameplay 1,345,857 bytes / 28 chunks. Shared code overlaps; these
+  are not initial-network or compressed-transfer measurements.
+- Sanctuary Markdown-family subset is 113,160 bytes. Gameplay mode components
+  total 36,013 bytes, with @dnd-kit packages contributing 43,998 bytes.
+- Saved reproducible method, limitations and next decision in
+  docs/CLIENT-BUNDLE-BASELINE.md. Prioritize evaluating Sanctuary server Markdown;
+  defer lazy gameplay loading because server attempt deadlines keep running.
+- No application code or database operations changed. Phase 31 remains open.
+
+### 2026-09-23 - Sanctuary Markdown moved to the server
+
+- Split static study content and contents navigation from the interactive shell.
+  Markdown parsing, tags, reflection, and the study empty state now render on the
+  server; notes, favorite, mobile tabs, pending states, and toasts remain client-side.
+- Production and the isolated preview pass server-rendered content through the
+  same interactive component. Added sample Markdown to the preview for regression.
+- Identical analyzer comparison: 1,304,448 to 1,155,119 route-associated browser
+  JS bytes (-149,329 / -11.4%), 26 to 25 chunks, Markdown subset 113,160 to zero.
+- TypeScript, focused ESLint, preview HTTP and analyzer passed. The owner then
+  passed Study/Notes layout, switching, and desktop alignment. Previously accepted
+  note/favorite behavior remains accepted; no Sanctuary repeat is required.
+
+### 2026-09-23 - Sonner message audit completed
+
+- Reviewed direct player-facing toast copy and action-result messages across
+  Auth, Gameplay, Hints, Fellowships, Oil Shop, Settings, Sanctuary, Vault,
+  Notifications, Badges, and Leaderboard. Messages clearly identify outcomes or
+  next steps and do not expose internal failures.
+- Reconfirmed persistent error behavior through all direct error calls and the
+  shared `showActionError` helper. The root four-second default and explicit
+  non-error overrides satisfy the success, information, and warning duration rule.
+- No application edit was justified. The Phase 31 Sonner clarity and tone item
+  is complete; database-performance and remaining route reviews stay open.
+
+### 2026-09-23 - High-read repository and index audit completed
+
+- Reviewed repository query sites and looped database operations. Learner-facing
+  reads remain batched or relation-selected; no request reads once per rendered
+  item. Remaining looped calls are bounded writes for locking, badge evaluation,
+  reorder/import, seeding, or local fixtures.
+- Matched final high-read filters to schema primary, unique, and leading composite
+  indexes across Map, Day Selection, Gameplay, Vault, Sanctuary, Oil Shop,
+  Notifications, Badges, Fellowships, and Leaderboard. No migration or query
+  rewrite is justified by source evidence.
+- Representative large global/country and Fellowship ranking plans remain open;
+  the small development dataset cannot establish those execution characteristics.
+
+### 2026-09-24 - Representative ranking plans and Phase 31 completed
+
+- Added a guarded `audit:ranking-plans` command backed by a dedicated leaderboard
+  performance repository. It rejects hosted and development listeners, uses the
+  existing test database on port 51224, and requires empty ranking tables.
+- Measured the production query shape with 10,000 rollback-only learners: 5,000
+  country entries, a 2,000-member Fellowship, and a 2,500-member league. Local
+  execution measured 102.445 ms all-time, 52.213 ms country, 46.160 ms
+  Fellowship, and 31.503 ms league. All sorts stayed in memory with zero
+  temporary disk blocks; the plans do not justify a new index.
+- A deliberate transaction rollback and post-run counts proved no synthetic
+  identities, profiles, scores, weeks, cohorts, Fellowships, or memberships
+  remained. No development or hosted database was contacted and no migration ran.
+- Final validation passes strict TypeScript, full ESLint, whitespace checks, and
+  all 119 non-database tests. Existing client-boundary, route-state, 375px,
+  independent reduced-motion, and Sonner evidence was reconciled without
+  repeating accepted manual scenarios.
+- Phase 31 — Performance and Polish is complete. Phase 32 — Final Security Audit
+  is next. The two progression lock-race skips remain assigned to a future
+  production-capable database environment and do not reopen Phase 31.
+
+### 2026-09-24 - Phase 32 security audit and auth hardening in progress
+
+- Reconciled the audit checklist with current code and project evidence. Verified
+  route/action role enforcement, input-first Server Action validation, persisted
+  progression and reward checks, private data ownership, secret boundaries,
+  database constraints, and current local environment handling. Corrected stale
+  checklist assumptions about a fixed 220-waypoint curriculum, translation
+  codes, the password-hashing algorithm, XP, and raw-HTML usage.
+- Added per-email password-reset throttling through the existing Better Auth
+  `RateLimit` table. Emails are normalized before keyed HMAC to create the
+  lookup key; a transaction advisory lock makes the five-attempt, 15-minute
+  fixed window atomic across application instances. No schema migration or
+  hosted database operation was used. A dedicated test against the isolated
+  local integration database verified the cap, blocked-request behavior, and
+  expiry boundary, and removed its unique limiter row.
+- Hardened server error logging to redact common credential encodings and omit
+  stack traces in production. Added a focused logger test. Also moved the
+  settings translation lookup behind input validation and corrected a stale
+  waypoint schema comment.
+- Replaced cross-feature imports into internal component/hook/view paths with
+  explicit feature-root entry points. Moved reusable confetti and audio
+  feedback into shared locations. A source scan found no remaining cross-feature
+  internal component, hook, or view imports.
+- Verification: TypeScript, full ESLint, whitespace checks, 68 related gameplay,
+  badge, Beacon, Fellowship, and map tests, the password-reset limiter database
+  test, and the logger unit test passed. Production build reached Next.js but
+  could not fetch the app's Google Fonts because network access is unavailable;
+  this is an environment limitation, not an import or TypeScript error.
+- Phase 32 remains open. Pending items include the selected hosting provider's
+  trusted-proxy/IP configuration, production database role and migration
+  safeguards, production HTTPS/network/backup/secrets settings, nonce CSP
+  performance decision, and email verification/registration enumeration. The
+  npm vulnerability audit
+  was rejected by automatic approval review because it would disclose project
+  dependency names and versions to the public registry; owner authorization is
+  pending. No production approval is implied.
+
+### 2026-09-24 - Local font assets for offline builds
+
+- Removed build-time `next/font/google` imports after a restricted production
+  build could not fetch Geist, Geist Mono, and Lilita One. Bundled the exact
+  cached WOFF2 subsets under `public/fonts`, preserving Latin and extended
+  glyph coverage, and retained the upstream OFL notices.
+- Replaced Google font loading with local `@font-face` declarations and kept
+  the existing CSS variables and Latin preload behavior for Geist and Geist
+  Mono. Lilita One remains non-preloaded.
+- Verification: strict TypeScript, full ESLint, `git diff --check`, and the
+  production build all pass in the network-restricted environment. Next.js
+  compiled and generated all 35 static pages without contacting Google Fonts.
+
+### 2026-09-24 - CSP report-only review enabled
+
+- Added a per-document nonce-based `Content-Security-Policy-Report-Only` through
+  Proxy, excluding static assets and prefetches. The nonce is forwarded to the
+  Next.js renderer and `next-themes`; script execution remains nonce-restricted
+  in the policy, while computed style attributes have a separate allowance.
+- Confirmed the installed Next.js guidance against the app: root
+  internationalization reads request headers and cookies, and user-facing
+  routes are already dynamically rendered, so nonce adoption does not newly
+  remove static page caching. The browser currently receives no enforcing CSP.
+- Verification: strict TypeScript, full ESLint, whitespace checks, and
+  production build passed. A local production-mode smoke test confirmed the
+  report-only response header, 47 matching rendered nonces, no enforcing CSP,
+  unchanged protected-route redirects, and no document policy on local font
+  assets.
+- Manual review pending: inspect report-only violations while using public/auth
+  screens and protected map, gameplay, shop, and theme flows. Keep CSP in
+  report-only mode until this review is accepted.
+
+### 2026-09-25 - CSP production reports traced
+
+- Production browser review found a same-origin Next.js loading-boundary chunk
+  reported under `strict-dynamic`, which disables the `self` source, and two
+  inline style blocks reported from the Sonner bundle. Removed `strict-dynamic`
+  while retaining the per-request script nonce and same-origin script scope.
+- Added only the two exact style hashes reported by the browser. This keeps the
+  stylesheet exception narrower than allowing arbitrary inline style elements;
+  dynamic React style attributes remain separately allowed for map/game UI.
+- CSP remains report-only. Re-run the same production browser flows to confirm
+  that these reports are resolved and check for additional violations before
+  considering enforcement.
+
+### 2026-09-25 - CSP map route recheck passed
+
+- The owner confirmed that the production `/game/map` page now loads with a
+  clear browser console after the policy adjustment. This accepts the map-route
+  check only; CSP remains report-only and audit item 14.7 remains in progress.
+- Next manual check: open `/`, `/login`, and `/register` on the production
+  server. Confirm each page works and the Console has no messages containing
+  “Content Security Policy” or “violates”.
+
+### 2026-09-25 - Zod CSP probe and font preload findings
+
+- Public/auth production review reported `unsafe-eval` on login and register.
+  Traced it to Zod 4's caught JIT capability probe, not application-authored
+  dynamic code. Added `lib/zod.ts` to set browser-only `jitless: true` before
+  schemas load, and routed all project-owned Zod imports through that module.
+  Server validation retains normal JIT behavior.
+- The home and auth pages also warned that both preloaded fonts were unused.
+  Corrected the invalid Latin Unicode-range placeholder in the Geist and Lilita
+  faces and removed the site-wide Geist Mono preload. Follow-up browser checks
+  passed on `/login` and `/register`; `/` had no CSP report but still warned
+  that its Geist Sans preload went unused. Removed that final global font
+  preload. The font remains available through CSS and is fetched if rendered
+  text needs it, avoiding an unnecessary preload on routes that do not use it.
+- TypeScript, ESLint, staged/unstaged `git diff --check`, and the production
+  build passed after removing the final preload. CSP remains report-only.
+
+### 2026-09-25 - CSP public and auth route review passed
+
+- The owner confirmed `/`, `/login`, and `/register` now pass production browser
+  review after restarting the server: no CSP reports and no unused-font-preload
+  warning. `/game/map` had already passed. Audit item 14.7 remains in progress
+  until representative gameplay, Oil Shop, and theme flows are checked.
+- Next manual check: open an active gameplay session from `/game/map`, exercise
+  one game interaction, and confirm the Console has no CSP messages or
+  violations.
+
+### 2026-09-25 - CSP gameplay preview check passed
+
+- The owner confirmed the prepared Success scenario on
+  `/admin/testing/gameplay` displayed the Drag & Drop screen without CSP
+  reports. No real game progress was submitted.
+- Next manual check: open `/oil-shop`, switch from Hint packs to Donations and
+  back, and confirm the Console has no CSP messages or violations. Do not make
+  a purchase for this check.
+
+### 2026-09-25 - Typography comparison expanded to five pairings
+
+- Expanded the ADMIN-only Typography experiment on `/admin/testing/shared-ui`
+  to five pairings: Geist; Lilita One with Geist reading copy; Fredoka Bold 700
+  with Geist reading copy; Fredoka Bold 700 with Fredoka Medium 500 for
+  supporting copy and scripture; and a combined option using Lilita One for the
+  headline, Fredoka Bold 700 for labels/actions, and Fredoka Medium 500 for
+  supporting copy and scripture. Every card uses the same sample text.
+- Added locally hosted Fredoka Bold and Medium Latin web-font files plus the
+  OFL license. Both candidate weights are loaded through `next/font/local` only
+  in the preview component; the app-wide heading token is unchanged.
+- Replaced the short Psalm 119:105 sample with Romans 8:38–39 (KJV) so the
+  comparison shows longer reading copy and realistic line wrapping.
+- TypeScript, ESLint, and the production build passed for the five-card version.
+  Next: review all five cards at 375px and desktop in
+  the shared UI testing page before choosing any application-wide font change.
+
+### 2026-09-25 - Apply the approved typography pairing app-wide
+
+- Applied the selected fifth pairing: Lilita One for headings, Fredoka Bold
+  700 for shared button labels/actions, and Fredoka Medium 500 for reading and
+  supporting copy.
+- Changed the shared sans token and body weight to Fredoka Medium. Updated the
+  shared button variant to use the Fredoka action token and weight 700, keeping
+  Button, LoadingButton, and NavigationButton on the same visual path.
+- Added self-hosted Fredoka Latin and Latin Extended subsets for both weights
+  and retained the OFL license. The Latin Extended files support the shipped
+  French and Spanish locales.
+- Scripture quotations now use the shared reading face. Geist remains locally
+  available for the admin comparison card and Geist Mono remains the code face.
+- Updated the UI/UX typography rules. Production build, lint, and type checks
+  pass for this app-wide update. Next: visually review
+  `/admin/testing/shared-ui` and representative player routes at 375px and
+  desktop, especially headings, navigation, game controls, and longer scripture
+  passages. Confirm no text clipping or unwanted wrapping.
+
+### 2026-09-25 - CSP Oil Shop tab check passed
+
+- The owner switched between Hint packs and Donations on `/oil-shop` in the
+  production browser and reported no Console output. The Oil Shop CSP check
+  passed without making a purchase.
+- CSP remains report-only while the final theme flow is checked. Next manual
+  check: open `/settings`, switch Appearance through Light, Dark, and System,
+  and confirm the Console stays clear after each change.
+
+### 2026-09-25 - CSP theme transition nonce follow-up
+
+- The Settings theme review reported two inline-style hashes. Matched
+  `skqujXORqzxt1aE0NNXxujEanPTX6raoqSscTV/Ww/Y=` to the exact temporary
+  transition stylesheet injected by the installed `next-themes` version when
+  `disableTransitionOnChange` is enabled.
+- Settings calls `router.refresh()` after saving. The Proxy adds a fresh nonce
+  only to document requests, so an RSC refresh can re-render the mounted theme
+  provider with no nonce even though the current document CSP still requires
+  its original nonce. The provider now keeps that document-scoped nonce for its
+  lifetime, including across server-component refreshes.
+- The remaining `kLmv…` report persisted after the nonce fix. Added only that
+  browser-reported hash to the element-level style allowlist; did not broaden
+  the policy with `unsafe-inline`. The owner repeated Light, Dark, and System
+  Settings changes on a fresh production build and confirmed the Console was
+  clear.
+
+### 2026-09-25 - CSP report-only review passed; enforcement enabled
+
+- Report-only browser review passed on `/`, `/login`, `/register`, `/game/map`,
+  the prepared gameplay preview, Oil Shop tab switching, and Light/Dark/System
+  changes in Settings. No Console CSP violations were reported.
+- Promoted the reviewed nonce policy to the enforcing `Content-Security-Policy`
+  response header. The same policy is forwarded to Next.js for nonce injection;
+  report-only delivery has ended. The policy is not considered fully verified
+  until representative flows are repeated with enforcement active.
+- Next manual check: restart the production server, repeat the representative
+  routes and interactions listed above, and confirm the pages work without
+  CSP errors or blocked scripts/styles.
+
+### 2026-09-25 - Enforcing CSP browser review passed
+
+- The owner repeated the public/auth, map, prepared gameplay, Oil Shop tab, and
+  Settings theme checks with the enforcing CSP and confirmed all tests passed
+  with a clear Console. Security Audit item 14.7 is now verified.
+- Next Phase 32 focus: continue in checklist order with Critical pending item
+  12.11, production migration safety. Inspect the deployment and migration
+  workflow before changing any production database behavior; no production
+  database is configured in the current local-development environment.
+
+### 2026-09-25 - Production migration workflow review
+
+- Reviewed `package.json`, `prisma.config.ts`, the local integration migration
+  wrapper, README setup guidance, and repository deployment files. There is no
+  production deployment pipeline or production database configured. The local
+  startup guidance and guarded test migration wrapper use
+  `prisma migrate deploy`; the only `migrate dev` reference is the historical
+  local-bootstrap roadmap step.
+- Security Audit item 12.11 remains pending until a hosting provider and its
+  production release workflow exist and are verified to use only
+  `prisma migrate deploy`. No database command was run and no database was
+  changed.
+- Continuing Phase 32 with the local source checks that do not depend on
+  production infrastructure.
+- Corrected the first manual security test to use the actual protected route,
+  `/game/map`, instead of the stale `/app/map` path. Next owner check: visit
+  `/game/map` while fully logged out and confirm the app redirects to `/login`.
+
+### 2026-09-25 - CSP issue isolated to regular browser profile
+
+- The owner confirmed the site-wide DevTools eval issue disappears in an
+  Incognito window. The production response on port 3001 serves the enforcing
+  nonce CSP, project source has no direct dynamic-code call, and bundled Zod
+  uses browser `jitless` mode. The app policy remains unchanged; no
+  `unsafe-eval` exception was added.
+- Security Audit Manual Test 1 passed: while logged out, the owner visited
+  `/game/map` and confirmed it redirected to `/login` without rendering the map.
+- Settings DevTools reported four unassociated visible labels on Country,
+  Interface language, Preferred Bible translation, and Theme. Connected each
+  label to its selector button by ID. A later repository-wide form-field audit
+  made `SearchableSelect` IDs required and added IDs/names to its search input.
+
+### 2026-09-25 - Form field accessibility and autofill audit
+
+- Added IDs and names to all app-owned JSX form controls that lacked both,
+  including the two `/vault` filters, verse and pack search controls, admin
+  editors, fellowship visibility switches, and the dynamic Cue/Fill answer
+  inputs. Added explicit label associations for the previously identified
+  Settings controls, verse-book selector, waypoint assignment selectors, and
+  fellowship visibility switches; added a screen-reader label to the Sanctuary
+  private note field and manual badge selector.
+- Made IDs mandatory for `SearchableSelect` callers, and gave its popup search
+  input a unique ID and name. A TypeScript-AST scan of `app/`, `components/`,
+  and `features/` now reports only the generic Textarea and PasswordInput
+  wrapper definitions; the latter's five callers supply IDs, and native
+  Textarea callers provide IDs/names where required.
+- Full TypeScript, full ESLint, and `git diff --check` pass. Browser Issues
+  verification still requires checking representative forms, especially
+  `/settings` and `/vault`.
+- The owner still saw four autofill warnings on `/vault` and four label warnings
+  on `/settings`. The production `.next` build timestamp predated the edited
+  source, so those reports came from stale production output. The installed
+  Base UI Combobox also emits a separate hidden form input; `SearchableSelect`
+  now gives the root control a stable ID and name as well as naming its popup
+  search input.
+- Rebuilt successfully with `npm run build` after confirming port 3001 had no
+  listener. TypeScript and full ESLint pass after the follow-up change. Next:
+  start this fresh production build on port 3001 and recheck `/settings` and
+  `/vault` in the browser.
+
+### 2026-09-25 - App-wide typography weight consistency
+
+- Standardized the registered display and text faces with the selected pairing:
+  Lilita One at 700 for headings, Fredoka at 700 for actions and emphasized
+  labels, and Fredoka at 500 for body and supporting text. Removed unsupported
+  Fredoka weight requests across app-owned UI and made shared Lilita headings
+  consistently request 700.
+- Updated the typography comparison preview to use the same global Fredoka
+  faces as the app, so DevTools reports the shared family instead of separate
+  locally generated aliases. Documented the weight rules in `UI-UX-GUIDE.md`.
+- Verification passed: TypeScript, ESLint, gameplay tests (28), map tests (20),
+  production build, typography source scan, and `git diff --check`. The local
+  server was not started.
+
+### 2026-09-25 - Confirmed local-development and production database plan
+
+- The owner confirmed that all development must continue using the existing
+  Prisma Postgres Local database and that production should reuse the previously
+  hosted Prisma PostgreSQL database, not provision another database.
+- At the initial production cutover, the owner intends to replace the hosted
+  database contents with current, verified local release data. Recorded this as
+  a deliberate one-time operation requiring a verified backup and transfer
+  procedure; local test fixtures, development-only accounts, and environment
+  secrets must be excluded. Once live production data exists, production is
+  authoritative and must never be overwritten from development.
+- Updated the README and Product Overview to make this database policy explicit.
+  No database connection, hosted resource, local data, schema, or credential was
+  changed or accessed.
+
+### 2026-10-06 - Player Map Replay implementation started
+
+- Added a Day Selection action that lists only modes with completed attempts in
+  the completed challenge day. The sample Day Selection preview does not link
+  to a fake replay session.
+- Added an owner-scoped, read-only practice-session query and server validation
+  requiring a completed ordinary campaign session and a mode with a completed
+  attempt. Invalid or repeated practice query values are rejected.
+- Reused the five local answer-checking mode surfaces for player practice.
+  Practice completion does not call gameplay completion actions or create an
+  attempt, and it returns to the challenge-day screen without rewards or
+  progression changes. Updated the shared completion preview to the typed
+  replay-kind API and added English, Spanish, and French labels.
+- No schema or migration changes were needed. TypeScript, ESLint on changed
+  TypeScript files, the Day Selection tests, the replay eligibility tests,
+  localization contract tests, and `git diff --check` pass.
+- Resolved the practice policy as untimed and hint-free. This avoids charging
+  hint balance and keeps the journey-stage timer tied to its server-created
+  campaign attempt. The UI states this policy explicitly and guards the timer
+  and hint surfaces from appearing during player practice.
+- The owner manually tested Player Map Replay and confirmed all tests passed.
+  Marked the feature implemented and accepted; practice shows no timer or hint
+  control, completes locally, and leaves campaign progress unchanged.
+
+### 2026-10-06 - Game Home implementation
+
+- Replaced the authenticated `/game` placeholder with the documented player
+  landing page: Glow Points, streak, the earliest playable published waypoint,
+  its Journey Stage, and a resume action. When no waypoint is playable, Home
+  guides the learner back to the map.
+- Added leaderboard and badge shortcuts; the existing protected navigation
+  continues to provide the main section links. Added English, Spanish, and
+  French strings for the new page.
+- Kept rendering read-only. The waypoint lookup filters to the signed-in
+  learner's unlocked, in-progress, or cooldown progress and selects only the
+  fields needed by the UI. Wrapped the existing player-shell summary in
+  request-scoped React cache so Home shares its Glow/streak query with the
+  protected shell during the same render.
+- No schema, migration, or hosted database work was involved. TypeScript,
+  focused ESLint, localization contract tests, and `git diff --check` pass.
+  The owner manually verified Game Home and confirmed the test passed
+  (2026-10-06).
+
+### 2026-10-06 - Route-adaptive player context panel
+
+- Added concise large-screen rail content for Home, Vault, and Sanctuary using
+  data each page already loads. The existing Oil Shop selected-product and
+  Leaderboard progress panels remain in place. No context-panel database reads
+  were added.
+- Made Badge Collection cards selectable so the desktop rail can show the
+  inspected achievement. The initial selection favors the first in-progress
+  badge, then the most recently earned one, then the first catalog entry. Mobile
+  badge cards remain unchanged and do not expose a selection control because
+  the desktop rail is hidden there.
+- The owner chose to preserve Map's full-width desktop layout, so the map rail
+  remains disabled.
+- No schema, migration, or database changes were made. TypeScript, focused
+  ESLint, localization contract tests, and `git diff --check` pass. The owner
+  manually confirmed the large-screen panels on Home, Vault, and Sanctuary,
+  including badge-selection updates; browser review passed.
+
+### 2026-10-06 - Vault badge collection at 320px
+
+- The owner confirmed the category and rarity filters fit correctly and badge
+  cards show their full contents at 320px after the narrow-screen layout fix.
+  The check passed.
+
+### 2026-10-06 - Fellowship suspension and appeal
+
+- Added durable suspension and appeal records. Super Admin suspension requires
+  password reauthentication, exact Fellowship-name confirmation, and a reason.
+  It cancels pending joins and leadership offers while retaining membership,
+  learning history, and an auditable status record.
+- Active Fellowships remain readable to existing members but are excluded from
+  discovery and invites; joins, leader edits, transfer, closure, and leaderboard
+  selection are blocked at repository boundaries.
+- The current leader may submit one written appeal within 30 days. A different
+  Super Admin must reauthenticate and record a reasoned restore/uphold decision.
+  An upheld appeal is final. Expiration does not restore the Fellowship; an
+  unappealed suspension can be restored by a reasoned, reauthenticated Super
+  Admin action.
+- Added localized player suspension and appeal notices, a Super Admin
+  moderation panel, notification events, and schema validation coverage.
+- Prisma validation, TypeScript, focused ESLint, 13 Fellowship schema tests,
+  and locale parity pass. The additive migration was applied successfully to
+  the local development database at `localhost:51214`; no hosted database was
+  accessed. Isolated database-backed integration and browser acceptance remain
+  to be completed.
+
+### 2026-10-07 - Scalable Super Admin Fellowship workspace
+
+- Replaced the large per-Fellowship action cards with a compact, responsive
+  table-style list. Desktop rows show leader, member count, visibility, status,
+  and recent update; mobile rows collapse those details into a concise summary.
+- Added server-side search by Fellowship or leader, status filters for active,
+  suspended, appeal review, closing, and closed, and bounded 25-row pagination.
+  The list query selects member counts and latest status only; it does not load
+  every roster or appeal statement for every result.
+- Moved transfer, suspension/appeal review, and emergency closure into a
+  row-scoped management dialog with focused sections. Sensitive roster and case
+  details load only after a Super Admin opens that Fellowship. The direct
+  appeal-review menu item opens the relevant section, and the overview shows
+  the six most recent closure, suspension, appeal, or transfer events.
+- Existing server-side Super Admin checks, password reauthentication, exact
+  name confirmation, reason requirements, and audit behavior remain in place.
+  No schema, migration, or database changes were needed.
+- Fellowship schema tests (14), TypeScript, focused ESLint, `git diff --check`,
+  and the production build pass. The owner passed the browser review of the
+  responsive moderation list and action dialog (2026-10-07).
+
+### 2026-10-07 - Fellowship governance case numbers and search
+
+- Added a permanent Fellowship governance case for every leadership transfer,
+  suspension, and closure, using sequential `FEL-000001`-style case numbers.
+  Existing governance rows receive numbers in a local-only additive migration.
+- Added an `/admin/fellowship-cases` register searchable by case
+  number or Fellowship name, with type/status filters, pagination, and a detail
+  timeline showing each associated immutable audit event.
+- Linked current and historical audit rows to cases, added audit coverage for
+  transfer requests, responses, cancellations, and transfers canceled by member
+  departure, suspension, closure, or emergency transfer. Legacy transfer gaps
+  are shown as known status snapshots rather than inferred facts.
+- The two migrations applied successfully to the configured local development
+  database at `localhost:51214`; no hosted database was accessed. Prisma
+  validation, migration status, TypeScript, focused ESLint, all 15 Fellowship
+  schema tests, the production build, and `git diff --check` pass. The owner
+  passed the browser review of case creation and timeline behavior (2026-10-07).
+
+### 2026-10-07 - Fellowship workspace access and log previews
+
+- Consolidated the admin landing page to one Fellowships destination. ADMIN and
+  SUPER_ADMIN may browse Fellowships and search case histories; all governance
+  mutation actions remain server-authorized to SUPER_ADMIN only and their
+  controls are hidden from regular admins.
+- The Fellowship overview now previews three governance events. Each event links
+  to its case number in the case register, with a View button filtering by
+  Fellowship, case number, kind, and current status. “See more case logs” opens
+  the register filtered to that Fellowship by ID.
+- Verified that new leader and Super Admin transfer, closure, and suspension
+  actions each open a case. Follow-up events, including responses, cancellation,
+  appeal, appeal decisions, and restoration, append to that case; independent
+  later actions open new cases.
+- The owner passed browser review of role-based access, filtered case links, and
+  case previews (2026-10-07); local database schema is unchanged.

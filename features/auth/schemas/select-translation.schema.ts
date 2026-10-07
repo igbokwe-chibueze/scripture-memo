@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/zod";
 
 /** Restricts onboarding selection to the three translations supported at MVP. */
 export const selectTranslationSchema = z.object({

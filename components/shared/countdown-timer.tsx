@@ -92,7 +92,7 @@ export function CountdownTimer({
       {[remaining.hours, remaining.minutes, remaining.seconds].map((segment, index) => (
         <span key={index} className="contents">
           {index > 0 && <span className="text-muted-foreground">:</span>}
-          <span className="grid min-w-9 place-items-center rounded-lg bg-muted px-2 py-1 font-semibold text-foreground">
+          <span className="grid min-w-9 place-items-center rounded-lg bg-muted px-2 py-1 font-bold text-foreground">
             {segment}
           </span>
         </span>

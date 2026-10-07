@@ -78,7 +78,7 @@ export function GridGameMap({
               onClick={() => setActiveGroupIndex(group.index)}
               aria-current={group.index === activeGroupIndex ? "page" : undefined}
               className={cn(
-                "min-h-11 shrink-0 snap-center rounded-full border px-4 text-sm font-semibold outline-none transition focus-visible:ring-3 focus-visible:ring-ring/50",
+                "min-h-11 shrink-0 snap-center rounded-full border px-4 text-sm font-bold outline-none transition focus-visible:ring-3 focus-visible:ring-ring/50",
                 group.index === activeGroupIndex
                   ? "border-primary bg-primary text-primary-foreground shadow-sm"
                   : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground",

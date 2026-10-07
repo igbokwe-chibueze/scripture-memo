@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { FlameIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { WaypointCompletionScreen } from "@/features/gameplay/components/waypoint-completion-screen";
+import { WaypointCompletionScreen } from "@/features/gameplay";
 
 /**
  * Replays the production waypoint milestone without any persistence side effect.
@@ -29,7 +29,7 @@ export function WaypointCompletionPreview(): React.ReactNode {
         </div>
         <Button
           type="button"
-          className="min-h-11 rounded-xl bg-orange-500 font-black text-white hover:bg-orange-400"
+          className="min-h-11 rounded-xl bg-orange-500 font-bold text-white hover:bg-orange-400"
           onClick={openPreview}
         >
           <FlameIcon className="fill-current" aria-hidden="true" />

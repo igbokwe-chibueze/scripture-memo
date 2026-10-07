@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { getServerSession } from "@/lib/auth/session";
 import { logger } from "@/lib/logger";
+import { isAdmin } from "@/lib/permissions";
+import type { UserRole } from "@/lib/generated/prisma/enums";
 import type { ActionResult } from "@/types/api";
 import {
   GameplayConflictError,
@@ -56,6 +58,7 @@ export async function completeGameModeAction(
       parsed.data.gameMode,
       parsed.data.submittedAnswer,
       new Date(),
+      isAdmin(session.user.role as UserRole | null | undefined),
     );
     if (result.status === "expired") {
       return {

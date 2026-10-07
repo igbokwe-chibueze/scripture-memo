@@ -56,7 +56,7 @@ test("maps structured study columns to their individual Sanctuary sections", () 
 
   const imported = prepared.readyRows[0]?.data;
   assert.equal(imported?.isActive, true);
-  assert.deepEqual(imported?.tags, ["trust", "shepherd"]);
+  assert.deepEqual(imported?.tags, ["Trust", "Shepherd"]);
   assert.deepEqual(
     imported?.studySections.map((section) => section.type),
     ["BOOK_BACKGROUND", "PRAYER"],

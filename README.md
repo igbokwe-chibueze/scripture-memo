@@ -19,6 +19,59 @@ it and `npx prisma dev stop scripture-memo` when you intentionally want to stop
 it. Keep hosted credentials in deployment configuration or an ignored backup,
 never in the active development `.env`.
 
+#### Local integration tests
+
+The application keeps using `scripture-memo` on port **51214**. Disposable
+integration fixtures use `scripture-memo-tests` on **51224**, backed by separate
+local storage. Both use the existing Prisma installation; neither needs Cloud.
+Changing only the database name on a Prisma Local URL does **not** isolate data.
+The test guard requires local URLs, different ports, and explicit confirmation.
+
+```bash
+# Start the persistent test service; leave this terminal running during tests.
+npm run local:test:start
+```
+
+In another terminal:
+
+```bash
+# Apply checked-in schema changes to TEST_DATABASE_URL only; never seed the app.
+npm run test:database:migrate
+# Run suites sequentially because they share disposable fixture tables.
+npm run test:integration:all
+```
+
+The service was provisioned and migrated on 2026-09-14. After restarting the
+computer, start it again only when running integration tests. It is not required
+for login or ordinary development. `Ctrl+C` stops the foreground test service.
+`npm run test:database:reset` clears **test data only**, preserving migrations;
+use it only to remove failed fixture leftovers, not to repair missing migrations.
+
+Prisma Local uses one connection. The two progression lock-race subtests are
+explicitly skipped; they still require verification against a separately
+approved local PostgreSQL setup supporting concurrent connections before release.
+The waypoint append test verifies ordered outcomes locally, not real lock contention.
+Hosted test credentials are retired from the active `.env`; archived credentials
+are not a fallback. Production migration/data transfer remains a separate future
+deployment task; test fixtures must never be transferred to production.
+
+#### Production database plan
+
+All application development continues against the existing local development
+database on port 51214; do not reconnect routine development to a hosted
+database or create another local development database. For production, the
+project plans to reuse the previously provisioned Prisma-hosted PostgreSQL
+database rather than create a replacement. At the initial production cutover,
+its existing contents are intended to be replaced with a verified,
+production-ready snapshot of the local release data. This is a deliberate,
+one-time cutover operation, not an automatic sync: first back up the hosted
+database, verify the target and the supported PostgreSQL transfer method, and
+exclude local test fixtures, development-only accounts, and environment
+secrets. `DATABASE_URL` selects a database but does not copy its data, and
+`prisma migrate deploy` applies schema migrations but does not transfer records.
+After production users begin creating data, production becomes its own source
+of truth; never overwrite it with the development database.
+
 #### Inspecting local data
 
 Prisma remains the only ORM, schema authority, and migration system. DBeaver

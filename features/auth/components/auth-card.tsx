@@ -29,7 +29,7 @@ export function AuthCard({
         <CardHeader className="items-center text-center">
           <Link
             href="/"
-            className="mb-2 flex min-h-11 items-center gap-2 rounded-full px-3 font-semibold text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="mb-2 flex min-h-11 items-center gap-2 rounded-full px-3 font-bold text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <BookOpenTextIcon className="size-5" aria-hidden="true" />
             Scripture Memo
@@ -43,7 +43,7 @@ export function AuthCard({
             {alternatePrompt}{" "}
             <Link
               href={alternateHref}
-              className="inline-flex min-h-11 items-center font-semibold text-primary underline-offset-4 hover:underline"
+              className="inline-flex min-h-11 items-center font-bold text-primary underline-offset-4 hover:underline"
             >
               {alternateLabel}
             </Link>

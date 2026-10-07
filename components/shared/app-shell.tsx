@@ -72,7 +72,7 @@ export function AppShell({
                     href={item.href}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "relative flex min-h-12 flex-col items-center justify-center gap-1 rounded-2xl px-2 text-[0.68rem] font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:min-h-16",
+                      "relative flex min-h-12 flex-col items-center justify-center gap-1 rounded-2xl px-2 text-[0.68rem] font-bold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:min-h-16",
                       active && "bg-primary/10 text-primary",
                     )}
                   >

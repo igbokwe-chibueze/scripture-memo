@@ -15,6 +15,7 @@ export function HintButton({
   initialBalance,
   disabled,
   isTestReplay = false,
+  isAdminTest = false,
   testReference,
   testVerseText,
 }: {
@@ -22,6 +23,7 @@ export function HintButton({
   initialBalance: number;
   disabled: boolean;
   isTestReplay?: boolean;
+  isAdminTest?: boolean;
   testReference?: string;
   testVerseText?: string;
 }): React.ReactNode {
@@ -61,11 +63,11 @@ export function HintButton({
         isPending={isPending}
         pendingLabel={t("openingHint")}
         className="min-h-11 w-full justify-center rounded-xl text-amber-800 hover:bg-amber-100 hover:text-amber-950 dark:text-amber-200 dark:hover:bg-amber-300/10 dark:hover:text-amber-100"
-        disabled={disabled || (!isTestReplay && balance === 0)}
+        disabled={disabled || (!isTestReplay && !isAdminTest && balance === 0)}
         onClick={handleUseHint}
       >
         <LightbulbIcon data-icon="inline-start" aria-hidden="true" />
-        {isTestReplay
+        {isTestReplay || isAdminTest
           ? t("testHint")
           : balance === 0
             ? t("noHintsRemaining")

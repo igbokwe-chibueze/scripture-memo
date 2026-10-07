@@ -2,11 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preference";
 import { ArrowRightIcon, MapIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AnimatedFlame } from "@/features/gameplay/components/animated-flame";
-import { useAudioFeedback } from "@/features/gameplay/hooks/use-audio-feedback";
+import { useAudioFeedback } from "@/hooks/use-audio-feedback";
 
 const FLAME_DELAYS_MS = [420, 900, 1_380] as const;
 const REWARD_CARD_DELAY_MS = 1_850;
@@ -30,7 +31,7 @@ function AnimatedBalanceValue({
   startingValue: number;
   finalValue: number;
 }): React.ReactNode {
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useReducedMotionPreference();
   const [displayValue, setDisplayValue] = useState(
     shouldReduceMotion ? finalValue : startingValue,
   );
@@ -38,6 +39,8 @@ function AnimatedBalanceValue({
   const frameRef = useRef<number | null>(null);
 
   useEffect(() => {
+    // The reduced-motion result is derived directly during render. Avoid both
+    // the animation timers and a synchronous state update inside this effect.
     if (shouldReduceMotion) return;
     const delayTimer = window.setTimeout(() => {
       const startedAt = performance.now();
@@ -69,7 +72,7 @@ function AnimatedBalanceValue({
 
   return (
     <motion.p
-      className="mt-1 font-heading text-2xl font-black"
+      className="mt-1 font-heading text-2xl font-bold"
       animate={
         isComplete && !shouldReduceMotion
           ? { scale: [1, 1.3, 1, 1.3, 1, 1.3, 1] }
@@ -77,7 +80,7 @@ function AnimatedBalanceValue({
       }
       transition={{ duration: shouldReduceMotion ? 0 : 1.1, ease: "easeOut" }}
     >
-      {displayValue.toLocaleString()}
+      {(shouldReduceMotion ? finalValue : displayValue).toLocaleString()}
     </motion.p>
   );
 }
@@ -101,7 +104,7 @@ export function WaypointCompletionScreen({
   onContinue: () => void;
 }): React.ReactNode {
   const t = useTranslations("Completion");
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useReducedMotionPreference();
   const playAudio = useAudioFeedback();
 
   useEffect(() => {
@@ -204,10 +207,10 @@ export function WaypointCompletionScreen({
             ))}
           </div>
 
-          <p className="mt-6 text-xs font-black tracking-[0.18em] text-orange-700 uppercase dark:text-orange-300">
+          <p className="mt-6 text-xs font-bold tracking-[0.18em] text-orange-700 uppercase dark:text-orange-300">
             {t("threeKindled")}
           </p>
-          <h2 id="waypoint-complete-title" className="mt-2 font-heading text-4xl font-black">
+          <h2 id="waypoint-complete-title" className="mt-2 font-heading text-4xl font-bold">
             {t("waypointNumberComplete", { number: waypointNumber })}
           </h2>
           <p className="mt-3 text-lg font-bold text-foreground/75 dark:text-slate-200">
@@ -260,10 +263,10 @@ export function WaypointCompletionScreen({
                     }
               }
             >
-              <p className="text-xs font-black tracking-wide text-orange-700 uppercase dark:text-orange-300">
+              <p className="text-xs font-bold tracking-wide text-orange-700 uppercase dark:text-orange-300">
                 {t("waypointRewards")}
               </p>
-              <p className="mt-1 font-heading text-2xl font-black">
+              <p className="mt-1 font-heading text-2xl font-bold">
                 +{waypointRewardTotal.toLocaleString()}
               </p>
             </motion.div>
@@ -301,7 +304,7 @@ export function WaypointCompletionScreen({
                     }
               }
             >
-              <p className="text-xs font-black tracking-wide text-violet-700 uppercase dark:text-violet-300">
+              <p className="text-xs font-bold tracking-wide text-violet-700 uppercase dark:text-violet-300">
                 {t("totalBalance")}
               </p>
               <AnimatedBalanceValue
@@ -313,7 +316,7 @@ export function WaypointCompletionScreen({
 
           <Button
             type="button"
-            className="mt-7 min-h-12 w-full rounded-xl bg-orange-500 font-black text-white hover:bg-orange-400"
+            className="mt-7 min-h-12 w-full rounded-xl bg-orange-500 font-bold text-white hover:bg-orange-400"
             onClick={onContinue}
           >
             {t("enterSanctuary")}

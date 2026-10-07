@@ -5,7 +5,11 @@ import { useTranslations } from "next-intl";
 import { AlertTriangleIcon, BookHeartIcon, Clock3Icon, LockKeyholeIcon, ShieldOffIcon } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { JourneyStageBadge } from "@/components/shared/journey-stage-badge";
-import { DayCard } from "@/features/waypoints/components/day-card";
+import {
+  DayCard,
+  type StartDay,
+} from "@/features/waypoints/components/day-card";
+import { AdminDayTestingMenu } from "@/features/waypoints/components/admin-day-testing-menu";
 import type { DayCardData, DaySelectionData } from "@/features/waypoints/types/day-selection.types";
 import { JourneyStage } from "@/lib/generated/prisma/enums";
 import { cn } from "@/lib/utils";
@@ -15,10 +19,12 @@ export function DaySelection({
   data,
   cards,
   isAdmin,
+  startDayAction,
 }: {
   data: DaySelectionData;
   cards: DayCardData[];
   isAdmin: boolean;
+  startDayAction?: StartDay;
 }): React.ReactNode {
   const t = useTranslations("DaySelection");
   const hintsUnavailable =
@@ -35,12 +41,12 @@ export function DaySelection({
     <div className="space-y-6">
       <section className="overflow-hidden rounded-[2rem] border border-sky-300/35 bg-linear-to-br from-sky-100 via-card to-amber-100/70 p-5 shadow-xl dark:from-sky-950/50 dark:via-card dark:to-amber-950/25 sm:p-7">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs font-black tracking-[0.18em] text-sky-700 uppercase dark:text-sky-300">
+          <p className="text-xs font-bold tracking-[0.18em] text-sky-700 uppercase dark:text-sky-300">
             {t("waypoint", { number: data.waypointNumber })}
           </p>
           <JourneyStageBadge stage={data.journeyStage} className="h-8 px-3" />
         </div>
-        <h1 className="mt-4 font-heading text-3xl font-black tracking-tight sm:text-4xl">
+        <h1 className="mt-4 font-heading text-3xl font-bold tracking-tight sm:text-4xl">
           {data.reference}
         </h1>
         <p className="mt-1 text-xs font-bold tracking-wide text-muted-foreground uppercase">
@@ -59,7 +65,7 @@ export function DaySelection({
           ) : (
             <Link
               href={`/sanctuary/${data.verseId}`}
-              className={cn(buttonVariants({ variant: "outline" }), "min-h-11 rounded-xl px-4 font-black")}
+              className={cn(buttonVariants({ variant: "outline" }), "min-h-11 rounded-xl px-4 font-bold")}
             >
               <BookHeartIcon aria-hidden="true" /> {t("studyVerse")}
             </Link>
@@ -91,14 +97,23 @@ export function DaySelection({
       )}
 
       <section aria-labelledby="challenge-days-heading" className="space-y-4">
-        <div>
-          <p className="flex items-center gap-2 text-xs font-black tracking-[0.16em] text-amber-700 uppercase dark:text-amber-300">
-            <AlertTriangleIcon className="size-4" aria-hidden="true" />
-            {t("threeDayChallenge")}
-          </p>
-          <h2 id="challenge-days-heading" className="mt-1 font-heading text-2xl font-black">
-            {t("chooseChallenge")}
-          </h2>
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <p className="flex items-center gap-2 text-xs font-bold tracking-[0.16em] text-amber-700 uppercase dark:text-amber-300">
+              <AlertTriangleIcon className="size-4" aria-hidden="true" />
+              {t("threeDayChallenge")}
+            </p>
+            <h2 id="challenge-days-heading" className="mt-1 font-heading text-2xl font-bold">
+              {t("chooseChallenge")}
+            </h2>
+          </div>
+          {isAdmin && (
+            <AdminDayTestingMenu
+              waypointId={data.waypointId}
+              journeyStage={data.journeyStage}
+              cards={cards}
+            />
+          )}
         </div>
         <div className="grid gap-4 lg:grid-cols-3">
           {cards.map((card, index) => (
@@ -107,7 +122,7 @@ export function DaySelection({
               card={card}
               waypointId={data.waypointId}
               index={index}
-              isAdmin={isAdmin}
+              startDayAction={startDayAction}
             />
           ))}
         </div>

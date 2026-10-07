@@ -9,8 +9,6 @@ import {
   FlameIcon,
   LockKeyholeIcon,
   PlayIcon,
-  RotateCcwIcon,
-  ShieldCheckIcon,
   SparklesIcon,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -23,8 +21,14 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { showActionError } from "@/lib/errors/show-action-error";
 import { cn } from "@/lib/utils";
 import { startGameSessionAction } from "@/features/gameplay/actions/start-game-session.action";
-import { overrideCooldownAction } from "@/features/progression/actions/override-cooldown.action";
+import { CompletedModePracticeMenu } from "@/features/waypoints/components/completed-mode-practice-menu";
 import type { DayCardData } from "@/features/waypoints/types/day-selection.types";
+import type { ActionResult } from "@/types/api";
+
+export type StartDay = (input: {
+  waypointId: string;
+  dayLevel: DayCardData["dayLevel"];
+}) => Promise<ActionResult<{ redirectTo?: string }>>;
 
 const statusPresentation = {
   LOCKED: { labelKey: "locked", icon: LockKeyholeIcon },
@@ -38,12 +42,12 @@ export function DayCard({
   card,
   waypointId,
   index,
-  isAdmin,
+  startDayAction = startGameSessionAction,
 }: {
   card: DayCardData;
   waypointId: string;
   index: number;
-  isAdmin: boolean;
+  startDayAction?: StartDay;
 }): React.ReactNode {
   const t = useTranslations("DaySelection");
   const router = useRouter();
@@ -64,7 +68,7 @@ export function DayCard({
 
   function startDay(): void {
     startTransition(async () => {
-      const result = await startGameSessionAction({
+      const result = await startDayAction({
         waypointId,
         dayLevel: card.dayLevel,
       });
@@ -75,30 +79,8 @@ export function DayCard({
       }
 
       toast.success(result.message, { duration: 4_000 });
-      if (result.data) router.push(result.data.redirectTo);
+      if (result.data?.redirectTo) router.push(result.data.redirectTo);
     });
-  }
-
-  function overrideCooldown(): void {
-    startTransition(async () => {
-      const result = await overrideCooldownAction({
-        waypointId,
-        dayLevel: card.dayLevel,
-      });
-      if (!result.success) {
-        showActionError(result);
-        return;
-      }
-
-      toast.success(result.message, { duration: 4_000 });
-      router.refresh();
-    });
-  }
-
-  function openTestReplay(): void {
-    if (card.completedSessionId) {
-      router.push(`/game/sessions/${card.completedSessionId}`);
-    }
   }
 
   return (
@@ -113,7 +95,7 @@ export function DayCard({
       <CardHeader className="grid grid-cols-[3.25rem_1fr_auto] items-center gap-3 px-4 pt-4">
         <span
           className={cn(
-            "grid size-13 place-items-center rounded-2xl text-lg font-black shadow-inner",
+            "grid size-13 place-items-center rounded-2xl text-lg font-bold shadow-inner",
             card.status === "COMPLETE"
               ? "bg-emerald-500 text-white"
               : card.status === "READY"
@@ -124,8 +106,8 @@ export function DayCard({
           {index + 1}
         </span>
         <span className="min-w-0">
-          <span className="font-heading block text-xl font-black">{dayName}</span>
-          <span className="block text-xs font-semibold text-muted-foreground">
+          <span className="font-heading block text-xl font-bold">{dayName}</span>
+          <span className="block text-xs font-medium text-muted-foreground">
             {daySubtitle}
           </span>
         </span>
@@ -137,11 +119,11 @@ export function DayCard({
 
       <CardContent className="space-y-4 px-4 pb-4">
         <div className="flex items-center justify-between gap-3 rounded-xl bg-muted/65 px-3 py-2.5">
-          <span className="inline-flex items-center gap-2 text-sm font-semibold">
+          <span className="inline-flex items-center gap-2 text-sm font-bold">
             <SparklesIcon className="size-4 text-amber-500" aria-hidden="true" />
             {t("rewardPreview")}
           </span>
-          <span className="font-heading font-black text-amber-700 dark:text-amber-300">
+          <span className="font-heading font-bold text-amber-700 dark:text-amber-300">
             {t("glowPoints", { points: card.reward })}
           </span>
         </div>
@@ -156,11 +138,11 @@ export function DayCard({
         {card.status === "COOLDOWN" && card.unlocksAt && (
           <div className="relative -mx-1 flex min-h-44 overflow-hidden rounded-2xl border border-violet-300/40 bg-linear-to-br from-background via-violet-50/80 to-violet-100/90 p-4 dark:via-violet-950/30 dark:to-violet-950/60">
             <div className="relative z-10 min-w-0 flex-1">
-              <p className="text-xs font-black tracking-[0.14em] text-violet-700 uppercase dark:text-violet-300">{t("restFlame")}</p>
-              <p className="mt-1 font-heading text-lg font-black">{t("preparing", { day: dayName })}</p>
+              <p className="text-xs font-bold tracking-[0.14em] text-violet-700 uppercase dark:text-violet-300">{t("restFlame")}</p>
+              <p className="mt-1 font-heading text-lg font-bold">{t("preparing", { day: dayName })}</p>
               <p className="mt-1 max-w-56 text-xs leading-5 text-muted-foreground">{t("lunaKeepsPlace")}</p>
               <div className="mt-3 w-fit rounded-xl border border-violet-300/40 bg-background/80 px-3 py-2 shadow-sm">
-                <p className="text-[0.6rem] font-black tracking-wide text-violet-700 uppercase dark:text-violet-300">{t("readyIn")}</p>
+                <p className="text-[0.6rem] font-bold tracking-wide text-violet-700 uppercase dark:text-violet-300">{t("readyIn")}</p>
                 <CountdownTimer targetDate={card.unlocksAt} label={t("unlocksIn", { day: dayName })} className="mt-1" onExpire={() => router.refresh()} />
               </div>
             </div>
@@ -175,18 +157,13 @@ export function DayCard({
             isPending={isPending}
             pendingLabel={t("preparingChallenge")}
             onClick={startDay}
-            className="h-12 w-full rounded-xl text-base font-black"
+            className="h-12 w-full rounded-xl text-base font-bold"
           >
             <PlayIcon className="size-5" aria-hidden="true" />
             {t("startDay", { day: dayName })}
           </LoadingButton>
         ) : card.status === "LOCKED" || card.status === "COOLDOWN" ? (
-          <div
-            className={cn(
-              "grid w-full gap-2",
-              isAdmin && card.status === "COOLDOWN" ? "grid-cols-2" : "grid-cols-1",
-            )}
-          >
+          <div className="grid w-full grid-cols-1 gap-2">
             <Button
               type="button"
               variant="outline"
@@ -196,29 +173,13 @@ export function DayCard({
               <StatusIcon className="size-4" aria-hidden="true" />
               {card.status === "COOLDOWN" ? t("coolingDown") : t("locked")}
             </Button>
-            {isAdmin && card.status === "COOLDOWN" && (
-              <LoadingButton
-                isPending={isPending}
-                pendingLabel={t("unlocking")}
-                variant="secondary"
-                onClick={overrideCooldown}
-                className="min-h-11 rounded-xl px-2 text-xs sm:text-sm"
-              >
-                <ShieldCheckIcon className="size-4" aria-hidden="true" />
-                {t("unlockTesting")}
-              </LoadingButton>
-            )}
           </div>
-        ) : isAdmin && card.completedSessionId ? (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={openTestReplay}
-            className="h-12 w-full rounded-xl font-black"
-          >
-            <RotateCcwIcon className="size-4" aria-hidden="true" />
-            {t("testReplay", { day: dayName })}
-          </Button>
+        ) : card.completedSessionId && card.completedModes.length > 0 ? (
+          <CompletedModePracticeMenu
+            sessionId={card.completedSessionId}
+            dayLevel={card.dayLevel}
+            completedModes={card.completedModes}
+          />
         ) : (
           <p className="w-full text-center text-sm font-bold text-emerald-700 dark:text-emerald-300">
             {t("challengeComplete")}

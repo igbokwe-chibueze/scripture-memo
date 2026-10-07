@@ -116,6 +116,36 @@ enum FellowshipJoinRequestSource {
   INVITE
 }
 
+enum FellowshipLeadershipTransferStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  CANCELLED
+}
+
+enum FellowshipDissolutionStatus {
+  SCHEDULED
+  CANCELLED
+  FORCED
+}
+
+enum FellowshipSuspensionStatus {
+  ACTIVE
+  RESTORED
+}
+
+enum FellowshipSuspensionAppealStatus {
+  PENDING
+  RESTORED
+  UPHELD
+}
+
+enum FellowshipGovernanceCaseKind {
+  TRANSFER
+  SUSPENSION
+  CLOSURE
+}
+
 enum BeaconLeague {
   TRAVELER
   DISCIPLE
@@ -137,6 +167,10 @@ enum UserNotificationType {
   LEAGUE_STAYED
   FELLOWSHIP_INVITE
   FELLOWSHIP_REQUEST
+  FELLOWSHIP_LEADERSHIP
+  FELLOWSHIP_CLOSING
+  FELLOWSHIP_SUSPENSION
+  FELLOWSHIP_APPEAL
   COOLDOWN_READY
   STREAK_RISK
   SYSTEM
@@ -171,16 +205,24 @@ model User {
   streak                     UserStreak?
   badgeProgress              UserBadgeProgress[]
   fellowshipMemberships      FellowshipMember[]
-  fellowshipJoinRequests     FellowshipJoinRequest[]  @relation("FellowshipJoinRequester")
-  fellowshipRequestsReviewed FellowshipJoinRequest[]  @relation("FellowshipJoinReviewer")
-  fellowshipsCreated         Fellowship[]             @relation("FellowshipCreator")
+  fellowshipJoinRequests     FellowshipJoinRequest[]        @relation("FellowshipJoinRequester")
+  fellowshipRequestsReviewed FellowshipJoinRequest[]        @relation("FellowshipJoinReviewer")
+  fellowshipTransfersFrom    FellowshipLeadershipTransfer[] @relation("FellowshipTransferFrom")
+  fellowshipTransfersTo      FellowshipLeadershipTransfer[] @relation("FellowshipTransferTarget")
+  fellowshipDissolutions     FellowshipDissolution[]        @relation("FellowshipDissolutionInitiator")
+  fellowshipSuspensionsMade  FellowshipSuspension[]         @relation("FellowshipSuspensionActor")
+  fellowshipSuspensionsEnded FellowshipSuspension[]         @relation("FellowshipSuspensionRestorer")
+  fellowshipAppealsMade      FellowshipSuspensionAppeal[]   @relation("FellowshipSuspensionAppellant")
+  fellowshipAppealsReviewed  FellowshipSuspensionAppeal[]   @relation("FellowshipSuspensionReviewer")
+  fellowshipsCreated         Fellowship[]                   @relation("FellowshipCreator")
   shopPurchases              UserShopPurchase[]
   verseNotes                 UserVerseNote[]
   favoriteVerses             UserFavoriteVerse[]
-  versesCreated              Verse[]                  @relation("VerseCreator")
-  badgesCreated              Badge[]                  @relation("BadgeCreator")
-  shopItemsCreated           ShopItem[]               @relation("ShopItemCreator")
-  auditLogs                  AuditLog[]               @relation("AuditActor")
+  versesCreated              Verse[]                        @relation("VerseCreator")
+  badgesCreated              Badge[]                        @relation("BadgeCreator")
+  shopItemsCreated           ShopItem[]                     @relation("ShopItemCreator")
+  auditLogs                  AuditLog[]                     @relation("AuditActor")
+  fellowshipCasesOpened      FellowshipGovernanceCase[]     @relation("FellowshipGovernanceCaseOpener")
   beaconXpEntries            BeaconXpLedger[]
   beaconWeeklyScores         BeaconWeeklyScore[]
   beaconLeagueMemberships    BeaconLeagueMembership[]
@@ -199,6 +241,7 @@ model UserProfile {
   totalGlowPoints         Int       @default(0)
   totalWaypointsCompleted Int       @default(0)
   totalHintsUsed          Int       @default(0)
+  startingHintAllowance   Int       @default(5)
   beaconXp                Int       @default(0)
   beaconLevel             Int       @default(1)
   beaconCrowns            Int       @default(0)
@@ -404,6 +447,8 @@ model GameSession {
   translation   TranslationCode   @default(KJV)
   status        CompletionStatus  @default(IN_PROGRESS)
   isVaultReplay Boolean           @default(false)
+  isAdminTest   Boolean           @default(false)
+  adminTestMode GameMode?
   startedAt     DateTime          @default(now())
   completedAt   DateTime?
   createdAt     DateTime          @default(now())
@@ -417,6 +462,7 @@ model GameSession {
 
   @@index([userId, status])
   @@index([userId, isVaultReplay, createdAt(sort: Desc)])
+  @@index([userId, isAdminTest, createdAt(sort: Desc)])
   @@index([waypointId, dayLevel])
   @@index([dayProgressId])
 }
@@ -614,19 +660,23 @@ model UserBadgeProgress {
 }
 
 model Fellowship {
-  id           String                  @id @default(cuid())
-  name         String
-  slug         String                  @unique
-  description  String?
-  isPublic     Boolean                 @default(true)
-  insigniaKey  String                  @default("word-star")
-  inviteCode   String                  @unique
-  createdById  String
-  createdAt    DateTime                @default(now())
-  updatedAt    DateTime                @updatedAt
-  createdBy    User                    @relation("FellowshipCreator", fields: [createdById], references: [id], onDelete: Restrict)
-  members      FellowshipMember[]
-  joinRequests FellowshipJoinRequest[]
+  id                  String                         @id @default(cuid())
+  name                String
+  slug                String                         @unique
+  description         String?
+  isPublic            Boolean                        @default(true)
+  insigniaKey         String                         @default("word-star")
+  inviteCode          String                         @unique
+  createdById         String
+  createdAt           DateTime                       @default(now())
+  updatedAt           DateTime                       @updatedAt
+  createdBy           User                           @relation("FellowshipCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  members             FellowshipMember[]
+  joinRequests        FellowshipJoinRequest[]
+  leadershipTransfers FellowshipLeadershipTransfer[]
+  dissolutions        FellowshipDissolution[]
+  suspensions         FellowshipSuspension[]
+  governanceCases     FellowshipGovernanceCase[]
 
   @@index([isPublic, name])
   @@index([createdById])
@@ -664,6 +714,107 @@ model FellowshipMember {
   @@unique([fellowshipId, userId])
   @@index([userId, fellowshipId])
   @@index([fellowshipId, joinedAt])
+}
+
+/// Records each ownership proposal or emergency transfer without deleting member history.
+model FellowshipLeadershipTransfer {
+  id               String                             @id @default(cuid())
+  fellowshipId     String
+  fromLeaderId     String
+  targetUserId     String
+  status           FellowshipLeadershipTransferStatus @default(PENDING)
+  requestedAt      DateTime                           @default(now())
+  resolvedAt       DateTime?
+  governanceCaseId String                             @unique
+  fellowship       Fellowship                         @relation(fields: [fellowshipId], references: [id], onDelete: Restrict)
+  fromLeader       User                               @relation("FellowshipTransferFrom", fields: [fromLeaderId], references: [id], onDelete: Restrict)
+  targetUser       User                               @relation("FellowshipTransferTarget", fields: [targetUserId], references: [id], onDelete: Restrict)
+  governanceCase   FellowshipGovernanceCase           @relation(fields: [governanceCaseId], references: [id], onDelete: Restrict)
+
+  @@index([fellowshipId, status, requestedAt(sort: Desc)])
+  @@index([targetUserId, status, requestedAt(sort: Desc)])
+}
+
+/// Stores reversible leader closure or an immediate audited Super Admin closure.
+model FellowshipDissolution {
+  id                   String                      @id @default(cuid())
+  fellowshipId         String
+  initiatedById        String
+  reason               String
+  status               FellowshipDissolutionStatus @default(SCHEDULED)
+  createdAt            DateTime                    @default(now())
+  cancellationDeadline DateTime?
+  cancelledAt          DateTime?
+  governanceCaseId     String                      @unique
+  fellowship           Fellowship                  @relation(fields: [fellowshipId], references: [id], onDelete: Restrict)
+  initiatedBy          User                        @relation("FellowshipDissolutionInitiator", fields: [initiatedById], references: [id], onDelete: Restrict)
+  governanceCase       FellowshipGovernanceCase    @relation(fields: [governanceCaseId], references: [id], onDelete: Restrict)
+
+  @@index([fellowshipId, status, createdAt(sort: Desc)])
+}
+
+/// Stores reversible platform enforcement without deleting Fellowship history.
+model FellowshipSuspension {
+  id                String                      @id @default(cuid())
+  fellowshipId      String
+  suspendedById     String
+  reason            String
+  status            FellowshipSuspensionStatus  @default(ACTIVE)
+  createdAt         DateTime                    @default(now())
+  appealDeadline    DateTime
+  restoredAt        DateTime?
+  restoredById      String?
+  restorationReason String?
+  governanceCaseId  String                      @unique
+  fellowship        Fellowship                  @relation(fields: [fellowshipId], references: [id], onDelete: Restrict)
+  suspendedBy       User                        @relation("FellowshipSuspensionActor", fields: [suspendedById], references: [id], onDelete: Restrict)
+  restoredBy        User?                       @relation("FellowshipSuspensionRestorer", fields: [restoredById], references: [id], onDelete: Restrict)
+  appeal            FellowshipSuspensionAppeal?
+  governanceCase    FellowshipGovernanceCase    @relation(fields: [governanceCaseId], references: [id], onDelete: Restrict)
+
+  @@index([fellowshipId, status, createdAt(sort: Desc)])
+  @@index([suspendedById, createdAt(sort: Desc)])
+}
+
+/// Gives each material governance action a stable number and searchable case history.
+model FellowshipGovernanceCase {
+  id            String                        @id @default(cuid())
+  caseSequence  Int                           @unique @default(autoincrement())
+  caseNumber    String                        @unique
+  kind          FellowshipGovernanceCaseKind
+  currentStatus String
+  fellowshipId  String
+  openedById    String
+  openedAt      DateTime                      @default(now())
+  fellowship    Fellowship                    @relation(fields: [fellowshipId], references: [id], onDelete: Restrict)
+  openedBy      User                          @relation("FellowshipGovernanceCaseOpener", fields: [openedById], references: [id], onDelete: Restrict)
+  transfer      FellowshipLeadershipTransfer?
+  dissolution   FellowshipDissolution?
+  suspension    FellowshipSuspension?
+  auditLogs     AuditLog[]
+
+  @@index([kind, openedAt(sort: Desc)])
+  @@index([currentStatus, openedAt(sort: Desc)])
+  @@index([fellowshipId, openedAt(sort: Desc)])
+}
+
+/// Allows one leader appeal per suspension and keeps its independent decision.
+model FellowshipSuspensionAppeal {
+  id             String                           @id @default(cuid())
+  suspensionId   String                           @unique
+  appellantId    String
+  statement      String
+  status         FellowshipSuspensionAppealStatus @default(PENDING)
+  submittedAt    DateTime                         @default(now())
+  reviewedAt     DateTime?
+  reviewerId     String?
+  decisionReason String?
+  suspension     FellowshipSuspension             @relation(fields: [suspensionId], references: [id], onDelete: Restrict)
+  appellant      User                             @relation("FellowshipSuspensionAppellant", fields: [appellantId], references: [id], onDelete: Restrict)
+  reviewer       User?                            @relation("FellowshipSuspensionReviewer", fields: [reviewerId], references: [id], onDelete: Restrict)
+
+  @@index([status, submittedAt(sort: Desc)])
+  @@index([appellantId, submittedAt(sort: Desc)])
 }
 
 model ShopItem {
@@ -727,19 +878,22 @@ model UserFavoriteVerse {
 }
 
 model AuditLog {
-  id         String   @id @default(cuid())
-  actorId    String?
-  action     String
-  entityType String
-  entityId   String?
-  metadata   Json?
-  ipAddress  String?
-  createdAt  DateTime @default(now())
-  actor      User?    @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+  id               String                    @id @default(cuid())
+  actorId          String?
+  action           String
+  entityType       String
+  entityId         String?
+  metadata         Json?
+  ipAddress        String?
+  createdAt        DateTime                  @default(now())
+  governanceCaseId String?
+  actor            User?                     @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+  governanceCase   FellowshipGovernanceCase? @relation(fields: [governanceCaseId], references: [id], onDelete: Restrict)
 
   @@index([actorId, createdAt(sort: Desc)])
   @@index([entityType, entityId, createdAt(sort: Desc)])
   @@index([action, createdAt])
+  @@index([governanceCaseId, createdAt(sort: Desc)])
 }
 
 // These four models must remain compatible with Better Auth's generated schema.
@@ -800,4 +954,27 @@ model RateLimit {
   lastRequest BigInt
 
   @@map("rateLimit")
+}
+
+// One row stores Super Admin-controlled defaults for future account setup and
+// server-owned reward calculations. Product repositories own every query.
+model PlatformSettings {
+  id                          String          @id @default("global")
+  defaultTranslation          TranslationCode @default(KJV)
+  baseGlowPoints              Int             @default(100)
+  defaultHintAllowance        Int             @default(5)
+  adminCooldownTestingEnabled Boolean         @default(true)
+  createdAt                   DateTime        @default(now())
+  updatedAt                   DateTime        @updatedAt
+}
+
+/// Stores an explicit bundled-artwork choice for a one-based Map A trail.
+/// Missing rows intentionally mean that the trail uses the repeating catalogue default.
+model MapTrailArtwork {
+  trailNumber Int      @id
+  themeId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("mapTrailArtwork")
 }

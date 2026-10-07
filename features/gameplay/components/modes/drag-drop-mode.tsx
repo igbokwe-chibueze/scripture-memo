@@ -19,17 +19,17 @@ import { CheckIcon, RotateCcwIcon } from "lucide-react";
 import { toast } from "sonner";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { Button } from "@/components/ui/button";
-import { BadgeUnlockSequence } from "@/features/badges/components/badge-unlock-screen";
+import { BadgeUnlockSequence } from "@/features/badges";
 import type { BadgeUnlockResult } from "@/features/badges/types/badge.types";
 import type { BeaconProgressionResult } from "@/features/beacon/types/beacon.types";
 import { showActionError } from "@/lib/errors/show-action-error";
 import { completeGameModeAction } from "@/features/gameplay/actions/complete-game-mode.action";
 import { BlankSlot } from "@/features/gameplay/components/modes/blank-slot";
 import { WordBank } from "@/features/gameplay/components/modes/word-bank";
-import { ConfettiCelebration } from "@/features/gameplay/components/confetti-celebration";
+import { ConfettiCelebration } from "@/components/shared/confetti-celebration";
 import { ModeCompletionScreen } from "@/features/gameplay/components/mode-completion-screen";
 import { StreakCompletionScreen } from "@/features/gameplay/components/streak-completion-screen";
-import { useAudioFeedback } from "@/features/gameplay/hooks/use-audio-feedback";
+import { useAudioFeedback } from "@/hooks/use-audio-feedback";
 import {
   createDragDropWordBank,
   getIncorrectDragDropSlots,
@@ -45,6 +45,7 @@ import {
 import { tokenizeVerse } from "@/features/gameplay/lib/verse-tokenizer";
 import type {
   GameModeAttemptData,
+  LocalReplayKind,
   StreakCompletionResult,
 } from "@/features/gameplay/types/game-session.types";
 import type { DayLevel } from "@/lib/generated/prisma/enums";
@@ -74,23 +75,25 @@ export function DragDropMode({
   dayLevel,
   verseText,
   attempt,
-  isTestReplay = false,
+  replayKind,
   isVaultReplay = false,
+  isAdminTest = false,
   nextMode,
   onContinue,
   onCompletionShown,
-  onTestReplayExit,
+  onReplayExit,
 }: {
   sessionId: string;
   dayLevel: DayLevel;
   verseText: string;
   attempt: GameModeAttemptData | null;
-  isTestReplay?: boolean;
+  replayKind?: LocalReplayKind;
   isVaultReplay?: boolean;
+  isAdminTest?: boolean;
   nextMode: GameModeAttemptData["gameMode"] | null;
   onContinue: () => void;
   onCompletionShown: () => void;
-  onTestReplayExit?: () => void;
+  onReplayExit?: () => void;
 }): React.ReactNode {
   const t = useTranslations("Gameplay");
   const playAudio = useAudioFeedback();
@@ -181,15 +184,22 @@ export function DragDropMode({
       hiddenTokenIndexes,
       placements,
     );
-    if (isTestReplay) {
+    if (replayKind) {
       setIsComplete(true);
       setShowConfetti(true);
       setShowCompletion(true);
       onCompletionShown();
       playAudio("correct");
-      toast.success("Admin test replay complete. Progress was not changed.", {
+      toast.success(
+        t(
+          replayKind === "PLAYER_PRACTICE"
+            ? "practiceCompleteToast"
+            : "adminTestReplayCompleteToast",
+        ),
+        {
         duration: 4_000,
-      });
+        },
+      );
       return;
     }
     if (!attempt) return;
@@ -279,11 +289,12 @@ export function DragDropMode({
         <ModeCompletionScreen
           completedMode="DRAG_DROP"
           nextMode={nextMode}
-          isTestReplay={isTestReplay}
+          replayKind={replayKind}
+          isAdminTest={isAdminTest}
           isVaultReplay={isVaultReplay}
           beaconProgression={beaconProgression}
           onContinue={() => {
-            if (isTestReplay) onTestReplayExit?.();
+            if (replayKind) onReplayExit?.();
             else if (badgeUnlocks[badgeUnlockIndex]) {
               setShowCompletion(false);
             }
@@ -292,7 +303,7 @@ export function DragDropMode({
               setShowStreakCompletion(true);
             } else onContinue();
           }}
-          onReplay={isTestReplay ? replayTestMode : undefined}
+          onReplay={replayKind ? replayTestMode : undefined}
         />
       )}
       {showStreakCompletion && streak && (
@@ -313,16 +324,16 @@ export function DragDropMode({
       >
         <section className="w-full max-w-2xl text-left" aria-labelledby="drag-drop-title">
           <div className="text-center">
-            <p className="text-xs font-black tracking-[0.16em] text-violet-700 uppercase dark:text-violet-300">
+            <p className="text-xs font-bold tracking-[0.16em] text-violet-700 uppercase dark:text-violet-300">
               {t("restoreMissing")}
             </p>
-            <h2 id="drag-drop-title" className="mt-2 font-heading text-3xl font-black">
+            <h2 id="drag-drop-title" className="mt-2 font-heading text-3xl font-bold">
               {t("dragDrop")}
             </h2>
           </div>
 
           <div
-            className="mt-6 rounded-2xl border border-border bg-muted/35 p-4 text-lg leading-[3.25rem] font-semibold dark:border-white/10 dark:bg-white/5 sm:p-6 sm:text-xl"
+            className="mt-6 rounded-2xl border border-border bg-muted/35 p-4 text-lg leading-[3.25rem] font-medium dark:border-white/10 dark:bg-white/5 sm:p-6 sm:text-xl"
             aria-label="Verse with missing words"
           >
             {tokens.map((token) =>
@@ -400,7 +411,7 @@ export function DragDropMode({
             <LoadingButton
               isPending={isPending}
               pendingLabel={t("checking")}
-              className="min-h-12 rounded-xl bg-amber-400 font-black text-slate-950 hover:bg-amber-300"
+              className="min-h-12 rounded-xl bg-amber-400 font-bold text-slate-950 hover:bg-amber-300"
               disabled={isComplete}
               onClick={checkAnswer}
             >

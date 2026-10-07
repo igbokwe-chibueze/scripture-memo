@@ -85,6 +85,8 @@ export function VerseFilters({
       <div className="relative lg:col-span-2">
         <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
         <Input
+          id="verse-search"
+          name="verseSearch"
           type="search"
           value={search}
           placeholder="Search reference or book"
@@ -95,20 +97,20 @@ export function VerseFilters({
         />
       </div>
 
-      <select value={defaultBook} className="min-h-11 rounded-lg border bg-background px-3 disabled:opacity-60" aria-label="Filter verses by book" disabled={isPending} onChange={(event) => updateFilter("book", event.target.value)}>
+      <select id="verse-book-filter" name="verseBookFilter" value={defaultBook} className="min-h-11 rounded-lg border bg-background px-3 disabled:opacity-60" aria-label="Filter verses by book" disabled={isPending} onChange={(event) => updateFilter("book", event.target.value)}>
         <option value="">All books</option>
         {books.map((book) => <option key={book} value={book}>{book}</option>)}
       </select>
-      <select value={defaultTag} className="min-h-11 rounded-lg border bg-background px-3 disabled:opacity-60" aria-label="Filter verses by tag" disabled={isPending} onChange={(event) => updateFilter("tag", event.target.value)}>
+      <select id="verse-tag-filter" name="verseTagFilter" value={defaultTag} className="min-h-11 rounded-lg border bg-background px-3 disabled:opacity-60" aria-label="Filter verses by tag" disabled={isPending} onChange={(event) => updateFilter("tag", event.target.value)}>
         <option value="">All tags</option>
         {tags.map((tag) => <option key={tag.slug} value={tag.slug}>{tag.name}</option>)}
       </select>
-      <select value={defaultActive} className="min-h-11 rounded-lg border bg-background px-3 disabled:opacity-60" aria-label="Filter verses by publication status" disabled={isPending} onChange={(event) => updateFilter("active", event.target.value)}>
+      <select id="verse-status-filter" name="verseStatusFilter" value={defaultActive} className="min-h-11 rounded-lg border bg-background px-3 disabled:opacity-60" aria-label="Filter verses by publication status" disabled={isPending} onChange={(event) => updateFilter("active", event.target.value)}>
         <option value="all">All statuses</option>
         <option value="active">Published</option>
         <option value="archived">Archived</option>
       </select>
-      <select value={defaultSort} className="min-h-11 rounded-lg border bg-background px-3 disabled:opacity-60" aria-label="Sort verses by book" disabled={isPending} onChange={(event) => updateFilter("sort", event.target.value)}>
+      <select id="verse-sort-filter" name="verseSortFilter" value={defaultSort} className="min-h-11 rounded-lg border bg-background px-3 disabled:opacity-60" aria-label="Sort verses by book" disabled={isPending} onChange={(event) => updateFilter("sort", event.target.value)}>
         <option value="book-asc">Book A–Z</option>
         <option value="book-desc">Book Z–A</option>
       </select>

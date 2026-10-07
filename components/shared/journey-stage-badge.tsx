@@ -39,7 +39,7 @@ export function JourneyStageBadge({
   return (
     <Badge
       variant="outline"
-      className={cn("h-6 px-2.5 font-semibold tracking-wide", presentation.className, className)}
+      className={cn("h-6 px-2.5 font-bold tracking-wide", presentation.className, className)}
     >
       {presentation.label}
     </Badge>

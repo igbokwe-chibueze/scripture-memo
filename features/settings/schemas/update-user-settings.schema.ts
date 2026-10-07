@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/zod";
 import { isValidTimeZone } from "@/features/progression/lib/streak-utils";
 import {
   AVATAR_FRAME_KEYS,

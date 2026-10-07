@@ -18,7 +18,7 @@
  *   nothing. The short-lived Prisma connection is always closed afterward.
  */
 import "dotenv/config";
-import { z } from "zod";
+import { z } from "@/lib/zod";
 import { createLocalFixtureRepository } from "@/features/dev-fixtures/repositories/local-fixture.repository";
 
 const resetArgumentsSchema = z.tuple([z.email()]);

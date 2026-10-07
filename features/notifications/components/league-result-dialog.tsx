@@ -59,10 +59,10 @@ export function LeagueResultDialog({
           className="mx-auto h-36 w-auto"
         />
         <div>
-          <p className="text-xs font-black tracking-[0.2em] text-primary uppercase">
+          <p className="text-xs font-bold tracking-[0.2em] text-primary uppercase">
             {t("weeklyResult")}
           </p>
-          <DialogTitle className="mt-2 font-heading text-3xl font-black">
+          <DialogTitle className="mt-2 font-heading text-3xl font-bold">
             {t(`${outcome}Title`)}
           </DialogTitle>
           <DialogDescription className="mt-2 text-base">
@@ -73,13 +73,13 @@ export function LeagueResultDialog({
         <div className="grid grid-cols-2 gap-3 rounded-3xl bg-muted p-3">
           <div className="rounded-2xl bg-card p-3">
             <p className="text-xs font-bold text-muted-foreground">{t("finalRank")}</p>
-            <p className="font-heading text-2xl font-black">
+            <p className="font-heading text-2xl font-bold">
               {finalRank ? `#${finalRank}` : "—"}
             </p>
           </div>
           <div className="rounded-2xl bg-card p-3">
             <p className="text-xs font-bold text-muted-foreground">{t("crowns")}</p>
-            <p className="font-heading text-2xl font-black">+{crownAward}</p>
+            <p className="font-heading text-2xl font-bold">+{crownAward}</p>
           </div>
         </div>
 

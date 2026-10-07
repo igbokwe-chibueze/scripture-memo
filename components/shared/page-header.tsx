@@ -36,7 +36,7 @@ export function PageHeader({
     >
       <div className="min-w-0 space-y-1.5">
         {eyebrow && (
-          <div className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+          <div className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
             {eyebrow}
           </div>
         )}

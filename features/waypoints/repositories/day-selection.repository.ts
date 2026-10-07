@@ -2,6 +2,7 @@ import "server-only";
 
 import {
   CompletionStatus,
+  GameModeAttemptStatus,
   TranslationCode,
   WaypointStatus,
 } from "@/lib/generated/prisma/client";
@@ -51,13 +52,22 @@ export const daySelectionRepository = {
             dayLevel: true,
             status: true,
             unlocksAt: true,
+            glowPointsAwarded: true,
             gameSessions: {
               where: {
                 userId,
                 isVaultReplay: false,
+                isAdminTest: false,
                 status: CompletionStatus.COMPLETED,
               },
-              select: { id: true },
+              select: {
+                id: true,
+                attempts: {
+                  where: { status: GameModeAttemptStatus.COMPLETED },
+                  select: { gameMode: true },
+                  orderBy: { createdAt: "asc" },
+                },
+              },
               orderBy: { completedAt: "desc" },
               take: 1,
             },
@@ -70,22 +80,37 @@ export const daySelectionRepository = {
       return null;
     }
 
-    const settings = await prisma.userSettings.findUnique({
-      where: { userId },
-      select: { preferredTranslation: true },
-    });
-    const preferredTranslation = settings?.preferredTranslation ?? TranslationCode.KJV;
+    const [settings, platformSettings] = await Promise.all([
+      prisma.userSettings.findUnique({
+        where: { userId },
+        select: { preferredTranslation: true },
+      }),
+      prisma.platformSettings.findUnique({
+        where: { id: "global" },
+        select: {
+          baseGlowPoints: true,
+          defaultTranslation: true,
+        },
+      }),
+    ]);
+    const defaultTranslation =
+      platformSettings?.defaultTranslation ?? TranslationCode.KJV;
+    const preferredTranslation =
+      settings?.preferredTranslation ?? defaultTranslation;
     const selectedTranslation =
       waypoint.verse.translations.find(
         ({ translation }) => translation === preferredTranslation,
       ) ??
       waypoint.verse.translations.find(
-        ({ translation }) => translation === TranslationCode.KJV,
+        ({ translation }) =>
+          translation ===
+          defaultTranslation,
       ) ??
       waypoint.verse.translations[0];
     if (!selectedTranslation) return null;
 
     return {
+      baseGlowPoints: platformSettings?.baseGlowPoints ?? 100,
       waypointId: waypoint.id,
       verseId: waypoint.verse.id,
       waypointNumber: waypoint.number,
@@ -99,6 +124,8 @@ export const daySelectionRepository = {
       dayProgress: waypoint.dayProgress.map(({ gameSessions, ...progressItem }) => ({
         ...progressItem,
         completedSessionId: gameSessions[0]?.id ?? null,
+        completedModes:
+          gameSessions[0]?.attempts.map(({ gameMode }) => gameMode) ?? [],
       })),
     };
   },

@@ -13,21 +13,21 @@ const DAY_PRESENTATION = {
   [DayLevel.GLIMMER]: {
     name: "Glimmer",
     difficulty: "Gentle beginning",
-    reward: BASE_GLOW_POINTS,
+    rewardMultiplier: 1,
   },
   [DayLevel.GLOW]: {
     name: "Glow",
     difficulty: "Growing recall",
-    reward: BASE_GLOW_POINTS * 1.5,
+    rewardMultiplier: 1.5,
   },
   [DayLevel.RADIANCE]: {
     name: "Radiance",
     difficulty: "Full remembrance",
-    reward: BASE_GLOW_POINTS * 2,
+    rewardMultiplier: 2,
   },
 } as const satisfies Record<
   DayLevelValue,
-  { name: string; difficulty: string; reward: number }
+  { name: string; difficulty: string; rewardMultiplier: number }
 >;
 
 /** Ordered challenge contract used by both cards and server action input. */
@@ -46,11 +46,16 @@ export const DAY_SELECTION_ORDER = [
 export function buildDayCards(
   snapshots: DayProgressSnapshot[],
   now: Date,
+  baseGlowPoints = BASE_GLOW_POINTS,
 ): DayCardData[] {
   const byLevel = new Map(snapshots.map((snapshot) => [snapshot.dayLevel, snapshot]));
 
   return DAY_SELECTION_ORDER.map((dayLevel, index) => {
-    const presentation = DAY_PRESENTATION[dayLevel];
+    const { rewardMultiplier, ...dayPresentation } = DAY_PRESENTATION[dayLevel];
+    const presentation = {
+      ...dayPresentation,
+      reward: Math.round(baseGlowPoints * rewardMultiplier),
+    };
     const progress = byLevel.get(dayLevel);
     const previousLevel = DAY_SELECTION_ORDER[index - 1];
     const previousProgress = previousLevel ? byLevel.get(previousLevel) : null;
@@ -60,10 +65,12 @@ export function buildDayCards(
       return {
         dayLevel,
         ...presentation,
+        reward: progress.glowPointsAwarded ?? presentation.reward,
         status: "COMPLETE" as const,
         unlocksAt: null,
         blockedReason: null,
         completedSessionId: progress.completedSessionId ?? null,
+        completedModes: progress.completedModes ?? [],
       };
     }
 
@@ -75,6 +82,7 @@ export function buildDayCards(
         unlocksAt: null,
         blockedReason: `Complete ${DAY_PRESENTATION[previousLevel!].name} first.`,
         completedSessionId: null,
+        completedModes: [],
       };
     }
 
@@ -86,6 +94,7 @@ export function buildDayCards(
         unlocksAt: progress.unlocksAt,
         blockedReason: `${presentation.name} is still gathering light.`,
         completedSessionId: null,
+        completedModes: [],
       };
     }
 
@@ -96,6 +105,7 @@ export function buildDayCards(
       unlocksAt: null,
       blockedReason: null,
       completedSessionId: null,
+      completedModes: [],
     };
   });
 }

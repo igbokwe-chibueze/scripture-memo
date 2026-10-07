@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preference";
 import { RefreshCwIcon } from "lucide-react";
 import { LunaMascot } from "@/components/shared/luna-mascot";
 import { Button } from "@/components/ui/button";
@@ -23,7 +24,7 @@ export function GlobalError({
   unstable_retry,
 }: GlobalErrorProps): React.ReactNode {
   void error;
-  const shouldReduceMotion = useReducedMotion() ?? false;
+  const shouldReduceMotion = useReducedMotionPreference();
 
   return (
     <main className="relative isolate flex min-h-dvh items-center justify-center overflow-hidden bg-linear-to-b from-amber-50 via-orange-50 to-violet-100 px-5 py-8 text-slate-950 dark:from-slate-950 dark:via-[#150d20] dark:to-[#27123c] dark:text-white">
@@ -59,18 +60,19 @@ export function GlobalError({
 
         <h1
           id="error-title"
-          className="font-heading text-4xl leading-tight font-black tracking-tight sm:text-5xl"
+          className="font-heading text-4xl leading-tight font-bold tracking-tight sm:text-5xl"
         >
           Oops we hit a snag
         </h1>
-        <p className="mx-auto mt-3 max-w-sm text-sm leading-6 font-semibold text-slate-600 dark:text-slate-300">
+        <p className="mx-auto mt-3 max-w-sm text-sm leading-6 font-medium text-slate-600 dark:text-slate-300">
           Luna could not load this. Try again.
         </p>
 
         <Button
           type="button"
           size="lg"
-          className="mt-7 w-full max-w-xs"
+          // Keep the only recovery action usable as a 44px mobile touch target.
+          className="mt-7 min-h-11 w-full max-w-xs"
           onClick={unstable_retry}
         >
           <RefreshCwIcon aria-hidden="true" />

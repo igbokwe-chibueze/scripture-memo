@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/zod";
 import { FELLOWSHIP_INSIGNIAS } from "@/features/fellowships/constants/fellowship-insignias";
 
 const fellowshipName = z.string().trim().min(3, "Enter at least 3 characters.").max(50, "Use 50 characters or fewer.").regex(/^[\p{L}\p{N} .&'’-]+$/u, "Use letters, numbers, spaces, apostrophes, ampersands, or hyphens only.");

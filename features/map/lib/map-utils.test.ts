@@ -18,6 +18,7 @@ function createWaypoint(number: number, status: WaypointStatus): Omit<MapWaypoin
     journeyStage: JourneyStage.LEARN,
     status,
     flameCount: status === WaypointStatus.COMPLETED ? 3 : 0,
+    trailThemeId: "coastal",
   };
 }
 

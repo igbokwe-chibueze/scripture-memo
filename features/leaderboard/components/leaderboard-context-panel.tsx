@@ -33,7 +33,7 @@ function ContextMetric({
         <Icon className="size-4" />
       </span>
       <p className="text-[0.68rem] font-bold text-muted-foreground">{label}</p>
-      <p className="font-heading text-xl font-black tabular-nums">
+      <p className="font-heading text-xl font-bold tabular-nums">
         {value}
       </p>
     </div>
@@ -56,7 +56,7 @@ export function LeaderboardContextPanel({
   return (
     <section className="text-card-foreground">
       <div className="border-b border-border/70 p-4">
-        <h2 className="font-heading text-lg font-black">{t("beaconProgress")}</h2>
+        <h2 className="font-heading text-lg font-bold">{t("beaconProgress")}</h2>
         <div className="mt-3 grid grid-cols-2 gap-3">
           <ContextMetric
             icon={GaugeIcon}

@@ -1,1 +1,1 @@
-export { metadata, AuthenticatedHomePlaceholderView as default } from "@/features/auth/views/authenticated-home-placeholder-view";
+export { metadata, GameHomeView as default } from "@/features/home/views/game-home-view";

@@ -12,12 +12,19 @@ export const metadata: Metadata = {
 };
 
 export type LoginViewProps = {
-  searchParams: Promise<{ next?: string | string[] }>;
+  searchParams: Promise<{
+    next?: string | string[];
+    verified?: string | string[];
+    verificationError?: string | string[];
+  }>;
 };
 
 /** Public login view that preserves a protected destination for authentication. */
 export async function LoginView({ searchParams }: LoginViewProps): Promise<React.ReactNode> {
-  const next = (await searchParams).next;
+  const params = await searchParams;
+  const next = params.next;
+  const verificationComplete = params.verified === "1";
+  const invalidVerificationLink = params.verificationError === "inactive";
   const nextPath = typeof next === "string" ? next : undefined;
   const safeNextPath = getSafePostLoginPath(nextPath);
   if (await getServerSession()) redirect(safeNextPath);
@@ -29,7 +36,11 @@ export async function LoginView({ searchParams }: LoginViewProps): Promise<React
       alternateLabel="Create an account"
       alternateHref={`/register?next=${encodeURIComponent(safeNextPath)}`}
     >
-      <LoginForm nextPath={safeNextPath} />
+      <LoginForm
+        nextPath={safeNextPath}
+        verificationComplete={verificationComplete}
+        invalidVerificationLink={invalidVerificationLink}
+      />
     </AuthCard>
   );
 }
