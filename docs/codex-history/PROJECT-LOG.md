@@ -1,5 +1,22 @@
 # Scripture Memo Project Log
 
+### 2026-10-07 — Gameplay submission throttling
+
+- Added a shared per-user cap of 10 gameplay completion submissions per
+  minute. The Server Action checks it after schema validation and authentication
+  but before the gameplay transaction, so excess valid submissions do not load
+  or lock gameplay session state. The existing Better Auth `RateLimit` table and
+  PostgreSQL advisory locks provide cross-instance enforcement; an HMAC key
+  keeps user IDs out of limiter rows. No migration or additional database was
+  introduced.
+- Kept duplicate completion and reward protections intact as separate data
+  integrity safeguards. Updated Security Audit 11.4 to reflect that distinction.
+- Added a guarded concurrency and fixed-window integration test. TypeScript,
+  targeted ESLint, gameplay tests, and `git diff --check` passed. The integration
+  test could not run because the isolated local test listener at port 51224 was
+  unavailable. The documented test-service start command also failed with its
+  generic port/startup error; no database was started or modified.
+
 ### 2026-10-07 — Em-dash word boundaries in gameplay
 
 - Fixed shared gameplay tokenization so an em dash separates adjacent words

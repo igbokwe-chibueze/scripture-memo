@@ -1,5 +1,6 @@
 import "server-only";
 
+import { createHmac } from "node:crypto";
 import {
   CompletionStatus,
   DayLevel,
@@ -47,6 +48,8 @@ import {
 import { leaderboardRepository } from "@/features/leaderboard/repositories/leaderboard.repository";
 
 const gameplayTransactionOptions = { maxWait: 10_000, timeout: 60_000 } as const;
+const COMPLETION_SUBMISSION_LIMIT = 10;
+const COMPLETION_SUBMISSION_WINDOW_MS = 60_000;
 
 /** Trusted conflict that actions translate into stable, safe error codes. */
 export class GameplayConflictError extends Error {
@@ -120,6 +123,71 @@ function getAttemptExpiry(
 
 /** Database boundary for server-created gameplay sessions and mode attempts. */
 export const gameplayRepository = {
+  /**
+   * Applies one shared per-user cap before the heavier completion transaction.
+   *
+   * WHY: Transaction locks and unique reward keys protect gameplay correctness,
+   * but every repeated call would still open a gameplay transaction and read
+   * session state. This separate fixed-window limiter is backed by the existing
+   * Better Auth RateLimit table, so instances share one allowance without a new
+   * service or migration. The stored key is HMAC-derived so user IDs never
+   * appear in limiter rows. Ten submissions per minute leaves room for ordinary
+   * failed-answer retries while rejecting rapid request bursts. Database errors
+   * intentionally propagate so the Server Action can fail closed.
+   */
+  async consumeCompletionSubmissionLimit(
+    userId: string,
+    now: Date,
+  ): Promise<boolean> {
+    const authSecret = process.env.BETTER_AUTH_SECRET;
+    if (!authSecret) {
+      throw new Error("The auth secret is unavailable for gameplay throttling.");
+    }
+
+    const userDigest = createHmac("sha256", authSecret)
+      .update(userId)
+      .digest("hex");
+    const key = `scripture-memo:gameplay-completion:${userDigest}`;
+    const currentTime = BigInt(now.getTime());
+    const windowDuration = BigInt(COMPLETION_SUBMISSION_WINDOW_MS);
+
+    return prisma.$transaction(async (transaction) => {
+      // WHY: Serializing the fixed-window read/check/write makes simultaneous
+      // submissions across app instances consume one shared per-user allowance.
+      await transaction.$executeRaw`
+        SELECT pg_advisory_xact_lock(hashtext(${key}))
+      `;
+
+      const existingLimit = await transaction.rateLimit.findUnique({
+        where: { key },
+        select: { count: true, lastRequest: true },
+      });
+
+      if (!existingLimit) {
+        await transaction.rateLimit.create({
+          data: { key, count: 1, lastRequest: currentTime },
+        });
+        return true;
+      }
+
+      const hasWindowExpired =
+        currentTime - existingLimit.lastRequest >= windowDuration;
+      if (!hasWindowExpired && existingLimit.count >= COMPLETION_SUBMISSION_LIMIT) {
+        return false;
+      }
+
+      await transaction.rateLimit.update({
+        where: { key },
+        data: {
+          count: hasWindowExpired ? 1 : { increment: 1 },
+          ...(hasWindowExpired ? { lastRequest: currentTime } : {}),
+        },
+      });
+
+      return true;
+    });
+  },
+
   /**
    * Creates one isolated administrator test against the assigned waypoint.
    *

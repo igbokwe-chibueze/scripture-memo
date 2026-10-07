@@ -35,6 +35,7 @@
     "test:fellowships": "tsx --test features/fellowships/schemas/fellowship.schema.test.ts features/fellowships/schemas/fellowship-governance.schema.test.ts features/fellowships/schemas/fellowship-case-filters.schema.test.ts",
     "test:beacon": "tsx --test features/beacon/lib/beacon-progression.test.ts",
     "test:auth-rate-limit:integration": "tsx --conditions=react-server --test features/auth/repositories/auth.repository.test.ts",
+    "test:gameplay-submission-limit:integration": "tsx --conditions=react-server --test features/gameplay/repositories/gameplay-submission-limit.repository.test.ts",
     "test:auth-delivery": "tsx --conditions=react-server --test features/auth/lib/email-verification-delivery.test.ts features/auth/lib/email-verification-token.test.ts features/auth/lib/resend-auth-email.test.ts",
     "test:integration": "tsx --conditions=react-server --test features/waypoints/repositories/waypoint.repository.test.ts",
     "test:progression:integration": "tsx --conditions=react-server --test features/progression/repositories/progression.repository.test.ts",
