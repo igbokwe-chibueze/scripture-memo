@@ -1371,6 +1371,10 @@ Social group system.
 - Super Admins have a separate recovery workspace for reasoned, password-
   reauthenticated emergency leadership transfer or immediate closure. Actions
   are audited; emergency closure preserves Fellowship membership and history.
+- A completed leadership change notifies every current member. The former and
+  new leaders receive role-specific notices; other members are told who now
+  leads the Fellowship. For a Super Admin transfer, only the new leader's
+  notice includes the administrator's recorded reason.
 - Super Admins may also suspend a Fellowship with a reason, exact-name
   confirmation, password reauthentication, and an audit entry. Suspension hides
   it from discovery and blocks new members, invites, edits, closure, and leader
@@ -1389,6 +1393,11 @@ Social group system.
   governance records are backfilled; where historic transfer details were not
   retained, the case timeline records only the known status and does not infer a
   missing actor or reason.
+- Fellowship notifications open a detail view and are marked read when opened.
+  Scheduled or cancelled closure notices link to the Fellowship; a completed
+  closure notice links to the Fellowship directory because the closed detail
+  route is no longer available. Choosing a notification destination closes the
+  notification panel as navigation begins.
 - Creation is limited to three fellowships per account per rolling 24 hours to
   reduce spam at the server boundary.
 

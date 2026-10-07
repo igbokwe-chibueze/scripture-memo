@@ -1,5 +1,20 @@
 # Scripture Memo Project Log
 
+### 2026-10-07 — Fellowship leadership and notification follow-through
+
+- Super Admin transfer notices now give the new leader the recorded reason;
+  other members receive a concise leadership-change notice without that reason.
+- Completed member-accepted and Super Admin leadership changes now notify all
+  current Fellowship members, with role-specific notices for the former and new
+  leaders and a new-leader summary for other members.
+- Completed-closure notices link to `/fellowships`, while scheduled and
+  cancelled closure notices continue linking to their Fellowship. Selecting a
+  notification destination now closes the inbox panel as navigation starts.
+- Updated English, Spanish, and French notification copy and the product
+  overview. The owner passed the browser checks for Super Admin transfer
+  reasons, leadership notices to all members, closure destinations, panel
+  dismissal, read persistence, and Read all (2026-10-07).
+
 ### 2026-10-06 — Fellowship leadership and closure governance implemented
 
 - Added member-accepted leadership offers with leader cancellation, seven-day
@@ -4387,7 +4402,8 @@ concurrency subtests remain explicitly skipped as documented above.
   name confirmation, reason requirements, and audit behavior remain in place.
   No schema, migration, or database changes were needed.
 - Fellowship schema tests (14), TypeScript, focused ESLint, `git diff --check`,
-  and the production build pass. Manual browser review remains pending.
+  and the production build pass. The owner passed the browser review of the
+  responsive moderation list and action dialog (2026-10-07).
 
 ### 2026-10-07 - Fellowship governance case numbers and search
 
@@ -4404,8 +4420,8 @@ concurrency subtests remain explicitly skipped as documented above.
 - The two migrations applied successfully to the configured local development
   database at `localhost:51214`; no hosted database was accessed. Prisma
   validation, migration status, TypeScript, focused ESLint, all 15 Fellowship
-  schema tests, the production build, and `git diff --check` pass. Manual browser
-  review remains pending.
+  schema tests, the production build, and `git diff --check` pass. The owner
+  passed the browser review of case creation and timeline behavior (2026-10-07).
 
 ### 2026-10-07 - Fellowship workspace access and log previews
 
@@ -4421,4 +4437,5 @@ concurrency subtests remain explicitly skipped as documented above.
   actions each open a case. Follow-up events, including responses, cancellation,
   appeal, appeal decisions, and restoration, append to that case; independent
   later actions open new cases.
-- Manual browser review remains pending; local database schema is unchanged.
+- The owner passed browser review of role-based access, filtered case links, and
+  case previews (2026-10-07); local database schema is unchanged.

@@ -54,6 +54,8 @@ function fellowshipNoticeKey(item: NotificationItem): string | null {
       case "CANCELLED": return "leadershipCancelled";
       case "BECAME_LEADER": return "leadershipReceived";
       case "ADMIN_TRANSFERRED": return "leadershipAdminTransferred";
+      case "ADMIN_TRANSFER_RECEIVED": return "leadershipAdminReceived";
+      case "LEADERSHIP_CHANGED": return "leadershipChanged";
       default: return "leadershipUpdate";
     }
   }
@@ -108,7 +110,11 @@ function notificationDestination(
   item: NotificationItem,
 ): {
   href: string;
-  label: "viewBadges" | "openFellowship" | "viewLeaderboard";
+  label:
+    | "viewBadges"
+    | "viewFellowships"
+    | "openFellowship"
+    | "viewLeaderboard";
 } | null {
   if (item.type === "BADGE_AWARDED") {
     return { href: "/vault/badges", label: "viewBadges" };
@@ -120,6 +126,13 @@ function notificationDestination(
     item.type === "FELLOWSHIP_SUSPENSION" ||
     item.type === "FELLOWSHIP_APPEAL"
   ) {
+    if (
+      item.type === "FELLOWSHIP_CLOSING" &&
+      item.payload.event === "CLOSED"
+    ) {
+      return { href: "/fellowships", label: "viewFellowships" };
+    }
+
     const slug = item.payload.fellowshipSlug;
     return typeof slug === "string"
       ? {
@@ -191,7 +204,10 @@ export function NotificationInbox({
     return t("systemTitle");
   };
 
-  const notificationBody = (item: NotificationItem): string => {
+  const notificationBody = (
+    item: NotificationItem,
+    includeAdminTransferReason = false,
+  ): string => {
     const outcome = leagueOutcome(item);
     const fellowshipNotice = fellowshipNoticeKey(item);
 
@@ -202,6 +218,32 @@ export function NotificationInbox({
       });
     }
     if (fellowshipNotice) {
+      if (
+        item.type === "FELLOWSHIP_LEADERSHIP" &&
+        item.payload.event === "ADMIN_TRANSFER_RECEIVED"
+      ) {
+        if (!includeAdminTransferReason) {
+          return t("leadershipReceivedBody", {
+            fellowship: item.payload.fellowshipName ?? "",
+          });
+        }
+
+        return t("leadershipAdminReceivedBody", {
+          fellowship: item.payload.fellowshipName ?? "",
+          reason: item.payload.reason ?? "",
+        });
+      }
+
+      if (
+        item.type === "FELLOWSHIP_LEADERSHIP" &&
+        item.payload.event === "LEADERSHIP_CHANGED"
+      ) {
+        return t("leadershipChangedBody", {
+          fellowship: item.payload.fellowshipName ?? "",
+          leader: item.payload.leaderDisplayName ?? "Player",
+        });
+      }
+
       return t(`${fellowshipNotice}Body`, {
         fellowship: item.payload.fellowshipName ?? "",
       });
@@ -360,7 +402,7 @@ export function NotificationInbox({
                     {notificationTitle(selectedItem)}
                   </h3>
                   <p className="text-base text-muted-foreground">
-                    {notificationBody(selectedItem)}
+                    {notificationBody(selectedItem, true)}
                   </p>
                   <p className="text-sm font-medium text-muted-foreground">
                     {notificationDate(selectedItem)}
@@ -368,14 +410,26 @@ export function NotificationInbox({
                 </div>
 
                 {selectedDestination && (
-                    <NavigationButton
-                      href={selectedDestination.href}
-                      pendingLabel={t("openingDestination")}
-                      className="min-h-12 w-full"
-                    >
-                      {t(selectedDestination.label)}
-                    </NavigationButton>
-                  )}
+                  <NavigationButton
+                    href={selectedDestination.href}
+                    pendingLabel={t("openingDestination")}
+                    className="min-h-12 w-full"
+                    onClick={(event) => {
+                      const isUnmodifiedPrimaryClick =
+                        event.button === 0 &&
+                        !event.metaKey &&
+                        !event.ctrlKey &&
+                        !event.shiftKey &&
+                        !event.altKey;
+
+                      if (isUnmodifiedPrimaryClick) {
+                        setSheetOpen(false);
+                      }
+                    }}
+                  >
+                    {t(selectedDestination.label)}
+                  </NavigationButton>
+                )}
               </div>
             </>
           ) : (

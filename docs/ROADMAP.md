@@ -1954,7 +1954,8 @@ and `git diff --check` pass. Manual browser verification passed (2026-10-06).
 migrations and `/admin/fellowship-cases`. The development database at
 `localhost:51214` is up to date; no hosted database was accessed. TypeScript,
 focused ESLint, Fellowship schema tests, the production build, and
-`git diff --check` pass. Manual browser review remains pending.
+`git diff --check` pass. The owner passed the browser review of governance
+actions, case history, and the related notification flows (2026-10-07).
 
 **Access update (2026-10-07):** The admin landing page now has one Fellowships
 destination. Both administrator roles can review Fellowships and case logs;

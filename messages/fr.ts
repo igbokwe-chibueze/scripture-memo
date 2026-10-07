@@ -219,6 +219,11 @@ const fr = {
   },
   Notifications: {
     ...en.Notifications,
+    viewFellowships: "Voir les communautés",
+    leadershipAdminReceivedTitle: "Vous êtes le nouveau responsable",
+    leadershipAdminReceivedBody: "Un Super Admin vous a transféré la direction de {fellowship}. Motif : {reason}",
+    leadershipChangedTitle: "La direction de la communauté a changé",
+    leadershipChangedBody: "{leader} dirige maintenant {fellowship}.",
     open: "Ouvrir les notifications",
     title: "Notifications",
     description: "Les nouvelles de votre parcours.",

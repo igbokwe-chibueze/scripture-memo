@@ -462,15 +462,19 @@ export const fellowshipGovernanceRepository = {
           fromLeaderId: true,
           targetUserId: true,
           governanceCaseId: true,
+          targetUser: {
+            select: { profile: { select: { displayName: true } } },
+          },
           fellowship: {
             select: {
               slug: true,
               name: true,
               createdById: true,
               members: {
-                where: { userId: recipientId },
-                select: { id: true },
-                take: 1,
+                select: {
+                  id: true,
+                  userId: true,
+                },
               },
             },
           },
@@ -479,7 +483,11 @@ export const fellowshipGovernanceRepository = {
       if (!transfer || transfer.fellowship.createdById !== transfer.fromLeaderId) {
         throw new FellowshipGovernanceError("TRANSFER_NOT_FOUND");
       }
-      if (transfer.fellowship.members.length !== 1) {
+      if (
+        transfer.fellowship.members.filter(
+          (member) => member.userId === recipientId,
+        ).length !== 1
+      ) {
         throw new FellowshipGovernanceError("MEMBER_NOT_FOUND");
       }
 
@@ -539,6 +547,29 @@ export const fellowshipGovernanceRepository = {
             fellowshipName: transfer.fellowship.name,
           },
         });
+
+        const otherMembers = transfer.fellowship.members.filter(
+          (member) =>
+            member.userId !== transfer.fromLeaderId &&
+            member.userId !== recipientId,
+        );
+
+        if (otherMembers.length > 0) {
+          await transaction.userNotification.createMany({
+            data: otherMembers.map((member) => ({
+              userId: member.userId,
+              type: UserNotificationType.FELLOWSHIP_LEADERSHIP,
+              dedupeKey: `fellowship-leadership-changed:${transfer.id}:${member.userId}`,
+              payload: {
+                event: "LEADERSHIP_CHANGED",
+                fellowshipSlug: transfer.fellowship.slug,
+                fellowshipName: transfer.fellowship.name,
+                leaderDisplayName:
+                  transfer.targetUser.profile?.displayName ?? "Player",
+              },
+            })),
+          });
+        }
       }
 
       return { slug: transfer.fellowship.slug, accepted };
@@ -1356,7 +1387,16 @@ export const fellowshipGovernanceRepository = {
           },
           suspensions: { none: { status: "ACTIVE" } },
         },
-        select: { slug: true, name: true, createdById: true },
+        select: {
+          slug: true,
+          name: true,
+          createdById: true,
+          members: {
+            select: {
+              userId: true,
+            },
+          },
+        },
       });
       if (!fellowship) throw new FellowshipGovernanceError("FELLOWSHIP_CLOSED");
       if (fellowship.name !== input.confirmationName) {
@@ -1369,7 +1409,10 @@ export const fellowshipGovernanceRepository = {
           fellowshipId: input.fellowshipId,
           userId: { not: fellowship.createdById },
         },
-        select: { userId: true },
+        select: {
+          userId: true,
+          user: { select: { profile: { select: { displayName: true } } } },
+        },
       });
       if (!target) throw new FellowshipGovernanceError("MEMBER_NOT_FOUND");
 
@@ -1450,9 +1493,10 @@ export const fellowshipGovernanceRepository = {
         type: UserNotificationType.FELLOWSHIP_LEADERSHIP,
         dedupeKey: `fellowship-admin-transfer:${transfer.id}:${target.userId}`,
         payload: {
-          event: "BECAME_LEADER",
+          event: "ADMIN_TRANSFER_RECEIVED",
           fellowshipSlug: fellowship.slug,
           fellowshipName: fellowship.name,
+          reason: input.reason,
         },
       });
       await createNotice(transaction, {
@@ -1465,6 +1509,28 @@ export const fellowshipGovernanceRepository = {
           fellowshipName: fellowship.name,
         },
       });
+      const otherMembers = fellowship.members.filter(
+        (member) =>
+          member.userId !== fellowship.createdById &&
+          member.userId !== target.userId,
+      );
+
+      if (otherMembers.length > 0) {
+        await transaction.userNotification.createMany({
+          data: otherMembers.map((member) => ({
+            userId: member.userId,
+            type: UserNotificationType.FELLOWSHIP_LEADERSHIP,
+            dedupeKey: `fellowship-leadership-changed:${transfer.id}:${member.userId}`,
+            payload: {
+              event: "LEADERSHIP_CHANGED",
+              fellowshipSlug: fellowship.slug,
+              fellowshipName: fellowship.name,
+              leaderDisplayName:
+                target.user.profile?.displayName ?? "Player",
+            },
+          })),
+        });
+      }
 
       return {
         slug: fellowship.slug,
