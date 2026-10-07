@@ -1,5 +1,25 @@
 # Scripture Memo Project Log
 
+### 2026-10-07 — Pull-request CI checks
+
+- Added `.github/workflows/ci.yml` for pull requests, pushes, and manual runs.
+  Its read-only quality job installs from `package-lock.json`, runs ESLint,
+  strict TypeScript, every discovered database-free test, and a production
+  build. Its database job runs checked-in migrations and isolated PostgreSQL
+  repository, concurrency, and account-suspension suites.
+- CI uses a disposable PostgreSQL 16 service on the GitHub runner plus local-only
+  synthetic values. No developer database, Prisma-hosted database, Resend key,
+  or production secret is used. Workflow actions are pinned to verified commit
+  SHAs and the workflow has read-only repository permissions.
+- Added `npm run typecheck`, `npm run test:unit`, and
+  `npm run test:account-suspension:integration`. The unit runner discovers new
+  non-repository test files automatically and excludes database-backed tests.
+- Local verification passed: ESLint, TypeScript, 159 tests across 41 unit-test
+  files, and the full production build. The integration suites use guarded
+  migration/reset scripts; GitHub will execute them on its isolated PostgreSQL
+  service after the workflow is pushed. Repository branch protection must be
+  configured separately if passing checks should block merges.
+
 ### 2026-10-07 — Multi-connection PostgreSQL tests completed
 
 - Added a pinned, development-only PostgreSQL 16.14 runtime and

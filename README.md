@@ -69,6 +69,23 @@ PostgreSQL service is required. Hosted test credentials are never a fallback.
 Production migration/data transfer remains a separate future deployment task;
 test fixtures must never be transferred to production.
 
+#### GitHub pull-request checks
+
+GitHub Actions runs the quality checks and database-backed suites for every
+pull request and pushed branch. `npm run test:unit` discovers database-free
+tests under `features/`, `lib/`, and `i18n/`; repository tests run separately
+against a temporary PostgreSQL 16 service provided only to the GitHub runner.
+CI applies the checked-in migrations, resets only that disposable database
+between fixture groups, and then runs repository, concurrency, and account
+suspension integration coverage. It uses synthetic local environment values and
+does not need `.env`, Resend credentials, Prisma Cloud, or either local database.
+
+The workflow reports required check statuses, but GitHub does not automatically
+block merges just because a workflow exists. To enforce the gate, enable branch
+protection or a repository ruleset and require both **Lint, typecheck, unit
+tests, and production build** and **PostgreSQL integration and concurrency
+tests** to pass.
+
 #### Production database plan
 
 All application development continues against the existing local development

@@ -16,11 +16,20 @@ security issue remains unresolved.
 
 ## Automated baseline
 
+GitHub Actions runs these checks on pull requests and pushed branches. Database
+checks use an isolated PostgreSQL service on the GitHub runner; no developer or
+hosted production database is configured in CI. The workflow statuses must be
+made required in repository branch protection/rulesets if merges should be
+blocked when a check fails.
+
 | Check | Result | Evidence |
 |---|---|---|
-| TypeScript strict compilation | Passed | `npx tsc --noEmit` on 2026-08-29 |
-| Full ESLint pass | Passed | `npm run lint` on 2026-08-29 |
-| Non-database unit tests | Passed | 99 tests across errors, guards, progression, streaks, gameplay, rewards, hints, badges, Vault, map, localization, Fellowships, Beacon, and verse import |
+| GitHub Actions quality workflow | Configured | Lint, TypeScript, all discovered database-free tests, and production build run on pull requests and pushes. |
+| GitHub Actions PostgreSQL workflow | Configured | Checked-in migrations, repository integrations, concurrency tests, and account-suspension integration use a temporary PostgreSQL 16 service. |
+| TypeScript strict compilation | Passed | `npm run typecheck` on 2026-10-07 |
+| Full ESLint pass | Passed | `npm run lint` on 2026-10-07 |
+| Non-database unit tests | Passed | `npm run test:unit`: 159 tests across 41 test files on 2026-10-07 |
+| Production build | Passed | `npm run build` with synthetic local-only environment values on 2026-10-07 |
 | Waypoint repository integration | Passed locally | 2026-09-14; lifecycle and ordered append outcomes pass. Actual concurrent lock contention is covered by the separate concurrency runner. |
 | Progression repository integration | Passed | 2026-10-07; cooldown, duplicate, lazy unlock, curriculum lock races, and simultaneous day completion pass on disposable PostgreSQL with no skipped race checks. |
 | Auth and gameplay limiter integration | Passed | 2026-10-07; login/registration shared caps and gameplay submission throttling pass under concurrent PostgreSQL requests. |
