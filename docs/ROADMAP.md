@@ -236,7 +236,7 @@ Confirm the following before proceeding:
    - `GAME_MODE_ORDER: GameMode[]` — `[DRAG_DROP, PUZZLE, SWAP, CUE, FILL]`
    - `DEFAULT_HINT_ALLOWANCE: number`
    - `BASE_GLOW_POINTS: number`
-   - `DAY_COOLDOWN_HOURS: number` = 24
+   - `DAY_COOLDOWN_HOURS: number` = 12
    - `DIFFICULTY_RANGES` mapping for each day level
 8. Comment every helper extensively, especially date/cooldown and permission utilities.
 
@@ -580,8 +580,8 @@ hide, reassignment, publication, append, or reorder.
 
 - New users have the first currently published, playable waypoint (normally
   Waypoint 1) in UNLOCKED status on first login.
-- Day 2 is not playable until 24 hours after Day 1 completion (server enforced).
-- Day 3 is not playable until 24 hours after Day 2 completion (server enforced).
+- Day 2 is not playable until 12 elapsed hours after Day 1 completion (server enforced).
+- Day 3 is not playable until 12 elapsed hours after Day 2 completion (server enforced).
 - Completing Day 3 automatically unlocks Waypoint N+1.
 - A user who sends a repeat completion request receives an error, not duplicate rewards.
 
@@ -1663,7 +1663,7 @@ multi-connection concurrency exception without reopening the phase.
      `/admin/waypoints`. It runs a selected real mode against the assigned
      waypoint's server-authoritative stage rules without changing learner
      progression, rewards, cooldowns, streaks, badges, flames, or hint balance.
-6. **Three-Day Challenge**: Complete all 5 modes for Day 1 → confirm flame added → confirm Day 2 shows cooldown → confirm server blocks Day 2 start before 24 hours.
+6. **Three-Day Challenge**: Complete all 5 modes for Day 1 → confirm flame added → confirm Day 2 shows cooldown → confirm server blocks Day 2 start before 12 elapsed hours.
 7. **Cooldown bypass test**: Manually alter client state or time → attempt to start Day 2 early → confirm server rejects.
 8. **Day 3 completion**: Complete Day 3 → confirm waypoint gets 3 flames → confirm next waypoint unlocks → confirm Glow Points awarded.
 9. **Duplicate reward prevention**: Submit Day completion action twice → confirm points awarded only once.

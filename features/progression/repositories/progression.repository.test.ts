@@ -332,14 +332,14 @@ test(
         "GLIMMER",
         day1CompletedAt,
       );
-      assert.equal(day1.nextDayUnlocksAt?.toISOString(), "2026-07-02T08:00:00.000Z");
+      assert.equal(day1.nextDayUnlocksAt?.toISOString(), "2026-07-01T20:00:00.000Z");
 
       const earlyStartError = await progressionRepository
         .prepareDayForGameplay(
           userId,
           firstWaypoint.id,
           "GLOW",
-          new Date("2026-07-02T07:59:59.999Z"),
+          new Date("2026-07-01T19:59:59.999Z"),
         )
         .then(() => null)
         .catch((error: unknown) => error);
@@ -350,25 +350,25 @@ test(
         userId,
         firstWaypoint.id,
         "GLOW",
-        new Date("2026-07-02T08:00:00.000Z"),
+        new Date("2026-07-01T20:00:00.000Z"),
       );
       await progressionRepository.markDayComplete(
         userId,
         firstWaypoint.id,
         "GLOW",
-        new Date("2026-07-02T08:05:00.000Z"),
+        new Date("2026-07-01T20:05:00.000Z"),
       );
       await progressionRepository.prepareDayForGameplay(
         userId,
         firstWaypoint.id,
         "RADIANCE",
-        new Date("2026-07-03T08:05:00.000Z"),
+        new Date("2026-07-02T08:05:00.000Z"),
       );
       const day3 = await progressionRepository.markDayComplete(
         userId,
         firstWaypoint.id,
         "RADIANCE",
-        new Date("2026-07-03T08:10:00.000Z"),
+        new Date("2026-07-02T08:10:00.000Z"),
       );
       assert.deepEqual(day3.unlockedWaypoint, { id: nextWaypoint.id, number: 3 });
       assert.equal(day3.caughtUp, false);

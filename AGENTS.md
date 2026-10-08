@@ -520,8 +520,8 @@ The same verse may appear at multiple waypoints with different Journey Stages. T
 
 ```
 Day 1 (GLIMMER): 20–35% words hidden. Available immediately on waypoint unlock.
-Day 2 (GLOW):    40–60% words hidden. Unlocks 24h after Day 1 completion.
-Day 3 (RADIANCE): 70–100% words hidden. Unlocks 24h after Day 2 completion.
+Day 2 (GLOW):    40–60% words hidden. Unlocks 12 elapsed hours after Day 1 completion.
+Day 3 (RADIANCE): 70–100% words hidden. Unlocks 12 elapsed hours after Day 2 completion.
 ```
 
 Cooldown enforcement is always server-side:

@@ -42,9 +42,9 @@ function createDayProgress(
   };
 }
 
-test("cooldown calculations add exactly 24 elapsed UTC hours", () => {
+test("cooldown calculations add exactly 12 elapsed UTC hours", () => {
   const completedAt = new Date("2026-03-29T00:30:00.000Z");
-  const expected = "2026-03-30T00:30:00.000Z";
+  const expected = "2026-03-29T12:30:00.000Z";
   assert.equal(calculateDay2UnlockTime(completedAt).toISOString(), expected);
   assert.equal(calculateDay3UnlockTime(completedAt).toISOString(), expected);
 });

@@ -13,7 +13,7 @@ waypoint represents one scripture memory unit—normally one verse or verse rang
 
 The platform is built on four scientifically grounded memorization principles:
 
-1. **Spaced Repetition** — 24-hour cooldowns between challenge days enforce memory spacing.
+1. **Spaced Repetition** — 12-hour rolling cooldowns between challenge days provide a deliberate practice gap.
 2. **Progressive Difficulty** — five game modes and three difficulty levels per waypoint prevent plateau.
 3. **Multi-Sensory Learning** — five interaction modalities (drag, arrange, swap, cue, type) engage different learning styles.
 4. **Immediate Feedback** — color-coded results, audio cues, and animations reinforce correct recall.
@@ -570,7 +570,7 @@ retry it if an earlier database operation was interrupted.
 | `LOCKED` | Previous waypoint not yet completed |
 | `UNLOCKED` | Previous waypoint complete; this waypoint not yet started |
 | `IN_PROGRESS` | At least Day 1 started but Day 3 not yet complete |
-| `COOLDOWN` | Awaiting 24-hour cooldown before next day unlocks |
+| `COOLDOWN` | Awaiting 12-hour cooldown before next day unlocks |
 | `COMPLETED` | All three days complete |
 
 ---
@@ -655,7 +655,7 @@ After successfully completing the **Master** stage waypoint for a verse (all thr
 
 ## 9. The Three-Day Challenge System
 
-Each waypoint contains three challenge days. The days must be completed in order. A 24-hour cooldown is enforced between days.
+Each waypoint contains three challenge days. The days must be completed in order. A rolling 12-hour cooldown is enforced between days.
 
 ### 9.1 Day 1 — Glimmer
 
@@ -669,7 +669,7 @@ Each waypoint contains three challenge days. The days must be completed in order
 - Difficulty: Medium
 - Words hidden: 40–60%
 - Unlock condition: Day 1 complete
-- Unlock timing: 24 hours after Day 1 completion
+- Unlock timing: 12 elapsed hours after Day 1 completion
 - Glow Points reward: 1.5× the Day 1 base
 
 ### 9.3 Day 3 — Radiance
@@ -677,7 +677,7 @@ Each waypoint contains three challenge days. The days must be completed in order
 - Difficulty: Hard
 - Words hidden: 70–100%
 - Unlock condition: Day 2 complete
-- Unlock timing: 24 hours after Day 2 completion
+- Unlock timing: 12 elapsed hours after Day 2 completion
 - Glow Points reward: 2× the Day 1 base
 - Completion effect: Waypoint marked complete, next waypoint unlocked
 
@@ -694,8 +694,8 @@ Each waypoint contains three challenge days. The days must be completed in order
 ### 9.5 Cooldown Calculation
 
 ```
-Day 2 unlock time = Day 1 completedAt + 24 hours
-Day 3 unlock time = Day 2 completedAt + 24 hours
+Day 2 unlock time = Day 1 completedAt + 12 hours
+Day 3 unlock time = Day 2 completedAt + 12 hours
 ```
 
 The server computes whether a day is playable by comparing the current UTC timestamp against the stored unlock timestamp. The client never decides this.
@@ -1907,7 +1907,7 @@ if (isUnlocked) { ... }
 - Journey Stage display on all relevant screens
 - Day Selection screen with cooldown countdown
 - All five game modes (Drag & Drop, Puzzle, Swap, Cue, Fill)
-- Three-day challenge system with 24-hour cooldown
+- Three-day challenge system with a rolling 12-hour cooldown
 - Hint system (disabled on Strengthen and Master stages)
 - Glow Points and reward ledger
 - Streak system

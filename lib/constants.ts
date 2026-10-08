@@ -27,7 +27,7 @@ export const DEFAULT_HINT_ALLOWANCE = 5;
 export const BASE_GLOW_POINTS = 100;
 
 /** Required elapsed hours between consecutive challenge days. */
-export const DAY_COOLDOWN_HOURS = 24;
+export const DAY_COOLDOWN_HOURS = 12;
 
 /**
  * Server-authoritative seconds available for one mode attempt by Journey Stage.
