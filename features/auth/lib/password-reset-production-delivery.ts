@@ -42,7 +42,7 @@ export async function sendProductionPasswordReset(
           "If you did not request a reset, you can ignore this email.",
         ].join("\n"),
         html: [
-          "<main style=\"font-family:Arial,sans-serif;line-height:1.6;color:#191827\">",
+          "<main style=\"font-family:Arial,sans-serif;line-height:1.6;color:#16333B\">",
           "<h1>Reset your Scripture Memo password</h1>",
           "<p>We received a request to reset your password.</p>",
           `<p><a href=\"${safeResetUrl}\">Choose a new password</a></p>`,

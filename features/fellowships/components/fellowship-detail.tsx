@@ -56,7 +56,7 @@ function MemberProgressMetric({
         render={
           <button
             type="button"
-            className={`inline-flex min-h-11 w-full min-w-11 items-center justify-center gap-1.5 rounded-xl border bg-muted/60 px-3 font-bold outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 sm:w-auto ${accent ? "text-amber-700 dark:text-amber-300" : "text-foreground"}`}
+            className={`inline-flex min-h-11 w-full min-w-11 items-center justify-center gap-1.5 rounded-xl border bg-muted/60 px-3 font-bold outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 sm:w-auto ${accent ? "text-reward-text dark:text-reward-text" : "text-foreground"}`}
             aria-label={`${label}: ${formattedValue}`}
           />
         }
@@ -116,7 +116,7 @@ export function FellowshipDetail({
 
   return (
     <>
-      <section className="overflow-hidden rounded-[2rem] border border-violet-400/25 bg-linear-to-br from-violet-950 via-slate-950 to-amber-950 p-5 text-white shadow-2xl sm:p-8">
+      <section className="overflow-hidden rounded-dialog border border-border bg-card p-5 text-card-foreground shadow-sm sm:p-8">
         {/*
          * Mobile uses a vertical identity stack so the insignia never steals
          * width from long fellowship names. The `sm` layout progressively
@@ -132,7 +132,7 @@ export function FellowshipDetail({
               className="size-24 rounded-2xl"
             />
             <div className="mt-4 min-w-0 sm:mt-0">
-              <p className="text-xs font-bold tracking-[0.18em] text-amber-300 uppercase">
+              <p className="text-xs font-bold tracking-[0.18em] text-primary uppercase">
                 {fellowship.isPublic ? t("public") : t("private")}
               </p>
               <h1 className="mt-2 break-words font-heading text-3xl leading-tight font-bold sm:text-4xl">
@@ -143,7 +143,7 @@ export function FellowshipDetail({
 
           {/* Mobile keeps the count readable above two equally sized actions. */}
           <div className="grid w-full grid-cols-2 gap-3 sm:flex sm:w-auto sm:flex-wrap">
-            <span className="col-span-2 inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-white/8 px-4 py-3 font-bold sm:col-span-1">
+            <span className="col-span-2 inline-flex min-h-11 items-center justify-center gap-2 rounded-card bg-muted px-4 py-3 font-bold sm:col-span-1">
               <UsersRoundIcon aria-hidden="true" />
               {t("members", { count: fellowship.memberCount })}
             </span>
@@ -161,7 +161,7 @@ export function FellowshipDetail({
                 href={`/fellowships/${fellowship.slug}/edit`}
                 pendingLabel={t("openingSettings")}
                 variant="outline"
-                className="w-full border-white/20 bg-white/8 text-white sm:w-auto"
+                className="w-full sm:w-auto"
               >
                 <PencilIcon aria-hidden="true" />
                 {t("manage")}
@@ -202,7 +202,7 @@ export function FellowshipDetail({
               <Clock3Icon className="hidden sm:block" aria-hidden="true" />
               {t("requestsTab")}
               {pendingRequestCount > 0 && (
-                <span className="grid min-w-5 place-items-center rounded-full bg-amber-400 px-1.5 py-0.5 text-xs text-slate-950">
+                <span className="grid min-w-5 place-items-center rounded-full bg-reward px-1.5 py-0.5 text-xs text-foreground">
                   {pendingRequestCount}
                 </span>
               )}
@@ -249,7 +249,7 @@ export function FellowshipDetail({
                   key={`${member.rank}-${member.displayName}`}
                   className="grid grid-cols-[2rem_minmax(0,1fr)] items-start gap-x-3 border-b px-4 py-4 last:border-0 sm:grid-cols-[3rem_1fr_auto] sm:items-center sm:gap-3"
                 >
-                  <span className="grid size-8 place-items-center rounded-full bg-amber-500/12 font-heading text-base font-bold text-amber-600 sm:bg-transparent sm:text-xl">
+                  <span className="grid size-8 place-items-center rounded-full bg-reward-subtle font-heading text-base font-bold text-reward-text sm:bg-transparent sm:text-xl">
                     {member.rank}
                   </span>
 
@@ -258,7 +258,7 @@ export function FellowshipDetail({
                       {member.displayName}
                       {member.isLeader && (
                         <CrownIcon
-                          className="ml-2 inline size-4 text-amber-500"
+                          className="ml-2 inline size-4 text-reward-text"
                           aria-label={t("leader")}
                         />
                       )}
@@ -306,7 +306,7 @@ export function FellowshipDetail({
         <TabsContent value="about">
           <section className="grid gap-4 rounded-[2rem] border bg-card p-5 shadow-lg sm:grid-cols-2 sm:p-7">
             <div className="rounded-2xl bg-muted/60 p-5">
-              <span className="grid size-11 place-items-center rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-300">
+              <span className="grid size-11 place-items-center rounded-xl bg-selection-subtle text-selection-text dark:text-selection-text">
                 <InfoIcon aria-hidden="true" />
               </span>
               <h2 className="mt-4 font-heading text-xl font-bold">
@@ -318,7 +318,7 @@ export function FellowshipDetail({
             </div>
 
             <div className="rounded-2xl bg-muted/60 p-5">
-              <span className="grid size-11 place-items-center rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-300">
+              <span className="grid size-11 place-items-center rounded-xl bg-reward-subtle text-reward-text dark:text-reward-text">
                 {fellowship.isPublic ? (
                   <UsersRoundIcon aria-hidden="true" />
                 ) : (

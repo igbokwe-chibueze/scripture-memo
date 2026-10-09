@@ -19,7 +19,7 @@ export async function SettingsView(): Promise<React.ReactNode> {
   const data = await getSettingsPageData();
 
   return (
-    <main className="min-h-svh bg-linear-to-b from-primary/8 via-background to-amber-50/50 py-8 dark:to-amber-950/10">
+    <main className="min-h-svh bg-background py-8">
       <ResponsiveContainer size="md" className="space-y-8">
         <PageHeader
           eyebrow={t("eyebrow")}

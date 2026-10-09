@@ -67,10 +67,10 @@ export function FellowshipSuspensionModerator({
             }),
           );
         }}
-        className="space-y-3 rounded-2xl border border-amber-500/30 p-4"
+        className="space-y-3 rounded-2xl border border-reward-border/30 p-4"
       >
         <div className="flex items-center gap-2">
-          <ShieldAlertIcon className="size-5 text-amber-600" aria-hidden="true" />
+          <ShieldAlertIcon className="size-5 text-reward-text" aria-hidden="true" />
           <h3 className="font-heading font-bold">Suspend Fellowship</h3>
         </div>
         <p className="text-sm text-muted-foreground">
@@ -146,7 +146,7 @@ export function FellowshipSuspensionModerator({
           <h4 className="font-bold">Appeal from {appeal.appellantDisplayName}</h4>
           <p className="whitespace-pre-wrap text-sm">{appeal.statement}</p>
           {reviewerConflict ? (
-            <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">
+            <p className="text-sm font-bold text-reward-text dark:text-reward-text">
               You cannot review an appeal you submitted or the suspension you
               issued. Another Super Admin must decide it.
             </p>

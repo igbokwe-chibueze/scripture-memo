@@ -8,7 +8,7 @@ const CONFETTI_PIECES = Array.from({ length: 28 }, (_, index) => ({
   left: `${(index * 37) % 100}%`,
   delay: `${(index % 7) * 70}ms`,
   duration: `${900 + (index % 5) * 120}ms`,
-  color: ["bg-amber-300", "bg-violet-400", "bg-emerald-400", "bg-fuchsia-400"][
+  color: ["bg-reward-subtle", "bg-selection", "bg-success", "bg-fuchsia-400"][
     index % 4
   ],
 }));

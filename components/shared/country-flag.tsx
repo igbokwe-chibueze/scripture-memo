@@ -33,7 +33,7 @@ export function CountryFlag({
       <Globe2Icon
         aria-label={label}
         role="img"
-        className={cn("size-5 text-sky-500", className)}
+        className={cn("size-5 text-info-text", className)}
       />
     );
   }
@@ -43,7 +43,7 @@ export function CountryFlag({
       aria-label={label}
       role="img"
       className={cn(
-        "h-5 w-7 rounded-sm object-cover shadow-sm ring-1 ring-black/10",
+        "h-5 w-7 rounded-sm object-cover shadow-sm ring-1 ring-border",
         className,
       )}
     />

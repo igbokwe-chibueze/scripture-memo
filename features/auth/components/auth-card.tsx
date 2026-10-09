@@ -21,7 +21,7 @@ export function AuthCard({
   children,
 }: AuthCardProps): React.ReactNode {
   return (
-    <main className="relative flex min-h-svh items-center justify-center overflow-hidden bg-linear-to-b from-amber-50 via-background to-violet-50 px-4 py-10 dark:from-amber-950/30 dark:to-violet-950/30">
+    <main className="relative flex min-h-svh items-center justify-center overflow-hidden bg-background px-4 py-10">
       <div className="absolute top-10 left-1/2 -translate-x-1/2 text-primary/20" aria-hidden="true">
         <SparklesIcon className="size-40" />
       </div>

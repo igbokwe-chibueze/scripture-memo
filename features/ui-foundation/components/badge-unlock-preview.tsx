@@ -72,7 +72,7 @@ export function BadgeUnlockPreview(): React.ReactNode {
               key={rarity}
               type="button"
               variant={rarity === "LEGENDARY" ? "default" : "outline"}
-              className={rarity === "LEGENDARY" ? "bg-amber-400 text-slate-950 hover:bg-amber-300" : undefined}
+              className={rarity === "LEGENDARY" ? "bg-reward text-foreground hover:bg-reward-subtle" : undefined}
               onClick={() => setPreview(rarity)}
             >
               <AwardIcon aria-hidden="true" />

@@ -63,19 +63,19 @@ export function PlayerTopBar({
       label: topBarT("glowPoints"),
       value: summary.glowPoints,
       icon: GemIcon,
-      className: "text-amber-500",
+      className: "text-reward-text",
     },
     {
       label: topBarT("streakDays"),
       value: summary.streakDays,
       icon: FlameIcon,
-      className: "text-orange-500",
+      className: "text-decoration-text",
     },
     {
       label: topBarT("beaconPoints"),
       value: summary.beaconPoints,
       icon: SparklesIcon,
-      className: "text-violet-500",
+      className: "text-selection-text",
     },
   ] as const;
 

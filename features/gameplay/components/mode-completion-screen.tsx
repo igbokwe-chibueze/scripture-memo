@@ -83,7 +83,7 @@ export function ModeCompletionScreen({
 
   return (
     <motion.div
-      className="fixed inset-0 z-40 overflow-y-auto bg-slate-950/65 px-4 backdrop-blur-md dark:bg-slate-950/85"
+      className="fixed inset-0 z-40 overflow-y-auto bg-background px-4 backdrop-blur-md dark:bg-background"
       initial={{ opacity: shouldReduceMotion ? 1 : 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: shouldReduceMotion ? 0 : 0.25 }}
@@ -99,7 +99,7 @@ export function ModeCompletionScreen({
        */}
       <div className="flex min-h-full w-full justify-center py-4 sm:py-8">
         <motion.section
-          className="my-auto w-full max-w-md overflow-hidden rounded-[2rem] border border-emerald-500/25 bg-linear-to-b from-white to-emerald-50 p-5 text-center text-foreground shadow-2xl shadow-emerald-950/25 dark:border-emerald-300/25 dark:from-slate-800 dark:to-slate-950 dark:text-white dark:shadow-emerald-950/60 sm:p-8"
+          className="my-auto w-full max-w-md overflow-hidden rounded-dialog border border-border bg-card p-5 text-center text-card-foreground shadow-2xl sm:p-8"
           initial={shouldReduceMotion ? false : { opacity: 0, y: 46, scale: 0.78 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={
@@ -132,7 +132,7 @@ export function ModeCompletionScreen({
             />
           </motion.div>
 
-          <p className="mt-2 text-xs font-bold tracking-[0.18em] text-emerald-700 uppercase dark:text-emerald-300 sm:mt-3">
+          <p className="mt-2 text-xs font-bold tracking-[0.18em] text-success-text uppercase dark:text-success-text sm:mt-3">
             {replayKind === "PLAYER_PRACTICE"
                 ? t("playerPractice")
               : replayKind === "ADMIN_TEST"
@@ -146,13 +146,13 @@ export function ModeCompletionScreen({
           <h2 id="mode-complete-title" className="mt-2 font-heading text-4xl font-bold">
             {t("beautifulWork")}
           </h2>
-          <p className="mt-3 text-lg font-medium text-foreground/80 dark:text-slate-200">
+          <p className="mt-3 text-lg font-medium text-foreground/80 dark:text-foreground">
             {t("modeComplete", { mode: modeLabels[completedMode] })}
           </p>
 
-          <div className="mt-5 rounded-2xl border border-amber-400/30 bg-amber-100/70 p-4 dark:border-amber-300/20 dark:bg-amber-300/8 sm:mt-7">
-            <SparklesIcon className="mx-auto size-6 text-amber-600 dark:text-amber-300" aria-hidden="true" />
-            <p className="mt-2 text-sm font-medium text-muted-foreground dark:text-slate-300">
+          <div className="mt-5 rounded-2xl border border-reward-border/30 bg-reward-subtle p-4 dark:border-reward-border/20 dark:bg-reward-subtle sm:mt-7">
+            <SparklesIcon className="mx-auto size-6 text-reward-text dark:text-reward-text" aria-hidden="true" />
+            <p className="mt-2 text-sm font-medium text-muted-foreground dark:text-foreground">
               {replayKind === "PLAYER_PRACTICE"
                 ? t("playerPracticeComplete")
                 : isLocalReplay || (isAdminTest && !isVaultReplay)
@@ -167,13 +167,13 @@ export function ModeCompletionScreen({
             </p>
             {!isLocalReplay && reward && (
               <div className="mt-3">
-                <p className="text-xs font-bold tracking-[0.14em] text-amber-700 uppercase dark:text-amber-300">
+                <p className="text-xs font-bold tracking-[0.14em] text-reward-text uppercase dark:text-reward-text">
                   {t("glowEarned")}
                 </p>
-                <p className="font-heading text-3xl font-bold text-amber-700 dark:text-amber-300">
+                <p className="font-heading text-3xl font-bold text-reward-text dark:text-reward-text">
                   +{reward.amount}
                 </p>
-                <p className="text-xs font-bold text-muted-foreground dark:text-slate-300">
+                <p className="text-xs font-bold text-muted-foreground dark:text-foreground">
                   {t("newBalance", { balance: reward.balance })}
                 </p>
               </div>
@@ -182,26 +182,26 @@ export function ModeCompletionScreen({
 
           {beaconProgression && !isLocalReplay && !isAdminTest && !isVaultReplay && (
             <motion.div
-              className="mt-4 rounded-2xl border border-violet-400/30 bg-violet-500/10 p-4 text-left"
+              className="mt-4 rounded-2xl border border-selection-border/30 bg-selection-subtle p-4 text-left"
               initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.92 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: shouldReduceMotion ? 0 : 0.42 }}
             >
               <div className="flex items-end justify-between gap-3">
                 <div>
-                  <p className="text-xs font-bold tracking-[0.14em] text-violet-700 uppercase dark:text-violet-300">
+                  <p className="text-xs font-bold tracking-[0.14em] text-selection-text uppercase dark:text-selection-text">
                     {t("beaconXpEarned", { count: beaconProgression.earnedXp })}
                   </p>
                   <p className="mt-1 font-heading text-lg font-bold">
                     {t("beaconLevel", { level: beaconProgression.level })}
                   </p>
                 </div>
-                <span className="font-heading text-2xl font-bold text-violet-700 dark:text-violet-300">
+                <span className="font-heading text-2xl font-bold text-selection-text dark:text-selection-text">
                   +{beaconProgression.earnedXp}
                 </span>
               </div>
               <div
-                className="mt-3 h-3 overflow-hidden rounded-full bg-violet-950/15 dark:bg-black/35"
+                className="mt-3 h-3 overflow-hidden rounded-full bg-selection dark:bg-background/35"
                 role="progressbar"
                 aria-label={t("beaconLevelProgress")}
                 aria-valuemin={0}
@@ -209,7 +209,7 @@ export function ModeCompletionScreen({
                 aria-valuenow={Math.round(levelProgress)}
               >
                 <motion.div
-                  className="h-full rounded-full bg-linear-to-r from-violet-500 to-fuchsia-400"
+                  className="h-full rounded-full bg-primary"
                   initial={{ width: shouldReduceMotion ? `${levelProgress}%` : 0 }}
                   animate={{ width: `${levelProgress}%` }}
                   transition={{ duration: shouldReduceMotion ? 0 : 0.8, delay: 0.5 }}
@@ -235,7 +235,7 @@ export function ModeCompletionScreen({
           <div className="mt-5 grid gap-3 sm:mt-7">
             <Button
               type="button"
-              className="min-h-12 rounded-xl bg-emerald-400 font-bold text-slate-950 hover:bg-emerald-300"
+              className="min-h-12 rounded-game-action font-bold"
               onClick={onContinue}
             >
               {replayKind === "PLAYER_PRACTICE"
@@ -255,7 +255,7 @@ export function ModeCompletionScreen({
               <Button
                 type="button"
                 variant="ghost"
-                className="min-h-11 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
+                className="min-h-11 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground dark:text-foreground dark:hover:bg-card/10 dark:hover:text-foreground"
                 onClick={onReplay}
               >
                 <RotateCcwIcon data-icon="inline-start" aria-hidden="true" />

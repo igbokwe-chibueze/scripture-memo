@@ -82,7 +82,7 @@ function PurchasedHintBalance({
       animate={{ scale: 1 }}
       className="rounded-xl bg-muted px-3 py-2 text-center text-foreground"
     >
-      <LightbulbIcon className="mx-auto size-5 text-violet-700 dark:text-violet-300" />
+      <LightbulbIcon className="mx-auto size-5 text-selection-text dark:text-selection-text" />
       <strong>{reducedMotion ? newValue : displayedValue}</strong>
     </motion.div>
   );
@@ -143,7 +143,7 @@ export function PurchaseCelebrationDialog({
               {!shouldReduceMotion && Array.from({ length: 12 }, (_, index) => (
                 <motion.span
                   key={index}
-                  className="absolute size-2 rotate-45 bg-amber-300"
+                  className="absolute size-2 rotate-45 bg-reward-subtle"
                   style={{ left: `${8 + ((index * 17) % 84)}%`, top: `${12 + ((index * 23) % 62)}%` }}
                   animate={
                     shouldReduceMotion
@@ -159,7 +159,7 @@ export function PurchaseCelebrationDialog({
               ))}
             </div>
             <div className="px-12">
-              <p className="text-[0.6rem] font-bold tracking-[0.2em] text-amber-700 uppercase min-[390px]:text-xs dark:text-amber-300">
+              <p className="text-[0.6rem] font-bold tracking-[0.2em] text-reward-text uppercase min-[390px]:text-xs dark:text-reward-text">
                 {t("purchaseComplete")}
               </p>
               <h2 className="mt-1 font-heading text-3xl font-bold min-[390px]:text-4xl">
@@ -169,7 +169,7 @@ export function PurchaseCelebrationDialog({
             <div className="relative mx-auto h-full min-h-0 w-full max-w-sm">
               <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
                 <motion.div
-                  className="absolute left-1/2 top-1/2 aspect-square w-[120%] -translate-x-1/2 -translate-y-1/2 bg-[repeating-conic-gradient(from_0deg,transparent_0deg_11deg,rgb(251_191_36/0.12)_11deg_17deg,transparent_17deg_30deg)] [mask-image:radial-gradient(circle,black_0%,rgb(0_0_0/0.88)_34%,rgb(0_0_0/0.38)_62%,transparent_88%)]"
+                  className="absolute left-1/2 top-1/2 aspect-square w-[120%] -translate-x-1/2 -translate-y-1/2 bg-reward/10 [mask-image:radial-gradient(circle,var(--reward)_0%,transparent_88%)]"
                   animate={
                     shouldReduceMotion
                       ? undefined
@@ -177,7 +177,7 @@ export function PurchaseCelebrationDialog({
                   }
                   transition={{ rotate: { duration: 28, repeat: Infinity, ease: "linear" }, scale: { duration: 3.6, repeat: Infinity, ease: "easeInOut" } }}
                 />
-                <div className="absolute left-1/2 top-1/2 size-[68%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-200/18 blur-[3.5rem]" />
+                <div className="absolute left-1/2 top-1/2 size-[68%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-reward-subtle blur-[3.5rem]" />
               </div>
               <Image src="/images/mascot/luna/luna-reward.png" alt={t("celebrationAlt")} fill className="z-10 object-contain" sizes="384px" />
               <motion.div
@@ -306,7 +306,7 @@ export function OilShopContent({
       <aside className="flex h-full min-h-0 flex-col p-3 text-card-foreground" aria-label={t("selectedItem")}>
         {activeTab === "donations" ? (
           <div className="grid min-h-48 place-items-center text-center">
-            <div><span className="mx-auto grid size-20 place-items-center rounded-3xl bg-muted"><GiftIcon className="size-10 text-violet-700 dark:text-violet-300" /></span><h2 className="mt-5 font-heading text-2xl font-bold">{t("donationsSoon")}</h2></div>
+            <div><span className="mx-auto grid size-20 place-items-center rounded-3xl bg-muted"><GiftIcon className="size-10 text-selection-text dark:text-selection-text" /></span><h2 className="mt-5 font-heading text-2xl font-bold">{t("donationsSoon")}</h2></div>
           </div>
         ) : selected ? (
           <div className="flex min-h-0 flex-1 flex-col gap-2">
@@ -323,7 +323,7 @@ export function OilShopContent({
             <h2 className="shrink-0 font-heading text-lg font-bold leading-tight">{selected.name}</h2>
             <p className="shrink-0 text-sm leading-snug text-muted-foreground">{selected.description}</p>
             <div className="grid shrink-0 gap-2 rounded-2xl border border-border bg-muted/50 p-2">
-              <span className="flex items-center justify-center gap-2 text-xl font-bold text-amber-700 dark:text-amber-300"><GemIcon />{selected.cost}</span>
+              <span className="flex items-center justify-center gap-2 text-xl font-bold text-reward-text dark:text-reward-text"><GemIcon />{selected.cost}</span>
               <LoadingButton
                 size="lg"
                 className="min-h-11 text-sm font-bold"
@@ -348,8 +348,8 @@ export function OilShopContent({
       <OilShopHeader isPreview={isPreview}>
         <section className="grid grid-cols-2 gap-2" aria-label={t("balances")}>
           <div className="min-w-0 rounded-2xl border border-border bg-muted/50 p-3 text-card-foreground">
-            <GemIcon className="size-6 text-amber-700 dark:text-amber-300" aria-hidden="true" />
-            <p className="mt-1 text-[0.65rem] font-bold tracking-wider text-amber-700 uppercase dark:text-amber-300">
+            <GemIcon className="size-6 text-reward-text dark:text-reward-text" aria-hidden="true" />
+            <p className="mt-1 text-[0.65rem] font-bold tracking-wider text-reward-text uppercase dark:text-reward-text">
               {t("glowBalance")}
             </p>
             <p className="break-all font-heading text-2xl font-bold">
@@ -357,8 +357,8 @@ export function OilShopContent({
             </p>
           </div>
           <div className="min-w-0 rounded-2xl border border-border bg-muted/50 p-3 text-card-foreground">
-            <LightbulbIcon className="size-6 text-violet-700 dark:text-violet-300" aria-hidden="true" />
-            <p className="mt-1 text-[0.65rem] font-bold tracking-wider text-violet-700 uppercase dark:text-violet-300">
+            <LightbulbIcon className="size-6 text-selection-text dark:text-selection-text" aria-hidden="true" />
+            <p className="mt-1 text-[0.65rem] font-bold tracking-wider text-selection-text uppercase dark:text-selection-text">
               {t("hintsAvailable")}
             </p>
             <p className="break-all font-heading text-2xl font-bold">{data.hintsRemaining.toLocaleString(locale)}</p>
@@ -367,7 +367,7 @@ export function OilShopContent({
       </OilShopHeader>
 
       {isAdministrator && (
-        <section className="mt-4 rounded-2xl border border-sky-400/35 bg-sky-500/10 p-3 text-sky-950 dark:text-sky-100">
+        <section className="mt-4 rounded-2xl border border-info-border/35 bg-info-subtle p-3 text-info-text dark:text-info-text">
           <div className="flex items-center gap-2 font-bold">
             <ShieldCheckIcon className="size-5" aria-hidden="true" />
             <h2>Admin testing</h2>
@@ -424,11 +424,11 @@ export function OilShopContent({
           </div>
           {activeTab === "donations" ? (
             <div role="tabpanel" className="px-5 py-12 text-center">
-              <span className="mx-auto grid size-16 place-items-center rounded-3xl border border-border bg-muted"><GiftIcon className="size-8 text-violet-700 dark:text-violet-300" aria-hidden="true" /></span>
+              <span className="mx-auto grid size-16 place-items-center rounded-3xl border border-border bg-muted"><GiftIcon className="size-8 text-selection-text dark:text-selection-text" aria-hidden="true" /></span>
               <h2 className="mt-4 font-heading text-2xl font-bold">{t("donationsSoon")}</h2>
             </div>
           ) : data.items.length === 0 ? (
-            <div className="p-10 text-center"><PackageOpenIcon className="mx-auto size-12 text-violet-700 dark:text-violet-300" /><h2 className="mt-4 font-heading text-2xl font-bold">{t("restocking")}</h2></div>
+            <div className="p-10 text-center"><PackageOpenIcon className="mx-auto size-12 text-selection-text dark:text-selection-text" /><h2 className="mt-4 font-heading text-2xl font-bold">{t("restocking")}</h2></div>
           ) : (
             <div role="tabpanel" className="space-y-3 p-3 sm:p-4">
               {data.items.map((item) => (
@@ -459,7 +459,7 @@ export function OilShopContent({
                     </p>
                   </button>
                   <div className="col-start-2 grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 sm:col-start-3 sm:flex sm:flex-col sm:items-stretch">
-                    <span className="inline-flex min-h-9 min-w-0 items-center justify-center gap-1 rounded-xl bg-muted px-2 font-bold text-amber-700 dark:text-amber-300"><GemIcon className="size-4" />{item.cost}</span>
+                    <span className="inline-flex min-h-9 min-w-0 items-center justify-center gap-1 rounded-xl bg-muted px-2 font-bold text-reward-text dark:text-reward-text"><GemIcon className="size-4" />{item.cost}</span>
                     <Button
                       onClick={() => previewItem(item)}
                       variant={selected?.id === item.id ? "default" : "outline"}
@@ -516,7 +516,7 @@ export function OilShopContent({
               <DialogDescription className="max-w-xs text-base text-muted-foreground">{selected.description}</DialogDescription>
             </DialogHeader>
             <div className="mt-2 grid grid-cols-[1fr_1.25fr] gap-3 rounded-2xl border border-border bg-muted/50 p-3">
-              <span className="flex items-center justify-center gap-2 text-xl font-bold text-amber-700 dark:text-amber-300"><GemIcon />{selected.cost}</span>
+              <span className="flex items-center justify-center gap-2 text-xl font-bold text-reward-text dark:text-reward-text"><GemIcon />{selected.cost}</span>
               <LoadingButton
                 size="lg"
                 className="min-h-12 text-base font-bold"

@@ -12,6 +12,7 @@ import type { BeaconProgressionResult } from "@/features/beacon/types/beacon.typ
 import { showActionError } from "@/lib/errors/show-action-error";
 import { completeGameModeAction } from "@/features/gameplay/actions/complete-game-mode.action";
 import { ConfettiCelebration } from "@/components/shared/confetti-celebration";
+import { GAMEPLAY_TILE_STATE_STYLES } from "@/features/gameplay/constants/gameplay-state-styles";
 import { ModeCompletionScreen } from "@/features/gameplay/components/mode-completion-screen";
 import { StreakCompletionScreen } from "@/features/gameplay/components/streak-completion-screen";
 import { useAudioFeedback } from "@/hooks/use-audio-feedback";
@@ -275,7 +276,7 @@ export function CueMode({
       )}
       <section className="w-full max-w-2xl text-left" aria-labelledby="cue-title">
         <div className="text-center">
-          <p className="text-xs font-bold tracking-[0.16em] text-violet-700 uppercase dark:text-violet-300">
+          <p className="text-xs font-bold tracking-[0.16em] text-selection-text uppercase dark:text-selection-text">
             {t("recallFirst")}
           </p>
           <h2 id="cue-title" className="mt-2 font-heading text-3xl font-bold">
@@ -284,7 +285,7 @@ export function CueMode({
         </div>
 
         <div
-          className="mt-6 rounded-2xl border border-border bg-muted/35 p-4 text-lg leading-[3.5rem] font-medium dark:border-white/10 dark:bg-white/5 sm:p-6 sm:text-xl"
+          className="mt-6 rounded-2xl border border-border bg-muted/35 p-4 text-lg leading-[3.5rem] font-medium dark:border-border/10 dark:bg-card/5 sm:p-6 sm:text-xl"
           aria-label="Verse with first-letter cues"
         >
           {tokens.map((token) => {
@@ -306,11 +307,11 @@ export function CueMode({
                 {token.leadingPunctuation}
                 <label
                   className={cn(
-                    "inline-flex min-h-11 items-center rounded-xl border-2 border-dashed border-violet-400 bg-background px-2 align-middle text-foreground transition focus-within:border-violet-600 focus-within:ring-2 focus-within:ring-violet-500/20 dark:border-violet-400 dark:bg-slate-800/80 dark:text-white",
-                    feedback === "correct" &&
-                      "border-emerald-500 bg-emerald-100 text-emerald-950 dark:border-emerald-400 dark:bg-emerald-400/20 dark:text-emerald-100",
-                    feedback === "incorrect" &&
-                      "border-red-500 bg-red-100 text-red-950 dark:border-red-400 dark:bg-red-400/20 dark:text-red-100",
+                    "inline-flex min-h-11 items-center rounded-control border-2 border-dashed px-2 align-middle transition",
+                    GAMEPLAY_TILE_STATE_STYLES.idle,
+                    "focus-within:border-ring focus-within:ring-2 focus-within:ring-ring",
+                    feedback === "correct" && GAMEPLAY_TILE_STATE_STYLES.correct,
+                    feedback === "incorrect" && GAMEPLAY_TILE_STATE_STYLES.incorrect,
                   )}
                 >
                   <span className="sr-only">
@@ -352,9 +353,9 @@ export function CueMode({
           })}
         </div>
 
-        <div className="mt-5 rounded-2xl bg-muted/70 p-4 dark:bg-black/20">
+        <div className="mt-5 rounded-2xl bg-muted/70 p-4 dark:bg-background/20">
           <div className="flex items-start gap-3">
-            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-violet-500/15 text-violet-700 dark:text-violet-200">
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-selection-subtle text-selection-text dark:text-selection-text">
               <LightbulbIcon className="size-5" aria-hidden="true" />
             </span>
             <div>
@@ -370,7 +371,7 @@ export function CueMode({
           <Button
             type="button"
             variant="ghost"
-            className="min-h-12 rounded-xl px-4 text-muted-foreground hover:bg-muted hover:text-foreground dark:hover:bg-white/10 dark:hover:text-white"
+            className="min-h-12 rounded-xl px-4 text-muted-foreground hover:bg-muted hover:text-foreground dark:hover:bg-card/10 dark:hover:text-foreground"
             disabled={
               isPending || isComplete || Object.keys(answers).length === 0
             }
@@ -382,7 +383,7 @@ export function CueMode({
           <LoadingButton
             isPending={isPending}
             pendingLabel={t("checking")}
-            className="min-h-12 rounded-xl bg-amber-400 font-bold text-slate-950 hover:bg-amber-300"
+            className="min-h-12 rounded-game-action font-bold"
             disabled={isComplete}
             onClick={checkAnswer}
           >

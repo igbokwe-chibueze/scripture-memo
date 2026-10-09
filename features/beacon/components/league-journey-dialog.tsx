@@ -50,7 +50,7 @@ export function LeagueJourneyDialog({
         <CircleHelpIcon aria-hidden="true" />
         <span className="max-[359px]:sr-only">{t("viewLeagues")}</span>
       </DialogTrigger>
-      <DialogContent className="top-auto bottom-0 left-0 max-h-[88dvh] w-full max-w-none translate-x-0 translate-y-0 overflow-y-auto rounded-t-[2rem] rounded-b-none border-violet-400/30 bg-linear-to-b from-background via-background to-violet-500/10 p-5 pt-16 transition-transform duration-300 data-starting-style:translate-y-full data-ending-style:translate-y-full sm:top-1/2 sm:bottom-auto sm:left-1/2 sm:max-w-2xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-[2rem] sm:p-7 sm:pt-16 sm:data-starting-style:-translate-y-1/2 sm:data-ending-style:-translate-y-1/2">
+      <DialogContent className="top-auto bottom-0 left-0 max-h-[88dvh] w-full max-w-none translate-x-0 translate-y-0 overflow-y-auto rounded-t-[2rem] rounded-b-none border-border bg-card p-5 pt-16 transition-transform duration-300 data-starting-style:translate-y-full data-ending-style:translate-y-full sm:top-1/2 sm:bottom-auto sm:left-1/2 sm:max-w-2xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-[2rem] sm:p-7 sm:pt-16 sm:data-starting-style:-translate-y-1/2 sm:data-ending-style:-translate-y-1/2">
         <DialogHeader>
           <DialogTitle className="font-heading text-3xl font-bold">
             {t("leagueJourney")}
@@ -63,28 +63,28 @@ export function LeagueJourneyDialog({
           aria-label={t("rankingRules")}
         >
           <div className="rounded-2xl border bg-card p-3">
-            <SparklesIcon className="size-5 text-violet-500" aria-hidden="true" />
+            <SparklesIcon className="size-5 text-selection-text" aria-hidden="true" />
             <p className="mt-2 text-sm font-bold">{t("ruleEarnTitle")}</p>
             <p className="mt-0.5 text-xs text-muted-foreground">
               {t("ruleEarnDescription")}
             </p>
           </div>
           <div className="rounded-2xl border bg-card p-3">
-            <RefreshCwIcon className="size-5 text-sky-500" aria-hidden="true" />
+            <RefreshCwIcon className="size-5 text-info-text" aria-hidden="true" />
             <p className="mt-2 text-sm font-bold">{t("ruleResetTitle")}</p>
             <p className="mt-0.5 text-xs text-muted-foreground">
               {t("ruleResetDescription")}
             </p>
           </div>
           <div className="rounded-2xl border bg-card p-3">
-            <TrendingUpIcon className="size-5 text-emerald-500" aria-hidden="true" />
+            <TrendingUpIcon className="size-5 text-success-text" aria-hidden="true" />
             <p className="mt-2 text-sm font-bold">{t("ruleMoveTitle")}</p>
             <p className="mt-0.5 text-xs text-muted-foreground">
               {t("ruleMoveDescription")}
             </p>
           </div>
           <div className="rounded-2xl border bg-card p-3">
-            <CrownIcon className="size-5 text-amber-500" aria-hidden="true" />
+            <CrownIcon className="size-5 text-reward-text" aria-hidden="true" />
             <p className="mt-2 text-sm font-bold">{t("ruleSaintTitle")}</p>
             <p className="mt-0.5 text-xs text-muted-foreground">
               {t("ruleSaintDescription")}
@@ -106,7 +106,7 @@ export function LeagueJourneyDialog({
                 className={cn(
                   "relative grid grid-cols-[5.5rem_minmax(0,1fr)] items-center gap-3 overflow-hidden rounded-2xl border bg-linear-to-br p-3",
                   entry.accentClass,
-                  isCurrent && "border-amber-400 ring-2 ring-amber-400/25",
+                  isCurrent && "border-reward-border ring-2 ring-reward/25",
                   index > currentIndex && "saturate-50",
                 )}
               >

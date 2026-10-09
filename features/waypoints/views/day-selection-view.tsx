@@ -41,7 +41,7 @@ export async function DaySelectionView({
   );
 
   return (
-    <main className="min-h-svh bg-linear-to-b from-sky-100/70 via-background to-amber-100/40 py-5 dark:from-sky-950/30 dark:to-amber-950/20 sm:py-8">
+    <main className="min-h-svh bg-background py-5 sm:py-8">
       <ResponsiveContainer size="lg" className="space-y-5">
         <Link
           href="/game/map"

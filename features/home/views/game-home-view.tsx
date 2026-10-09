@@ -92,7 +92,7 @@ export async function GameHomeView(): Promise<React.ReactNode> {
     >
       <main className="py-6 text-foreground sm:py-9">
         <ResponsiveContainer size="lg" className="space-y-5 sm:space-y-7">
-          <header className="rounded-[2rem] border border-primary/15 bg-linear-to-br from-primary/10 via-card to-amber-400/8 p-5 shadow-sm sm:p-8">
+          <header className="rounded-dialog border border-border bg-card p-5 shadow-sm sm:p-8">
             <p className="text-xs font-bold tracking-[0.18em] text-primary uppercase">
               {t("eyebrow")}
             </p>
@@ -111,7 +111,7 @@ export async function GameHomeView(): Promise<React.ReactNode> {
             <StatCard
               label={t("glowPoints")}
               value={numberFormat.format(playerSummary.glowPoints)}
-              icon={<GemIcon className="text-amber-600 dark:text-amber-300" />}
+              icon={<GemIcon className="text-reward-text dark:text-reward-text" />}
             />
             <StatCard
               label={t("streak")}
@@ -119,7 +119,7 @@ export async function GameHomeView(): Promise<React.ReactNode> {
               supportingText={t("streakDays", {
                 count: playerSummary.streakDays,
               })}
-              icon={<FlameIcon className="text-orange-600 dark:text-orange-300" />}
+              icon={<FlameIcon className="text-decoration-text dark:text-decoration-text" />}
             />
           </section>
 

@@ -25,7 +25,7 @@ export function OilShopPurchasePreview(): React.ReactNode {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <section className="rounded-2xl border border-violet-300/40 bg-linear-to-br from-violet-50 via-card to-amber-50 p-5 shadow-sm dark:from-violet-950/25 dark:via-card dark:to-amber-950/20">
+    <section className="rounded-2xl border border-selection-border/40 bg-linear-to-br from-selection via-card to-reward p-5 shadow-sm dark:from-selection/25 dark:via-card dark:to-reward/20">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="font-heading text-xl font-bold">Shop purchase celebration</h2>

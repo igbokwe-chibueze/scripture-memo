@@ -143,7 +143,7 @@ export function WaypointCompletionScreen({
 
   return (
     <motion.div
-      className="fixed inset-0 z-40 overflow-y-auto bg-slate-950/75 px-4 backdrop-blur-md"
+      className="fixed inset-0 z-40 overflow-y-auto bg-background px-4 backdrop-blur-md"
       initial={{ opacity: shouldReduceMotion ? 1 : 0 }}
       animate={{ opacity: 1 }}
       role="dialog"
@@ -152,7 +152,7 @@ export function WaypointCompletionScreen({
     >
       <div className="flex min-h-full w-full justify-center py-4 sm:py-8">
         <motion.section
-          className="my-auto w-full max-w-md overflow-hidden rounded-[2rem] border border-orange-300/35 bg-linear-to-b from-amber-50 via-white to-orange-50 p-6 text-center text-slate-950 shadow-2xl shadow-orange-950/35 dark:from-slate-800 dark:via-slate-900 dark:to-orange-950 dark:text-white sm:p-8"
+          className="my-auto w-full max-w-md overflow-hidden rounded-dialog border border-border bg-card p-6 text-center text-card-foreground shadow-2xl sm:p-8"
           initial={shouldReduceMotion ? false : { opacity: 0, y: 48, scale: 0.76 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={
@@ -187,7 +187,7 @@ export function WaypointCompletionScreen({
                   PARTICLE_OFFSETS.map((offset, particle) => (
                     <motion.i
                       key={particle}
-                      className="pointer-events-none absolute size-2 rounded-full bg-amber-300"
+                      className="pointer-events-none absolute size-2 rounded-full bg-reward-subtle"
                       initial={{ opacity: 0, scale: 0, x: 0, y: 0 }}
                       animate={{
                         opacity: [0, 1, 0],
@@ -207,18 +207,18 @@ export function WaypointCompletionScreen({
             ))}
           </div>
 
-          <p className="mt-6 text-xs font-bold tracking-[0.18em] text-orange-700 uppercase dark:text-orange-300">
+          <p className="mt-6 text-xs font-bold tracking-[0.18em] text-decoration-text uppercase dark:text-decoration-text">
             {t("threeKindled")}
           </p>
           <h2 id="waypoint-complete-title" className="mt-2 font-heading text-4xl font-bold">
             {t("waypointNumberComplete", { number: waypointNumber })}
           </h2>
-          <p className="mt-3 text-lg font-bold text-foreground/75 dark:text-slate-200">
+          <p className="mt-3 text-lg font-bold text-foreground/75 dark:text-foreground">
             {verseReference}
           </p>
 
-          <div className="mt-6 rounded-2xl border border-amber-400/35 bg-amber-100/75 p-5 dark:bg-amber-300/10">
-            <MapIcon className="mx-auto size-7 text-orange-600 dark:text-orange-300" aria-hidden="true" />
+          <div className="mt-6 rounded-2xl border border-reward-border/35 bg-reward-subtle p-5 dark:bg-reward-subtle">
+            <MapIcon className="mx-auto size-7 text-decoration-text dark:text-decoration-text" aria-hidden="true" />
             <p className="mt-2 font-bold">
               {unlockedWaypointNumber
                 ? t("waypointUnlocked", { number: unlockedWaypointNumber })
@@ -230,7 +230,7 @@ export function WaypointCompletionScreen({
 
           <div className="mt-4 grid grid-cols-2 gap-3 [perspective:1200px]">
             <motion.div
-              className="transform-gpu rounded-2xl bg-orange-100 p-4 will-change-transform dark:bg-orange-400/10"
+              className="transform-gpu rounded-2xl bg-decoration-subtle p-4 will-change-transform dark:bg-decoration-subtle"
               style={{ transformStyle: "preserve-3d" }}
               initial={
                 shouldReduceMotion
@@ -263,7 +263,7 @@ export function WaypointCompletionScreen({
                     }
               }
             >
-              <p className="text-xs font-bold tracking-wide text-orange-700 uppercase dark:text-orange-300">
+              <p className="text-xs font-bold tracking-wide text-decoration-text uppercase dark:text-decoration-text">
                 {t("waypointRewards")}
               </p>
               <p className="mt-1 font-heading text-2xl font-bold">
@@ -271,7 +271,7 @@ export function WaypointCompletionScreen({
               </p>
             </motion.div>
             <motion.div
-              className="transform-gpu rounded-2xl bg-violet-100 p-4 will-change-transform dark:bg-violet-400/10"
+              className="transform-gpu rounded-2xl bg-selection-subtle p-4 will-change-transform dark:bg-selection-subtle"
               style={{ transformStyle: "preserve-3d" }}
               initial={
                 shouldReduceMotion
@@ -304,7 +304,7 @@ export function WaypointCompletionScreen({
                     }
               }
             >
-              <p className="text-xs font-bold tracking-wide text-violet-700 uppercase dark:text-violet-300">
+              <p className="text-xs font-bold tracking-wide text-selection-text uppercase dark:text-selection-text">
                 {t("totalBalance")}
               </p>
               <AnimatedBalanceValue
@@ -316,7 +316,7 @@ export function WaypointCompletionScreen({
 
           <Button
             type="button"
-            className="mt-7 min-h-12 w-full rounded-xl bg-orange-500 font-bold text-white hover:bg-orange-400"
+            className="mt-7 min-h-12 w-full rounded-game-action font-bold"
             onClick={onContinue}
           >
             {t("enterSanctuary")}

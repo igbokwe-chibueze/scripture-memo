@@ -29,10 +29,10 @@ export function VaultVerseCard({
 }>): React.ReactNode {
   const t = useTranslations("Vault");
   return (
-    <article className="rounded-3xl border border-violet-500/15 bg-card/90 p-5 shadow-sm">
+    <article className="rounded-3xl border border-selection-border/15 bg-card/90 p-5 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-bold tracking-[0.14em] text-violet-700 uppercase dark:text-violet-300">
+          <p className="text-xs font-bold tracking-[0.14em] text-selection-text uppercase dark:text-selection-text">
             {verse.translation}
           </p>
           <h3 className="mt-1 font-heading text-xl font-bold">
@@ -42,20 +42,20 @@ export function VaultVerseCard({
         <div className="flex items-center gap-2">
           {verse.hasPersonalNote && (
             <StickyNoteIcon
-              className="size-5 text-violet-500"
+              className="size-5 text-selection-text"
               aria-label={t("privateNote")}
             />
           )}
           {verse.isFavorite && (
             <HeartIcon
-              className="size-5 fill-rose-500 text-rose-500"
+              className="size-5 fill-error text-error-text"
               aria-label={t("favorite")}
             />
           )}
         </div>
       </div>
       {verse.studyAccess === "LOCKED" ? (
-        <div className="mt-4 flex min-h-18 items-center justify-center gap-2 rounded-2xl border border-dashed border-violet-300/50 bg-violet-500/5 text-sm font-bold text-violet-700 dark:text-violet-300">
+        <div className="mt-4 flex min-h-18 items-center justify-center gap-2 rounded-2xl border border-dashed border-selection-border/50 bg-selection-subtle text-sm font-bold text-selection-text dark:text-selection-text">
           <LockKeyholeIcon className="size-4" aria-hidden="true" /> {t("practiceInProgress")}
         </div>
       ) : (
@@ -72,7 +72,7 @@ export function VaultVerseCard({
         {verse.completedStages.map((stage) => (
           <span
             key={stage}
-            className="rounded-full bg-violet-500/10 px-2.5 py-1 text-[0.65rem] font-bold tracking-wide text-violet-700 uppercase dark:text-violet-300"
+            className="rounded-full bg-selection-subtle px-2.5 py-1 text-[0.65rem] font-bold tracking-wide text-selection-text uppercase dark:text-selection-text"
           >
             {stage}
           </span>

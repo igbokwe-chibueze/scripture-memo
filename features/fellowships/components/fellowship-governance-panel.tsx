@@ -160,7 +160,7 @@ export function FellowshipGovernancePanel({
             <div className="min-w-0 flex-1 space-y-2">
               <h2 className="font-heading text-lg font-bold">{t("suspensionTitle")}</h2>
               <p className="text-sm text-muted-foreground">{t("suspensionDescription")}</p>
-              <p className="text-sm font-semibold">{t("suspensionReason", { reason: governance.suspension.reason })}</p>
+              <p className="text-sm font-bold">{t("suspensionReason", { reason: governance.suspension.reason })}</p>
               <p className="text-sm">
                 {t(
                   governance.suspension.appealDeadline > new Date()
@@ -215,9 +215,9 @@ export function FellowshipGovernancePanel({
         </div>
       )}
       {showHomeClosure && (
-        <div className="rounded-3xl border border-amber-500/35 bg-amber-500/10 p-5">
+        <div className="rounded-3xl border border-reward-border/35 bg-reward-subtle p-5">
           <div className="flex items-start gap-3">
-            <ShieldAlertIcon className="mt-1 size-5 shrink-0 text-amber-700 dark:text-amber-300" aria-hidden="true" />
+            <ShieldAlertIcon className="mt-1 size-5 shrink-0 text-reward-text dark:text-reward-text" aria-hidden="true" />
             <div className="min-w-0 flex-1">
               <h2 className="font-heading text-lg font-bold">{t("closingTitle")}</h2>
               <p className="mt-1 text-sm text-muted-foreground">{t("closingDescription")}</p>
@@ -259,9 +259,9 @@ export function FellowshipGovernancePanel({
       )}
 
       {showHomeTransfer && governance.pendingTransfer && (
-        <div className="rounded-3xl border border-violet-500/30 bg-violet-500/8 p-5">
+        <div className="rounded-3xl border border-selection-border/30 bg-selection-subtle p-5">
           <div className="flex items-start gap-3">
-            <HandshakeIcon className="mt-1 size-5 shrink-0 text-violet-600" aria-hidden="true" />
+            <HandshakeIcon className="mt-1 size-5 shrink-0 text-selection-text" aria-hidden="true" />
             <div className="min-w-0 flex-1">
               <h2 className="font-heading text-lg font-bold">
                 {governance.pendingTransfer.isRecipient
@@ -336,9 +336,9 @@ export function FellowshipGovernancePanel({
       )}
 
       {showManagePendingTransfer && governance.pendingTransfer && (
-        <div className="rounded-3xl border border-violet-500/30 bg-violet-500/8 p-5">
+        <div className="rounded-3xl border border-selection-border/30 bg-selection-subtle p-5">
           <div className="flex items-start gap-3">
-            <HandshakeIcon className="mt-1 size-5 shrink-0 text-violet-600" aria-hidden="true" />
+            <HandshakeIcon className="mt-1 size-5 shrink-0 text-selection-text" aria-hidden="true" />
             <div className="min-w-0">
               <h2 className="font-heading text-lg font-bold">{t("offerWaitingTitle")}</h2>
               <p className="mt-1 text-sm text-muted-foreground">
@@ -359,7 +359,7 @@ export function FellowshipGovernancePanel({
               className="space-y-4 rounded-3xl border bg-card p-5"
             >
               <div className="flex items-center gap-3">
-                <CrownIcon className="size-5 text-amber-600" aria-hidden="true" />
+                <CrownIcon className="size-5 text-reward-text" aria-hidden="true" />
                 <h2 className="font-heading text-lg font-bold">{t("transferTitle")}</h2>
               </div>
               <p className="text-sm text-muted-foreground">{t("transferDescription")}</p>

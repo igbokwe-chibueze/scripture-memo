@@ -19,7 +19,7 @@ export function WaypointCompletionPreview(): React.ReactNode {
   };
 
   return (
-    <section className="rounded-2xl border border-orange-300/40 bg-linear-to-br from-amber-50 via-card to-orange-50 p-5 shadow-sm dark:from-amber-950/25 dark:via-card dark:to-orange-950/25">
+    <section className="rounded-2xl border border-decoration-border/40 bg-linear-to-br from-reward via-card to-decoration p-5 shadow-sm dark:from-reward/25 dark:via-card dark:to-decoration/25">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="font-heading text-xl font-bold">Waypoint celebration</h2>
@@ -29,7 +29,7 @@ export function WaypointCompletionPreview(): React.ReactNode {
         </div>
         <Button
           type="button"
-          className="min-h-11 rounded-xl bg-orange-500 font-bold text-white hover:bg-orange-400"
+          className="min-h-11 rounded-game-action font-bold"
           onClick={openPreview}
         >
           <FlameIcon className="fill-current" aria-hidden="true" />

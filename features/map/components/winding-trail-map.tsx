@@ -246,7 +246,7 @@ export function WindingTrailMap({
             >
               <div className="flex items-center justify-between gap-4 px-2">
                 <div>
-                  <p className="flex items-center gap-1.5 text-[0.65rem] font-bold tracking-[0.16em] text-emerald-700 uppercase dark:text-emerald-300">
+                  <p className="flex items-center gap-1.5 text-[0.65rem] font-bold tracking-[0.16em] text-success-text uppercase dark:text-success-text">
                     <MapIcon className="size-3.5" aria-hidden="true" />
                     {t("trail", { number: group.index + 1 })}
                   </p>
@@ -258,7 +258,7 @@ export function WindingTrailMap({
                   </h2>
                 </div>
                 {group.index === currentGroupIndex && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/60 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-900 shadow-sm dark:border-amber-500/30 dark:bg-amber-950/80 dark:text-amber-200">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-reward-border/60 bg-reward-subtle px-3 py-1 text-xs font-bold text-reward-text shadow-sm dark:border-reward-border/30 dark:bg-reward dark:text-reward-text">
                     <FlagIcon className="size-3.5" aria-hidden="true" />
                     {t("currentMap")}
                   </span>
@@ -266,7 +266,7 @@ export function WindingTrailMap({
               </div>
 
               <div
-                className="relative w-full overflow-hidden rounded-[2.25rem] border border-amber-200/40 bg-muted shadow-xl shadow-foreground/12 dark:border-amber-100/15"
+                className="relative w-full overflow-hidden rounded-[2.25rem] border border-reward-border/40 bg-muted shadow-xl shadow-foreground/12 dark:border-reward-border/15"
                 style={{ aspectRatio: `${theme.width} / ${theme.height}` }}
               >
                 <Image
@@ -279,7 +279,7 @@ export function WindingTrailMap({
                 />
                 <div
                   aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 bg-linear-to-b from-black/5 via-transparent to-black/15"
+                  className="pointer-events-none absolute inset-0 bg-linear-to-b from-image-overlay/10 via-transparent to-image-overlay/25"
                 />
 
                 {group.waypoints.map((waypoint, waypointIndex) => {

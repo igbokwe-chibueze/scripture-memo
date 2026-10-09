@@ -30,7 +30,7 @@ export async function MapPositionerView(): Promise<React.ReactNode> {
   if (process.env.NODE_ENV !== "development") notFound();
 
   return (
-    <main className="min-h-screen bg-linear-to-b from-background via-muted/25 to-background py-2">
+    <main className="min-h-screen bg-background py-2">
       <ResponsiveContainer size="full">
         <MapPositioner />
       </ResponsiveContainer>

@@ -692,7 +692,8 @@ If a pattern appears in more than one place → extract it to the appropriate sh
 All game modes must support touch on mobile devices:
 
 - **Drag & Drop / Puzzle:** Tap to select word (highlight), tap a blank to place it. Tap placed word to return to bank.
-- **Swap:** Tap a yellow word to select (purple), tap another to swap.
+- **Swap:** Tap an available word to select it with the shared teal selection
+  treatment, then tap another word to swap.
 - **Cue / Fill:** Standard mobile keyboard input.
 
 Use `@dnd-kit/core` — it natively handles both mouse and touch events.
@@ -723,6 +724,13 @@ Scripture Memo is a mobile-first game experience, not a conventional dashboard-s
   pages from the shared semantic theme tokens and established game palette;
   never introduce an unrelated page-specific palette merely to make a screen
   look distinctive.
+- Use Tropical Teal as the shared brand and selection color, honey gold for
+  earned rewards, restrained tangerine for decoration and streak flames, green
+  for evaluated success, red for errors, blue for information, and neutral
+  theme-aware surfaces. Selection and correctness are different states.
+- Keep interface colors in semantic theme tokens and shared component variants.
+  Raw palette utilities and literal colors are limited to approved artwork,
+  charts, and narrowly documented exceptions.
 - Feature identity should come from composition, illustration, iconography, and
   restrained accent use—not wholesale changes to surfaces, text, controls, or
   feedback colors. Light and dark themes must remain recognizable variants of

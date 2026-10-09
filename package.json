@@ -17,6 +17,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test:unit": "tsx scripts/run-unit-tests.ts",
+    "test:design-system": "tsx --test scripts/design-system.test.ts",
     "test:errors": "tsx --test lib/errors/error-catalog.test.ts",
     "test:platform-settings": "tsx --test features/platform-settings/schemas/update-platform-settings.schema.test.ts",
     "test:audit-logs": "tsx --test features/audit-logs/lib/safe-audit-summary.test.ts",

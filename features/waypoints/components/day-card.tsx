@@ -87,9 +87,12 @@ export function DayCard({
     <Card
       className={cn(
         "relative overflow-hidden border py-0 shadow-lg shadow-foreground/5",
-        card.status === "READY" && "border-amber-400/60 ring-2 ring-amber-300/20",
-        card.status === "COMPLETE" && "border-emerald-400/45 bg-emerald-50/70 dark:bg-emerald-950/20",
-        (card.status === "LOCKED" || card.status === "COOLDOWN") && "bg-card/75",
+        card.status === "READY" &&
+          "border-available-border ring-2 ring-selection/20",
+        card.status === "COMPLETE" &&
+          "border-success-border bg-success-subtle",
+        (card.status === "LOCKED" || card.status === "COOLDOWN") &&
+          "border-border bg-muted",
       )}
     >
       <CardHeader className="grid grid-cols-[3.25rem_1fr_auto] items-center gap-3 px-4 pt-4">
@@ -97,10 +100,10 @@ export function DayCard({
           className={cn(
             "grid size-13 place-items-center rounded-2xl text-lg font-bold shadow-inner",
             card.status === "COMPLETE"
-              ? "bg-emerald-500 text-white"
+              ? "bg-success text-success-foreground"
               : card.status === "READY"
-                ? "bg-linear-to-br from-amber-300 to-orange-500 text-amber-950"
-                : "bg-muted text-muted-foreground",
+                ? "bg-available-subtle text-available-text"
+                : "bg-disabled text-disabled-foreground",
           )}
         >
           {index + 1}
@@ -120,29 +123,29 @@ export function DayCard({
       <CardContent className="space-y-4 px-4 pb-4">
         <div className="flex items-center justify-between gap-3 rounded-xl bg-muted/65 px-3 py-2.5">
           <span className="inline-flex items-center gap-2 text-sm font-bold">
-            <SparklesIcon className="size-4 text-amber-500" aria-hidden="true" />
+            <SparklesIcon className="size-4 text-reward-text" aria-hidden="true" />
             {t("rewardPreview")}
           </span>
-          <span className="font-heading font-bold text-amber-700 dark:text-amber-300">
+          <span className="font-heading font-bold text-reward-text dark:text-reward-text">
             {t("glowPoints", { points: card.reward })}
           </span>
         </div>
 
         {card.status === "COMPLETE" && (
-          <div className="flex items-center gap-2 text-sm font-bold text-emerald-700 dark:text-emerald-300">
-            <FlameIcon className="size-5 fill-amber-400 text-amber-500" aria-hidden="true" />
+          <div className="flex items-center gap-2 text-sm font-bold text-success-text dark:text-success-text">
+            <FlameIcon className="size-5 fill-reward text-reward-text" aria-hidden="true" />
             {t("flameKindled")}
           </div>
         )}
 
         {card.status === "COOLDOWN" && card.unlocksAt && (
-          <div className="relative -mx-1 flex min-h-44 overflow-hidden rounded-2xl border border-violet-300/40 bg-linear-to-br from-background via-violet-50/80 to-violet-100/90 p-4 dark:via-violet-950/30 dark:to-violet-950/60">
+          <div className="relative -mx-1 flex min-h-44 overflow-hidden rounded-card border border-border bg-muted p-4">
             <div className="relative z-10 min-w-0 flex-1">
-              <p className="text-xs font-bold tracking-[0.14em] text-violet-700 uppercase dark:text-violet-300">{t("restFlame")}</p>
+              <p className="text-xs font-bold tracking-[0.14em] text-muted-foreground uppercase">{t("restFlame")}</p>
               <p className="mt-1 font-heading text-lg font-bold">{t("preparing", { day: dayName })}</p>
               <p className="mt-1 max-w-56 text-xs leading-5 text-muted-foreground">{t("lunaKeepsPlace")}</p>
-              <div className="mt-3 w-fit rounded-xl border border-violet-300/40 bg-background/80 px-3 py-2 shadow-sm">
-                <p className="text-[0.6rem] font-bold tracking-wide text-violet-700 uppercase dark:text-violet-300">{t("readyIn")}</p>
+              <div className="mt-3 w-fit rounded-control border border-border bg-card px-3 py-2 shadow-sm">
+                <p className="text-[0.6rem] font-bold tracking-wide text-muted-foreground uppercase">{t("readyIn")}</p>
                 <CountdownTimer targetDate={card.unlocksAt} label={t("unlocksIn", { day: dayName })} className="mt-1" onExpire={() => router.refresh()} />
               </div>
             </div>
@@ -181,7 +184,7 @@ export function DayCard({
             completedModes={card.completedModes}
           />
         ) : (
-          <p className="w-full text-center text-sm font-bold text-emerald-700 dark:text-emerald-300">
+          <p className="w-full text-center text-sm font-bold text-success-text dark:text-success-text">
             {t("challengeComplete")}
           </p>
         )}

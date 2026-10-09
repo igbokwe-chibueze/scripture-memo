@@ -201,7 +201,7 @@ export function VerseImportDialog(): React.ReactNode {
               </div>
 
               {(preview.duplicateCount > 0 || preview.invalidCount > 0) && (
-                <div className="flex gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-950 dark:text-amber-100">
+                <div className="flex gap-2 rounded-xl border border-reward-border/30 bg-reward-subtle p-3 text-sm text-reward-text dark:text-reward-text">
                   <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
                   Duplicate and invalid rows will be skipped. Only rows marked Ready will be saved.
                 </div>

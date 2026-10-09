@@ -14,11 +14,11 @@ import { cn } from "@/lib/utils";
 type CollectionFilter = "ALL" | "COMPLETED" | "IN_PROGRESS" | "LOCKED";
 
 const RARITY_RING = {
-  COMMON: "border-slate-300 dark:border-slate-600",
-  UNCOMMON: "border-emerald-400",
-  RARE: "border-sky-400",
-  EPIC: "border-violet-400",
-  LEGENDARY: "border-amber-400 shadow-amber-400/20",
+  COMMON: "border-border dark:border-border",
+  UNCOMMON: "border-success-border",
+  RARE: "border-info-border",
+  EPIC: "border-selection-border",
+  LEGENDARY: "border-reward-border shadow-reward/20",
 } as const;
 
 /**
@@ -130,7 +130,7 @@ export function BadgeCollection({
             className={cn(
               "min-h-11 shrink-0 rounded-full border px-4 text-xs font-bold tracking-wide",
               filter === option
-                ? "border-amber-400 bg-amber-400 text-slate-950"
+                ? "border-reward-border bg-reward text-foreground"
                 : "border-border bg-card text-muted-foreground",
             )}
             aria-pressed={filter === option}
@@ -233,7 +233,7 @@ export function BadgeCollection({
                 </p>
                 <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted sm:mt-4 sm:h-2">
                   <div
-                    className="h-full rounded-full bg-amber-400 transition-[width]"
+                    className="h-full rounded-full bg-reward transition-[width]"
                     style={{ width: `${progressPercent}%` }}
                   />
                 </div>
@@ -247,7 +247,7 @@ export function BadgeCollection({
                   </span>
                 </div>
                 {unlocked && badge.unlockedAt && (
-                  <p className="mt-1 line-clamp-1 text-center text-[0.6rem] leading-3 font-medium text-emerald-700 dark:text-emerald-300 min-[425px]:text-left sm:mt-3 sm:text-xs sm:leading-normal">
+                  <p className="mt-1 line-clamp-1 text-center text-[0.6rem] leading-3 font-medium text-success-text dark:text-success-text min-[425px]:text-left sm:mt-3 sm:text-xs sm:leading-normal">
                     {t("unlockedOn", { date: new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(badge.unlockedAt) })}
                   </p>
                 )}

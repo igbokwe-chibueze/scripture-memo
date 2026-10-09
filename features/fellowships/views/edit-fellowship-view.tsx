@@ -32,13 +32,13 @@ export async function EditFellowshipView({
   if (!fellowship) notFound();
 
   return (
-    <main className="min-h-dvh bg-linear-to-b from-violet-500/8 via-background to-amber-500/8 py-8">
+    <main className="min-h-dvh bg-background py-8">
       <ResponsiveContainer size="lg" className="space-y-7">
         <NavigationButton
           href={`/fellowships/${slug}`}
           pendingLabel={t("opening")}
           variant="outline"
-          className="min-h-11 bg-card"
+          className="min-h-11"
         >
           <ArrowLeftIcon aria-hidden="true" />
           {t("backToFellowship")}

@@ -258,12 +258,12 @@ export function GameShell({
   };
 
   return (
-    <main className="min-h-svh bg-linear-to-b from-violet-100/80 via-background to-amber-50 px-4 py-5 text-foreground dark:from-violet-950 dark:via-slate-950 dark:to-slate-900 sm:px-6 sm:py-8">
-      <section className="mx-auto flex min-h-[calc(100svh-2.5rem)] max-w-3xl flex-col overflow-hidden rounded-[2rem] border border-border bg-card/95 shadow-2xl shadow-foreground/15 dark:border-white/10 dark:bg-slate-900/90 dark:shadow-black/40 sm:min-h-[calc(100svh-4rem)]">
-        <header className="border-b border-border px-5 py-5 dark:border-white/10 sm:px-8">
+    <main className="min-h-svh bg-background px-4 py-5 text-foreground sm:px-6 sm:py-8">
+      <section className="mx-auto flex min-h-[calc(100svh-2.5rem)] max-w-3xl flex-col overflow-hidden rounded-[2rem] border border-border bg-card/95 shadow-[0_18px_44px_color-mix(in_oklch,var(--foreground)_12%,transparent)] sm:min-h-[calc(100svh-4rem)]">
+        <header className="border-b border-border px-5 py-5 dark:border-border/10 sm:px-8">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <p className="whitespace-nowrap text-xs font-bold tracking-[0.12em] text-amber-700 uppercase dark:text-amber-300 sm:tracking-[0.16em]">
+              <p className="whitespace-nowrap text-xs font-bold tracking-[0.12em] text-reward-text uppercase dark:text-reward-text sm:tracking-[0.16em]">
                 {playerPracticeMode
                   ? t("playerPractice")
                   : gameSession.isAdminTest
@@ -281,14 +281,14 @@ export function GameShell({
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger
-                className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-background text-foreground shadow-sm transition hover:bg-muted focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:outline-none dark:border-white/15 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
+                className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-background text-foreground shadow-sm transition hover:bg-muted focus-visible:ring-2 focus-visible:ring-selection focus-visible:outline-none dark:border-border/15 dark:bg-card/5 dark:text-foreground dark:hover:bg-card/10"
                 aria-label={t("openMenu")}
               >
                 <EllipsisVerticalIcon className="size-5" aria-hidden="true" />
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className="w-64 rounded-xl border border-border p-2 dark:border-white/10"
+                className="w-64 rounded-xl border border-border p-2 dark:border-border/10"
               >
                 <DropdownMenuGroup>
                   <DropdownMenuLabel className="px-2 py-1.5 font-bold text-foreground">
@@ -362,7 +362,7 @@ export function GameShell({
                               className="min-h-11 cursor-pointer gap-3 rounded-lg px-3 py-2 font-bold"
                               onClick={() => setAdminTestReplayMode(mode)}
                             >
-                              <span className="grid size-6 place-items-center rounded-md bg-sky-500/15 text-xs font-bold text-sky-700 dark:text-sky-200">
+                              <span className="grid size-6 place-items-center rounded-md bg-info-subtle text-xs font-bold text-info-text dark:text-info-text">
                                 {GAME_MODE_ORDER.indexOf(mode) + 1}
                               </span>
                               {t("replayMode", { mode: modeLabels[mode] })}
@@ -426,8 +426,8 @@ export function GameShell({
                   key={mode}
                   className={cn(
                     "h-2 rounded-full bg-muted",
-                    index < currentModeIndex && "bg-emerald-400",
-                    index === currentModeIndex && "bg-amber-400",
+                    index < currentModeIndex && "bg-success",
+                    index === currentModeIndex && "bg-reward",
                   )}
                   aria-label={`${modeLabels[mode]}: ${
                     index < currentModeIndex
@@ -442,21 +442,21 @@ export function GameShell({
           )}
 
           {!playerPracticeMode && (
-            <div className="mt-4 rounded-2xl border border-violet-400/20 bg-violet-500/8 p-3">
+            <div className="mt-4 rounded-2xl border border-selection-border/20 bg-selection-subtle p-3">
               <div className="flex items-center justify-between gap-3 text-xs font-bold">
                 <span>
                   {t("beaconLevel", {
                     level: gameSession.beaconProgress.level,
                   })}
                 </span>
-                <span className="text-violet-700 dark:text-violet-300">
+                <span className="text-selection-text dark:text-selection-text">
                   {t("beaconXp", {
                     count: gameSession.beaconProgress.lifetimeXp,
                   })}
                 </span>
               </div>
               <div
-                className="mt-2 h-2.5 overflow-hidden rounded-full bg-violet-950/15 dark:bg-black/35"
+                className="mt-2 h-2.5 overflow-hidden rounded-full bg-selection dark:bg-background/35"
                 role="progressbar"
                 aria-label={t("beaconProgress")}
                 aria-valuemin={0}
@@ -464,7 +464,7 @@ export function GameShell({
                 aria-valuenow={Math.round(beaconLevelProgress)}
               >
                 <div
-                  className="h-full rounded-full bg-linear-to-r from-violet-500 to-fuchsia-400"
+                  className="h-full rounded-full bg-primary"
                   style={{ width: `${beaconLevelProgress}%` }}
                 />
               </div>
@@ -472,7 +472,7 @@ export function GameShell({
           )}
 
           {(gameSession.isAdminTest || playerPracticeMode) && (
-            <div className="mt-4 flex min-h-11 items-center gap-2 rounded-xl border border-sky-400/25 bg-sky-100/70 px-3 py-2 text-xs font-bold text-sky-800 dark:border-sky-300/20 dark:bg-sky-300/8 dark:text-sky-200">
+            <div className="mt-4 flex min-h-11 items-center gap-2 rounded-xl border border-info-border/25 bg-info-subtle px-3 py-2 text-xs font-bold text-info-text dark:border-info-border/20 dark:bg-info-subtle dark:text-info-text">
               <ShieldCheckIcon className="size-4 shrink-0" aria-hidden="true" />
               {playerPracticeMode ? t("playerPracticeBanner") : t("adminTesting")}
             </div>
@@ -486,7 +486,7 @@ export function GameShell({
             !replayMode &&
             !playerPracticeMode && (
             <div className="mb-6 flex flex-col items-center gap-2">
-              <span className="inline-flex items-center gap-2 text-sm font-bold text-amber-700 dark:text-amber-200">
+              <span className="inline-flex items-center gap-2 text-sm font-bold text-reward-text dark:text-reward-text">
                 <Clock3Icon className="size-4" aria-hidden="true" />
                 {t("timeRemaining")}
               </span>
@@ -658,8 +658,8 @@ export function GameShell({
               onRetry={beginMode}
             />
           ) : (
-            <div className="my-auto w-full max-w-xl overflow-hidden rounded-[2rem] border border-violet-300/45 bg-linear-to-br from-card via-card to-violet-100/80 p-5 text-left dark:to-violet-950/40 sm:p-8">
-              <p className="text-xs font-bold tracking-[0.16em] text-violet-700 uppercase dark:text-violet-300">
+            <div className="my-auto w-full max-w-xl overflow-hidden rounded-dialog border border-border bg-card p-5 text-left sm:p-8">
+              <p className="text-xs font-bold tracking-[0.16em] text-selection-text uppercase dark:text-selection-text">
                 {t("upNext")}
               </p>
               <h2 className="mt-2 font-heading text-2xl leading-tight font-bold sm:text-3xl">
@@ -668,12 +668,12 @@ export function GameShell({
 
               <div className="mt-4 grid grid-cols-[minmax(0,1fr)_6rem] items-end gap-3 sm:grid-cols-[minmax(0,1fr)_10rem] sm:gap-6">
                 {!attempt && currentMode && (
-                  <div className="rounded-2xl border border-violet-300/40 bg-background/75 p-3 sm:p-4">
+                  <div className="rounded-2xl border border-selection-border/40 bg-background/75 p-3 sm:p-4">
                     {modeTimeLimitMinutes ? (
                       <>
                         <p className="flex items-center gap-2 text-sm font-bold sm:text-base">
                           <Clock3Icon
-                            className="size-5 shrink-0 text-violet-600"
+                            className="size-5 shrink-0 text-selection-text"
                             aria-hidden="true"
                           />
                           {t("minuteChallenge", {
@@ -688,7 +688,7 @@ export function GameShell({
                       <>
                         <p className="flex items-center gap-2 text-sm font-bold sm:text-base">
                           <SparklesIcon
-                            className="size-5 shrink-0 text-amber-500"
+                            className="size-5 shrink-0 text-reward-text"
                             aria-hidden="true"
                           />
                           {t("learnPace")}
@@ -713,7 +713,7 @@ export function GameShell({
                 <Button
                   type="button"
                   size="lg"
-                  className="mt-4 min-h-12 w-full rounded-xl bg-amber-400 px-4 font-bold text-slate-950 hover:bg-amber-300 sm:mt-5 sm:px-7"
+                  className="mt-4 min-h-12 w-full rounded-game-action px-4 font-bold sm:mt-5 sm:px-7"
                   disabled={isPending}
                   onClick={beginMode}
                 >
@@ -728,7 +728,7 @@ export function GameShell({
         {!playerPracticeMode &&
           hintsAllowed &&
           (currentMode || adminTestReplayMode) && (
-          <footer className="border-t border-border px-5 py-4 dark:border-white/10 sm:px-8">
+          <footer className="border-t border-border px-5 py-4 dark:border-border/10 sm:px-8">
             <HintButton
               sessionId={gameSession.id}
               initialBalance={gameSession.hintBalance}

@@ -23,7 +23,7 @@ export async function TranslationSelectionView({ searchParams }: { searchParams:
   if (settings.hasSelectedTranslation) redirect(nextPath);
 
   return (
-    <main className="flex min-h-svh items-center justify-center bg-linear-to-b from-primary/10 via-background to-amber-100/50 px-4 py-10 dark:to-amber-950/20">
+    <main className="flex min-h-svh items-center justify-center bg-background px-4 py-10">
       <Card className="w-full max-w-xl shadow-2xl shadow-primary/10">
         <CardHeader className="items-center text-center">
           <span className="flex size-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground">

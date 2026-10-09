@@ -59,23 +59,30 @@ Theme context → page surface → semantic tokens → shared component → vari
 
 ### 3.2 One application palette
 
-The established application language uses restrained amber/orange warmth,
-violet depth, emerald success, blue informational feedback, and neutral slate
-surfaces. Feature identity comes from composition, illustration, iconography,
-and restrained accents—not unrelated page-level palettes.
+The Tropical Teal design system is the application-wide source of truth. Use
+teal for primary actions and selection, honey gold for earned rewards, restrained
+tangerine for decoration and streak flames, dedicated green and red for success
+and errors, blue for information, and neutral theme-aware surfaces. Feature
+identity comes from composition, illustration, iconography, and restrained
+accents—not unrelated page-level palettes.
 
 Use semantic feedback consistently:
 
 | Meaning | Treatment |
 |---|---|
-| Success/correct | Emerald or green |
-| Error/incorrect | Red |
-| Information/focus | Blue |
-| Selection/swap | Violet or purple |
-| Available movable item | Amber or yellow |
+| Success/correct | Success role (green) |
+| Error/incorrect | Error role (red) |
+| Information | Info role (blue) |
+| Selection/swap | Selection role (teal) |
+| Available movable item | Available role (quiet teal) |
+| Earned rewards/currency | Reward role (honey gold) |
+| Decorative accent/streak flame | Decoration role (tangerine) |
 | Locked/cooldown | Muted neutral |
 
-Never introduce a new feature palette merely to make a page look distinctive.
+Use semantic tokens and shared component variants for all interface colors.
+Avoid raw palette utilities, arbitrary color literals, and page-specific color
+overrides. Preserve distinctive colors inside approved illustrations and
+document narrowly scoped asset or chart exceptions.
 
 ## 4. Standard Page Compositions
 
@@ -167,6 +174,9 @@ classes before changing `components/ui/button.tsx`.
   shared `buttonVariants` styling path.
 - Use Fredoka Bold 700 for compact action, reward, and status labels; use
   Fredoka Medium 500 for supporting descriptions and instructions.
+- Keep `font-sans` and `font-action` mapped to the locally served Fredoka family
+  and `font-heading` mapped to the locally served Lilita One family. Geist remains
+  available only for genuine monospace or diagnostic use.
 - One clear page heading.
 - Use the heading family for major game moments and hierarchy.
 - Keep player-facing labels and instructions short.

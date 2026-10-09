@@ -74,15 +74,15 @@ export async function VaultView(): Promise<React.ReactNode> {
         )
       }
     >
-      <main className="min-h-dvh bg-linear-to-b from-violet-100/70 via-background to-amber-50 px-4 py-6 text-foreground dark:from-violet-950 dark:via-slate-950 dark:to-slate-900 sm:px-6 sm:py-10">
+      <main className="min-h-dvh bg-background px-4 py-6 text-foreground sm:px-6 sm:py-10">
         <div className="mx-auto max-w-6xl">
-          <header className="overflow-hidden rounded-[2rem] border border-violet-300/20 bg-linear-to-br from-violet-700 via-indigo-800 to-slate-950 p-6 text-white shadow-xl sm:p-9">
-            <VaultIcon className="size-11 text-amber-300" aria-hidden="true" />
-            <p className="mt-5 text-xs font-bold tracking-[0.2em] text-violet-200 uppercase">
+          <header className="overflow-hidden rounded-dialog border border-border bg-card p-6 text-card-foreground shadow-sm sm:p-9">
+            <VaultIcon className="size-11 text-primary" aria-hidden="true" />
+            <p className="mt-5 text-xs font-bold tracking-[0.2em] text-primary uppercase">
               {t("permanentCollection")}
             </p>
             <h1 className="mt-2 font-heading text-4xl font-bold sm:text-5xl">{t("title")}</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-violet-100">
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
               {t("longDescription")}
             </p>
             {/* Stack touch targets at 375px; wider screens can share a row.

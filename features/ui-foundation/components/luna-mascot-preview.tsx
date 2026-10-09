@@ -65,7 +65,7 @@ function LunaGallery({ collection }: LunaGalleryProps): React.ReactNode {
             key={item.pose}
             className="overflow-hidden rounded-3xl border bg-card shadow-sm"
           >
-            <div className="grid aspect-square place-items-center overflow-hidden bg-linear-to-br from-amber-50 via-orange-50 to-violet-100 p-3 dark:from-slate-900 dark:via-violet-950 dark:to-slate-950">
+            <div className="grid aspect-square place-items-center overflow-hidden bg-linear-to-br from-reward via-decoration to-selection p-3 dark:from-card dark:via-selection dark:to-background">
               {collection === "production" ? (
                 <LunaMascot
                   pose={item.pose}

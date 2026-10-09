@@ -85,7 +85,7 @@ export function CompletedModePracticeMenu({
               className="min-h-11 cursor-pointer gap-3 rounded-lg px-3 py-2 font-bold"
               onClick={() => openPractice(mode)}
             >
-              <span className="grid size-6 place-items-center rounded-md bg-emerald-500/15 text-xs font-bold text-emerald-800 dark:text-emerald-200">
+              <span className="grid size-6 place-items-center rounded-md bg-success-subtle text-xs font-bold text-success-text dark:text-success-text">
                 {GAME_MODE_ORDER.indexOf(mode) + 1}
               </span>
               {modeLabels[mode]}

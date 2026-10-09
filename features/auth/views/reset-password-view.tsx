@@ -44,7 +44,7 @@ export async function ResetPasswordView({
       ) : (
         <div className="space-y-5 text-center">
           <AlertTriangleIcon
-            className="mx-auto size-14 text-amber-500"
+            className="mx-auto size-14 text-reward-text"
             aria-hidden="true"
           />
           <Link

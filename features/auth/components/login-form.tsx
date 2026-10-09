@@ -96,19 +96,19 @@ export function LoginForm({
       <FieldGroup>
         {verificationComplete && (
           <p
-            className="flex items-start gap-2 rounded-xl border border-emerald-600/25 bg-emerald-600/5 p-4 text-sm text-foreground"
+            className="flex items-start gap-2 rounded-xl border border-success-border/25 bg-success p-4 text-sm text-foreground"
             role="status"
           >
-            <MailCheckIcon className="mt-0.5 size-5 shrink-0 text-emerald-700" aria-hidden="true" />
+            <MailCheckIcon className="mt-0.5 size-5 shrink-0 text-success-text" aria-hidden="true" />
             <span>{t("verificationComplete")}</span>
           </p>
         )}
         {invalidVerificationLink && (
           <p
-            className="flex items-start gap-2 rounded-xl border border-amber-600/25 bg-amber-600/5 p-4 text-sm text-foreground"
+            className="flex items-start gap-2 rounded-xl border border-reward-border/25 bg-reward p-4 text-sm text-foreground"
             role="status"
           >
-            <CircleAlertIcon className="mt-0.5 size-5 shrink-0 text-amber-700" aria-hidden="true" />
+            <CircleAlertIcon className="mt-0.5 size-5 shrink-0 text-reward-text" aria-hidden="true" />
             <span>{t("verificationLinkInactive")}</span>
           </p>
         )}

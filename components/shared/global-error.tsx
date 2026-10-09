@@ -27,13 +27,13 @@ export function GlobalError({
   const shouldReduceMotion = useReducedMotionPreference();
 
   return (
-    <main className="relative isolate flex min-h-dvh items-center justify-center overflow-hidden bg-linear-to-b from-amber-50 via-orange-50 to-violet-100 px-5 py-8 text-slate-950 dark:from-slate-950 dark:via-[#150d20] dark:to-[#27123c] dark:text-white">
+    <main className="relative isolate flex min-h-dvh items-center justify-center overflow-hidden bg-background px-5 py-8 text-foreground">
       <div
-        className="absolute -top-32 left-1/2 size-96 -translate-x-1/2 rounded-full bg-amber-300/25 blur-3xl dark:bg-orange-500/12"
+        className="absolute -top-32 left-1/2 size-96 -translate-x-1/2 rounded-full bg-reward/10 blur-3xl"
         aria-hidden="true"
       />
       <div
-        className="absolute -bottom-36 left-1/2 h-72 w-[36rem] max-w-[130vw] -translate-x-1/2 rounded-[50%] bg-violet-400/25 blur-3xl dark:bg-violet-600/20"
+        className="absolute -bottom-36 left-1/2 h-72 w-[36rem] max-w-[130vw] -translate-x-1/2 rounded-[50%] bg-primary/5 blur-3xl"
         aria-hidden="true"
       />
 
@@ -64,7 +64,7 @@ export function GlobalError({
         >
           Oops we hit a snag
         </h1>
-        <p className="mx-auto mt-3 max-w-sm text-sm leading-6 font-medium text-slate-600 dark:text-slate-300">
+        <p className="mx-auto mt-3 max-w-sm text-sm leading-6 font-medium text-muted-foreground dark:text-foreground">
           Luna could not load this. Try again.
         </p>
 

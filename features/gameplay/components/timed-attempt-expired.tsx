@@ -29,9 +29,9 @@ export function TimedAttemptExpired({
 }: TimedAttemptExpiredProps): React.ReactNode {
   const t = useTranslations("Gameplay");
   return (
-    <div className="relative my-auto flex w-full max-w-md flex-col items-center overflow-hidden rounded-[2rem] bg-linear-to-b from-amber-50 via-orange-50 to-violet-100 px-5 py-7 text-center text-slate-950 dark:from-slate-950 dark:via-[#150d20] dark:to-[#27123c] dark:text-white">
+    <div className="relative my-auto flex w-full max-w-md flex-col items-center overflow-hidden rounded-dialog border border-border bg-card px-5 py-7 text-center text-foreground shadow-lg">
       <div
-        className="absolute -bottom-20 left-1/2 size-72 -translate-x-1/2 rounded-full bg-violet-400/20 blur-3xl dark:bg-violet-600/20"
+        className="absolute -bottom-20 left-1/2 size-72 -translate-x-1/2 rounded-full bg-primary/5 blur-3xl"
         aria-hidden="true"
       />
       <div className="relative h-52 w-44">
@@ -42,14 +42,14 @@ export function TimedAttemptExpired({
           className="h-full w-full"
         />
       </div>
-      <p className="relative mt-2 inline-flex items-center gap-2 text-xs font-bold tracking-[0.16em] text-orange-700 uppercase dark:text-amber-300">
+      <p className="relative mt-2 inline-flex items-center gap-2 text-xs font-bold tracking-[0.16em] text-muted-foreground uppercase">
         <Clock3Icon className="size-4" aria-hidden="true" />
         {t("attemptExpired")}
       </p>
       <h2 className="relative mt-2 font-heading text-3xl font-bold">
         {t("progressSafe")}
       </h2>
-      <p className="relative mt-3 max-w-sm text-sm leading-6 font-medium text-slate-600 dark:text-slate-300">
+      <p className="relative mt-3 max-w-sm text-sm leading-6 font-medium text-muted-foreground">
         {t("expiredDetail", { mode: modeLabel })}
       </p>
       <Button

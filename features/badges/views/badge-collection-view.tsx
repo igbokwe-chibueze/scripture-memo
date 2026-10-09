@@ -29,18 +29,18 @@ export async function BadgeCollectionView(): Promise<React.ReactNode> {
           <ArrowLeftIcon className="size-4" aria-hidden="true" />
           {t("backToGame")}
         </Link>
-        <header className="mt-6 rounded-[2rem] bg-linear-to-br from-violet-600 via-indigo-700 to-slate-950 p-6 text-white shadow-xl sm:p-9">
-          <AwardIcon className="size-10 text-amber-300" aria-hidden="true" />
-          <p className="mt-5 text-xs font-bold tracking-[0.2em] text-violet-200 uppercase">
+        <header className="mt-6 rounded-dialog border border-border bg-card p-6 text-card-foreground shadow-sm sm:p-9">
+          <AwardIcon className="size-10 text-reward-text" aria-hidden="true" />
+          <p className="mt-5 text-xs font-bold tracking-[0.2em] text-primary uppercase">
             {t("eyebrow")}
           </p>
           <h1 className="mt-2 font-heading text-4xl font-bold sm:text-5xl">
             {t("title")}
           </h1>
-          <p className="mt-3 max-w-xl text-sm leading-6 text-violet-100">
+          <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">
             {t("milestoneDescription")}
           </p>
-          <p className="mt-5 font-bold text-amber-300">
+          <p className="mt-5 font-bold text-reward-text">
             {t("unlockedCount", { unlocked: unlockedCount, total: badges.length })}
           </p>
         </header>

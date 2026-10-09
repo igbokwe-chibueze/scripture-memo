@@ -12,6 +12,7 @@ import type { BeaconProgressionResult } from "@/features/beacon/types/beacon.typ
 import { showActionError } from "@/lib/errors/show-action-error";
 import { completeGameModeAction } from "@/features/gameplay/actions/complete-game-mode.action";
 import { ConfettiCelebration } from "@/components/shared/confetti-celebration";
+import { GAMEPLAY_TILE_STATE_STYLES } from "@/features/gameplay/constants/gameplay-state-styles";
 import { ModeCompletionScreen } from "@/features/gameplay/components/mode-completion-screen";
 import { StreakCompletionScreen } from "@/features/gameplay/components/streak-completion-screen";
 import { useAudioFeedback } from "@/hooks/use-audio-feedback";
@@ -264,7 +265,7 @@ export function SwapMode({
       )}
       <section className="w-full max-w-2xl text-left" aria-labelledby="swap-title">
         <div className="text-center">
-          <p className="text-xs font-bold tracking-[0.16em] text-violet-700 uppercase dark:text-violet-300">
+          <p className="text-xs font-bold tracking-[0.16em] text-selection-text uppercase dark:text-selection-text">
             {t("returnWords")}
           </p>
           <h2 id="swap-title" className="mt-2 font-heading text-3xl font-bold">
@@ -276,7 +277,7 @@ export function SwapMode({
         </div>
 
         <div
-          className="mt-6 rounded-2xl border border-border bg-muted/35 p-4 text-lg leading-[3.5rem] font-medium dark:border-white/10 dark:bg-white/5 sm:p-6 sm:text-xl"
+          className="mt-6 rounded-2xl border border-border bg-muted/35 p-4 text-lg leading-[3.5rem] font-medium dark:border-border/10 dark:bg-card/5 sm:p-6 sm:text-xl"
           aria-label="Verse with words to swap"
         >
           {tokens.map((token) => {
@@ -300,14 +301,13 @@ export function SwapMode({
                 <button
                   type="button"
                   className={cn(
-                    "inline-flex min-h-11 touch-manipulation items-center justify-center rounded-xl border px-3 py-1 align-middle font-bold transition",
-                    "border-amber-500 bg-amber-200 text-amber-950 shadow-sm hover:bg-amber-300 focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:outline-none dark:border-amber-300 dark:bg-amber-300/20 dark:text-amber-100 dark:hover:bg-amber-300/30",
+                    "inline-flex min-h-11 touch-manipulation items-center justify-center rounded-tile border px-3 py-1 align-middle font-bold transition",
+                    GAMEPLAY_TILE_STATE_STYLES.available,
+                    GAMEPLAY_TILE_STATE_STYLES.focus,
                     selectedPosition === token.position &&
-                      "scale-105 border-violet-700! bg-violet-600! text-white! ring-2 ring-violet-500/30 dark:border-violet-300! dark:bg-violet-500! dark:text-white!",
-                    feedback === "correct" &&
-                      "border-emerald-500 bg-emerald-100 text-emerald-950 dark:border-emerald-400 dark:bg-emerald-400/20 dark:text-emerald-100",
-                    feedback === "incorrect" &&
-                      "border-red-500 bg-red-100 text-red-950 dark:border-red-400 dark:bg-red-400/20 dark:text-red-100",
+                      `scale-105 ${GAMEPLAY_TILE_STATE_STYLES.selected}`,
+                    feedback === "correct" && GAMEPLAY_TILE_STATE_STYLES.correct,
+                    feedback === "incorrect" && GAMEPLAY_TILE_STATE_STYLES.incorrect,
                   )}
                   disabled={isPending || isComplete}
                   aria-pressed={selectedPosition === token.position}
@@ -326,9 +326,9 @@ export function SwapMode({
           })}
         </div>
 
-        <div className="mt-5 rounded-2xl bg-muted/70 p-4 dark:bg-black/20">
+        <div className="mt-5 rounded-2xl bg-muted/70 p-4 dark:bg-background/20">
           <div className="flex items-start gap-3">
-            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-violet-500/15 text-violet-700 dark:text-violet-200">
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-selection-subtle text-selection-text dark:text-selection-text">
               <ShuffleIcon className="size-5" aria-hidden="true" />
             </span>
             <div>
@@ -344,7 +344,7 @@ export function SwapMode({
           <Button
             type="button"
             variant="ghost"
-            className="min-h-12 rounded-xl px-4 text-muted-foreground hover:bg-muted hover:text-foreground dark:hover:bg-white/10 dark:hover:text-white"
+            className="min-h-12 rounded-xl px-4 text-muted-foreground hover:bg-muted hover:text-foreground dark:hover:bg-card/10 dark:hover:text-foreground"
             disabled={isPending || isComplete}
             onClick={resetTokens}
           >
@@ -354,7 +354,7 @@ export function SwapMode({
           <LoadingButton
             isPending={isPending}
             pendingLabel={t("checking")}
-            className="min-h-12 rounded-xl bg-amber-400 font-bold text-slate-950 hover:bg-amber-300"
+            className="min-h-12 rounded-game-action font-bold"
             disabled={isComplete}
             onClick={checkAnswer}
           >

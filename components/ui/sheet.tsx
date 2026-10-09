@@ -34,7 +34,7 @@ function SheetOverlay({ className, ...props }: SheetPrimitive.Backdrop.Props) {
     <SheetPrimitive.Backdrop
       data-slot="sheet-overlay"
       className={cn(
-        "fixed inset-0 z-50 bg-black/10 transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0 supports-backdrop-filter:backdrop-blur-xs",
+        "fixed inset-0 z-50 bg-overlay transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0 supports-backdrop-filter:backdrop-blur-xs",
         className
       )}
       {...props}
@@ -71,7 +71,7 @@ function SheetContent({
             render={
               <Button
                 variant="outline"
-                className="absolute top-3 right-3 size-11 rounded-xl border-border bg-popover text-foreground shadow-[0_4px_0_rgb(0_0_0/0.25),0_8px_14px_rgb(0_0_0/0.16)] hover:bg-muted dark:bg-slate-900 dark:shadow-[0_4px_0_rgb(255_255_255/0.18),0_8px_14px_rgb(0_0_0/0.45)]"
+                className="absolute top-3 right-3 size-11 rounded-control border-border bg-popover text-foreground"
                 size="icon-lg"
               />
             }

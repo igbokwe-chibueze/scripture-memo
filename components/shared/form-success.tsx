@@ -25,7 +25,7 @@ export function FormSuccess({
     <div
       role="status"
       className={cn(
-        "flex items-start gap-2 rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-3 text-sm text-emerald-700 dark:text-emerald-300",
+        "flex items-start gap-2 rounded-card border border-success-border bg-success-subtle p-3 text-sm text-success-text",
         className,
       )}
     >

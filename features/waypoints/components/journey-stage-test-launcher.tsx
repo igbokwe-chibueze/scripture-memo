@@ -70,11 +70,11 @@ export function JourneyStageTestLauncher({
   };
 
   return (
-    <Card className="overflow-hidden border-sky-500/25 bg-sky-500/5">
+    <Card className="overflow-hidden border-info-border/25 bg-info-subtle">
       <CardContent className="grid gap-5 p-5 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,0.8fr)] lg:items-end">
         <div>
           <div className="flex items-center gap-3">
-            <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-sky-500/15 text-sky-700 dark:text-sky-300">
+            <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-info-subtle text-info-text dark:text-info-text">
               <FlaskConicalIcon aria-hidden="true" />
             </span>
             <div>
@@ -86,7 +86,7 @@ export function JourneyStageTestLauncher({
               </p>
             </div>
           </div>
-          <p className="mt-4 flex items-center gap-2 text-xs font-bold text-sky-800 dark:text-sky-200">
+          <p className="mt-4 flex items-center gap-2 text-xs font-bold text-info-text dark:text-info-text">
             <ShieldCheckIcon className="size-4 shrink-0" aria-hidden="true" />
             Admin testing · no progress changes
           </p>

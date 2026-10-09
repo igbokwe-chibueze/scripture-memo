@@ -234,7 +234,7 @@ export function BadgeAdminManager({
           <div className="mt-5 grid gap-4 rounded-2xl border bg-muted/30 p-4">
             {Object.keys(formErrors).length > 0 && (
               <div
-                className="rounded-xl border border-red-400/40 bg-red-50 p-4 text-sm text-red-900 dark:bg-red-950/30 dark:text-red-100"
+                className="rounded-xl border border-error-border/40 bg-error-subtle p-4 text-sm text-error-text dark:bg-error dark:text-error-text"
                 role="alert"
               >
                 <p className="font-bold">Please correct these fields:</p>
@@ -258,7 +258,7 @@ export function BadgeAdminManager({
                 <input
                   id="badge-icon"
                   name="badgeIcon"
-                  className="min-h-11 rounded-xl border border-input bg-background px-3 aria-invalid:border-red-500"
+                  className="min-h-11 rounded-xl border border-input bg-background px-3 aria-invalid:border-error-border"
                   aria-invalid={Boolean(formErrors.icon)}
                   value={draft.icon}
                   maxLength={16}
@@ -273,7 +273,7 @@ export function BadgeAdminManager({
                 <input
                   id="badge-name"
                   name="badgeName"
-                  className="min-h-11 rounded-xl border border-input bg-background px-3 aria-invalid:border-red-500"
+                  className="min-h-11 rounded-xl border border-input bg-background px-3 aria-invalid:border-error-border"
                   aria-invalid={Boolean(formErrors.name)}
                   value={draft.name}
                   onChange={(event) =>
@@ -287,7 +287,7 @@ export function BadgeAdminManager({
               <textarea
                 id="badge-description"
                 name="badgeDescription"
-                className="min-h-24 rounded-xl border border-input bg-background p-3 aria-invalid:border-red-500"
+                className="min-h-24 rounded-xl border border-input bg-background p-3 aria-invalid:border-error-border"
                 aria-invalid={Boolean(formErrors.description)}
                 value={draft.description}
                 onChange={(event) =>
@@ -351,7 +351,7 @@ export function BadgeAdminManager({
                   type="number"
                   min={1}
                   max={1_000_000}
-                  className="min-h-11 rounded-xl border border-input bg-background px-3 aria-invalid:border-red-500"
+                  className="min-h-11 rounded-xl border border-input bg-background px-3 aria-invalid:border-error-border"
                   aria-invalid={Boolean(formErrors.targetValue)}
                   value={draft.targetValue}
                   onChange={(event) =>
@@ -362,7 +362,7 @@ export function BadgeAdminManager({
                   }
                 />
               </label>
-              <div className="rounded-xl border border-amber-300/50 bg-amber-50 p-3 text-sm font-bold text-amber-900 dark:bg-amber-950/25 dark:text-amber-100">
+              <div className="rounded-xl border border-reward-border/50 bg-reward-subtle p-3 text-sm font-bold text-reward-text dark:bg-reward dark:text-reward-text">
                 <FieldHint
                   label="Reward"
                   explanation="Glow Points awarded once when the badge unlocks. The amount is automatically determined by rarity and cannot be entered manually."
@@ -404,7 +404,7 @@ export function BadgeAdminManager({
               </select>
             </label>
             {!isBadgeCriterionAvailable(draft.criteriaKey) && (
-              <p className="rounded-xl bg-violet-100 p-3 text-sm font-medium text-violet-900 dark:bg-violet-950/40 dark:text-violet-100">
+              <p className="rounded-xl bg-selection-subtle p-3 text-sm font-medium text-selection-text dark:bg-selection dark:text-selection-text">
                 This definition can be saved for planning, but remains paused
                 until its roadmap feature provides trusted progress events.
               </p>
@@ -465,7 +465,7 @@ export function BadgeAdminManager({
           className="scroll-mt-6 rounded-2xl border bg-card p-5"
         >
           <h2 className="flex items-center gap-2 font-heading text-xl font-bold">
-            <AwardIcon className="size-5 text-amber-500" aria-hidden="true" />
+            <AwardIcon className="size-5 text-reward-text" aria-hidden="true" />
             Manual award
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -538,7 +538,7 @@ export function BadgeAdminManager({
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="font-bold">{badge.name}</h2>
                 {!isBadgeCriterionAvailable(badge.criteriaKey) && (
-                  <span className="rounded-full bg-violet-100 px-2 py-1 text-[0.65rem] font-bold text-violet-800 uppercase dark:bg-violet-950/50 dark:text-violet-200">
+                  <span className="rounded-full bg-selection-subtle px-2 py-1 text-[0.65rem] font-bold text-selection-text uppercase dark:bg-selection dark:text-selection-text">
                     Future feature
                   </span>
                 )}
@@ -583,7 +583,7 @@ export function BadgeAdminManager({
               <Button
                 type="button"
                 variant="outline"
-                className="col-span-2 min-h-11 text-red-700 hover:bg-red-50 hover:text-red-800 dark:text-red-300 dark:hover:bg-red-950/30 sm:col-span-1"
+                className="col-span-2 min-h-11 text-error-text hover:bg-error-subtle hover:text-error-text dark:text-error-text dark:hover:bg-error sm:col-span-1"
                 disabled={isPending || badge.unlockCount > 0}
                 title={
                   badge.unlockCount > 0
@@ -644,7 +644,7 @@ export function BadgeAdminManager({
             <LoadingButton
               isPending={isPending}
               pendingLabel="Deleting"
-              className="min-h-11 bg-red-600 text-white hover:bg-red-500"
+              className="min-h-11 bg-error text-foreground hover:bg-error"
               onClick={deleteBadge}
             >
               Delete permanently

@@ -126,19 +126,19 @@ function RankPlate({
   return (
     <span
       className={cn(
-        "grid min-h-12 grid-cols-[auto_auto] place-content-center gap-0.5 rounded-lg border px-1 font-heading text-base font-bold shadow-[0_3px_0_rgb(0_0_0/0.18)] sm:min-h-16 sm:gap-1 sm:rounded-2xl sm:px-2 sm:text-xl",
+        "grid min-h-12 grid-cols-[auto_auto] place-content-center gap-0.5 rounded-control border px-1 font-heading text-base font-bold shadow-[0_3px_0_color-mix(in_oklch,var(--foreground),transparent_82%)] sm:min-h-16 sm:gap-1 sm:rounded-card sm:px-2 sm:text-xl",
         position === 1 &&
-          "border-yellow-500 bg-linear-to-br from-yellow-200 via-amber-300 to-yellow-500 text-amber-950",
+          "border-reward-border bg-linear-to-br from-reward via-reward to-reward text-reward-text",
         position === 2 &&
-          "border-slate-400 bg-linear-to-br from-white via-slate-200 to-slate-400 text-slate-800",
+          "border-border bg-linear-to-br from-card via-secondary to-muted text-foreground",
         position === 3 &&
-          "border-orange-600 bg-linear-to-br from-orange-200 via-amber-500 to-orange-700 text-orange-950",
+          "border-decoration-border bg-linear-to-br from-decoration via-reward to-decoration text-decoration-text",
         !isPodium &&
           !isCurrentUser &&
           "border-border bg-muted/55 text-foreground",
         !isPodium &&
           isCurrentUser &&
-          "border-violet-500 bg-linear-to-br from-violet-500 to-purple-800 text-white",
+          "border-selection-border bg-linear-to-br from-selection to-selection text-foreground",
       )}
     >
       <span>{position}</span>
@@ -185,8 +185,8 @@ function RankingRow({
       className={cn(
         "grid min-h-24 w-full grid-cols-[2.75rem_2.75rem_minmax(0,1fr)_auto] items-center gap-x-2 border-b px-3 py-4 text-left last:border-0 hover:bg-muted/45 focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-primary sm:min-h-28 sm:grid-cols-[4rem_3.5rem_minmax(0,1fr)_auto] sm:gap-x-3 sm:px-4 sm:py-5",
         entry.isCurrentUser &&
-          "bg-violet-500/10 text-violet-950 dark:text-violet-100",
-        pinned && "rounded-2xl border border-violet-400/40 bg-violet-500/10",
+          "bg-selection-subtle text-selection-text dark:text-selection-text",
+        pinned && "rounded-2xl border border-selection-border/40 bg-selection-subtle",
         zone === "promotion" && "border-l-4 border-l-emerald-500",
         zone === "demotion" && "border-l-4 border-l-rose-500",
       )}
@@ -211,7 +211,7 @@ function RankingRow({
             <Tooltip>
               <TooltipTrigger
                 aria-label={t("trailRival")}
-                className="ml-2 inline-grid size-6 place-items-center rounded-full bg-violet-500/10 align-middle text-violet-600 dark:text-violet-300"
+                className="ml-2 inline-grid size-6 place-items-center rounded-full bg-selection-subtle align-middle text-selection-text dark:text-selection-text"
                 onClick={(event) => event.stopPropagation()}
               >
                 <CompassIcon className="size-4" aria-hidden="true" />
@@ -271,7 +271,7 @@ function PlayerDetailsDialog({
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-2xl border bg-muted/50 p-4">
                 <SparklesIcon
-                  className="mb-3 size-6 text-violet-500"
+                  className="mb-3 size-6 text-selection-text"
                   aria-hidden="true"
                 />
                 <p className="text-xs font-bold text-muted-foreground">
@@ -285,7 +285,7 @@ function PlayerDetailsDialog({
                 <>
                   <div className="rounded-2xl border bg-muted/50 p-4">
                     <TrophyIcon
-                      className="mb-3 size-6 text-amber-500"
+                      className="mb-3 size-6 text-reward-text"
                       aria-hidden="true"
                     />
                     <p className="text-xs font-bold text-muted-foreground">
@@ -297,7 +297,7 @@ function PlayerDetailsDialog({
                   </div>
                   <div className="rounded-2xl border bg-muted/50 p-4">
                     <FlameIcon
-                      className="mb-3 size-6 text-orange-500"
+                      className="mb-3 size-6 text-decoration-text"
                       aria-hidden="true"
                     />
                     <p className="text-xs font-bold text-muted-foreground">
@@ -309,7 +309,7 @@ function PlayerDetailsDialog({
                   </div>
                   <div className="rounded-2xl border bg-muted/50 p-4">
                     <CrownIcon
-                      className="mb-3 size-6 text-yellow-500"
+                      className="mb-3 size-6 text-reward-text"
                       aria-hidden="true"
                     />
                     <p className="text-xs font-bold text-muted-foreground">
@@ -430,7 +430,7 @@ export function LeaderboardBoard({
             className={cn(
               "min-h-16 min-w-0 flex-col gap-1 rounded-xl px-0.5 text-[0.65rem] shadow-none sm:min-h-11 sm:flex-row sm:px-2 sm:text-sm",
               data.scope === "league" &&
-                "bg-violet-600 text-white shadow-[0_4px_0_rgb(76_29_149/0.65)] hover:bg-violet-600",
+                "bg-selection text-selection-foreground shadow-[0_4px_0_var(--control-edge)] hover:bg-primary-hover",
             )}
           >
             <TrophyIcon className="size-5" aria-hidden="true" />
@@ -443,7 +443,7 @@ export function LeaderboardBoard({
             className={cn(
               "min-h-16 min-w-0 flex-col gap-1 rounded-xl px-0.5 text-[0.65rem] shadow-none sm:min-h-11 sm:flex-row sm:px-2 sm:text-sm",
               data.scope === "country" &&
-                "bg-violet-600 text-white shadow-[0_4px_0_rgb(76_29_149/0.65)] hover:bg-violet-600",
+                "bg-selection text-selection-foreground shadow-[0_4px_0_var(--control-edge)] hover:bg-primary-hover",
             )}
           >
             <CountryFlag
@@ -463,7 +463,7 @@ export function LeaderboardBoard({
             className={cn(
               "min-h-16 min-w-0 flex-col gap-1 rounded-xl px-0.5 text-[0.65rem] shadow-none sm:min-h-11 sm:flex-row sm:px-2 sm:text-sm",
               data.scope === "fellowship" &&
-                "bg-violet-600 text-white shadow-[0_4px_0_rgb(76_29_149/0.65)] hover:bg-violet-600",
+                "bg-selection text-selection-foreground shadow-[0_4px_0_var(--control-edge)] hover:bg-primary-hover",
             )}
           >
             <MedalIcon className="size-5" aria-hidden="true" />
@@ -476,7 +476,7 @@ export function LeaderboardBoard({
             className={cn(
               "min-h-16 min-w-0 flex-col gap-1 rounded-xl px-0.5 text-[0.65rem] shadow-none sm:min-h-11 sm:flex-row sm:px-2 sm:text-sm",
               data.scope === "all-time" &&
-                "bg-violet-600 text-white shadow-[0_4px_0_rgb(76_29_149/0.65)] hover:bg-violet-600",
+                "bg-selection text-selection-foreground shadow-[0_4px_0_var(--control-edge)] hover:bg-primary-hover",
             )}
           >
             <CrownIcon className="size-5" aria-hidden="true" />
@@ -521,7 +521,7 @@ export function LeaderboardBoard({
       ) : null}
 
       {isWeeklyScope && (
-        <section className="overflow-hidden rounded-3xl border border-violet-400/25 bg-linear-to-br from-card via-card to-violet-500/10 p-3 shadow-lg sm:p-5">
+        <section className="overflow-hidden rounded-3xl border border-selection-border/25 bg-linear-to-br from-card via-card to-selection/10 p-3 shadow-lg sm:p-5">
           <div className="relative grid grid-cols-[5.75rem_minmax(0,1fr)] items-center gap-2.5 max-[359px]:grid-cols-[5rem_minmax(0,1fr)] sm:grid-cols-[8.5rem_minmax(0,1fr)] sm:gap-4">
             <div className="grid size-[5.75rem] place-items-center max-[359px]:size-20 sm:size-auto sm:aspect-square">
               {data.scope === "league" ? (
@@ -533,13 +533,13 @@ export function LeaderboardBoard({
                   priority
                 />
               ) : (
-                <span className="grid size-20 place-items-center rounded-3xl bg-violet-500/12 text-violet-700 dark:text-violet-300">
+                <span className="grid size-20 place-items-center rounded-3xl bg-selection-subtle text-selection-text dark:text-selection-text">
                   <TrophyIcon className="size-10" aria-hidden="true" />
                 </span>
               )}
             </div>
             <div className="min-w-0">
-              <p className="text-[0.6875rem] font-bold tracking-[0.14em] text-violet-700 uppercase dark:text-violet-300 sm:text-xs sm:tracking-[0.16em]">
+              <p className="text-[0.6875rem] font-bold tracking-[0.14em] text-selection-text uppercase dark:text-selection-text sm:text-xs sm:tracking-[0.16em]">
                 {data.scope === "league"
                   ? t("leagueCompetition")
                   : t("weeklyCompetition")}
@@ -557,7 +557,7 @@ export function LeaderboardBoard({
               {data.scope === "league" ? (
                 <LeagueJourneyDialog currentLeague={data.league} />
               ) : null}
-              <div className="grid content-center rounded-xl bg-violet-500/10 px-2.5 py-1.5 text-center sm:px-3 sm:py-2 sm:text-right">
+              <div className="grid content-center rounded-xl bg-selection-subtle px-2.5 py-1.5 text-center sm:px-3 sm:py-2 sm:text-right">
                 <p className="text-[0.6875rem] font-bold leading-tight text-muted-foreground sm:text-xs">
                   {t("weekEnds")}
                 </p>
@@ -576,23 +576,23 @@ export function LeaderboardBoard({
           {data.scope === "league" && (
             <div className="mt-4 rounded-2xl border bg-background/65 p-3 sm:mt-5">
               <div className="grid grid-cols-3 text-center text-[0.65rem] font-bold sm:text-xs">
-                <span className="grid gap-0.5 text-emerald-700 dark:text-emerald-300">
+                <span className="grid gap-0.5 text-success-text dark:text-success-text">
                   <span>{t("promote")}</span>
                   <span>{t("topCount", { count: data.promotionCount })}</span>
                 </span>
                 <span className="self-start">{t("stay")}</span>
-                <span className="grid gap-0.5 text-rose-700 dark:text-rose-300">
+                <span className="grid gap-0.5 text-error-text dark:text-error-text">
                   <span>{t("demote")}</span>
                   <span>{t("bottomCount", { count: data.demotionCount })}</span>
                 </span>
               </div>
               <div className="relative mt-2 flex h-3 overflow-visible rounded-full">
                 <span
-                  className="rounded-l-full bg-emerald-500"
+                  className="rounded-l-full bg-success"
                   style={{ flex: data.promotionCount }}
                 />
                 <span
-                  className="bg-slate-300 dark:bg-slate-600"
+                  className="bg-secondary dark:bg-muted"
                   style={{
                     flex:
                       BEACON_COHORT_SIZE -
@@ -601,12 +601,12 @@ export function LeaderboardBoard({
                   }}
                 />
                 <span
-                  className="rounded-r-full bg-rose-400"
+                  className="rounded-r-full bg-error"
                   style={{ flex: data.demotionCount }}
                 />
                 {data.currentUser && (
                   <span
-                    className="absolute top-1/2 grid size-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-xl bg-violet-600 font-heading text-xs font-bold text-white shadow-lg ring-2 ring-white dark:ring-slate-950"
+                    className="absolute top-1/2 grid size-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-xl bg-selection font-heading text-xs font-bold text-foreground shadow-lg ring-2 ring-ring dark:ring-ring"
                     style={{
                       left: `${Math.min(
                         98,
@@ -737,7 +737,7 @@ export function LeaderboardBoard({
 
           {data.currentUser && !currentUserAlreadyVisible && (
             <aside className="sticky bottom-24 z-20 mt-5" aria-label={t("yourRank")}>
-              <p className="mb-2 text-xs font-bold tracking-wider text-amber-700 uppercase dark:text-amber-300">
+              <p className="mb-2 text-xs font-bold tracking-wider text-reward-text uppercase dark:text-reward-text">
                 {t("yourRank")}
               </p>
               <RankingRow

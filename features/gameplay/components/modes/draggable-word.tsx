@@ -4,8 +4,9 @@ import { useDraggable } from "@dnd-kit/core";
 import { cn } from "@/lib/utils";
 import {
   DRAGGABLE_TILE_BEVEL,
+  GAMEPLAY_TILE_STATE_STYLES,
   SELECTED_TILE_BEVEL,
-} from "@/features/gameplay/constants/draggable-tile-styles";
+} from "@/features/gameplay/constants/gameplay-state-styles";
 
 /** One position-identified word that supports drag, keyboard, and tap selection. */
 export function DraggableWord({
@@ -32,8 +33,9 @@ export function DraggableWord({
       ref={setNodeRef}
       type="button"
       className={cn(
-        "min-h-11 touch-none rounded-xl border px-3 py-2 font-bold text-violet-950 focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none dark:text-violet-50",
+        "min-h-11 touch-none rounded-tile border px-3 py-2 font-bold",
         DRAGGABLE_TILE_BEVEL,
+        GAMEPLAY_TILE_STATE_STYLES.focus,
         selected && SELECTED_TILE_BEVEL,
         isDragging && "z-20 opacity-35",
       )}
