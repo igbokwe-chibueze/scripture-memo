@@ -18,6 +18,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
+import { BRAND_THEMES } from "../features/brand-themes/constants/brand-themes";
 
 const repositoryRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -25,6 +26,14 @@ const repositoryRoot = path.resolve(
 );
 const stylesheetPath = path.join(repositoryRoot, "app", "globals.css");
 const stylesheet = readFileSync(stylesheetPath, "utf8");
+const registeredThemes = BRAND_THEMES.map((theme) => ({
+  ...theme,
+  stylesheetPath: theme.stylesheet,
+  stylesheet: readFileSync(path.join(repositoryRoot, theme.stylesheet), "utf8"),
+}));
+const registeredThemeStylesheets = new Set(
+  BRAND_THEMES.map((theme) => theme.stylesheet.replaceAll("/", path.sep)),
+);
 
 type CssVariables = ReadonlyMap<string, string>;
 type RgbColor = readonly [number, number, number];
@@ -36,6 +45,8 @@ const CORE_TOKENS = [
   "card-foreground",
   "popover",
   "popover-foreground",
+  "accent",
+  "accent-foreground",
   "primary",
   "primary-foreground",
   "primary-hover",
@@ -54,6 +65,21 @@ const CORE_TOKENS = [
   "control-edge",
   "overlay",
   "image-overlay",
+  "destructive",
+  "destructive-foreground",
+  "sidebar",
+  "sidebar-foreground",
+  "sidebar-primary",
+  "sidebar-primary-foreground",
+  "sidebar-accent",
+  "sidebar-accent-foreground",
+  "sidebar-border",
+  "sidebar-ring",
+  "chart-1",
+  "chart-2",
+  "chart-3",
+  "chart-4",
+  "chart-5",
 ] as const;
 
 const SEMANTIC_ROLES = [
@@ -79,12 +105,16 @@ const APPROVED_COLOR_EXCEPTION_PATHS = new Set([
   "features/auth/lib/password-reset-production-delivery.ts",
 ]);
 
-/** Flattens only CSS declarations directly inside a simple selector block. */
-function readVariableBlock(selector: string): Map<string, string> {
-  const blockMatch = stylesheet.match(
-    new RegExp(`${selector}\\s*\\{([^}]+)\\}`),
+/** Reads the direct color declarations for one registered theme mode. */
+function readVariableBlock(
+  themeStylesheet: string,
+  selector: string,
+): Map<string, string> {
+  const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const blockMatch = themeStylesheet.match(
+    new RegExp(`${escapedSelector}\\s*\\{([^}]+)\\}`),
   );
-  assert.ok(blockMatch, `Expected stylesheet block ${selector}.`);
+  assert.ok(blockMatch, `Expected registered theme selector ${selector}.`);
 
   const variables = new Map<string, string>();
   for (const match of blockMatch[1].matchAll(/--([\w-]+):\s*([^;]+);/g)) {
@@ -173,9 +203,7 @@ const applicationSourceFiles = ["app", "components", "features"].flatMap(
   (directory) => sourceFiles(path.join(repositoryRoot, directory)),
 );
 
-test("core and semantic color tokens exist in both themes and Tailwind", () => {
-  const lightTheme = readVariableBlock(":root");
-  const darkTheme = readVariableBlock("\\.dark");
+test("every registered theme supplies the complete light and dark token contract", () => {
   const inlineThemeMatch = stylesheet.match(/@theme inline\s*\{([^}]+)\}/);
   assert.ok(inlineThemeMatch, "Expected one Tailwind inline theme block.");
   const inlineTheme = inlineThemeMatch[1];
@@ -191,9 +219,41 @@ test("core and semantic color tokens exist in both themes and Tailwind", () => {
     ]),
   ];
 
+  for (const theme of registeredThemes) {
+    const importedThemePath = `./themes/${path.basename(theme.stylesheetPath)}`;
+    assert.ok(
+      stylesheet.includes(`@import "${importedThemePath}";`),
+      `${theme.name} must be imported by app/globals.css before it can be selected.`,
+    );
+    const lightTheme = readVariableBlock(
+      theme.stylesheet,
+      `:root[data-brand-theme="${theme.id}"]`,
+    );
+    const darkTheme = readVariableBlock(
+      theme.stylesheet,
+      `:root.dark[data-brand-theme="${theme.id}"]`,
+    );
+
+    for (const token of allTokens) {
+      assert.ok(
+        lightTheme.has(token),
+        `${theme.name} light theme is missing --${token}.`,
+      );
+      assert.ok(
+        darkTheme.has(token),
+        `${theme.name} dark theme is missing --${token}.`,
+      );
+    }
+
+    for (const token of [...lightTheme.keys(), ...darkTheme.keys()]) {
+      assert.ok(
+        allTokens.includes(token as (typeof allTokens)[number]),
+        `${theme.name} defines --${token} outside the shared color-token contract.`,
+      );
+    }
+  }
+
   for (const token of allTokens) {
-    assert.ok(lightTheme.has(token), `Light theme is missing --${token}.`);
-    assert.ok(darkTheme.has(token), `Dark theme is missing --${token}.`);
     assert.match(
       inlineTheme,
       new RegExp(`--color-${token}:\\s*var\\(--${token}\\)`),
@@ -202,32 +262,74 @@ test("core and semantic color tokens exist in both themes and Tailwind", () => {
   }
 });
 
-test("semantic text pairs meet the documented WCAG AA contrast target", () => {
-  const themes = [
-    { name: "light", variables: readVariableBlock(":root") },
-    { name: "dark", variables: readVariableBlock("\\.dark") },
-  ] as const;
-
-  for (const { name, variables } of themes) {
-    const textPairs = [
-      ["background", "foreground"],
-      ["card", "card-foreground"],
-      ["primary", "primary-foreground"],
-      ...SEMANTIC_ROLES.map((role) => [role, `${role}-foreground`]),
-      ...SEMANTIC_ROLES.map((role) => [`${role}-subtle`, `${role}-text`]),
+test("semantic text pairs in every registered theme meet WCAG AA", () => {
+  for (const theme of registeredThemes) {
+    const modes = [
+      {
+        name: `${theme.name} light`,
+        variables: readVariableBlock(
+          theme.stylesheet,
+          `:root[data-brand-theme="${theme.id}"]`,
+        ),
+      },
+      {
+        name: `${theme.name} dark`,
+        variables: readVariableBlock(
+          theme.stylesheet,
+          `:root.dark[data-brand-theme="${theme.id}"]`,
+        ),
+      },
     ] as const;
 
-    for (const [surfaceToken, textToken] of textPairs) {
-      const surface = oklchToRgb(
-        resolveVariable(variables, surfaceToken),
-        surfaceToken,
-      );
-      const text = oklchToRgb(resolveVariable(variables, textToken), textToken);
-      const ratio = contrastRatio(surface, text);
-      assert.ok(
-        ratio >= 4.5,
-        `${name} theme ${textToken} on ${surfaceToken} has contrast ${ratio.toFixed(2)}:1; expected at least 4.5:1.`,
-      );
+    for (const { name, variables } of modes) {
+      const textPairs = [
+        ["background", "foreground"],
+        ["card", "card-foreground"],
+        ["primary", "primary-foreground"],
+        ...SEMANTIC_ROLES.map((role) => [role, `${role}-foreground`]),
+        ...SEMANTIC_ROLES.map((role) => [`${role}-subtle`, `${role}-text`]),
+      ] as const;
+
+      for (const [surfaceToken, textToken] of textPairs) {
+        const surface = oklchToRgb(
+          resolveVariable(variables, surfaceToken),
+          surfaceToken,
+        );
+        const text = oklchToRgb(
+          resolveVariable(variables, textToken),
+          textToken,
+        );
+        const ratio = contrastRatio(surface, text);
+        assert.ok(
+          ratio >= 4.5,
+          `${name} theme ${textToken} on ${surfaceToken} has contrast ${ratio.toFixed(2)}:1; expected at least 4.5:1.`,
+        );
+      }
+
+      const nonTextPairs = [
+        ["background", "input"],
+        ["card", "input"],
+        ["secondary", "input"],
+        ["background", "ring"],
+        ["card", "ring"],
+        ["secondary", "ring"],
+      ] as const;
+
+      for (const [surfaceToken, controlToken] of nonTextPairs) {
+        const surface = oklchToRgb(
+          resolveVariable(variables, surfaceToken),
+          surfaceToken,
+        );
+        const control = oklchToRgb(
+          resolveVariable(variables, controlToken),
+          controlToken,
+        );
+        const ratio = contrastRatio(surface, control);
+        assert.ok(
+          ratio >= 3,
+          `${name} ${controlToken} on ${surfaceToken} has contrast ${ratio.toFixed(2)}:1; expected at least 3:1.`,
+        );
+      }
     }
   }
 });
@@ -243,7 +345,12 @@ test("application UI has no unapproved raw palette classes or literal colors", (
   const violations: string[] = [];
   for (const filePath of applicationSourceFiles) {
     const relativePath = path.relative(repositoryRoot, filePath).replaceAll("\\", "/");
-    if (APPROVED_COLOR_EXCEPTION_PATHS.has(relativePath)) continue;
+    if (
+      APPROVED_COLOR_EXCEPTION_PATHS.has(relativePath) ||
+      registeredThemeStylesheets.has(relativePath.replaceAll("/", path.sep))
+    ) {
+      continue;
+    }
 
     const source = readFileSync(filePath, "utf8");
     if (

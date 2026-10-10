@@ -3,6 +3,8 @@ import { headers as getRequestHeaders } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { ThemeProvider } from "@/components/shared/theme-provider";
+import { getActiveBrandTheme } from "@/features/brand-themes/lib/get-active-brand-theme";
+import { getBrandThemePreview } from "@/features/brand-themes/lib/get-brand-theme-preview";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
@@ -25,16 +27,20 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>): Promise<React.ReactNode> {
-  const [locale, messages, requestHeaders] = await Promise.all([
-    getLocale(),
-    getMessages(),
-    getRequestHeaders(),
-  ]);
+  const [locale, messages, requestHeaders, activeBrandTheme, previewBrandTheme] =
+    await Promise.all([
+      getLocale(),
+      getMessages(),
+      getRequestHeaders(),
+      getActiveBrandTheme(),
+      getBrandThemePreview(),
+    ]);
   const nonce = requestHeaders.get("x-nonce") ?? undefined;
 
   return (
     <html
       lang={locale}
+      data-brand-theme={previewBrandTheme ?? activeBrandTheme}
       suppressHydrationWarning
       className="h-full antialiased"
     >

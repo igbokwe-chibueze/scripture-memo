@@ -964,6 +964,7 @@ model RateLimit {
 // server-owned reward calculations. Product repositories own every query.
 model PlatformSettings {
   id                          String          @id @default("global")
+  activeBrandThemeId          String          @default("tropical-teal")
   defaultTranslation          TranslationCode @default(KJV)
   baseGlowPoints              Int             @default(100)
   defaultHintAllowance        Int             @default(5)
