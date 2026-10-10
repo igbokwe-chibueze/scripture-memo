@@ -262,8 +262,8 @@ test(
         assert.equal(completedDay.completedAt?.toISOString(), completedAt.toISOString());
         assert.equal(
           unlockedNextDay.unlocksAt?.toISOString(),
-          "2026-07-02T08:00:00.000Z",
-          "The completed day should create one correctly scheduled next day.",
+          "2026-07-01T20:00:00.000Z",
+          "The completed day should schedule the next day exactly 12 elapsed hours later.",
         );
         assert.equal(
           await prisma.userDayProgress.count({

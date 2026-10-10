@@ -1,5 +1,20 @@
 # Scripture Memo Project Log
 
+### 2026-10-10 - Correct stale progression integration expectation
+
+- GitHub Actions confirmed that the PostgreSQL service, migrations, and first
+  integration suite pass, but the progression integration suite expected the
+  next day at 08:00 UTC on July 2 after a completion at 08:00 UTC on July 1.
+  The product rule and repository correctly schedule it 12 elapsed hours later,
+  at 20:00 UTC on July 1.
+- Updated the concurrency assertion to match the documented rolling 12-hour
+  cooldown. The clean GitHub runner could not continue to the remaining suites
+  because the progression suite stopped the job at that stale expectation.
+- Local database-backed verification is currently unavailable: the dedicated
+  test listener on port 51224 is stopped, and the disposable PostgreSQL runner
+  fails to initialize on this Windows environment with a restricted-token
+  error. Retry the CI integration job after pushing this test-only correction.
+
 ### 2026-10-07 — Pre-production artwork packaging planned
 
 - Measured `public/` at 126,583,462 bytes across 141 files. Images account for
