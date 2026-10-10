@@ -114,7 +114,7 @@ The server and database are the only sources of truth for all security-sensitive
 | 5.2 | Day unlock status is always computed server-side from stored timestamps | 🔴 Critical | ✅ Implemented | `isDayPlayable` is reapplied inside the guarded start transaction |
 | 5.3 | Day 2 unlock requires Day 1 to be marked complete in the database | 🔴 Critical | ✅ Implemented | Progression transaction verifies the preceding persisted day |
 | 5.4 | Day 3 unlock requires Day 2 to be marked complete in the database | 🔴 Critical | ✅ Implemented | Progression transaction verifies the preceding persisted day |
-| 5.5 | 24-hour cooldown is calculated from the stored `completedAt` timestamp — never from client time | 🔴 Critical | ✅ Implemented | Server-derived completion time plus exact elapsed UTC hours; client countdowns remain display-only |
+| 5.5 | 12-hour cooldown is calculated from the stored `completedAt` timestamp — never from client time | 🔴 Critical | ✅ Implemented | Server-derived completion time plus exact elapsed UTC hours; client countdowns remain display-only |
 | 5.6 | `overrideCooldownAction` requires ADMIN or SUPER_ADMIN role | 🟠 High | ✅ Verified 2026-09-24 | Server role check, restricted self-test scope, and AuditLog transaction are in place |
 | 5.7 | Completing Day 3 unlocks only the next currently published waypoint selected by the server | 🟠 High | ✅ Implemented | Database ordering is used rather than a client ID or an `N+1` assumption |
 | 5.8 | Duplicate day completion is prevented by the unique `(userId, waypointId, dayLevel)` record, transaction lock, and completed-state check | 🔴 Critical | ✅ Verified 2026-10-07 | Concurrent day-completion and duplicate game-mode submission tests passed against disposable PostgreSQL with multiple connections; only one state transition commits. |
@@ -383,7 +383,7 @@ the evidence map above determines whether a new owner action is needed.
 ### Test 4 — Cooldown Bypass Attempt
 1. Log in as a regular user.
 2. Complete Day 1 of Waypoint 1.
-3. Attempt to start Day 2 immediately (before 24 hours) — either through UI or direct Server Action call.
+3. Attempt to start Day 2 immediately (before 12 elapsed hours) — either through UI or direct Server Action call.
 4. **Expected:** Server rejects the request. Day 2 session does not start. User sees an appropriate error message.
 
 ### Test 5 — Client Timer Manipulation
@@ -501,7 +501,7 @@ Accepted risk justification (if applicable):
 - [ ] No `any` type exists in the codebase.
 - [ ] No `console.log` debug statements remain.
 - [ ] `GameMode.CUE` is used — `HINT` does not appear as a game mode.
-- [ ] No XP or experience point references exist.
+- [ ] Glow Points are the only spendable currency; Beacon XP is non-spendable progression and Crowns are non-spendable prestige.
 
 ### Environment
 - [ ] `.env` is in `.gitignore` and has not been committed.

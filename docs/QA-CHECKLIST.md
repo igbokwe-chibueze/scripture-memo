@@ -16,6 +16,13 @@ security issue remains unresolved.
 
 ## Automated baseline
 
+Latest local review (2026-10-10): ESLint and all 162 unit tests across 42 files
+passed without skips. Local typecheck reported generated `.next` references to
+absent daily-challenge, trivia, and profile routes; stale generated output is
+suspected but not yet confirmed by regeneration. This local result is separate
+from the owner-confirmed passing CI run. No build or database suites were rerun
+in this review.
+
 GitHub Actions runs these checks on pull requests and pushed branches. Database
 checks use an isolated PostgreSQL service on the GitHub runner; no developer or
 hosted production database is configured in CI. The workflow statuses must be
@@ -24,8 +31,8 @@ blocked when a check fails.
 
 | Check | Result | Evidence |
 |---|---|---|
-| GitHub Actions quality workflow | Fix pending rerun | First GitHub run passed lint but TypeScript failed because the clean quality runner had not generated the Git-ignored Prisma Client. The workflow now generates it before checks; push the fix and confirm lint, typecheck, unit tests, and production build all pass. |
-| GitHub Actions PostgreSQL workflow | Configured | Checked-in migrations, repository integrations, concurrency tests, and account-suspension integration use a temporary PostgreSQL 16 service. |
+| GitHub Actions quality workflow | Passed (owner-confirmed 2026-10-10) | Owner confirmed passing CI after the clean-runner Prisma generation correction. Includes lint, typecheck, unit tests, and production build. |
+| GitHub Actions PostgreSQL workflow | Passed (owner-confirmed 2026-10-10) | Owner confirmed passing CI after the 12-hour cooldown assertion correction. Repository, concurrency, and account-suspension suites use isolated runner PostgreSQL. |
 | TypeScript strict compilation | Passed | `npm run typecheck` on 2026-10-07 |
 | Full ESLint pass | Passed | `npm run lint` on 2026-10-07 |
 | Non-database unit tests | Passed | `npm run test:unit`: 159 tests across 41 test files on 2026-10-07 |

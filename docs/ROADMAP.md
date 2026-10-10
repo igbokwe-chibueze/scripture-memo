@@ -1652,6 +1652,10 @@ removes temporary database files. No development or hosted database was used.
 Manual acceptance remains complete; this closes the previously recorded
 multi-connection concurrency exception without reopening the phase.
 
+Both GitHub CI jobs passed after the Prisma generation and 12-hour cooldown
+assertion corrections (owner confirmation, 2026-10-10). Required branch
+protection/ruleset configuration remains unconfirmed.
+
 ### Manual Test Flows
 
 1. **Auth**: Register → Login → Logout → Login again → correct redirect.
@@ -1734,7 +1738,7 @@ Phase 31 is complete. Phase 32 — Final Security Audit is next.
 
 **Status:** In progress. The ordered 32.1–32.9 closeout sequence below is the
 active plan. Do not treat this phase or the production approval checklist as
-complete while deployment configuration, dependency audit access, or required
+complete while deployment configuration or required
 owner acceptance remains unresolved.
 
 **Goal:** Verify the application against the complete security checklist before deployment.
@@ -1791,8 +1795,11 @@ now reports zero vulnerabilities; no forced major downgrade was used.
 
 #### 32.3 — Confirm the production app host and proxy behavior (`SECURITY-AUDIT.md` 11.9, High)
 
-**Status:** Pending production app-host selection. Verify its forwarded-client-IP
-contract before configuring the production rate-limit IP source.
+**Status:** Vercel selected for the initial production trial (owner decision,
+2026-10-10). A later move to another host remains possible; no permanent host
+has been selected. Verify Vercel's forwarded-client-IP contract before configuring
+the production rate-limit IP source. Host selection does not complete the proxy
+verification or authorize deployment; the remaining production gates still apply.
 
 #### 32.4 — Verify security settings on the existing hosted Prisma database (`SECURITY-AUDIT.md` 12.10, 16.6, 16.7; High)
 

@@ -1,5 +1,28 @@
 # Scripture Memo Project Log
 
+### 2026-10-10 — Initial production trial host selected
+
+- Owner plans to try production on Vercel first, with a possible later move to
+  another host. Vercel is the initial trial host; the permanent host is undecided.
+- Phase 32.3 now proceeds to Vercel proxy/client-IP verification. Production
+  database, secrets, migrations, HTTPS/runtime, backups, and final approval
+  remain open. No deployment or external configuration was performed.
+
+### 2026-10-10 — Documentation reconciliation and CI confirmation
+
+- Owner confirmed both GitHub CI jobs passed after the generation and cooldown
+  assertion fixes. This supersedes earlier pending push/rerun notes; required
+  branch protection has not been confirmed.
+- Reconciled current summaries with 400 waypoints, Next.js 16.3.6, completed
+  Phase 31, completed Phase 32.1/32.2, implemented extras, and remaining
+  production closeout. Preserved dated historical records.
+- Updated QA evidence, security cooldown/currency wording, and product scope
+  for already implemented map practice, CSV import, and Fellowship governance.
+- Recorded local review: lint and 162 unit tests passed; generated Next.js route
+  references prevented typecheck. No source fixes, database operations, or
+  production deployment occurred.
+
+
 ### 2026-10-10 - Correct stale progression integration expectation
 
 - GitHub Actions confirmed that the PostgreSQL service, migrations, and first
@@ -1801,70 +1824,50 @@ authoritative repository sources and correct this log.
 
 ## Project Summary
 
-Scripture Memo is a full-stack, mobile-first scripture memorization web
-application built with Next.js 16.2.10, strict TypeScript, Prisma 7, PostgreSQL,
-Better Auth, Tailwind CSS 4, shadcn/ui, React Hook Form, Zod, and Sonner.
+Scripture Memo is a full-stack, mobile-first scripture memorization game built
+with Next.js 16.3.6, strict TypeScript, Prisma 7, PostgreSQL, Better Auth,
+Tailwind CSS 4, shadcn/ui, React Hook Form, Zod, and Sonner.
 
-Players progress through an expanding sequential waypoint curriculum
-bootstrapped with 220 records. Every waypoint combines a Three-Day Challenge
-(Glimmer, Glow, Radiance) with five ordered game modes (Drag & Drop, Puzzle,
-Swap, Cue, Fill). Journey Stages (Learn, Recall, Strengthen, Master) control
-long-term verse difficulty. Glow Points are the only currency.
+The bootstrap curriculum contains 100 verses across 400 published waypoint
+assignments and can expand continuously. Each waypoint combines Glimmer, Glow,
+and Radiance with five ordered modes: Drag & Drop, Puzzle, Swap, Cue, and Fill.
+Challenge days unlock 12 elapsed hours after the preceding day's completion.
+Learn, Recall, Strengthen, and Master govern hints and per-attempt timing.
+Glow Points are the only spendable currency; Beacon XP is non-spendable
+progression and Crowns are non-spendable prestige.
 
 ## Current Project State
 
-- Branch: `testing`.
-- Current committed HEAD at this update: `1ecb7d6`.
-- Phase 30 is complete: all 16 manual regression flows passed. Phase 31 is
-  in progress; its current evidence is tracked in `docs/PERFORMANCE-AUDIT.md`.
-- The Oil Shop purchase preview passed all three in-app Reduced Motion checks
-  on 2026-09-14. Remaining query, route-state, and mobile audits are next.
-- Phases 0–9 are complete and manually accepted, including bulk CSV import,
-  dynamic verse-list search, and admin pack management.
-- The public landing page and internal UI-foundation preview are implemented.
-- Better Auth registration, login, logout, onboarding, and protected-route flows
-  are implemented and accepted.
-- The complete product-aware Prisma schema and migrations are present and were
-  applied successfully during Phase 3.
-- Root `AGENTS.md` is the single authoritative agent instruction file;
-  `docs/AGENTS.md` was removed.
-- Phase 9 waypoint management, curriculum-history hardening, and Phase 9A's
-  application-wide error reference are merged at the current HEAD.
-- Phase 10 progression engine is complete with lazy initialization,
-  server-authoritative cooldowns, atomic advancement, and real PostgreSQL tests.
-- Phase 11 Game Map, shared responsive trail coordinates, and Trail Navigator
-  are implemented and have passed automated and project-owner manual acceptance.
-- Phase 12 Day Selection is complete and manually accepted, with server-derived
-  states, live cooldowns, and atomic session starts.
-- Phase 13 Gameplay Shared Engine is complete and manually accepted with the reusable gameplay
-  shell, deterministic generators, server-owned ordered attempts, stage-based
-  limits, and atomic final-mode/day completion.
-- Phase 14 Drag & Drop Mode is complete and manually accepted, including
-  desktop/touch placement, feedback audio, victory variants, the completion
-  interstitial, Exit navigation, and administrator Test Replay.
-- Phase 15 Puzzle Mode is complete and manually accepted.
-- Phase 16 Swap Mode is complete and manually accepted.
-- Phase 17 Cue Mode is complete and manually accepted.
-- Phase 18 Fill Mode is complete and manually accepted.
-- Completed-day administrator Test Replay entry and audited self-testing
-  cooldown overrides are implemented.
-- Phase 19 Glow Points and Rewards is complete and manually accepted.
-- Phase 20 Hint System is complete and manually accepted. The longer
-  Strengthen/Master end-to-end progression scenario is recorded for the final
-  regression pass; both UI omission and server-side rejection are implemented.
-- Phase 21 Streak System is complete and manually accepted. A natural
-  next-calendar-day increment remains recorded for the final regression pass.
-- Phase 22 Badge System is complete and manually accepted. The SUPER_ADMIN
-  manual-award flow remains recorded for later testing when a second account is
-  available.
+- Reconciled on 2026-10-10 against branch `visual-upgrade`, HEAD `969cec5`.
+- Phases 0–31 are complete; Phase 32 — Final Security Audit remains in progress.
+- Core learner and administrator flows are implemented, including all five
+  modes, progression, rewards, hints, streaks, badges, Vault, Sanctuary, Oil Shop,
+  Fellowships, Beacon competition, curriculum management, and CSV verse import.
+- Later additions include Game Home, reward-free player map practice, contextual
+  desktop panels, Fellowship governance/case management, platform settings,
+  audit viewing, account suspension enforcement, and shared database rate limits.
+- Four registered brand themes support Super Admin preview and audited global
+  selection; Tropical Teal remains the fallback/default.
+- Email verification and password recovery use Better Auth with local Light Dev
+  delivery and Resend delivery. Development Resend acceptance is complete.
+- Owner confirmed on 2026-10-10 that both GitHub CI jobs passed after the Prisma
+  generation and 12-hour cooldown assertion corrections. Required branch
+  protection/ruleset configuration has not been confirmed.
+- Local review on 2026-10-10: ESLint passed; 162 database-free tests passed across
+  42 files with no skips. TypeScript reported generated `.next` route references
+  to absent daily-challenge, trivia, and profile pages; stale generated output
+  is suspected but regeneration has not been performed to confirm.
+- No database or production build was rerun during that review. Earlier accepted
+  browser, build, integration, and concurrency evidence remains in the roadmap
+  and QA/performance records; accepted scenarios need not be repeated.
 
 ## Current Roadmap Position
 
-Phases through Phase 31 are complete. Phase 32 — Final Security Audit is in
-progress. Phase 32.1 email-verification implementation and owner browser
-acceptance are complete, and development Resend delivery has passed. Phase 32.2
-is next; its online npm audit remains pending authorization for the dependency
-metadata sent to the public registry. Production deployment checks remain open.
+Phases through Phase 31 are complete. Phase 32.1 email verification and
+Phase 32.2 dependency audit are complete. Phase 32.3–32.9 remain open:
+Vercel trial-host proxy verification, hosted database security, separate secrets,
+migration deployment, HTTPS/runtime settings, backups/recovery, and audit closure.
+Production approval has not been granted.
 
 ## Completed Work
 
@@ -1913,34 +1916,22 @@ metadata sent to the public registry. Production deployment checks remain open.
 
 ## Current Task
 
-Continue Phase 31 — Performance and Polish: query payloads, client boundaries,
-route states, and mobile review. The purchase preview is accepted.
+Documentation reconciliation is complete. Await the owner's next development
+instruction; Phase 32 production closeout remains the active roadmap position.
 
 ## Exact Next Task
 
-Continue the remaining visual/state and performance checks in
-`docs/PERFORMANCE-AUDIT.md`. Fellowship/Oil Shop pending controls are corrected.
-Local test isolation is now configured: development uses 51214 and tests use
-51224, both with 31 migrations. Fellowship integration passes. Two progression
-lock-race subtests remain skipped on the single-connection local runtime; do not
-resume the retired hosted test migration plan.
-The Vault header 375px check has passed.
-Do not repeat the accepted purchase preview or Vault check. Small-population local
-ranking plans were inspected on 2026-09-15; representative-scale SQL plans and
-browser bundle measurements remain unverified. The owner passed all prepared
-notification, Vault verse-card, and Fellowship scenarios on 2026-09-23.
-Oil Shop controls and the latest no-inner-scroll selected-pack correction are
-accepted. Settings save scenarios also passed per the owner. Do not repeat those
-checks. Sanctuary sample note/favorite scenarios also passed per the owner.
-The owner also passed the prepared OS-only reduced-motion check. Do not repeat
-accepted motion and Sanctuary rendering scenarios. Sanctuary study Markdown now renders on the server;
-the identical analyzer measured 149,329 fewer route-associated browser JS bytes
-(11.4%) and removed the Markdown family from the client graph. Next: visually
-The owner passed the Study/Notes regression after this rendering-boundary change;
-do not repeat it. Defer gameplay lazy-loading until timed-attempt loading is
-addressed. Next: remaining read-only high-read repository and index review. Other
-Phase 31 checks remain open.
-Phase 31 remains in progress.
+Resume Phase 32.3 by verifying Vercel's trusted client-IP/proxy contract before
+configuring production rate limits. Vercel is selected for an initial production
+trial; the permanent host remains undecided. Deployment still requires the
+remaining production gates and approval.
+
+The separate local TypeScript artifact issue can be investigated by regenerating
+Next.js route types and rerunning typecheck when that work is requested.
+Both CI jobs are owner-confirmed passing; branch protection remains unconfirmed.
+Keep development on Prisma Local 51214, routine integration on separate 51224,
+and multi-connection races on disposable PostgreSQL. Do not use hosted data for
+routine development or tests, or repeat already accepted manual scenarios.
 
 ## Important Decisions
 
@@ -1978,11 +1969,10 @@ Phase 31 remains in progress.
   with a centered ambient halo and scale-based Z-axis hover response rather
   than a light layer displaced below it. The accepted amber selected treatment
   remains unchanged.
-- Player-accessible replay from completed map challenge cards is deferred to
-  Post-Roadmap Extras. It will use individual mode selection, remain
-  non-progressing and reward-free by default, and coexist with organized Vault
-  replay. Any limited practice reward requires a separate abuse-resistant
-  product decision.
+- Player-accessible practice from completed map challenge cards is implemented
+  and accepted. Individual mode selection is untimed, hint-free, non-progressing,
+  and reward-free, and coexists with organized Vault replay. Any limited practice
+  reward requires a separate abuse-resistant product decision.
 - Root `AGENTS.md` overrides supporting documents when instructions conflict.
 - Available Codex conversation history remains useful and should be read when
   present; this file is only a continuity backup and status summary.
@@ -2002,10 +1992,10 @@ Phase 31 remains in progress.
   and automatically hide when their final verse is removed.
 - Pack ordering uses one-based `PackVerse.position` values and supports pointer,
   touch, keyboard, and explicit arrow-button reordering.
-- All 220 waypoint placeholders start hidden and unassigned with provisional
+- Newly appended waypoint drafts start hidden and unassigned with provisional
   `LEARN` stage. Assignment requires an explicit stage, and publishing requires
   an assigned, currently published verse.
-- The initial 220 waypoints are a bootstrap count, not a maximum. Administrators
+- The current 400 assigned waypoints are a bootstrap count, not a maximum. Administrators
   append individual waypoints to one continuous historical sequence without
   year grouping.
 - Published waypoints form a continuous prefix. Per verse, Learn, Recall, and
@@ -2039,31 +2029,32 @@ Phase 31 remains in progress.
 - Pre-launch map comparison uses Map A (winding trail) and Map B (original card
   grid) over one shared data and navigation controller. Tester preference is
   browser-local, URL assignment takes precedence, and neither affects progress.
-- Automated destructive database tests use only the separately provisioned
-  `scripture-memo-integration-tests` Prisma Postgres resource. `DATABASE_URL`
-  remains protected, test configuration fails closed, and Prisma MCP write
-  operations require explicit project-owner approval.
+- Destructive database tests use guarded isolated local/test databases only:
+  Prisma Local 51224, disposable PostgreSQL for multi-connection races, or the
+  temporary CI PostgreSQL service. Hosted test credentials are retired.
+  `DATABASE_URL` remains protected, test configuration fails closed, and Prisma
+  MCP write operations require explicit project-owner approval.
 - Complex operational failures use stable feature codes from one structured
   catalogue. Sonner shows only the short safe message and code; the ADMIN-only
   reference page renders detailed safe guidance. Ordinary validation stays
   uncoded, and codes identify conditions rather than individual occurrences.
-- The error reference is application-wide even though its first entries cover
-  Waypoints and Verses. Its permanent link belongs on the future admin front
-  page, not on either feature's management page.
+- The error reference is application-wide and has a permanent navigation entry
+  on the implemented admin front page.
 - The Phase 4 placeholder Server Action using `ActionResult` belongs to the auth
   feature because authentication is the next feature that will consume the
   shared contract.
 - `DEFAULT_HINT_ALLOWANCE = 5`.
-- `BASE_GLOW_POINTS = 100` controls the Glimmer earning rate. New users start
-  with 0 Glow Points.
-- The Phase 4 rate limiter is process-local. Production authentication requires
-  a distributed provider shared by every application instance.
+- The default base Glimmer reward is 100 Glow Points and may be changed through
+  Super Admin platform settings for future completions. New users start with
+  0 Glow Points; completed awards retain their recorded amounts.
+- Custom authentication actions and gameplay completion submissions use shared
+  database-backed rate limits with advisory locking across application instances.
 - Better Auth's public API uses its database-backed rate limiter. Server Action
   calls use the application limiter because Better Auth excludes internal
   `auth.api` calls from its own request limiter.
-- Email verification and password reset are deferred until an email delivery
-  provider is selected; neither is required by the Phase 5 roadmap acceptance
-  criteria.
+- Email verification and password reset are implemented with Better Auth-owned
+  tokens, Light Dev local delivery, and Resend production delivery. Production
+  credentials remain separate from the accepted development setup.
 - No `src/` directory; application code uses root-based, feature-owned folders.
 - Route pages are one-line feature-view re-exports.
 - Prisma access is repository-only, except singleton definition and Better Auth
@@ -2077,12 +2068,17 @@ Phase 31 remains in progress.
   fresh retry of that mode without erasing completed modes or awarding progress.
 - Hints are disabled during Strengthen and Master.
 - Cooldowns, game order, completion, and rewards are server-authoritative.
-- Glow Points are the only currency; no XP system exists.
+- Glow Points are the only spendable currency. Beacon XP is non-spendable
+  progression, and Crowns are non-spendable prestige.
 - Reward balance changes require a transaction and immutable ledger entry.
 - The database schema includes private notes, favorites, suspension state, and
   explicit Vault replay classification.
 
 ## Recent Important File Changes
+
+This section retains earlier implementation milestones. See the dated entries
+at the top of this log for the latest changes and the current-state sections for
+the active handoff; descriptions below do not establish current pending work.
 
 - `features/map/`: Phase 11 batch repository read, map-state helpers and tests,
   ten-node navigator, waypoint cards, skeleton, protected view composition, and
@@ -2097,8 +2093,8 @@ Phase 31 remains in progress.
   `components/shared/flame-indicator.tsx`: reusable learner-facing progression
   indicators for the map and upcoming Day Selection screen.
 - `app/(protected)/game/map/`: one-line page and loading re-exports.
-- `features/auth/views/authenticated-home-placeholder-view.tsx`: discoverable
-  link to the new map while the later Game Home phase remains pending.
+- `features/home/views/game-home-view.tsx`: implemented Game Home replaces the
+  earlier authenticated-home placeholder.
 - `AGENTS.md`: consolidated all agent instructions at the repository root; added
   authority, JSON persistence, and project-continuity rules.
 - `docs/AGENTS.md`: deleted after consolidation into root `AGENTS.md`.
@@ -2135,24 +2131,25 @@ Phase 31 remains in progress.
 
 ## Outstanding Tasks
 
-- Commit and merge the manually accepted Phase 22 changes.
-- Select an email delivery provider before implementing verification or password
-  reset.
-- Phases 23–32 remain pending in roadmap order.
-- `.env.example` remains absent and is required by the security checklist.
-- Before upgrading to `pg` 9, update the configured database SSL mode explicitly
-  to `verify-full` to preserve the current certificate-verification behavior.
+- Complete Phase 32.3–32.9 production configuration and final audit approval.
+- Confirm whether both passing CI checks are required by branch protection.
+- Investigate the local generated Next.js route-type references before claiming
+  a fresh local TypeScript pass.
+- Complete the planned pre-production artwork packaging/mobile image audit and
+  independent Fellowship insignia work; Phase 31 remains closed.
 
 ## Blockers and Unresolved Questions
 
-- No implementation blocker exists. The dedicated test database is configured,
-  migrated, and verified; both repository integration suites pass and clean up
-  their fixtures.
-- No email delivery provider has been selected, so verification and password
-  reset are intentionally not implemented.
-- The recovered transcript contains historical references to the deleted
-  `docs/AGENTS.md`. They are intentionally preserved because the file is an
-  archive of what occurred, not a live instruction source.
+- Vercel is the initial production trial host. Its proxy/IP trust, release
+  configuration, and runtime verification remain pending; a permanent hosting
+  decision is deferred.
+- Both CI jobs passed per owner confirmation on 2026-10-10. The latest local
+  test listener was unavailable and embedded PostgreSQL initialization failed
+  with a restricted-token error; no hosted test fallback is permitted.
+- Production database security, secrets, migrations, HTTPS, and backup evidence
+  remain open in Phase 32. No production deployment is approved.
+- Dated entries and the recovered transcript are historical evidence. Current
+  summaries and the roadmap supersede their earlier pending states.
 
 ## Dated Session Updates
 

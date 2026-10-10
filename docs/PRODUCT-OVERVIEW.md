@@ -1921,20 +1921,25 @@ if (isUnlocked) { ... }
 - Sonner toasts throughout
 - Security checks throughout
 
+### Implemented Extensions Beyond the Original MVP
+
+- Player map practice: select an individually completed mode from a completed
+  Glimmer, Glow, or Radiance card. Practice is untimed, hint-free, and reward-free;
+  it changes no campaign attempts, cooldowns, streaks, or waypoint history.
+  Vault replay remains the long-term mastery library.
+- Administrative bulk CSV verse import (see §6.3 Administrative CSV Import).
+- Fellowship leadership transfer, closure, suspension/appeal, and Super Admin
+  governance-case administration.
+- Game Home, contextual desktop panels, platform settings/audit viewing,
+  and registered brand-theme preview/global selection.
+
 ### Defer Post-MVP
 
-- Player-accessible map replay for completed challenge days. A player may choose
-  any individually completed mode from a completed Glimmer, Glow, or Radiance
-  card. These practice sessions are explicitly non-progressing and reward-free
-  by default; they never alter attempts, cooldowns, streaks, campaign progress,
-  or waypoint history. Vault replay remains available as the organized
-  long-term mastery library. Revisit any limited daily practice reward only as
-  a separate, abuse-resistant product decision.
+- Any daily practice reward requires a separate abuse-resistant product decision.
 - Advanced Oil Shop cosmetics (map skins, flame styles)
-- Fellowship moderation tools
+- Additional Fellowship moderation capabilities beyond the implemented governance workflows
 - Push notifications
 - Advanced analytics dashboard
-- Bulk verse import UI
 - Mobile app wrapper
 
 ---
