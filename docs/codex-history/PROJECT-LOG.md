@@ -1,5 +1,196 @@
 # Scripture Memo Project Log
 
+### 2026-10-10 - Correct stale progression integration expectation
+
+- GitHub Actions confirmed that the PostgreSQL service, migrations, and first
+  integration suite pass, but the progression integration suite expected the
+  next day at 08:00 UTC on July 2 after a completion at 08:00 UTC on July 1.
+  The product rule and repository correctly schedule it 12 elapsed hours later,
+  at 20:00 UTC on July 1.
+- Updated the concurrency assertion to match the documented rolling 12-hour
+  cooldown. The clean GitHub runner could not continue to the remaining suites
+  because the progression suite stopped the job at that stale expectation.
+- Local database-backed verification is currently unavailable: the dedicated
+  test listener on port 51224 is stopped, and the disposable PostgreSQL runner
+  fails to initialize on this Windows environment with a restricted-token
+  error. Retry the CI integration job after pushing this test-only correction.
+
+### 2026-10-07 — Pre-production artwork packaging planned
+
+- Measured `public/` at 126,583,462 bytes across 141 files. Images account for
+  about 120.5 MiB. Luna authoring sources use about 21.5 MiB, Concept Luna
+  sources about 15.8 MiB, and Concept Luna preview exports about 13.7 MiB.
+- Confirmed that major player artwork uses `next/image`, so an individual
+  player's transfer depends on the images requested by their route and the
+  optimized responsive variant. The aggregate directory size is not a
+  per-player download measurement. `public/` assets remain directly addressable
+  by URL, so authoring masters should not stay there.
+- Added a bounded artwork-packaging task to the pre-production UI/art pass:
+  preserve source files in a versioned authoring archive outside `public/`,
+  retain only approved production and any deliberately retained preview exports
+  as public assets, compare modern image formats visually, and measure cold-cache
+  375px image transfer and LCP on representative routes. Phase 31 remains closed.
+
+### 2026-10-07 — Current guidance aligned with progression and seed behavior
+
+- Clarified that Glow Points are the only spendable currency, while Beacon XP
+  remains non-spendable progression and Crowns remain non-spendable prestige.
+  Updated the active `AGENTS.md` checklists and roadmap requirements so they no
+  longer forbid accurate references to the implemented Beacon XP system.
+- Corrected the README's seed instructions: `prisma db seed` installs 100
+  active verses and 400 active waypoint assignments. Documented
+  `npm run local:fixtures` as an optional local test helper that replaces the
+  first five assignments only when they have no learner history.
+- Marked Phase 9's original 220-placeholder seed plan as historical and
+  superseded by the accepted Phase 29 curriculum seed.
+
+### 2026-10-07 — CI quality job Prisma generation fix
+
+- The first GitHub Actions run passed ESLint and the complete PostgreSQL
+  integration/concurrency job, but strict TypeScript failed in the quality job.
+  The clean runner did not contain `lib/generated/prisma`, which is ignored by
+  Git, so imports of Prisma's generated client and enums failed and caused
+  cascading type errors.
+- Added `npx prisma generate` to the quality job immediately after `npm ci`,
+  matching the generation step already used by the passing database job. This
+  keeps generated artifacts out of source control and ensures typecheck, unit
+  tests, and build see the schema-derived client on fresh runners.
+- The workflow fix is local and needs to be pushed. The next GitHub run must
+  confirm all quality steps pass before the two job names are made required
+  branch-protection checks.
+
+### 2026-10-07 — Pull-request CI checks
+
+- Added `.github/workflows/ci.yml` for pull requests, pushes, and manual runs.
+  Its read-only quality job installs from `package-lock.json`, runs ESLint,
+  strict TypeScript, every discovered database-free test, and a production
+  build. Its database job runs checked-in migrations and isolated PostgreSQL
+  repository, concurrency, and account-suspension suites.
+- CI uses a disposable PostgreSQL 16 service on the GitHub runner plus local-only
+  synthetic values. No developer database, Prisma-hosted database, Resend key,
+  or production secret is used. Workflow actions are pinned to verified commit
+  SHAs and the workflow has read-only repository permissions.
+- Added `npm run typecheck`, `npm run test:unit`, and
+  `npm run test:account-suspension:integration`. The unit runner discovers new
+  non-repository test files automatically and excludes database-backed tests.
+- Local verification passed: ESLint, TypeScript, 159 tests across 41 unit-test
+  files, and the full production build. The integration suites use guarded
+  migration/reset scripts; GitHub will execute them on its isolated PostgreSQL
+  service after the workflow is pushed. Repository branch protection must be
+  configured separately if passing checks should block merges.
+
+### 2026-10-07 — Multi-connection PostgreSQL tests completed
+
+- Added a pinned, development-only PostgreSQL 16.14 runtime and
+  `npm run test:concurrency:local`. The runner starts a temporary server bound
+  only to loopback on an OS-assigned port, uses a random database password,
+  applies checked-in migrations through the guarded migration wrapper, then
+  stops the server and removes its unique temporary directory.
+- No `.env` file, application database on 51214, Prisma Local test instance on
+  51224, or hosted database was changed or used. All 40 migrations were applied
+  only to the temporary database.
+- All concurrency suites passed with zero skips: authentication login and
+  registration limiter races; progression initialization and next-waypoint
+  curriculum-lock races plus duplicate day completion; shared gameplay
+  throttling and duplicate game-mode submission; and Fellowship duplicate
+  transfer offer/acceptance, closure-versus-suspension, and duplicate appeal.
+- Added direct concurrent assertions for challenge-day completion and for
+  accepting the same transfer offer twice, then updated the roadmap, QA
+  checklist, Security Audit, performance record, product overview, README, and
+  root database guidance to reflect the completed coverage and repeatable test
+  command.
+- TypeScript and focused ESLint passed. PostgreSQL emitted a non-failing `pg`
+  deprecation warning from Prisma's PostgreSQL adapter while the duplicate
+  gameplay completion requests overlapped; the database results were correct.
+  Review the adapter warning before a future upgrade to `pg` 9.
+
+### 2026-10-07 — Multi-connection gameplay and Fellowship race coverage
+
+- Added guarded integration coverage for two simultaneous submissions of the
+  same game-mode attempt. The test uses an Admin Test session and asserts one
+  terminal completion with no learner rewards or Beacon XP.
+- Added Fellowship governance races for duplicate leadership offers, closure
+  versus Super Admin suspension, and two appeals submitted concurrently. The
+  assertions verify one valid state transition, a coherent case history, and
+  unique case numbers. The two pre-existing progression curriculum-lock race
+  subtests remain in place.
+- Restricted the single-connection pool workaround to Prisma Local's documented
+  development/test ports (51214 and 51224). Other local PostgreSQL ports now use
+  the normal multi-connection pool so the guarded races can execute there.
+- Pool configuration tests, TypeScript, and targeted ESLint pass. The new
+  PostgreSQL race suites correctly skip on the current Prisma Local test URL,
+  which serializes all connections. No native PostgreSQL, Docker, or WSL runtime
+  is available here; the Prisma Local test-service start attempt also failed.
+  No database was started or modified, and no production database was used.
+
+### 2026-10-07 — Gameplay submission throttling
+
+- Added a shared per-user cap of 10 gameplay completion submissions per
+  minute. The Server Action checks it after schema validation and authentication
+  but before the gameplay transaction, so excess valid submissions do not load
+  or lock gameplay session state. The existing Better Auth `RateLimit` table and
+  PostgreSQL advisory locks provide cross-instance enforcement; an HMAC key
+  keeps user IDs out of limiter rows. No migration or additional database was
+  introduced.
+- Kept duplicate completion and reward protections intact as separate data
+  integrity safeguards. Updated Security Audit 11.4 to reflect that distinction.
+- Added a guarded concurrency and fixed-window integration test. TypeScript,
+  targeted ESLint, gameplay tests, and `git diff --check` passed. The integration
+  test could not run because the isolated local test listener at port 51224 was
+  unavailable. The documented test-service start command also failed with its
+  generic port/startup error; no database was started or modified.
+
+### 2026-10-07 — Em-dash word boundaries in gameplay
+
+- Fixed shared gameplay tokenization so an em dash separates adjacent words
+  while remaining visibly attached to the preceding word. Typed-answer
+  normalization converts em dashes to spaces before stripping other punctuation,
+  preventing answers such as `salvation—whom` from becoming one joined word.
+- Confirmed the affected BSB seed verses include Psalm 27:1, Habakkuk 2:4, and
+  Philippians 4:8. Replaced em dashes with spaces in those canonical BSB verses
+  and added a scoped data migration, applied to the local development database.
+  The wording is otherwise unchanged; ordinary hyphenated words continue to be
+  one token. Future environments receive the correction through that migration.
+- Added a gameplay regression test using the full BSB Psalm 27:1 dash pattern.
+
+### 2026-10-07 — Shared rate limits for custom authentication actions
+
+- Replaced process-local action throttles for login, registration, password
+  reset requests, and password-reset completion with the existing PostgreSQL
+  `RateLimit` table. Action-specific windows and caps remain 10 per 15 minutes,
+  5 per hour, 5 per 15 minutes, and 10 per 15 minutes respectively.
+- Keys are HMAC-derived from action scope and the request IP, so neither raw
+  addresses nor IPs are written to the limiter table. Password reset requests
+  retain the separate HMAC-keyed per-email cap.
+- Each check uses a PostgreSQL advisory transaction lock, making simultaneous
+  attempts share one fixed-window count across app instances. No schema change
+  or migration is required. The protected action fails closed if the database
+  limiter cannot be reached.
+- Added guarded local PostgreSQL integration coverage for concurrent attempts
+  and scope isolation. It still needs to run against the isolated test database;
+  production proxy/IP trust remains a separate pending deployment check.
+
+### 2026-10-07 — Central account-suspension enforcement
+
+- Integrated Better Auth's Admin plugin so suspended accounts cannot create a
+  session through the direct `/api/auth/sign-in/email` endpoint. Plugin-provided
+  management routes remain unavailable; audited Super Admin Server Actions are
+  still the only account suspension and restoration controls.
+- Added Better Auth's ban fields and `session.impersonatedBy` to the Prisma
+  schema, with a local-only additive migration that backfills existing active
+  suspensions. Existing account suspension fields remain synchronized for admin
+  screens and leaderboard filtering.
+- Centralized uncached session reads across Proxy, protected Server Actions,
+  server-rendered views, and the browser session endpoint. A concurrent session
+  created during suspension is rejected and revoked on validation, preventing
+  it from returning after account restoration. Direct sign-in failures retain
+  the generic credential response.
+- Prisma validation, migration status, TypeScript, ESLint, the optimized
+  production build, and `git diff --check` pass. The guarded integration test
+  covers direct sign-in rejection and revocation of a pre-existing session, but
+  could not run because the local test service failed to start; no hosted
+  database was accessed.
+
 ### 2026-10-07 — Fellowship leadership and notification follow-through
 
 - Super Admin transfer notices now give the new leader the recorded reason;

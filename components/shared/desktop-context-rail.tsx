@@ -52,7 +52,7 @@ export function DesktopContextRailProvider({
           <div ref={setContextTarget} className="min-h-0 flex-1 overflow-hidden" />
 
           <section className="border-t border-border/70 p-3">
-            <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-linear-to-br from-primary/12 via-background to-amber-400/8 p-3">
+            <div className="relative overflow-hidden rounded-card border border-border bg-card p-3">
               <div className="relative flex items-center gap-2.5">
                 <Image
                   src="/images/mascot/luna/luna-encourage.png"

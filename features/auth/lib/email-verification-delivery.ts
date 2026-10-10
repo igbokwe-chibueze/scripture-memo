@@ -165,7 +165,7 @@ function buildVerificationEmailHtml(verificationUrl: string): string {
   const safeUrl = escapeAuthEmailHtml(verificationUrl);
 
   return [
-    "<main style=\"font-family:Arial,sans-serif;line-height:1.6;color:#191827\">",
+    "<main style=\"font-family:Arial,sans-serif;line-height:1.6;color:#16333B\">",
     "<h1>Welcome to Scripture Memo</h1>",
     "<p>Verify your email address to sign in to your account.</p>",
     `<p><a href=\"${safeUrl}\">Verify email address</a></p>`,

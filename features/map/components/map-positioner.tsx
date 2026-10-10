@@ -952,12 +952,12 @@ export function MapPositioner(): React.ReactNode {
                     onPointerMove={(event) => handleMarkerPointerMove(event, index)}
                     onKeyDown={(event) => handleMarkerKeyDown(event, index)}
                     className={cn(
-                      "absolute z-10 grid -translate-x-1/2 -translate-y-1/2 touch-none place-items-center rounded-full border-4 text-base font-bold shadow-[0_5px_0_rgb(0_0_0/0.3)] outline-none transition focus-visible:ring-4 focus-visible:ring-ring/60 motion-reduce:transition-none",
+                      "absolute z-10 grid -translate-x-1/2 -translate-y-1/2 touch-none place-items-center rounded-full border-4 text-base font-bold shadow-[0_5px_0_var(--control-edge)] outline-none transition focus-visible:ring-4 focus-visible:ring-ring motion-reduce:transition-none",
                       isClipped
-                        ? "border-red-200 bg-red-600 text-white"
+                        ? "border-error-border bg-error text-error-foreground"
                         : selectedIndex === index
-                          ? "scale-105 border-amber-200 bg-amber-500 text-amber-950"
-                          : "border-emerald-200 bg-emerald-600 text-white hover:scale-[1.03]",
+                          ? "scale-105 border-selection-border bg-selection text-selection-foreground"
+                          : "border-success-border bg-success text-success-foreground hover:scale-[1.03]",
                     )}
                     style={{
                       left: `${position.x}%`,

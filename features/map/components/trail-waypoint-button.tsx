@@ -96,8 +96,8 @@ export function TrailWaypointButton({
         aria-label={ariaLabel}
         onClick={onClick}
         className={cn(
-          "group relative grid size-full place-items-center rounded-full bg-transparent outline-none transition-transform duration-150 hover:scale-[1.02] focus-visible:ring-4 focus-visible:ring-white/80 active:scale-[0.97] motion-reduce:transition-none motion-reduce:hover:scale-100 motion-reduce:active:scale-100",
-          isCurrent && "ring-3 ring-amber-300/75 sm:ring-4",
+          "group relative grid size-full place-items-center rounded-full bg-transparent outline-none transition-transform duration-150 hover:scale-[1.02] focus-visible:ring-4 focus-visible:ring-ring/80 active:scale-[0.97] motion-reduce:transition-none motion-reduce:hover:scale-100 motion-reduce:active:scale-100",
+          isCurrent && "ring-3 ring-reward/75 sm:ring-4",
         )}
       >
         {/*
@@ -146,8 +146,8 @@ export function TrailWaypointButton({
         <span
           aria-hidden="true"
           className={cn(
-            "pointer-events-none absolute top-[36%] left-0 z-10 w-full text-center leading-none text-white",
-            "font-heading font-bold [text-shadow:0_2px_2px_rgb(4_49_130/0.8)]",
+            "pointer-events-none absolute top-[36%] left-0 z-10 w-full text-center leading-none text-foreground",
+            "font-heading font-bold [text-shadow:0_2px_2px_var(--primary-edge)]",
             isCurrent
               ? "text-[1.375rem] sm:text-[1.625rem]"
               : "text-xl sm:text-2xl",

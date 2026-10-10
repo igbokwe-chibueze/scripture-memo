@@ -204,10 +204,13 @@ optimization.
 
 - Local development and automated tests must use isolated local/test databases;
   never use the hosted production database as the routine development backend.
-  Current development uses Prisma Local port 51214; integration tests use a
-  separate named local instance on 51224. Database-name changes on the same
-  Prisma Local port do not isolate data. Keep test guards local-only and reject
-  reuse of the development listener. Hosted test credentials are retired.
+  Current development uses Prisma Local port 51214; routine integration tests
+  use a separate named local instance on 51224. Multi-connection concurrency
+  tests use `npm run test:concurrency:local`, which starts a disposable embedded
+  PostgreSQL server on an ephemeral loopback port and removes its test data on
+  shutdown. Database-name changes on one Prisma Local port do not isolate data.
+  Keep test guards local-only and reject reuse of the development listener.
+  Hosted test credentials are retired.
 - Do not perform writes, transactions, advisory locks, or initialization during
   ordinary read requests. Initialization belongs at an explicit state transition
   or behind a cheap read that proves recovery is actually required.
@@ -517,8 +520,8 @@ The same verse may appear at multiple waypoints with different Journey Stages. T
 
 ```
 Day 1 (GLIMMER): 20–35% words hidden. Available immediately on waypoint unlock.
-Day 2 (GLOW):    40–60% words hidden. Unlocks 24h after Day 1 completion.
-Day 3 (RADIANCE): 70–100% words hidden. Unlocks 24h after Day 2 completion.
+Day 2 (GLOW):    40–60% words hidden. Unlocks 12 elapsed hours after Day 1 completion.
+Day 3 (RADIANCE): 70–100% words hidden. Unlocks 12 elapsed hours after Day 2 completion.
 ```
 
 Cooldown enforcement is always server-side:
@@ -689,7 +692,8 @@ If a pattern appears in more than one place → extract it to the appropriate sh
 All game modes must support touch on mobile devices:
 
 - **Drag & Drop / Puzzle:** Tap to select word (highlight), tap a blank to place it. Tap placed word to return to bank.
-- **Swap:** Tap a yellow word to select (purple), tap another to swap.
+- **Swap:** Tap an available word to select it with the shared teal selection
+  treatment, then tap another word to swap.
 - **Cue / Fill:** Standard mobile keyboard input.
 
 Use `@dnd-kit/core` — it natively handles both mouse and touch events.
@@ -720,6 +724,13 @@ Scripture Memo is a mobile-first game experience, not a conventional dashboard-s
   pages from the shared semantic theme tokens and established game palette;
   never introduce an unrelated page-specific palette merely to make a screen
   look distinctive.
+- Use Tropical Teal as the shared brand and selection color, honey gold for
+  earned rewards, restrained tangerine for decoration and streak flames, green
+  for evaluated success, red for errors, blue for information, and neutral
+  theme-aware surfaces. Selection and correctness are different states.
+- Keep interface colors in semantic theme tokens and shared component variants.
+  Raw palette utilities and literal colors are limited to approved artwork,
+  charts, and narrowly documented exceptions.
 - Feature identity should come from composition, illustration, iconography, and
   restrained accent use—not wholesale changes to surfaces, text, controls, or
   feedback colors. Light and dark themes must remain recognizable variants of
@@ -1056,7 +1067,7 @@ Before starting any implementation task, confirm:
 - [ ] I will use Sonner for all user-facing feedback.
 - [ ] I will add loading, pending, success, error, and empty states.
 - [ ] I will use `CUE` (not `HINT`) as the game mode name in all code and UI.
-- [ ] I will use Glow Points only — no XP system exists.
+- [ ] I will treat Glow Points as the only spendable currency; Beacon XP is non-spendable progression, and Crowns are non-spendable prestige.
 - [ ] I will not introduce any `any` type.
 
 ---
@@ -1075,7 +1086,7 @@ Before declaring any task complete, verify all of the following:
 - [ ] Sonner toasts are implemented for all outcomes.
 - [ ] Reusable components were used where applicable.
 - [ ] Game Mode 4 is referenced as "Cue" throughout — never "Hint."
-- [ ] Glow Points is the only reward currency — no XP references.
+- [ ] Glow Points is the only spendable reward currency; Beacon XP and Crowns are never treated or described as spendable currency.
 - [ ] Journey Stage rules (hint/time) are enforced server-side.
 - [ ] Important logic is commented with explanations of why, not just what.
 - [ ] TypeScript passes with `tsc --noEmit`.
@@ -1102,7 +1113,7 @@ The following are architectural violations. Never do any of these:
 | Skip loading or error states | Leaves users with frozen/blank UI |
 | Skip Sonner toasts for important actions | Silent failures are bad UX |
 | Reference "Hint Mode" as a game mode | Mode 4 is Cue Mode |
-| Reference XP or experience points | Only Glow Points exist |
+| Treat Beacon XP or Crowns as spendable currency | Glow Points alone can be spent; Beacon XP tracks progression and Crowns track prestige |
 | Create barrel files inside sub-folders | Causes circular deps |
 | Leave `console.log` in production code | Log using `lib/logger.ts` |
 

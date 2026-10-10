@@ -62,7 +62,7 @@ export function HintButton({
         variant="ghost"
         isPending={isPending}
         pendingLabel={t("openingHint")}
-        className="min-h-11 w-full justify-center rounded-xl text-amber-800 hover:bg-amber-100 hover:text-amber-950 dark:text-amber-200 dark:hover:bg-amber-300/10 dark:hover:text-amber-100"
+        className="min-h-11 w-full justify-center rounded-xl text-reward-text hover:bg-reward-subtle hover:text-reward-text dark:text-reward-text dark:hover:bg-reward-subtle dark:hover:text-reward-text"
         disabled={disabled || (!isTestReplay && !isAdminTest && balance === 0)}
         onClick={handleUseHint}
       >

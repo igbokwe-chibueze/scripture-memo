@@ -1,7 +1,7 @@
 "use server";
 
+import { getSessionFromHeaders } from "@/lib/auth/get-session-from-headers";
 import { headers } from "next/headers";
-import { auth } from "@/lib/auth/auth";
 import type { TranslationCode } from "@/lib/generated/prisma/enums";
 import type { ActionResult } from "@/types/api";
 import { authRepository } from "@/features/auth/repositories/auth.repository";
@@ -20,7 +20,7 @@ export async function selectTranslationAction(
     };
   }
 
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSessionFromHeaders(await headers() );
   if (!session?.user) {
     return { success: false, message: "Authentication required." };
   }

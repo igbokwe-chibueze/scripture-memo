@@ -23,6 +23,47 @@ test("normalizes case, punctuation, Unicode width, and repeated whitespace", () 
   assert.equal(isGameplayAnswerCorrect("In the BEGINNING", "In the beginning."), true);
 });
 
+test("em dashes separate words during tokenization and answer comparison", () => {
+  const tokens = tokenizeVerse(
+    [
+      "The LORD is my light and my salvation—whom shall I fear?",
+      "The LORD is the stronghold of my life—whom shall I dread?",
+    ].join(" "),
+  );
+  const salvationToken = tokens.find(({ wordText }) => wordText === "salvation");
+  const whomToken = tokens.find(({ wordText }) => wordText === "whom");
+  const lifeToken = tokens.find(({ wordText }) => wordText === "life");
+
+  assert.equal(tokens.length, 24);
+  assert.equal(salvationToken?.text, "salvation—");
+  assert.equal(salvationToken?.trailingPunctuation, "—");
+  assert.equal(salvationToken?.normalizedText, "salvation");
+  assert.equal(whomToken?.text, "whom");
+  assert.equal(whomToken?.normalizedText, "whom");
+  assert.equal(tokens.filter(({ wordText }) => wordText === "whom").length, 2);
+  assert.equal(lifeToken?.text, "life—");
+  assert.equal(normalizeGameplayAnswer("salvation—whom"), "salvation whom");
+  assert.deepEqual(
+    tokenizeVerse("well-being").map(({ wordText }) => wordText),
+    ["well-being"],
+    "An ordinary hyphen inside a compound word remains part of that token.",
+  );
+  assert.equal(normalizeGameplayAnswer("well-being"), "wellbeing");
+  assert.equal(
+    isGameplayAnswerCorrect(
+      [
+        "The LORD is my light and my salvation whom shall I fear?",
+        "The LORD is the stronghold of my life whom shall I dread?",
+      ].join(" "),
+      [
+        "The LORD is my light and my salvation—whom shall I fear?",
+        "The LORD is the stronghold of my life—whom shall I dread?",
+      ].join(" "),
+    ),
+    true,
+  );
+});
+
 test("tokenizer preserves duplicate occurrence positions", () => {
   const tokens = tokenizeVerse("the Lord is my Lord");
   assert.deepEqual(tokens.map(({ index, normalizedText }) => [index, normalizedText]), [

@@ -67,7 +67,7 @@ export function WaypointCard({
         {waypoint.isCurrent && (
           <span
             className={cn(
-              "absolute top-1/2 z-30 w-max -translate-y-1/2 rounded-lg border border-amber-300/70 bg-amber-50 px-2 py-1 text-center text-[0.55rem] font-bold tracking-[0.1em] whitespace-nowrap text-amber-900 uppercase shadow-lg shadow-amber-500/15 sm:rounded-xl sm:px-3 sm:py-1.5 sm:text-[0.65rem] sm:tracking-[0.14em] dark:border-amber-500/35 dark:bg-amber-950/90 dark:text-amber-200",
+              "absolute top-1/2 z-30 w-max -translate-y-1/2 rounded-control border border-selection-border bg-selection-subtle px-2 py-1 text-center text-[0.55rem] font-bold tracking-[0.1em] whitespace-nowrap text-selection-text uppercase shadow-lg sm:px-3 sm:py-1.5 sm:text-[0.65rem] sm:tracking-[0.14em]",
               mobileCalloutPosition,
               largeCalloutPosition,
             )}
@@ -76,7 +76,7 @@ export function WaypointCard({
             <span
               aria-hidden="true"
               className={cn(
-                "absolute top-1/2 size-2 -translate-y-1/2 rotate-45 border-amber-300/70 bg-amber-50 sm:size-2.5 dark:border-amber-500/35 dark:bg-amber-950",
+                "absolute top-1/2 size-2 -translate-y-1/2 rotate-45 border-selection-border bg-selection-subtle sm:size-2.5",
                 mobilePointerPosition,
                 largePointerPosition,
               )}
@@ -89,7 +89,7 @@ export function WaypointCard({
           // the static current ring without a pulsing animation.
           <span
             aria-hidden="true"
-            className="absolute -inset-3 rounded-full bg-amber-400/30 motion-safe:animate-ping"
+            className="absolute -inset-3 rounded-full bg-selection-subtle motion-safe:animate-ping"
           />
         )}
         <TrailWaypointButton

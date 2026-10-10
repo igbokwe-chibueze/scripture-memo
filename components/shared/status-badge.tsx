@@ -22,12 +22,11 @@ export type StatusBadgeProps = {
 
 const toneClasses: Record<StatusBadgeTone, string> = {
   neutral: "border-border bg-muted text-muted-foreground",
-  info: "border-sky-500/25 bg-sky-500/10 text-sky-700 dark:text-sky-300",
-  success:
-    "border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
-  warning: "border-amber-500/25 bg-amber-500/10 text-amber-800 dark:text-amber-300",
-  danger: "border-destructive/25 bg-destructive/10 text-destructive",
-  spiritual: "border-violet-500/25 bg-violet-500/10 text-violet-700 dark:text-violet-300",
+  info: "border-info-border bg-info-subtle text-info-text",
+  success: "border-success-border bg-success-subtle text-success-text",
+  warning: "border-warning-border bg-warning-subtle text-warning-text",
+  danger: "border-error-border bg-error-subtle text-error-text",
+  spiritual: "border-selection-border bg-selection-subtle text-selection-text",
 };
 
 /**

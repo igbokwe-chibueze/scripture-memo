@@ -54,7 +54,7 @@ export function VaultAdminTestingMenu({
         disabled={isPending}
         className={cn(
           buttonVariants({ variant: "outline", size: "icon" }),
-          "size-11 rounded-xl border-white/20 bg-white/10 text-white hover:bg-white/15",
+          "size-11 rounded-xl border-border/20 bg-card/10 text-foreground hover:bg-card/15",
         )}
       >
         {isPending ? (

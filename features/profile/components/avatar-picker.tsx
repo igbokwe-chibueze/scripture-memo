@@ -35,7 +35,7 @@ export function AvatarPicker({
 
   return (
     <section className="space-y-6" aria-labelledby="avatar-picker-title">
-      <div className="flex items-center gap-4 rounded-3xl border bg-linear-to-br from-primary/10 to-amber-400/10 p-4">
+      <div className="flex items-center gap-4 rounded-3xl border bg-linear-to-br from-primary/10 to-reward/10 p-4">
         <PlayerAvatar
           avatarKey={avatarKey}
           frameKey={isPartner ? frameKey : "default"}
@@ -98,7 +98,7 @@ export function AvatarPicker({
             </p>
           </div>
           {!isPartner ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-violet-500/15 px-3 py-1 text-xs font-bold text-violet-600 dark:text-violet-300">
+            <span className="inline-flex items-center gap-1 rounded-full bg-selection-subtle px-3 py-1 text-xs font-bold text-selection-text dark:text-selection-text">
               <LockIcon className="size-3.5" aria-hidden="true" />
               {t("partnerOnly")}
             </span>

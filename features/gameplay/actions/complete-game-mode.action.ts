@@ -51,6 +51,22 @@ export async function completeGameModeAction(
   }
 
   try {
+    // WHY: Reward idempotency prevents duplicate effects, but repeated calls
+    // can still consume gameplay transaction capacity. Check the shared
+    // per-user allowance first so excess requests never enter that transaction.
+    const withinSubmissionLimit =
+      await gameplayRepository.consumeCompletionSubmissionLimit(
+        session.user.id,
+        new Date(),
+      );
+
+    if (!withinSubmissionLimit) {
+      return {
+        success: false,
+        message: "Too many answer submissions. Please wait a moment and try again.",
+      };
+    }
+
     const result = await gameplayRepository.completeModeAttempt(
       session.user.id,
       parsed.data.sessionId,

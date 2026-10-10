@@ -40,7 +40,7 @@ Confirm the following before proceeding:
 - AI can correctly describe the difference between the Three-Day Challenge System and the Journey Stage System.
 - AI can correctly describe the five game mode names and their order.
 - AI understands that hints are disabled for Strengthen and Master stages.
-- AI understands that Glow Points are the only currency — no XP system.
+- AI understands that Glow Points are the only spendable currency. Beacon XP is non-spendable progression, and Crowns are non-spendable prestige.
 
 ---
 
@@ -236,7 +236,7 @@ Confirm the following before proceeding:
    - `GAME_MODE_ORDER: GameMode[]` — `[DRAG_DROP, PUZZLE, SWAP, CUE, FILL]`
    - `DEFAULT_HINT_ALLOWANCE: number`
    - `BASE_GLOW_POINTS: number`
-   - `DAY_COOLDOWN_HOURS: number` = 24
+   - `DAY_COOLDOWN_HOURS: number` = 12
    - `DIFFICULTY_RANGES` mapping for each day level
 8. Comment every helper extensively, especially date/cooldown and permission utilities.
 
@@ -427,6 +427,11 @@ Confirm the following before proceeding:
 **Status:** Complete — automated verification and manual ADMIN acceptance passed;
 curriculum-history hardening implemented.
 
+**Historical plan note:** The original 220-slot placeholder seed plan below was
+superseded by Phase 29, which installed the approved 100-verse curriculum and
+400 active waypoint assignments. Keep these completed-phase details as history;
+the current seed behavior is documented in Phase 29 and `README.md`.
+
 **Goal:** Create and safely manage an expanding sequential waypoint curriculum.
 
 ### Tasks
@@ -575,8 +580,8 @@ hide, reassignment, publication, append, or reorder.
 
 - New users have the first currently published, playable waypoint (normally
   Waypoint 1) in UNLOCKED status on first login.
-- Day 2 is not playable until 24 hours after Day 1 completion (server enforced).
-- Day 3 is not playable until 24 hours after Day 2 completion (server enforced).
+- Day 2 is not playable until 12 elapsed hours after Day 1 completion (server enforced).
+- Day 3 is not playable until 12 elapsed hours after Day 2 completion (server enforced).
 - Completing Day 3 automatically unlocks Waypoint N+1.
 - A user who sends a repeat completion request receives an error, not duplicate rewards.
 
@@ -1578,6 +1583,13 @@ shell. The Beacon Challenger activation migration has been applied successfully.
   requests neither repay the reward nor create duplicate notifications.
 - `/admin/users` is protected for Super Admins in Proxy, its server view, and
   every mutation.
+- Account suspension is enforced through Better Auth's Admin plugin at session
+  creation. Protected server reads and the browser-facing session endpoint
+  bypass cookie caching; if a concurrent sign-in leaves a session for a banned
+  account, validation rejects and revokes it. The public sign-in route retains
+  the generic credential error. The additive migration is applied to local
+  development. Its isolated database integration test is checked in but awaits
+  a successful start of the local 51224 test service.
 - The project owner completed the role, account-action, badge-award, predictive
   recipient lookup, and recipient-notification manual checks. Phase 28 is
   complete and accepted.
@@ -1629,14 +1641,16 @@ Phase 29 is complete and accepted. Phase 30 — Testing and QA is next.
 **Goal:** Verify all MVP flows work correctly and securely.
 
 **Status:** Complete — all 16 manual regression flows passed by 2026-09-01.
-TypeScript, ESLint, and the non-database test baseline pass. On 2026-09-14,
-waypoint, progression, reward, and Fellowship integration suites ran on the
-separate local test instance. Two progression lock-race subtests remain pending:
-Prisma Local's single-connection setup skips them. A 2026-09-27 retry could not
-start the isolated test instance because another process held its durable-stream
-SQLite file; no development or hosted database was used. Real concurrent lock
-coverage still requires a supported local multi-connection PostgreSQL runtime.
-Completed manual acceptance remains unchanged.
+TypeScript, ESLint, and the non-database test baseline pass. The concurrency
+coverage that previously skipped on Prisma Local was completed on 2026-10-07
+against a disposable embedded PostgreSQL 16 instance: progression curriculum
+locks and duplicate day completion, auth/gameplay submission limits, duplicate
+game-mode completion, and Fellowship transfer, closure/suspension, and appeal
+races all passed with no skipped tests. `npm run test:concurrency:local` starts
+the isolated server, applies checked-in migrations, runs the guarded suites, and
+removes temporary database files. No development or hosted database was used.
+Manual acceptance remains complete; this closes the previously recorded
+multi-connection concurrency exception without reopening the phase.
 
 ### Manual Test Flows
 
@@ -1649,7 +1663,7 @@ Completed manual acceptance remains unchanged.
      `/admin/waypoints`. It runs a selected real mode against the assigned
      waypoint's server-authoritative stage rules without changing learner
      progression, rewards, cooldowns, streaks, badges, flames, or hint balance.
-6. **Three-Day Challenge**: Complete all 5 modes for Day 1 → confirm flame added → confirm Day 2 shows cooldown → confirm server blocks Day 2 start before 24 hours.
+6. **Three-Day Challenge**: Complete all 5 modes for Day 1 → confirm flame added → confirm Day 2 shows cooldown → confirm server blocks Day 2 start before 12 elapsed hours.
 7. **Cooldown bypass test**: Manually alter client state or time → attempt to start Day 2 early → confirm server rejects.
 8. **Day 3 completion**: Complete Day 3 → confirm waypoint gets 3 flames → confirm next waypoint unlocks → confirm Glow Points awarded.
 9. **Duplicate reward prevention**: Submit Day completion action twice → confirm points awarded only once.
@@ -1872,6 +1886,39 @@ restored. This extra is complete.
   no database migration and does not change existing Fellowship selections.
 - Validate every replacement in the picker, Fellowship cards, and detail header
   at mobile and large-screen sizes before removing the atlas workflow.
+
+### Pre-Production Artwork Packaging and Mobile Image Audit
+
+**Status:** Planned for the broad pre-production UI and art pass. This is a
+production-readiness task, not a reason to reopen the completed Phase 31 audit.
+
+- Keep authoring masters and generated source artwork outside `public/`, while
+  retaining them in the project’s versioned authoring archive. Only approved,
+  production-ready exports should be directly served from `public/`.
+- Inventory each image by path, dimensions, file size, runtime consumer, and
+  intended audience. Separate player-facing exports from admin comparison
+  previews and unreferenced/archived files.
+- Preserve the current Concept Luna comparison preview only if it remains
+  useful in the deployed admin testing workspace; if retained, serve compact
+  preview exports there and keep full source artwork out of the public asset
+  directory.
+- For large player-facing artwork, compare visually approved WebP/AVIF exports
+  with the existing PNGs, preserving transparency and composition where needed.
+  Do not replace artwork solely to reduce byte counts if detail or appearance
+  degrades at its actual display size.
+- Review `next/image` `sizes`, lazy loading, and preload behavior for the chosen
+  runtime assets. Preload only an image confirmed to be the route’s likely
+  Largest Contentful Paint element.
+- Measure a production build at a 375px viewport with a cold browser cache and
+  mobile network throttling. Record actual transferred image bytes and LCP for
+  representative image-heavy routes, including Map and Oil Shop, before setting
+  route budgets or considering a separate image CDN.
+
+**Initial source inventory (2026-10-07):** `public/` contains 126,583,462 bytes
+across 141 files. Image files account for about 120.5 MiB. The Luna authoring
+sources use about 21.5 MiB, Concept Luna sources about 15.8 MiB, and Concept
+Luna preview exports about 13.7 MiB. This is repository asset size, not a claim
+about per-player transfer; browser delivery must be measured separately.
 
 ### Large-Screen Contextual Player Panel
 

@@ -43,10 +43,10 @@ const stageLabels: Record<JourneyStage, string> = {
 };
 
 const stageClasses: Record<JourneyStage, string> = {
-  LEARN: "border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300",
-  RECALL: "border-violet-500/30 bg-violet-500/10 text-violet-700 dark:text-violet-300",
-  STRENGTHEN: "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300",
-  MASTER: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+  LEARN: "border-border bg-muted text-muted-foreground",
+  RECALL: "border-border bg-muted text-muted-foreground",
+  STRENGTHEN: "border-border bg-muted text-muted-foreground",
+  MASTER: "border-border bg-muted text-muted-foreground",
 };
 
 const stageRank: Record<JourneyStage, number> = {
@@ -203,9 +203,9 @@ export function WaypointManager({ initialWaypoints, publishedVerses }: WaypointM
       </div>
 
       {hasUnsavedOrder && (
-        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4" aria-live="polite">
-          <p className="font-bold text-amber-800 dark:text-amber-200">Proposed movement</p>
-          <ul className="mt-2 space-y-1 text-sm text-amber-900/80 dark:text-amber-100/80">
+        <div className="rounded-xl border border-reward-border/30 bg-reward-subtle p-4" aria-live="polite">
+          <p className="font-bold text-reward-text dark:text-reward-text">Proposed movement</p>
+          <ul className="mt-2 space-y-1 text-sm text-reward-text/80 dark:text-reward-text/80">
             {proposedMoves.slice(0, 5).map((move) => <li key={move.id}>{move.reference}: waypoint {move.from} → {move.to}</li>)}
             {proposedMoves.length > 5 && <li>Plus {proposedMoves.length - 5} more position changes.</li>}
           </ul>
@@ -251,11 +251,11 @@ export function WaypointManager({ initialWaypoints, publishedVerses }: WaypointM
                 !learnerHistoryLocked;
 
               return (
-                <tr key={waypoint.id} className={cn("transition-colors hover:bg-muted/35", originalNumber !== index + 1 && "bg-amber-500/5")}>
+                <tr key={waypoint.id} className={cn("transition-colors hover:bg-muted/35", originalNumber !== index + 1 && "bg-reward-subtle")}>
                   <td className="px-4 py-3 align-middle">
                     <div className="flex items-center gap-2">
                       <span className="flex size-9 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">{index + 1}</span>
-                      {originalNumber !== index + 1 && <span className="text-xs text-amber-700 dark:text-amber-300"><span className="sr-only">Previously waypoint </span>{originalNumber} → {index + 1}</span>}
+                      {originalNumber !== index + 1 && <span className="text-xs text-reward-text dark:text-reward-text"><span className="sr-only">Previously waypoint </span>{originalNumber} → {index + 1}</span>}
                       <div className="flex gap-1">
                         <Button type="button" variant="ghost" size="icon-lg" disabled={isReordering || moveUpBlocked} aria-label={`Move waypoint ${index + 1} up`} onClick={() => moveWaypointOneStep(index, index - 1)}><ArrowUp aria-hidden="true" /></Button>
                         <Button type="button" variant="ghost" size="icon-lg" disabled={isReordering || moveDownBlocked} aria-label={`Move waypoint ${index + 1} down`} onClick={() => moveWaypointOneStep(index, index + 1)}><ArrowDown aria-hidden="true" /></Button>

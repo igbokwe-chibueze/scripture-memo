@@ -6,6 +6,9 @@ import { ResponsiveContainer } from "@/components/shared/responsive-container";
 import { PlatformSettingsForm } from "@/features/platform-settings/components/platform-settings-form";
 import { platformSettingsRepository } from "@/features/platform-settings/repositories/platform-settings.repository";
 import { getSuperAdminSession } from "@/features/auth/lib/get-admin-session";
+import { BrandThemeManager } from "@/features/brand-themes/components/brand-theme-manager";
+import { getActiveBrandTheme } from "@/features/brand-themes/lib/get-active-brand-theme";
+import { getBrandThemePreview } from "@/features/brand-themes/lib/get-brand-theme-preview";
 
 export const metadata: Metadata = {
   title: "Platform settings | Scripture Memo",
@@ -15,7 +18,11 @@ export const metadata: Metadata = {
 /** Super Admin workspace for shared translation and progression defaults. */
 export async function PlatformSettingsView(): Promise<React.ReactNode> {
   await getSuperAdminSession();
-  const settings = await platformSettingsRepository.get();
+  const [settings, activeBrandThemeId, previewBrandThemeId] = await Promise.all([
+    platformSettingsRepository.get(),
+    getActiveBrandTheme(),
+    getBrandThemePreview(),
+  ]);
 
   return (
     <main className="min-h-svh bg-muted/20 py-6 sm:py-8">
@@ -43,6 +50,11 @@ export async function PlatformSettingsView(): Promise<React.ReactNode> {
             adminCooldownTestingEnabled:
               settings.adminCooldownTestingEnabled,
           }}
+        />
+        <BrandThemeManager
+          key={`${activeBrandThemeId}:${previewBrandThemeId ?? ""}`}
+          activeThemeId={activeBrandThemeId}
+          initialPreviewThemeId={previewBrandThemeId}
         />
       </ResponsiveContainer>
     </main>

@@ -187,6 +187,93 @@ test(
         data: { isActive: true },
       });
 
+      // Use a second synthetic learner to race the real day-completion
+      // transaction. This checks the per-user progression lock and persisted
+      // completed-state recheck, not only sequential duplicate handling.
+      await context.test("concurrent day completion commits only once", {
+        skip: getPostgresPoolConfig(testDatabaseUrl).max === 1
+          ? "Requires concurrent PostgreSQL connections; Prisma Local serializes them."
+          : false,
+      }, async () => {
+        const raceInitialization = await progressionRepository.initializeFirstWaypoint(
+          raceUserId,
+        );
+        assert.equal(raceInitialization.status, "ready");
+
+        await progressionRepository.prepareDayForGameplay(
+          raceUserId,
+          firstWaypoint.id,
+          "GLIMMER",
+          new Date("2026-07-01T07:55:00.000Z"),
+        );
+
+        const completedAt = new Date("2026-07-01T08:00:00.000Z");
+        const completionResults = await Promise.allSettled([
+          progressionRepository.markDayComplete(
+            raceUserId,
+            firstWaypoint.id,
+            "GLIMMER",
+            completedAt,
+          ),
+          progressionRepository.markDayComplete(
+            raceUserId,
+            firstWaypoint.id,
+            "GLIMMER",
+            completedAt,
+          ),
+        ]);
+
+        assert.equal(
+          completionResults.filter((result) => result.status === "fulfilled").length,
+          1,
+          "Only one simultaneous caller may complete the same challenge day.",
+        );
+        const rejectedCompletion = completionResults.find(
+          (result) => result.status === "rejected",
+        );
+        assert.ok(rejectedCompletion && rejectedCompletion.status === "rejected");
+        assert.ok(rejectedCompletion.reason instanceof ProgressionConflictError);
+        assert.equal(rejectedCompletion.reason.code, "DAY_ALREADY_COMPLETED");
+
+        const [completedDay, unlockedNextDay] = await Promise.all([
+          prisma.userDayProgress.findUniqueOrThrow({
+            where: {
+              userId_waypointId_dayLevel: {
+                userId: raceUserId,
+                waypointId: firstWaypoint.id,
+                dayLevel: "GLIMMER",
+              },
+            },
+            select: { status: true, completedAt: true },
+          }),
+          prisma.userDayProgress.findUniqueOrThrow({
+            where: {
+              userId_waypointId_dayLevel: {
+                userId: raceUserId,
+                waypointId: firstWaypoint.id,
+                dayLevel: "GLOW",
+              },
+            },
+            select: { unlocksAt: true },
+          }),
+        ]);
+
+        assert.equal(completedDay.status, "COMPLETED");
+        assert.equal(completedDay.completedAt?.toISOString(), completedAt.toISOString());
+        assert.equal(
+          unlockedNextDay.unlocksAt?.toISOString(),
+          "2026-07-01T20:00:00.000Z",
+          "The completed day should schedule the next day exactly 12 elapsed hours later.",
+        );
+        assert.equal(
+          await prisma.userDayProgress.count({
+            where: { userId: raceUserId, waypointId: firstWaypoint.id },
+          }),
+          2,
+          "The race should leave one completed day and one scheduled next day.",
+        );
+      });
+
       const initialized = await progressionRepository.initializeFirstWaypoint(userId);
       assert.deepEqual(initialized, {
         status: "ready",
@@ -245,14 +332,14 @@ test(
         "GLIMMER",
         day1CompletedAt,
       );
-      assert.equal(day1.nextDayUnlocksAt?.toISOString(), "2026-07-02T08:00:00.000Z");
+      assert.equal(day1.nextDayUnlocksAt?.toISOString(), "2026-07-01T20:00:00.000Z");
 
       const earlyStartError = await progressionRepository
         .prepareDayForGameplay(
           userId,
           firstWaypoint.id,
           "GLOW",
-          new Date("2026-07-02T07:59:59.999Z"),
+          new Date("2026-07-01T19:59:59.999Z"),
         )
         .then(() => null)
         .catch((error: unknown) => error);
@@ -263,25 +350,25 @@ test(
         userId,
         firstWaypoint.id,
         "GLOW",
-        new Date("2026-07-02T08:00:00.000Z"),
+        new Date("2026-07-01T20:00:00.000Z"),
       );
       await progressionRepository.markDayComplete(
         userId,
         firstWaypoint.id,
         "GLOW",
-        new Date("2026-07-02T08:05:00.000Z"),
+        new Date("2026-07-01T20:05:00.000Z"),
       );
       await progressionRepository.prepareDayForGameplay(
         userId,
         firstWaypoint.id,
         "RADIANCE",
-        new Date("2026-07-03T08:05:00.000Z"),
+        new Date("2026-07-02T08:05:00.000Z"),
       );
       const day3 = await progressionRepository.markDayComplete(
         userId,
         firstWaypoint.id,
         "RADIANCE",
-        new Date("2026-07-03T08:10:00.000Z"),
+        new Date("2026-07-02T08:10:00.000Z"),
       );
       assert.deepEqual(day3.unlockedWaypoint, { id: nextWaypoint.id, number: 3 });
       assert.equal(day3.caughtUp, false);

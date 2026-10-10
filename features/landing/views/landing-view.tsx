@@ -50,9 +50,9 @@ export const metadata: Metadata = {
 };
 
 const learningSteps = [
-  { label: "Glimmer", detail: "Begin gently", tone: "bg-amber-300" },
-  { label: "Glow", detail: "Recall with confidence", tone: "bg-orange-400" },
-  { label: "Radiance", detail: "Remember independently", tone: "bg-violet-500" },
+  { label: "Glimmer", detail: "Begin gently", tone: "bg-reward-subtle" },
+  { label: "Glow", detail: "Recall with confidence", tone: "bg-decoration" },
+  { label: "Radiance", detail: "Remember independently", tone: "bg-selection" },
 ] as const;
 
 const gameModes = ["Drag & Drop", "Puzzle", "Swap", "Cue", "Fill"] as const;
@@ -105,11 +105,6 @@ export function LandingView(): React.ReactNode {
 
       <main>
         <section className="relative isolate py-14 sm:py-20 lg:py-24">
-          <div
-            className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_15%_20%,color-mix(in_oklch,var(--primary)_14%,transparent),transparent_35%),radial-gradient(circle_at_85%_15%,oklch(0.75_0.16_75/0.16),transparent_32%),radial-gradient(circle_at_50%_85%,oklch(0.65_0.2_300/0.12),transparent_35%)]"
-            aria-hidden="true"
-          />
-
           <ResponsiveContainer>
             <div className="grid items-center gap-12 lg:grid-cols-[1.02fr_0.98fr] lg:gap-16">
               <div className="text-center lg:text-left">
@@ -121,7 +116,7 @@ export function LandingView(): React.ReactNode {
                 />
                 <h1 className="text-balance font-heading text-4xl font-bold tracking-[-0.04em] sm:text-6xl lg:text-7xl">
                   Carry the Word.
-                  <span className="block bg-linear-to-r from-amber-500 via-orange-500 to-violet-600 bg-clip-text text-transparent">
+                  <span className="block bg-linear-to-r from-reward via-decoration to-selection bg-clip-text text-transparent">
                     One journey at a time.
                   </span>
                 </h1>
@@ -161,8 +156,8 @@ export function LandingView(): React.ReactNode {
               </div>
 
               <div className="relative mx-auto w-full max-w-md" aria-label="Journey preview">
-                <div className="absolute -inset-5 -z-10 rounded-[2.5rem] bg-linear-to-br from-amber-400/20 via-primary/10 to-violet-500/20 blur-2xl" />
-                <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-card/90 p-5 shadow-2xl ring-1 ring-foreground/10 backdrop-blur">
+                <div className="absolute -inset-5 -z-10 rounded-[2.5rem] bg-linear-to-br from-reward/20 via-primary/10 to-selection/20 blur-2xl" />
+                <div className="overflow-hidden rounded-[2rem] border border-border/10 bg-card/90 p-5 shadow-2xl ring-1 ring-foreground/10 backdrop-blur">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">
@@ -170,14 +165,14 @@ export function LandingView(): React.ReactNode {
                       </p>
                       <p className="mt-1 font-heading text-xl font-bold">The First Light</p>
                     </div>
-                    <div className="flex items-center gap-1 rounded-xl bg-amber-500/10 px-3 py-2 text-sm font-bold text-amber-700 dark:text-amber-300">
+                    <div className="flex items-center gap-1 rounded-xl bg-reward-subtle px-3 py-2 text-sm font-bold text-reward-text dark:text-reward-text">
                       <FlameIcon className="size-4 fill-current" aria-hidden="true" />
                       7
                     </div>
                   </div>
 
                   <div className="relative mt-8 space-y-7 px-3 pb-3">
-                    <div className="absolute bottom-8 left-[2.15rem] top-5 w-1 rounded-full bg-linear-to-b from-amber-300 via-orange-400 to-muted" />
+                    <div className="absolute bottom-8 left-[2.15rem] top-5 w-1 rounded-full bg-linear-to-b from-reward via-decoration to-muted" />
                     {[1, 2, 3, 4].map((waypoint) => {
                       const active = waypoint <= 2;
 
@@ -187,7 +182,7 @@ export function LandingView(): React.ReactNode {
                             className={cn(
                               "relative z-10 grid size-14 shrink-0 place-items-center rounded-2xl border-4 border-card font-heading text-lg font-bold shadow-md",
                               active
-                                ? "bg-linear-to-br from-amber-300 to-orange-500 text-zinc-950"
+                                ? "bg-linear-to-br from-reward to-decoration text-foreground"
                                 : "bg-muted text-muted-foreground",
                             )}
                           >
@@ -239,7 +234,7 @@ export function LandingView(): React.ReactNode {
                   key={step.label}
                   className="relative overflow-hidden rounded-3xl border border-border/70 bg-card p-6 shadow-sm"
                 >
-                  <div className={cn("mb-5 grid size-12 place-items-center rounded-2xl text-zinc-950", step.tone)}>
+                  <div className={cn("mb-5 grid size-12 place-items-center rounded-2xl text-foreground", step.tone)}>
                     <SunMediumIcon className="size-6" aria-hidden="true" />
                   </div>
                   <p className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">
@@ -278,7 +273,7 @@ export function LandingView(): React.ReactNode {
                       {index + 1}
                     </span>
                     <span className="font-bold">{mode}</span>
-                    <CheckIcon className="ml-auto size-4 text-emerald-500" aria-hidden="true" />
+                    <CheckIcon className="ml-auto size-4 text-success-text" aria-hidden="true" />
                   </li>
                 ))}
               </ul>

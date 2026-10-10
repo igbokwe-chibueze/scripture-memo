@@ -137,7 +137,7 @@ export function VaultLibrary({ data }: { data: VaultLibraryData }): React.ReactN
 
       <section aria-labelledby="completed-heading">
         <div className="flex items-center gap-3">
-          <BookOpenIcon className="size-7 text-violet-500" aria-hidden="true" />
+          <BookOpenIcon className="size-7 text-selection-text" aria-hidden="true" />
           <h2 id="completed-heading" className="font-heading text-2xl font-bold">{t("completedVerses")}</h2>
         </div>
         {completed.length > 0 ? (
@@ -163,7 +163,7 @@ export function VaultLibrary({ data }: { data: VaultLibraryData }): React.ReactN
 
       <section aria-labelledby="mastered-heading">
         <div className="flex items-center gap-3">
-          <BookOpenCheckIcon className="size-7 text-emerald-500" aria-hidden="true" />
+          <BookOpenCheckIcon className="size-7 text-success-text" aria-hidden="true" />
           <div>
             <h2 id="mastered-heading" className="font-heading text-2xl font-bold">{t("masteredVerses")}</h2>
             <p className="text-sm text-muted-foreground">{t("allStagesComplete")}</p>
@@ -186,7 +186,7 @@ export function VaultLibrary({ data }: { data: VaultLibraryData }): React.ReactN
 
       <section aria-labelledby="progress-heading">
         <div className="flex items-center gap-3">
-          <MapPinIcon className="size-7 text-amber-500" aria-hidden="true" />
+          <MapPinIcon className="size-7 text-reward-text" aria-hidden="true" />
           <h2 id="progress-heading" className="font-heading text-2xl font-bold">{t("inProgressWaypoints")}</h2>
         </div>
         {data.inProgressWaypoints.length > 0 ? (
@@ -195,9 +195,9 @@ export function VaultLibrary({ data }: { data: VaultLibraryData }): React.ReactN
               <Link
                 key={waypoint.waypointId}
                 href={`/game/waypoints/${waypoint.waypointId}`}
-                className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 transition hover:-translate-y-0.5 hover:bg-amber-500/10"
+                className="rounded-2xl border border-reward-border/20 bg-reward-subtle p-4 transition hover:-translate-y-0.5 hover:bg-reward-subtle"
               >
-                <p className="text-xs font-bold text-amber-700 uppercase dark:text-amber-300">Waypoint {waypoint.number} · {waypoint.journeyStage}</p>
+                <p className="text-xs font-bold text-reward-text uppercase dark:text-reward-text">Waypoint {waypoint.number} · {waypoint.journeyStage}</p>
                 <h3 className="mt-1 font-heading text-lg font-bold">{waypoint.reference}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{t("flamesKindled", { count: waypoint.completedDays })}</p>
               </Link>
@@ -210,7 +210,7 @@ export function VaultLibrary({ data }: { data: VaultLibraryData }): React.ReactN
 
       <section aria-labelledby="favorites-heading">
         <div className="flex items-center gap-3">
-          <BookHeartIcon className="size-7 text-rose-500" aria-hidden="true" />
+          <BookHeartIcon className="size-7 text-error-text" aria-hidden="true" />
           <h2 id="favorites-heading" className="font-heading text-2xl font-bold">{t("favoriteVerses")}</h2>
         </div>
         {favorites.length > 0 ? (

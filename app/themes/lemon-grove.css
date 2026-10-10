@@ -1,0 +1,213 @@
+/*
+ * Scripture Memo - Lemon Grove
+ * Theme ID: lemon-grove | Display name: Lemon Grove | Version: 1.0
+ * Theme-only color definition; NOT a replacement for globals.css.
+ * Contract: Tropical Teal design-system handoff v3, 8 October 2026.
+ *
+ * Integration for Codex:
+ * - Add to the existing theme registry; preserve Tropical Teal as active/default.
+ * - Use the project's existing theme ID/selector convention if different.
+ * - Reference selectors below assume data-brand-theme and .dark on <html>.
+ *   Existing appearance logic must resolve light/dark/system independently.
+ * - Load these rules after shared defaults, in the same cascade layer as the
+ *   existing theme tokens (or integrate into the registry's generation system).
+ * - Do not replace fonts, radii, @theme mappings, animation or component rules.
+ * - Reuse the existing semantic role mappings: primary/selection are lemon green,
+ *   reward is gold, decoration is cyan; accent stays a subtle lime fill.
+ * - Feedback green/red/amber/info retain their existing meanings. Availability
+ *   is a quiet surface, not reward gold. Selection does not imply correctness.
+ * - Keep pure-white light-mode canvas, cards and popovers.
+ * - Reconcile any tokens added since the handoff; do not silently inherit
+ *   missing theme colors from Tropical Teal. Preserve shared alias semantics.
+ * - Preview containers must scope ALL aliases locally. Portaled content must
+ *   receive the preview theme without changing the global active theme.
+ * - Register for preview/selection only; do not activate globally automatically.
+ *
+ * Brand reference (HEX for identification; declarations below use OKLCH):
+ * Primary is yellow-green #C4E538 (light) / #D1F05A (dark), with dark
+ * text #202B13. Do not use white text on these bright primary fills.
+ * Light canvas/cards/popovers are pure white; dark canvas is #141C0D.
+ * Gold #FFD166 identifies rewards; cyan #48C5E5 supports decoration.
+ * Success uses a distinct deeper emerald green with a check and explicit text.
+ * Primary lime selection must never imply correctness before evaluation.
+ * Light-mode primary and selection fills are too light to identify a control
+ * boundary alone against white. Use primary-edge around filled controls and
+ * selection-border around selected tiles; preserve the tactile bevel.
+ * Focus uses a darker olive ring in light mode, not the bright primary fill.
+ * Preview and verify this boundary recipe in the app; tokens alone do not
+ * add borders to existing components.
+ *
+ * Validation: matching complete token sets, resolved aliases, CSS parsing,
+ * intended text pair contrast >= 4.5:1, input/focus contrast >= 3:1 against
+ * background/card/secondary. Verify actual component states in the app too.
+ */
+
+/* Light appearance */
+:root[data-brand-theme="lemon-grove"] {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.271613 0.043901 129.1202);
+  --card: oklch(1 0 0);
+  --popover: var(--card);
+  --card-foreground: oklch(0.271613 0.043901 129.1202);
+  --popover-foreground: var(--card-foreground);
+  --primary: oklch(0.868650 0.189967 120.2322);
+  --primary-foreground: oklch(0.271613 0.043901 129.1202);
+  --primary-hover: oklch(0.828927 0.186350 120.9251);
+  --primary-pressed: oklch(0.773549 0.176398 120.7440);
+  --primary-edge: oklch(0.573550 0.132262 122.4181);
+  --secondary: oklch(0.968744 0.033208 116.2069);
+  --accent: var(--secondary);
+  --secondary-foreground: oklch(0.444056 0.102105 125.6013);
+  --accent-foreground: var(--secondary-foreground);
+  --muted: oklch(0.969425 0.010762 118.0213);
+  --muted-foreground: oklch(0.499842 0.044808 125.4040);
+  --border: oklch(0.906062 0.034434 121.5409);
+  --input: oklch(0.607604 0.057816 125.5690);
+  --ring: oklch(0.554868 0.130864 124.1348);
+  --link: oklch(0.488696 0.117927 125.5620);
+  --disabled: oklch(0.933182 0.019091 119.7600);
+  --disabled-foreground: oklch(0.499842 0.044808 125.4040);
+  --success: oklch(0.520045 0.125568 153.4844);
+  --success-foreground: oklch(1 0 0);
+  --success-subtle: oklch(0.966239 0.018933 157.8754);
+  --success-text: oklch(0.441171 0.105980 152.8949);
+  --success-border: oklch(0.520045 0.125568 153.4844);
+  --error: oklch(0.541905 0.191820 18.9967);
+  --error-foreground: oklch(1 0 0);
+  --error-subtle: oklch(0.967496 0.016402 8.1625);
+  --error-text: oklch(0.467728 0.167594 18.2142);
+  --error-border: oklch(0.541905 0.191820 18.9967);
+  --warning: oklch(0.577448 0.139523 55.5120);
+  --warning-foreground: oklch(1 0 0);
+  --warning-subtle: oklch(0.965417 0.023961 67.5385);
+  --warning-text: oklch(0.452525 0.111947 51.3030);
+  --warning-border: oklch(0.577448 0.139523 55.5120);
+  --info: oklch(0.504306 0.136582 251.5710);
+  --info-foreground: oklch(1 0 0);
+  --info-subtle: oklch(0.964847 0.017825 245.3840);
+  --info-text: oklch(0.439428 0.102212 246.4709);
+  --info-border: oklch(0.504306 0.136582 251.5710);
+  --reward: oklch(0.880303 0.134778 86.0616);
+  --reward-foreground: oklch(0.271613 0.043901 129.1202);
+  --reward-subtle: oklch(0.974120 0.031623 89.1360);
+  --reward-text: oklch(0.461317 0.096440 77.2055);
+  --reward-border: oklch(0.592965 0.118403 78.3854);
+  --selection: var(--primary);
+  --selection-foreground: var(--primary-foreground);
+  --selection-subtle: var(--secondary);
+  --selection-text: var(--secondary-foreground);
+  --selection-border: oklch(0.554868 0.130864 124.1348);
+  --available: var(--secondary);
+  --available-foreground: var(--secondary-foreground);
+  --available-subtle: var(--secondary);
+  --available-text: var(--secondary-foreground);
+  --available-border: var(--input);
+  --control-edge: oklch(0.787688 0.063521 122.8279);
+  --overlay: oklch(0.18 0.03 125 / 60%);
+  --image-overlay: oklch(0.12 0.03 125 / 45%);
+  --destructive: var(--error);
+  --destructive-foreground: var(--error-foreground);
+  --sidebar: var(--card);
+  --sidebar-foreground: var(--card-foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--selection-subtle);
+  --sidebar-accent-foreground: var(--selection-text);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+  --chart-1: var(--primary);
+  --chart-2: var(--info);
+  --chart-3: var(--success);
+  --chart-4: var(--reward);
+  --chart-5: var(--error);
+  --decoration: oklch(0.767559 0.116763 218.2765);
+  --decoration-foreground: oklch(0.271613 0.043901 129.1202);
+  --decoration-subtle: oklch(0.972177 0.016706 215.4561);
+  --decoration-text: oklch(0.443212 0.075232 223.7698);
+  --decoration-border: oklch(0.536660 0.082987 218.4910);
+}
+
+/* Dark appearance */
+:root.dark[data-brand-theme="lemon-grove"] {
+  --background: oklch(0.213472 0.030309 131.3952);
+  --foreground: oklch(0.979080 0.015063 123.0358);
+  --card: oklch(0.283304 0.041497 131.8651);
+  --popover: var(--card);
+  --card-foreground: oklch(0.979080 0.015063 123.0358);
+  --popover-foreground: var(--card-foreground);
+  --primary: oklch(0.904632 0.176216 120.0037);
+  --primary-foreground: oklch(0.271613 0.043901 129.1202);
+  --primary-hover: oklch(0.933897 0.142490 119.4149);
+  --primary-pressed: oklch(0.854482 0.184859 121.7873);
+  --primary-edge: oklch(0.573550 0.132262 122.4181);
+  --secondary: oklch(0.364247 0.056302 128.8538);
+  --accent: var(--secondary);
+  --secondary-foreground: oklch(0.945141 0.065406 119.7315);
+  --accent-foreground: var(--secondary-foreground);
+  --muted: oklch(0.272704 0.036825 132.8299);
+  --muted-foreground: oklch(0.822809 0.049663 124.0649);
+  --border: oklch(0.454238 0.058026 129.5252);
+  --input: oklch(0.722669 0.071545 126.1607);
+  --ring: oklch(0.904632 0.176216 120.0037);
+  --link: oklch(0.933897 0.142490 119.4149);
+  --disabled: oklch(0.353680 0.041286 130.6528);
+  --disabled-foreground: oklch(0.822809 0.049663 124.0649);
+  --success: oklch(0.786579 0.165443 155.7939);
+  --success-foreground: oklch(0.266162 0.044522 157.8982);
+  --success-subtle: oklch(0.310527 0.050754 155.1083);
+  --success-text: oklch(0.887621 0.093662 155.7920);
+  --success-border: oklch(0.786579 0.165443 155.7939);
+  --error: oklch(0.736549 0.162077 17.7445);
+  --error-foreground: oklch(0.242303 0.055313 7.3984);
+  --error-subtle: oklch(0.301076 0.056789 1.5759);
+  --error-text: oklch(0.836055 0.091557 14.1489);
+  --error-border: oklch(0.736549 0.162077 17.7445);
+  --warning: oklch(0.824707 0.125379 63.0576);
+  --warning-foreground: oklch(0.266065 0.043714 59.8214);
+  --warning-subtle: oklch(0.328676 0.043272 62.5565);
+  --warning-text: oklch(0.894777 0.073028 64.6581);
+  --warning-border: oklch(0.824707 0.125379 63.0576);
+  --info: oklch(0.769911 0.122742 249.0400);
+  --info-foreground: oklch(0.213472 0.030309 131.3952);
+  --info-subtle: oklch(0.298807 0.050607 250.8426);
+  --info-text: oklch(0.881573 0.061889 245.5869);
+  --info-border: oklch(0.769911 0.122742 249.0400);
+  --reward: oklch(0.880303 0.134778 86.0616);
+  --reward-foreground: oklch(0.271613 0.043901 129.1202);
+  --reward-subtle: oklch(0.334397 0.040893 85.6310);
+  --reward-text: oklch(0.921713 0.089231 86.8817);
+  --reward-border: oklch(0.880303 0.134778 86.0616);
+  --selection: var(--primary);
+  --selection-foreground: var(--primary-foreground);
+  --selection-subtle: var(--secondary);
+  --selection-text: var(--secondary-foreground);
+  --selection-border: var(--primary);
+  --available: var(--secondary);
+  --available-foreground: var(--secondary-foreground);
+  --available-subtle: var(--secondary);
+  --available-text: var(--secondary-foreground);
+  --available-border: var(--input);
+  --control-edge: oklch(0.170927 0.024879 134.2175);
+  --overlay: oklch(0.10 0.02 125 / 75%);
+  --image-overlay: oklch(0.12 0.03 125 / 45%);
+  --destructive: var(--error);
+  --destructive-foreground: var(--error-foreground);
+  --sidebar: var(--card);
+  --sidebar-foreground: var(--card-foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--selection-subtle);
+  --sidebar-accent-foreground: var(--selection-text);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+  --chart-1: var(--primary);
+  --chart-2: var(--info);
+  --chart-3: var(--success);
+  --chart-4: var(--reward);
+  --chart-5: var(--error);
+  --decoration: oklch(0.841739 0.096288 212.4153);
+  --decoration-foreground: oklch(0.213472 0.030309 131.3952);
+  --decoration-subtle: oklch(0.317319 0.041467 220.9435);
+  --decoration-text: oklch(0.918277 0.051918 211.4758);
+  --decoration-border: oklch(0.841739 0.096288 212.4153);
+}

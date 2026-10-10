@@ -61,7 +61,7 @@ export function StreakCompletionScreen({
 
   return (
     <motion.div
-      className="fixed inset-0 z-40 overflow-y-auto bg-orange-950/75 px-4 backdrop-blur-md"
+      className="fixed inset-0 z-40 overflow-y-auto bg-overlay px-4 backdrop-blur-md"
       initial={{ opacity: shouldReduceMotion ? 1 : 0 }}
       animate={{ opacity: 1 }}
       role="dialog"
@@ -70,7 +70,7 @@ export function StreakCompletionScreen({
     >
       <div className="flex min-h-full w-full justify-center py-4 sm:py-8">
         <motion.section
-          className="relative my-auto w-full max-w-md overflow-hidden rounded-[2rem] border border-orange-300/45 bg-linear-to-b from-amber-50 via-orange-50 to-white p-6 text-center text-slate-950 shadow-2xl shadow-orange-950/45 dark:from-orange-950 dark:via-slate-900 dark:to-slate-950 dark:text-white sm:p-8"
+          className="relative my-auto w-full max-w-md overflow-hidden rounded-dialog border border-border bg-card p-6 text-center text-foreground shadow-2xl sm:p-8"
           initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.74, y: 44 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={
@@ -84,7 +84,7 @@ export function StreakCompletionScreen({
                 }
           }
         >
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-36 bg-linear-to-b from-orange-300/30 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-36 bg-linear-to-b from-decoration/10 to-transparent" />
           <motion.div
             className="relative mx-auto size-40"
             initial={shouldReduceMotion ? false : { scale: 0.45, rotate: -8 }}
@@ -119,7 +119,7 @@ export function StreakCompletionScreen({
                 {[0, 1, 2].map((ring) => (
                   <motion.span
                     key={ring}
-                    className="absolute inset-4 rounded-full border-2 border-orange-400/70"
+                    className="absolute inset-4 rounded-full border-2 border-decoration-border/70"
                     initial={{ opacity: 0.8, scale: 0.6 }}
                     animate={{ opacity: 0, scale: 1.65 }}
                     transition={{
@@ -134,7 +134,7 @@ export function StreakCompletionScreen({
             <AnimatedFlame reducedMotion={Boolean(shouldReduceMotion)} />
           </motion.div>
 
-          <p className="relative mt-3 text-xs font-bold tracking-[0.2em] text-orange-700 uppercase dark:text-orange-300">
+          <p className="relative mt-3 text-xs font-bold tracking-[0.2em] text-decoration-text uppercase dark:text-decoration-text">
             {streak.reachedNewLevel
               ? t("newLevel")
               : streak.status === "reset"
@@ -144,14 +144,14 @@ export function StreakCompletionScreen({
           <h2 id="streak-complete-title" className="relative mt-2 font-heading text-5xl font-bold">
             {t("dayStreak", { count: streak.currentStreak })}
           </h2>
-          <p className="relative mt-3 text-lg font-bold text-slate-700 dark:text-slate-200">
+          <p className="relative mt-3 text-lg font-bold text-foreground dark:text-foreground">
             {streak.status === "increased"
               ? t("keptAlive")
               : t("newRhythm")}
           </p>
 
           <motion.div
-            className="relative mx-auto mt-5 w-fit rounded-full border border-orange-400/40 bg-orange-500 px-5 py-2 font-heading text-lg font-bold text-white shadow-lg shadow-orange-500/25"
+            className="relative mx-auto mt-5 w-fit rounded-full border border-decoration-border bg-decoration-subtle px-5 py-2 font-heading text-lg font-bold text-decoration-text"
             initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.65, y: 14 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={
@@ -168,8 +168,8 @@ export function StreakCompletionScreen({
             {levelName}
           </motion.div>
 
-          <div className="relative mt-6 rounded-2xl border border-orange-300/35 bg-white/65 p-3 dark:bg-white/5">
-            <p className="text-xs font-bold tracking-[0.12em] text-orange-700 uppercase dark:text-orange-300">
+          <div className="relative mt-6 rounded-card border border-border bg-muted p-3">
+            <p className="text-xs font-bold tracking-[0.12em] text-decoration-text uppercase dark:text-decoration-text">
               {t("nextStreakLevel")}
             </p>
             {streak.nextLevel ? (
@@ -177,7 +177,7 @@ export function StreakCompletionScreen({
                 <p className="mt-2 font-heading text-xl font-bold">
                   {nextLevelName}
                 </p>
-                <p className="mt-1 text-sm font-medium text-muted-foreground dark:text-slate-300">
+                <p className="mt-1 text-sm font-medium text-muted-foreground dark:text-foreground">
                   {t("daysRemaining", { count: streak.nextLevel.daysRemaining })}
                   {" · "}
                   {new Intl.DateTimeFormat(locale, { month: "short", day: "numeric" }).format(new Date(`${streak.nextLevel.projectedDateKey}T12:00:00Z`))}
@@ -196,8 +196,8 @@ export function StreakCompletionScreen({
                       day.state === "today"
                         ? ""
                         : day.state === "milestone"
-                          ? "text-orange-600 dark:text-orange-300"
-                          : "rounded-full border border-dashed border-orange-300 bg-orange-50 text-orange-700 dark:bg-orange-400/8 dark:text-orange-200"
+                          ? "text-decoration-text"
+                          : "rounded-full border border-dashed border-decoration-border bg-decoration-subtle text-decoration-text"
                     }`}
                     title={
                       day.state === "today"
@@ -222,13 +222,13 @@ export function StreakCompletionScreen({
                           )
                         : day.streakDays}
                   </div>
-                  <p className="mt-1 text-[0.65rem] font-bold text-muted-foreground dark:text-slate-300">
+                  <p className="mt-1 text-[0.65rem] font-bold text-muted-foreground dark:text-foreground">
                     {new Intl.DateTimeFormat(locale, { weekday: "short" }).format(new Date(`${day.dateKey}T12:00:00Z`))}
                   </p>
                 </div>
               ))}
             </div>
-            <p className="mt-3 text-xs font-medium text-orange-800/75 dark:text-orange-100/75">
+            <p className="mt-3 text-xs font-medium text-muted-foreground">
               {streak.nextLevel
                 ? t("nextLevel", { level: nextLevelName ?? "" })
                 : t("eternalLight")}
@@ -237,19 +237,19 @@ export function StreakCompletionScreen({
 
           {(streak.isNewBest || streak.status === "reset") && (
             <motion.div
-              className="relative mt-6 rounded-2xl border border-amber-400/45 bg-amber-100/80 p-4 dark:bg-amber-300/10"
+              className="relative mt-6 rounded-card border border-reward-border bg-reward-subtle p-4"
               initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: shouldReduceMotion ? 0 : 0.42 }}
             >
-              <SparklesIcon className="mx-auto size-6 text-amber-600 dark:text-amber-300" aria-hidden="true" />
-              <p className="mt-2 font-bold text-amber-800 dark:text-amber-200">
+              <SparklesIcon className="mx-auto size-6 text-reward-text dark:text-reward-text" aria-hidden="true" />
+              <p className="mt-2 font-bold text-reward-text dark:text-reward-text">
                 {streak.status === "reset"
                   ? t("previousBest", { count: streak.previousBestStreak })
                   : t("personalBest")}
               </p>
               {streak.status === "reset" && (
-                <p className="mt-1 text-sm font-medium text-amber-900/70 dark:text-amber-100/70">
+                <p className="mt-1 text-sm font-medium text-reward-text/70 dark:text-reward-text/70">
                   {t("newFlame")}
                 </p>
               )}
@@ -259,7 +259,7 @@ export function StreakCompletionScreen({
           <div className="relative mt-6 grid grid-cols-[minmax(0,1fr)_auto] gap-3">
             <Button
               type="button"
-              className="min-h-12 rounded-xl bg-orange-500 font-bold text-white hover:bg-orange-400"
+              className="min-h-12 rounded-game-action font-bold"
               onClick={onContinue}
             >
               {commonT("continue")}
@@ -268,7 +268,7 @@ export function StreakCompletionScreen({
             <ShareAchievementButton
               title={t("shareTitle")}
               text={shareText}
-              className="border-orange-300/60 bg-white/60 hover:bg-orange-100 dark:bg-white/5 dark:hover:bg-white/10"
+              className="border-decoration-border/60 bg-card/60 hover:bg-decoration-subtle dark:bg-card/5 dark:hover:bg-card/10"
             />
           </div>
         </motion.section>

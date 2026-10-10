@@ -47,20 +47,20 @@ export function GridWaypointCard({
         "group relative flex min-h-48 min-w-0 w-full flex-col overflow-hidden rounded-3xl border p-3 text-left shadow-sm outline-none transition duration-200 focus-visible:ring-3 focus-visible:ring-ring/50 active:scale-[0.98] motion-reduce:transition-none sm:p-4",
         isLocked && "border-border/60 bg-card/55 text-muted-foreground shadow-none",
         waypoint.status === WaypointStatus.COMPLETED &&
-          "border-emerald-500/25 bg-emerald-500/7 hover:border-emerald-500/45",
+          "border-success-border/25 bg-success-subtle hover:border-success-border/45",
         !isLocked && waypoint.status !== WaypointStatus.COMPLETED &&
           "border-primary/25 bg-card hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg motion-reduce:hover:translate-y-0",
         waypoint.isCurrent &&
           // Current position receives the strongest treatment without changing
           // the underlying status used by navigation and assistive text.
-          "border-amber-400/70 bg-linear-to-br from-amber-100/80 via-card to-primary/8 shadow-lg shadow-amber-500/10 ring-2 ring-amber-400/30 dark:from-amber-950/35",
+          "border-selection-border bg-selection-subtle shadow-lg ring-2 ring-selection-border",
       )}
     >
       <span
         aria-hidden="true"
         className={cn(
           "absolute -top-7 -right-7 size-24 rounded-full bg-primary/5 transition-transform group-hover:scale-110",
-          waypoint.isCurrent && "bg-amber-400/15",
+          waypoint.isCurrent && "bg-selection-subtle",
         )}
       />
 
@@ -69,8 +69,10 @@ export function GridWaypointCard({
           className={cn(
             "grid size-12 shrink-0 place-items-center rounded-2xl bg-muted text-lg font-bold",
             !isLocked && "bg-primary text-primary-foreground",
-            waypoint.status === WaypointStatus.COMPLETED && "bg-emerald-600 text-white",
-            waypoint.isCurrent && "bg-amber-500 text-amber-950",
+            waypoint.status === WaypointStatus.COMPLETED &&
+              "bg-success text-success-foreground",
+            waypoint.isCurrent &&
+              "bg-selection text-selection-foreground",
           )}
         >
           {waypoint.number}
@@ -96,7 +98,7 @@ export function GridWaypointCard({
 
       {waypoint.isCurrent && (
         // Text supplements the highlight so location never relies on color alone.
-        <span className="absolute right-4 bottom-12 rounded-full bg-amber-500 px-2 py-0.5 text-[0.65rem] font-bold tracking-wider text-amber-950 uppercase">
+        <span className="absolute right-4 bottom-12 rounded-full bg-reward px-2 py-0.5 text-[0.65rem] font-bold tracking-wider text-reward-text uppercase">
           You are here
         </span>
       )}

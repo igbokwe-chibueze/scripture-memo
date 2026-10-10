@@ -116,7 +116,7 @@ export function MobileGameNavigation({
                     className={cn(
                       "flex min-h-16 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[0.68rem] font-bold text-muted-foreground transition-all hover:bg-muted hover:text-foreground active:translate-y-0.5 active:scale-95 xl:min-h-14 xl:flex-row xl:justify-start xl:gap-2.5 xl:px-3 xl:text-sm",
                       active &&
-                        "border border-primary/40 bg-linear-to-b from-primary/20 to-primary/8 text-primary shadow-[0_4px_0_color-mix(in_oklch,var(--primary),black_48%)]",
+                        "border border-selection-border bg-selection-subtle text-selection-text shadow-[0_4px_0_var(--control-edge)]",
                     )}
                   >
                     <Icon className="size-5" aria-hidden="true" />
@@ -150,7 +150,7 @@ export function MobileGameNavigation({
                   className={cn(
                     "relative flex min-h-14 touch-manipulation flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[0.62rem] font-bold text-muted-foreground transition-all active:translate-y-0.5 active:scale-95",
                     active &&
-                      "-translate-y-3 border border-primary/50 bg-linear-to-b from-primary/25 to-primary/10 text-primary shadow-[0_0_24px_color-mix(in_oklch,var(--primary),transparent_66%),0_5px_0_color-mix(in_oklch,var(--primary),black_52%)]",
+                      "-translate-y-3 border border-selection-border bg-selection-subtle text-selection-text shadow-[0_5px_0_var(--control-edge)]",
                   )}
                 >
                   <Icon className="size-5" aria-hidden="true" />

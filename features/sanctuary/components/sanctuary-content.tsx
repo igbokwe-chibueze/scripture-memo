@@ -78,7 +78,7 @@ export function SanctuaryContent({
   };
 
   return (
-    <main className="min-h-dvh bg-linear-to-b from-violet-50 via-background to-emerald-50 px-4 py-4 text-foreground dark:from-violet-950 dark:via-slate-950 dark:to-emerald-950 sm:px-6 sm:py-8">
+    <main className="min-h-dvh bg-background px-4 py-4 text-foreground sm:px-6 sm:py-8">
       <div className="mx-auto max-w-[90rem]">
         <nav
           className="flex items-center justify-between gap-3"
@@ -102,7 +102,7 @@ export function SanctuaryContent({
             className={cn(
               "min-w-11 px-3 sm:px-4",
               isFavorite &&
-                "border-rose-300 bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-200",
+                "border-error-border bg-error-subtle text-error-text dark:bg-error dark:text-error-text",
             )}
             onClick={toggleFavorite}
           >
@@ -116,14 +116,14 @@ export function SanctuaryContent({
           </LoadingButton>
         </nav>
 
-        <header className="relative mt-4 overflow-hidden rounded-[2rem] border border-violet-200/70 bg-card/90 px-5 py-7 text-center shadow-lg shadow-violet-950/6 dark:border-violet-300/15 dark:bg-slate-900/90 sm:px-10 sm:py-10">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(167,139,250,0.2),transparent_60%)]" />
+        <header className="relative mt-4 overflow-hidden rounded-[2rem] border border-selection-border/70 bg-card/90 px-5 py-7 text-center shadow-lg shadow-selection/6 dark:border-selection-border/15 dark:bg-card sm:px-10 sm:py-10">
+          <div className="pointer-events-none absolute inset-0 bg-primary/5" />
           <FeatherIcon
-            className="relative mx-auto size-7 text-violet-500"
+            className="relative mx-auto size-7 text-selection-text"
             aria-hidden="true"
           />
           <div className="relative mt-3 flex flex-wrap items-center justify-center gap-2 text-xs font-bold tracking-[0.14em] uppercase">
-            <span className="rounded-full bg-violet-500/10 px-3 py-1 text-violet-700 dark:text-violet-300">
+            <span className="rounded-full bg-selection-subtle px-3 py-1 text-selection-text dark:text-selection-text">
               {data.translation}
             </span>
             <span className="text-muted-foreground">{t("eyebrow")}</span>
@@ -150,7 +150,7 @@ export function SanctuaryContent({
             className={cn(
               "flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 text-sm font-bold transition-colors",
               activeView === "study"
-                ? "bg-violet-600 text-white shadow-sm"
+                ? "bg-selection text-foreground shadow-sm"
                 : "text-muted-foreground",
             )}
             onClick={() => setActiveView("study")}
@@ -167,7 +167,7 @@ export function SanctuaryContent({
             className={cn(
               "flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 text-sm font-bold transition-colors",
               activeView === "notes"
-                ? "bg-violet-600 text-white shadow-sm"
+                ? "bg-selection text-foreground shadow-sm"
                 : "text-muted-foreground",
             )}
             onClick={() => setActiveView("notes")}
@@ -209,7 +209,7 @@ export function SanctuaryContent({
                 <div>
                   <div className="flex items-center gap-2">
                     <NotebookPenIcon
-                      className="size-5 text-violet-500"
+                      className="size-5 text-selection-text"
                       aria-hidden="true"
                     />
                     <h2

@@ -31,7 +31,7 @@ export function EditFellowshipForm({ fellowship }: { fellowship: FellowshipEditD
   return (
     <form
       action={submit}
-      className="space-y-6 rounded-[2rem] border border-violet-300/25 bg-card p-5 shadow-xl sm:p-7"
+      className="space-y-6 rounded-[2rem] border border-selection-border/25 bg-card p-5 shadow-xl sm:p-7"
     >
       <label className="grid gap-2 font-bold">
         {t("name")}
@@ -57,7 +57,7 @@ export function EditFellowshipForm({ fellowship }: { fellowship: FellowshipEditD
         onChange={setInsigniaKey}
       />
       <div className="flex items-center gap-4 rounded-2xl border p-4">
-        <span className="grid size-12 place-items-center rounded-xl bg-violet-500/10">
+        <span className="grid size-12 place-items-center rounded-xl bg-selection-subtle">
           <ShieldCheckIcon aria-hidden="true" />
         </span>
         <div className="flex-1">

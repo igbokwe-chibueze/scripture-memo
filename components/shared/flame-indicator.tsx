@@ -40,7 +40,7 @@ export function FlameIndicator({
             "transition-colors",
             compact ? "size-3 sm:size-4" : "size-4",
             index < safeCount
-              ? "fill-amber-400 text-amber-500"
+              ? "fill-reward text-reward-text"
               : "fill-transparent text-muted-foreground/35",
           )}
         />

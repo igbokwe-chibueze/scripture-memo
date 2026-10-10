@@ -15,7 +15,7 @@ export function ModeCompletionPreview(): React.ReactNode {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <section className="rounded-2xl border border-emerald-300/40 bg-linear-to-br from-emerald-50 via-card to-amber-50 p-5 shadow-sm dark:from-emerald-950/25 dark:via-card dark:to-amber-950/20">
+    <section className="rounded-2xl border border-success-border/40 bg-linear-to-br from-success via-card to-reward p-5 shadow-sm dark:from-success/25 dark:via-card dark:to-reward/20">
       <div>
         <h2 className="font-heading text-xl font-bold">Mode completion variants</h2>
         <p className="mt-1 text-sm text-muted-foreground">

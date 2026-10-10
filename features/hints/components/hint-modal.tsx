@@ -44,15 +44,15 @@ export function HintModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="overflow-hidden rounded-[2rem] border-amber-300/40 bg-linear-to-br from-amber-50 via-popover to-violet-50 p-6 pt-8 dark:from-amber-950 dark:via-slate-900 dark:to-violet-950 sm:max-w-lg sm:p-8 sm:pt-10">
+      <DialogContent className="overflow-hidden rounded-dialog border border-border bg-popover p-6 pt-8 sm:max-w-lg sm:p-8 sm:pt-10">
         <div
-          className="absolute inset-x-0 top-0 h-2 overflow-hidden bg-amber-100 dark:bg-slate-800"
+          className="absolute inset-x-0 top-0 h-2 overflow-hidden bg-muted"
           aria-hidden="true"
         >
           {open && (
             <motion.div
               key="hint-close-progress"
-              className="h-full origin-left bg-linear-to-r from-amber-400 to-violet-500"
+              className="h-full origin-left bg-primary"
               initial={{ scaleX: shouldReduceMotion ? 1 : 0 }}
               animate={{ scaleX: 1 }}
               transition={{
@@ -65,7 +65,7 @@ export function HintModal({
         <div className="flex items-end gap-2 sm:gap-4">
           <div className="relative z-10 min-w-0 flex-1">
             <DialogHeader className="text-left">
-              <p className="text-xs font-bold tracking-[0.16em] text-amber-700 uppercase dark:text-amber-300">
+              <p className="text-xs font-bold tracking-[0.16em] text-info-text uppercase">
                 {t("lunaLight")}
               </p>
               <DialogTitle className="font-heading text-2xl font-bold">
@@ -75,7 +75,7 @@ export function HintModal({
                 {t("hintEncouragement")}
               </DialogDescription>
             </DialogHeader>
-            <blockquote className="mt-5 rounded-2xl border border-amber-300/35 bg-background/85 p-4 text-base leading-7 font-medium text-foreground shadow-inner sm:text-lg sm:leading-8">
+            <blockquote className="mt-5 rounded-2xl border border-reward-border/35 bg-background/85 p-4 text-base leading-7 font-medium text-foreground shadow-inner sm:text-lg sm:leading-8">
               {verseText}
             </blockquote>
           </div>

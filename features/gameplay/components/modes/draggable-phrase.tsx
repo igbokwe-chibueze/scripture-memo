@@ -5,8 +5,9 @@ import { GripVerticalIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   DRAGGABLE_TILE_BEVEL,
+  GAMEPLAY_TILE_STATE_STYLES,
   SELECTED_TILE_BEVEL,
-} from "@/features/gameplay/constants/draggable-tile-styles";
+} from "@/features/gameplay/constants/gameplay-state-styles";
 
 /** Position-identified phrase tile supporting pointer, keyboard, and tap play. */
 export function DraggablePhrase({
@@ -33,8 +34,9 @@ export function DraggablePhrase({
       ref={setNodeRef}
       type="button"
       className={cn(
-        "flex min-h-14 w-full touch-none items-center gap-3 rounded-2xl border px-4 py-3 text-left font-bold text-violet-950 focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none dark:text-violet-50 sm:w-auto sm:min-w-56",
+        "flex min-h-14 w-full touch-none items-center gap-3 rounded-tile border px-4 py-3 text-left font-bold sm:w-auto sm:min-w-56",
         DRAGGABLE_TILE_BEVEL,
+        GAMEPLAY_TILE_STATE_STYLES.focus,
         selected && SELECTED_TILE_BEVEL,
         isDragging && "z-20 opacity-35",
       )}

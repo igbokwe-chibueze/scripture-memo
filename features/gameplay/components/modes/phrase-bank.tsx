@@ -23,7 +23,7 @@ export function PhraseBank({
   return (
     <section
       aria-labelledby="phrase-bank-title"
-      className="rounded-2xl bg-muted/70 p-4 dark:bg-black/20"
+      className="rounded-2xl bg-muted/70 p-4 dark:bg-background/20"
     >
       <h3 id="phrase-bank-title" className="font-heading text-sm font-bold text-foreground">
         {t("phraseBank")}
@@ -43,7 +43,7 @@ export function PhraseBank({
           />
         ))}
         {phraseIndexes.length === 0 && (
-          <p className="py-2 text-sm font-medium text-emerald-700 dark:text-emerald-300">
+          <p className="py-2 text-sm font-medium text-success-text dark:text-success-text">
             {t("allPhrasesPlaced")}
           </p>
         )}

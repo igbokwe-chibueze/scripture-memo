@@ -66,10 +66,10 @@ const STATUS_STYLES: Record<
   Exclude<FellowshipModerationStatus, "ALL">,
   string
 > = {
-  ACTIVE: "border-emerald-600/25 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300",
-  SUSPENDED: "border-amber-600/30 bg-amber-500/10 text-amber-800 dark:text-amber-300",
-  APPEAL_PENDING: "border-violet-600/30 bg-violet-500/10 text-violet-800 dark:text-violet-300",
-  CLOSING: "border-orange-600/30 bg-orange-500/10 text-orange-800 dark:text-orange-300",
+  ACTIVE: "border-success-border/25 bg-success-subtle text-success-text dark:text-success-text",
+  SUSPENDED: "border-reward-border/30 bg-reward-subtle text-reward-text dark:text-reward-text",
+  APPEAL_PENDING: "border-selection-border/30 bg-selection-subtle text-selection-text dark:text-selection-text",
+  CLOSING: "border-decoration-border/30 bg-decoration-subtle text-decoration-text dark:text-decoration-text",
   CLOSED: "border-border bg-muted text-muted-foreground",
 };
 
@@ -93,7 +93,7 @@ export function FellowshipModerationManager({
   return (
     <section className="space-y-4" aria-label="Fellowship results">
       <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
-        <p aria-live="polite" className="font-semibold text-muted-foreground">
+        <p aria-live="polite" className="font-bold text-muted-foreground">
           {data.totalCount === 0
             ? "No Fellowships found"
             : `Showing ${firstResult}–${lastResult} of ${data.totalCount} Fellowships`}
@@ -345,7 +345,7 @@ function FellowshipRowActions({
           </DropdownMenuItem>
           {reviewAppeal && (
             <DropdownMenuItem
-              className="min-h-11 cursor-pointer gap-3 px-3 font-bold text-violet-800 focus:text-violet-900 dark:text-violet-300"
+              className="min-h-11 cursor-pointer gap-3 px-3 font-bold text-selection-text focus:text-selection-text dark:text-selection-text"
               onClick={() => openManagement("safety")}
             >
               <AlertTriangleIcon aria-hidden="true" />
@@ -395,7 +395,7 @@ function FellowshipRowActions({
               />
             </>
           ) : (
-            <div className="grid min-h-48 place-items-center text-sm font-semibold text-muted-foreground" aria-live="polite">
+            <div className="grid min-h-48 place-items-center text-sm font-bold text-muted-foreground" aria-live="polite">
               Loading Fellowship details…
             </div>
           )}
@@ -536,9 +536,9 @@ function FellowshipOverview({ detail }: Readonly<{
       </div>
 
       {latestSuspension?.status === "ACTIVE" && (
-        <div className="rounded-xl border border-amber-600/25 bg-amber-500/5 p-4">
+        <div className="rounded-xl border border-reward-border/25 bg-reward-subtle p-4">
           <div className="flex gap-3">
-            <ShieldAlertIcon className="mt-0.5 size-5 shrink-0 text-amber-700 dark:text-amber-300" aria-hidden="true" />
+            <ShieldAlertIcon className="mt-0.5 size-5 shrink-0 text-reward-text dark:text-reward-text" aria-hidden="true" />
             <div>
               <h3 className="font-bold">Active suspension</h3>
               <p className="mt-1 text-sm text-muted-foreground">{latestSuspension.reason}</p>

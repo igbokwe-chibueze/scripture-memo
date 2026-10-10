@@ -8,6 +8,7 @@ import { FoundationTable } from "@/features/ui-foundation/components/foundation-
 import { GameButtonShowcase } from "@/features/ui-foundation/components/game-button-showcase";
 import { LoadingScreenPreview } from "@/features/ui-foundation/components/loading-screen-preview";
 import { LunaMascotPreview } from "@/features/ui-foundation/components/luna-mascot-preview";
+import { SemanticRoleShowcase } from "@/features/ui-foundation/components/semantic-role-showcase";
 import { TypographyBalancePreview } from "@/features/ui-foundation/components/typography-balance-preview";
 import { WaypointButtonShowcase } from "@/features/ui-foundation/components/waypoint-button-showcase";
 import { AdminTestingShell } from "@/features/ui-foundation/components/admin-testing-shell";
@@ -29,6 +30,7 @@ export async function AdminSharedUiTestingView(): Promise<React.ReactNode> {
       title="Shared UI"
       description="Review the production controls and common visual building blocks used across the game."
     >
+      <SemanticRoleShowcase />
       <GameButtonShowcase />
       <TypographyBalancePreview />
       <WaypointButtonShowcase />

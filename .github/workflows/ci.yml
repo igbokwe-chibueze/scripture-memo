@@ -1,0 +1,149 @@
+# Pull requests receive the same lint, type, test, and production-build checks
+# regardless of author. No job has deployment permissions or production secrets.
+name: Continuous Integration
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+# Read-only repository access is enough to check out source and run verification.
+permissions:
+  contents: read
+
+# Avoid spending runner minutes on older commits after a branch receives updates.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Lint, typecheck, unit tests, and production build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    # Build-time values are intentionally synthetic and local-only. There are no
+    # email-provider keys, production auth secrets, or database credentials here.
+    env:
+      DATABASE_URL: postgresql://ci:ci@127.0.0.1:51214/scripture_memo_build_only?sslmode=disable
+      BETTER_AUTH_URL: http://localhost:3000
+      BETTER_AUTH_SECRET: ci-only-not-a-production-secret-with-sufficient-length
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      AUTH_EMAIL_DELIVERY_MODE: LIGHT_DEV
+      PASSWORD_RESET_DELIVERY_MODE: LIGHT_DEV
+
+    steps:
+      # Pin official GitHub-maintained actions to immutable, verified release
+      # commits; this follows GitHub's secure-use guidance for workflow actions.
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+
+      # npm ci uses the committed lockfile so CI checks the same dependency graph
+      # as contributors; npm's project script policy remains in force.
+      - name: Install locked dependencies
+        run: npm ci
+
+      # Prisma's generated client is ignored by Git and therefore does not exist
+      # in a clean runner. TypeScript imports that generated client throughout
+      # the app, so create it before lint-adjacent type checks and tests run.
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Check TypeScript
+        run: npm run typecheck
+
+      - name: Run every database-free test
+        run: npm run test:unit
+
+      # The dummy local URL prevents any accidental build-time connection from
+      # falling back to a hosted database. A missing local server should be safe.
+      - name: Build the production application
+        run: npm run build
+
+  database-integration:
+    name: PostgreSQL integration and concurrency tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    # This disposable service belongs to the GitHub-hosted runner only. It is
+    # destroyed at job end and never connects to either developer or production DB.
+    services:
+      postgres:
+        image: postgres:16.14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ci-only-postgres-password
+          POSTGRES_DB: scripture_memo_tests
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d scripture_memo_tests"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    # The app URL is deliberately an unused local port so the existing guard
+    # proves that TEST_DATABASE_URL is a different loopback listener. The test
+    # URL points only at this job's temporary service and carries fake values.
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:51214/scripture_memo_app_guard?sslmode=disable
+      TEST_DATABASE_URL: postgresql://postgres:ci-only-postgres-password@127.0.0.1:5432/scripture_memo_tests?sslmode=disable
+      TEST_DATABASE_CONFIRMATION: scripture-memo-integration-tests
+      BETTER_AUTH_URL: http://localhost:3000
+      BETTER_AUTH_SECRET: ci-only-not-a-production-secret-with-sufficient-length
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      AUTH_EMAIL_DELIVERY_MODE: LIGHT_DEV
+      PASSWORD_RESET_DELIVERY_MODE: LIGHT_DEV
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      # The generated Prisma client is gitignored and a clean runner has no
+      # previous build artifact. Generate it before importing repository tests.
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Apply checked-in migrations to the temporary database
+        run: npm run test:database:migrate
+
+      # Each group starts from an empty schema state because the repository
+      # fixtures intentionally share tables and some suites require a clean
+      # curriculum. Reset preserves the migration history and is guarded to the
+      # explicitly configured local test URL.
+      - name: Reset before repository integration suites
+        run: npm run test:database:reset
+
+      - name: Run repository integration suites
+        run: npm run test:integration:all
+
+      - name: Reset before multi-connection concurrency suites
+        run: npm run test:database:reset
+
+      - name: Run multi-connection concurrency suites
+        run: npm run test:concurrency:integration
+
+      - name: Reset before account-suspension integration test
+        run: npm run test:database:reset
+
+      - name: Test central account-suspension enforcement
+        run: npm run test:account-suspension:integration

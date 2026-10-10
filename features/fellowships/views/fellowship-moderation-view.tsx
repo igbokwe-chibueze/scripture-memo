@@ -115,7 +115,7 @@ export async function FellowshipModerationView({
         ) : (
           <div
             role="alert"
-            className="rounded-2xl border border-destructive/30 bg-card p-5 text-sm font-semibold text-destructive"
+            className="rounded-2xl border border-destructive/30 bg-card p-5 text-sm font-bold text-destructive"
           >
             {result.message || "Fellowships could not be loaded. Refresh and try again."}
           </div>

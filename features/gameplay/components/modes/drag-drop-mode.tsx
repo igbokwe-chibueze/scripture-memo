@@ -49,7 +49,7 @@ import type {
   StreakCompletionResult,
 } from "@/features/gameplay/types/game-session.types";
 import type { DayLevel } from "@/lib/generated/prisma/enums";
-import { DRAG_OVERLAY_TILE_BEVEL } from "@/features/gameplay/constants/draggable-tile-styles";
+import { DRAG_OVERLAY_TILE_BEVEL } from "@/features/gameplay/constants/gameplay-state-styles";
 import { cn } from "@/lib/utils";
 
 type SlotFeedback = Readonly<Record<number, "correct" | "incorrect">>;
@@ -324,7 +324,7 @@ export function DragDropMode({
       >
         <section className="w-full max-w-2xl text-left" aria-labelledby="drag-drop-title">
           <div className="text-center">
-            <p className="text-xs font-bold tracking-[0.16em] text-violet-700 uppercase dark:text-violet-300">
+            <p className="text-xs font-bold tracking-[0.16em] text-selection-text uppercase dark:text-selection-text">
               {t("restoreMissing")}
             </p>
             <h2 id="drag-drop-title" className="mt-2 font-heading text-3xl font-bold">
@@ -333,7 +333,7 @@ export function DragDropMode({
           </div>
 
           <div
-            className="mt-6 rounded-2xl border border-border bg-muted/35 p-4 text-lg leading-[3.25rem] font-medium dark:border-white/10 dark:bg-white/5 sm:p-6 sm:text-xl"
+            className="mt-6 rounded-2xl border border-border bg-muted/35 p-4 text-lg leading-[3.25rem] font-medium dark:border-border/10 dark:bg-card/5 sm:p-6 sm:text-xl"
             aria-label="Verse with missing words"
           >
             {tokens.map((token) =>
@@ -401,7 +401,7 @@ export function DragDropMode({
             <Button
               type="button"
               variant="ghost"
-              className="min-h-12 rounded-xl px-4 text-muted-foreground hover:bg-muted hover:text-foreground dark:hover:bg-white/10 dark:hover:text-white"
+              className="min-h-12 rounded-xl px-4 text-muted-foreground hover:bg-muted hover:text-foreground dark:hover:bg-card/10 dark:hover:text-foreground"
               disabled={isPending || isComplete || Object.keys(placements).length === 0}
               onClick={resetPlacements}
             >
@@ -411,7 +411,7 @@ export function DragDropMode({
             <LoadingButton
               isPending={isPending}
               pendingLabel={t("checking")}
-              className="min-h-12 rounded-xl bg-amber-400 font-bold text-slate-950 hover:bg-amber-300"
+              className="min-h-12 rounded-game-action font-bold"
               disabled={isComplete}
               onClick={checkAnswer}
             >

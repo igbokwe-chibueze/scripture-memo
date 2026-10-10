@@ -362,12 +362,17 @@ remain to be measured.
 
 Phase 31 is complete. Previously accepted manual scenarios must not be repeated.
 Production Web Vitals remain deployment telemetry rather than a local acceptance
-claim. The two single-connection concurrency skips remain explicitly tracked for
-the production-capable database environment and do not reopen this phase.
+claim. The previously skipped multi-connection integration races were verified
+on 2026-10-07 with the disposable local PostgreSQL concurrency runner; they do
+not reopen this phase.
 
 Local setup validation (2026-09-14): strict TypeScript, full ESLint, four guard
-unit tests, and all four integration suite commands passed; the two progression
-concurrency subtests remain explicitly skipped as documented above.
+unit tests, and all four integration suite commands passed; two progression
+concurrency subtests were skipped on Prisma Local single-connection listener.
+Superseding concurrency validation (2026-10-07): strict TypeScript, focused ESLint,
+and all auth, progression, gameplay-throttle/completion, and Fellowship governance
+races passed on temporary PostgreSQL 16 with zero skips. The runner removes its
+temporary database and does not alter either Prisma Local instance or any hosted database.
 
 Fellowship preview correction (2026-09-23): scenario button variants now track the active mode after the owner reported a stale Success highlight. Manual acceptance remains pending.
 

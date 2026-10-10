@@ -3,6 +3,7 @@
 import { useDroppable } from "@dnd-kit/core";
 import { GripVerticalIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { GAMEPLAY_TILE_STATE_STYLES } from "@/features/gameplay/constants/gameplay-state-styles";
 
 /** Inline phrase destination that remains part of the readable verse sentence. */
 export function PhraseSlot({
@@ -38,12 +39,13 @@ export function PhraseSlot({
       ref={setNodeRef}
       type="button"
       className={cn(
-        "inline-flex min-h-12 min-w-28 max-w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed px-3 py-2 text-center font-bold transition",
-        "border-border bg-background text-foreground focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none dark:border-slate-500 dark:bg-slate-800/80 dark:text-slate-100",
-        selectedPhraseAvailable && !placedText && "border-amber-500 bg-amber-100 text-amber-950 dark:border-amber-300 dark:bg-amber-300/15 dark:text-amber-100",
-        isOver && "scale-[1.02] border-emerald-500 bg-emerald-100 text-emerald-950 shadow-lg shadow-emerald-500/15 dark:border-emerald-300 dark:bg-emerald-300/20 dark:text-emerald-100",
-        feedback === "correct" && "border-emerald-500 bg-emerald-100 text-emerald-950 dark:border-emerald-400 dark:bg-emerald-400/15 dark:text-emerald-100",
-        feedback === "incorrect" && "border-red-500 bg-red-100 text-red-950 dark:border-red-400 dark:bg-red-400/15 dark:text-red-100",
+        "inline-flex min-h-12 min-w-28 max-w-full items-center justify-center gap-2 rounded-tile border-2 border-dashed px-3 py-2 text-center font-bold transition",
+        GAMEPLAY_TILE_STATE_STYLES.idle,
+        GAMEPLAY_TILE_STATE_STYLES.focus,
+        selectedPhraseAvailable && !placedText && GAMEPLAY_TILE_STATE_STYLES.selected,
+        isOver && GAMEPLAY_TILE_STATE_STYLES.dropTarget,
+        feedback === "correct" && GAMEPLAY_TILE_STATE_STYLES.correct,
+        feedback === "incorrect" && GAMEPLAY_TILE_STATE_STYLES.incorrect,
       )}
       disabled={disabled || (!placedText && !selectedPhraseAvailable)}
       aria-label={

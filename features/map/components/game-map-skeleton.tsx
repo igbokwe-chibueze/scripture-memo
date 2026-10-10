@@ -18,7 +18,7 @@ const SKELETON_NODE_POSITIONS = [50, 25, 60, 76, 43, 23, 48, 76, 56, 28] as cons
 export function GameMapSkeleton(): React.ReactNode {
   return (
     <main
-      className="min-h-svh bg-linear-to-b from-sky-100/70 via-background to-emerald-100/40 py-5 dark:from-sky-950/30 dark:to-emerald-950/20"
+      className="min-h-svh bg-background py-5"
       aria-busy="true"
       aria-label="Loading your game map"
     >

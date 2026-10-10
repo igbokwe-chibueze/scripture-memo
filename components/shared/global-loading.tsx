@@ -25,15 +25,15 @@ export function GlobalLoading(): React.ReactNode {
 
   return (
     <main
-      className="relative isolate flex min-h-dvh items-center justify-center overflow-hidden bg-linear-to-b from-amber-50 via-orange-50 to-violet-100 px-5 py-8 text-slate-950 dark:from-slate-950 dark:via-[#150d20] dark:to-[#27123c] dark:text-white"
+      className="relative isolate flex min-h-dvh items-center justify-center overflow-hidden bg-background px-5 py-8 text-foreground"
       aria-label="Preparing Scripture Memo"
     >
       <div
-        className="absolute -top-28 left-1/2 size-96 -translate-x-1/2 rounded-full bg-amber-300/30 blur-3xl dark:bg-orange-500/15"
+        className="absolute -top-28 left-1/2 size-96 -translate-x-1/2 rounded-full bg-reward/10 blur-3xl"
         aria-hidden="true"
       />
       <div
-        className="absolute -bottom-40 left-1/2 h-80 w-[38rem] max-w-[130vw] -translate-x-1/2 rounded-[50%] bg-violet-400/25 blur-3xl dark:bg-violet-600/20"
+        className="absolute -bottom-40 left-1/2 h-80 w-[38rem] max-w-[130vw] -translate-x-1/2 rounded-[50%] bg-primary/5 blur-3xl"
         aria-hidden="true"
       />
 
@@ -41,7 +41,7 @@ export function GlobalLoading(): React.ReactNode {
         EMBERS.map((ember, index) => (
           <motion.span
             key={`${ember.left}-${ember.top}`}
-            className="absolute size-1.5 rounded-full bg-orange-500 shadow-[0_0_12px_rgb(249_115_22/0.8)] dark:bg-amber-300"
+            className="absolute size-1.5 rounded-full bg-decoration shadow-sm"
             style={{ left: ember.left, top: ember.top }}
             initial={{ opacity: 0, y: 0, scale: 0.5 }}
             animate={{ opacity: [0, 0.9, 0], y: -90, scale: [0.5, 1, 0.25] }}
@@ -66,7 +66,7 @@ export function GlobalLoading(): React.ReactNode {
       >
         <div className="relative mx-auto h-64 w-56 sm:h-72 sm:w-64">
           <motion.div
-            className="absolute inset-x-4 bottom-3 h-28 rounded-full bg-amber-300/30 blur-3xl dark:bg-orange-500/20"
+            className="absolute inset-x-4 bottom-3 h-28 rounded-full bg-reward/10 blur-3xl"
             animate={
               shouldReduceMotion
                 ? undefined
@@ -94,11 +94,11 @@ export function GlobalLoading(): React.ReactNode {
           Luna is lighting the way
         </h1>
 
-        <div className="mx-auto mt-7 max-w-xs rounded-[1.5rem] border border-white/70 bg-white/65 p-5 shadow-[0_8px_0_rgb(91_33_182/0.15),0_18px_45px_rgb(76_29_149/0.14)] backdrop-blur-xl dark:border-white/10 dark:bg-white/6 dark:shadow-[0_8px_0_rgb(255_255_255/0.08),0_20px_50px_rgb(0_0_0/0.4)]">
+        <div className="mx-auto mt-7 max-w-xs rounded-card border border-border bg-card p-5 shadow-lg">
           <div className="relative flex items-center justify-between" aria-hidden="true">
-            <span className="absolute right-3 left-3 top-1/2 h-1 -translate-y-1/2 rounded-full bg-violet-200 dark:bg-white/10" />
+            <span className="absolute right-3 left-3 top-1/2 h-1 -translate-y-1/2 rounded-full bg-muted" />
             <motion.span
-              className="absolute left-3 top-1/2 h-1 origin-left -translate-y-1/2 rounded-full bg-linear-to-r from-orange-400 via-amber-300 to-violet-500"
+              className="absolute left-3 top-1/2 h-1 origin-left -translate-y-1/2 rounded-full bg-primary"
               initial={{ width: "0%" }}
               animate={{ width: shouldReduceMotion ? "75%" : ["8%", "92%", "8%"] }}
               transition={{
@@ -110,7 +110,7 @@ export function GlobalLoading(): React.ReactNode {
             {TRAIL_STEPS.map((step) => (
               <motion.span
                 key={step}
-                className="relative z-10 grid size-8 place-items-center rounded-full border-2 border-white bg-linear-to-br from-orange-400 to-amber-500 text-white shadow-md dark:border-slate-800"
+                className="relative z-10 grid size-8 place-items-center rounded-full border-2 border-card bg-primary text-primary-foreground shadow-sm"
                 animate={
                   shouldReduceMotion
                     ? undefined
@@ -128,7 +128,7 @@ export function GlobalLoading(): React.ReactNode {
               </motion.span>
             ))}
           </div>
-          <p className="mt-4 text-xs font-bold tracking-[0.16em] text-violet-700 uppercase dark:text-violet-200">
+          <p className="mt-4 text-xs font-bold tracking-[0.16em] text-selection-text uppercase dark:text-selection-text">
             Kindling the next moment
           </p>
         </div>

@@ -23,18 +23,18 @@ const strengthLabels = [
 const strengthColors = [
   "bg-destructive",
   "bg-destructive",
-  "bg-amber-500",
-  "bg-lime-500 dark:bg-lime-400",
-  "bg-lime-500 dark:bg-lime-400",
-  "bg-emerald-500",
+  "bg-reward",
+  "bg-success dark:bg-success",
+  "bg-success dark:bg-success",
+  "bg-success",
 ] as const;
 const strengthTextColors = [
   "text-destructive",
   "text-destructive",
-  "text-amber-700 dark:text-amber-300",
-  "text-lime-700 dark:text-lime-300",
-  "text-lime-700 dark:text-lime-300",
-  "text-emerald-700 dark:text-emerald-300",
+  "text-reward-text dark:text-reward-text",
+  "text-success-text dark:text-success-text",
+  "text-success-text dark:text-success-text",
+  "text-success-text dark:text-success-text",
 ] as const;
 
 /**
@@ -126,7 +126,7 @@ export function PasswordInput({
                 className={cn(
                   "flex items-center gap-2 transition-colors",
                   requirement.satisfied
-                    ? "text-emerald-700 dark:text-emerald-300"
+                    ? "text-success-text dark:text-success-text"
                     : "text-muted-foreground",
                 )}
               >

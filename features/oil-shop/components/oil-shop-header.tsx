@@ -25,7 +25,7 @@ export function OilShopHeader({
         </p>
       </div>
       <div className="relative row-span-1 aspect-square w-full sm:col-start-2 sm:row-span-2">
-        <div aria-hidden="true" className="absolute inset-4 rounded-full bg-amber-400/10 blur-2xl dark:bg-amber-300/10" />
+        <div aria-hidden="true" className="absolute inset-4 rounded-full bg-reward-subtle blur-2xl dark:bg-reward-subtle" />
         <Image
           src="/images/oil-shop/luna-shopkeeper-cutout.png"
           alt={t("heroAlt")}

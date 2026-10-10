@@ -3,8 +3,49 @@ import { createHmac, randomUUID } from "node:crypto";
 import type { TranslationCode } from "@/lib/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 
+/**
+ * Fixed limits for Server Actions that call Better Auth internally.
+ *
+ * Better Auth's HTTP middleware does not run for `auth.api.*` calls made
+ * directly by a Server Action, so those boundaries need an explicit shared
+ * limiter. Keep policy values here, beside the database enforcement, so a
+ * caller cannot accidentally choose a weaker cap.
+ */
+const AUTH_ACTION_RATE_LIMITS = {
+  login: { maximumRequests: 10, windowMilliseconds: 15 * 60 * 1000 },
+  registration: { maximumRequests: 5, windowMilliseconds: 60 * 60 * 1000 },
+  passwordResetRequest: {
+    maximumRequests: 5,
+    windowMilliseconds: 15 * 60 * 1000,
+  },
+  passwordResetComplete: {
+    maximumRequests: 10,
+    windowMilliseconds: 15 * 60 * 1000,
+  },
+} as const;
+
+export type AuthActionRateLimitScope = keyof typeof AUTH_ACTION_RATE_LIMITS;
+
 /** Database operations owned by authentication and first-login onboarding. */
 export const authRepository = {
+  /**
+   * Removes lingering sessions after a database-backed session read confirms
+   * that the owner is banned.
+   *
+   * WHY: Admin suspension already updates the ban and deletes all sessions in
+   * one transaction. This narrow cleanup closes the sign-in/suspension race:
+   * if a session was created just as that transaction committed, it cannot
+   * become usable again after a later restoration.
+   */
+  async revokeSessionsForBannedUser(userId: string): Promise<void> {
+    await prisma.session.deleteMany({
+      where: {
+        userId,
+        user: { banned: true },
+      },
+    });
+  },
+
   /**
    * Replaces the sole active verification-link digest for one normalized
    * address. Only the Better Auth signed token's keyed digest is retained;
@@ -133,76 +174,41 @@ export const authRepository = {
       throw new Error("The auth secret is unavailable for reset throttling.");
     }
 
+    // Preserve the established key format so an active email window does not
+    // reset when this limiter is refactored or deployed.
     const emailDigest = createHmac("sha256", authSecret)
       .update(normalizedEmail)
       .digest("hex");
     const key = `scripture-memo:password-reset-email:${emailDigest}`;
-    const currentTime = BigInt(now.getTime());
-    const windowMilliseconds = BigInt(15 * 60 * 1000);
-    const maximumRequests = 5;
 
-    return prisma.$transaction(async (transaction) => {
-      // WHY: The transaction lock makes the find/check/write sequence atomic
-      // for all requests sharing this recipient key across application nodes.
-      await transaction.$executeRaw`
-        SELECT pg_advisory_xact_lock(hashtext(${key}))
-      `;
-
-      const existingLimit = await transaction.rateLimit.findUnique({
-        where: { key },
-        select: { count: true, lastRequest: true },
-      });
-
-      if (!existingLimit) {
-        await transaction.rateLimit.create({
-          data: {
-            key,
-            count: 1,
-            lastRequest: currentTime,
-          },
-        });
-
-        return true;
-      }
-
-      const hasWindowExpired =
-        currentTime - existingLimit.lastRequest >= windowMilliseconds;
-
-      if (!hasWindowExpired && existingLimit.count >= maximumRequests) {
-        return false;
-      }
-
-      await transaction.rateLimit.update({
-        where: { key },
-        data: {
-          count: hasWindowExpired ? 1 : { increment: 1 },
-          ...(hasWindowExpired ? { lastRequest: currentTime } : {}),
-        },
-      });
-
-      return true;
-    });
+    return consumeFixedWindowRateLimit(key, now, 5, 15 * 60 * 1000);
   },
 
   /**
-   * Rejects suspended identities before Better Auth creates a new session.
+   * Atomically applies a shared per-IP cap to a custom Better Auth action.
    *
-   * WHY: Suspension is product authorization state stored beside the Better
-   * Auth user. This indexed email lookup occurs only during an explicit login,
-   * never on ordinary page reads, so enforcement does not create recurring
-   * database cost.
+   * The action scope is part of the HMAC input, so a login attempt does not
+   * consume the registration or password-reset allowance. Raw IP addresses
+   * are never persisted. Requests without a proxy address share one fallback
+   * bucket, which fails closed until the production host's trusted proxy
+   * behavior is verified. The database transaction lock makes concurrent
+   * calls across application instances consume one common fixed window.
    */
-  async isLoginSuspended(email: string, now: Date): Promise<boolean> {
-    const user = await prisma.user.findUnique({
-      where: { email },
-      select: {
-        suspendedAt: true,
-        suspendedUntil: true,
-      },
-    });
+  async consumeAuthActionRateLimit(
+    scope: AuthActionRateLimitScope,
+    clientIp: string | null,
+    now: Date,
+  ): Promise<boolean> {
+    const policy = AUTH_ACTION_RATE_LIMITS[scope];
+    const normalizedIp = clientIp?.trim().toLowerCase() || "unresolved-ip";
+    const key = createRateLimitKey(`auth-action:${scope}`, normalizedIp);
 
-    if (!user?.suspendedAt) return false;
-    return !user.suspendedUntil || user.suspendedUntil > now;
+    return consumeFixedWindowRateLimit(
+      key,
+      now,
+      policy.maximumRequests,
+      policy.windowMilliseconds,
+    );
   },
 
   /**
@@ -314,6 +320,81 @@ export const authRepository = {
     });
   },
 } as const;
+
+/**
+ * Stores the supplied identifier as an HMAC so addresses and IPs do not appear
+ * in the shared Better Auth RateLimit table or database diagnostics.
+ */
+function createRateLimitKey(namespace: string, identifier: string): string {
+  const authSecret = process.env.BETTER_AUTH_SECRET;
+  if (!authSecret) {
+    throw new Error("The auth secret is unavailable for rate limiting.");
+  }
+
+  const digest = createHmac("sha256", authSecret)
+    .update(`${namespace}:${identifier}`)
+    .digest("hex");
+
+  return `scripture-memo:${namespace}:${digest}`;
+}
+
+/**
+ * Consumes one fixed-window allowance using an atomic PostgreSQL transaction.
+ *
+ * The advisory lock serializes the read/check/write sequence across all app
+ * instances. The first accepted request anchors the window; blocked calls do
+ * not extend it or increment the count. This is an explicit write used only
+ * from mutation boundaries, never from an ordinary read request.
+ */
+async function consumeFixedWindowRateLimit(
+  key: string,
+  now: Date,
+  maximumRequests: number,
+  windowMilliseconds: number,
+): Promise<boolean> {
+  const currentTime = BigInt(now.getTime());
+  const windowDuration = BigInt(windowMilliseconds);
+
+  return prisma.$transaction(async (transaction) => {
+    await transaction.$executeRaw`
+      SELECT pg_advisory_xact_lock(hashtext(${key}))
+    `;
+
+    const existingLimit = await transaction.rateLimit.findUnique({
+      where: { key },
+      select: { count: true, lastRequest: true },
+    });
+
+    if (!existingLimit) {
+      await transaction.rateLimit.create({
+        data: {
+          key,
+          count: 1,
+          lastRequest: currentTime,
+        },
+      });
+
+      return true;
+    }
+
+    const hasWindowExpired =
+      currentTime - existingLimit.lastRequest >= windowDuration;
+
+    if (!hasWindowExpired && existingLimit.count >= maximumRequests) {
+      return false;
+    }
+
+    await transaction.rateLimit.update({
+      where: { key },
+      data: {
+        count: hasWindowExpired ? 1 : { increment: 1 },
+        ...(hasWindowExpired ? { lastRequest: currentTime } : {}),
+      },
+    });
+
+    return true;
+  });
+}
 
 /** Derives a non-reversible database key for one normalized email address. */
 function createEmailVerificationIdentifier(email: string): string {

@@ -13,7 +13,7 @@ waypoint represents one scripture memory unit—normally one verse or verse rang
 
 The platform is built on four scientifically grounded memorization principles:
 
-1. **Spaced Repetition** — 24-hour cooldowns between challenge days enforce memory spacing.
+1. **Spaced Repetition** — 12-hour rolling cooldowns between challenge days provide a deliberate practice gap.
 2. **Progressive Difficulty** — five game modes and three difficulty levels per waypoint prevent plateau.
 3. **Multi-Sensory Learning** — five interaction modalities (drag, arrange, swap, cue, type) engage different learning styles.
 4. **Immediate Feedback** — color-coded results, audio cues, and animations reinforce correct recall.
@@ -424,6 +424,10 @@ Translations are stored in a separate normalized table so additional translation
 
 **Important:** The `normalizedText` field is never shown to the user. It is used exclusively for server-side answer validation to allow case-insensitive, punctuation-tolerant comparisons.
 
+For gameplay, punctuation between separate words must be treated as a word
+boundary during tokenization and answer normalization. Em dashes remain visible
+with the verse text but do not join the words on either side.
+
 The administrative verse library can display Reference, Book, Tags,
 Translations, Status, Waypoints, and Packs. Administrators choose the visible
 columns from a checklist, with no more than five information columns shown at
@@ -566,7 +570,7 @@ retry it if an earlier database operation was interrupted.
 | `LOCKED` | Previous waypoint not yet completed |
 | `UNLOCKED` | Previous waypoint complete; this waypoint not yet started |
 | `IN_PROGRESS` | At least Day 1 started but Day 3 not yet complete |
-| `COOLDOWN` | Awaiting 24-hour cooldown before next day unlocks |
+| `COOLDOWN` | Awaiting 12-hour cooldown before next day unlocks |
 | `COMPLETED` | All three days complete |
 
 ---
@@ -651,7 +655,7 @@ After successfully completing the **Master** stage waypoint for a verse (all thr
 
 ## 9. The Three-Day Challenge System
 
-Each waypoint contains three challenge days. The days must be completed in order. A 24-hour cooldown is enforced between days.
+Each waypoint contains three challenge days. The days must be completed in order. A rolling 12-hour cooldown is enforced between days.
 
 ### 9.1 Day 1 — Glimmer
 
@@ -665,7 +669,7 @@ Each waypoint contains three challenge days. The days must be completed in order
 - Difficulty: Medium
 - Words hidden: 40–60%
 - Unlock condition: Day 1 complete
-- Unlock timing: 24 hours after Day 1 completion
+- Unlock timing: 12 elapsed hours after Day 1 completion
 - Glow Points reward: 1.5× the Day 1 base
 
 ### 9.3 Day 3 — Radiance
@@ -673,7 +677,7 @@ Each waypoint contains three challenge days. The days must be completed in order
 - Difficulty: Hard
 - Words hidden: 70–100%
 - Unlock condition: Day 2 complete
-- Unlock timing: 24 hours after Day 2 completion
+- Unlock timing: 12 elapsed hours after Day 2 completion
 - Glow Points reward: 2× the Day 1 base
 - Completion effect: Waypoint marked complete, next waypoint unlocked
 
@@ -690,8 +694,8 @@ Each waypoint contains three challenge days. The days must be completed in order
 ### 9.5 Cooldown Calculation
 
 ```
-Day 2 unlock time = Day 1 completedAt + 24 hours
-Day 3 unlock time = Day 2 completedAt + 24 hours
+Day 2 unlock time = Day 1 completedAt + 12 hours
+Day 3 unlock time = Day 2 completedAt + 12 hours
 ```
 
 The server computes whether a day is playable by comparing the current UTC timestamp against the stored unlock timestamp. The client never decides this.
@@ -1524,9 +1528,12 @@ Use Prisma with PostgreSQL. This section lists required models. The implementati
   state and does not copy records. Once production is live, never overwrite
   production with the development database; production becomes the source of
   truth for live user data.
-- Automated tests use a separate local instance on port 51224; development stays
-  on 51214. Changing only a Prisma Local database name does not isolate data.
-  Tests must not consume hosted operations or mutate development data.
+- Routine automated integration tests use a separate local instance on port
+  51224; development stays on 51214. Multi-connection concurrency tests use
+  `npm run test:concurrency:local`, which starts an isolated embedded PostgreSQL
+  server on a temporary loopback port and removes its data after the run.
+  Changing only a Prisma Local database name does not isolate data. Tests must
+  not consume hosted operations or mutate development data.
 - Production credentials are supplied only through the deployment environment;
   they are not copied into the tracked local template.
 - Read paths must remain read-only. Lazy progression initialization occurs only
@@ -1900,7 +1907,7 @@ if (isUnlocked) { ... }
 - Journey Stage display on all relevant screens
 - Day Selection screen with cooldown countdown
 - All five game modes (Drag & Drop, Puzzle, Swap, Cue, Fill)
-- Three-day challenge system with 24-hour cooldown
+- Three-day challenge system with a rolling 12-hour cooldown
 - Hint system (disabled on Strengthen and Master stages)
 - Glow Points and reward ledger
 - Streak system

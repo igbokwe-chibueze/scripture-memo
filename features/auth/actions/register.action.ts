@@ -2,7 +2,8 @@
 
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth/auth";
-import { rateLimit } from "@/lib/rate-limit";
+import { getRequestIp } from "@/lib/request-ip";
+import { authRepository } from "@/features/auth/repositories/auth.repository";
 import type { ActionResult } from "@/types/api";
 import { registerSchema } from "@/features/auth/schemas/register.schema";
 import { captureVerificationEmail } from "@/features/auth/lib/email-verification-delivery";
@@ -27,21 +28,20 @@ export async function registerAction(
   }
 
   const requestHeaders = await headers();
-  const forwardedFor = requestHeaders.get("x-forwarded-for") ?? "unknown";
-  const limit = rateLimit({
-    key: `register:${forwardedFor.split(",").at(-1)?.trim()}`,
-    limit: 5,
-    windowMs: 60 * 60 * 1000,
-  });
-
-  if (!limit.success) {
-    return {
-      success: false,
-      message: "Too many registration attempts. Please try again later.",
-    };
-  }
-
   try {
+    const withinLimit = await authRepository.consumeAuthActionRateLimit(
+      "registration",
+      getRequestIp(requestHeaders),
+      new Date(),
+    );
+
+    if (!withinLimit) {
+      return {
+        success: false,
+        message: "Too many registration attempts. Please try again later.",
+      };
+    }
+
     const safeNextPath = getSafePostLoginPath(parsed.data.nextPath);
     const callbackURL = `/login?verified=1&next=${encodeURIComponent(safeNextPath)}`;
     const capture = await captureVerificationEmail(() =>

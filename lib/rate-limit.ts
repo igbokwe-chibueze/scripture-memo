@@ -22,10 +22,10 @@ export type RateLimitResult = {
 
 // WHY: A global map survives Next.js development hot reloads and prevents every
 // module evaluation from resetting limits. It remains process-local by design.
-// Better Auth separately applies database-backed limits to authentication
-// endpoints in lib/auth/auth.ts; that shared limiter is the production guard.
-// This helper is only an additional per-process throttle and must never be the
-// sole abuse control for an endpoint deployed across multiple application nodes.
+// Better Auth applies database-backed limits to public HTTP authentication
+// endpoints. Internal `auth.api.*` calls from Server Actions bypass that HTTP
+// middleware, so security-sensitive actions must use the repository-owned
+// shared database limiter instead of relying on this process-local helper.
 const globalForRateLimit = globalThis as unknown as {
   scriptureMemoRateLimitBuckets?: Map<string, RateLimitBucket>;
 };
@@ -41,10 +41,9 @@ if (process.env.NODE_ENV !== "production") {
 /**
  * Applies a process-local fixed-window limit for supplementary throttling.
  *
- * This implementation is intentionally dependency-free and provides a real,
- * testable per-process throttle. Separate instances do not share memory, so any
- * security-critical route still needs a shared limiter at its authoritative
- * provider boundary, as the Better Auth endpoint configuration currently does.
+ * This implementation is intentionally dependency-free and provides a
+ * supplementary per-process throttle. Separate instances do not share memory;
+ * never use it as the only abuse control for a security-sensitive operation.
  */
 export function rateLimit(options: RateLimitOptions): RateLimitResult {
   if (!options.key.trim()) {

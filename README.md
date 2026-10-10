@@ -47,13 +47,44 @@ for login or ordinary development. `Ctrl+C` stops the foreground test service.
 `npm run test:database:reset` clears **test data only**, preserving migrations;
 use it only to remove failed fixture leftovers, not to repair missing migrations.
 
-Prisma Local uses one connection. The two progression lock-race subtests are
-explicitly skipped; they still require verification against a separately
-approved local PostgreSQL setup supporting concurrent connections before release.
-The waypoint append test verifies ordered outcomes locally, not real lock contention.
-Hosted test credentials are retired from the active `.env`; archived credentials
-are not a fallback. Production migration/data transfer remains a separate future
-deployment task; test fixtures must never be transferred to production.
+#### Multi-connection concurrency tests
+
+Prisma Local serializes connections, so it cannot prove database lock behavior.
+The concurrency runner starts PostgreSQL 16 in a disposable temporary directory,
+binds only to loopback on an OS-assigned port, applies checked-in migrations to
+that empty database, runs the guarded races, then stops the server and removes
+the temporary data. It does not change `.env`, either Prisma Local instance, or
+the hosted database. On Windows, run it from a regular non-administrator
+terminal because PostgreSQL refuses to initialize as an administrator.
+
+```bash
+npm run test:concurrency:local
+```
+
+This runs auth login/registration limiter races, progression curriculum-lock
+and duplicate day-completion races, gameplay submission and duplicate-mode
+completion races, and Fellowship transfer, closure/suspension, and appeal races.
+The `embedded-postgres` package is development-only; no Docker or machine-wide
+PostgreSQL service is required. Hosted test credentials are never a fallback.
+Production migration/data transfer remains a separate future deployment task;
+test fixtures must never be transferred to production.
+
+#### GitHub pull-request checks
+
+GitHub Actions runs the quality checks and database-backed suites for every
+pull request and pushed branch. `npm run test:unit` discovers database-free
+tests under `features/`, `lib/`, and `i18n/`; repository tests run separately
+against a temporary PostgreSQL 16 service provided only to the GitHub runner.
+CI applies the checked-in migrations, resets only that disposable database
+between fixture groups, and then runs repository, concurrency, and account
+suspension integration coverage. It uses synthetic local environment values and
+does not need `.env`, Resend credentials, Prisma Cloud, or either local database.
+
+The workflow reports required check statuses, but GitHub does not automatically
+block merges just because a workflow exists. To enforce the gate, enable branch
+protection or a repository ruleset and require both **Lint, typecheck, unit
+tests, and production build** and **PostgreSQL integration and concurrency
+tests** to pass.
 
 #### Production database plan
 
@@ -83,18 +114,29 @@ Because DBeaver is only a client for the same PostgreSQL database, this workflow
 does not create a second data format or require any later migration back to
 Prisma.
 
-#### Creating playable local fixtures
+#### Seeding the curriculum and local fixtures
 
-The production seed intentionally creates catalogues and hidden curriculum
-placeholders only. To publish five KJV waypoints for local gameplay testing, run:
+On a fresh database, `npx prisma db seed` installs the approved curriculum:
+100 active verses and 400 active waypoint assignments, along with the study
+guides, badges, and Oil Shop hint-pack catalogue. The curriculum includes KJV,
+WEB, and BSB translations; 31 verses have structured study guides, while the
+remaining 69 intentionally have no study material yet. The seed creates
+catalogue content, not player accounts. On reruns it inserts missing curriculum
+records without overwriting existing verse or waypoint assignments.
+
+`npm run local:fixtures` is a separate development-only helper for test
+scenarios that need a known set of five KJV verse assignments at waypoints 1–5.
+It replaces those assignments only while those waypoints have no learner
+history. It is not needed to publish waypoints in a freshly seeded database.
+The command refuses hosted URLs and production mode before constructing Prisma
+Client:
 
 ```bash
 npm run local:fixtures
 ```
 
-This command refuses hosted URLs and production mode before constructing Prisma
-Client. It is idempotent while fixture waypoints have no learner history and
-fails instead of overwriting progressed curriculum.
+It fails rather than replacing any of the five assignments after learner
+history exists.
 
 Register test accounts through the application so Better Auth remains the only
 owner of credentials. After registration, select KJV during onboarding or run

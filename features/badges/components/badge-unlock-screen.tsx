@@ -13,11 +13,11 @@ import type { BadgeUnlockResult } from "@/features/badges/types/badge.types";
 import { cn } from "@/lib/utils";
 
 const RARITY_STYLES = {
-  COMMON: "from-slate-100 to-slate-200 text-slate-700 dark:from-slate-700 dark:to-slate-900 dark:text-slate-100",
-  UNCOMMON: "from-emerald-100 to-emerald-200 text-emerald-800 dark:from-emerald-800 dark:to-emerald-950 dark:text-emerald-100",
-  RARE: "from-sky-100 to-blue-200 text-blue-800 dark:from-sky-800 dark:to-blue-950 dark:text-sky-100",
-  EPIC: "from-violet-100 to-fuchsia-200 text-violet-800 dark:from-violet-800 dark:to-fuchsia-950 dark:text-violet-100",
-  LEGENDARY: "from-amber-100 via-yellow-200 to-orange-200 text-amber-900 dark:from-amber-700 dark:via-orange-800 dark:to-amber-950 dark:text-amber-50",
+  COMMON: "from-muted to-secondary text-foreground dark:from-muted dark:to-card dark:text-foreground",
+  UNCOMMON: "from-success to-success text-success-text dark:from-success dark:to-success dark:text-success-text",
+  RARE: "from-info to-info text-info-text dark:from-info dark:to-info dark:text-info-text",
+  EPIC: "from-selection to-fuchsia-200 text-selection-text dark:from-selection dark:to-fuchsia-950 dark:text-selection-text",
+  LEGENDARY: "from-reward via-reward to-decoration text-reward-text dark:from-reward dark:via-decoration dark:to-reward dark:text-reward-text",
 } as const;
 
 /** Counts a persisted badge reward without implying the balance is client-authored. */
@@ -95,7 +95,7 @@ export function BadgeUnlockScreen({
     <>
       <ConfettiCelebration show />
       <motion.div
-        className="fixed inset-0 z-60 overflow-y-auto bg-slate-950/70 px-4 backdrop-blur-md"
+        className="fixed inset-0 z-60 overflow-y-auto bg-background px-4 backdrop-blur-md"
         initial={{ opacity: shouldReduceMotion ? 1 : 0 }}
         animate={{ opacity: 1 }}
         role="dialog"
@@ -105,7 +105,7 @@ export function BadgeUnlockScreen({
         <div className="flex min-h-full justify-center py-4 sm:py-8">
           <motion.section
             className={cn(
-              "relative my-auto w-full max-w-md overflow-hidden rounded-[2rem] border border-white/50 bg-linear-to-br p-6 text-center shadow-2xl sm:p-9",
+              "relative my-auto w-full max-w-md overflow-hidden rounded-[2rem] border border-border/50 bg-linear-to-br p-6 text-center shadow-2xl sm:p-9",
               RARITY_STYLES[badge.rarity],
             )}
             initial={
@@ -133,7 +133,7 @@ export function BadgeUnlockScreen({
             <SparklesIcon className="absolute top-6 left-6 size-5 opacity-60" aria-hidden="true" />
             <SparklesIcon className="absolute top-10 right-7 size-4 opacity-50" aria-hidden="true" />
             <motion.div
-              className="mx-auto grid size-28 place-items-center rounded-full border border-white/60 bg-white/55 text-6xl shadow-xl backdrop-blur-sm dark:bg-black/20"
+              className="mx-auto grid size-28 place-items-center rounded-full border border-border/60 bg-card/55 text-6xl shadow-xl backdrop-blur-sm dark:bg-background/20"
               animate={
                 shouldReduceMotion
                   ? undefined
@@ -152,11 +152,11 @@ export function BadgeUnlockScreen({
               {badge.name}
             </h2>
             <p className="mt-3 text-sm font-bold opacity-75">{badge.description}</p>
-            <span className="mt-5 inline-flex rounded-full border border-current/20 bg-white/35 px-4 py-2 text-xs font-bold tracking-[0.16em] uppercase dark:bg-black/15">
+            <span className="mt-5 inline-flex rounded-full border border-current/20 bg-card/35 px-4 py-2 text-xs font-bold tracking-[0.16em] uppercase dark:bg-background/15">
               {badge.rarity}
             </span>
 
-            <div className="mt-6 rounded-2xl border border-current/15 bg-white/45 p-4 dark:bg-black/15">
+            <div className="mt-6 rounded-2xl border border-current/15 bg-card/45 p-4 dark:bg-background/15">
               <p className="text-xs font-bold tracking-[0.14em] uppercase">
                 {t("pointsEarned")}
               </p>
@@ -169,7 +169,7 @@ export function BadgeUnlockScreen({
             <div className="mt-6 grid grid-cols-[minmax(0,1fr)_auto] gap-3">
               <Button
                 type="button"
-                className="min-h-12 rounded-xl bg-slate-950 font-bold text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100"
+                className="min-h-12 rounded-xl bg-background font-bold text-foreground hover:bg-card dark:bg-card dark:text-foreground dark:hover:bg-muted"
                 onClick={onContinue}
               >
                 {common("continue")}
@@ -178,7 +178,7 @@ export function BadgeUnlockScreen({
               <ShareAchievementButton
                 title={t("shareTitle", { name: badge.name })}
                 text={t("shareText", { name: badge.name })}
-                className="border-current/25 bg-white/35 hover:bg-white/55 dark:bg-black/15 dark:hover:bg-black/25"
+                className="border-current/25 bg-card/35 hover:bg-card/55 dark:bg-background/15 dark:hover:bg-background/25"
               />
             </div>
           </motion.section>

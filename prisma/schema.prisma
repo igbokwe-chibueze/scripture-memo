@@ -186,6 +186,9 @@ model User {
   emailVerified  Boolean   @default(false)
   image          String?
   role           UserRole  @default(USER)
+  banned         Boolean   @default(false)
+  banReason      String?
+  banExpires     DateTime?
   suspendedAt    DateTime?
   suspendReason  String?
   suspendedUntil DateTime?
@@ -905,6 +908,7 @@ model Session {
   updatedAt DateTime @updatedAt
   ipAddress String?
   userAgent String?
+  impersonatedBy String?
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -960,6 +964,7 @@ model RateLimit {
 // server-owned reward calculations. Product repositories own every query.
 model PlatformSettings {
   id                          String          @id @default("global")
+  activeBrandThemeId          String          @default("tropical-teal")
   defaultTranslation          TranslationCode @default(KJV)
   baseGlowPoints              Int             @default(100)
   defaultHintAllowance        Int             @default(5)

@@ -124,7 +124,7 @@ export function TrailNavigator({
                   aria-current={isCurrent ? "location" : undefined}
                   className={cn(
                     "group grid min-h-24 w-full grid-cols-[5.25rem_1fr] overflow-hidden rounded-2xl border bg-card text-left shadow-sm outline-none transition focus-visible:ring-3 focus-visible:ring-ring/50",
-                    isCurrent && "border-amber-400 ring-2 ring-amber-300/35",
+                    isCurrent && "border-reward-border ring-2 ring-reward/35",
                     !isLocked && "hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md",
                     isLocked && "cursor-not-allowed opacity-55",
                   )}
@@ -139,7 +139,7 @@ export function TrailNavigator({
                     />
                     <span
                       aria-hidden="true"
-                      className="absolute inset-0 bg-linear-to-r from-transparent to-black/10"
+                      className="absolute inset-0 bg-linear-to-r from-transparent to-image-overlay/15"
                     />
                   </span>
 
@@ -150,7 +150,7 @@ export function TrailNavigator({
                       </span>
                       {isCurrent ? (
                         <FlagIcon
-                          className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-300"
+                          className="mt-0.5 size-4 shrink-0 text-reward-text dark:text-reward-text"
                           aria-label="Current trail"
                         />
                       ) : isLocked ? (
@@ -160,18 +160,18 @@ export function TrailNavigator({
                         />
                       ) : isComplete ? (
                         <CheckIcon
-                          className="mt-0.5 size-4 shrink-0 text-emerald-600 dark:text-emerald-300"
+                          className="mt-0.5 size-4 shrink-0 text-success-text dark:text-success-text"
                           aria-label="Completed trail"
                         />
                       ) : null}
                     </span>
                     <span className="text-xs font-medium text-muted-foreground">
-                      Waypoints {group.startNumber}–{group.endNumber}
+                      Waypoints {group.startNumber}â€“{group.endNumber}
                     </span>
                     <span className="flex items-center gap-2">
                       <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
                         <span
-                          className="block h-full rounded-full bg-emerald-500 transition-[width]"
+                          className="block h-full rounded-full bg-success transition-[width]"
                           style={{ width: `${(completedCount / group.waypoints.length) * 100}%` }}
                         />
                       </span>

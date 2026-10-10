@@ -6,19 +6,19 @@ import { cn } from "@/lib/utils";
 const stagePresentation: Record<JourneyStage, { label: string; className: string }> = {
   LEARN: {
     label: "Learn",
-    className: "border-sky-500/25 bg-sky-500/12 text-sky-700 dark:text-sky-300",
+    className: "border-border bg-muted text-muted-foreground",
   },
   RECALL: {
     label: "Recall",
-    className: "border-violet-500/25 bg-violet-500/12 text-violet-700 dark:text-violet-300",
+    className: "border-border bg-muted text-muted-foreground",
   },
   STRENGTHEN: {
     label: "Strengthen",
-    className: "border-amber-500/30 bg-amber-500/12 text-amber-800 dark:text-amber-300",
+    className: "border-border bg-muted text-muted-foreground",
   },
   MASTER: {
     label: "Master",
-    className: "border-rose-500/25 bg-rose-500/12 text-rose-700 dark:text-rose-300",
+    className: "border-border bg-muted text-muted-foreground",
   },
 };
 

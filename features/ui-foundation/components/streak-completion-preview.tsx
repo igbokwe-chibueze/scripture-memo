@@ -45,7 +45,7 @@ export function StreakCompletionPreview(): React.ReactNode {
   const [variant, setVariant] = useState<StreakPreviewVariant>(null);
 
   return (
-    <section className="rounded-2xl border border-orange-300/40 bg-linear-to-br from-orange-50 via-card to-amber-50 p-5 shadow-sm dark:from-orange-950/25 dark:via-card dark:to-amber-950/20">
+    <section className="rounded-2xl border border-decoration-border/40 bg-linear-to-br from-decoration via-card to-reward p-5 shadow-sm dark:from-decoration/25 dark:via-card dark:to-reward/20">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="font-heading text-xl font-bold">Streak celebration</h2>
@@ -59,7 +59,7 @@ export function StreakCompletionPreview(): React.ReactNode {
           </Button>
           <Button
             type="button"
-            className="bg-orange-500 font-bold text-white hover:bg-orange-400"
+            className="font-bold"
             onClick={() => setVariant("level")}
           >
             <FlameIcon className="fill-current" aria-hidden="true" />

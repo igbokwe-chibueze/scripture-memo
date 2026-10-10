@@ -29,13 +29,13 @@ export async function GameMapView(): Promise<React.ReactNode> {
   const waypoints = await getGameMapData();
 
   return (
-    <main className="min-h-svh bg-linear-to-b from-sky-100/70 via-background to-emerald-100/40 py-5 dark:from-sky-950/30 dark:to-emerald-950/20 sm:py-8">
+    <main className="min-h-svh bg-background py-5 sm:py-8">
       <ResponsiveContainer size="lg" className="space-y-6">
         <header className="mx-auto flex max-w-xl flex-col items-center text-center">
-          <span className="mb-3 grid size-14 place-items-center rounded-2xl bg-linear-to-br from-emerald-400 to-emerald-600 text-white shadow-lg shadow-emerald-500/20">
+          <span className="mb-3 grid size-14 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
             <MapPinnedIcon className="size-7" aria-hidden="true" />
           </span>
-          <p className="text-xs font-bold tracking-[0.2em] text-emerald-700 uppercase dark:text-emerald-300">
+          <p className="text-xs font-bold tracking-[0.2em] text-success-text uppercase dark:text-success-text">
             {t("eyebrow")}
           </p>
           <h1 className="mt-1 font-heading text-3xl font-bold tracking-tight sm:text-4xl">

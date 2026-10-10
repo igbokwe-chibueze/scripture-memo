@@ -1,8 +1,8 @@
 "use server";
 
+import { getSessionFromHeaders } from "@/lib/auth/get-session-from-headers";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
-import { auth } from "@/lib/auth/auth";
 import { isAdmin } from "@/lib/permissions";
 import type { TranslationCode, UserRole } from "@/lib/generated/prisma/enums";
 import type { ActionResult } from "@/types/api";
@@ -16,7 +16,7 @@ import { upsertTranslationSchema } from "@/features/verses/schemas/verse.schema"
 export async function addTranslationAction(input: unknown): Promise<ActionResult> {
   const parsed = upsertTranslationSchema.safeParse(input);
   if (!parsed.success) return { success: false, message: "Invalid translation." };
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSessionFromHeaders(await headers() );
   if (!session?.user) return { success: false, message: "Authentication required." };
   if (!isAdmin(session.user.role as UserRole | undefined)) return { success: false, message: "Administrator access is required." };
   try {

@@ -62,6 +62,7 @@ The server and database are the only sources of truth for all security-sensitive
 | 2.9 | After a password change, all existing sessions for that user are invalidated | 🟠 High | ✅ Verified 2026-09-27 | Better Auth is configured to revoke sessions after successful reset. Owner confirmed the old session was rejected after the 60-second session-cookie cache expired; Resend reset delivery and new-password sign-in also passed |
 | 2.10 | OAuth tokens are never stored in plaintext in the database | 🔴 Critical | N/A 2026-09-24 | No OAuth provider is configured; recheck before enabling OAuth |
 | 2.11 | Development reset-link delivery cannot run in production | 🔴 Critical | ✅ Implemented | `LIGHT_DEV` throws under `NODE_ENV=production`; production requires the dedicated delivery adapter |
+| 2.12 | Account suspension blocks direct Better Auth sign-in and invalidates existing sessions | 🟠 High | 🟨 Implemented 2026-10-07; integration test pending | Better Auth Admin plugin blocks session creation for banned accounts. Server and browser session reads bypass cookie cache; a session read that confirms a banned user rejects and revokes any raced session. The public sign-in route normalizes the failure to the generic credential error. The isolated 51224 end-to-end test is checked in but was not run because the local test service failed to start |
 
 ---
 
@@ -82,6 +83,7 @@ The server and database are the only sources of truth for all security-sensitive
 | 3.11 | Users cannot update another user's profile, settings, or progress | 🟠 High | ✅ Verified 2026-09-24 | Player actions derive the acting user ID from the authenticated server session |
 | 3.12 | Fellowship admin actions check that the requestor is the fellowship LEADER | 🟠 High | ✅ Verified 2026-09-24 | Leader ownership is rechecked in repository mutations under transaction locks |
 | 3.13 | Fellowship identity updates are leader-only and insignias use a fixed server-validated catalogue | 🟠 High | ✅ Implemented | Repository ownership filter and Zod enum reject non-leaders, uploads, and external image paths |
+| 3.14 | Concurrent Fellowship transfer offers and acceptance, closure/suspension, and appeals preserve one state transition and linked case history | High | ✅ Verified 2026-10-07 | Disposable PostgreSQL race tests confirmed one transfer offer and acceptance win each race, closure versus suspension yields one outcome, and concurrent appeals preserve one case history. |
 
 ---
 
@@ -115,7 +117,7 @@ The server and database are the only sources of truth for all security-sensitive
 | 5.5 | 24-hour cooldown is calculated from the stored `completedAt` timestamp — never from client time | 🔴 Critical | ✅ Implemented | Server-derived completion time plus exact elapsed UTC hours; client countdowns remain display-only |
 | 5.6 | `overrideCooldownAction` requires ADMIN or SUPER_ADMIN role | 🟠 High | ✅ Verified 2026-09-24 | Server role check, restricted self-test scope, and AuditLog transaction are in place |
 | 5.7 | Completing Day 3 unlocks only the next currently published waypoint selected by the server | 🟠 High | ✅ Implemented | Database ordering is used rather than a client ID or an `N+1` assumption |
-| 5.8 | Duplicate day completion is prevented by the unique `(userId, waypointId, dayLevel)` record, transaction lock, and completed-state check | 🔴 Critical | ✅ Implemented | Database and transactional defenses reject repeat or concurrent completion |
+| 5.8 | Duplicate day completion is prevented by the unique `(userId, waypointId, dayLevel)` record, transaction lock, and completed-state check | 🔴 Critical | ✅ Verified 2026-10-07 | Concurrent day-completion and duplicate game-mode submission tests passed against disposable PostgreSQL with multiple connections; only one state transition commits. |
 | 5.9 | Game mode completion order is enforced server-side (DRAG_DROP → PUZZLE → SWAP → CUE → FILL) | 🟠 High | ✅ Implemented | Session-locked start and completion transactions derive the sole current mode from persisted completed attempts |
 | 5.10 | A day cannot be marked complete unless all five modes are recorded as complete | 🔴 Critical | ✅ Implemented | The completion transaction invokes day completion only when the ordered mode sequence has no next mode |
 | 5.11 | Journey Stage hint rules are enforced server-side in `useHintAction` | 🔴 Critical | ✅ Verified 2026-09-24 | Repository rechecks the owned active session's stage inside the consumption transaction and rejects STRENGTHEN/MASTER |
@@ -218,15 +220,16 @@ The server and database are the only sources of truth for all security-sensitive
 
 | # | Check | Risk | Status | Notes |
 |---|---|---|---|---|
-| 11.1 | Login attempts are rate-limited per IP (e.g., 10 per 15 minutes) | 🟠 High | ✅ Verified 2026-09-24 | Better Auth database-backed limit: 10 sign-in attempts per IP per 15 minutes; deployment proxy/IP trust still needs host-specific verification |
-| 11.2 | Registration attempts are rate-limited per IP | 🟡 Medium | ✅ Verified 2026-09-24 | Better Auth database-backed limit: 5 sign-ups per IP per hour; deployment proxy/IP trust still needs host-specific verification |
-| 11.3 | Password reset requests are rate-limited per email | 🟠 High | ✅ Verified 2026-09-24 | Action uses a Better Auth secret-keyed HMAC of the normalized address in the existing `RateLimit` table, with an atomic PostgreSQL lock and five requests per fixed 15-minute window; the dedicated local integration test passed, and Better Auth also limits by IP |
-| 11.4 | Game completion submissions are protected against rapid repeated calls | 🟡 Medium | ✅ Verified 2026-09-24 | Transaction lock, completed-state check, and database uniqueness make repeated completion requests fail safely |
+| 11.1 | Login attempts are rate-limited per IP (e.g., 10 per 15 minutes) | 🟠 High | ✅ Verified 2026-10-07 | Shared database-backed cap and concurrent login admission test passed on disposable PostgreSQL. Deployment proxy/IP trust still needs host-specific verification. |
+| 11.2 | Registration attempts are rate-limited per IP | 🟡 Medium | ✅ Verified 2026-10-07 | Shared database-backed cap and action-scope isolation passed the concurrent PostgreSQL test. Deployment proxy/IP trust still needs host-specific verification. |
+| 11.3 | Password reset requests are rate-limited per IP and email | 🟠 High | ☑ Implemented | Custom reset-request action uses shared database-backed caps of 5 per IP and 5 per normalized email per fixed 15-minute window. Email keys are HMAC-protected and its existing guarded PostgreSQL test passed; the added shared-IP concurrency coverage remains to be run |
+| 11.4 | Game completion submissions are protected against rapid repeated calls | 🟡 Medium | ✅ Verified 2026-10-07 | The shared 10-per-minute submission cap and two simultaneous submissions of one attempt passed against disposable PostgreSQL. Transaction locks and reward idempotency remain separate correctness safeguards. |
 | 11.5 | Hint usage action is rate-limited or guarded against rapid fire requests | 🟢 Low | ✅ Verified 2026-09-24 | Hint-balance lock and transaction recheck prevent rapid calls from consuming beyond persisted allowance |
 | 11.6 | Fellowship creation is rate-limited per user | 🟡 Medium | ☑ Implemented | Per-user advisory locking and a maximum of three creations per rolling 24 hours prevent rapid spam |
 | 11.7 | Private Fellowship requests are unique and leader-authorized | 🟠 High | ✅ Verified 2026-09-24 | One durable request per learner/fellowship prevents duplicate pending requests; repository ownership checks and locked transactions protect approval and membership creation |
 | 11.8 | Admin bulk actions are confirmation-gated in the UI | 🟡 Medium | ✅ Verified 2026-09-24 | CSV import requires explicit preview confirmation; destructive per-record admin mutations use confirmation controls |
 | 11.9 | Production client IP rate limits trust only forwarding headers from the selected hosting proxy | 🟠 High | ☐ Pending | The hosting provider is not selected; forwarded-header trust and `getRequestIp` must be verified against its proxy contract before launch |
+| 11.10 | Password reset completion attempts are rate-limited per IP | 🟡 Medium | ☑ Implemented | Custom reset-completion Server Action now uses a shared database-backed cap of 10 attempts per IP per 15 minutes; the guarded PostgreSQL concurrency test remains to be run |
 
 ---
 

@@ -1,0 +1,209 @@
+/*
+ * Scripture Memo - Arcade Bloom
+ * Theme ID: arcade-bloom | Display name: Arcade Bloom | Version: 1.0
+ * Theme-only color definition; NOT a replacement for globals.css.
+ * Contract: Tropical Teal design-system handoff v3, 8 October 2026.
+ *
+ * Integration for Codex:
+ * - Add to the existing theme registry; preserve Tropical Teal as active/default.
+ * - Use the project's existing theme ID/selector convention if different.
+ * - Reference selectors below assume data-brand-theme and .dark on <html>.
+ *   Existing appearance logic must resolve light/dark/system independently.
+ * - Load these rules after shared defaults, in the same cascade layer as the
+ *   existing theme tokens (or integrate into the registry's generation system).
+ * - Do not replace fonts, radii, @theme mappings, animation or component rules.
+ * - Reuse the existing semantic role mappings: primary/selection are purple,
+ *   reward is yellow, decoration is blue; accent stays a subtle purple fill.
+ * - Feedback green/red/amber/info retain their existing meanings. Availability
+ *   is a quiet surface, not reward gold. Selection does not imply correctness.
+ * - Keep pure-white light-mode canvas, cards and popovers.
+ * - Reconcile any tokens added since the handoff; do not silently inherit
+ *   missing theme colors from Tropical Teal. Preserve shared alias semantics.
+ * - Preview containers must scope ALL aliases locally. Portaled content must
+ *   receive the preview theme without changing the global active theme.
+ * - Register for preview/selection only; do not activate globally automatically.
+ *
+ * Brand reference (HEX for identification; declarations below use OKLCH):
+ * Source swatches: purple #AC44F2, blue #42A0F8, yellow #FAD800,
+ * green #02B615. Near-black is #18131F, replacing #49414C.
+ * Purple action fill is slightly deepened to #A33EE8 for ordinary white-text
+ * contrast; this is intentional. Green is softened to #32B653 with dark text.
+ * Light: primary #A33EE8, reward #FAD800, decoration #42A0F8,
+ *        text #18131F, soft surface #F6EDFF, background #FFFFFF.
+ * Dark:  primary #CE9AFF, reward #FAD800, decoration #73BAFF,
+ *        text #FAF6FF, card #272030, background #18131F.
+ *
+ * Validation: matching complete token sets, resolved aliases, CSS parsing,
+ * intended text pair contrast >= 4.5:1, input/focus contrast >= 3:1 against
+ * background/card/secondary. Verify actual component states in the app too.
+ */
+
+/* Light appearance */
+:root[data-brand-theme="arcade-bloom"] {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.198770 0.024705 303.3000);
+  --card: oklch(1 0 0);
+  --popover: var(--card);
+  --card-foreground: oklch(0.198770 0.024705 303.3000);
+  --popover-foreground: var(--card-foreground);
+  --primary: oklch(0.585209 0.243290 307.4432);
+  --primary-foreground: oklch(1 0 0);
+  --primary-hover: oklch(0.537897 0.236461 306.6003);
+  --primary-pressed: oklch(0.485271 0.220120 306.8025);
+  --primary-edge: oklch(0.422182 0.193669 306.2851);
+  --secondary: oklch(0.958361 0.025689 308.1633);
+  --accent: var(--secondary);
+  --secondary-foreground: oklch(0.440182 0.187775 308.5215);
+  --accent-foreground: var(--secondary-foreground);
+  --muted: oklch(0.964873 0.007330 312.3016);
+  --muted-foreground: oklch(0.494266 0.037430 309.5449);
+  --border: oklch(0.889421 0.026579 310.3824);
+  --input: oklch(0.611873 0.053622 310.7038);
+  --ring: oklch(0.585209 0.243290 307.4432);
+  --link: oklch(0.485271 0.220120 306.8025);
+  --disabled: oklch(0.926746 0.016030 310.0964);
+  --disabled-foreground: oklch(0.494266 0.037430 309.5449);
+  --success: oklch(0.684319 0.178992 147.5989);
+  --success-foreground: oklch(0.251628 0.044231 151.5294);
+  --success-subtle: oklch(0.965967 0.019791 154.9046);
+  --success-text: oklch(0.447789 0.110015 150.3247);
+  --success-border: oklch(0.535331 0.136397 148.6415);
+  --error: oklch(0.541905 0.191820 18.9967);
+  --error-foreground: oklch(1 0 0);
+  --error-subtle: oklch(0.967496 0.016402 8.1625);
+  --error-text: oklch(0.467728 0.167594 18.2142);
+  --error-border: oklch(0.541905 0.191820 18.9967);
+  --warning: oklch(0.577448 0.139523 55.5120);
+  --warning-foreground: oklch(1 0 0);
+  --warning-subtle: oklch(0.965417 0.023961 67.5385);
+  --warning-text: oklch(0.452525 0.111947 51.3030);
+  --warning-border: oklch(0.577448 0.139523 55.5120);
+  --info: oklch(0.504306 0.136582 251.5710);
+  --info-foreground: oklch(1 0 0);
+  --info-subtle: oklch(0.964847 0.017825 245.3840);
+  --info-text: oklch(0.439428 0.102212 246.4709);
+  --info-border: oklch(0.504306 0.136582 251.5710);
+  --reward: oklch(0.884041 0.182517 97.5922);
+  --reward-foreground: oklch(0.198770 0.024705 303.3000);
+  --reward-subtle: oklch(0.977854 0.045852 99.1574);
+  --reward-text: oklch(0.464582 0.094939 89.8850);
+  --reward-border: oklch(0.584810 0.119504 89.2168);
+  --selection: var(--primary);
+  --selection-foreground: var(--primary-foreground);
+  --selection-subtle: var(--secondary);
+  --selection-text: var(--secondary-foreground);
+  --selection-border: var(--primary);
+  --available: var(--secondary);
+  --available-foreground: var(--secondary-foreground);
+  --available-subtle: var(--secondary);
+  --available-text: var(--secondary-foreground);
+  --available-border: var(--input);
+  --control-edge: oklch(0.775614 0.036513 309.6611);
+  --overlay: oklch(0.18 0.03 305 / 60%);
+  --image-overlay: oklch(0.12 0.03 305 / 0.45);
+  --destructive: var(--error);
+  --destructive-foreground: var(--error-foreground);
+  --sidebar: var(--card);
+  --sidebar-foreground: var(--card-foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--selection-subtle);
+  --sidebar-accent-foreground: var(--selection-text);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+  --chart-1: var(--primary);
+  --chart-2: var(--info);
+  --chart-3: var(--success);
+  --chart-4: var(--reward);
+  --chart-5: var(--error);
+  --decoration: oklch(0.690753 0.156839 249.9749);
+  --decoration-foreground: oklch(0.198770 0.024705 303.3000);
+  --decoration-subtle: oklch(0.964847 0.017825 245.3840);
+  --decoration-text: oklch(0.439428 0.102212 246.4709);
+  --decoration-border: oklch(0.523519 0.121931 247.5820);
+}
+
+/* Dark appearance */
+:root.dark[data-brand-theme="arcade-bloom"] {
+  --background: oklch(0.198770 0.024705 303.3000);
+  --foreground: oklch(0.978776 0.012592 306.0327);
+  --card: oklch(0.258869 0.030991 304.3151);
+  --popover: var(--card);
+  --card-foreground: oklch(0.978776 0.012592 306.0327);
+  --popover-foreground: var(--card-foreground);
+  --primary: oklch(0.772751 0.149167 306.9204);
+  --primary-foreground: oklch(0.198770 0.024705 303.3000);
+  --primary-hover: oklch(0.839666 0.104836 308.6188);
+  --primary-pressed: oklch(0.703401 0.169316 307.5114);
+  --primary-edge: oklch(0.493777 0.191017 307.5126);
+  --secondary: oklch(0.318070 0.062840 307.5486);
+  --accent: var(--secondary);
+  --secondary-foreground: oklch(0.922333 0.049352 309.0941);
+  --accent-foreground: var(--secondary-foreground);
+  --muted: oklch(0.246640 0.025270 302.1657);
+  --muted-foreground: oklch(0.783370 0.045398 309.2123);
+  --border: oklch(0.406502 0.051086 307.8174);
+  --input: oklch(0.670722 0.064334 308.9726);
+  --ring: oklch(0.772751 0.149167 306.9204);
+  --link: oklch(0.839666 0.104836 308.6188);
+  --disabled: oklch(0.312810 0.037489 307.1191);
+  --disabled-foreground: oklch(0.783370 0.045398 309.2123);
+  --success: oklch(0.797386 0.160977 149.2415);
+  --success-foreground: oklch(0.251628 0.044231 151.5294);
+  --success-subtle: oklch(0.303873 0.049401 153.6534);
+  --success-text: oklch(0.885516 0.102046 151.0087);
+  --success-border: oklch(0.797386 0.160977 149.2415);
+  --error: oklch(0.736549 0.162077 17.7445);
+  --error-foreground: oklch(0.242303 0.055313 7.3984);
+  --error-subtle: oklch(0.301076 0.056789 1.5759);
+  --error-text: oklch(0.836055 0.091557 14.1489);
+  --error-border: oklch(0.736549 0.162077 17.7445);
+  --warning: oklch(0.824707 0.125379 63.0576);
+  --warning-foreground: oklch(0.266065 0.043714 59.8214);
+  --warning-subtle: oklch(0.328676 0.043272 62.5565);
+  --warning-text: oklch(0.894777 0.073028 64.6581);
+  --warning-border: oklch(0.824707 0.125379 63.0576);
+  --info: oklch(0.769911 0.122742 249.0400);
+  --info-foreground: oklch(0.198770 0.024705 303.3000);
+  --info-subtle: oklch(0.298807 0.050607 250.8426);
+  --info-text: oklch(0.881573 0.061889 245.5869);
+  --info-border: oklch(0.769911 0.122742 249.0400);
+  --reward: oklch(0.884041 0.182517 97.5922);
+  --reward-foreground: oklch(0.198770 0.024705 303.3000);
+  --reward-subtle: oklch(0.325808 0.048388 95.0870);
+  --reward-text: oklch(0.934594 0.129639 98.9507);
+  --reward-border: oklch(0.884041 0.182517 97.5922);
+  --selection: var(--primary);
+  --selection-foreground: var(--primary-foreground);
+  --selection-subtle: var(--secondary);
+  --selection-text: var(--secondary-foreground);
+  --selection-border: var(--primary);
+  --available: var(--secondary);
+  --available-foreground: var(--secondary-foreground);
+  --available-subtle: var(--secondary);
+  --available-text: var(--secondary-foreground);
+  --available-border: var(--input);
+  --control-edge: oklch(0.155386 0.021762 302.2852);
+  --overlay: oklch(0.10 0.02 305 / 75%);
+  --image-overlay: oklch(0.12 0.03 305 / 0.45);
+  --destructive: var(--error);
+  --destructive-foreground: var(--error-foreground);
+  --sidebar: var(--card);
+  --sidebar-foreground: var(--card-foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--selection-subtle);
+  --sidebar-accent-foreground: var(--selection-text);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+  --chart-1: var(--primary);
+  --chart-2: var(--info);
+  --chart-3: var(--success);
+  --chart-4: var(--reward);
+  --chart-5: var(--error);
+  --decoration: oklch(0.769911 0.122742 249.0400);
+  --decoration-foreground: oklch(0.198770 0.024705 303.3000);
+  --decoration-subtle: oklch(0.298807 0.050607 250.8426);
+  --decoration-text: oklch(0.881573 0.061889 245.5869);
+  --decoration-border: oklch(0.769911 0.122742 249.0400);
+}

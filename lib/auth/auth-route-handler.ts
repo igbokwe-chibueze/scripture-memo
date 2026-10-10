@@ -17,6 +17,16 @@ export async function GET(request: Request): Promise<Response> {
   const requestUrl = new URL(request.url);
 
   if (!requestUrl.pathname.endsWith("/verify-email")) {
+    if (requestUrl.pathname.endsWith("/get-session")) {
+      // WHY: Browser session reads must see a session revoked by suspension
+      // immediately, not rely on Better Auth's short-lived cookie cache.
+      requestUrl.searchParams.set("disableCookieCache", "true");
+      const response = await betterAuthHandlers.GET(
+        new Request(requestUrl, request),
+      );
+      return rejectBannedSessionResponse(response);
+    }
+
     return betterAuthHandlers.GET(request);
   }
 
@@ -38,9 +48,82 @@ export async function GET(request: Request): Promise<Response> {
   return betterAuthHandlers.GET(request);
 }
 
-/** Passes every Better Auth POST request to its installed Next.js adapter. */
-export function POST(request: Request): Promise<Response> {
-  return betterAuthHandlers.POST(request);
+/**
+ * Passes Better Auth mutations to its installed Next.js adapter.
+ *
+ * A banned account's central session hook correctly rejects sign-in, but its
+ * internal `BANNED_USER` code and 403 status would distinguish that account
+ * from an unknown email or incorrect password. Normalize that one public
+ * response to Better Auth's ordinary credential failure so the direct auth
+ * endpoint preserves the app's account-enumeration protections.
+ */
+export async function POST(request: Request): Promise<Response> {
+  const response = await betterAuthHandlers.POST(request);
+  const requestUrl = new URL(request.url);
+
+  if (
+    !requestUrl.pathname.endsWith("/sign-in/email") ||
+    response.status !== 403
+  ) {
+    return response;
+  }
+
+  const responseBody: unknown = await response.clone().json().catch(() => null);
+  if (
+    !responseBody ||
+    typeof responseBody !== "object" ||
+    !("code" in responseBody) ||
+    responseBody.code !== "BANNED_USER"
+  ) {
+    return response;
+  }
+
+  return Response.json(
+    {
+      message: "Invalid email or password",
+      code: "INVALID_EMAIL_OR_PASSWORD",
+    },
+    { status: 401 },
+  );
+}
+
+/**
+ * Hides a banned session returned by Better Auth's browser-facing session API.
+ *
+ * The normal admin flow deletes persisted sessions. This check handles a
+ * concurrent sign-in that created a session immediately before suspension
+ * committed. It only performs cleanup after the response proves the returned
+ * session belongs to a banned user, and deletion is scoped to that user.
+ */
+async function rejectBannedSessionResponse(
+  response: Response,
+): Promise<Response> {
+  if (!response.ok) return response;
+
+  const responseBody: unknown = await response.clone().json().catch(() => null);
+  if (
+    !responseBody ||
+    typeof responseBody !== "object" ||
+    !("user" in responseBody) ||
+    !responseBody.user ||
+    typeof responseBody.user !== "object" ||
+    !("banned" in responseBody.user) ||
+    responseBody.user.banned !== true ||
+    !("id" in responseBody.user) ||
+    typeof responseBody.user.id !== "string"
+  ) {
+    return response;
+  }
+
+  await authRepository.revokeSessionsForBannedUser(responseBody.user.id);
+
+  const headers = new Headers(response.headers);
+  headers.delete("content-length");
+  headers.delete("content-encoding");
+  return new Response("null", {
+    status: response.status,
+    headers,
+  });
 }
 
 /**

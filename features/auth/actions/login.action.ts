@@ -3,7 +3,7 @@
 import { headers } from "next/headers";
 import { isAPIError } from "better-auth/api";
 import { auth } from "@/lib/auth/auth";
-import { rateLimit } from "@/lib/rate-limit";
+import { getRequestIp } from "@/lib/request-ip";
 import { logger } from "@/lib/logger";
 import type { ActionResult } from "@/types/api";
 import { authRepository } from "@/features/auth/repositories/auth.repository";
@@ -31,31 +31,17 @@ export async function loginAction(input: unknown): Promise<ActionResult<LoginRes
   }
 
   const requestHeaders = await headers();
-  const forwardedFor = requestHeaders.get("x-forwarded-for") ?? "unknown";
-  const limit = rateLimit({
-    key: `login:${forwardedFor.split(",").at(-1)?.trim()}`,
-    limit: 10,
-    windowMs: 15 * 60 * 1000,
-  });
-
-  if (!limit.success) {
-    return {
-      success: false,
-      message: "Too many login attempts. Please try again later.",
-    };
-  }
-
   try {
-    const isSuspended = await authRepository.isLoginSuspended(
-      parsed.data.email,
+    const withinLimit = await authRepository.consumeAuthActionRateLimit(
+      "login",
+      getRequestIp(requestHeaders),
       new Date(),
     );
-    if (isSuspended) {
-      // WHY: Use the same safe response as invalid credentials. Public login
-      // must not reveal whether an email exists or whether it is suspended.
+
+    if (!withinLimit) {
       return {
         success: false,
-        message: "Email or password is incorrect.",
+        message: "Too many login attempts. Please try again later.",
       };
     }
 

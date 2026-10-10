@@ -1,0 +1,205 @@
+/*
+ * Scripture Memo - Ocean & Mango
+ * Theme ID: ocean-mango | Display name: Ocean & Mango | Version: 1.0
+ * Theme-only color definition; NOT a replacement for globals.css.
+ * Contract: Tropical Teal design-system handoff v3, 8 October 2026.
+ *
+ * Integration for Codex:
+ * - Add to the existing theme registry; preserve Tropical Teal as active/default.
+ * - Use the project's existing theme ID/selector convention if different.
+ * - Reference selectors below assume data-brand-theme and .dark on <html>.
+ *   Existing appearance logic must resolve light/dark/system independently.
+ * - Load these rules after shared defaults, in the same cascade layer as the
+ *   existing theme tokens (or integrate into the registry's generation system).
+ * - Do not replace fonts, radii, @theme mappings, animation or component rules.
+ * - Reuse the existing semantic role mappings: primary/selection are ocean
+ *   blue, reward is gold, decoration is mango; accent stays a subtle blue fill.
+ * - Feedback green/red/amber/info retain their existing meanings. Availability
+ *   is a quiet surface, not reward gold. Selection does not imply correctness.
+ * - Keep pure-white light-mode canvas, cards and popovers.
+ * - Reconcile any tokens added since the handoff; do not silently inherit
+ *   missing theme colors from Tropical Teal. Preserve shared alias semantics.
+ * - Preview containers must scope ALL aliases locally. Portaled content must
+ *   receive the preview theme without changing the global active theme.
+ * - Register for preview/selection only; do not activate globally automatically.
+ *
+ * Brand reference (HEX for identification; declarations below use OKLCH):
+ * Light: primary #2563EB, reward #FFC83D, decoration #FF9A45,
+ *        text #15304D, soft surface #EFF6FF, background #FFFFFF.
+ * Dark:  primary #83B3FF, reward #FFC83D, decoration #FFAD68,
+ *        text #F2F7FF, card #1B2D47, background #101B2D.
+ *
+ * Validation: matching complete token sets, resolved aliases, CSS parsing,
+ * intended text pair contrast >= 4.5:1, input/focus contrast >= 3:1 against
+ * background/card/secondary. Verify actual component states in the app too.
+ */
+
+/* Light appearance */
+:root[data-brand-theme="ocean-mango"] {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.303799 0.062260 252.0137);
+  --card: oklch(1 0 0);
+  --popover: var(--card);
+  --card-foreground: oklch(0.303799 0.062260 252.0137);
+  --popover-foreground: var(--card-foreground);
+  --primary: oklch(0.546150 0.215208 262.8809);
+  --primary-foreground: oklch(1 0 0);
+  --primary-hover: oklch(0.488198 0.217165 264.3763);
+  --primary-pressed: oklch(0.424445 0.180869 265.6377);
+  --primary-edge: oklch(0.439967 0.182642 263.6999);
+  --secondary: oklch(0.970480 0.014182 254.6042);
+  --accent: var(--secondary);
+  --secondary-foreground: oklch(0.421566 0.154471 262.1269);
+  --accent-foreground: var(--secondary-foreground);
+  --muted: oklch(0.969299 0.007410 260.7315);
+  --muted-foreground: oklch(0.503215 0.042106 252.3599);
+  --border: oklch(0.896775 0.023769 256.1073);
+  --input: oklch(0.610679 0.047324 255.9905);
+  --ring: oklch(0.546150 0.215208 262.8809);
+  --link: oklch(0.488198 0.217165 264.3763);
+  --disabled: oklch(0.937836 0.012588 255.5071);
+  --disabled-foreground: oklch(0.503215 0.042106 252.3599);
+  --success: oklch(0.520045 0.125568 153.4844);
+  --success-foreground: oklch(1 0 0);
+  --success-subtle: oklch(0.962816 0.023859 159.1538);
+  --success-text: oklch(0.450794 0.106928 153.4603);
+  --success-border: oklch(0.520045 0.125568 153.4844);
+  --error: oklch(0.541905 0.191820 18.9967);
+  --error-foreground: oklch(1 0 0);
+  --error-subtle: oklch(0.967496 0.016402 8.1625);
+  --error-text: oklch(0.467728 0.167594 18.2142);
+  --error-border: oklch(0.541905 0.191820 18.9967);
+  --warning: oklch(0.577448 0.139523 55.5120);
+  --warning-foreground: oklch(1 0 0);
+  --warning-subtle: oklch(0.965417 0.023961 67.5385);
+  --warning-text: oklch(0.452525 0.111947 51.3030);
+  --warning-border: oklch(0.577448 0.139523 55.5120);
+  --info: oklch(0.554530 0.106867 228.3954);
+  --info-foreground: oklch(1 0 0);
+  --info-subtle: oklch(0.967222 0.022096 221.8105);
+  --info-text: oklch(0.443376 0.100033 240.7897);
+  --info-border: oklch(0.554530 0.106867 228.3954);
+  --reward: oklch(0.859433 0.158273 85.7897);
+  --reward-foreground: oklch(0.303799 0.062260 252.0137);
+  --reward-subtle: oklch(0.974120 0.031623 89.1360);
+  --reward-text: oklch(0.461317 0.096440 77.2055);
+  --reward-border: oklch(0.592965 0.118403 78.3854);
+  --selection: var(--primary);
+  --selection-foreground: var(--primary-foreground);
+  --selection-subtle: var(--secondary);
+  --selection-text: var(--secondary-foreground);
+  --selection-border: var(--primary);
+  --available: var(--secondary);
+  --available-foreground: var(--secondary-foreground);
+  --available-subtle: var(--secondary);
+  --available-text: var(--secondary-foreground);
+  --available-border: var(--input);
+  --control-edge: oklch(0.782614 0.038408 254.6016);
+  --overlay: oklch(0.18 0.03 255 / 60%);
+  --image-overlay: oklch(0.12 0.03 255 / 0.45);
+  --destructive: var(--error);
+  --destructive-foreground: var(--error-foreground);
+  --sidebar: var(--card);
+  --sidebar-foreground: var(--card-foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--selection-subtle);
+  --sidebar-accent-foreground: var(--selection-text);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+  --chart-1: var(--primary);
+  --chart-2: var(--info);
+  --chart-3: var(--success);
+  --chart-4: var(--reward);
+  --chart-5: var(--error);
+  --decoration: oklch(0.776746 0.154979 57.3339);
+  --decoration-foreground: oklch(0.303799 0.062260 252.0137);
+  --decoration-subtle: oklch(0.963487 0.023728 63.4994);
+  --decoration-text: oklch(0.465692 0.103826 48.4493);
+  --decoration-border: oklch(0.562901 0.125312 47.8385);
+}
+
+/* Dark appearance */
+:root.dark[data-brand-theme="ocean-mango"] {
+  --background: oklch(0.221744 0.038881 259.8850);
+  --foreground: oklch(0.974663 0.011947 259.8226);
+  --card: oklch(0.295285 0.053324 257.5639);
+  --popover: var(--card);
+  --card-foreground: oklch(0.974663 0.011947 259.8226);
+  --popover-foreground: var(--card-foreground);
+  --primary: oklch(0.763259 0.121399 259.3182);
+  --primary-foreground: oklch(0.221744 0.038881 259.8850);
+  --primary-hover: oklch(0.823652 0.088369 259.0869);
+  --primary-pressed: oklch(0.689425 0.138533 259.1413);
+  --primary-edge: oklch(0.546150 0.215208 262.8809);
+  --secondary: oklch(0.352125 0.064235 255.2189);
+  --accent: var(--secondary);
+  --secondary-foreground: oklch(0.936376 0.030519 258.9436);
+  --accent-foreground: var(--secondary-foreground);
+  --muted: oklch(0.274940 0.045913 257.8433);
+  --muted-foreground: oklch(0.804240 0.042933 255.0360);
+  --border: oklch(0.443177 0.057753 254.4154);
+  --input: oklch(0.674830 0.054123 254.0005);
+  --ring: oklch(0.763259 0.121399 259.3182);
+  --link: oklch(0.823652 0.088369 259.0869);
+  --disabled: oklch(0.354933 0.050766 254.4831);
+  --disabled-foreground: oklch(0.811572 0.040515 256.6020);
+  --success: oklch(0.786579 0.165443 155.7939);
+  --success-foreground: oklch(0.265570 0.036923 162.6201);
+  --success-subtle: oklch(0.320873 0.050257 161.8303);
+  --success-text: oklch(0.866511 0.129853 157.7867);
+  --success-border: oklch(0.786579 0.165443 155.7939);
+  --error: oklch(0.736549 0.162077 17.7445);
+  --error-foreground: oklch(0.242303 0.055313 7.3984);
+  --error-subtle: oklch(0.301076 0.056789 1.5759);
+  --error-text: oklch(0.836055 0.091557 14.1489);
+  --error-border: oklch(0.736549 0.162077 17.7445);
+  --warning: oklch(0.824707 0.125379 63.0576);
+  --warning-foreground: oklch(0.266065 0.043714 59.8214);
+  --warning-subtle: oklch(0.328676 0.043272 62.5565);
+  --warning-text: oklch(0.894777 0.073028 64.6581);
+  --warning-border: oklch(0.824707 0.125379 63.0576);
+  --info: oklch(0.845569 0.117982 217.5744);
+  --info-foreground: oklch(0.277539 0.040229 228.8238);
+  --info-subtle: oklch(0.318962 0.047417 229.7219);
+  --info-text: oklch(0.892625 0.083179 216.1543);
+  --info-border: oklch(0.845569 0.117982 217.5744);
+  --reward: oklch(0.859433 0.158273 85.7897);
+  --reward-foreground: oklch(0.303799 0.062260 252.0137);
+  --reward-subtle: oklch(0.334397 0.040893 85.6310);
+  --reward-text: oklch(0.921713 0.089231 86.8817);
+  --reward-border: oklch(0.859433 0.158273 85.7897);
+  --selection: var(--primary);
+  --selection-foreground: var(--primary-foreground);
+  --selection-subtle: var(--secondary);
+  --selection-text: var(--secondary-foreground);
+  --selection-border: var(--primary);
+  --available: var(--secondary);
+  --available-foreground: var(--secondary-foreground);
+  --available-subtle: var(--secondary);
+  --available-text: var(--secondary-foreground);
+  --available-border: var(--input);
+  --control-edge: oklch(0.177831 0.031649 261.0017);
+  --overlay: oklch(0.10 0.02 255 / 75%);
+  --image-overlay: oklch(0.12 0.03 255 / 0.45);
+  --destructive: var(--error);
+  --destructive-foreground: var(--error-foreground);
+  --sidebar: var(--card);
+  --sidebar-foreground: var(--card-foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--selection-subtle);
+  --sidebar-accent-foreground: var(--selection-text);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+  --chart-1: var(--primary);
+  --chart-2: var(--info);
+  --chart-3: var(--success);
+  --chart-4: var(--reward);
+  --chart-5: var(--error);
+  --decoration: oklch(0.813559 0.128704 59.6006);
+  --decoration-foreground: oklch(0.221744 0.038881 259.8850);
+  --decoration-subtle: oklch(0.335332 0.034250 53.4955);
+  --decoration-text: oklch(0.889323 0.072171 59.8832);
+  --decoration-border: oklch(0.813559 0.128704 59.6006);
+}
