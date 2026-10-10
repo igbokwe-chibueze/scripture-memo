@@ -47,7 +47,7 @@ const lunaGallery: ReadonlyArray<{
   {
     pose: "silhouette",
     label: "Silhouette",
-    use: "Reserved Luna visual mark",
+    use: "Reserved Meemo visual mark",
     square: true,
   },
 ] as const;
@@ -92,7 +92,7 @@ function LunaGallery({ collection }: LunaGalleryProps): React.ReactNode {
   );
 }
 
-/** Displays production and experimental Luna assets without changing live UI. */
+/** Displays production and experimental Meemo assets without changing live UI. */
 export function LunaMascotPreview(): React.ReactNode {
   return (
     <section className="space-y-4" aria-labelledby="luna-gallery-title">
@@ -101,10 +101,10 @@ export function LunaMascotPreview(): React.ReactNode {
           Mascot system
         </p>
         <h2 id="luna-gallery-title" className="mt-1 font-heading text-2xl font-bold">
-          Luna gallery
+          Meemo gallery
         </h2>
         <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-          Compare the approved production art with the new concept. Concept Luna
+          Compare the approved production art with the new concept. Concept Meemo
           is preview-only until a screen receives explicit approval.
         </p>
       </div>
@@ -112,10 +112,10 @@ export function LunaMascotPreview(): React.ReactNode {
       <Tabs defaultValue="production">
         <TabsList className="h-12 w-full max-w-md rounded-2xl p-1">
           <TabsTrigger value="production" className="rounded-xl font-bold">
-            Current Luna
+            Current Meemo
           </TabsTrigger>
           <TabsTrigger value="concept" className="rounded-xl font-bold">
-            Concept Luna
+            Concept Meemo
           </TabsTrigger>
         </TabsList>
         <TabsContent value="production" className="pt-3">

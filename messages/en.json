@@ -13,6 +13,11 @@
     "view": "View"
   },
   "Navigation": {
+    "leaderboard": "Leaderboard",
+    "bible": "Bible",
+    "trivia": "Trivia",
+    "dailyChallenge": "Daily challenge",
+    "opening": "Opening",
     "home": "Home",
     "map": "Map",
     "vault": "Vault",
@@ -104,6 +109,33 @@
     "bestStreak": "Best: {count}",
     "hintsUsed": "Hints used"
   },
+  "HomeScreen": {
+    "greeting": "Ready for today, {name}?",
+    "readingAlt": "Meemo reading the Bible",
+    "currentAdventure": "Your current adventure",
+    "waypointStage": "Waypoint {number} · {stage}",
+    "completedDays": "{count} of 3 challenge days completed",
+    "continueAdventure": "Continue adventure",
+    "openingAdventure": "Opening adventure",
+    "openMap": "Open map",
+    "trailReady": "Your trail awaits",
+    "findWaypoint": "Find your next waypoint",
+    "dailyChallenge": "Daily challenge",
+    "dailyDescription": "Complete today’s practice",
+    "placeholder": "Coming soon",
+    "explore": "Explore Scripture Memo",
+    "opening": "Opening",
+    "bible": "Bible",
+    "trivia": "Trivia",
+    "fellowship": "Fellowship",
+    "badges": "Badges",
+    "stages": {
+      "LEARN": "Learn",
+      "RECALL": "Recall",
+      "STRENGTHEN": "Strengthen",
+      "MASTER": "Master"
+    }
+  },
   "Home": {
     "eyebrow": "YOUR JOURNEY",
     "welcome": "Welcome, {name}",
@@ -192,7 +224,7 @@
     "flameKindled": "Flame kindled",
     "restFlame": "Rest the flame",
     "preparing": "{day} is preparing",
-    "lunaKeepsPlace": "Luna will keep your place. Return when the next challenge is ready.",
+    "lunaKeepsPlace": "Meemo will keep your place. Return when the next challenge is ready.",
     "readyIn": "Ready in",
     "unlocksIn": "{day} unlocks in",
     "preparingChallenge": "Preparing challenge",
@@ -289,7 +321,7 @@
     "noHintsRemaining": "No hints remaining",
     "useHint": "Use hint · {count} remaining",
     "adminHint": "Admin test hint opened. No hint was consumed.",
-    "lunaLight": "Luna's light",
+    "lunaLight": "Meemo's light",
     "hintEncouragement": "Read it slowly. You already know more than you think.",
     "hintCloses": "Closes automatically after {seconds} seconds"
     ,"checking": "Checking",
@@ -488,8 +520,8 @@
     "purchased": "Purchased {name}!",
     "insufficient": "You need more Glow Points for this pack."
     ,"journeyHome": "Journey home",
-    "heroAlt": "Luna welcoming you to the Oil Shop",
-    "celebrationAlt": "Luna celebrating your purchase",
+    "heroAlt": "Meemo welcoming you to the Oil Shop",
+    "celebrationAlt": "Meemo celebrating your purchase",
     "balances": "Oil Shop balances",
     "categories": "Shop categories",
     "restocking": "Shelves restocking",
@@ -681,6 +713,7 @@
     "chooseCountry": "Open settings"
   },
   "PlayerTopBar": {
+    "openProfile": "Open settings for {name}",
     "glowPoints": "Glow Points",
     "streakDays": "Streak days",
     "beaconPoints": "Lifetime Beacon Points"
@@ -745,7 +778,7 @@
   },
   "Errors": {
     "snag": "Oops, we hit a snag",
-    "loadFailed": "Luna could not load this. Try again.",
+    "loadFailed": "Meemo could not load this. Try again.",
     "notFound": "This trail could not be found."
   }
 }

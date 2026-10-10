@@ -10,10 +10,13 @@ export const playerShellRepository = {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
+        name: true,
         profile: {
           select: {
             totalGlowPoints: true,
             beaconXp: true,
+            avatarKey: true,
+            avatarFrameKey: true,
           },
         },
         streak: {
@@ -28,6 +31,9 @@ export const playerShellRepository = {
       glowPoints: user?.profile?.totalGlowPoints ?? 0,
       streakDays: user?.streak?.currentStreak ?? 0,
       beaconPoints: user?.profile?.beaconXp ?? 0,
+      avatarKey: user?.profile?.avatarKey ?? "lion",
+      avatarFrameKey: user?.profile?.avatarFrameKey ?? "default",
+      displayName: user?.name ?? "",
     };
   },
 } as const;

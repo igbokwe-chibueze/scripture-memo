@@ -39,7 +39,7 @@ export function ErrorScreenPreview(): React.ReactNode {
         <div>
           <h2 className="font-heading text-xl font-bold">Recoverable error</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Open the exact production Luna recovery experience.
+            Open the exact production Meemo recovery experience.
           </p>
         </div>
         <Button
@@ -48,7 +48,7 @@ export function ErrorScreenPreview(): React.ReactNode {
           onClick={() => setIsOpen(true)}
         >
           <PlayIcon aria-hidden="true" />
-          Preview Luna error screen
+          Preview Meemo error screen
         </Button>
       </div>
 
@@ -57,7 +57,7 @@ export function ErrorScreenPreview(): React.ReactNode {
           className="fixed inset-0 z-70 overflow-y-auto"
           role="dialog"
           aria-modal="true"
-          aria-label="Luna recoverable error preview"
+          aria-label="Meemo recoverable error preview"
         >
           <GlobalError error={new Error("UI preview only")} unstable_retry={closePreview} />
           <Button

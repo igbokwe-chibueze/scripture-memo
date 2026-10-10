@@ -91,7 +91,7 @@ export function GlobalLoading(): React.ReactNode {
         </div>
 
         <h1 className="font-heading text-4xl leading-tight font-bold tracking-tight sm:text-5xl">
-          Luna is lighting the way
+          Meemo is lighting the way
         </h1>
 
         <div className="mx-auto mt-7 max-w-xs rounded-card border border-border bg-card p-5 shadow-lg">
@@ -133,7 +133,7 @@ export function GlobalLoading(): React.ReactNode {
           </p>
         </div>
 
-        <span className="sr-only">Loading Scripture Memo with Luna.</span>
+        <span className="sr-only">Loading Scripture Memo with Meemo.</span>
       </motion.section>
     </main>
   );

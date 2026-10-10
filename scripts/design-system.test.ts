@@ -103,6 +103,8 @@ const APPROVED_COLOR_EXCEPTION_PATHS = new Set([
   "features/gameplay/components/animated-flame.tsx",
   "features/auth/lib/email-verification-delivery.ts",
   "features/auth/lib/password-reset-production-delivery.ts",
+  // Owner-approved reference tile colors; the surrounding home remains themed.
+  "features/home/components/home-screen.module.css",
 ]);
 
 /** Reads the direct color declarations for one registered theme mode. */

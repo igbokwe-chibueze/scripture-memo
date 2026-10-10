@@ -1,214 +1,150 @@
 import type { Metadata } from "next";
-import { getLocale, getTranslations } from "next-intl/server";
-import {
-  AwardIcon,
-  FlameIcon,
-  GemIcon,
-  MapIcon,
-  MapPinnedIcon,
-  TrophyIcon,
-} from "lucide-react";
+import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
-import { ContextPanelCard } from "@/components/shared/context-panel-card";
-import { EmptyState } from "@/components/shared/empty-state";
+import { PlayIcon } from "lucide-react";
+import { GameArtwork } from "@/components/shared/game-artwork";
 import { GamePageColumns } from "@/components/shared/game-page-columns";
 import { NavigationButton } from "@/components/shared/navigation-button";
-import { ResponsiveContainer } from "@/components/shared/responsive-container";
-import { StatCard } from "@/components/shared/stat-card";
-import { JourneyStageBadge } from "@/components/shared/journey-stage-badge";
+import { DailyChallengeCard } from "@/features/home/components/daily-challenge-card";
 import { gameHomeRepository } from "@/features/home/repositories/game-home.repository";
-import { getPlayerShellSummary } from "@/features/player-shell/lib/get-player-shell-summary";
 import { getCachedUserSettings } from "@/features/settings/lib/get-cached-user-settings";
 import { requireServerSession } from "@/lib/auth/session";
-import { isAdmin } from "@/lib/permissions";
-import type { UserRole } from "@/lib/generated/prisma/enums";
+import styles from "@/features/home/components/home-screen.module.css";
 
+/** Personalized learning content must never be indexed or added to the sitemap. */
 export const metadata: Metadata = {
   title: "Your journey | Scripture Memo",
   description: "Continue your Scripture Memo learning journey.",
   robots: { index: false },
 };
 
-/** Builds the authenticated landing page from one current-waypoint read. */
+/** Fixed destinations reuse the original feature routes wherever they exist. */
+const shortcuts = [
+  { key: "bible", href: "/bible", artwork: "bibleOpen" },
+  { key: "trivia", href: "/game/trivia", artwork: "trivia" },
+  { key: "fellowship", href: "/fellowships", artwork: "fellowship" },
+  { key: "badges", href: "/vault/badges", artwork: "badges" },
+] as const;
+
+/**
+ * Composes the approved Meemo home around the learner's real current waypoint.
+ * The owner-filtered read never starts a challenge, initializes progress, or
+ * awards the placeholder Daily Challenge's illustrative reward.
+ */
 export async function GameHomeView(): Promise<React.ReactNode> {
   const session = await requireServerSession();
-  const [settings, playerSummary, currentWaypoint, t, locale] =
-    await Promise.all([
-      getCachedUserSettings(session.user.id),
-      getPlayerShellSummary(),
-      gameHomeRepository.getCurrentWaypoint(session.user.id),
-      getTranslations("Home"),
-      getLocale(),
-    ]);
+  const [settings, waypoint, t] = await Promise.all([
+    getCachedUserSettings(session.user.id),
+    gameHomeRepository.getCurrentWaypoint(session.user.id),
+    getTranslations("HomeScreen"),
+  ]);
 
   if (!settings?.hasSelectedTranslation) {
     redirect("/select-translation");
   }
 
-  const numberFormat = new Intl.NumberFormat(locale);
-  const administrator = isAdmin(
-    session.user.role as UserRole | null | undefined,
-  );
+  const destination = waypoint ? `/game/waypoints/${waypoint.id}` : "/game/map";
+  const completedDays = Math.min(3, Math.max(0, waypoint?.completedDays ?? 0));
 
   return (
-    <GamePageColumns
-      contextPanel={
-        <ContextPanelCard
-          icon={<MapPinnedIcon aria-hidden="true" />}
-          eyebrow={t("currentWaypoint")}
-          title={
-            currentWaypoint
-              ? t("waypoint", { number: currentWaypoint.number })
-              : t("noCurrentWaypoint")
-          }
-          description={
-            currentWaypoint
-              ? currentWaypoint.reference
-              : t("noCurrentWaypointDescription")
-          }
-          detail={
-            currentWaypoint ? (
-              <JourneyStageBadge stage={currentWaypoint.journeyStage} />
-            ) : undefined
-          }
-          action={
-            <NavigationButton
-              href={
-                currentWaypoint
-                  ? `/game/waypoints/${currentWaypoint.id}`
-                  : "/game/map"
-              }
-              pendingLabel={
-                currentWaypoint ? t("openingWaypoint") : t("openingMap")
-              }
-              size="sm"
-              className="w-full"
-            >
-              {currentWaypoint ? t("continueJourney") : t("openMap")}
-            </NavigationButton>
-          }
-        />
-      }
-    >
-      <main className="py-6 text-foreground sm:py-9">
-        <ResponsiveContainer size="lg" className="space-y-5 sm:space-y-7">
-          <header className="rounded-dialog border border-border bg-card p-5 shadow-sm sm:p-8">
-            <p className="text-xs font-bold tracking-[0.18em] text-primary uppercase">
-              {t("eyebrow")}
-            </p>
-            <h1 className="mt-2 font-heading text-3xl leading-tight font-bold sm:text-4xl">
-              {t("welcome", { name: session.user.name ?? "" })}
-            </h1>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground sm:text-base">
-              {t("ready")}
-            </p>
-          </header>
-
-          <section
-            className="grid grid-cols-2 gap-3 sm:gap-4"
-            aria-label={t("journeySummary")}
-          >
-            <StatCard
-              label={t("glowPoints")}
-              value={numberFormat.format(playerSummary.glowPoints)}
-              icon={<GemIcon className="text-reward-text dark:text-reward-text" />}
+    <GamePageColumns contextPanel={<DailyChallengeCard desktop />}>
+      <main className={styles.home}>
+        <header className={styles.hero}>
+          <h1 className={styles.greeting}>
+            {t("greeting", { name: session.user.name })}
+          </h1>
+          <div className={styles.heroArtwork}>
+            <span className={styles.heroOval} aria-hidden="true" />
+            {/* Only the likely LCP hero is preloaded. Icons stay lazy. */}
+            <Image
+              src="/images/mascot/meemo/meemo-reading-bible-v3.png"
+              alt={t("readingAlt")}
+              width={1218}
+              height={1292}
+              sizes="(max-width: 767px) 95vw, (max-width: 1279px) 70vw, 580px"
+              preload
+              className={styles.readingMeemo}
             />
-            <StatCard
-              label={t("streak")}
-              value={numberFormat.format(playerSummary.streakDays)}
-              supportingText={t("streakDays", {
-                count: playerSummary.streakDays,
-              })}
-              icon={<FlameIcon className="text-decoration-text dark:text-decoration-text" />}
-            />
-          </section>
+          </div>
+        </header>
 
-          {currentWaypoint ? (
-            <section className="overflow-hidden rounded-[2rem] border border-primary/20 bg-card shadow-sm">
-              <div className="flex items-start gap-4 p-5 sm:items-center sm:p-7">
-                <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary/12 text-primary sm:size-14">
-                  <MapPinnedIcon className="size-6 sm:size-7" aria-hidden="true" />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-bold tracking-[0.16em] text-primary uppercase">
-                    {t("currentWaypoint")}
-                  </p>
-                  <h2 className="mt-1 font-heading text-2xl font-bold sm:text-3xl">
-                    {t("waypoint", { number: currentWaypoint.number })}
-                  </h2>
-                  <p className="mt-1 truncate text-sm text-muted-foreground sm:text-base">
-                    {currentWaypoint.reference}
-                  </p>
-                  <div className="mt-3">
-                    <JourneyStageBadge stage={currentWaypoint.journeyStage} />
-                  </div>
-                </div>
-              </div>
-              <div className="border-t border-border bg-muted/30 p-4 sm:px-7 sm:py-5">
-                <NavigationButton
-                  href={`/game/waypoints/${currentWaypoint.id}`}
-                  pendingLabel={t("openingWaypoint")}
-                  size="lg"
-                  className="min-h-12 w-full rounded-xl text-base sm:w-auto sm:min-w-64"
-                >
-                  <MapIcon data-icon="inline-start" aria-hidden="true" />
-                  {t("continueJourney")}
-                </NavigationButton>
-              </div>
-            </section>
-          ) : (
-            <EmptyState
-              icon={<MapPinnedIcon aria-hidden="true" />}
-              title={t("noCurrentWaypoint")}
-              description={t("noCurrentWaypointDescription")}
-              action={
-                <NavigationButton
-                  href="/game/map"
-                  pendingLabel={t("openingMap")}
-                  size="lg"
-                  className="min-h-12 rounded-xl"
-                >
-                  <MapIcon data-icon="inline-start" aria-hidden="true" />
-                  {t("openMap")}
-                </NavigationButton>
-              }
-            />
-          )}
-
-          <nav
-            className="grid grid-cols-2 gap-3"
-            aria-label={t("moreDestinations")}
-          >
-            <NavigationButton
-              href="/leaderboard"
-              pendingLabel={t("openingLeaderboard")}
-              variant="outline"
-              className="min-h-12 justify-start rounded-xl px-4"
-            >
-              <TrophyIcon data-icon="inline-start" aria-hidden="true" />
-              {t("leaderboard")}
-            </NavigationButton>
-            <NavigationButton
-              href="/vault/badges"
-              pendingLabel={t("openingBadges")}
-              variant="outline"
-              className="min-h-12 justify-start rounded-xl px-4"
-            >
-              <AwardIcon data-icon="inline-start" aria-hidden="true" />
-              {t("badges")}
-            </NavigationButton>
-            {administrator ? (
-              <NavigationButton
-                href="/admin"
-                pendingLabel={t("openingAdmin")}
-                variant="outline"
-                className="col-span-2 min-h-12 justify-center rounded-xl"
+        <section className={styles.journeyCard} aria-label={t("currentAdventure")}>
+          <div className={styles.journeyDetails}>
+            <div className={styles.bibleTile}>
+              <GameArtwork
+                name="bibleClosed"
+                className={styles.bibleArtwork}
+                sizes="160px"
+              />
+            </div>
+            <div className={styles.waypointDetails}>
+              <h2 className={styles.verseTitle}>
+                {waypoint?.reference ?? t("trailReady")}
+              </h2>
+              <p className={styles.waypointSubtitle}>
+                {waypoint
+                  ? t("waypointStage", {
+                      number: waypoint.number,
+                      stage: t(`stages.${waypoint.journeyStage}`),
+                    })
+                  : t("findWaypoint")}
+              </p>
+              <div
+                className={styles.flames}
+                role="img"
+                aria-label={t("completedDays", { count: completedDays })}
               >
-                {t("admin")}
-              </NavigationButton>
-            ) : null}
-          </nav>
-        </ResponsiveContainer>
+                {[0, 1, 2].map((day) => (
+                  <span key={day} className={styles.flameStep}>
+                    {day > 0 ? <span className={styles.flameConnector} /> : null}
+                    <GameArtwork
+                      name={day < completedDays ? "flameLit" : "flameUnlit"}
+                      className={styles.flame}
+                      sizes="52px"
+                    />
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+          <NavigationButton
+            href={destination}
+            pendingLabel={t("openingAdventure")}
+            size="lg"
+            className={styles.continueButton}
+          >
+            <PlayIcon
+              className="size-6 fill-current sm:size-8"
+              aria-hidden="true"
+            />
+            {waypoint ? t("continueAdventure") : t("openMap")}
+          </NavigationButton>
+        </section>
+
+        {/* Desktop portals the daily card into the shell; mobile keeps it
+          * between the active journey and the four shortcut tiles. */}
+        <div className={styles.mobileDaily}>
+          <DailyChallengeCard />
+        </div>
+
+        <nav className={styles.shortcuts} aria-label={t("explore")}>
+          {shortcuts.map(({ key, href, artwork }) => (
+            <NavigationButton
+              key={key}
+              href={href}
+              pendingLabel={t("opening")}
+              className={`${styles.shortcutTile} ${styles[key]}`}
+            >
+              <GameArtwork
+                name={artwork}
+                className={styles.shortcutArtwork}
+                sizes="(max-width: 767px) 80px, 140px"
+              />
+              <span>{t(key)}</span>
+            </NavigationButton>
+          ))}
+        </nav>
       </main>
     </GamePageColumns>
   );

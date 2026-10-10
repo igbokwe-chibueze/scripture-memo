@@ -1227,10 +1227,26 @@ preferences remove transform-based feedback without weakening usability.
 ### 15.1 Game Home
 
 The landing page after login. Shows:
-- User's current Glow Points and streak
+- User's avatar with its saved frame, current Glow Points, streak, and permanent Beacon XP
 - Current active waypoint and its Journey Stage
-- Quick-access button to resume gameplay
-- Navigation to all main sections
+- Three flames reflecting completed days and a button to resume the adventure
+- Meemo reading a Bible, following the owner-approved light/dark references
+- Fixed-color Bible, Trivia, Fellowship, and Badges shortcuts
+
+The shared player shell uses a desktop sidebar and mobile bottom navigation for
+Home, Map, Vault, Leaderboard, Shop, and Settings. Its top bar includes the real
+notification inbox. Shared surfaces follow the selected brand and light/dark
+theme; the four shortcut backgrounds retain blue, purple, coral, and gold.
+Mobile omits the top-bar divider; tablet and desktop retain it. The supplied
+golden diamond artwork represents Glow Points in the top bar and daily reward.
+
+Daily Challenge currently displays explicitly illustrative progress and a +20
+reward placeholder; it never grants rewards or modifies learner progress. The
+desktop rail also shows a Partner card with the existing waving Meemo artwork;
+mobile omits Partner. `/bible`, `/game/trivia`, `/game/daily-challenge`, and
+`/partner` are authenticated blank destinations pending their own specifications.
+The mascot's public name is Meemo; legacy Luna component and asset identifiers
+remain stable to avoid an unrelated internal migration.
 
 ### 15.2 Game Map (🗺️)
 

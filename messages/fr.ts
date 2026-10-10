@@ -10,8 +10,58 @@ import en from "./en.json";
  */
 const fr = {
   ...en,
+  HomeScreen: {
+    ...en.HomeScreen,
+    greeting: "Prêt pour aujourd’hui, {name} ?",
+    readingAlt: "Meemo lit la Bible",
+    currentAdventure: "Votre aventure actuelle",
+    waypointStage: "Étape {number} · {stage}",
+    completedDays: "{count} jours du défi terminés sur 3",
+    continueAdventure: "Continuer l’aventure",
+    openingAdventure: "Ouverture de l’aventure",
+    openMap: "Ouvrir la carte",
+    trailReady: "Votre chemin vous attend",
+    findWaypoint: "Trouvez votre prochaine étape",
+    dailyChallenge: "Défi quotidien",
+    dailyDescription: "Terminez la pratique du jour",
+    placeholder: "Bientôt disponible",
+    explore: "Explorer Scripture Memo",
+    opening: "Ouverture",
+    bible: "Bible",
+    trivia: "Quiz",
+    fellowship: "Communauté",
+    badges: "Badges",
+    stages: {
+      LEARN: "Apprendre",
+      RECALL: "Rappeler",
+      STRENGTHEN: "Renforcer",
+      MASTER: "Maîtriser",
+    },
+  },
   Common: { ...en.Common, back: "Retour", cancel: "Annuler", check: "Vérifier", close: "Fermer", continue: "Continuer", locked: "Verrouillé", reset: "Réinitialiser", save: "Enregistrer", share: "Partager", tryAgain: "Réessayer", view: "Voir" },
-  Navigation: { ...en.Navigation, home: "Accueil", map: "Carte", vault: "Bibliothèque", fellowships: "Communautés", shop: "Boutique", settings: "Paramètres", playerNavigation: "Navigation du joueur", desktopPlayerNavigation: "Navigation du joueur sur ordinateur", scriptureMemoHome: "Accueil de Scripture Memo", contextRail: "Informations et partenariat", partner: "Partenaire", becomePartner: "Devenir Partenaire", partnerDescription: "Aidez Scripture Memo à grandir et débloquez les cadres Partenaire.", learnMore: "En savoir plus", openingPartner: "Ouverture" },
+  Navigation: {
+    ...en.Navigation,
+    home: "Accueil",
+    map: "Carte",
+    vault: "Bibliothèque",
+    fellowships: "Communautés",
+    shop: "Boutique",
+    settings: "Paramètres",
+    leaderboard: "Classement",
+    bible: "Bible",
+    trivia: "Quiz",
+    dailyChallenge: "Défi quotidien",
+    opening: "Ouverture",
+    playerNavigation: "Navigation du joueur",
+    desktopPlayerNavigation: "Navigation du joueur sur ordinateur",
+    scriptureMemoHome: "Accueil de Scripture Memo",
+    contextRail: "Informations et partenariat",
+    partner: "Partenaire",
+    becomePartner: "Devenir Partenaire",
+    partnerDescription: "Aidez Scripture Memo à grandir et débloquez les cadres Partenaire.",
+    learnMore: "En savoir plus",
+    openingPartner: "Ouverture",
+  },
   Settings: {
     ...en.Settings,
     player: "Joueur",
@@ -59,7 +109,7 @@ const fr = {
     openingPractice: "Ouverture de la révision…",
     choosePracticeMode: "Choisissez un mode terminé de {day}",
     locked: "Verrouillé",
-    backToMap: "Retour à la carte", waypoint: "Étape {number}", threeDayChallenge: "Défi de trois jours", chooseChallenge: "Choisissez le défi du jour", rewardPreview: "Aperçu de la récompense", glowPoints: "{points} Points de Lumière", ready: "Prêt", completed: "Terminé", cooldown: "Temps d’attente", startDay: "Commencer {day}", continueDay: "Continuer {day}", studyVerse: "Étudier le verset", adminUnlock: "Déblocage admin", glimmer: "Lueur", glow: "Éclat", radiance: "Radiance", glimmerSubtitle: "Début en douceur", glowSubtitle: "Souvenir grandissant", radianceSubtitle: "Souvenir complet", studyReopens: "L’étude rouvre après Radiance", stageRules: "Règles de l’étape", noHints: "Aucun indice disponible", memoryAlone: "Cette étape repose uniquement sur la mémoire.", timedChallenge: "Défi chronométré", flameKindled: "Flamme allumée", restFlame: "Laisser reposer la flamme", preparing: "Préparation de {day}", lunaKeepsPlace: "Luna garde votre place.", readyIn: "Prêt dans", unlocksIn: "{day} se débloque dans", preparingChallenge: "Préparation du défi", coolingDown: "Temps d’attente", timerUpdates: "Le minuteur se met à jour automatiquement.", unlocking: "Déblocage", unlockTesting: "Débloquer pour tester", testReplay: "Tester à nouveau {day}", challengeComplete: "Défi terminé"
+    backToMap: "Retour à la carte", waypoint: "Étape {number}", threeDayChallenge: "Défi de trois jours", chooseChallenge: "Choisissez le défi du jour", rewardPreview: "Aperçu de la récompense", glowPoints: "{points} Points de Lumière", ready: "Prêt", completed: "Terminé", cooldown: "Temps d’attente", startDay: "Commencer {day}", continueDay: "Continuer {day}", studyVerse: "Étudier le verset", adminUnlock: "Déblocage admin", glimmer: "Lueur", glow: "Éclat", radiance: "Radiance", glimmerSubtitle: "Début en douceur", glowSubtitle: "Souvenir grandissant", radianceSubtitle: "Souvenir complet", studyReopens: "L’étude rouvre après Radiance", stageRules: "Règles de l’étape", noHints: "Aucun indice disponible", memoryAlone: "Cette étape repose uniquement sur la mémoire.", timedChallenge: "Défi chronométré", flameKindled: "Flamme allumée", restFlame: "Laisser reposer la flamme", preparing: "Préparation de {day}", lunaKeepsPlace: "Meemo garde votre place.", readyIn: "Prêt dans", unlocksIn: "{day} se débloque dans", preparingChallenge: "Préparation du défi", coolingDown: "Temps d’attente", timerUpdates: "Le minuteur se met à jour automatiquement.", unlocking: "Déblocage", unlockTesting: "Débloquer pour tester", testReplay: "Tester à nouveau {day}", challengeComplete: "Défi terminé"
   },
   Gameplay: {
     ...en.Gameplay,
@@ -67,7 +117,7 @@ const fr = {
     playerPracticeBanner: "Révision sans chrono · indices désactivés ; progression et récompenses inchangées.",
     practiceCompleteToast: "Révision terminée. Aucune progression ni récompense modifiée.",
     adminTestReplayCompleteToast: "Test terminé. Aucune progression ni récompense modifiée.",
-    backToMap: "Retour à la carte", exit: "Quitter", actions: "Actions", sound: "Son", modeProgress: "Mode {current} sur {total}", adminTesting: "Test admin · aucune progression modifiée", replayMode: "Retester {mode}", dragDrop: "Glisser-déposer", puzzle: "Puzzle", swap: "Échange", cue: "Indice initial", fill: "Compléter", check: "Vérifier", reset: "Réinitialiser", wrongAnswer: "Pas tout à fait. Corrigez votre réponse et réessayez.", dragInstruction: "Faites glisser un mot, ou sélectionnez-le puis touchez un espace.", phraseInstruction: "Faites glisser une phrase, ou sélectionnez-la puis touchez une position libre.", swapInstruction: "Sélectionnez un mot surligné, puis un autre pour les échanger.", cueInstruction: "Saisissez chaque mot manquant à l’aide de sa première lettre.", fillInstruction: "Saisissez chaque mot manquant en entier.", wordBank: "Banque de mots", phraseBank: "Banque de phrases", hint: "Indice", hintsAvailable: "{count, plural, =0 {Aucun indice disponible} =1 {1 indice disponible} other {# indices disponibles}}", attemptExpired: "Temps écoulé", attemptExpiredBody: "Cette tentative est terminée, mais votre progression reste enregistrée.", retryMode: "Réessayer", vaultReplay: "Révision · Radiance", openMenu: "Ouvrir le menu du jeu", gameMenu: "Menu du jeu", on: "Activé", off: "Désactivé", exitGameplay: "Quitter la partie", progress: "Progression des modes", audioOn: "Sons activés pour cette session.", audioOff: "Sons coupés pour cette session.", returnCurrent: "Revenir au mode actuel", replayCompleted: "Rejouer un mode terminé", chooseCompleted: "Choisissez un mode terminé", timeRemaining: "Temps restant", upNext: "À suivre", dayComplete: "Journée terminée", minuteChallenge: "Défi de {minutes} minutes", clockStarts: "Le chrono démarre lorsque vous appuyez sur Commencer.", learnPace: "Apprenez à votre rythme", noTimer: "Ce défi n’est pas chronométré.", starting: "Démarrage…", beginMode: "Commencer {mode}", allWordsPlaced: "Tous les mots sont placés. Vérifiez votre réponse.", allPhrasesPlaced: "Toutes les phrases sont placées. Vérifiez l’ordre.", progressSafe: "Votre progression est enregistrée", tryModeAgain: "Réessayer {mode}", openingHint: "Ouverture de l’indice", noHintsRemaining: "Aucun indice restant", useHint: "Utiliser un indice · {count} restant(s)", lunaLight: "La lumière de Luna", hintEncouragement: "Lisez lentement. Vous en savez déjà plus que vous ne le pensez.", hintCloses: "Se ferme automatiquement après {seconds} secondes", checking: "Vérification", restoreMissing: "Replacez les mots manquants", restoreStructure: "Rétablissez la structure du verset", returnWords: "Remettez chaque mot à sa place", recallFirst: "Rappelez-vous grâce à la première lettre", completeMissing: "Complétez les mots manquants", howToSwap: "Comment échanger", firstLetterCue: "Indice de première lettre", fullRecall: "Rappel complet"
+    backToMap: "Retour à la carte", exit: "Quitter", actions: "Actions", sound: "Son", modeProgress: "Mode {current} sur {total}", adminTesting: "Test admin · aucune progression modifiée", replayMode: "Retester {mode}", dragDrop: "Glisser-déposer", puzzle: "Puzzle", swap: "Échange", cue: "Indice initial", fill: "Compléter", check: "Vérifier", reset: "Réinitialiser", wrongAnswer: "Pas tout à fait. Corrigez votre réponse et réessayez.", dragInstruction: "Faites glisser un mot, ou sélectionnez-le puis touchez un espace.", phraseInstruction: "Faites glisser une phrase, ou sélectionnez-la puis touchez une position libre.", swapInstruction: "Sélectionnez un mot surligné, puis un autre pour les échanger.", cueInstruction: "Saisissez chaque mot manquant à l’aide de sa première lettre.", fillInstruction: "Saisissez chaque mot manquant en entier.", wordBank: "Banque de mots", phraseBank: "Banque de phrases", hint: "Indice", hintsAvailable: "{count, plural, =0 {Aucun indice disponible} =1 {1 indice disponible} other {# indices disponibles}}", attemptExpired: "Temps écoulé", attemptExpiredBody: "Cette tentative est terminée, mais votre progression reste enregistrée.", retryMode: "Réessayer", vaultReplay: "Révision · Radiance", openMenu: "Ouvrir le menu du jeu", gameMenu: "Menu du jeu", on: "Activé", off: "Désactivé", exitGameplay: "Quitter la partie", progress: "Progression des modes", audioOn: "Sons activés pour cette session.", audioOff: "Sons coupés pour cette session.", returnCurrent: "Revenir au mode actuel", replayCompleted: "Rejouer un mode terminé", chooseCompleted: "Choisissez un mode terminé", timeRemaining: "Temps restant", upNext: "À suivre", dayComplete: "Journée terminée", minuteChallenge: "Défi de {minutes} minutes", clockStarts: "Le chrono démarre lorsque vous appuyez sur Commencer.", learnPace: "Apprenez à votre rythme", noTimer: "Ce défi n’est pas chronométré.", starting: "Démarrage…", beginMode: "Commencer {mode}", allWordsPlaced: "Tous les mots sont placés. Vérifiez votre réponse.", allPhrasesPlaced: "Toutes les phrases sont placées. Vérifiez l’ordre.", progressSafe: "Votre progression est enregistrée", tryModeAgain: "Réessayer {mode}", openingHint: "Ouverture de l’indice", noHintsRemaining: "Aucun indice restant", useHint: "Utiliser un indice · {count} restant(s)", lunaLight: "La lumière de Meemo", hintEncouragement: "Lisez lentement. Vous en savez déjà plus que vous ne le pensez.", hintCloses: "Se ferme automatiquement après {seconds} secondes", checking: "Vérification", restoreMissing: "Replacez les mots manquants", restoreStructure: "Rétablissez la structure du verset", returnWords: "Remettez chaque mot à sa place", recallFirst: "Rappelez-vous grâce à la première lettre", completeMissing: "Complétez les mots manquants", howToSwap: "Comment échanger", firstLetterCue: "Indice de première lettre", fullRecall: "Rappel complet"
   },
   Completion: {
     ...en.Completion,
@@ -213,6 +263,7 @@ const fr = {
   },
   PlayerTopBar: {
     ...en.PlayerTopBar,
+    openProfile: "Ouvrir le profil et les paramètres",
     glowPoints: "Points de Lumière",
     streakDays: "Jours de série",
     beaconPoints: "Points Phare cumulés",
@@ -275,7 +326,7 @@ const fr = {
     systemTitle: "Nouvelle du parcours",
     systemBody: "Une nouveauté vous attend sur le sentier.",
   },
-  Errors: { ...en.Errors, snag: "Oups, un problème est survenu", loadFailed: "Luna n’a pas pu charger ceci. Réessayez.", notFound: "Ce sentier est introuvable." }
+  Errors: { ...en.Errors, snag: "Oups, un problème est survenu", loadFailed: "Meemo n’a pas pu charger ceci. Réessayez.", notFound: "Ce sentier est introuvable." }
 };
 
 // Keep the two leader-only invite settings labels readable in French while the

@@ -6,6 +6,7 @@ reason; the style guard must not treat them as general permission for other UI.
 
 | File | Allowed exception | Reason |
 | --- | --- | --- |
+| `features/home/components/home-screen.module.css` | Bible blue, Trivia purple, Fellowship coral, Badges gold gradients and their shared dark label ink | Owner explicitly approved these four fixed-color shortcut tiles on 2026-10-10. Only their collectible artwork surfaces remain independent of brand and Light/Dark settings; other Home surfaces use semantic tokens. |
 | `features/profile/components/player-avatar.tsx` | The six named avatar-finish gradients and their shadows | These are player-selected cosmetic finishes. Their color is the appearance of the collectible, not a control, status, or page palette. |
 | `features/gameplay/components/animated-flame.tsx` | SVG gradient stops and flame fill | These values draw the established flame illustration and must remain independent of theme color roles. |
 | `features/auth/lib/email-verification-delivery.ts` | Email HTML foreground `#16333B` | Email clients need a literal fallback color; theme variables are not reliable in standalone email markup. This matches the shared deep-ink foreground. |

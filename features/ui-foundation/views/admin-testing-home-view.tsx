@@ -22,7 +22,7 @@ const TESTING_AREAS = [
     pendingLabel: "Opening shared UI",
     title: "Shared UI",
     description:
-      "Review game buttons, common controls, data tables, loading, errors, and Luna.",
+      "Review game buttons, common controls, data tables, loading, errors, and Meemo.",
     icon: BlocksIcon,
   },
   {

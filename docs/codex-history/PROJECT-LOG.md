@@ -1,5 +1,59 @@
 # Scripture Memo Project Log
 
+### 2026-10-11 - Home artwork and profile presentation corrections
+
+- Replaced the temporary vector diamond with the owner's supplied PNG in both
+  top-bar balances and the Daily Challenge placeholder. Source was found in
+  Downloads/Icons; runtime asset is `public/images/game-ui/diamond.png`.
+- Restored the saved avatar frame through the shared PlayerAvatar component.
+  The existing shell query now selects the frame alongside the portrait;
+  no extra reads, writes, migrations, or polling were added.
+- Removed the top-bar divider below the tablet breakpoint and retained it on
+  larger screens. Avatar frame depth is no longer clipped by its link.
+- Generated reading Meemo revision 3 from the existing approved guide/avatar
+  artwork: painted style, two hind legs, and two exposed brown forearms holding
+  the Bible. Preserved the master and exact prompt in `artwork/meemo/` and used
+  a versioned runtime path to avoid stale optimized-image caches.
+- Typecheck, lint, and all seven design-system checks passed. Isolated browser
+  previews verified light/dark mobile, default/gold frames, supplied diamonds,
+  no broken images or horizontal overflow, no mobile divider, and a retained
+  desktop divider. Preview identity/progress were synthetic; no database used.
+
+### 2026-10-10 - Reference-led Meemo home redesign implemented
+
+- Rebuilt `/game` around the supplied desktop and mobile references, using the
+  supplied icon collection and a generated transparent reading-Meemo hero.
+  Reused the existing waving guide artwork for the desktop Partner card.
+- Applied the new shared top bar, sidebar, and mobile navigation across player
+  screens. Live identity, balances, notifications, waypoint, and completed-day
+  flames remain authoritative; Daily Challenge is presentation-only.
+- Added the four approved authenticated blank routes. Updated visible mascot
+  copy to Meemo while preserving legacy internal Luna identifiers and paths.
+- Documented the four fixed-color shortcut exceptions and updated the product
+  overview. No database writes, migrations, production configuration, or
+  deployment occurred.
+- Validation: lint, typecheck, 162 unit tests, seven design-system checks, and
+  production build passed. Regenerating Next route types resolved stale local
+  type artifacts. Isolated Edge previews checked light/dark desktop and 375px
+  mobile plus a 320px alternate-theme empty state: no horizontal overflow,
+  broken images, or interactive targets below 44px. Preview data was synthetic.
+
+### 2026-10-10 — Meemo rename and home redesign requirements
+
+- Owner renamed Luna to Meemo. Existing filenames and identifiers have not yet
+  been migrated; use Meemo for new user-facing references.
+- Redesign `/game` to match supplied desktop light/dark and mobile references.
+  Apply the reference navigation/top-bar redesign across player screens.
+- Approved blank destinations: `/bible`, `/game/trivia`,
+  `/game/daily-challenge`, and `/partner`. Daily Challenge progress and +20
+  reward are placeholder presentation, not a new reward mechanism.
+- Mobile follows the supplied reference without the desktop Partner card.
+  Surfaces respond to brand themes where possible; Bible, Trivia, Fellowship,
+  and Badges shortcut tile backgrounds keep their reference colors.
+- Generated a first reading-Meemo authoring master and recorded its prompt in
+  `artwork/meemo/README.md`. No home implementation or global rename has been
+  applied yet. Matching waving-Meemo artwork is awaiting owner clarification.
+
 ### 2026-10-10 — Initial production trial host selected
 
 - Owner plans to try production on Vercel first, with a possible later move to
@@ -1916,18 +1970,20 @@ Production approval has not been granted.
 
 ## Current Task
 
-Documentation reconciliation is complete. Await the owner's next development
-instruction; Phase 32 production closeout remains the active roadmap position.
+The reference-led `/game` redesign and the owner's artwork/frame/divider
+corrections are implemented and ready for owner review.
+Production closeout is paused while the owner reviews the visual redesign.
 
 ## Exact Next Task
 
-Resume Phase 32.3 by verifying Vercel's trusted client-IP/proxy contract before
+Review `/game` with the owner and address any visual adjustments. When the owner
+resumes hosting work, continue Phase 32.3 by verifying Vercel's trusted client-IP/proxy contract before
 configuring production rate limits. Vercel is selected for an initial production
 trial; the permanent host remains undecided. Deployment still requires the
 remaining production gates and approval.
 
-The separate local TypeScript artifact issue can be investigated by regenerating
-Next.js route types and rerunning typecheck when that work is requested.
+The stale local TypeScript artifact issue is resolved: Next.js route types were
+regenerated and typecheck passed during the home redesign.
 Both CI jobs are owner-confirmed passing; branch protection remains unconfirmed.
 Keep development on Prisma Local 51214, routine integration on separate 51224,
 and multi-connection races on disposable PostgreSQL. Do not use hosted data for

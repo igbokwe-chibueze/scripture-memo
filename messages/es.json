@@ -13,6 +13,11 @@
     "view": "Ver"
   },
   "Navigation": {
+    "leaderboard": "Clasificación",
+    "bible": "Biblia",
+    "trivia": "Trivia",
+    "dailyChallenge": "Desafío diario",
+    "opening": "Abriendo",
     "home": "Inicio",
     "map": "Mapa",
     "vault": "Bóveda",
@@ -104,6 +109,33 @@
     "bestStreak": "Mejor: {count}",
     "hintsUsed": "Pistas usadas"
   },
+  "HomeScreen": {
+    "greeting": "¿Listo para hoy, {name}?",
+    "readingAlt": "Meemo leyendo la Biblia",
+    "currentAdventure": "Tu aventura actual",
+    "waypointStage": "Etapa {number} · {stage}",
+    "completedDays": "{count} de 3 días del desafío completados",
+    "continueAdventure": "Continuar aventura",
+    "openingAdventure": "Abriendo aventura",
+    "openMap": "Abrir mapa",
+    "trailReady": "Tu camino te espera",
+    "findWaypoint": "Encuentra tu próxima etapa",
+    "dailyChallenge": "Desafío diario",
+    "dailyDescription": "Completa la práctica de hoy",
+    "placeholder": "Próximamente",
+    "explore": "Explorar Scripture Memo",
+    "opening": "Abriendo",
+    "bible": "Biblia",
+    "trivia": "Trivia",
+    "fellowship": "Comunidad",
+    "badges": "Insignias",
+    "stages": {
+      "LEARN": "Aprender",
+      "RECALL": "Recordar",
+      "STRENGTHEN": "Fortalecer",
+      "MASTER": "Dominar"
+    }
+  },
   "Home": {
     "welcome": "Te damos la bienvenida, {name}",
     "ready": "Tu cuenta está lista.",
@@ -192,7 +224,7 @@
     "flameKindled": "Llama encendida",
     "restFlame": "Deja reposar la llama",
     "preparing": "{day} se está preparando",
-    "lunaKeepsPlace": "Luna cuidará tu lugar. Regresa cuando el siguiente desafío esté listo.",
+    "lunaKeepsPlace": "Meemo cuidará tu lugar. Regresa cuando el siguiente desafío esté listo.",
     "readyIn": "Listo en",
     "unlocksIn": "{day} se desbloquea en",
     "preparingChallenge": "Preparando desafío",
@@ -289,7 +321,7 @@
     "noHintsRemaining": "No quedan pistas",
     "useHint": "Usar pista · quedan {count}",
     "adminHint": "Pista de prueba abierta. No se consumió ninguna pista.",
-    "lunaLight": "La luz de Luna",
+    "lunaLight": "La luz de Meemo",
     "hintEncouragement": "Léelo despacio. Ya sabes más de lo que crees.",
     "hintCloses": "Se cierra automáticamente después de {seconds} segundos"
     ,"checking": "Comprobando",
@@ -488,8 +520,8 @@
     "purchased": "¡Compraste {name}!",
     "insufficient": "Necesitas más Puntos de Luz para este paquete."
     ,"journeyHome": "Inicio del viaje",
-    "heroAlt": "Luna te da la bienvenida a la Tienda de Aceite",
-    "celebrationAlt": "Luna celebra tu compra",
+    "heroAlt": "Meemo te da la bienvenida a la Tienda de Aceite",
+    "celebrationAlt": "Meemo celebra tu compra",
     "balances": "Saldos de la Tienda de Aceite",
     "categories": "Categorías de la tienda",
     "restocking": "Reponiendo existencias",
@@ -681,6 +713,7 @@
     "chooseCountry": "Abrir ajustes"
   },
   "PlayerTopBar": {
+    "openProfile": "Abrir ajustes de {name}",
     "glowPoints": "Puntos de Luz",
     "streakDays": "Días de racha",
     "beaconPoints": "Puntos Faro totales"
@@ -745,7 +778,7 @@
   },
   "Errors": {
     "snag": "Vaya, encontramos un problema",
-    "loadFailed": "Luna no pudo cargar esto. Inténtalo de nuevo.",
+    "loadFailed": "Meemo no pudo cargar esto. Inténtalo de nuevo.",
     "notFound": "No se encontró este sendero."
   }
 }
