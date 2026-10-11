@@ -21,6 +21,7 @@ export const GAME_ARTWORK = {
   bellLight: "bell-light",
   bellDark: "bell-dark",
   diamond: "diamond",
+  admin: "admin",
 } as const;
 
 /** Renders supplied decorative icons beside visible, accessible labels. */

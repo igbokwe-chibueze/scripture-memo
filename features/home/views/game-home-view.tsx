@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
-import { PlayIcon, ShieldUserIcon } from "lucide-react";
+import { PlayIcon } from "lucide-react";
 import { GameArtwork } from "@/components/shared/game-artwork";
 import { GamePageColumns } from "@/components/shared/game-page-columns";
 import { NavigationButton } from "@/components/shared/navigation-button";
@@ -28,7 +28,7 @@ const shortcuts = [
   { key: "fellowship", href: "/fellowships", artwork: "fellowship" },
   { key: "badges", href: "/vault/badges", artwork: "badges" },
   { key: "shop", href: "/oil-shop", artwork: "shop" },
-  { key: "admin", href: "/admin", artwork: null },
+  { key: "admin", href: "/admin", artwork: "admin" },
 ] as const;
 
 /**
@@ -146,18 +146,11 @@ export async function GameHomeView(): Promise<React.ReactNode> {
               pendingLabel={t("opening")}
               className={`${styles.shortcutTile} ${styles[key]}`}
             >
-              {artwork ? (
-                <GameArtwork
-                  name={artwork}
-                  className={styles.shortcutArtwork}
-                  sizes="(max-width: 767px) 80px, 140px"
-                />
-              ) : (
-                <ShieldUserIcon
-                  className={styles.adminArtwork}
-                  aria-hidden="true"
-                />
-              )}
+              <GameArtwork
+                name={artwork}
+                className={styles.shortcutArtwork}
+                sizes="(max-width: 767px) 80px, 140px"
+              />
               <span>{t(key)}</span>
             </NavigationButton>
           ))}

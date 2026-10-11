@@ -1242,6 +1242,11 @@ theme; shortcut backgrounds retain blue, purple, coral, and gold, with Shop
 reusing blue and Admin reusing purple.
 Mobile omits the top-bar divider; tablet and desktop retain it. The supplied
 golden diamond artwork represents Glow Points in the top bar and daily reward.
+Mobile navigation shows icons only, retaining accessible destination labels;
+desktop retains text. The Leaderboard artwork is enlarged to compensate for
+its transparent padding. Desktop Home scales artwork/cards with viewport height
+to keep the main adventure and first shortcut row visible; the second row may
+sit below the fold. Admin uses the owner-supplied shield-and-key artwork.
 
 Daily Challenge currently displays explicitly illustrative progress and a +20
 reward placeholder; it never grants rewards or modifies learner progress. The

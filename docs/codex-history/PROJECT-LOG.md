@@ -1,5 +1,22 @@
 # Scripture Memo Project Log
 
+### 2026-10-11 - Supplied Admin icon and compact desktop Home
+
+- Replaced the temporary Admin symbol with the owner's Royal Shield, Golden Key
+  PNG, bundled as `public/images/game-ui/admin.png`.
+- Mobile navigation now shows only icons with accessible destination labels;
+  desktop retains labels. Enlarged the Leaderboard artwork by 30% to compensate
+  for its transparent padding without shrinking adjacent touch targets.
+- Reduced desktop Home typography, artwork, card, and tile dimensions with
+  viewport-height-aware sizing. Owner approved the second Shop/Admin row below
+  the fold; no fixed-height clipping or forced no-scroll container was added.
+- Actual component previews with synthetic data verified 375px mobile,
+  1366x768 laptop, and 1586x992 light/dark desktop. The first tile row ended at
+  710px on the laptop and 871px at reference size. No horizontal overflow or
+  broken images after decoding; mobile targets remain approximately 69x64px.
+- Typecheck, lint, and seven design-system checks passed. No database operations,
+  authorization changes, migrations, or deployment occurred.
+
 ### 2026-10-11 - Five-item navigation and second-row shortcuts
 
 - Removed Shop from both desktop and mobile navigation. The five remaining
@@ -1985,8 +2002,9 @@ Production approval has not been granted.
 
 ## Current Task
 
-The reference-led `/game` redesign, artwork/frame/divider corrections, and
-five-item navigation with second-row Shop/Admin tiles are ready for owner review.
+The reference-led `/game` redesign includes the supplied Admin icon, icons-only
+mobile navigation, enlarged Leaderboard artwork, and compact desktop sizing.
+The Shop/Admin second row may sit below the fold; ready for owner review.
 Production closeout is paused while the owner reviews the visual redesign.
 
 ## Exact Next Task

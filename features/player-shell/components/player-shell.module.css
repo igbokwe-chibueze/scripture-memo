@@ -124,6 +124,12 @@
   height: 2.25rem;
 }
 
+/* The podium artwork has extra transparent padding compared with the others.
+ * Enlarge its painted footprint without changing navigation target geometry. */
+.leaderboardArtwork {
+  transform: scale(1.3);
+}
+
 .activeItem[data-slot="button"] {
   border: 1px solid var(--selection-border);
   background: var(--selection-subtle);
@@ -152,7 +158,7 @@
 }
 
 .partnerMeemo {
-  height: min(22dvh, 13rem);
+  height: min(19dvh, 11.5rem);
   width: auto;
   object-fit: contain;
 }

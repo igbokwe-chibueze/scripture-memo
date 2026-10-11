@@ -73,6 +73,7 @@ export function MobileGameNavigation({
             href={href}
             pendingLabel={t("opening")}
             variant="ghost"
+            aria-label={t(key)}
             aria-current={active ? "page" : undefined}
             className={cn(
               styles.navigationItem,
@@ -82,10 +83,13 @@ export function MobileGameNavigation({
           >
             <GameArtwork
               name={artwork}
-              className={styles.navigationArtwork}
+              className={cn(
+                styles.navigationArtwork,
+                key === "leaderboard" && styles.leaderboardArtwork,
+              )}
               sizes="(min-width: 1280px) 64px, 40px"
             />
-            <span>{t(key)}</span>
+            <span className={mobile ? "sr-only" : undefined}>{t(key)}</span>
           </NavigationButton>
         </li>
       );
