@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
-import { PlayIcon } from "lucide-react";
+import { PlayIcon, ShieldUserIcon } from "lucide-react";
 import { GameArtwork } from "@/components/shared/game-artwork";
 import { GamePageColumns } from "@/components/shared/game-page-columns";
 import { NavigationButton } from "@/components/shared/navigation-button";
@@ -10,6 +10,8 @@ import { DailyChallengeCard } from "@/features/home/components/daily-challenge-c
 import { gameHomeRepository } from "@/features/home/repositories/game-home.repository";
 import { getCachedUserSettings } from "@/features/settings/lib/get-cached-user-settings";
 import { requireServerSession } from "@/lib/auth/session";
+import { isAdmin } from "@/lib/permissions";
+import type { UserRole } from "@/lib/generated/prisma/enums";
 import styles from "@/features/home/components/home-screen.module.css";
 
 /** Personalized learning content must never be indexed or added to the sitemap. */
@@ -25,6 +27,8 @@ const shortcuts = [
   { key: "trivia", href: "/game/trivia", artwork: "trivia" },
   { key: "fellowship", href: "/fellowships", artwork: "fellowship" },
   { key: "badges", href: "/vault/badges", artwork: "badges" },
+  { key: "shop", href: "/oil-shop", artwork: "shop" },
+  { key: "admin", href: "/admin", artwork: null },
 ] as const;
 
 /**
@@ -46,6 +50,12 @@ export async function GameHomeView(): Promise<React.ReactNode> {
 
   const destination = waypoint ? `/game/waypoints/${waypoint.id}` : "/game/map";
   const completedDays = Math.min(3, Math.max(0, waypoint?.completedDays ?? 0));
+  // Use the same server-derived role check as the admin area. Hiding a shortcut
+  // is presentation only; destination routes retain their own authorization.
+  const visibleShortcuts = shortcuts.filter(
+    ({ key }) =>
+      key !== "admin" || isAdmin(session.user.role as UserRole | undefined),
+  );
 
   return (
     <GamePageColumns contextPanel={<DailyChallengeCard desktop />}>
@@ -129,18 +139,25 @@ export async function GameHomeView(): Promise<React.ReactNode> {
         </div>
 
         <nav className={styles.shortcuts} aria-label={t("explore")}>
-          {shortcuts.map(({ key, href, artwork }) => (
+          {visibleShortcuts.map(({ key, href, artwork }) => (
             <NavigationButton
               key={key}
               href={href}
               pendingLabel={t("opening")}
               className={`${styles.shortcutTile} ${styles[key]}`}
             >
-              <GameArtwork
-                name={artwork}
-                className={styles.shortcutArtwork}
-                sizes="(max-width: 767px) 80px, 140px"
-              />
+              {artwork ? (
+                <GameArtwork
+                  name={artwork}
+                  className={styles.shortcutArtwork}
+                  sizes="(max-width: 767px) 80px, 140px"
+                />
+              ) : (
+                <ShieldUserIcon
+                  className={styles.adminArtwork}
+                  aria-hidden="true"
+                />
+              )}
               <span>{t(key)}</span>
             </NavigationButton>
           ))}

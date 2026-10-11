@@ -244,13 +244,24 @@
   aspect-ratio: 1;
 }
 
+/* Match the supplied icon tiles' footprint while keeping the admin symbol
+ * recognizable. Four grid columns deliberately put Shop/Admin on row two. */
+.adminArtwork {
+  width: 65%;
+  height: auto;
+  aspect-ratio: 1;
+  margin-block: 10%;
+}
+
 /* Explicit owner exception: these collectible feature tiles keep their hues
  * in every brand and light/dark mode. Never use these colors for UI status. */
-.bible[data-slot="button"] {
+.bible[data-slot="button"],
+.shop[data-slot="button"] {
   background: linear-gradient(140deg, #8dd7ff, #54b6f6);
 }
 
-.trivia[data-slot="button"] {
+.trivia[data-slot="button"],
+.admin[data-slot="button"] {
   background: linear-gradient(140deg, #d9a1ff, #b76af6);
 }
 
@@ -331,6 +342,10 @@
     width: 100%;
     height: 7rem;
     object-fit: contain;
+  }
+  .adminArtwork {
+    height: 5.5rem;
+    margin-block: 0.75rem;
   }
   .verseTitle {
     font-size: clamp(1.65rem, 2.1vw, 2.2rem);

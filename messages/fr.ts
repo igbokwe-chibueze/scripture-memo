@@ -14,6 +14,8 @@ const fr = {
     ...en.HomeScreen,
     greeting: "Prêt pour aujourd’hui, {name} ?",
     readingAlt: "Meemo lit la Bible",
+    shop: "Boutique",
+    admin: "Admin",
     currentAdventure: "Votre aventure actuelle",
     waypointStage: "Étape {number} · {stage}",
     completedDays: "{count} jours du défi terminés sur 3",

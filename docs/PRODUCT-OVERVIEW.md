@@ -1231,12 +1231,15 @@ The landing page after login. Shows:
 - Current active waypoint and its Journey Stage
 - Three flames reflecting completed days and a button to resume the adventure
 - Meemo reading a Bible, following the owner-approved light/dark references
-- Fixed-color Bible, Trivia, Fellowship, and Badges shortcuts
+- Fixed-color Bible, Trivia, Fellowship, and Badges shortcuts on the first row
+- Shop on the second row, followed by Admin for ADMIN and SUPER_ADMIN users only
 
 The shared player shell uses a desktop sidebar and mobile bottom navigation for
-Home, Map, Vault, Leaderboard, Shop, and Settings. Its top bar includes the real
+Home, Map, Vault, Leaderboard, and Settings. Shop lives on Home rather than in
+either navigation bar. Its top bar includes the real
 notification inbox. Shared surfaces follow the selected brand and light/dark
-theme; the four shortcut backgrounds retain blue, purple, coral, and gold.
+theme; shortcut backgrounds retain blue, purple, coral, and gold, with Shop
+reusing blue and Admin reusing purple.
 Mobile omits the top-bar divider; tablet and desktop retain it. The supplied
 golden diamond artwork represents Glow Points in the top bar and daily reward.
 

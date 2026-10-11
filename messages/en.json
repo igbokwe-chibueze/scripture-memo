@@ -112,6 +112,8 @@
   "HomeScreen": {
     "greeting": "Ready for today, {name}?",
     "readingAlt": "Meemo reading the Bible",
+    "shop": "Shop",
+    "admin": "Admin",
     "currentAdventure": "Your current adventure",
     "waypointStage": "Waypoint {number} · {stage}",
     "completedDays": "{count} of 3 challenge days completed",

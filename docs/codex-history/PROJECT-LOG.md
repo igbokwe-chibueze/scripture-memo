@@ -1,5 +1,20 @@
 # Scripture Memo Project Log
 
+### 2026-10-11 - Five-item navigation and second-row shortcuts
+
+- Removed Shop from both desktop and mobile navigation. The five remaining
+  items have larger icons, labels, targets, and more spacing; desktop icons
+  scale within the available sidebar width.
+- Added Shop then Admin to Home's second grid row, retaining the first four
+  tiles. Shop reuses blue and Admin purple, with a shield/user admin symbol.
+- Admin visibility uses the trusted server session and existing isAdmin helper
+  for ADMIN/SUPER_ADMIN; destination authorization remains unchanged. No new
+  database operations or client role checks were introduced.
+- Updated English, Spanish, French, the product overview, and documented color
+  exceptions. Typecheck, lint, and seven design-system checks passed. A static
+  CSS browser probe verified four first-row tiles, Shop/Admin on the next row,
+  five mobile targets measuring 69 by 64px at 375px, and a 1280px layout review.
+
 ### 2026-10-11 - Home artwork and profile presentation corrections
 
 - Replaced the temporary vector diamond with the owner's supplied PNG in both
@@ -1970,8 +1985,8 @@ Production approval has not been granted.
 
 ## Current Task
 
-The reference-led `/game` redesign and the owner's artwork/frame/divider
-corrections are implemented and ready for owner review.
+The reference-led `/game` redesign, artwork/frame/divider corrections, and
+five-item navigation with second-row Shop/Admin tiles are ready for owner review.
 Production closeout is paused while the owner reviews the visual redesign.
 
 ## Exact Next Task

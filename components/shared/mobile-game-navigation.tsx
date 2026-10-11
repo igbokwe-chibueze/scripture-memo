@@ -14,13 +14,12 @@ import type { NotificationShellData } from "@/features/notifications/types/notif
 import { cn } from "@/lib/utils";
 import styles from "@/features/player-shell/components/player-shell.module.css";
 
-/** Owner-approved global destinations; Fellowship now lives on Home's tile. */
+/** Keep five global destinations; Shop and Fellowship live on Home's tiles. */
 const navigationItems = [
   { href: "/game", key: "home", artwork: "home", exact: true },
   { href: "/game/map", key: "map", artwork: "map", exact: false },
   { href: "/vault", key: "vault", artwork: "vault", exact: false },
   { href: "/leaderboard", key: "leaderboard", artwork: "leaderboard", exact: false },
-  { href: "/oil-shop", key: "shop", artwork: "shop", exact: false },
   { href: "/settings", key: "settings", artwork: "settings", exact: false },
 ] as const;
 
