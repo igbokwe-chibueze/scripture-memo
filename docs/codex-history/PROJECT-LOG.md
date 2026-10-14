@@ -1,5 +1,32 @@
 # Scripture Memo Project Log
 
+### 2026-10-14 - Waypoint admin menu moved beside Study
+
+- Moved the existing administrator testing menu from below the day cards to the
+  Study row at the top, for both available and locked Study states.
+- Preserved admin visibility and every menu action. Empty menus reserve no
+  width; the Study control wraps its label within the remaining mobile space.
+
+### 2026-10-14 - Reference-led waypoint details redesign
+
+- Rebuilt waypoint details around the supplied light/dark concepts: generated
+  welcome-Meemo header, Study strip, illustrated day cards, status badges, and
+  shared tactile actions. Mobile stacks cards; desktop uses three columns.
+- Navigation and the shared player shell remain unchanged. Owner approved
+  rearranging verse, translation, stage notices, and administrator controls.
+- Imported seven supplied icons into the separate new-style waypoint collection;
+  generated Meemo with the built-in image tool using the approved reading pose
+  as identity/style reference. Final prompt is in artwork/meemo/.
+- Retained existing server data, recorded rewards, Study access, cooldowns,
+  completed-mode practice, and admin testing. No repository/action changes,
+  database writes, migrations, or reward-rule changes were introduced.
+- Isolated actual-component browser previews with synthetic state checked 375px
+  light/dark, 768px tablet, 1280x640, 1366x768, and 1586x992 desktop plus Study
+  and cooldown states. No horizontal overflow or broken images. Practice menu,
+  start pending/error recovery, and blocked-day toast checks passed.
+- Typecheck, lint, seven design-system checks, five day-selection tests, and
+  two localization checks passed. No deployment or commit performed.
+
 ### 2026-10-14 - New icon collection established as the future standard
 
 - Owner designated the new Home icons and their art style as the standard for

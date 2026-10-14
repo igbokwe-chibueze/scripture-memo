@@ -22,10 +22,15 @@ export function CompletedModePracticeMenu({
   sessionId,
   dayLevel,
   completedModes,
+  label,
+  className,
 }: {
   sessionId: string;
   dayLevel: DayLevel;
   completedModes: GameMode[];
+  /** Optional compact concept label; the completed-mode menu remains unchanged. */
+  label?: string;
+  className?: string;
 }): React.ReactNode {
   const t = useTranslations("DaySelection");
   const gameT = useTranslations("Gameplay");
@@ -64,6 +69,7 @@ export function CompletedModePracticeMenu({
             size: "lg",
             className: "min-h-12 w-full rounded-xl px-4",
           }),
+          className,
         )}
       >
         {isPending ? (
@@ -71,7 +77,7 @@ export function CompletedModePracticeMenu({
         ) : (
           <RotateCcwIcon className="size-5" aria-hidden="true" />
         )}
-        {isPending ? t("openingPractice") : t("practiceMode")}
+        {isPending ? t("openingPractice") : label ?? t("practiceMode")}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-72 rounded-xl p-2">
         <DropdownMenuGroup>

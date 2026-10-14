@@ -195,6 +195,13 @@
     "statuses": { "LOCKED": "Locked", "UNLOCKED": "Ready", "IN_PROGRESS": "In progress", "COOLDOWN": "Cooling down", "COMPLETED": "Complete" }
   },
   "DaySelection": {
+    "todayChallenge": "Today's Challenge",
+    "study": "Study",
+    "readVerse": "Read verse",
+    "openingStudy": "Opening Study",
+    "openingMap": "Opening map",
+    "practiceAgain": "Practice again",
+    "startFailed": "Could not start the challenge. Please try again.",
     "backToMap": "Back to map",
     "waypoint": "Waypoint {number}",
     "threeDayChallenge": "Three-day challenge",

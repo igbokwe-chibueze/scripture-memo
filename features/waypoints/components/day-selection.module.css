@@ -1,0 +1,369 @@
+/* Mobile composition follows the approved waypoint concepts. All surfaces use
+ * semantic roles so brand selection and light/dark themes remain authoritative.
+ * Button depth and interaction remain owned by shared buttonVariants. */
+.page {
+  width: min(100%, 42rem);
+  margin-inline: auto;
+  padding: 0.5rem 0.875rem 1.5rem;
+}
+.backButton[data-slot="button"] {
+  min-height: 2.75rem;
+  padding-inline: 0.5rem;
+  font-size: 1rem;
+  color: var(--primary);
+}
+.content {
+  display: grid;
+  gap: 0.65rem;
+}
+.hero {
+  position: relative;
+  min-height: 9.5rem;
+  isolation: isolate;
+  overflow: hidden;
+}
+.heroCopy {
+  position: relative;
+  z-index: 1;
+  width: 57%;
+  padding: 0.5rem 0 0.75rem 0.5rem;
+}
+.waypointMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: var(--info-text);
+}
+.stage {
+  min-height: 1.75rem;
+  padding-inline: 0.875rem;
+  border-color: var(--selection-border);
+  background: var(--selection-subtle);
+  color: var(--selection-text);
+  border-radius: 2rem;
+  font-size: 0.875rem;
+}
+.heading {
+  max-width: 7em;
+  margin-top: 0.75rem;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: clamp(1.8rem, 6.4vw, 2.75rem);
+  line-height: 1.02;
+  overflow-wrap: anywhere;
+}
+.reference {
+  margin-top: 0.35rem;
+  color: var(--info-text);
+  font-size: clamp(1rem, 3.9vw, 1.35rem);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.meemo {
+  position: absolute;
+  z-index: 0;
+  right: -0.3rem;
+  bottom: -0.5rem;
+  width: 47%;
+  height: auto;
+  object-fit: contain;
+}
+.translation {
+  display: inline-block;
+  margin-left: 0.4rem;
+  font-size: 0.65em;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+/* Keep administrator tools beside either Study state. An unavailable menu
+ * renders nothing and must not reserve width for ordinary learners. */
+.studyRow {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+}
+.studyRow > :first-child {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+}
+.studyButton[data-slot="button"],
+.studyLocked {
+  min-height: 3.25rem;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 1rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  white-space: normal;
+  text-align: center;
+}
+.studyLocked {
+  border: 1px solid var(--border);
+  background: var(--disabled);
+  color: var(--disabled-foreground);
+  font-size: 0.95rem;
+}
+.studyArtwork {
+  width: 3.5rem;
+  height: 2.75rem;
+  object-fit: contain;
+}
+.verseDetails {
+  padding: 0.25rem 0.5rem;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}
+.verseDetails summary {
+  min-height: 2.75rem;
+  align-content: center;
+  cursor: pointer;
+  font-weight: 700;
+}
+.verseDetails summary:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+.verseDetails blockquote {
+  border-left: 3px solid var(--primary);
+  padding: 0.5rem 0.75rem;
+  color: var(--foreground);
+  line-height: 1.7;
+}
+.rules {
+  display: grid;
+  gap: 0.5rem;
+  border: 1px solid var(--info-border);
+  border-radius: 1rem;
+  padding: 0.75rem;
+  background: var(--info-subtle);
+  color: var(--info-text);
+  font-size: 0.85rem;
+}
+.rules p {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.days {
+  display: grid;
+  gap: 0.7rem;
+}
+.dayCard {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0.65rem;
+  border: 1px solid var(--info-border);
+  border-radius: 1.1rem;
+  background: linear-gradient(140deg, var(--card), var(--info-subtle));
+}
+.ready {
+  border-color: var(--selection);
+  box-shadow: 0 0 0 2px var(--selection);
+}
+.complete {
+  border-color: var(--success-border);
+  background: linear-gradient(135deg, var(--success-subtle), var(--card));
+}
+.locked,
+.cooldown {
+  background: linear-gradient(140deg, var(--muted), var(--card));
+  border-color: var(--border);
+}
+.dayBody {
+  position: relative;
+  display: grid;
+  grid-template-columns: 27% minmax(0, 1fr);
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 6.25rem;
+}
+.dayArtwork {
+  width: 100%;
+  height: 6.75rem;
+  object-fit: contain;
+}
+.dayCopy {
+  min-width: 0;
+  padding-top: 0.2rem;
+}
+.dayTitle {
+  max-width: calc(100% - 5.25rem);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.25rem;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+.daySubtitle {
+  margin-top: 0.25rem;
+  color: var(--info-text);
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+.reward,
+.kindled {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.35rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+.reward {
+  color: var(--reward-text);
+}
+.reward img,
+.kindled img {
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  object-fit: contain;
+}
+.kindled {
+  color: var(--success-text);
+  font-size: 0.85rem;
+  margin-top: 0.15rem;
+}
+.status {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 1px solid var(--info-border);
+  border-radius: 2rem;
+  background: var(--info-subtle);
+  color: var(--info-text);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.complete .status {
+  background: var(--success-subtle);
+  border-color: var(--success-border);
+  color: var(--success-text);
+}
+.locked .status,
+.cooldown .status {
+  background: var(--muted);
+  border-color: var(--border);
+  color: var(--muted-foreground);
+}
+.countdown {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  border-radius: 0.75rem;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}
+.dayAction {
+  margin-top: auto;
+  padding-top: 0.35rem;
+}
+.actionButton,
+.actionButton[data-slot="button"] {
+  width: 100%;
+  min-height: 2.75rem;
+  height: auto;
+  padding: 0.5rem;
+  font-size: 1rem;
+  white-space: normal;
+  border-radius: 0.75rem;
+}
+.completeMessage {
+  min-height: 2.75rem;
+  align-content: center;
+  text-align: center;
+  font-weight: 700;
+  color: var(--success-text);
+}
+.adminTools {
+  display: flex;
+  flex-shrink: 0;
+}
+.adminTools:empty {
+  display: none;
+}
+/* Desktop uses the available width deliberately: a broader hero and three day
+ * columns. These rules never change the shared shell or the mobile composition. */
+@media (min-width: 1024px) {
+  .page {
+    width: min(100%, 76rem);
+    padding: 1rem 2rem 2rem;
+  }
+  .content {
+    gap: 1rem;
+  }
+  .hero {
+    min-height: clamp(8rem, 20dvh, 12rem);
+  }
+  .heroCopy {
+    width: 65%;
+    padding: 1rem;
+  }
+  .waypointMeta {
+    font-size: 1rem;
+  }
+  .heading {
+    max-width: none;
+    font-size: clamp(2rem, 3vw, 3.5rem);
+  }
+  .reference {
+    font-size: 1.5rem;
+  }
+  .meemo {
+    height: 110%;
+    width: 32%;
+    right: 3%;
+    object-position: center bottom;
+  }
+  .days {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  .dayCard {
+    padding: 1rem;
+  }
+  .dayBody {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+    text-align: center;
+  }
+  .dayArtwork {
+    height: clamp(5rem, 14dvh, 8rem);
+    margin-top: 1.75rem;
+  }
+  .dayTitle {
+    max-width: none;
+    font-size: 1.5rem;
+  }
+  .daySubtitle {
+    font-size: 1rem;
+  }
+  .reward,
+  .kindled {
+    justify-content: center;
+  }
+  .dayAction {
+    padding-top: 1rem;
+  }
+}

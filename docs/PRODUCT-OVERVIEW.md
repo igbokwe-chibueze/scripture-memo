@@ -1302,6 +1302,19 @@ original Scripture reference and Journey Stage preview for comparison.
 
 ### 15.3 Day Selection Screen
 
+The owner-approved light/dark concept composition uses a Today's Challenge
+header with a generated welcome-Meemo bust, waypoint number, Journey Stage,
+verse reference, and Study control. Mobile stacks the illustrated Glimmer,
+Glow, and Radiance cards; desktop reorganizes them into three columns within
+the unchanged player shell. Supplied emblems and locked artwork live in the
+new collection at `public/images/game-ui/waypoints/`, separate from legacy icons.
+Surfaces follow the selected brand and light/dark themes.
+
+Study access, recorded rewards, day order, cooldowns, and completed-mode practice
+remain server-authoritative. Pre-study scripture is available in a disclosure;
+locked Study never renders it. Timed-stage/no-hint notices and administrator
+testing remain accessible. Concept sample values never replace live player data.
+
 For a selected waypoint:
 - Verse reference and preferred translation displayed
 - Journey Stage badge clearly visible

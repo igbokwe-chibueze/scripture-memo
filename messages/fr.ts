@@ -107,6 +107,13 @@ const fr = {
   },
   DaySelection: {
     ...en.DaySelection,
+    todayChallenge: "Le défi du jour",
+    study: "Étudier",
+    readVerse: "Lire le verset",
+    openingStudy: "Ouverture de l’étude",
+    openingMap: "Ouverture de la carte",
+    practiceAgain: "Pratiquer à nouveau",
+    startFailed: "Impossible de démarrer le défi. Veuillez réessayer.",
     practiceMode: "Réviser un mode terminé",
     openingPractice: "Ouverture de la révision…",
     choosePracticeMode: "Choisissez un mode terminé de {day}",

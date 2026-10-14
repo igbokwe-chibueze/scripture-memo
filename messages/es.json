@@ -195,6 +195,13 @@
     "statuses": { "LOCKED": "Bloqueado", "UNLOCKED": "Listo", "IN_PROGRESS": "En curso", "COOLDOWN": "En espera", "COMPLETED": "Completado" }
   },
   "DaySelection": {
+    "todayChallenge": "Desaf?o de hoy",
+    "study": "Estudiar",
+    "readVerse": "Leer vers?culo",
+    "openingStudy": "Abriendo estudio",
+    "openingMap": "Abriendo mapa",
+    "practiceAgain": "Practicar de nuevo",
+    "startFailed": "No se pudo iniciar el desaf?o. Int?ntalo de nuevo.",
     "backToMap": "Volver al mapa",
     "waypoint": "Punto {number}",
     "threeDayChallenge": "Desafío de tres días",

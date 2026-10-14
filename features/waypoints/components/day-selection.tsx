@@ -1,20 +1,20 @@
 "use client";
 
-import Link from "next/link";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { AlertTriangleIcon, BookHeartIcon, Clock3Icon, LockKeyholeIcon, ShieldOffIcon } from "lucide-react";
-import { buttonVariants } from "@/components/ui/button";
+import { Clock3Icon, LockKeyholeIcon, ShieldOffIcon } from "lucide-react";
+import { NavigationButton } from "@/components/shared/navigation-button";
 import { JourneyStageBadge } from "@/components/shared/journey-stage-badge";
-import {
-  DayCard,
-  type StartDay,
-} from "@/features/waypoints/components/day-card";
-import { AdminDayTestingMenu } from "@/features/waypoints/components/admin-day-testing-menu";
-import type { DayCardData, DaySelectionData } from "@/features/waypoints/types/day-selection.types";
+import { DayCard, type StartDay } from "./day-card";
+import { AdminDayTestingMenu } from "./admin-day-testing-menu";
+import type { DayCardData, DaySelectionData } from "../types/day-selection.types";
 import { JourneyStage } from "@/lib/generated/prisma/enums";
-import { cn } from "@/lib/utils";
+import styles from "./day-selection.module.css";
 
-/** Mobile-first interactive composition for one waypoint's three-day challenge. */
+/**
+ * Reference-led waypoint composition using trusted server data. The existing
+ * shell owns avatar/counters/navigation; artwork never determines permissions.
+ */
 export function DaySelection({
   data,
   cards,
@@ -38,94 +38,107 @@ export function DaySelection({
   }[data.journeyStage];
 
   return (
-    <div className="space-y-6">
-      <section className="overflow-hidden rounded-dialog border border-border bg-card p-5 shadow-sm sm:p-7">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs font-bold tracking-[0.18em] text-primary uppercase">
-            {t("waypoint", { number: data.waypointNumber })}
+    <div className={styles.content}>
+      <section className={styles.hero} aria-labelledby="waypoint-heading">
+        <div className={styles.heroCopy}>
+          <div className={styles.waypointMeta}>
+            <p>{t("waypoint", { number: data.waypointNumber })}</p>
+            <JourneyStageBadge stage={data.journeyStage} className={styles.stage} />
+          </div>
+          <h1 id="waypoint-heading" className={styles.heading}>
+            {t("todayChallenge")}
+          </h1>
+          <p className={styles.reference}>
+            {data.reference}
+            <span className={styles.translation}>{data.translation}</span>
           </p>
-          <JourneyStageBadge stage={data.journeyStage} className="h-8 px-3" />
         </div>
-        <h1 className="mt-4 font-heading text-3xl font-bold tracking-tight sm:text-4xl">
-          {data.reference}
-        </h1>
-        <p className="mt-1 text-xs font-bold tracking-wide text-muted-foreground uppercase">
-          {data.translation}
-        </p>
-        {data.studyAccess === "PRE_STUDY" && (
-          <blockquote className="mt-5 border-l-4 border-primary pl-4 text-base leading-7 font-medium text-foreground sm:text-lg">
-            {data.translationText}
-          </blockquote>
-        )}
-        <div className="mt-5">
-          {data.studyAccess === "LOCKED" ? (
-            <span className="inline-flex min-h-11 items-center gap-2 rounded-control border border-border bg-muted px-4 text-sm font-bold text-muted-foreground">
-              <LockKeyholeIcon className="size-4" aria-hidden="true" /> {t("studyReopens")}
-            </span>
-          ) : (
-            <Link
-              href={`/sanctuary/${data.verseId}`}
-              className={cn(buttonVariants({ variant: "outline" }), "min-h-11 rounded-xl px-4 font-bold")}
-            >
-              <BookHeartIcon aria-hidden="true" /> {t("studyVerse")}
-            </Link>
-          )}
-        </div>
+        <Image
+          src="/images/mascot/meemo/meemo-waypoint-welcome.png"
+          alt=""
+          aria-hidden="true"
+          width={1024}
+          height={1024}
+          sizes="(min-width: 1024px) 260px, 48vw"
+          preload
+          className={styles.meemo}
+        />
       </section>
 
-      {(hintsUnavailable || timeNotice) && (
-        <section aria-label={t("stageRules")} className="grid gap-3 sm:grid-cols-2">
-          {hintsUnavailable && (
-            <div className="flex min-h-20 items-center gap-3 rounded-card border border-border bg-muted p-4 text-muted-foreground">
-              <ShieldOffIcon className="size-6 shrink-0" aria-hidden="true" />
-              <div>
-                <p className="font-bold">{t("noHints")}</p>
-                <p className="text-xs opacity-80">{t("memoryAlone")}</p>
-              </div>
-            </div>
-          )}
-          {timeNotice && (
-            <div className="flex min-h-20 items-center gap-3 rounded-card border border-info-border bg-info-subtle p-4 text-info-text">
-              <Clock3Icon className="size-6 shrink-0" aria-hidden="true" />
-              <div>
-                <p className="font-bold">{t("timedChallenge")}</p>
-                <p className="text-xs opacity-80">{timeNotice}</p>
-              </div>
-            </div>
-          )}
-        </section>
-      )}
-
-      <section aria-labelledby="challenge-days-heading" className="space-y-4">
-        <div className="flex items-end justify-between gap-3">
-          <div>
-            <p className="flex items-center gap-2 text-xs font-bold tracking-[0.16em] text-primary uppercase">
-              <AlertTriangleIcon className="size-4" aria-hidden="true" />
-              {t("threeDayChallenge")}
-            </p>
-            <h2 id="challenge-days-heading" className="mt-1 font-heading text-2xl font-bold">
-              {t("chooseChallenge")}
-            </h2>
+      <div className={styles.studyRow}>
+        {data.studyAccess === "LOCKED" ? (
+          <div className={styles.studyLocked}>
+            <LockKeyholeIcon className="size-5 shrink-0" aria-hidden="true" />
+            <span>{t("studyReopens")}</span>
           </div>
-          {isAdmin && (
+        ) : (
+          <NavigationButton
+            href={`/sanctuary/${data.verseId}`}
+            pendingLabel={t("openingStudy")}
+            variant="secondary"
+            className={styles.studyButton}
+          >
+            <Image
+              src="/images/game-ui/waypoints/study.png"
+              alt=""
+              width={80}
+              height={80}
+              className={styles.studyArtwork}
+            />
+            {t("study")}
+          </NavigationButton>
+        )}
+        {isAdmin && (
+          <div className={styles.adminTools}>
             <AdminDayTestingMenu
               waypointId={data.waypointId}
               journeyStage={data.journeyStage}
               cards={cards}
             />
+          </div>
+        )}
+      </div>
+
+      {/* A closed disclosure preserves pre-study scripture without crowding the
+       * concept header. Locked Study never renders the scripture in the DOM. */}
+      {data.studyAccess === "PRE_STUDY" && (
+        <details className={styles.verseDetails}>
+          <summary>{t("readVerse")} · {data.translation}</summary>
+          <blockquote>{data.translationText}</blockquote>
+        </details>
+      )}
+
+      {(hintsUnavailable || timeNotice) && (
+        <section aria-label={t("stageRules")} className={styles.rules}>
+          {hintsUnavailable && (
+            <p>
+              <ShieldOffIcon className="size-5 shrink-0" aria-hidden="true" />
+              <span>
+                <strong>{t("noHints")}</strong> {t("memoryAlone")}
+              </span>
+            </p>
           )}
-        </div>
-        <div className="grid gap-4 lg:grid-cols-3">
-          {cards.map((card, index) => (
-            <DayCard
-              key={card.dayLevel}
-              card={card}
-              waypointId={data.waypointId}
-              index={index}
-              startDayAction={startDayAction}
-            />
-          ))}
-        </div>
+          {timeNotice && (
+            <p>
+              <Clock3Icon className="size-5 shrink-0" aria-hidden="true" />
+              <span>
+                <strong>{t("timedChallenge")}</strong> {timeNotice}
+              </span>
+            </p>
+          )}
+        </section>
+      )}
+
+      <section aria-label={t("threeDayChallenge")} className={styles.days}>
+        {cards.map((card, index) => (
+          <DayCard
+            key={card.dayLevel}
+            card={card}
+            waypointId={data.waypointId}
+            index={index}
+            startDayAction={startDayAction}
+          />
+        ))}
       </section>
     </div>
   );
