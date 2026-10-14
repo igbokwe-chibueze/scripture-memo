@@ -522,4 +522,25 @@ Accepted risk justification (if applicable):
 
 *Security is not a feature. It is a baseline requirement. No item in this document is optional.*
 
+### Editorial addition — 2026-10-14
+
+- Public listing/detail repository methods always filter PUBLISHED. Metadata
+  uses the same published-only detail lookup; drafts render the same not-found
+  page as missing articles and noindex metadata. Next.js documents HTTP 200 for
+  streamed not-found pages and 404 for non-streamed ones; neither exposes draft
+  content. No user identity, session, email, or editorial actor ID is delivered publicly.
+- Every editor read and save checks ADMIN/SUPER_ADMIN server-side. Save input
+  is Zod-validated first. Article bodies render through restricted Markdown,
+  skipping raw HTML and rejecting executable URL schemes and remote images.
+- Slug uniqueness is enforced by PostgreSQL. Previously published URLs remain
+  stable. Optimistic versions and an atomic save/audit transaction prevent lost
+  changes and partially audited publication.
+- Separate local test-database integration verifies draft exclusion, search,
+  publication/unpublication, stable URLs, audit records, and stale-save rejection.
+- Search is submitted rather than polled or queried on keystrokes: two bounded
+  database queries per listing request, one request-deduplicated article read for
+  detail/metadata, no N+1 requests or initialization writes during public reads.
+- The starter-article installer is local-only, explicit, additive, and idempotent;
+  it never overwrites an existing slug or accesses a hosted database.
+
 *Last reviewed: v2.0 — review and update before every major release.*

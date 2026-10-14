@@ -41,6 +41,36 @@ export type ErrorFeature =
  */
 export const ERROR_CATALOG = [
   {
+    code: "BLG-001",
+    title: "Article changed while editing",
+    feature: "Administration",
+    userMessage: "This article changed. Reload before saving.",
+    explanation: "The saved article version differs from the version opened by this editor. The newer content is preserved.",
+    commonCauses: ["Another administrator saved the article.", "The same article was edited in two tabs."],
+    examples: ["An older draft is submitted after another editor publishes a revision."],
+    solutions: ["Copy your unsaved work, reload, and merge it with the current article."],
+  },
+  {
+    code: "BLG-002",
+    title: "Article URL already exists",
+    feature: "Administration",
+    userMessage: "That article URL is already in use.",
+    explanation: "Every article, including private drafts, reserves a unique slug. The conflicting save was not committed.",
+    commonCauses: ["An existing article uses the same slug."],
+    examples: ["Two administrators create articles with the same URL."],
+    solutions: ["Choose a different slug or edit the existing article."],
+  },
+  {
+    code: "BLG-003",
+    title: "Article save failed",
+    feature: "Administration",
+    userMessage: "The article could not be saved.",
+    explanation: "The editorial save and its audit record did not commit together. The editor retains the unsaved fields for retry.",
+    commonCauses: ["A temporary database connection issue.", "An audit transaction could not complete."],
+    examples: ["The database connection is interrupted during publication."],
+    solutions: ["Keep a copy of your text and retry.", "If the failure repeats, check sanitized server logs."],
+  },
+  {
     code: "WP-001",
     title: "Waypoint locked by learner history",
     feature: "Waypoints",

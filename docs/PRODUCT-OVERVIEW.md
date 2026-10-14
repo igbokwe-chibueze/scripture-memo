@@ -1501,6 +1501,32 @@ Admin settings (Super Admin only):
 
 ---
 
+### 15.10 Public Journal and Game Guides (owner-approved 2026-10-14)
+
+- `/blog` is public without login, with submitted text search, category filters,
+  bounded 12-article pagination, and an intentional empty state.
+- Categories are Game Guides, News & Announcements, and Behind the Scenes.
+  `/blog/[slug]` displays published content, its public byline, publication date,
+  last updated date, and estimated reading time. Draft URLs show the not-found
+  page and noindex metadata without exposing draft content.
+- `/admin/blog` and `/admin/blog/[articleId]` are ADMIN/SUPER_ADMIN-only. The
+  `new` segment opens an unsaved draft. The Markdown editor supports preview,
+  draft saving, publishing, updating, and returning a published article to draft.
+- Publication is explicit when saving. Published summaries require at least
+  20 characters and bodies at least 80 characters. Bodies are limited to 60,000
+  characters; raw HTML, embedded scripts, and remote images are not rendered.
+- Slugs are unique and permanent after first publication. Version matching
+  prevents stale editors from overwriting newer content. Saves and audit records
+  commit atomically. No automatic deletion or article autosave polling occurs.
+- The initial local installation includes seven game guides, a welcome
+  announcement, and a design article. These are editable database articles,
+  not runtime copies of project documentation. Update the relevant guide when
+  changing a documented player-facing rule; its last updated date changes on save.
+- Landing and Settings link to the public journal; the admin control center links
+  to the editor. Existing player navigation remains unchanged.
+- Ordinary article reads do not write data or award rewards. Blog publication
+  never exposes gated verse-study content or private player/account records.
+
 ## 16. Reusable Components
 
 Build the following as shared, reusable components before implementing features that need them.

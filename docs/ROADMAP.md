@@ -2021,4 +2021,15 @@ Fellowship, case number, kind, and current case status.
 
 ---
 
+### Public Journal and Searchable Guides — owner-requested addition (2026-10-14)
+
+Implemented public `/blog` and article pages, submitted search/category filters,
+bounded pagination, and ADMIN/SUPER_ADMIN drafting/preview/publication tools.
+The additive BlogArticle migration is applied to local development and test
+databases; nine initial public articles are installed locally. The bootstrap
+installer preserves subsequent editorial changes and refuses hosted targets.
+Article saves are audited and protected against stale edits; drafts remain private.
+This owner request takes precedence over the earlier feature sequence. Ongoing
+feature work must update relevant game guides when functionality changes.
+
 *End of Scripture Memo AI Build Roadmap v2.0*

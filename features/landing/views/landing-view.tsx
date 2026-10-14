@@ -14,6 +14,7 @@ import {
 import { ResponsiveContainer } from "@/components/shared/responsive-container";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { ThemeSwitcher } from "@/components/shared/theme-switcher";
+import { NavigationButton } from "@/components/shared/navigation-button";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -99,7 +100,12 @@ export function LandingView(): React.ReactNode {
             </span>
             Scripture Memo
           </Link>
-          <ThemeSwitcher />
+          <div className="flex flex-wrap items-center justify-end gap-3">
+            <NavigationButton href="/blog" pendingLabel="Opening the journal" variant="ghost" className="min-h-11">
+              Guides & updates
+            </NavigationButton>
+            <ThemeSwitcher />
+          </div>
         </ResponsiveContainer>
       </header>
 

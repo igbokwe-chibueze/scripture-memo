@@ -6,6 +6,7 @@ import { ResponsiveContainer } from "@/components/shared/responsive-container";
 import { StatCard } from "@/components/shared/stat-card";
 import { SettingsForm } from "@/features/settings/components/settings-form";
 import { getSettingsPageData } from "@/features/settings/lib/get-settings-page-data";
+import { NavigationButton } from "@/components/shared/navigation-button";
 
 export const metadata: Metadata = {
   title: "Settings | Scripture Memo",
@@ -43,6 +44,15 @@ export async function SettingsView(): Promise<React.ReactNode> {
           initialValues={data.formValues}
           isPartner={data.isPartner}
         />
+        <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
+          <h2 className="font-heading text-xl font-bold">Guides & updates</h2>
+          <p className="text-sm text-muted-foreground">
+            Find answers about challenges, Beacon Levels, rewards, and what’s new.
+          </p>
+          <NavigationButton href="/blog" pendingLabel="Opening guides" variant="outline" className="min-h-11">
+            Open the journal
+          </NavigationButton>
+        </section>
       </ResponsiveContainer>
     </main>
   );

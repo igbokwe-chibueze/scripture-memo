@@ -19,6 +19,37 @@ enum UserRole {
   SUPER_ADMIN
 }
 
+// Public editorial content is separate from learner data. Drafts are never
+// returned by public repository methods; the version prevents lost edits.
+enum BlogArticleStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum BlogCategory {
+  GUIDE
+  NEWS
+  BEHIND_SCENES
+}
+
+model BlogArticle {
+  id          String            @id @default(cuid())
+  slug        String            @unique
+  title       String
+  excerpt     String
+  content     String            @db.Text
+  category    BlogCategory       @default(GUIDE)
+  status      BlogArticleStatus  @default(DRAFT)
+  byline      String            @default("Scripture Memo")
+  version     Int               @default(1)
+  publishedAt DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([status, category, publishedAt(sort: Desc)])
+  @@index([status, publishedAt(sort: Desc)])
+}
+
 enum TranslationCode {
   NIV
   ESV

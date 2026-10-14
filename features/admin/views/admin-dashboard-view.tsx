@@ -17,6 +17,7 @@ import { NavigationButton } from "@/components/shared/navigation-button";
 import { PageHeader } from "@/components/shared/page-header";
 import { ResponsiveContainer } from "@/components/shared/responsive-container";
 import { StatCard } from "@/components/shared/stat-card";
+import { GameArtwork } from "@/components/shared/game-artwork";
 import { getAdminSession } from "@/features/auth/lib/get-admin-session";
 import { adminRepository } from "@/features/admin/repositories/admin.repository";
 import { isSuperAdmin } from "@/lib/permissions";
@@ -26,7 +27,18 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+/** Reuse approved new-style artwork for the journal's admin destination. */
+function JournalArtwork({ className }: { className?: string }): React.ReactNode {
+  return <GameArtwork name="bibleOpen" className={className} sizes="32px" />;
+}
+
 const ADMIN_DESTINATIONS = [
+  {
+    href: "/admin/blog",
+    label: "Journal & guides",
+    description: "Write, preview, and publish public game guides and updates.",
+    icon: JournalArtwork,
+  },
   {
     href: "/admin/verses",
     label: "Verses",

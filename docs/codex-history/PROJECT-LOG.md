@@ -1,5 +1,41 @@
 # Scripture Memo Project Log
 
+### 2026-10-14 - Public journal, searchable guides, and admin editor
+
+- Owner approved a public blog with an ADMIN/SUPER_ADMIN editor, built now.
+  Added `/blog`, `/blog/[slug]`, `/admin/blog`, and `/admin/blog/[articleId]`;
+  `new` opens an unsaved article. Linked the journal from Landing and Settings
+  and the editorial workspace from the admin control center.
+- Added Game Guides, News & Announcements, and Behind the Scenes categories;
+  submitted search, 12-article pagination, last updated dates, reading estimates,
+  and intentional loading/empty/pending/error states. Public UI uses the new
+  game artwork and semantic themes; existing player navigation is unchanged.
+- Editor supports Markdown preview, private drafts, publish/update/unpublish,
+  unique stable slugs, optimistic edit versions, and transactionally paired audit
+  records. Public repositories/metadata exclude drafts; unsafe HTML/URL schemes,
+  embeds, and remote images are not rendered. No article autosave/polling.
+- Applied additive BlogArticle migration to existing local development (51214)
+  and isolated tests (51224). Installed nine public starter articles locally:
+  seven guides, welcome news, and a design article. A second installer run added
+  zero and preserved existing content. Hosted databases were not accessed.
+- Restarted the existing local app server to load its regenerated Prisma client.
+  Local app remains available at localhost:3000. Next dev automatically refreshed
+  its managed instruction block in AGENTS.md; no application rules were changed.
+- Validation: 167 unit tests, seven design-system checks, error-catalog checks,
+  and guarded blog repository integration passed (draft/search boundaries,
+  publish/unpublish, duplicate URLs, stale versions, stable URLs, atomic audit).
+- Actual browser checks passed for public light/dark at 375px and desktop,
+  article reading, search/empty state, and mobile/desktop editor preview/save.
+  A disposable account on the separate test database verified publication and
+  unpublication, anonymous denial, and ordinary-player denial. Test fixtures
+  were removed narrowly; development learner records were untouched.
+- Draft/missing articles render the same not-found page with noindex. Bundled
+  Next documentation confirms streamed not-found responses can carry HTTP 200;
+  browser checks verify no draft content leaks rather than relying on status alone.
+- Updated product, roadmap, security, and README guidance. Future rule changes
+  should update the relevant editable guide. Final lint, typecheck, production
+  build, and whitespace checks passed. No commit or deployment performed.
+
 ### 2026-10-14 - Waypoint admin menu moved beside Study
 
 - Moved the existing administrator testing menu from below the day cards to the
