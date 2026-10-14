@@ -222,6 +222,15 @@ classes before changing `components/ui/button.tsx`.
 
 ## 11. Luna
 
+### Approved icon direction (2026-10-14)
+
+The new Home icon collection in `public/images/game-ui/` is the standard for
+future icon work. Follow its colorful, glossy dimensional art style and keep
+these assets separate from previous collections. If an appropriate new icon is
+missing, ask the owner before substituting other artwork. Preserve old icons
+until the owner explicitly requests deletion; this decision does not initiate
+a bulk replacement of existing screens. See that directory's `README.md`.
+
 - Luna supports loading, recoverable errors, empty states, reminders, and selected
   completion moments approved by the project owner.
 - Use the approved pose for the emotional context.

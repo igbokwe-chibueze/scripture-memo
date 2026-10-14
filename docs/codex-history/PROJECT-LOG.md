@@ -1,5 +1,34 @@
 # Scripture Memo Project Log
 
+### 2026-10-14 - New icon collection established as the future standard
+
+- Owner designated the new Home icons and their art style as the standard for
+  future work. Collection remains separate in `public/images/game-ui/`.
+- Added collection guidance and updated the UI/UX guide. Ask when a matching
+  icon is missing; do not silently fall back to legacy artwork.
+- Older icons remain untouched pending the owner's explicit deletion request.
+  No bulk screen migration or asset deletion was performed.
+
+### 2026-10-14 - Local development database started
+
+- Restarted the existing persisted scripture-memo instance with the installed
+  Prisma Local runtime on port 51214. No migrations, resets, or seeds performed.
+
+
+### 2026-10-11 - Desktop-only sizing correction
+
+- Owner reverted the preceding attempt because it changed the mobile Meemo
+  backdrop. All sizing corrections now apply exclusively at 1280px and up.
+- Desktop uses a circular backdrop, smaller Home content, compact sidebar
+  spacing, and two contextual rows sized to the available viewport height.
+  The second shortcut row may remain below the fold as approved.
+- Compared non-desktop CSS declarations against HEAD: mobile/tablet geometry
+  remains unchanged. Only the requested shortcut colors change across sizes:
+  Shop green and Admin orange give all six tiles distinct bright hues.
+- Typecheck, lint, all seven design-system checks, and diff whitespace checks
+  passed. No data, authorization, or routing changes.
+
+
 ### 2026-10-11 - Supplied Admin icon and compact desktop Home
 
 - Replaced the temporary Admin symbol with the owner's Royal Shield, Golden Key

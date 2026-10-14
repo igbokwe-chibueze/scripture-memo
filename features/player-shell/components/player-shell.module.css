@@ -282,8 +282,10 @@
 }
 
 @media (min-width: 1280px) {
+  /* Desktop-only height budget: keep Settings and both contextual cards
+   * reachable on short screens without changing mobile or tablet geometry. */
   .frame {
-    --player-topbar-height: 5.625rem;
+    --player-topbar-height: clamp(3.5rem, 9dvh, 5rem);
     --player-sidebar-width: clamp(13rem, 17vw, 16.625rem);
     --player-context-width: clamp(18rem, 25vw, 24.75rem);
   }
@@ -294,21 +296,44 @@
     position: fixed;
     inset: var(--player-topbar-height) 0 0 auto;
     z-index: 20;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(0.5rem, 2dvh, 1.5rem);
     width: var(--player-context-width);
-    padding: 1.25rem;
+    padding: clamp(0.5rem, 2dvh, 1.25rem);
     overflow-y: auto;
     border-left: 1px solid var(--border);
     background: var(--background);
   }
   .contextSlot {
-    flex: 0;
+    min-height: 0;
+    overflow: auto;
+  }
+  .partnerCard {
+    min-height: 0;
+    gap: clamp(0.25rem, 1dvh, 0.75rem);
+    padding: clamp(0.5rem, 1.5dvh, 1.25rem);
+    justify-content: center;
+  }
+  .partnerMeemo {
+    height: clamp(2.5rem, 14dvh, 11rem);
+    min-height: 0;
+    flex-shrink: 1;
+  }
+  .partnerTitle {
+    font-size: clamp(1.125rem, 2.4dvh, 1.75rem);
+  }
+  .partnerEyebrow {
+    font-size: clamp(0.75rem, 1.8dvh, 1rem);
+  }
+  .partnerButton {
+    min-height: 2.75rem;
+    margin-top: 0.25rem;
+    font-size: clamp(0.95rem, 2dvh, 1.2rem);
   }
   .sidebar {
     padding-inline: 1.1rem;
-    padding-bottom: 2rem;
+    padding-bottom: clamp(0.75rem, 2dvh, 2rem);
   }
   .logo {
     justify-content: flex-start;
@@ -318,52 +343,61 @@
     display: flex;
     flex-direction: column;
     font-family: var(--font-heading);
-    font-size: 1.5rem;
+    font-size: clamp(1.125rem, 2.5dvh, 1.5rem);
     font-weight: 700;
     line-height: 1.05;
   }
   .sidebarNavigation ul {
-    gap: 1.5rem;
+    gap: clamp(0.5rem, 2dvh, 1.5rem);
+  }
+  .sidebarNavigation {
+    padding-top: clamp(0.5rem, 2dvh, 1.25rem);
+  }
+  .sidebarNavigation li {
+    flex-shrink: 0;
+  }
+  .settingsItem {
+    padding-top: clamp(0.5rem, 1.5dvh, 1rem);
   }
   .sidebarNavigation .navigationItem {
     flex-direction: row;
     justify-content: flex-start;
     gap: 0.5rem;
-    min-height: 5rem;
+    min-height: clamp(2.75rem, 8dvh, 5rem);
     padding-inline: 0.5rem;
     border-radius: 1.4rem;
     text-align: left;
-    font-size: clamp(1rem, 1.5vw, 1.55rem);
+    font-size: clamp(1rem, 2.3dvh, 1.5rem);
     font-weight: 700;
   }
   .sidebarNavigation .navigationArtwork {
-    width: clamp(2.5rem, 3.5vw, 3.5rem);
-    height: clamp(2.5rem, 3.5vw, 3.5rem);
+    width: clamp(2rem, 6dvh, 3.5rem);
+    height: clamp(2rem, 6dvh, 3.5rem);
   }
   .topBar {
     padding-inline: 1.8rem;
   }
   .sectionArtwork {
-    width: 3.75rem;
-    height: 3.75rem;
+    width: clamp(2.75rem, 7dvh, 3.75rem);
+    height: clamp(2.75rem, 7dvh, 3.75rem);
   }
   .sectionIdentity {
-    font-size: 1.6rem;
+    font-size: clamp(1.125rem, 2.5dvh, 1.5rem);
   }
-  .avatarButton[data-slot="button"] {
-    width: 4rem;
-    height: 4rem;
+  .avatarButton[data-slot=button] {
+    width: clamp(2.75rem, 7dvh, 4rem);
+    height: clamp(2.75rem, 7dvh, 4rem);
   }
   .counter {
-    min-height: 3.5rem;
+    min-height: clamp(2.75rem, 6dvh, 3.5rem);
     gap: 0.35rem;
     padding-inline: 0.75rem;
   }
   .counterArtwork {
-    width: 2.5rem;
-    height: 2.5rem;
+    width: clamp(1.75rem, 4dvh, 2.5rem);
+    height: clamp(1.75rem, 4dvh, 2.5rem);
   }
   .counterValue {
-    font-size: 1.4rem;
+    font-size: clamp(1rem, 2.4dvh, 1.4rem);
   }
 }

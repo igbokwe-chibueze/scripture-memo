@@ -1246,7 +1246,9 @@ Mobile navigation shows icons only, retaining accessible destination labels;
 desktop retains text. The Leaderboard artwork is enlarged to compensate for
 its transparent padding. Desktop Home scales artwork/cards with viewport height
 to keep the main adventure and first shortcut row visible; the second row may
-sit below the fold. Admin uses the owner-supplied shield-and-key artwork.
+sit below the fold. Desktop alone corrects the stretched Meemo backdrop to a
+circle and budgets sidebar/context cards for short viewport heights. The approved
+mobile/tablet backdrop and layout are preserved. Admin uses the owner-supplied shield-and-key artwork.
 
 Daily Challenge currently displays explicitly illustrative progress and a +20
 reward placeholder; it never grants rewards or modifies learner progress. The
