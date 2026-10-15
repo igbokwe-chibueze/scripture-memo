@@ -13,7 +13,7 @@ import styles from "../components/day-selection.module.css";
 
 /** Personalized gameplay preparation pages must never appear in search results. */
 export const metadata: Metadata = {
-  title: "Choose a challenge day | Scripture Memo",
+  title: "Choose a challenge stage | Scripture Memo",
   description: "Choose the next private challenge in your Scripture journey.",
   robots: { index: false, follow: false },
 };

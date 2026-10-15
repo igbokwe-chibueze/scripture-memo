@@ -20,10 +20,10 @@ The platform is built on four scientifically grounded memorization principles:
 
 The application combines two layered progression systems that work together:
 
-- **The Three-Day Challenge System** — how a user completes a single waypoint (Glimmer → Glow → Radiance).
+- **The Three-Stage Challenge System** — how a user completes a single waypoint (Glimmer → Glow → Radiance).
 - **The Journey Stage System** — how a verse progresses across multiple waypoints over the expanding journey (Learn → Recall → Strengthen → Master).
 
-These two systems are independent but complementary. A user always plays the full three-day challenge at each waypoint. The Journey Stage tells them which appearance of that verse they are currently working on.
+These two systems are independent but complementary. A user always plays the full three-stage challenge at each waypoint. The Journey Stage tells them which appearance of that verse they are currently working on.
 
 ---
 
@@ -338,7 +338,7 @@ Do not create empty folders. Create a folder only when files actually go inside 
 
 - Register and log in.
 - Play unlocked waypoints.
-- Complete the three-day challenge for each waypoint.
+- Complete the three-stage challenge for each waypoint.
 - Earn Glow Points.
 - Use hints (where the Journey Stage allows).
 - View personal progress, stats, and badges.
@@ -550,8 +550,8 @@ requires a separately approved, reason-bearing, fully audited design.
   is the only waypoint unlocked for a new user. In a normally configured
   curriculum this is Waypoint 1.
 - All other waypoints are locked until the previous waypoint is fully completed.
-- A waypoint is fully completed when all three days of its challenge are complete.
-- Completing a waypoint's Day 3 automatically unlocks the next currently
+- A waypoint is fully completed when all three challenge stages of its challenge are complete.
+- Completing a waypoint's Stage 3 automatically unlocks the next currently
   published waypoint returned by the database; numbering gaps are not treated
   as learner failures.
 - A completed waypoint displays **three flames** on the map.
@@ -569,9 +569,9 @@ retry it if an earlier database operation was interrupted.
 |---|---|
 | `LOCKED` | Previous waypoint not yet completed |
 | `UNLOCKED` | Previous waypoint complete; this waypoint not yet started |
-| `IN_PROGRESS` | At least Day 1 started but Day 3 not yet complete |
+| `IN_PROGRESS` | At least Stage 1 started but Stage 3 not yet complete |
 | `COOLDOWN` | Awaiting 12-hour cooldown before next day unlocks |
-| `COMPLETED` | All three days complete |
+| `COMPLETED` | All three challenge stages complete |
 
 ---
 
@@ -579,7 +579,7 @@ retry it if an earlier database operation was interrupted.
 
 The Journey Stage System is a macro-level progression layer that tracks each
 verse's repeated appearances across the expanding waypoint journey. It is
-separate from and independent of the Three-Day Challenge System.
+separate from and independent of the Three-Stage Challenge System.
 
 ### 8.1 Journey Stages
 
@@ -601,7 +601,7 @@ Each verse progresses through four stages across separate waypoints. Example usi
 | Waypoint 67 | John 3:16 | Strengthen | 3rd |
 | Waypoint 154 | John 3:16 | Master | 4th |
 
-At each of these waypoints, the user still completes the full Three-Day Challenge (Glimmer → Glow → Radiance). The Journey Stage affects the availability of hints and the presence of a time limit — not the challenge structure itself.
+At each of these waypoints, the user still completes the full Three-Stage Challenge (Glimmer → Glow → Radiance). The Journey Stage affects the availability of hints and the presence of a time limit — not the challenge structure itself.
 
 If a verse needs to appear more than four times (additional `MASTER` stage appearances), this is supported and may be added by admins.
 
@@ -649,36 +649,41 @@ role; hiding the launcher in the browser is not treated as authorization.
 
 ### 8.5 Verse Mastery
 
-After successfully completing the **Master** stage waypoint for a verse (all three days complete), that verse is considered **permanently mastered** within the main progression. The Vault displays mastered verses in a dedicated section. Players may replay any mastered verse from the Vault at any time without affecting main campaign progression.
+After successfully completing the **Master** stage waypoint for a verse (all three challenge stages complete), that verse is considered **permanently mastered** within the main progression. The Vault displays mastered verses in a dedicated section. Players may replay any mastered verse from the Vault at any time without affecting main campaign progression.
 
 ---
 
-## 9. The Three-Day Challenge System
+## 9. The Three-Stage Challenge System
 
-Each waypoint contains three challenge days. The days must be completed in order. A rolling 12-hour cooldown is enforced between days.
+Each waypoint contains three challenge stages: Glimmer, Glow, and Radiance.
+Complete them in order, with a rolling 12-hour cooldown between stages.
+Completion messages use “Glimmer Complete!”, “Glow Complete!”, and “Radiance
+Complete!”. Radiance retains its separate existing waypoint celebration.
+Internal `DayLevel`/day-progress names are legacy persistence identifiers, not
+calendar-day promises and not the player-facing challenge terminology.
 
-### 9.1 Day 1 — Glimmer
+### 9.1 Stage 1 — Glimmer
 
 - Difficulty: Easy
 - Words hidden: 20–35%
 - Unlock condition: Available immediately when the waypoint is unlocked
 - Glow Points reward: Base amount (X)
 
-### 9.2 Day 2 — Glow
+### 9.2 Stage 2 — Glow
 
 - Difficulty: Medium
 - Words hidden: 40–60%
-- Unlock condition: Day 1 complete
-- Unlock timing: 12 elapsed hours after Day 1 completion
-- Glow Points reward: 1.5× the Day 1 base
+- Unlock condition: Stage 1 complete
+- Unlock timing: 12 elapsed hours after Stage 1 completion
+- Glow Points reward: 1.5× the Stage 1 base
 
-### 9.3 Day 3 — Radiance
+### 9.3 Stage 3 — Radiance
 
 - Difficulty: Hard
 - Words hidden: 70–100%
-- Unlock condition: Day 2 complete
-- Unlock timing: 12 elapsed hours after Day 2 completion
-- Glow Points reward: 2× the Day 1 base
+- Unlock condition: Stage 2 complete
+- Unlock timing: 12 elapsed hours after Stage 2 completion
+- Glow Points reward: 2× the Stage 1 base
 - Completion effect: Waypoint marked complete, next waypoint unlocked
 
 ### 9.4 Cooldown Rules
@@ -694,15 +699,15 @@ Each waypoint contains three challenge days. The days must be completed in order
 ### 9.5 Cooldown Calculation
 
 ```
-Day 2 unlock time = Day 1 completedAt + 12 hours
-Day 3 unlock time = Day 2 completedAt + 12 hours
+Stage 2 unlock time = Stage 1 completedAt + 12 hours
+Stage 3 unlock time = Stage 2 completedAt + 12 hours
 ```
 
 The server computes whether a day is playable by comparing the current UTC timestamp against the stored unlock timestamp. The client never decides this.
 
 Starting a day requires an unlocked learner-waypoint record, the preceding day
 where applicable, and a currently published waypoint and verse. Completing a
-day requires a server-created `IN_PROGRESS` day record. Day 3 completion,
+day requires a server-created `IN_PROGRESS` day record. Stage 3 completion,
 waypoint completion, and the next available waypoint unlock commit in one
 transaction so a partial advancement state cannot be observed.
 
@@ -820,7 +825,7 @@ order.
 - Clicking or tapping the same selected word again deselects it (returns to yellow).
 - The Check button validates all positions.
 - Words in correct positions turn **green**; words still in wrong positions turn **red**.
-- Difficulty: Day 1 — 20–35% swapped; Day 2 — 40–60%; Day 3 — 70–100%.
+- Difficulty: Stage 1 — 20–35% swapped; Stage 2 — 40–60%; Stage 3 — 70–100%.
 - On all correct: confetti, success toast, Continue button.
 
 **Implementation note:** The swap generator must track token positions, not just word text. If the verse contains duplicate words (e.g., two instances of "the"), each instance is tracked by its index position to ensure fair and unambiguous validation.
@@ -862,7 +867,7 @@ order.
 
 **Note:** Fill Mode is the final mode of each day. Its successful completion
 triggers the server-owned day transition, which sets the next-day cooldown and
-— on Day 3 — marks the waypoint complete and unlocks the next currently
+— on Stage 3 — marks the waypoint complete and unlocks the next currently
 published waypoint atomically. Glow Point awards, streak updates, and badge
 evaluation are added by their dedicated roadmap phases and must not be claimed
 by the UI before those systems are implemented.
@@ -930,9 +935,9 @@ Glow Points are the sole reward currency of Scripture Memo. There is no separate
 
 | Day | Reward |
 |---|---|
-| Day 1 — Glimmer | Base amount (X, configured by Super Admin) |
-| Day 2 — Glow | 1.5 × base |
-| Day 3 — Radiance | 2 × base |
+| Stage 1 — Glimmer | Base amount (X, configured by Super Admin) |
+| Stage 2 — Glow | 1.5 × base |
+| Stage 3 — Radiance | 2 × base |
 
 The default base reward is **100 Glow Points** until a Super Admin override is
 configured. New users start with a balance of **0 Glow Points**; the base reward
@@ -1318,7 +1323,7 @@ testing remain accessible. Concept sample values never replace live player data.
 For a selected waypoint:
 - Verse reference and preferred translation displayed
 - Journey Stage badge clearly visible
-- Day 1 (Glimmer), Day 2 (Glow), Day 3 (Radiance) cards
+- Stage 1 (Glimmer), Stage 2 (Glow), Stage 3 (Radiance) cards
 - Each day card shows: status, reward preview, flame indicator if complete
 - For cooldown days: real-time countdown timer (`CountdownTimer` component)
 - Start button for days that are ready
@@ -1612,7 +1617,7 @@ Build the following as shared, reusable components before implementing features 
 | `<HintButton>` | Shows remaining hints count; opens hint modal on click; hidden on Strengthen/Master stages |
 | `<FlameIndicator>` | Shows 0, 1, 2, or 3 flame icons for waypoint day completion |
 | `<WaypointCard>` | Waypoint tile for the game map with status, number, stage, and flame count |
-| `<DayCard>` | Day challenge card with name, status, reward preview, and countdown timer |
+| `<DayCard>` | Challenge stage card with name, status, reward preview, and countdown timer |
 | `<JourneyStageBadge>` | Pill showing Learn / Recall / Strengthen / Master with stage-appropriate color |
 
 ---
@@ -1858,7 +1863,7 @@ campaign or award Glow Points.
 - `startGameSessionAction`
 - `completeGameModeAction` — records attempt, evaluates badges
 - `completeDayAction` — awards Glow Points, sets next cooldown, evaluates badges
-- `unlockNextWaypointAction` — triggered after Day 3 completion
+- `unlockNextWaypointAction` — triggered after Stage 3 completion
 - `useHintAction` — decrements hint count, records usage
 
 ### Rewards Actions
@@ -1915,7 +1920,7 @@ Use Sonner for all user-facing feedback. Never use `alert()`. Never silently fai
 |---|---|
 | Success | "Login successful.", "Verse created.", "Day completed. +120 Glow Points earned.", "Badge unlocked! Verse Scholar 🏅" |
 | Error | "Invalid email or password.", "Something went wrong. Please try again.", "Not enough Glow Points." |
-| Info | "Day 2 unlocks in 23h 14m.", "Hint used. 2 hints remaining." |
+| Info | "Stage 2 unlocks in 23h 14m.", "Hint used. 2 hints remaining." |
 | Warning | "You only have 1 hint remaining.", "Unsaved changes will be lost." |
 
 - Error toasts persist until dismissed by the user.

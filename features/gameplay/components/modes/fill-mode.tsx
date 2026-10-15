@@ -83,6 +83,8 @@ export function FillMode({
   onReplayExit?: () => void;
 }): React.ReactNode {
   const t = useTranslations("Gameplay");
+  const stageT = useTranslations("DaySelection");
+  const stageLabel = stageT(dayLevel.toLowerCase() as "glimmer" | "glow" | "radiance");
   const playAudio = useAudioFeedback();
   const inputRefs = useRef(new Map<number, HTMLInputElement>());
   const [answers, setAnswers] = useState<FillAnswers>({});
@@ -231,7 +233,10 @@ export function FillMode({
       if (completion?.status === "day-complete") {
         setEarnedReward(completion.dayCompletion.reward);
         toast.success(
-          `Challenge day complete! +${completion.dayCompletion.reward.amount} Glow Points earned.`,
+          t("stageCompleteReward", {
+            stage: stageLabel,
+            points: completion.dayCompletion.reward.amount,
+          }),
           { duration: 4_000 },
         );
         if (completion.dayCompletion.unlockedWaypoint) {
@@ -252,7 +257,7 @@ export function FillMode({
             totalBalance: completion.dayCompletion.reward.balance,
           });
         } else if (completion.dayCompletion.nextDayUnlocksAt) {
-          toast.info("The next challenge day is now on cooldown.", {
+          toast.info(t("nextStageCooldown"), {
             duration: 4_000,
           });
         }
@@ -305,6 +310,7 @@ export function FillMode({
       {showCompletion && (
         <ModeCompletionScreen
           completedMode="FILL"
+          completedChallengeStage={dayLevel}
           nextMode={nextMode}
           replayKind={replayKind}
           isAdminTest={isAdminTest}

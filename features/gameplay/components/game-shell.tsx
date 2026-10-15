@@ -712,7 +712,7 @@ export function GameShell({
                 {t("upNext")}
               </p>
               <h2 className="mt-2 font-heading text-2xl leading-tight font-bold sm:text-3xl">
-                {t("dayComplete")}
+                {t("stageComplete", { stage: dayLabel || dayT("radiance") })}
               </h2>
               <div className="mt-4 grid grid-cols-[minmax(0,1fr)_6rem] items-end gap-3 sm:grid-cols-[minmax(0,1fr)_10rem] sm:gap-6">
                 <LunaMascot

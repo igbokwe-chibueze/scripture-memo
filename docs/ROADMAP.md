@@ -37,7 +37,7 @@ Confirm the following before proceeding:
 ### Acceptance Criteria
 
 - No code written yet.
-- AI can correctly describe the difference between the Three-Day Challenge System and the Journey Stage System.
+- AI can correctly describe the difference between the Three-Stage Challenge System and the Journey Stage System.
 - AI can correctly describe the five game mode names and their order.
 - AI understands that hints are disabled for Strengthen and Master stages.
 - AI understands that Glow Points are the only spendable currency. Beacon XP is non-spendable progression, and Crowns are non-spendable prestige.
@@ -1667,7 +1667,7 @@ protection/ruleset configuration remains unconfirmed.
      `/admin/waypoints`. It runs a selected real mode against the assigned
      waypoint's server-authoritative stage rules without changing learner
      progression, rewards, cooldowns, streaks, badges, flames, or hint balance.
-6. **Three-Day Challenge**: Complete all 5 modes for Day 1 → confirm flame added → confirm Day 2 shows cooldown → confirm server blocks Day 2 start before 12 elapsed hours.
+6. **Three-Stage Challenge**: Complete all 5 modes for Day 1 → confirm flame added → confirm Day 2 shows cooldown → confirm server blocks Day 2 start before 12 elapsed hours.
 7. **Cooldown bypass test**: Manually alter client state or time → attempt to start Day 2 early → confirm server rejects.
 8. **Day 3 completion**: Complete Day 3 → confirm waypoint gets 3 flames → confirm next waypoint unlocks → confirm Glow Points awarded.
 9. **Duplicate reward prevention**: Submit Day completion action twice → confirm points awarded only once.

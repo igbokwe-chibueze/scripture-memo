@@ -1,5 +1,24 @@
 # Scripture Memo Project Log
 
+### 2026-10-15 - Three-Stage Challenge terminology
+
+- Owner approved Three-Stage Challenge as the player-facing name and stage-named
+  completion messages: Glimmer Complete!, Glow Complete!, Radiance Complete!.
+- Final-mode celebrations now receive the completed challenge stage and use its
+  localized name. Stage reward toasts and the shell's completed fallback match;
+  the existing subsequent waypoint celebration is preserved. Practice, Vault,
+  and admin-test celebrations retain their distinct messages.
+- Updated English/Spanish/French challenge labels, home/map progress and screen
+  reader copy, return links, admin test labels, landing copy, route metadata,
+  and progression error messages. Corrected stale 24-hour error-reference copy
+  to the implemented 12-hour cooldown. Product/roadmap/root terminology updated.
+- Internal DayLevel, day-progress fields, status discriminants, and translation
+  keys used by unchanged components remain compatibility identifiers. Calendar
+  streak days/daily practice and all progression/reward rules are unchanged.
+- Real completion-component renders passed for all three stages plus Vault,
+  admin, and practice exclusions. Lint, TypeScript, two localization checks,
+  29 gameplay checks, and five stage-selection checks passed.
+
 ### 2026-10-15 - Restore teal receiving-gap colors
 
 - Separated receiving-gap readiness from movable-tile selection. Drag & Drop

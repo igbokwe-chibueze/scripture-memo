@@ -44,7 +44,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 Scripture Memo helps users memorize Bible verses through an expanding sequential
 waypoint curriculum bootstrapped with 400 records. Administrators append new
 waypoints to the same continuous history. Each waypoint is assigned one verse
-and a Journey Stage. Users complete a Three-Day Challenge (Glimmer → Glow →
+and a Journey Stage. Users complete a Three-Stage Challenge (Glimmer → Glow →
 Radiance) at every waypoint using five game modes per day (Drag & Drop → Puzzle
 → Swap → Cue → Fill). The app rewards learning with Glow Points (the only
 currency), streaks, and a Badge System.
@@ -518,7 +518,7 @@ The same verse may appear at multiple waypoints with different Journey Stages. T
   repository-owned PostgreSQL advisory locks documented by the waypoint and
   verse repositories. Client-side disabled controls are never the authority.
 
-### 8.3 Three-Day Challenge Rules
+### 8.3 Three-Stage Challenge Rules
 
 ```
 Day 1 (GLIMMER): 20–35% words hidden. Available immediately on waypoint unlock.

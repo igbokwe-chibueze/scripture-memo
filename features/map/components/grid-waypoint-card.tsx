@@ -39,7 +39,7 @@ export function GridWaypointCard({
     <button
       type="button"
       aria-disabled={isLocked}
-      aria-label={`Waypoint ${waypoint.number}, ${presentation.label}, ${waypoint.reference}, ${waypoint.flameCount} of 3 days complete`}
+      aria-label={`Waypoint ${waypoint.number}, ${presentation.label}, ${waypoint.reference}, ${waypoint.flameCount} of 3 stages complete`}
       onClick={() => onSelect(waypoint)}
       className={cn(
         // Shrinkable width, compact mobile padding, and wrapping-safe children
