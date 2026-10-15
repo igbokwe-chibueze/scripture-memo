@@ -258,6 +258,16 @@
     "challengeComplete": "Desafío completado"
   },
   "Gameplay": {
+    "beaconRemaining": "{count} XP para el nivel {level}",
+    "introDragDrop": "Coloca las palabras para completar el versículo.",
+    "introPuzzle": "Ordena las piezas para reconstruir el versículo.",
+    "introSwap": "Intercambia las palabras para ordenar el versículo.",
+    "introCue": "Usa la primera letra para recordar cada palabra.",
+    "introFill": "Escribe las palabras que faltan para completar el versículo.",
+    "introNoTimer": "Sin tiempo límite · Ve a tu ritmo",
+    "introNoHints": "Las pistas no están disponibles en este desafío.",
+    "introHints": "{count, plural, =0 {No hay pistas disponibles durante el juego} =1 {1 pista disponible durante el juego} other {# pistas disponibles durante el juego}}",
+    "introStartFailed": "No se pudo iniciar el modo. Inténtalo de nuevo.",
     "backToMap": "Volver al mapa",
     "exit": "Salir",
     "actions": "Acciones",

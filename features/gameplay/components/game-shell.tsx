@@ -8,15 +8,13 @@ import {
   EllipsisVerticalIcon,
   LightbulbIcon,
   LogOutIcon,
-  PlayIcon,
   RotateCcwIcon,
   ShieldCheckIcon,
-  SparklesIcon,
   Volume2Icon,
   VolumeXIcon,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,14 +46,18 @@ import type {
 import type { GameMode } from "@/lib/generated/prisma/enums";
 import type { ActionResult } from "@/types/api";
 import { HintButton } from "@/features/hints";
+import { ModeIntroduction } from "./mode-introduction";
+import { SessionBeaconProgress } from "./session-beacon-progress";
+import styles from "./session-introduction.module.css";
 import { verifyLearnHintAccountingAction } from "@/features/hints/actions/verify-learn-hint-accounting.action";
 import { verifyStageHintBlockAction } from "@/features/hints/actions/verify-stage-hint-block.action";
 
 /**
  * Shared mobile-first frame used by every gameplay mode.
  *
- * Phase 13 owns progress, timer presentation, audio preference, and the hint
- * placeholder. Mode interaction surfaces plug into the central panel later.
+ * The shared header and preparation branch follow the approved session concept.
+ * Mode boards/results remain owned by their existing components; preparation
+ * artwork never starts attempts, alters deadlines, consumes hints, or awards XP.
  */
 export function GameShell({
   gameSession,
@@ -135,36 +137,31 @@ export function GameShell({
   const modeTimeLimitMinutes = modeTimeLimitSeconds
     ? Math.ceil(modeTimeLimitSeconds / 60)
     : null;
-  const beaconLevelRange =
-    gameSession.beaconProgress.nextLevelXp -
-    gameSession.beaconProgress.currentLevelStartXp;
-  const beaconLevelProgress = Math.min(
-    100,
-    Math.max(
-      0,
-      ((gameSession.beaconProgress.lifetimeXp -
-        gameSession.beaconProgress.currentLevelStartXp) /
-        beaconLevelRange) *
-        100,
-    ),
+  const isIntroduction = Boolean(
+    currentMode && !attempt && !replayMode && currentMode !== expiredMode,
   );
 
   const beginMode = (): void => {
     if (!currentMode) return;
     startTransition(async () => {
-      const result = await startModeAction({
-        sessionId: gameSession.id,
-        gameMode: currentMode,
-      });
-      if (!result.success) {
-        showActionError(result);
-        return;
+      try {
+        const result = await startModeAction({
+          sessionId: gameSession.id,
+          gameMode: currentMode,
+        });
+        if (!result.success) {
+          showActionError(result);
+          return;
+        }
+        if (result.data) {
+          setAttempt(result.data);
+          setExpiredMode(null);
+        }
+        toast.success(result.message, { duration: 4_000 });
+      } catch {
+        // Keep the preparation/retry state usable after a transport failure.
+        toast.error(t("introStartFailed"), { duration: Infinity });
       }
-      if (result.data) {
-        setAttempt(result.data);
-        setExpiredMode(null);
-      }
-      toast.success(result.message, { duration: 4_000 });
     });
   };
 
@@ -258,12 +255,30 @@ export function GameShell({
   };
 
   return (
-    <main className="min-h-svh bg-background px-4 py-5 text-foreground sm:px-6 sm:py-8">
-      <section className="mx-auto flex min-h-[calc(100svh-2.5rem)] max-w-3xl flex-col overflow-hidden rounded-[2rem] border border-border bg-card/95 shadow-[0_18px_44px_color-mix(in_oklch,var(--foreground)_12%,transparent)] sm:min-h-[calc(100svh-4rem)]">
-        <header className="border-b border-border px-5 py-5 dark:border-border/10 sm:px-8">
-          <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0">
-              <p className="whitespace-nowrap text-xs font-bold tracking-[0.12em] text-reward-text uppercase dark:text-reward-text sm:tracking-[0.16em]">
+    <main
+      className={cn(
+        "min-h-svh bg-background px-4 py-5 text-foreground sm:px-6 sm:py-8",
+        isIntroduction && styles.introPage,
+      )}
+    >
+      <section
+        className={cn(
+          "mx-auto flex min-h-[calc(100svh-2.5rem)] max-w-3xl flex-col",
+          "overflow-hidden rounded-[2rem] border border-border bg-card/95",
+          "shadow-[0_18px_44px_color-mix(in_oklch,var(--foreground)_12%,transparent)]",
+          "sm:min-h-[calc(100svh-4rem)]",
+          isIntroduction && styles.introFrame,
+        )}
+      >
+        <header
+          className={cn(
+            "border-b border-border px-5 py-5 dark:border-border/10 sm:px-8",
+            styles.header,
+          )}
+        >
+          <div className={styles.headingRow}>
+            <div className={styles.headingCopy}>
+              <p className={styles.eyebrow}>
                 {playerPracticeMode
                   ? t("playerPractice")
                   : gameSession.isAdminTest
@@ -275,13 +290,18 @@ export function GameShell({
                           number: gameSession.waypoint?.number ?? 0,
                         })}
               </p>
-              <h1 className="mt-1 font-heading text-2xl font-bold sm:text-3xl">
+              <h1 className={styles.verseTitle}>
                 {gameSession.verse.reference}
               </h1>
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger
-                className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-background text-foreground shadow-sm transition hover:bg-muted focus-visible:ring-2 focus-visible:ring-selection focus-visible:outline-none dark:border-border/15 dark:bg-card/5 dark:text-foreground dark:hover:bg-card/10"
+                data-slot="button"
+                className={buttonVariants({
+                  variant: "outline",
+                  size: "icon",
+                  className: styles.menuButton,
+                })}
                 aria-label={t("openMenu")}
               >
                 <EllipsisVerticalIcon className="size-5" aria-hidden="true" />
@@ -399,12 +419,12 @@ export function GameShell({
             </DropdownMenu>
           </div>
 
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <div className={styles.stageRow}>
             {gameSession.waypoint && (
-              <JourneyStageBadge stage={gameSession.waypoint.journeyStage} />
+              <JourneyStageBadge stage={gameSession.waypoint.journeyStage} className={styles.stage} />
             )}
             {!playerPracticeMode && (
-              <p className="text-sm font-bold text-muted-foreground">
+              <p className={styles.modeCount}>
                 {t("modeProgress", {
                   current: Math.min(
                     currentModeIndex + 1,
@@ -418,16 +438,16 @@ export function GameShell({
 
           {!playerPracticeMode && (
             <ol
-              className="mt-4 grid grid-cols-5 gap-1.5"
+              className={styles.modeSegments}
               aria-label={t("progress")}
             >
               {GAME_MODE_ORDER.map((mode, index) => (
                 <li
                   key={mode}
                   className={cn(
-                    "h-2 rounded-full bg-muted",
-                    index < currentModeIndex && "bg-success",
-                    index === currentModeIndex && "bg-reward",
+                    styles.segment,
+                    index < currentModeIndex && styles.segmentComplete,
+                    index === currentModeIndex && styles.segmentCurrent,
                   )}
                   aria-label={`${modeLabels[mode]}: ${
                     index < currentModeIndex
@@ -442,33 +462,7 @@ export function GameShell({
           )}
 
           {!playerPracticeMode && (
-            <div className="mt-4 rounded-2xl border border-selection-border/20 bg-selection-subtle p-3">
-              <div className="flex items-center justify-between gap-3 text-xs font-bold">
-                <span>
-                  {t("beaconLevel", {
-                    level: gameSession.beaconProgress.level,
-                  })}
-                </span>
-                <span className="text-selection-text dark:text-selection-text">
-                  {t("beaconXp", {
-                    count: gameSession.beaconProgress.lifetimeXp,
-                  })}
-                </span>
-              </div>
-              <div
-                className="mt-2 h-2.5 overflow-hidden rounded-full bg-selection dark:bg-background/35"
-                role="progressbar"
-                aria-label={t("beaconProgress")}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={Math.round(beaconLevelProgress)}
-              >
-                <div
-                  className="h-full rounded-full bg-primary"
-                  style={{ width: `${beaconLevelProgress}%` }}
-                />
-              </div>
-            </div>
+            <SessionBeaconProgress progress={gameSession.beaconProgress} />
           )}
 
           {(gameSession.isAdminTest || playerPracticeMode) && (
@@ -480,7 +474,12 @@ export function GameShell({
 
         </header>
 
-        <div className="flex flex-1 flex-col items-center px-5 py-8 text-center sm:px-10">
+        <div
+          className={isIntroduction
+            ? styles.introPanel
+            : "flex flex-1 flex-col items-center px-5 py-8 text-center sm:px-10"
+          }
+        >
           {attempt?.expiresAt &&
             !isAwaitingContinue &&
             !replayMode &&
@@ -657,50 +656,26 @@ export function GameShell({
               isPending={isPending}
               onRetry={beginMode}
             />
+          ) : currentMode ? (
+            <ModeIntroduction
+              mode={currentMode}
+              modeLabel={modeLabels[currentMode]}
+              minutes={modeTimeLimitMinutes}
+              hintsAllowed={hintsAllowed}
+              hintBalance={gameSession.hintBalance}
+              isTestHint={gameSession.isAdminTest || useSampleHint}
+              isPending={isPending}
+              onBegin={beginMode}
+            />
           ) : (
             <div className="my-auto w-full max-w-xl overflow-hidden rounded-dialog border border-border bg-card p-5 text-left sm:p-8">
               <p className="text-xs font-bold tracking-[0.16em] text-selection-text uppercase dark:text-selection-text">
                 {t("upNext")}
               </p>
               <h2 className="mt-2 font-heading text-2xl leading-tight font-bold sm:text-3xl">
-                {currentMode ? modeLabels[currentMode] : t("dayComplete")}
+                {t("dayComplete")}
               </h2>
-
               <div className="mt-4 grid grid-cols-[minmax(0,1fr)_6rem] items-end gap-3 sm:grid-cols-[minmax(0,1fr)_10rem] sm:gap-6">
-                {!attempt && currentMode && (
-                  <div className="rounded-2xl border border-selection-border/40 bg-background/75 p-3 sm:p-4">
-                    {modeTimeLimitMinutes ? (
-                      <>
-                        <p className="flex items-center gap-2 text-sm font-bold sm:text-base">
-                          <Clock3Icon
-                            className="size-5 shrink-0 text-selection-text"
-                            aria-hidden="true"
-                          />
-                          {t("minuteChallenge", {
-                            minutes: modeTimeLimitMinutes,
-                          })}
-                        </p>
-                        <p className="mt-1 text-sm leading-5 text-muted-foreground">
-                          {t("clockStarts")}
-                        </p>
-                      </>
-                    ) : (
-                      <>
-                        <p className="flex items-center gap-2 text-sm font-bold sm:text-base">
-                          <SparklesIcon
-                            className="size-5 shrink-0 text-reward-text"
-                            aria-hidden="true"
-                          />
-                          {t("learnPace")}
-                        </p>
-                        <p className="mt-1 text-sm leading-5 text-muted-foreground">
-                          {t("noTimer")}
-                        </p>
-                      </>
-                    )}
-                  </div>
-                )}
-
                 <LunaMascot
                   pose={modeTimeLimitMinutes ? "encourage" : "guide"}
                   decorative
@@ -708,24 +683,12 @@ export function GameShell({
                   sizes="160px"
                 />
               </div>
-
-              {currentMode && !attempt && (
-                <Button
-                  type="button"
-                  size="lg"
-                  className="mt-4 min-h-12 w-full rounded-game-action px-4 font-bold sm:mt-5 sm:px-7"
-                  disabled={isPending}
-                  onClick={beginMode}
-                >
-                  <PlayIcon data-icon="inline-start" aria-hidden="true" />
-                  {isPending ? t("starting") : t("beginMode", { mode: modeLabels[currentMode] })}
-                </Button>
-              )}
             </div>
           )}
         </div>
 
-        {!playerPracticeMode &&
+        {!isIntroduction &&
+          !playerPracticeMode &&
           hintsAllowed &&
           (currentMode || adminTestReplayMode) && (
           <footer className="border-t border-border px-5 py-4 dark:border-border/10 sm:px-8">

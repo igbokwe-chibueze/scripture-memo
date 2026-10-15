@@ -258,6 +258,16 @@
     "challengeComplete": "Challenge complete"
   },
   "Gameplay": {
+    "beaconRemaining": "{count} XP to Level {level}",
+    "introDragDrop": "Place the words to complete the verse.",
+    "introPuzzle": "Arrange the pieces to rebuild the verse.",
+    "introSwap": "Swap the words to put the verse in order.",
+    "introCue": "Use the first letter to recall each missing word.",
+    "introFill": "Type the missing words to complete the verse.",
+    "introNoTimer": "No timer · Take your time",
+    "introNoHints": "Hints are not available during this challenge.",
+    "introHints": "{count, plural, =0 {No hints available during play} =1 {1 hint available during play} other {# hints available during play}}",
+    "introStartFailed": "Could not begin the mode. Please try again.",
     "backToMap": "Back to map",
     "exit": "Exit",
     "actions": "Actions",

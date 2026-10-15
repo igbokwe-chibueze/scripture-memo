@@ -1,5 +1,54 @@
 # Scripture Memo Project Log
 
+### 2026-10-15 - Static Swap introduction illustration
+
+- At the owner's request, removed automatic Swap animation and all hover,
+  click, tap, and keyboard replay behavior. The tiles and arrows remain static.
+- Replaced the replay button with decorative markup and removed animation CSS,
+  replay handlers, and unused localized replay labels. Gameplay is unchanged.
+
+### 2026-10-15 - Session progress and Swap replay refinement
+
+- Removed completed-mode check marks, retaining colored segments and accessible
+  state labels. Owner selected both automatic and hover/mobile-tap replay.
+- Swap now exchanges words, holds three seconds, returns, and rests twelve
+  seconds before repeating. A shared ghost button replays the CSS timelines on
+  mouse hover or activation, supporting mobile taps and keyboard activation.
+- Both reduced-motion preferences retain the static example. No gameplay,
+  timer, reward, database, or active-board behavior changed.
+- TypeScript and targeted lint passed. Native Edge checks observed multiple
+  accelerated cycles and verified hover/click replay and reduced-motion behavior.
+
+### 2026-10-15 - Reference-led session header and mode introductions
+
+- Owner approved redesigning the shared session header and all five pre-mode
+  introductions. Active game boards and completion screens are explicitly deferred.
+- Added the reference preparation card, stage/mode indicators with completed
+  checks, generated presenting-Meemo artwork, and mode-specific instructions and
+  decorative diagrams. Mobile stacks the layout; desktop uses two panels.
+- Swap's trust/Lord tiles swap on separate curved paths, hold about three seconds,
+  return, and repeat in an eight-second CSS loop. OS and saved in-app reduced
+  motion stop the loop. No actual answer/session state is animated or mutated.
+- Corrected Beacon track contrast and added server-derived XP remaining. Browser
+  fixture at Level 2 / 470 XP verifies 44% and 280 XP to Level 3.
+- Begin retains the existing server action and now handles transport errors with
+  a persistent toast. Stage timing/hint availability remain authoritative. The
+  preparation card shows available hints; active gameplay retains its hint control.
+- Preserved active mode/replay/completion render branches verbatim, verified
+  against HEAD. No database operations, migrations, new polling, reward changes,
+  global theme/button changes, or deployment occurred.
+- Generated artwork with the built-in image tool, referencing the approved
+  reading-Meemo identity/style. Saved runtime art and final prompt separately;
+  existing mascot/icon collections remain untouched.
+- Isolated actual-component browser checks passed at 375px light/dark and
+  1366x768 / 1586x992 desktop, all five modes, timed Recall/Master, and Spanish/
+  French. No horizontal overflow or broken images; Begin targets exceed 44px.
+  Verified swap/hold/return positions, both reduced-motion preferences, pending
+  feedback, rejected-start recovery, and transition to the original active board.
+- Lint, typecheck, production build, seven design-system checks, 29 gameplay
+  tests, two localization checks, and whitespace checks passed. Product/roadmap
+  documentation records the implementation and deferred screen scope.
+
 ### 2026-10-14 - Public journal, searchable guides, and admin editor
 
 - Owner approved a public blog with an ADMIN/SUPER_ADMIN editor, built now.

@@ -1324,6 +1324,27 @@ For a selected waypoint:
 - Start button for days that are ready
 - Sonner toast when user tries to click a locked or cooldown day
 
+#### Session preparation and shared header (approved 2026-10-15)
+
+`/game/sessions/[sessionId]` uses the approved light/dark concept for its shared
+header and pre-mode introduction. The header shows the reference, Journey Stage,
+mode count, colored completed segments without check marks, and Beacon progress with a contrasting
+unfilled track and remaining XP to the next level. All values remain server-owned.
+
+Each of the five modes has its own concise instruction and decorative example,
+with the generated presenting-Meemo pose. Swap's illustrative “trust” and “Lord”
+tiles remain static alongside the directional arrows. The illustration has no
+hover, tap, or click effects and is independent of the active verse and answer.
+
+The introduction displays the actual Journey Stage time allowance and available
+hint count (or unavailable/test status). Begin retains the existing server action;
+no attempt, timer, hint consumption, or reward starts just from viewing the card.
+The interactive hint control remains on active gameplay surfaces. Mobile stacks
+header and introduction; desktop presents them side by side. Themes remain semantic.
+
+Active mode boards, replays, and completion screens retain their existing render
+branches and controls. Their visual redesign is deferred by explicit owner request.
+
 ### 15.4 Sanctuary (🕊️)
 
 Reflection space shown after completing Radiance or as a standalone destination.

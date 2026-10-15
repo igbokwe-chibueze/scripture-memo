@@ -1,0 +1,409 @@
+/* Approved session concept, mobile first. All ordinary surfaces use semantic
+ * tokens; these overrides are scoped to the header and preparation surface.
+ * Active boards/results retain their original container classes and controls. */
+.introPage {
+  padding: 0.75rem;
+}
+.introFrame {
+  width: min(100%, 42rem);
+  min-height: 0;
+}
+.header {
+  position: relative;
+}
+.introFrame .header {
+  padding: 1rem 1rem 0;
+  border-bottom: 0;
+}
+.headingRow {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.headingCopy {
+  min-width: 0;
+}
+.introFrame .headingCopy {
+  width: 100%;
+  padding-top: 2.5rem;
+}
+.eyebrow {
+  color: var(--reward-text);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.verseTitle {
+  margin-top: 0.4rem;
+  font-family: var(--font-heading);
+  font-size: clamp(1.6rem, 5.8vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1.12;
+  overflow-wrap: anywhere;
+}
+.menuButton[data-slot="button"] {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  border-radius: 1rem;
+}
+.introFrame .menuButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.stageRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+.stage {
+  min-height: 1.875rem;
+  padding-inline: 1rem;
+  border-radius: 2rem;
+  background: var(--selection-subtle);
+  border-color: var(--selection-border);
+  color: var(--selection-text);
+  font-size: 0.9rem;
+}
+.modeCount {
+  color: var(--muted-foreground);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+.modeSegments {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.35rem;
+  margin-top: 0.8rem;
+}
+.segment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 0.875rem;
+  border-radius: 2rem;
+  background: var(--muted);
+}
+.segmentComplete {
+  background: var(--success);
+  color: var(--success-foreground);
+}
+.segmentCurrent {
+  background: var(--reward);
+}
+.beaconCard {
+  margin-top: 0.9rem;
+  padding: 0.85rem;
+  border: 1px solid color-mix(in oklch, var(--primary) 30%, var(--border));
+  border-radius: 1.25rem;
+  background: linear-gradient(135deg, var(--selection-subtle), var(--card));
+}
+.beaconLabels {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.xpLabel {
+  color: var(--primary);
+}
+.beaconTrack {
+  height: 0.85rem;
+  margin-top: 0.75rem;
+  overflow: hidden;
+  border-radius: 2rem;
+  /* The unfilled part must never share the fill's teal, especially in light. */
+  background: color-mix(in oklch, var(--foreground) 17%, var(--card));
+}
+.beaconFill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--primary);
+}
+.remainingXp {
+  margin-top: 0.45rem;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}
+.introPanel {
+  padding: 0.9rem 1rem 1rem;
+}
+.introCard {
+  width: 100%;
+  overflow: hidden;
+  padding: 0.9rem;
+  border: 1px solid color-mix(in oklch, var(--primary) 30%, var(--border));
+  border-radius: 1.25rem;
+  background: linear-gradient(135deg, var(--selection-subtle), var(--card));
+  text-align: left;
+}
+.introScene {
+  position: relative;
+  min-height: 14rem;
+  isolation: isolate;
+}
+.introCopy {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+.upNext {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.modeTitle {
+  margin-top: 0.25rem;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: clamp(2.25rem, 8vw, 3.5rem);
+  line-height: 1.12;
+  overflow-wrap: anywhere;
+}
+.instruction {
+  max-width: 58%;
+  margin-top: 0.5rem;
+  color: var(--muted-foreground);
+  font-size: 1rem;
+  line-height: 1.4;
+}
+.meemo {
+  position: absolute;
+  z-index: 1;
+  right: -0.3rem;
+  bottom: 0;
+  width: 40%;
+  height: 75%;
+  object-fit: contain;
+  object-position: right bottom;
+}
+.demonstration {
+  position: relative;
+  z-index: 2;
+  width: 60%;
+  height: 7.75rem;
+  margin-top: 0.3rem;
+}
+.swapDemo {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 44px;
+  padding: 0;
+}
+.swapArrows {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  stroke: var(--reward);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.wordTile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--selection-border);
+  border-radius: 0.8rem;
+  background: linear-gradient(145deg, var(--selection-subtle), color-mix(in oklch, var(--primary) 25%, var(--card)));
+  color: var(--foreground);
+  box-shadow: inset 0 0 0 2px var(--card), 0 4px 8px color-mix(in oklch, var(--primary) 20%, transparent);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+.swapFirst,
+.swapSecond {
+  position: absolute;
+  top: 32%;
+  width: 47%;
+  height: 43%;
+}
+.swapFirst {
+  left: 0;
+  transform: rotate(-7deg);
+}
+.swapSecond {
+  left: 53%;
+  border-color: var(--info-border);
+  background: linear-gradient(145deg, var(--info-subtle), color-mix(in oklch, var(--info) 25%, var(--card)));
+  transform: rotate(5deg);
+}
+.dragDemo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 1.5rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.3rem;
+  height: 100%;
+}
+.dragDemo .wordTile,
+.wordSlot {
+  min-height: 3rem;
+}
+.wordSlot {
+  align-content: center;
+  border: 2px dashed var(--selection-border);
+  border-radius: 0.75rem;
+  text-align: center;
+  color: var(--muted-foreground);
+  font-size: 0.9rem;
+}
+.placeArrow {
+  color: var(--reward-text);
+  font-size: 1.5rem;
+  transform: rotate(-90deg);
+}
+.puzzleDemo {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  height: 100%;
+}
+.puzzlePiece {
+  position: relative;
+  padding: 0.7rem 0.5rem;
+  border: 2px solid var(--selection-border);
+  border-radius: 0.6rem;
+  background: var(--selection-subtle);
+  color: var(--foreground);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+.typingDemo {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  align-content: center;
+  gap: 0.65rem;
+  height: 100%;
+}
+.typingTile {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  width: 75%;
+  min-height: 3rem;
+  padding: 0.5rem;
+  border: 2px solid var(--selection-border);
+  border-radius: 0.75rem;
+  background: var(--card);
+}
+.firstLetter {
+  color: var(--muted-foreground);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+.blankLine {
+  flex: 1;
+  border-bottom: 2px dashed var(--muted-foreground);
+  height: 1rem;
+}
+.caret {
+  height: 1.25rem;
+  border-left: 2px solid var(--primary);
+}
+.typingContext {
+  color: var(--muted-foreground);
+  font-size: 0.9rem;
+}
+.timing {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.65rem;
+  color: var(--foreground);
+  font-size: 0.95rem;
+}
+.timing > svg {
+  width: 1.8rem;
+  height: 1.8rem;
+  flex-shrink: 0;
+  color: var(--reward-text);
+}
+.clockNote {
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  color: var(--muted-foreground);
+}
+.beginButton[data-slot="button"] {
+  width: 100%;
+  height: auto;
+  min-height: 3.25rem;
+  margin-top: 0.9rem;
+  padding: 0.75rem;
+  border-radius: 1rem;
+  white-space: normal;
+  font-size: 1.15rem;
+  gap: 0.75rem;
+}
+.hintNotice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+}
+.hintNotice svg {
+  width: 1.75rem;
+  height: 1.75rem;
+  flex-shrink: 0;
+  color: var(--reward-text);
+}
+@media (min-width: 640px) {
+  .introScene {
+    min-height: 19rem;
+  }
+  .instruction {
+    font-size: 1.2rem;
+  }
+  .demonstration {
+    height: 10rem;
+  }
+  .wordTile {
+    font-size: 1.7rem;
+  }
+}
+/* Desktop expands into two balanced panels; no active board is resized here. */
+@media (min-width: 1024px) {
+  .introPage {
+    display: grid;
+    place-items: center;
+    padding: 2rem;
+  }
+  .introFrame {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    align-items: start;
+    width: min(100%, 68rem);
+    max-width: none;
+    min-height: 0;
+  }
+  .introFrame .header {
+    padding: 1.5rem;
+  }
+  .introPanel {
+    padding: 1.5rem 1.5rem 1.5rem 0;
+  }
+  .introScene {
+    min-height: 18rem;
+  }
+  .introCard {
+    padding: 1.25rem;
+  }
+}

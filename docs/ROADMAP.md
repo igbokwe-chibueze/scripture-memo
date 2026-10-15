@@ -2032,4 +2032,12 @@ Article saves are audited and protected against stale edits; drafts remain priva
 This owner request takes precedence over the earlier feature sequence. Ongoing
 feature work must update relevant game guides when functionality changes.
 
+### Session preparation visual upgrade (2026-10-15)
+
+Owner approved redesigning the shared session header and all five mode
+introductions from the light/dark concept, generating a presenting-Meemo pose,
+and adding the repeating Swap word demonstration. Active boards and completion
+screen redesigns are explicitly deferred. This presentation-only update adds
+no database reads/writes, reward rules, or timing changes.
+
 *End of Scripture Memo AI Build Roadmap v2.0*
