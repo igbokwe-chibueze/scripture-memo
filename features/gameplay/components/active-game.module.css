@@ -1,0 +1,276 @@
+/* Owner-approved active-board concepts (2026-10-15). The purple/gold tile
+ * palette is a deliberate, scoped exception to the application selection rules.
+ * Shared buttons, success/error feedback, and all other screens keep their tokens. */
+.activePage {
+  padding: 0.75rem;
+}
+.activeFrame {
+  min-height: 0;
+}
+.activeHeader {
+  position: relative;
+  padding: 1rem 1rem 0.5rem;
+  border-bottom: 0;
+}
+.mascotScene {
+  position: relative;
+  display: grid;
+  place-items: end center;
+  height: 10rem;
+  margin-inline: auto;
+  width: min(100%, 18rem);
+  isolation: isolate;
+}
+.mascotScene::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  bottom: 0;
+  width: 100%;
+  height: 8rem;
+  border-radius: 50%;
+  background: var(--selection-subtle);
+}
+.mascotScene img {
+  width: 10rem;
+  height: 10rem;
+  object-fit: contain;
+  object-position: center bottom;
+}
+.activeHeader .activeHeading {
+  position: static;
+  display: block;
+  text-align: center;
+}
+.activeTitle {
+  margin-top: 0.5rem;
+  font-family: var(--font-heading);
+  font-size: clamp(1.6rem, 6vw, 2.5rem);
+  line-height: 1.15;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.activeMenu[data-slot="button"] {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+.activeHeader .activeStage {
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+.activePanel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem 1rem 0;
+}
+.mode {
+  width: 100%;
+  text-align: left;
+}
+.challenge {
+  /* Local state tokens feed the existing tile recipes without changing their
+   * interaction logic. Light tile fills retain dark text in both app themes. */
+  --selection: #a36aef;
+  --selection-subtle: #dfc5ff;
+  --selection-border: #9141ed;
+  --selection-text: #24113c;
+  --selection-foreground: #24113c;
+  --available-subtle: #b8fff0;
+  --available-border: #10cdbd;
+  --available-text: #073442;
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid color-mix(in oklch, var(--primary) 30%, var(--border));
+  border-radius: 1.1rem;
+  background: linear-gradient(145deg, color-mix(in oklch, var(--primary) 7%, var(--card)), var(--card));
+}
+.challenge[data-mode="SWAP"] {
+  --available-subtle: #ffda68;
+  --available-border: #e8a723;
+  --available-text: #302104;
+}
+.modeHeading {
+  display: block;
+  min-width: 0;
+  margin-bottom: 0.75rem;
+}
+.modeCopy {
+  min-width: 0;
+}
+.modeTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.modeCopy h2 {
+  font-family: var(--font-heading);
+  font-size: 1.65rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.modeCopy p {
+  margin-top: 0.3rem;
+  font-size: 0.8rem;
+  color: var(--muted-foreground);
+  line-height: 1.4;
+}
+.verse {
+  padding: 0.65rem;
+  border: 1px solid color-mix(in oklch, var(--primary) 25%, var(--border));
+  border-radius: 0.85rem;
+  background: color-mix(in oklch, var(--card) 65%, transparent);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 3.15rem;
+  overflow-wrap: anywhere;
+}
+.phraseVerse {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  line-height: 1.5;
+}
+.verse > span {
+  max-width: 100%;
+  margin-block: 0.15rem;
+  margin-inline: 0.2rem;
+}
+.verse button,
+.verse label {
+  min-width: 2.75rem;
+  max-width: 100%;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  border-radius: 0.65rem;
+}
+.verse button[data-game-slot="word"] {
+  min-width: 4.5rem;
+}
+.verse input {
+  max-width: 100%;
+  min-width: 0;
+}
+.verse label:focus-within:not([data-feedback]) {
+  border-color: var(--selection-border);
+  background: var(--selection-subtle);
+  color: var(--selection-text);
+}
+.bank {
+  margin-top: 0.5rem;
+  border-radius: 0.85rem;
+  padding: 0.5rem;
+  background: color-mix(in oklch, var(--primary) 4%, transparent);
+}
+.bank h3 {
+  font-size: 0.95rem;
+}
+.bank > p {
+  display: none;
+}
+.bankItems {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.5rem;
+}
+.bankItems button {
+  min-width: 2.75rem;
+  flex-grow: 1;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  font-size: 0.95rem;
+  border-radius: 0.65rem;
+}
+.actions {
+  display: grid;
+  grid-template-columns: 0.9fr 1fr;
+  gap: 0.65rem;
+  margin-top: 0.75rem;
+}
+.actions [data-slot="button"] {
+  height: auto;
+  min-height: 3.1rem;
+  padding: 0.6rem;
+  border-radius: 0.9rem;
+  font-size: 1.05rem;
+  white-space: normal;
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.65rem;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+}
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.legend i {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  border: 1px solid var(--card);
+  box-shadow: 0 0 0 1px var(--border);
+}
+.movableDot {
+  background: var(--available-subtle);
+}
+.selectedDot {
+  background: var(--selection-border);
+}
+.hintFooter {
+  padding: 0.75rem 1rem 1rem;
+  border-top: 0;
+}
+.hintButton[data-slot="button"] {
+  min-height: 3.1rem;
+  border: 1px solid var(--reward-border);
+  border-radius: 0.9rem;
+  background: var(--reward-subtle);
+  color: var(--reward-text);
+  font-size: 1rem;
+}
+.hintButton[data-slot="button"] svg {
+  width: 1.65rem;
+  height: 1.65rem;
+}
+/* Desktop retains the same single-column composition; only scale and room grow. */
+@media (min-width: 640px) {
+  .activePage {
+    padding: 1.5rem;
+  }
+  .activeHeader {
+    padding: 1.5rem 2rem 0.75rem;
+  }
+  .activePanel {
+    padding: 0.75rem 2rem 0;
+  }
+  .challenge {
+    padding: 1rem;
+  }
+  .modeCopy h2 {
+    font-size: 2rem;
+  }
+  .modeCopy p {
+    font-size: 0.95rem;
+  }
+  .verse {
+    padding: 1rem;
+    font-size: 1.2rem;
+    line-height: 3.5rem;
+  }
+  .phraseVerse {
+    line-height: 1.6;
+  }
+  .hintFooter {
+    padding: 0.75rem 2rem 1.5rem;
+  }
+}

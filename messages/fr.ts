@@ -123,9 +123,12 @@ const fr = {
   Gameplay: {
     ...en.Gameplay,
     beaconRemaining: "{count} XP pour le niveau {level}",
-    introDragDrop: "Place les mots pour compléter le verset.",
+    introDragDrop: "Glisse un mot dans un espace, ou sélectionne-le puis touche un espace.",
     introPuzzle: "Ordonne les pièces pour reconstituer le verset.",
     introSwap: "Échange les mots pour remettre le verset dans l’ordre.",
+    movableWord: "Mot déplaçable",
+    modeHelp: "Comment jouer : {mode}",
+    selectedWord: "Mot sélectionné",
     introCue: "Utilise la première lettre pour retrouver chaque mot.",
     introFill: "Écris les mots manquants pour compléter le verset.",
     introNoTimer: "Sans chronomètre · Prends ton temps",

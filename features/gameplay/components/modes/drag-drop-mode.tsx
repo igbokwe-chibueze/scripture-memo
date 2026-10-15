@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import { ActiveModeHeading } from "../active-mode-heading";
+import styles from "../active-game.module.css";
 import { useTranslations } from "next-intl";
 import {
   DndContext,
@@ -322,86 +324,82 @@ export function DragDropMode({
         onDragEnd={handleDragEnd}
         onDragCancel={() => setActiveDragTokenIndex(null)}
       >
-        <section className="w-full max-w-2xl text-left" aria-labelledby="drag-drop-title">
-          <div className="text-center">
-            <p className="text-xs font-bold tracking-[0.16em] text-selection-text uppercase dark:text-selection-text">
-              {t("restoreMissing")}
-            </p>
-            <h2 id="drag-drop-title" className="mt-2 font-heading text-3xl font-bold">
-              {t("dragDrop")}
-            </h2>
-          </div>
+        <section className={styles.mode} aria-labelledby="drag-drop-title">
+          <div className={styles.challenge} data-mode="DRAG_DROP">
+            <ActiveModeHeading mode="DRAG_DROP" />
 
-          <div
-            className="mt-6 rounded-2xl border border-border bg-muted/35 p-4 text-lg leading-[3.25rem] font-medium dark:border-border/10 dark:bg-card/5 sm:p-6 sm:text-xl"
-            aria-label="Verse with missing words"
-          >
-            {tokens.map((token) =>
-              hiddenTokenSet.has(token.index) ? (
-                <span
-                  key={token.index}
-                  className="mx-1 my-1.5 inline-flex items-center align-middle"
-                >
-                  {token.leadingPunctuation}
-                  <BlankSlot
-                    slotIndex={token.index}
-                    placedText={
-                      placements[token.index] === undefined
-                        ? null
-                        : (tokens[placements[token.index]]?.wordText ?? null)
-                    }
-                    selectedWordAvailable={
-                      selectedTokenIndex !== null || activeDragTokenIndex !== null
-                    }
-                    feedback={slotFeedback[token.index] ?? null}
-                    disabled={isPending || isComplete}
-                    onPlaceSelected={() => {
-                      if (selectedTokenIndex !== null) {
-                        placeToken(selectedTokenIndex, token.index);
+            <div
+              className={styles.verse}
+              aria-label="Verse with missing words"
+            >
+              {tokens.map((token) =>
+                hiddenTokenSet.has(token.index) ? (
+                  <span
+                    key={token.index}
+                    className="mx-1 my-1.5 inline-flex items-center align-middle"
+                  >
+                    {token.leadingPunctuation}
+                    <BlankSlot
+                      slotIndex={token.index}
+                      placedText={
+                        placements[token.index] === undefined
+                          ? null
+                          : (tokens[placements[token.index]]?.wordText ?? null)
                       }
-                    }}
-                    onReturnWord={() => {
-                      setPlacements((current) =>
-                        removeDragDropPlacement(current, token.index),
-                      );
-                      setSlotFeedback((current) => {
-                        const next = { ...current };
-                        delete next[token.index];
-                        return next;
-                      });
-                      playAudio("drop");
-                    }}
-                  />
-                  {token.trailingPunctuation}
-                </span>
-              ) : (
-                <span key={token.index} className="mx-0.5 inline-block">
-                  {token.text}
-                </span>
-              ),
-            )}
+                      selectedWordAvailable={
+                        selectedTokenIndex !== null || activeDragTokenIndex !== null
+                      }
+                      feedback={slotFeedback[token.index] ?? null}
+                      disabled={isPending || isComplete}
+                      onPlaceSelected={() => {
+                        if (selectedTokenIndex !== null) {
+                          placeToken(selectedTokenIndex, token.index);
+                        }
+                      }}
+                      onReturnWord={() => {
+                        setPlacements((current) =>
+                          removeDragDropPlacement(current, token.index),
+                        );
+                        setSlotFeedback((current) => {
+                          const next = { ...current };
+                          delete next[token.index];
+                          return next;
+                        });
+                        playAudio("drop");
+                      }}
+                    />
+                    {token.trailingPunctuation}
+                  </span>
+                ) : (
+                  <span key={token.index} className="mx-0.5 inline-block">
+                    {token.text}
+                  </span>
+                ),
+              )}
+            </div>
+
+            <div>
+              <WordBank
+                tokens={tokens}
+                tokenIndexes={availableTokenIndexes}
+                selectedTokenIndex={selectedTokenIndex}
+                disabled={isPending || isComplete}
+                onSelect={(tokenIndex) => {
+                  setSelectedTokenIndex((current) =>
+                    current === tokenIndex ? null : tokenIndex,
+                  );
+                  playAudio("pick");
+                }}
+              />
+            </div>
+
           </div>
 
-          <div className="mt-5">
-            <WordBank
-              tokens={tokens}
-              tokenIndexes={availableTokenIndexes}
-              selectedTokenIndex={selectedTokenIndex}
-              disabled={isPending || isComplete}
-              onSelect={(tokenIndex) => {
-                setSelectedTokenIndex((current) =>
-                  current === tokenIndex ? null : tokenIndex,
-                );
-                playAudio("pick");
-              }}
-            />
-          </div>
-
-          <div className="mt-5 grid grid-cols-[auto_1fr] gap-3">
+          <div className={styles.actions}>
             <Button
               type="button"
-              variant="ghost"
-              className="min-h-12 rounded-xl px-4 text-muted-foreground hover:bg-muted hover:text-foreground dark:hover:bg-card/10 dark:hover:text-foreground"
+              variant="outline"
+              className="text-primary"
               disabled={isPending || isComplete || Object.keys(placements).length === 0}
               onClick={resetPlacements}
             >

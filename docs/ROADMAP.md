@@ -2036,8 +2036,11 @@ feature work must update relevant game guides when functionality changes.
 
 Owner approved redesigning the shared session header and all five mode
 introductions from the light/dark concept, generating a presenting-Meemo pose,
-and adding the repeating Swap word demonstration. Active boards and completion
-screen redesigns are explicitly deferred. This presentation-only update adds
+and adding the static Swap word illustration (animation removed at owner request).
+The later active-board approval implements all five modes with the corrected
+Meemo header, compact board layout, and scoped purple/gold tile colors. Desktop
+keeps the same composition in a wider card. Completion-screen redesign remains
+deferred. These presentation-only updates add
 no database reads/writes, reward rules, or timing changes.
 
 *End of Scripture Memo AI Build Roadmap v2.0*

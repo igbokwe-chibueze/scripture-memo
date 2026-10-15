@@ -1342,8 +1342,35 @@ no attempt, timer, hint consumption, or reward starts just from viewing the card
 The interactive hint control remains on active gameplay surfaces. Mobile stacks
 header and introduction; desktop presents them side by side. Themes remain semantic.
 
-Active mode boards, replays, and completion screens retain their existing render
-branches and controls. Their visual redesign is deferred by explicit owner request.
+Drag & Drop preparation follows its revised concept: a static gold “Son” tile,
+curved arrow, and lower empty destination beside presenting Meemo. Instructions
+describe both drag and tap placement; timing, hint count, and Begin use live data.
+
+#### Active game boards (approved 2026-10-15)
+
+Active boards use the corrected concept header: static Meemo artwork over an
+oval, centered verse reference and Journey Stage, and the existing menu. The
+gameplay-only mascot variant shows both small hands and no blue head marks. Day/
+waypoint labels, mode count/segments, and Beacon XP are omitted during active
+play. Required server-backed attempt timers remain visible for timed stages.
+
+Drag & Drop and Swap follow the supplied light/dark board concepts. Puzzle,
+Cue, and Fill adapt the same compact text-only mode heading, verse surface, and
+Reset/Check row. Word and phrase banks wrap without an internal scroll area.
+Each mode title has a help button. Detailed Swap/Cue/Fill guidance is available
+only inside its help dialog, including feedback colors and automatic input focus
+advance. Opening help neither consumes a hint nor pauses a timed attempt.
+Swap movable words are gold; selected words and focused inputs use purple.
+Empty Drag & Drop/Puzzle destinations use the original brand-teal readiness
+and drag-over highlight, separately from purple selected tiles.
+This owner-approved palette exception is scoped to active gameplay. Other
+surfaces and correctness feedback retain the shared theme tokens.
+
+Desktop retains the mobile composition in a wider card. Illustrations remain
+static, existing tap/drag/keyboard input and server validation remain intact,
+and hints retain their server-authorized balance and Journey Stage restrictions.
+Completion screens retain their existing design and behavior; their redesign
+is still deferred.
 
 ### 15.4 Sanctuary (🕊️)
 

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Image from "next/image";
+import activeStyles from "./active-game.module.css";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import {
@@ -55,9 +57,9 @@ import { verifyStageHintBlockAction } from "@/features/hints/actions/verify-stag
 /**
  * Shared mobile-first frame used by every gameplay mode.
  *
- * The shared header and preparation branch follow the approved session concept.
- * Mode boards/results remain owned by their existing components; preparation
- * artwork never starts attempts, alters deadlines, consumes hints, or awards XP.
+ * Preparation retains its progression header; active boards use the approved
+ * compact mascot header. Completion surfaces remain owned by their existing
+ * components. Artwork never starts attempts, changes deadlines, or awards XP.
  */
 export function GameShell({
   gameSession,
@@ -140,6 +142,9 @@ export function GameShell({
   const isIntroduction = Boolean(
     currentMode && !attempt && !replayMode && currentMode !== expiredMode,
   );
+  // Only live boards use the compact mascot header. Preparation, expiry, and
+  // completion retain their separate compositions and existing progression UI.
+  const isActiveBoard = Boolean((attempt || replayMode) && !isAwaitingContinue);
 
   const beginMode = (): void => {
     if (!currentMode) return;
@@ -259,6 +264,7 @@ export function GameShell({
       className={cn(
         "min-h-svh bg-background px-4 py-5 text-foreground sm:px-6 sm:py-8",
         isIntroduction && styles.introPage,
+        isActiveBoard && activeStyles.activePage,
       )}
     >
       <section
@@ -268,29 +274,52 @@ export function GameShell({
           "shadow-[0_18px_44px_color-mix(in_oklch,var(--foreground)_12%,transparent)]",
           "sm:min-h-[calc(100svh-4rem)]",
           isIntroduction && styles.introFrame,
+          isActiveBoard && activeStyles.activeFrame,
         )}
       >
         <header
           className={cn(
             "border-b border-border px-5 py-5 dark:border-border/10 sm:px-8",
             styles.header,
+            isActiveBoard && activeStyles.activeHeader,
           )}
         >
-          <div className={styles.headingRow}>
+          {isActiveBoard && (
+            <div className={activeStyles.mascotScene}>
+              <Image
+                src="/images/mascot/meemo/meemo-gameplay-header.png"
+                alt=""
+                aria-hidden="true"
+                width={1254}
+                height={1254}
+                sizes="160px"
+              />
+            </div>
+          )}
+          <div
+            className={cn(
+              styles.headingRow,
+              isActiveBoard && activeStyles.activeHeading,
+            )}
+          >
             <div className={styles.headingCopy}>
-              <p className={styles.eyebrow}>
-                {playerPracticeMode
-                  ? t("playerPractice")
-                  : gameSession.isAdminTest
-                    ? t("adminTesting")
-                    : gameSession.isVaultReplay
-                      ? t("vaultReplay")
-                      : t("dayWaypoint", {
-                          day: dayLabel,
-                          number: gameSession.waypoint?.number ?? 0,
-                        })}
-              </p>
-              <h1 className={styles.verseTitle}>
+              {!isActiveBoard && (
+                <p className={styles.eyebrow}>
+                  {playerPracticeMode
+                    ? t("playerPractice")
+                    : gameSession.isAdminTest
+                      ? t("adminTesting")
+                      : gameSession.isVaultReplay
+                        ? t("vaultReplay")
+                        : t("dayWaypoint", {
+                            day: dayLabel,
+                            number: gameSession.waypoint?.number ?? 0,
+                          })}
+                </p>
+              )}
+              <h1
+                className={isActiveBoard ? activeStyles.activeTitle : styles.verseTitle}
+              >
                 {gameSession.verse.reference}
               </h1>
             </div>
@@ -300,7 +329,10 @@ export function GameShell({
                 className={buttonVariants({
                   variant: "outline",
                   size: "icon",
-                  className: styles.menuButton,
+                  className: cn(
+                    styles.menuButton,
+                    isActiveBoard && activeStyles.activeMenu,
+                  ),
                 })}
                 aria-label={t("openMenu")}
               >
@@ -419,11 +451,16 @@ export function GameShell({
             </DropdownMenu>
           </div>
 
-          <div className={styles.stageRow}>
+          <div
+            className={cn(
+              styles.stageRow,
+              isActiveBoard && activeStyles.activeStage,
+            )}
+          >
             {gameSession.waypoint && (
               <JourneyStageBadge stage={gameSession.waypoint.journeyStage} className={styles.stage} />
             )}
-            {!playerPracticeMode && (
+            {!playerPracticeMode && !isActiveBoard && (
               <p className={styles.modeCount}>
                 {t("modeProgress", {
                   current: Math.min(
@@ -436,7 +473,7 @@ export function GameShell({
             )}
           </div>
 
-          {!playerPracticeMode && (
+          {!playerPracticeMode && !isActiveBoard && (
             <ol
               className={styles.modeSegments}
               aria-label={t("progress")}
@@ -461,7 +498,7 @@ export function GameShell({
             </ol>
           )}
 
-          {!playerPracticeMode && (
+          {!playerPracticeMode && !isActiveBoard && (
             <SessionBeaconProgress progress={gameSession.beaconProgress} />
           )}
 
@@ -477,6 +514,8 @@ export function GameShell({
         <div
           className={isIntroduction
             ? styles.introPanel
+            : isActiveBoard
+            ? activeStyles.activePanel
             : "flex flex-1 flex-col items-center px-5 py-8 text-center sm:px-10"
           }
         >
@@ -691,7 +730,7 @@ export function GameShell({
           !playerPracticeMode &&
           hintsAllowed &&
           (currentMode || adminTestReplayMode) && (
-          <footer className="border-t border-border px-5 py-4 dark:border-border/10 sm:px-8">
+          <footer className={isActiveBoard ? activeStyles.hintFooter : "border-t border-border px-5 py-4 dark:border-border/10 sm:px-8"}>
             <HintButton
               sessionId={gameSession.id}
               initialBalance={gameSession.hintBalance}
@@ -700,6 +739,7 @@ export function GameShell({
               isAdminTest={gameSession.isAdminTest}
               testReference={gameSession.verse.reference}
               testVerseText={gameSession.verse.translationText}
+              className={isActiveBoard ? activeStyles.hintButton : undefined}
             />
           </footer>
         )}

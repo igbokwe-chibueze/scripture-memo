@@ -8,6 +8,7 @@ import { LoadingButton } from "@/components/shared/loading-button";
 import { showActionError } from "@/lib/errors/show-action-error";
 import { useHintAction as consumeHintAction } from "@/features/hints/actions/use-hint.action";
 import { HintModal } from "@/features/hints/components/hint-modal";
+import { cn } from "@/lib/utils";
 
 /** Consumes one server-authorized hint and opens its canonical verse reference. */
 export function HintButton({
@@ -18,6 +19,7 @@ export function HintButton({
   isAdminTest = false,
   testReference,
   testVerseText,
+  className,
 }: {
   sessionId: string;
   initialBalance: number;
@@ -26,6 +28,7 @@ export function HintButton({
   isAdminTest?: boolean;
   testReference?: string;
   testVerseText?: string;
+  className?: string;
 }): React.ReactNode {
   const t = useTranslations("Gameplay");
   const [balance, setBalance] = useState(initialBalance);
@@ -62,7 +65,10 @@ export function HintButton({
         variant="ghost"
         isPending={isPending}
         pendingLabel={t("openingHint")}
-        className="min-h-11 w-full justify-center rounded-xl text-reward-text hover:bg-reward-subtle hover:text-reward-text dark:text-reward-text dark:hover:bg-reward-subtle dark:hover:text-reward-text"
+        className={cn(
+          "min-h-11 w-full justify-center rounded-xl text-reward-text hover:bg-reward-subtle hover:text-reward-text dark:text-reward-text dark:hover:bg-reward-subtle dark:hover:text-reward-text",
+          className,
+        )}
         disabled={disabled || (!isTestReplay && !isAdminTest && balance === 0)}
         onClick={handleUseHint}
       >

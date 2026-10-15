@@ -259,7 +259,7 @@
   },
   "Gameplay": {
     "beaconRemaining": "{count} XP para el nivel {level}",
-    "introDragDrop": "Coloca las palabras para completar el versículo.",
+    "introDragDrop": "Arrastra una palabra a un espacio, o selecciónala y toca un espacio.",
     "introPuzzle": "Ordena las piezas para reconstruir el versículo.",
     "introSwap": "Intercambia las palabras para ordenar el versículo.",
     "introCue": "Usa la primera letra para recordar cada palabra.",
@@ -291,6 +291,9 @@
     "dragInstruction": "Arrastra una palabra o selecciónala y toca un espacio.",
     "phraseInstruction": "Arrastra una frase o selecciónala y toca una posición abierta.",
     "swapInstruction": "Selecciona una palabra resaltada y luego otra para intercambiarlas.",
+    "movableWord": "Palabra movible",
+    "modeHelp": "Cómo jugar a {mode}",
+    "selectedWord": "Palabra seleccionada",
     "cueInstruction": "Escribe cada palabra completa usando la primera letra como pista.",
     "fillInstruction": "Escribe cada palabra completa que falta.",
     "wordBank": "Banco de palabras",

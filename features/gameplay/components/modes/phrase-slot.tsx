@@ -40,9 +40,14 @@ export function PhraseSlot({
       type="button"
       className={cn(
         "inline-flex min-h-12 min-w-28 max-w-full items-center justify-center gap-2 rounded-tile border-2 border-dashed px-3 py-2 text-center font-bold transition",
-        GAMEPLAY_TILE_STATE_STYLES.idle,
+        placedText ? GAMEPLAY_TILE_STATE_STYLES.available : GAMEPLAY_TILE_STATE_STYLES.idle,
         GAMEPLAY_TILE_STATE_STYLES.focus,
-        selectedPhraseAvailable && !placedText && GAMEPLAY_TILE_STATE_STYLES.selected,
+        // Puzzle shares Drag & Drop's destination feedback: a selected or
+        // dragged phrase lights up empty slots without recoloring placed text.
+        selectedPhraseAvailable &&
+          !placedText &&
+          !disabled &&
+          GAMEPLAY_TILE_STATE_STYLES.receiving,
         isOver && GAMEPLAY_TILE_STATE_STYLES.dropTarget,
         feedback === "correct" && GAMEPLAY_TILE_STATE_STYLES.correct,
         feedback === "incorrect" && GAMEPLAY_TILE_STATE_STYLES.incorrect,
@@ -61,7 +66,7 @@ export function PhraseSlot({
           <span>{placedText}</span>
         </>
       ) : (
-        <span aria-hidden="true">•••</span>
+        <span aria-hidden="true">&nbsp;</span>
       )}
     </button>
   );

@@ -259,7 +259,7 @@
   },
   "Gameplay": {
     "beaconRemaining": "{count} XP to Level {level}",
-    "introDragDrop": "Place the words to complete the verse.",
+    "introDragDrop": "Drag a word into a blank, or select it and tap a blank.",
     "introPuzzle": "Arrange the pieces to rebuild the verse.",
     "introSwap": "Swap the words to put the verse in order.",
     "introCue": "Use the first letter to recall each missing word.",
@@ -291,6 +291,9 @@
     "dragInstruction": "Drag a word, or select it and tap a blank.",
     "phraseInstruction": "Drag a phrase, or select it and tap an open position.",
     "swapInstruction": "Select a highlighted word, then select another to exchange them.",
+    "movableWord": "Movable word",
+    "modeHelp": "How to play {mode}",
+    "selectedWord": "Selected word",
     "cueInstruction": "Type each complete missing word using its first-letter cue.",
     "fillInstruction": "Type each complete missing word.",
     "wordBank": "Word bank",

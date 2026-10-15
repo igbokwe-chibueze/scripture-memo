@@ -1,5 +1,84 @@
 # Scripture Memo Project Log
 
+### 2026-10-15 - Restore teal receiving-gap colors
+
+- Separated receiving-gap readiness from movable-tile selection. Drag & Drop
+  and Puzzle now use the original primary/secondary brand-teal tokens for ready
+  and drag-over gaps, independent of the local purple selected-tile palette.
+- Selected bank/Swap tiles remain purple. Correct/incorrect feedback retains
+  priority; no placement, timing, hint, or reward behavior changed.
+
+### 2026-10-15 - Restore detailed instructions through Help
+
+- Added a 44px question-mark help button beside active mode titles using the
+  existing shared dialog and button primitives. Swap/Cue/Fill detailed guidance
+  is restored only inside the dialog; no inline help cards were reintroduced.
+- Drag & Drop/Puzzle expose their placement guidance through the same control.
+  Help is static instructional copy: it reveals no live answer, consumes no hint,
+  performs no database work, and does not pause server-created deadlines.
+- Added localized help labels for English, Spanish, and French. Shared dialog
+  focus management, Escape dismissal, and close controls remain unchanged.
+- TypeScript, targeted lint, localization, and whitespace checks passed.
+
+### 2026-10-15 - Restore ready destination highlighting
+
+- Restored selected/dragged-item highlighting for all empty Drag & Drop and
+  Puzzle destinations. Filled and pending/disabled slots remain unaffected;
+  evaluated correct/incorrect feedback keeps its color priority.
+- Audited the redesign against HEAD. All five modes' pre-render gameplay logic
+  is unchanged (verified with TypeScript AST printing). Reset/check handlers,
+  input normalization/focus advance, attempt submission, reward sequencing, and
+  completion state were not removed. Existing shell menu, hints, and timer remain.
+- Other removed guidance: detailed Swap/Cue/Fill help cards were replaced with
+  shorter mode instructions. This hides explanatory details such as automatic
+  focus advance; reported to the owner rather than silently changing the layout.
+  Active mode progress/Beacon/day labels were hidden with explicit owner approval.
+- Twelve real-component render checks passed across word/phrase readiness,
+  filled, disabled, correct, and incorrect states. Targeted lint and TypeScript
+  passed. No server/database or gameplay-rule changes were made.
+
+### 2026-10-15 - Gameplay mascot and Drag & Drop intro correction
+
+- Owner clarified the active-header pose: two small hands visible below the
+  fleece, with no blue marks beside Meemo's head. Generated a transparent sibling
+  asset with the built-in image tool, preserving the existing waypoint portrait.
+  Saved the exact prompt in `artwork/meemo/gameplay-header-prompt.md`.
+- Active boards now reference `meemo-gameplay-header.png`; removed the decorative
+  diagrams beside all five active mode titles. Other mascot consumers are intact.
+- Updated only Drag & Drop's preparation card to the new concept: static gold
+  Son tile, curved arrow, lower empty slot, and existing presenting Meemo. Updated
+  English/Spanish/French instructions for both drag and tap placement.
+- Isolated real-component checks passed at 375px and desktop in light/dark:
+  no horizontal overflow, broken images, title graphics, or running animations.
+  Asset inspection confirms a 1254px square PNG with alpha. Gameplay, rewards,
+  server deadlines, shared buttons, and completion screens are unchanged.
+- TypeScript, repository lint, localization, design-system, and whitespace
+  checks passed for this refinement.
+
+### 2026-10-15 - Concept-led active game boards
+
+- Implemented the supplied Drag & Drop/Swap concepts and adapted Puzzle, Cue,
+  and Fill with owner approval. Active boards use static Meemo artwork, centered
+  reference/stage, the existing menu, and a compact illustrated mode heading.
+- Removed day/waypoint, mode-progress, and Beacon displays during active play.
+  Server-created timers remain visible for timed stages; hint availability and
+  consumption keep their existing Journey Stage checks and server actions.
+- Approved a local purple-selection/gold-Swap palette exception. Other available
+  pieces use mint; correctness remains green/red. Documented the exception in
+  the UI guide and narrow design-system allowlist, with no global theme changes.
+- Added wrapping banks, dashed empty destinations, labeled Swap state dots,
+  Reset/Check controls, and a scoped gold hint surface. Desktop retains the same
+  composition in the existing wider card. Completion designs are unchanged.
+- Reused approved Meemo art and extracted the existing static mode illustrations
+  for reuse. No new images, database queries, migrations, polling, or reward changes.
+- Isolated real-component Edge checks covered all five modes at 375px and desktop,
+  light/dark, word/phrase placement, Swap selection/exchange, and typing. No
+  horizontal overflow, broken images, or undersized primary actions were found.
+  Timed Master keeps its timer and omits hints; all four brand themes retain the
+  layout and static illustrations. The fixture replaces server writes locally.
+- Production build, TypeScript, 29 gameplay tests, two localization checks,
+  seven design-system checks, and repository-wide lint passed.
+
 ### 2026-10-15 - Static Swap introduction illustration
 
 - At the owner's request, removed automatic Swap animation and all hover,

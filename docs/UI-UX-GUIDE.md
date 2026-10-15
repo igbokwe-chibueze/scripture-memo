@@ -59,6 +59,15 @@ Theme context → page surface → semantic tokens → shared component → vari
 
 ### 3.2 One application palette
 
+Owner-approved exception (2026-10-15): active gameplay boards use purple for
+selected words/inputs and gold for movable Swap words, matching the supplied
+concepts. Drag & Drop and Puzzle available pieces remain bright mint. These
+colors are scoped to the board; success/error, shared controls, preparation,
+and all other application surfaces retain the standard semantic palette.
+Empty receiving gaps in Drag & Drop/Puzzle retain the original brand-teal
+highlight for selection readiness and drag-over; purple applies to selected
+movable tiles, not to their destinations.
+
 The Tropical Teal design system is the application-wide source of truth. Use
 teal for primary actions and selection, honey gold for earned rewards, restrained
 tangerine for decoration and streak flames, dedicated green and red for success

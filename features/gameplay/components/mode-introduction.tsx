@@ -5,6 +5,8 @@ import { useTranslations } from "next-intl";
 import { Clock3Icon, LightbulbIcon, PlayIcon, ShieldOffIcon } from "lucide-react";
 import { LoadingButton } from "@/components/shared/loading-button";
 import type { GameMode } from "@/lib/generated/prisma/enums";
+import { ModeIllustration } from "./mode-illustration";
+import { cn } from "@/lib/utils";
 import styles from "./session-introduction.module.css";
 
 /** Fixed tutorial copy is illustrative, never extracted from the active answer. */
@@ -16,64 +18,9 @@ const instructionKeys = {
   FILL: "introFill",
 } as const satisfies Record<GameMode, string>;
 
-/** Code-native arrows illustrate motion without requiring a new icon collection. */
-function SwapArrows(): React.ReactNode {
-  return (
-    <svg className={styles.swapArrows} viewBox="0 0 200 140" fill="none" aria-hidden="true">
-      <path d="M70 28 C90 5 120 7 139 29 M139 29 L133 10 M139 29 L119 26" />
-      <path d="M135 112 C115 137 85 133 66 112 M66 112 L72 131 M66 112 L87 116" />
-    </svg>
-  );
-}
-
-/** Static tutorial artwork only; it never starts or submits an attempt. */
-function ModeDemonstration({ mode }: { mode: GameMode }): React.ReactNode {
-  if (mode === "SWAP") {
-    return (
-      <div className={styles.swapDemo} aria-hidden="true" data-demo="swap">
-        <SwapArrows />
-        <span className={`${styles.wordTile} ${styles.swapFirst}`} aria-hidden="true">
-          trust
-        </span>
-        <span className={`${styles.wordTile} ${styles.swapSecond}`} aria-hidden="true">
-          Lord
-        </span>
-      </div>
-    );
-  }
-  if (mode === "DRAG_DROP") {
-    return (
-      <div className={styles.dragDemo} aria-hidden="true">
-        <span className={styles.wordTile}>trust</span>
-        <span className={styles.placeArrow}>↓</span>
-        <span className={styles.wordSlot}>trust</span>
-      </div>
-    );
-  }
-  if (mode === "PUZZLE") {
-    return (
-      <div className={styles.puzzleDemo} aria-hidden="true">
-        <span className={styles.puzzlePiece}>Trust</span>
-        <span className={styles.puzzlePiece}>in the</span>
-        <span className={styles.puzzlePiece}>Lord</span>
-      </div>
-    );
-  }
-  return (
-    <div className={styles.typingDemo} aria-hidden="true">
-      <span className={styles.typingTile}>
-        {mode === "CUE" && <span className={styles.firstLetter}>t</span>}
-        <span className={styles.blankLine} />
-        <span className={styles.caret} />
-      </span>
-      <span className={styles.typingContext}>in the Lord</span>
-    </div>
-  );
-}
-
 /**
  * Preparation surface shared by all five modes. Begin is the only mutation;
- * no countdown or attempt is started by mounting the card or its animation.
+ * no countdown or attempt is started by mounting the card or its illustration.
  * Hint availability and stage timing come from the existing trusted session.
  */
 export function ModeIntroduction({
@@ -103,7 +50,10 @@ export function ModeIntroduction({
       : t("introHints", { count: hintBalance });
 
   return (
-    <section className={styles.introCard} aria-labelledby="mode-introduction-title">
+    <section
+      className={cn(styles.introCard, mode === "DRAG_DROP" && styles.dragIntro)}
+      aria-labelledby="mode-introduction-title"
+    >
       <div className={styles.introScene}>
         <div className={styles.introCopy}>
           <p className={styles.upNext}>{t("upNext")}</p>
@@ -113,7 +63,7 @@ export function ModeIntroduction({
           <p className={styles.instruction}>{t(instructionKeys[mode])}</p>
         </div>
         <div className={styles.demonstration}>
-          <ModeDemonstration mode={mode} />
+          <ModeIllustration mode={mode} />
         </div>
         <Image
           src="/images/mascot/meemo/meemo-session-guide.png"

@@ -1,5 +1,6 @@
 "use client";
 
+import styles from "../active-game.module.css";
 import { useTranslations } from "next-intl";
 
 import { DraggableWord } from "@/features/gameplay/components/modes/draggable-word";
@@ -21,12 +22,12 @@ export function WordBank({
 }): React.ReactNode {
   const t = useTranslations("Gameplay");
   return (
-    <section aria-labelledby="word-bank-title" className="rounded-2xl bg-muted/70 p-4 dark:bg-background/20">
+    <section aria-labelledby="word-bank-title" className={styles.bank}>
       <h3 id="word-bank-title" className="font-heading text-sm font-bold text-foreground">
         {t("wordBank")}
       </h3>
       <p className="mt-1 text-xs text-muted-foreground">{t("dragInstruction")}</p>
-      <div className="mt-3 flex max-h-40 flex-wrap gap-2 overflow-y-auto">
+      <div className={styles.bankItems}>
         {tokenIndexes.map((tokenIndex) => (
           <DraggableWord
             key={tokenIndex}

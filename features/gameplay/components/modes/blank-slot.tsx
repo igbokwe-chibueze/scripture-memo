@@ -37,11 +37,17 @@ export function BlankSlot({
     <button
       ref={setNodeRef}
       type="button"
+      data-game-slot="word"
       className={cn(
         "inline-flex min-h-11 min-w-20 touch-manipulation items-center justify-center rounded-tile border-2 border-dashed px-2.5 py-1 align-middle font-bold transition",
-        GAMEPLAY_TILE_STATE_STYLES.idle,
+        placedText ? GAMEPLAY_TILE_STATE_STYLES.available : GAMEPLAY_TILE_STATE_STYLES.idle,
         GAMEPLAY_TILE_STATE_STYLES.focus,
-        selectedWordAvailable && !placedText && GAMEPLAY_TILE_STATE_STYLES.selected,
+        // An available word must light up every empty destination for both tap
+        // and drag input. Evaluated feedback below keeps its higher priority.
+        selectedWordAvailable &&
+          !placedText &&
+          !disabled &&
+          GAMEPLAY_TILE_STATE_STYLES.receiving,
         isOver && GAMEPLAY_TILE_STATE_STYLES.dropTarget,
         feedback === "correct" && GAMEPLAY_TILE_STATE_STYLES.correct,
         feedback === "incorrect" && GAMEPLAY_TILE_STATE_STYLES.incorrect,
@@ -54,7 +60,7 @@ export function BlankSlot({
       }
       onClick={handleClick}
     >
-      {placedText ?? "•••"}
+      {placedText ?? <span aria-hidden="true">&nbsp;</span>}
     </button>
   );
 }
