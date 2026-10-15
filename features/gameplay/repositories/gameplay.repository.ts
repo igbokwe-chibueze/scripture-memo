@@ -479,7 +479,7 @@ export const gameplayRepository = {
           },
           attempts: {
             where: { status: GameModeAttemptStatus.COMPLETED },
-            select: { gameMode: true },
+            select: { id: true, gameMode: true },
             orderBy: { createdAt: "asc" },
           },
         },
@@ -530,6 +530,47 @@ export const gameplayRepository = {
         : null
       : getCurrentMode(completedModes);
 
+    // Completed routes need their recorded summary, not the live-only result
+    // kept in FillMode state. These two bounded indexed reads run only after
+    // all modes finish; active sessions add no query and no read path writes.
+    let completedStage: GameplaySessionData["completedStage"];
+    if (
+      session.status === CompletionStatus.COMPLETED &&
+      !session.isAdminTest &&
+      !session.isVaultReplay &&
+      session.dayLevel &&
+      session.waypointId &&
+      completedModes.length === GAME_MODE_ORDER.length
+    ) {
+      const [progress, xp] = await Promise.all([
+        prisma.userDayProgress.findUnique({
+          where: {
+            userId_waypointId_dayLevel: {
+              userId,
+              waypointId: session.waypointId,
+              dayLevel: session.dayLevel,
+            },
+          },
+          select: { glowPointsAwarded: true },
+        }),
+        prisma.beaconXpLedger.aggregate({
+          where: {
+            userId,
+            idempotencyKey: {
+              in: session.attempts.map((attempt) => `mode:${attempt.id}`),
+            },
+          },
+          _sum: { amount: true },
+        }),
+      ]);
+      if (progress) {
+        completedStage = {
+          glowPoints: progress.glowPointsAwarded,
+          earnedXp: xp._sum.amount ?? 0,
+        };
+      }
+    }
+
     return {
       id: session.id,
       waypointId: session.waypointId,
@@ -547,6 +588,7 @@ export const gameplayRepository = {
       },
       completedModes,
       currentMode,
+      completedStage,
       audioEnabled: settings?.audioEnabled ?? true,
       hintBalance: calculateHintBalance(
         usedHintCount,
@@ -1000,6 +1042,11 @@ export const gameplayRepository = {
           : reward;
       return {
         status: "day-complete",
+        // Reaching this branch proves the four preceding mode awards completed.
+        // Include them in the presentation total without another query or award;
+        // earnedXp already contains the final mode and stage/waypoint bonuses.
+        stageEarnedXp:
+          beaconProgression.earnedXp + BEACON_MODE_XP * (GAME_MODE_ORDER.length - 1),
         gameMode: requestedMode,
         nextMode: null,
         dayCompletion: { ...dayCompletion, reward: finalReward },

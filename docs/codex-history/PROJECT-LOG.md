@@ -1,5 +1,46 @@
 # Scripture Memo Project Log
 
+### 2026-10-15 - Completed-session reload shows the new result card
+
+- Fixed a missed entry path: direct/reloaded completed sessions still rendered
+  the obsolete Up next fallback because the new card previously depended on
+  transient FillMode completion state. GameShell now renders the shared card
+  from its server-loaded completedStage summary when no mode remains.
+- Repository loads recorded Glow Points and sums session-specific XP ledger
+  entries in two parallel indexed reads only for verified completed campaign
+  sessions. Active-session query count is unchanged; all reads are learner-scoped.
+  No awards, initialization, writes, or repeated milestone celebrations occur.
+- Reopened results exit to waypoint details; the live completion chain still
+  preserves badge/streak/waypoint celebrations. Current Beacon progress is reused.
+- Actual GameShell browser checks passed at 375px and desktop for direct load,
+  reload, persisted-summary display, no old Up next content, and exit destination.
+  Fixtures use no server writes or database. TypeScript and targeted lint passed.
+
+### 2026-10-15 - Reference-led stage completion celebration
+
+- Owner approved stage-named headings, Flame kindled in the lower status strip,
+  actual stage-only reward totals, and a generated celebrating Meemo pose.
+- Added the new card for normal campaign stage completion only. Reused approved
+  diamond/flame/blue-star assets, the shared Journey Stage badge, Beacon progress,
+  buttons, and sound menu primitives. Other completion contexts/designs remain.
+- Added stageEarnedXp to the verified server completion result: the final award
+  plus four preceding mode awards. Current stage totals are 75/90/210 XP,
+  including Radiance's waypoint bonus. No new query, transaction, or award was
+  introduced; Glow Points show reward.amount rather than account/badge totals.
+- Continue appears when badge, streak, or waypoint celebrations remain; otherwise
+  Exit gameplay uses the existing callback. The badge → streak → waypoint order,
+  existing destinations, and scroll-lock cleanup are preserved. Level-up notices
+  remain visible. Normal Radiance still leads into its separate waypoint card.
+- Generated transparent Meemo art with the built-in image tool, preserving older
+  artwork. Saved the exact prompt in artwork/meemo/stage-celebrate-prompt.md.
+- Real-component Edge fixture checks passed for Glimmer/Glow/Radiance at 375px
+  and desktop in both themes: correct stage rewards, 58% at 540/750 XP bounds,
+  remaining XP, labels, menu/continuation, scroll restoration, no broken assets
+  or horizontal overflow, and 44px+ primary actions. Fixture made no DB calls.
+- Production build/TypeScript, two localization checks, 29 gameplay checks,
+  six Beacon checks, seven design-system checks, and repository lint passed.
+  Product and roadmap describe the approved scope.
+
 ### 2026-10-15 - Three-Stage Challenge terminology
 
 - Owner approved Three-Stage Challenge as the player-facing name and stage-named

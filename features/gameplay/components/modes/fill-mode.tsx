@@ -40,7 +40,7 @@ import type {
 } from "@/features/gameplay/types/game-session.types";
 import type { DayRewardResult } from "@/features/rewards/types/reward.types";
 import { cn } from "@/lib/utils";
-import type { DayLevel } from "@/lib/generated/prisma/enums";
+import type { DayLevel, JourneyStage } from "@/lib/generated/prisma/enums";
 
 type InputFeedback = Readonly<Record<number, "correct" | "incorrect">>;
 
@@ -56,6 +56,9 @@ export function FillMode({
   dayLevel,
   waypointNumber,
   verseReference,
+  journeyStage,
+  audioEnabled = false,
+  onToggleAudio,
   verseText,
   attempt,
   replayKind,
@@ -71,6 +74,9 @@ export function FillMode({
   dayLevel: DayLevel;
   waypointNumber: number;
   verseReference: string;
+  journeyStage?: JourneyStage;
+  audioEnabled?: boolean;
+  onToggleAudio?: () => void;
   verseText: string;
   attempt: GameModeAttemptData | null;
   replayKind?: LocalReplayKind;
@@ -100,6 +106,7 @@ export function FillMode({
   const [earnedReward, setEarnedReward] = useState<DayRewardResult | null>(null);
   const [beaconProgression, setBeaconProgression] =
     useState<BeaconProgressionResult | null>(null);
+  const [stageEarnedXp, setStageEarnedXp] = useState<number | null>(null);
   const [waypointOutcome, setWaypointOutcome] = useState<{
     unlockedWaypointNumber: number | null;
     caughtUp: boolean;
@@ -231,6 +238,7 @@ export function FillMode({
           : null,
       );
       if (completion?.status === "day-complete") {
+        setStageEarnedXp(completion.stageEarnedXp);
         setEarnedReward(completion.dayCompletion.reward);
         toast.success(
           t("stageCompleteReward", {
@@ -281,6 +289,7 @@ export function FillMode({
     setShowStreakCompletion(false);
     setShowWaypointCompletion(false);
     setEarnedReward(null);
+    setStageEarnedXp(null);
     setWaypointOutcome(null);
   };
 
@@ -311,6 +320,23 @@ export function FillMode({
         <ModeCompletionScreen
           completedMode="FILL"
           completedChallengeStage={dayLevel}
+          stageSummary={
+            stageEarnedXp !== null && onToggleAudio
+              ? {
+                  waypointNumber,
+                  verseReference,
+                  journeyStage,
+                  earnedXp: stageEarnedXp,
+                  hasMoreCelebrations: Boolean(
+                    badgeUnlocks.length > 0 ||
+                    (streak && streak.status !== "unchanged") ||
+                    waypointOutcome,
+                  ),
+                  audioEnabled,
+                  onToggleAudio,
+                }
+              : undefined
+          }
           nextMode={nextMode}
           replayKind={replayKind}
           isAdminTest={isAdminTest}

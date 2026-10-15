@@ -1374,8 +1374,23 @@ surfaces and correctness feedback retain the shared theme tokens.
 Desktop retains the mobile composition in a wider card. Illustrations remain
 static, existing tap/drag/keyboard input and server validation remain intact,
 and hints retain their server-authorized balance and Journey Stage restrictions.
-Completion screens retain their existing design and behavior; their redesign
-is still deferred.
+Stage completion now follows the approved celebration concept: named stage
+heading, celebrating Meemo, verse/Journey Stage, 5/5 mode status, Flame kindled,
+Beacon progress, and the stage's actual Glow Points/Beacon XP. It reuses the
+approved diamond, flame, and blue-star icons. A level-up notice remains when earned.
+The button says Continue if badge/streak/waypoint celebrations remain; otherwise
+Exit gameplay. The existing celebration order and destinations are preserved.
+Individual mode, badge, streak, and waypoint celebration designs remain unchanged.
+
+The server returns stageEarnedXp after verifying all five ordered modes: the
+final award (including stage and Radiance waypoint bonuses) plus the four prior
+mode awards. Current totals are 75/90/210 XP for Glimmer/Glow/Radiance. This adds
+no database operation and never awards XP a second time. The Glow Points line
+uses the stage reward amount, excluding separate badge rewards and account balance.
+Reopening a completed campaign session renders this same result card from the
+recorded stage reward and that session's XP ledger entries. Two bounded indexed
+reads run only for completed campaign sessions; active-session reads are unchanged.
+Reopening never awards rewards or replays the badge/streak/waypoint sequence.
 
 ### 15.4 Sanctuary (🕊️)
 

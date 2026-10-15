@@ -2039,8 +2039,10 @@ introductions from the light/dark concept, generating a presenting-Meemo pose,
 and adding the static Swap word illustration (animation removed at owner request).
 The later active-board approval implements all five modes with the corrected
 Meemo header, compact board layout, and scoped purple/gold tile colors. Desktop
-keeps the same composition in a wider card. Completion-screen redesign remains
-deferred. These presentation-only updates add
+keeps the same composition in a wider card. The stage-complete screen is now
+upgraded from its approved concept with celebrating Meemo and stage-specific
+reward summaries. Individual-mode, badge, streak, and waypoint celebration
+redesigns remain deferred. These presentation-only updates add
 no database reads/writes, reward rules, or timing changes.
 
 *End of Scripture Memo AI Build Roadmap v2.0*

@@ -401,7 +401,12 @@
     "beaconLevelProgress": "Progress to the next Beacon Level",
     "levelUp": "Level up! Beacon Level {level}",
     "stageComplete": "{stage} Complete!",
-    "stageCompleteBody": "All five modes in {stage} are complete."
+    "stageCompleteBody": "All five modes in {stage} are complete.",
+    "allModesCompleted": "You completed all 5 modes.",
+    "completedModesCount": "{count} / {total} modes",
+    "stageGlowPoints": "{count} Glow Points collected",
+    "stageBeaconXp": "{count} Beacon XP earned",
+    "continueCelebrations": "Continue"
   },
   "Streak": {
     "dailyRhythm": "Daily rhythm kindled",

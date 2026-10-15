@@ -401,7 +401,12 @@
     "beaconLevelProgress": "Progreso al siguiente nivel de Faro",
     "levelUp": "¡Subiste de nivel! Nivel de Faro {level}",
     "stageComplete": "¡{stage} completado!",
-    "stageCompleteBody": "Los cinco modos de {stage} están completos."
+    "stageCompleteBody": "Los cinco modos de {stage} están completos.",
+    "allModesCompleted": "Completaste los 5 modos.",
+    "completedModesCount": "{count} / {total} modos",
+    "stageGlowPoints": "{count} Puntos de Luz obtenidos",
+    "stageBeaconXp": "{count} XP de Faro obtenida",
+    "continueCelebrations": "Continuar"
   },
   "Streak": {
     "dailyRhythm": "Ritmo diario encendido",

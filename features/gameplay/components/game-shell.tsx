@@ -50,6 +50,7 @@ import type { ActionResult } from "@/types/api";
 import { HintButton } from "@/features/hints";
 import { ModeIntroduction } from "./mode-introduction";
 import { SessionBeaconProgress } from "./session-beacon-progress";
+import { StageCompletionCard } from "./stage-completion-card";
 import styles from "./session-introduction.module.css";
 import { verifyLearnHintAccountingAction } from "@/features/hints/actions/verify-learn-hint-accounting.action";
 import { verifyStageHintBlockAction } from "@/features/hints/actions/verify-stage-hint-block.action";
@@ -258,6 +259,31 @@ export function GameShell({
     setAdminTestReplayMode(null);
     setIsAwaitingContinue(false);
   };
+
+  // Reopening a completed campaign session must render the same result card as
+  // live completion. Recorded awards are display-only; exiting does not replay
+  // milestones or issue completion/award actions a second time.
+  if (!currentMode && !replayMode && gameSession.completedStage && gameSession.dayLevel) {
+    return (
+      <main className="flex min-h-svh justify-center bg-background px-3 py-3 text-foreground sm:py-6">
+        <StageCompletionCard
+          stage={gameSession.dayLevel}
+          summary={{
+            waypointNumber: gameSession.waypoint?.number ?? 0,
+            verseReference: gameSession.verse.reference,
+            journeyStage: gameSession.waypoint?.journeyStage,
+            earnedXp: gameSession.completedStage.earnedXp,
+            hasMoreCelebrations: false,
+            audioEnabled,
+            onToggleAudio: toggleAudio,
+          }}
+          reward={{ amount: gameSession.completedStage.glowPoints }}
+          beacon={gameSession.beaconProgress}
+          onContinue={() => continueToMode(null)}
+        />
+      </main>
+    );
+  }
 
   return (
     <main
@@ -593,6 +619,9 @@ export function GameShell({
               dayLevel={gameSession.dayLevel}
               waypointNumber={gameSession.waypoint?.number ?? 0}
               verseReference={gameSession.verse.reference}
+              journeyStage={gameSession.waypoint?.journeyStage}
+              audioEnabled={audioEnabled}
+              onToggleAudio={toggleAudio}
               verseText={gameSession.verse.translationText}
               attempt={null}
               replayKind={replayKind}
@@ -680,6 +709,9 @@ export function GameShell({
               dayLevel={gameSession.dayLevel}
               waypointNumber={gameSession.waypoint?.number ?? 0}
               verseReference={gameSession.verse.reference}
+              journeyStage={gameSession.waypoint?.journeyStage}
+              audioEnabled={audioEnabled}
+              onToggleAudio={toggleAudio}
               verseText={gameSession.verse.translationText}
               attempt={attempt}
               isVaultReplay={gameSession.isVaultReplay}

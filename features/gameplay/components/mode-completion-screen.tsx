@@ -15,6 +15,7 @@ import type { DayLevel, GameMode } from "@/lib/generated/prisma/enums";
 import type { DayRewardResult } from "@/features/rewards/types/reward.types";
 import type { BeaconProgressionResult } from "@/features/beacon/types/beacon.types";
 import type { LocalReplayKind } from "@/features/gameplay/types/game-session.types";
+import { StageCompletionCard, type StageCompletionSummary } from "./stage-completion-card";
 
 /**
  * Pauses progression on a celebratory, explicit learner-controlled transition.
@@ -26,6 +27,7 @@ import type { LocalReplayKind } from "@/features/gameplay/types/game-session.typ
 export function ModeCompletionScreen({
   completedMode,
   completedChallengeStage,
+  stageSummary,
   nextMode,
   replayKind,
   isAdminTest = false,
@@ -37,6 +39,7 @@ export function ModeCompletionScreen({
 }: {
   completedMode: GameMode;
   completedChallengeStage?: DayLevel;
+  stageSummary?: StageCompletionSummary;
   nextMode: GameMode | null;
   replayKind?: LocalReplayKind;
   isAdminTest?: boolean;
@@ -99,6 +102,29 @@ export function ModeCompletionScreen({
       document.documentElement.style.overflow = previousRootOverflow;
     };
   }, []);
+
+  // Only real campaign stage results use the new surface. The same scroll lock
+  // and caller-owned celebration sequence apply to both presentation branches.
+  if (isStageComplete && completedChallengeStage && stageSummary && reward && beaconProgression) {
+    return (
+      <div
+        className="fixed inset-0 z-40 overflow-y-auto bg-background px-3"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="mode-complete-title"
+      >
+        <div className="flex min-h-full justify-center py-3 sm:py-6">
+          <StageCompletionCard
+            stage={completedChallengeStage}
+            summary={stageSummary}
+            reward={reward}
+            beacon={beaconProgression}
+            onContinue={onContinue}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <motion.div
