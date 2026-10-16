@@ -1,14 +1,9 @@
 import type { TranslationCode } from "@/lib/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
-import type { UpdateUserSettingsInput } from "@/features/settings/schemas/update-user-settings.schema";
-import { DEFAULT_LOCALE, isSupportedLocale, type AppLocale } from "@/i18n/config";
+import type { AccountSettingsInput } from "@/features/settings/schemas/update-user-settings.schema";
 
 export type UserSettingsValues = {
   preferredTranslation: TranslationCode;
-  locale: AppLocale;
-  audioEnabled: boolean;
-  reducedMotion: boolean;
-  theme: "light" | "dark" | "system";
   timeZone: string;
   hasConfiguredTimeZone: boolean;
   hasSelectedTranslation: boolean;
@@ -25,10 +20,6 @@ export const settingsRepository = {
       where: { userId },
       select: {
         preferredTranslation: true,
-        locale: true,
-        audioEnabled: true,
-        reducedMotion: true,
-        theme: true,
         timeZone: true,
         hasConfiguredTimeZone: true,
         hasSelectedTranslation: true,
@@ -38,13 +29,6 @@ export const settingsRepository = {
 
     return {
       preferredTranslation: settings.preferredTranslation,
-      locale: isSupportedLocale(settings.locale) ? settings.locale : DEFAULT_LOCALE,
-      audioEnabled: settings.audioEnabled,
-      reducedMotion: settings.reducedMotion,
-      theme:
-        settings.theme === "light" || settings.theme === "dark"
-          ? settings.theme
-          : "system",
       timeZone: settings.timeZone,
       hasConfiguredTimeZone: settings.hasConfiguredTimeZone,
       hasSelectedTranslation: settings.hasSelectedTranslation,
@@ -57,7 +41,7 @@ export const settingsRepository = {
    */
   async updateForUser(
     userId: string,
-    input: UpdateUserSettingsInput,
+    input: AccountSettingsInput,
   ): Promise<void> {
     const currentProfile = await prisma.userProfile.findUnique({
       where: { userId },
@@ -94,10 +78,6 @@ export const settingsRepository = {
         where: { userId },
         update: {
           preferredTranslation: input.preferredTranslation,
-          locale: input.locale,
-          audioEnabled: input.audioEnabled,
-          reducedMotion: input.reducedMotion,
-          theme: input.theme,
           timeZone: input.timeZone,
           hasConfiguredTimeZone: true,
           hasSelectedTranslation: true,
@@ -105,33 +85,12 @@ export const settingsRepository = {
         create: {
           userId,
           preferredTranslation: input.preferredTranslation,
-          locale: input.locale,
-          audioEnabled: input.audioEnabled,
-          reducedMotion: input.reducedMotion,
-          theme: input.theme,
           timeZone: input.timeZone,
           hasConfiguredTimeZone: true,
           hasSelectedTranslation: true,
         },
       }),
     ]);
-  },
-
-  /**
-   * Persists the compact theme-switcher choice without overwriting profile data.
-   *
-   * The upsert supports authenticated accounts whose settings initialization
-   * has not completed yet; all unrelated settings retain schema defaults.
-   */
-  async updateThemeForUser(
-    userId: string,
-    theme: "light" | "dark" | "system",
-  ): Promise<void> {
-    await prisma.userSettings.upsert({
-      where: { userId },
-      update: { theme },
-      create: { userId, theme },
-    });
   },
 
   /**

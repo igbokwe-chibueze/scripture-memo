@@ -1,4 +1,7 @@
 import "server-only";
+import { getLocale } from "next-intl/server";
+import { isSupportedLocale } from "@/i18n/config";
+import { devicePreferencesSchema } from "./device-preferences";
 
 import { notFound } from "next/navigation";
 import { requireServerSession } from "@/lib/auth/session";
@@ -26,9 +29,10 @@ export type SettingsPageData = {
  */
 export async function getSettingsPageData(): Promise<SettingsPageData> {
   const session = await requireServerSession();
-  const [profile, settings] = await Promise.all([
+  const [profile, settings, locale] = await Promise.all([
     userRepository.getProfileSummary(session.user.id),
     getCachedUserSettings(session.user.id),
+    getLocale(),
   ]);
 
   if (!profile || !settings) notFound();
@@ -44,10 +48,8 @@ export async function getSettingsPageData(): Promise<SettingsPageData> {
       preferredTranslation: selectableTranslations.has(settings.preferredTranslation)
         ? (settings.preferredTranslation as "KJV" | "WEB" | "BSB")
         : "KJV",
-      locale: settings.locale,
-      audioEnabled: settings.audioEnabled,
-      reducedMotion: settings.reducedMotion,
-      theme: settings.theme,
+      ...devicePreferencesSchema.parse({}),
+      locale: isSupportedLocale(locale) ? locale : "en",
       timeZone: settings.timeZone,
     },
     stats: {

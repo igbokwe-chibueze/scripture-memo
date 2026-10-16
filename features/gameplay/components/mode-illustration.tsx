@@ -26,25 +26,18 @@ export function ModeIllustration({ mode }: { mode: GameMode }): React.ReactNode 
       </div>
     );
   }
-  if (mode === "DRAG_DROP") {
+  if (mode === "DRAG_DROP" || mode === "PUZZLE") {
     return (
       <div className={styles.dragDemo} aria-hidden="true">
-        <span className={styles.dragTile}>Son</span>
+        <span className={`${styles.dragTile} ${mode === "PUZZLE" ? styles.phraseTile : ""}`}>
+          {mode === "PUZZLE" ? "only begotten Son" : "Son"}
+        </span>
         <svg className={styles.dragArrow} viewBox="0 0 90 70" fill="none">
           <path d="M10 14 C40 3 62 17 68 48 M68 48 L51 36 M68 48 L77 28" />
         </svg>
         <span className={styles.dragSlot}>
           <span />
         </span>
-      </div>
-    );
-  }
-  if (mode === "PUZZLE") {
-    return (
-      <div className={styles.puzzleDemo} aria-hidden="true">
-        <span className={styles.puzzlePiece}>Trust</span>
-        <span className={styles.puzzlePiece}>in the</span>
-        <span className={styles.puzzlePiece}>Lord</span>
       </div>
     );
   }

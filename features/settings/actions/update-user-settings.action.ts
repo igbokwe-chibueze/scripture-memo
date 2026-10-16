@@ -3,18 +3,16 @@
 import { getSessionFromHeaders } from "@/lib/auth/get-session-from-headers";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
-import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import type { ActionResult } from "@/types/api";
 import { settingsRepository } from "@/features/settings/repositories/settings.repository";
-import { updateUserSettingsSchema } from "@/features/settings/schemas/update-user-settings.schema";
-import { LOCALE_COOKIE_NAME } from "@/i18n/config";
+import { accountSettingsSchema } from "@/features/settings/schemas/update-user-settings.schema";
 
 /** Validates and saves preferences for the server-authenticated user only. */
 export async function updateUserSettingsAction(
   input: unknown,
 ): Promise<ActionResult> {
-  const parsed = updateUserSettingsSchema.safeParse(input);
+  const parsed = accountSettingsSchema.safeParse(input);
   if (!parsed.success) {
     const t = await getTranslations("Settings");
 
@@ -35,16 +33,6 @@ export async function updateUserSettingsAction(
     // WHY: Identity comes exclusively from the trusted session. Accepting a
     // userId in form data would let a valid user modify another account.
     await settingsRepository.updateForUser(session.user.id, parsed.data);
-    const cookieStore = await cookies();
-    cookieStore.set(LOCALE_COOKIE_NAME, parsed.data.locale, {
-      // Locale is presentation state rather than a credential. Client-side
-      // synchronization may safely maintain it to avoid per-request DB reads.
-      httpOnly: false,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 365,
-    });
     revalidatePath("/", "layout");
     return { success: true, message: t("saved") };
   } catch {

@@ -403,11 +403,6 @@ export const gameplayRepository = {
           where: { status: GameModeAttemptStatus.COMPLETED },
           select: { gameMode: true },
         },
-        user: {
-          select: {
-            settings: { select: { audioEnabled: true } },
-          },
-        },
       },
     });
     if (!session?.waypointId || !session.dayLevel || !session.waypoint) {
@@ -439,7 +434,6 @@ export const gameplayRepository = {
         session.attempts.some((attempt) => attempt.gameMode === mode),
       ),
       currentMode: null,
-      audioEnabled: session.user.settings?.audioEnabled ?? true,
       hintBalance: 0,
       beaconProgress: {
         lifetimeXp: 0,
@@ -484,17 +478,10 @@ export const gameplayRepository = {
           },
         },
       }),
-      // WHY: Settings and Beacon progress are one-to-one relations on the same
-      // learner. Selecting both through User removes one database operation
-      // from every gameplay render without broadening the returned data.
+      // Load only trusted gameplay progress; presentation preferences stay local.
       prisma.user.findUnique({
         where: { id: userId },
         select: {
-          settings: {
-            select: {
-              audioEnabled: true,
-            },
-          },
           profile: {
             select: {
               beaconXp: true,
@@ -512,7 +499,6 @@ export const gameplayRepository = {
     ]);
     if (!session) return null;
 
-    const settings = userSummary?.settings;
     const profile = userSummary?.profile;
 
     const translation =
@@ -589,7 +575,6 @@ export const gameplayRepository = {
       completedModes,
       currentMode,
       completedStage,
-      audioEnabled: settings?.audioEnabled ?? true,
       hintBalance: calculateHintBalance(
         usedHintCount,
         purchasedHints._sum.entitlementQuantity ?? 0,

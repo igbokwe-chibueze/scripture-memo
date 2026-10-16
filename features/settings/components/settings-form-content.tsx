@@ -1,6 +1,6 @@
 /** Shared preference form; its caller owns persistence and preference synchronization. */
 
-import { useMemo, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,10 +18,14 @@ import type { ActionResult } from "@/types/api";
 import { showActionError } from "@/lib/errors/show-action-error";
 import { COUNTRY_OPTIONS } from "@/features/settings/data/country-options";
 import { updateUserSettingsSchema, type UpdateUserSettingsInput } from "@/features/settings/schemas/update-user-settings.schema";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { GameVolumeControls } from "./game-volume-controls";
 import { AvatarPicker } from "@/features/profile";
 
 export type SettingsFormProps = {
   initialValues: UpdateUserSettingsInput;
+  profileSummary?: React.ReactNode;
+  learningResources?: React.ReactNode;
   isPartner: boolean;
   save: (input: UpdateUserSettingsInput) => Promise<ActionResult>;
   onSaved: (input: UpdateUserSettingsInput) => void;
@@ -32,16 +36,21 @@ const timeZoneOptions = ["UTC", ...Intl.supportedValuesOf("timeZone")];
 /** Editable account preferences with localized labels and immediate visual sync. */
 export function SettingsFormContent({
   initialValues,
+  profileSummary,
+  learningResources,
   isPartner,
   save,
   onSaved,
 }: SettingsFormProps): React.ReactNode {
   const t = useTranslations("Settings");
   const locale = useLocale();
+  const [activeTab, setActiveTab] = useState("game");
   const [isPending, startTransition] = useTransition();
   const form = useForm<UpdateUserSettingsInput>({
     resolver: zodResolver(updateUserSettingsSchema),
     defaultValues: initialValues,
+    // Tab changes must never discard profile/preferences drafts.
+    shouldUnregister: false,
   });
   // useWatch subscribes to only the three preview fields and avoids invoking
   // React Hook Form's non-memoizable `watch` function during JSX rendering.
@@ -94,139 +103,373 @@ export function SettingsFormContent({
   }
 
   return (
-    <form onSubmit={form.handleSubmit(submit)} noValidate className="space-y-6">
-      <Card>
-        <CardHeader><CardTitle>{t("profile")}</CardTitle></CardHeader>
-        <CardContent>
-          <FieldGroup>
-            <AvatarPicker
-              avatarKey={selectedAvatarKey}
-              frameKey={selectedAvatarFrameKey}
-              displayName={previewDisplayName}
-              isPartner={isPartner}
-              disabled={isPending}
-              onAvatarChange={(value) => {
-                form.setValue("avatarKey", value, { shouldDirty: true });
-              }}
-              onFrameChange={(value) => {
-                form.setValue("avatarFrameKey", value, { shouldDirty: true });
-              }}
-            />
-
-            <Field data-invalid={Boolean(form.formState.errors.displayName)}>
-              <FieldLabel htmlFor="display-name">{t("displayName")}</FieldLabel>
-              <Input disabled={isPending} id="display-name" autoComplete="name" aria-invalid={Boolean(form.formState.errors.displayName)} {...form.register("displayName")} />
-              <FieldDescription>{t("displayNameDescription")}</FieldDescription>
-              <FieldError>{form.formState.errors.displayName?.message}</FieldError>
-            </Field>
-
-            <Controller control={form.control} name="countryCode" render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="country-code">{t("country")}</FieldLabel>
-                <SearchableSelect
-                  id="country-code"
-                  value={field.value}
-                  options={countryOptions}
-                  label={t("country")}
-                  placeholder={t("selectCountry")}
-                  searchPlaceholder={t("searchCountries")}
-                  emptyMessage={t("noCountry")}
-                  disabled={isPending}
-                  invalid={fieldState.invalid}
-                  onValueChange={field.onChange}
+    <form
+      onSubmit={form.handleSubmit(submit, (errors) => {
+        if (errors.displayName || errors.countryCode || errors.avatarKey || errors.avatarFrameKey) setActiveTab("profile");
+        else if (errors.locale || errors.preferredTranslation || errors.theme || errors.timeZone) setActiveTab("preferences");
+        else setActiveTab("game");
+      })}
+      noValidate
+      className="space-y-6"
+    >
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => {
+          if (typeof value === "string") setActiveTab(value);
+        }}
+      >
+        <TabsList
+          aria-label={t("settingsTabs")}
+          className="grid min-h-12 w-full grid-cols-3"
+        >
+          <TabsTrigger
+            value="game"
+            className="min-h-11 whitespace-normal"
+          >
+            {t("gameTab")}
+          </TabsTrigger>
+          <TabsTrigger
+            value="profile"
+            className="min-h-11 whitespace-normal"
+          >
+            {t("profile")}
+          </TabsTrigger>
+          <TabsTrigger
+            value="preferences"
+            className="min-h-11 whitespace-normal"
+          >
+            {t("preferencesTab")}
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="game">
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                {t("gameSettings")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FieldGroup>
+                <Controller
+                  control={form.control}
+                  name="audioEnabled"
+                  render={({ field }) => (
+                    <Field
+                      orientation="horizontal"
+                      className="min-h-16 items-center rounded-xl border p-4"
+                    >
+                      <Volume2Icon
+                        className="size-5 text-primary"
+                        aria-hidden="true"
+                      />
+                      <div className="flex-1">
+                        <FieldLabel htmlFor="audio-enabled">
+                          {t("audioEffects")}
+                        </FieldLabel>
+                        <FieldDescription>
+                          {t("audioDescription")}
+                        </FieldDescription>
+                      </div>
+                      <Switch
+                        disabled={isPending}
+                        id="audio-enabled"
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </Field>
+                  )}
                 />
-                <FieldDescription>{t("countryDescription")}</FieldDescription>
-                <FieldError>{fieldState.error?.message}</FieldError>
-              </Field>
-            )} />
-          </FieldGroup>
-        </CardContent>
-      </Card>
 
-      <Card>
-        <CardHeader><CardTitle>{t("scriptureExperience")}</CardTitle></CardHeader>
-        <CardContent>
-          <FieldGroup>
-            <Controller control={form.control} name="locale" render={({ field }) => (
-              <Field>
-                <FieldLabel htmlFor="interface-language">
-                  {t("interfaceLanguage")}
-                </FieldLabel>
-                <Select name="interfaceLanguage" disabled={isPending} value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger id="interface-language" className="min-h-11 w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent><SelectItem value="en">{t("english")}</SelectItem><SelectItem value="es">{t("spanish")}</SelectItem><SelectItem value="fr">{t("french")}</SelectItem></SelectContent>
-                </Select>
-                <FieldDescription>{t("interfaceLanguageDescription")}</FieldDescription>
-              </Field>
-            )} />
+                <GameVolumeControls
+                  control={form.control}
+                  disabled={isPending}
+                />
+                <p className="text-sm text-muted-foreground">
+                  {t("audioSaveNotice")}
+                </p>
+                <Controller
+                  control={form.control}
+                  name="reducedMotion"
+                  render={({ field }) => (
+                    <Field
+                      orientation="horizontal"
+                      className="min-h-16 items-center rounded-xl border p-4"
+                    >
+                      <AccessibilityIcon
+                        className="size-5 text-primary"
+                        aria-hidden="true"
+                      />
+                      <div className="flex-1">
+                        <FieldLabel htmlFor="reduced-motion">
+                          {t("reducedMotion")}
+                        </FieldLabel>
+                        <FieldDescription>
+                          {t("motionDescription")}
+                        </FieldDescription>
+                      </div>
+                      <Switch
+                        disabled={isPending}
+                        id="reduced-motion"
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </Field>
+                  )}
+                />
 
-            <Controller control={form.control} name="preferredTranslation" render={({ field }) => (
-              <Field>
-                <FieldLabel htmlFor="preferred-translation">
-                  {t("preferredBibleTranslation")}
-                </FieldLabel>
-                <Select name="preferredTranslation" disabled={isPending} value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger id="preferred-translation" className="min-h-11 w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="KJV">
-                      King James Version (KJV)
-                    </SelectItem>
-                    <SelectItem value="WEB">
-                      World English Bible (WEB)
-                    </SelectItem>
-                    <SelectItem value="BSB">
-                      Berean Standard Bible (BSB)
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </Field>
-            )} />
 
-            <Controller control={form.control} name="theme" render={({ field }) => (
-              <Field>
-                <FieldLabel htmlFor="theme-preference">{t("theme")}</FieldLabel>
-                <Select name="themePreference" disabled={isPending} value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger id="theme-preference" className="min-h-11 w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent><SelectItem value="light">{t("light")}</SelectItem><SelectItem value="dark">{t("dark")}</SelectItem><SelectItem value="system">{t("system")}</SelectItem></SelectContent>
-                </Select>
-              </Field>
-            )} />
+              </FieldGroup>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent
+          value="profile"
+          className="space-y-5"
+        >
+          {profileSummary}
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                {t("profile")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FieldGroup>
+                <AvatarPicker
+                  avatarKey={selectedAvatarKey}
+                  frameKey={selectedAvatarFrameKey}
+                  displayName={previewDisplayName}
+                  isPartner={isPartner}
+                  disabled={isPending}
+                  onAvatarChange={(value) => {
+                    form.setValue("avatarKey", value, { shouldDirty: true });
+                  }}
+                  onFrameChange={(value) => {
+                    form.setValue("avatarFrameKey", value, { shouldDirty: true });
+                  }}
+                />
 
-            <Field data-invalid={Boolean(form.formState.errors.timeZone)}>
-              <FieldLabel htmlFor="calendar-timezone">{t("calendarTimezone")}</FieldLabel>
-              <Input id="calendar-timezone" list="calendar-timezone-options" autoComplete="off" disabled={isPending} aria-invalid={Boolean(form.formState.errors.timeZone)} {...form.register("timeZone")} />
-              <datalist id="calendar-timezone-options">{timeZoneOptions.map((timeZone) => <option key={timeZone} value={timeZone}>{timeZone.replaceAll("_", " ")}</option>)}</datalist>
-              <FieldDescription>{t("timezoneDescription")}</FieldDescription>
-              <FieldError>{form.formState.errors.timeZone?.message}</FieldError>
-            </Field>
+                <Field data-invalid={Boolean(form.formState.errors.displayName)}>
+                  <FieldLabel htmlFor="display-name">
+                    {t("displayName")}
+                  </FieldLabel>
+                  <Input
+                    disabled={isPending}
+                    id="display-name"
+                    autoComplete="name"
+                    aria-invalid={Boolean(form.formState.errors.displayName)}
+                    {...form.register("displayName")}
+                  />
+                  <FieldDescription>
+                    {t("displayNameDescription")}
+                  </FieldDescription>
+                  <FieldError>
+                    {form.formState.errors.displayName?.message}
+                  </FieldError>
+                </Field>
 
-            <Controller control={form.control} name="audioEnabled" render={({ field }) => (
-              <Field orientation="horizontal" className="min-h-16 items-center rounded-xl border p-4">
-                <Volume2Icon className="size-5 text-primary" aria-hidden="true" />
-                <div className="flex-1"><FieldLabel htmlFor="audio-enabled">{t("audioEffects")}</FieldLabel><FieldDescription>{t("audioDescription")}</FieldDescription></div>
-                <Switch disabled={isPending} id="audio-enabled" checked={field.value} onCheckedChange={field.onChange} />
-              </Field>
-            )} />
+                <Controller
+                  control={form.control}
+                  name="countryCode"
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor="country-code">
+                        {t("country")}
+                      </FieldLabel>
+                      <SearchableSelect
+                        id="country-code"
+                        value={field.value}
+                        options={countryOptions}
+                        label={t("country")}
+                        placeholder={t("selectCountry")}
+                        searchPlaceholder={t("searchCountries")}
+                        emptyMessage={t("noCountry")}
+                        disabled={isPending}
+                        invalid={fieldState.invalid}
+                        onValueChange={field.onChange}
+                      />
+                      <FieldDescription>
+                        {t("countryDescription")}
+                      </FieldDescription>
+                      <FieldError>
+                        {fieldState.error?.message}
+                      </FieldError>
+                    </Field>
+                  )}
+                />
+              </FieldGroup>
+            </CardContent>
+          </Card>
 
-            <Controller control={form.control} name="reducedMotion" render={({ field }) => (
-              <Field orientation="horizontal" className="min-h-16 items-center rounded-xl border p-4">
-                <AccessibilityIcon className="size-5 text-primary" aria-hidden="true" />
-                <div className="flex-1"><FieldLabel htmlFor="reduced-motion">{t("reducedMotion")}</FieldLabel><FieldDescription>{t("motionDescription")}</FieldDescription></div>
-                <Switch disabled={isPending} id="reduced-motion" checked={field.value} onCheckedChange={field.onChange} />
-              </Field>
-            )} />
-          </FieldGroup>
-        </CardContent>
-      </Card>
+
+        </TabsContent>
+        <TabsContent
+          value="preferences"
+          className="space-y-5"
+        >
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                {t("scriptureExperience")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FieldGroup>
+                <Controller
+                  control={form.control}
+                  name="locale"
+                  render={({ field }) => (
+                    <Field>
+                      <FieldLabel htmlFor="interface-language">
+                        {t("interfaceLanguage")}
+                      </FieldLabel>
+                      <Select
+                        name="interfaceLanguage"
+                        disabled={isPending}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger
+                          id="interface-language"
+                          className="min-h-11 w-full"
+                        >
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="en">
+                            {t("english")}
+                          </SelectItem>
+                          <SelectItem value="es">
+                            {t("spanish")}
+                          </SelectItem>
+                          <SelectItem value="fr">
+                            {t("french")}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FieldDescription>
+                        {t("interfaceLanguageDescription")}
+                      </FieldDescription>
+                    </Field>
+                  )}
+                />
+
+                <Controller
+                  control={form.control}
+                  name="preferredTranslation"
+                  render={({ field }) => (
+                    <Field>
+                      <FieldLabel htmlFor="preferred-translation">
+                        {t("preferredBibleTranslation")}
+                      </FieldLabel>
+                      <Select
+                        name="preferredTranslation"
+                        disabled={isPending}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger
+                          id="preferred-translation"
+                          className="min-h-11 w-full"
+                        >
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="KJV">
+                            King James Version (KJV)
+                          </SelectItem>
+                          <SelectItem value="WEB">
+                            World English Bible (WEB)
+                          </SelectItem>
+                          <SelectItem value="BSB">
+                            Berean Standard Bible (BSB)
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                  )}
+                />
+
+                <Controller
+                  control={form.control}
+                  name="theme"
+                  render={({ field }) => (
+                    <Field>
+                      <FieldLabel htmlFor="theme-preference">
+                        {t("theme")}
+                      </FieldLabel>
+                      <Select
+                        name="themePreference"
+                        disabled={isPending}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger
+                          id="theme-preference"
+                          className="min-h-11 w-full"
+                        >
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="light">
+                            {t("light")}
+                          </SelectItem>
+                          <SelectItem value="dark">
+                            {t("dark")}
+                          </SelectItem>
+                          <SelectItem value="system">
+                            {t("system")}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                  )}
+                />
+
+                <Field data-invalid={Boolean(form.formState.errors.timeZone)}>
+                  <FieldLabel htmlFor="calendar-timezone">
+                    {t("calendarTimezone")}
+                  </FieldLabel>
+                  <Input
+                    id="calendar-timezone"
+                    list="calendar-timezone-options"
+                    autoComplete="off"
+                    disabled={isPending}
+                    aria-invalid={Boolean(form.formState.errors.timeZone)}
+                    {...form.register("timeZone")}
+                  />
+                  <datalist id="calendar-timezone-options">{timeZoneOptions.map((timeZone) =>
+                    <option
+                      key={timeZone}
+                      value={timeZone}
+                    >
+                      {timeZone.replaceAll("_", " ")}
+                    </option>)}</datalist>
+                  <FieldDescription>
+                    {t("timezoneDescription")}
+                  </FieldDescription>
+                  <FieldError>
+                    {form.formState.errors.timeZone?.message}
+                  </FieldError>
+                </Field>
+
+              </FieldGroup>
+            </CardContent>
+          </Card>
+          {learningResources}
+        </TabsContent>
+      </Tabs>
+
 
       <FormError message={form.formState.errors.root?.message} />
-      <LoadingButton type="submit" size="lg" className="w-full sm:w-auto" isPending={isPending} pendingLabel={t("savingSettings")} disabled={!form.formState.isDirty}>
+      <LoadingButton
+        type="submit"
+        size="lg"
+        className="w-full sm:w-auto"
+        isPending={isPending}
+        pendingLabel={t("savingSettings")}
+        disabled={!form.formState.isDirty}
+      >
         <SaveIcon aria-hidden="true" />
         {t("saveSettings")}
       </LoadingButton>

@@ -2045,4 +2045,17 @@ reward summaries. Individual-mode, badge, streak, and waypoint celebration
 redesigns remain deferred. These presentation-only updates add
 no database reads/writes, reward rules, or timing changes.
 
+### Settings tabs and gameplay audio (2026-10-16)
+
+Implemented owner-approved Game/Profile/App & Learning tabs, with Game first on
+navigation. Effects/ambience volumes and reduced motion now persist locally,
+alongside the next-themes appearance choice. Language uses a cookie. Account
+identity, translation, and timezone retain the existing authenticated save;
+device-only saves make no server mutation or refresh. Gameplay
+menus link to settings. Audio gain is increased with peak compression for
+effects. Puzzle preparation now shows the reference phrase tile, arrow, and blank.
+The subsequent device-preference migration removes obsolete presentation
+columns. Both migrations are applied to local development and isolated test
+databases; hosted environments must apply checked-in migrations during deployment.
+
 *End of Scripture Memo AI Build Roadmap v2.0*

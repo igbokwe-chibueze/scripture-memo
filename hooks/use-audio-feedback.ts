@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
+import { normalizeAudioVolume, readAudioVolume } from "@/features/settings/lib/audio-preferences";
 
 export type AudioFeedbackName =
   | "pick"
@@ -68,6 +69,7 @@ function closeAudioContextAfter(context: AudioContext, seconds: number): void {
 /** Plays the quiet rising pickup and settling placement cues. */
 function playInteractionTone(
   context: AudioContext,
+  output: AudioNode,
   name: "pick" | "drop",
 ): void {
   const startedAt = context.currentTime;
@@ -85,14 +87,14 @@ function playInteractionTone(
   gain.gain.exponentialRampToValueAtTime(0.11, startedAt + 0.008);
   gain.gain.exponentialRampToValueAtTime(0.0001, startedAt + duration);
   oscillator.connect(gain);
-  gain.connect(context.destination);
+  gain.connect(output);
   oscillator.start(startedAt);
   oscillator.stop(startedAt + duration);
   closeAudioContextAfter(context, duration);
 }
 
 /** Plays a short descending dissonance for incomplete or incorrect answers. */
-function playErrorTone(context: AudioContext): void {
+function playErrorTone(context: AudioContext, output: AudioNode): void {
   const startedAt = context.currentTime;
   const duration = 0.28;
   const gain = context.createGain();
@@ -100,7 +102,7 @@ function playErrorTone(context: AudioContext): void {
   gain.gain.setValueAtTime(0.0001, startedAt);
   gain.gain.exponentialRampToValueAtTime(0.16, startedAt + 0.012);
   gain.gain.exponentialRampToValueAtTime(0.0001, startedAt + duration);
-  gain.connect(context.destination);
+  gain.connect(output);
   [246.94, 220].forEach((frequency, index) => {
     const oscillator = context.createOscillator();
     oscillator.type = "square";
@@ -117,7 +119,7 @@ function playErrorTone(context: AudioContext): void {
 }
 
 /** Plays a full major chord with a rising final note. */
-function playTriumphantChord(context: AudioContext): void {
+function playTriumphantChord(context: AudioContext, output: AudioNode): void {
   const startedAt = context.currentTime;
   const duration = 0.78;
   const gain = context.createGain();
@@ -125,7 +127,7 @@ function playTriumphantChord(context: AudioContext): void {
   gain.gain.setValueAtTime(0.0001, startedAt);
   gain.gain.exponentialRampToValueAtTime(0.15, startedAt + 0.025);
   gain.gain.exponentialRampToValueAtTime(0.0001, startedAt + duration);
-  gain.connect(context.destination);
+  gain.connect(output);
   [523.25, 659.25, 783.99, 1046.5].forEach((frequency, index) => {
     const oscillator = context.createOscillator();
     oscillator.type = "triangle";
@@ -138,7 +140,7 @@ function playTriumphantChord(context: AudioContext): void {
 }
 
 /** Plays a quick sparkling arpeggio followed by a warm resolving chord. */
-function playBrightFanfare(context: AudioContext): void {
+function playBrightFanfare(context: AudioContext, output: AudioNode): void {
   const startedAt = context.currentTime;
   const notes = [659.25, 783.99, 987.77, 1174.66, 1318.51];
   const duration = 0.95;
@@ -153,7 +155,7 @@ function playBrightFanfare(context: AudioContext): void {
     gain.gain.exponentialRampToValueAtTime(0.2, noteStart + 0.018);
     gain.gain.exponentialRampToValueAtTime(0.0001, noteStart + 0.32);
     oscillator.connect(gain);
-    gain.connect(context.destination);
+    gain.connect(output);
     oscillator.start(noteStart);
     oscillator.stop(noteStart + 0.34);
   });
@@ -167,7 +169,7 @@ function playBrightFanfare(context: AudioContext): void {
  * A recorded, licensed crowd asset can replace this treatment later while the
  * stable pool name and gameplay integration remain unchanged.
  */
-function playCrowdCheer(context: AudioContext): void {
+function playCrowdCheer(context: AudioContext, output: AudioNode): void {
   const startedAt = context.currentTime;
   const duration = 1.25;
   const sampleCount = Math.ceil(context.sampleRate * duration);
@@ -192,7 +194,7 @@ function playCrowdCheer(context: AudioContext): void {
   noiseGain.gain.exponentialRampToValueAtTime(0.0001, startedAt + duration);
   noise.connect(filter);
   filter.connect(noiseGain);
-  noiseGain.connect(context.destination);
+  noiseGain.connect(output);
   noise.start(startedAt);
 
   [185, 215, 248, 278, 315].forEach((frequency, index) => {
@@ -206,7 +208,7 @@ function playCrowdCheer(context: AudioContext): void {
     voiceGain.gain.exponentialRampToValueAtTime(0.025, voiceStart + 0.08);
     voiceGain.gain.exponentialRampToValueAtTime(0.0001, startedAt + duration);
     voice.connect(voiceGain);
-    voiceGain.connect(context.destination);
+    voiceGain.connect(output);
     voice.start(voiceStart);
     voice.stop(startedAt + duration);
   });
@@ -214,14 +216,14 @@ function playCrowdCheer(context: AudioContext): void {
 }
 
 /** Routes one randomly selected victory treatment through the shared pool. */
-function playVictorySound(context: AudioContext): void {
+function playVictorySound(context: AudioContext, output: AudioNode): void {
   const sound = chooseVictorySound();
   if (sound === "bright-fanfare") {
-    playBrightFanfare(context);
+    playBrightFanfare(context, output);
   } else if (sound === "crowd-cheer") {
-    playCrowdCheer(context);
+    playCrowdCheer(context, output);
   } else {
-    playTriumphantChord(context);
+    playTriumphantChord(context, output);
   }
 }
 
@@ -232,47 +234,72 @@ function playVictorySound(context: AudioContext): void {
  * files cannot make interactions silent. Later feature sounds retain their
  * file-based contract and fail safely until their dedicated phases add assets.
  */
-export function useAudioFeedback(): (name: AudioFeedbackName) => void {
-  return useCallback((name: AudioFeedbackName): void => {
-    if (
-      typeof document === "undefined" ||
-      document.documentElement.dataset.audioEnabled === "false"
-    ) {
-      return;
-    }
+export function playAudioFeedback(
+  name: AudioFeedbackName,
+  preview?: { volume: number; enabled: boolean; },
+): void {
+  if (
+    typeof document === "undefined" ||
+    !(preview?.enabled ?? (document.documentElement.dataset.audioEnabled !== "false"))
+  ) {
+    return;
+  }
 
-    if (
-      name === "pick" ||
-      name === "drop" ||
-      name === "error" ||
-      name === "correct" ||
-      name === "waypoint-complete" ||
-      name === "badge-unlock" ||
-      name === "shop-purchase"
-    ) {
-      const AudioContextConstructor = getAudioContextConstructor();
-      if (!AudioContextConstructor) return;
-      try {
-        const context = new AudioContextConstructor();
-        if (name === "pick" || name === "drop") playInteractionTone(context, name);
-        else if (name === "error") playErrorTone(context);
-        else if (
-          name === "waypoint-complete" ||
-          name === "badge-unlock" ||
-          name === "shop-purchase"
-        ) {
-          playBrightFanfare(context);
-        }
-        else playVictorySound(context);
-      } catch {
-        // WHY: Feedback audio must never interrupt or invalidate gameplay.
+  const volume = normalizeAudioVolume(preview?.volume, readAudioVolume("effects"));
+  if (volume === 0) return;
+
+  if (
+    name === "pick" ||
+    name === "drop" ||
+    name === "error" ||
+    name === "correct" ||
+    name === "waypoint-complete" ||
+    name === "badge-unlock" ||
+    name === "shop-purchase"
+  ) {
+    const AudioContextConstructor = getAudioContextConstructor();
+    if (!AudioContextConstructor) return;
+    try {
+      const context = new AudioContextConstructor();
+      void context.resume().catch(() => undefined);
+      const gain = context.createGain();
+      const limiter = context.createDynamicsCompressor();
+      // More headroom than the former quiet defaults; compression restrains
+      // peaks when several voices overlap at high volume.
+      gain.gain.value = 2.5 * volume / 100;
+      limiter.threshold.value = -6;
+      limiter.knee.value = 8;
+      limiter.ratio.value = 8;
+      limiter.attack.value = 0.003;
+      limiter.release.value = 0.12;
+      gain.connect(limiter);
+      limiter.connect(context.destination);
+      const output = gain;
+      if (name === "pick" || name === "drop") playInteractionTone(context, output, name);
+      else if (name === "error") playErrorTone(context, output);
+      else if (
+        name === "waypoint-complete" ||
+        name === "badge-unlock" ||
+        name === "shop-purchase"
+      ) {
+        playBrightFanfare(context, output);
       }
-      return;
+      else playVictorySound(context, output);
+    } catch {
+      // WHY: Feedback audio must never interrupt or invalidate gameplay.
     }
+    return;
+  }
 
-    const audio = new Audio(`/audio/${name}.mp3`);
-    void audio.play().catch(() => {
-      // WHY: Planned audio assets fail silently until their feature phase.
-    });
-  }, []);
+  const audio = new Audio(`/audio/${name}.mp3`);
+  audio.volume = volume / 100;
+  void audio.play().catch(() => {
+    // WHY: Planned audio assets fail silently until their feature phase.
+  });
+}
+
+
+/** Stable gameplay callback reads acknowledged volume/mute at playback time. */
+export function useAudioFeedback(): (name: AudioFeedbackName) => void {
+  return useCallback((name: AudioFeedbackName) => playAudioFeedback(name), []);
 }

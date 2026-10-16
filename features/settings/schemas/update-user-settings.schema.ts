@@ -6,7 +6,7 @@ import {
 } from "@/features/profile/data/avatar-catalog";
 
 /** Validates every editable profile and preference field at the server boundary. */
-export const updateUserSettingsSchema = z.object({
+export const accountSettingsSchema = z.object({
   displayName: z
     .string()
     .trim()
@@ -23,14 +23,20 @@ export const updateUserSettingsSchema = z.object({
   avatarKey: z.enum(AVATAR_KEYS),
   avatarFrameKey: z.enum(AVATAR_FRAME_KEYS),
   preferredTranslation: z.enum(["KJV", "WEB", "BSB"]),
-  locale: z.enum(["en", "es", "fr"]),
-  audioEnabled: z.boolean(),
-  reducedMotion: z.boolean(),
-  theme: z.enum(["light", "dark", "system"]),
   timeZone: z
     .string()
     .trim()
     .refine(isValidTimeZone, "Select a valid timezone."),
 });
 
+/** Device/language fields are validated for the form but never passed to a repository. */
+export const updateUserSettingsSchema = accountSettingsSchema.extend({
+  locale: z.enum(["en", "es", "fr"]),
+  audioEnabled: z.boolean(),
+  soundEffectsVolume: z.number().int().min(0).max(100),
+  ambienceVolume: z.number().int().min(0).max(100),
+  reducedMotion: z.boolean(),
+  theme: z.enum(["light", "dark", "system"]),
+});
+export type AccountSettingsInput = z.infer<typeof accountSettingsSchema>;
 export type UpdateUserSettingsInput = z.infer<typeof updateUserSettingsSchema>;

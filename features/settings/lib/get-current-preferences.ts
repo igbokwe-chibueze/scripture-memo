@@ -1,24 +1,20 @@
 import "server-only";
-
+import { getLocale } from "next-intl/server";
 import { requireServerSession } from "@/lib/auth/session";
-import { getCachedUserSettings } from "@/features/settings/lib/get-cached-user-settings";
+import { getCachedUserSettings } from "./get-cached-user-settings";
+import { isSupportedLocale } from "@/i18n/config";
 
-/** Loads trusted visual and audio preferences for the protected application shell. */
+/** Only timezone setup still needs account data; presentation stays device-owned. */
 export async function getCurrentPreferences(): Promise<{
-  theme: "light" | "dark" | "system";
-  reducedMotion: boolean;
-  audioEnabled: boolean;
   locale: "en" | "es" | "fr";
   hasConfiguredTimeZone: boolean;
 }> {
   const session = await requireServerSession();
-  const settings = await getCachedUserSettings(session.user.id);
-
+  const [settings, locale] = await Promise.all([
+    getCachedUserSettings(session.user.id), getLocale(),
+  ]);
   return {
-    theme: settings?.theme ?? "system",
-    reducedMotion: settings?.reducedMotion ?? false,
-    audioEnabled: settings?.audioEnabled ?? true,
-    locale: settings?.locale ?? "en",
+    locale: isSupportedLocale(locale) ? locale : "en",
     hasConfiguredTimeZone: settings?.hasConfiguredTimeZone ?? false,
   };
 }

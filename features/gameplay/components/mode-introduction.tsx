@@ -51,7 +51,10 @@ export function ModeIntroduction({
 
   return (
     <section
-      className={cn(styles.introCard, mode === "DRAG_DROP" && styles.dragIntro)}
+      className={cn(
+        styles.introCard,
+        (mode === "DRAG_DROP" || mode === "PUZZLE") && styles.dragIntro,
+      )}
       aria-labelledby="mode-introduction-title"
     >
       <div className={styles.introScene}>

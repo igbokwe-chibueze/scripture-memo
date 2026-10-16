@@ -21,6 +21,7 @@ import type { BeaconProgressionResult } from "@/features/beacon/types/beacon.typ
 import type { DayRewardResult } from "@/features/rewards/types/reward.types";
 import type { DayLevel, JourneyStage } from "@/lib/generated/prisma/enums";
 import { SessionBeaconProgress } from "./session-beacon-progress";
+import { GameSettingsMenuItem } from "@/components/shared/game-settings-menu-item";
 import styles from "./stage-completion.module.css";
 
 /** Client-owned presentation context; award amounts remain server-owned. */
@@ -79,6 +80,7 @@ export function StageCompletionCard({
             <EllipsisVerticalIcon className="size-5" aria-hidden="true" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <GameSettingsMenuItem />
             <DropdownMenuItem onClick={summary.onToggleAudio} className="min-h-11 gap-2">
               {summary.audioEnabled ? <Volume2Icon aria-hidden="true" /> : <VolumeXIcon aria-hidden="true" />}
               {gameT("sound")} · {summary.audioEnabled ? gameT("on") : gameT("off")}

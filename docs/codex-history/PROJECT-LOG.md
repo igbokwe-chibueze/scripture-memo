@@ -1,5 +1,50 @@
 # Scripture Memo Project Log
 
+### 2026-10-16 - Device preferences moved out of PostgreSQL
+
+- Owner approved local storage for theme, audio toggle, effects/ambience volumes,
+  and reduced motion; interface language uses a cookie. Profile, avatar/frame,
+  country, Bible translation, and timezone stay account-backed. Owner explicitly
+  approved default values where browsers lack local audio/motion preferences.
+- Removed six obsolete UserSettings columns through a new migration, applied
+  only to development 51214 and isolated test 51224. Existing browser theme and
+  language remain; old account presentation choices are discarded as approved.
+- Settings saves only changed account fields through the authenticated action.
+  Device-only Save makes no server call or refresh. Language resolution is now
+  cookie/Accept-Language only, with no session or database lookup. Removed the
+  obsolete theme action and gameplay audio-settings join. Local values validate,
+  restore after hydration, synchronize across tabs, and handle blocked storage.
+- Browser fixture verified volume reload, default Game tab, no device-save
+  server calls, account-only payload, language cookie updates without account
+  mutation, and no 375px overflow. Pure validation/storage tests and isolated
+  account persistence passed. Production build/TypeScript, repository lint, and
+  all 171 unit checks passed.
+
+
+### 2026-10-16 - Puzzle intro, tabbed settings, and gameplay volume
+
+- Puzzle preparation uses the approved gold “only begotten Son” phrase tile,
+  curved arrow, and receiving blank beside the existing presenting Meemo.
+- Settings opens Game first; Profile owns identity/stats and App & Learning owns
+  translation, language, theme, timezone, and guides. One save retains drafts
+  across tabs. Game contains master mute, effects/ambience sliders and previews,
+  and reduced motion. Gameplay and stage-result menus link to settings.
+- Account volumes default to 80% effects / 60% ambience. Existing authenticated
+  reads and save transaction carry both fields; no new recurring queries or
+  slider writes. Shared audio hooks honor mute/zero and clean up ambience.
+  Effects have stronger gain and peak compression. Old artwork is preserved.
+- Applied the additive/check-constrained migration to local development 51214
+  and isolated test 51224. The test server needed elevated filesystem access to
+  its existing Prisma Local lock directory; startup then succeeded. No hosted
+  database was used. Deployment must apply the checked-in migration.
+- Production build/TypeScript, repository lint, all 169 unit checks, and
+  design-system/localization checks passed. New
+  percentage validation/fallback tests and isolated account persistence/SQL
+  bounds checks passed. Edge checks verified default tab, draft/save behavior,
+  menu link, preview auto-stop, zero-volume silence, and Puzzle light/dark
+  layouts at 375px and desktop without horizontal overflow.
+
+
 ### 2026-10-15 - Completed-session reload shows the new result card
 
 - Fixed a missed entry path: direct/reloaded completed sessions still rendered

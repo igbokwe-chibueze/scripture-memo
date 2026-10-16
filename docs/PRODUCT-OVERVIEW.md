@@ -746,10 +746,9 @@ Every game mode must include:
   Shared gameplay surfaces use semantic theme colors with intentional
   light/dark accents; a mode must never force the complete experience into one
   color scheme.
-- The shared public theme switcher persists its selection to `UserSettings`
-  whenever the visitor is authenticated. Anonymous visitors retain a
-  browser-only choice. Protected layouts and public controls must never maintain
-  competing theme values that cause navigation to restore an older appearance.
+- The shared public theme switcher persists its selection in browser local
+  storage through next-themes. Protected layouts never restore database themes.
+  Appearance is device-specific for both authenticated and anonymous visitors.
 - After a successful mode submission, show an animated completion interstitial
   with a deliberate Continue action; do not advance the visible mode
   automatically.
@@ -1545,13 +1544,34 @@ Display:
 
 ### 15.9 Settings
 
-User settings:
+User settings are organized into three tabs. Game opens by default on navigation:
+- **Game:** master audio toggle, separate sound-effects and ambience volumes
+  (0–100%, defaults 80%/60%), preview controls, and reduced motion.
+- **Profile:** display identity, avatar/frame, country, and journey statistics.
+- **App & Learning:** Bible translation, interface language, theme, timezone,
+  and journal guides. Translation remains independent of audio settings.
+
+Save routes each preference to its appropriate owner. Profile identity,
+avatar/frame, country, Bible translation, and timezone persist in PostgreSQL and
+follow the account. Theme, audio on/off, effects/ambience volumes, and reduced
+motion live in local storage for this browser. Interface language lives in a
+cookie so server rendering uses it without a database lookup. Device-only saves
+perform no server mutation or route refresh. Browser-only values never enter an
+account repository. Missing/corrupt local values use defaults; blocked storage
+shows a save error. Existing browser theme/language survive the transition;
+old account-level presentation choices are intentionally discarded.
+
+Gameplay menus link to Game Settings. Sound effects use stronger master gain
+with peak compression; ambience has an independent gain. Slider movement and
+previews do not persist data; Save applies them. In-game quick mute is temporary.
+
+Editable preferences (storage ownership described above):
 - Display name
 - Country (used for country leaderboard)
 - Preferred Bible translation (KJV / WEB / BSB; KJV is the platform default)
 - Preferred interface language (English / Spanish / French initially; independently
   expandable without changing the player's Bible translation)
-- Audio effects on/off
+- Audio on/off, sound-effects volume, and ambience volume
 - Reduced motion preference
 - Theme preference (light/dark/system)
 

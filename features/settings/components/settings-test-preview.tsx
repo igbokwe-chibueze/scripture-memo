@@ -15,6 +15,8 @@ const sample: UpdateUserSettingsInput = {
   preferredTranslation: "KJV",
   locale: "en",
   audioEnabled: true,
+  soundEffectsVolume: 80,
+  ambienceVolume: 60,
   reducedMotion: false,
   theme: "system",
   timeZone: "UTC",

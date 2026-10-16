@@ -68,7 +68,6 @@ export type GameplaySessionData = {
     glowPoints: number;
     earnedXp: number;
   };
-  audioEnabled: boolean;
   hintBalance: number;
   beaconProgress: {
     lifetimeXp: number;

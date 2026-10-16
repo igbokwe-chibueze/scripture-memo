@@ -1,10 +1,14 @@
 "use client";
 
+import { useAudioPreferences } from "@/hooks/use-audio-preferences";
+
 import { useState, useTransition } from "react";
 import Image from "next/image";
 import activeStyles from "./active-game.module.css";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+import { AUDIO_PREFERENCES_EVENT } from "@/features/settings/lib/audio-preferences";
+import { GameSettingsMenuItem } from "@/components/shared/game-settings-menu-item";
 import {
   Clock3Icon,
   EllipsisVerticalIcon,
@@ -92,7 +96,7 @@ export function GameShell({
     ? dayT(gameSession.dayLevel.toLowerCase() as "glimmer" | "glow" | "radiance")
     : "";
   const [attempt, setAttempt] = useState<GameModeAttemptData | null>(null);
-  const [audioEnabled, setAudioEnabled] = useState(gameSession.audioEnabled);
+  const { enabled: audioEnabled } = useAudioPreferences();
   const [adminTestReplayMode, setAdminTestReplayMode] =
     useState<GameMode | null>(null);
   const replayMode = playerPracticeMode ?? adminTestReplayMode;
@@ -173,8 +177,8 @@ export function GameShell({
 
   const toggleAudio = (): void => {
     const nextEnabled = !audioEnabled;
-    setAudioEnabled(nextEnabled);
     document.documentElement.dataset.audioEnabled = String(nextEnabled);
+    window.dispatchEvent(new Event(AUDIO_PREFERENCES_EVENT));
     toast.info(
       nextEnabled
         ? t("audioOn")
@@ -372,6 +376,7 @@ export function GameShell({
                   <DropdownMenuLabel className="px-2 py-1.5 font-bold text-foreground">
                     {t("gameMenu")}
                   </DropdownMenuLabel>
+                  <GameSettingsMenuItem />
                   <DropdownMenuItem
                     className="min-h-11 cursor-pointer gap-3 rounded-lg px-3 py-2 font-bold"
                     onClick={toggleAudio}

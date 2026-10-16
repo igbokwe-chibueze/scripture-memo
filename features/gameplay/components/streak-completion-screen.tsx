@@ -12,7 +12,7 @@ import {
 import { ShareAchievementButton } from "@/components/shared/share-achievement-button";
 import { Button } from "@/components/ui/button";
 import { AnimatedFlame } from "@/features/gameplay/components/animated-flame";
-import { useFlameAmbience } from "@/features/gameplay/hooks/use-flame-ambience";
+import { useFlameAmbience } from "@/hooks/use-flame-ambience";
 import { useAudioFeedback } from "@/hooks/use-audio-feedback";
 import type { StreakCompletionResult } from "@/features/gameplay/types/game-session.types";
 

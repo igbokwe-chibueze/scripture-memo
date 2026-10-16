@@ -66,6 +66,19 @@ const fr = {
   },
   Settings: {
     ...en.Settings,
+    settingsTabs: "Catégories des réglages",
+    gameTab: "Jeu",
+    preferencesTab: "App et étude",
+    gameSettings: "Réglages du jeu",
+    openingGameSettings: "Ouverture des réglages du jeu",
+    soundEffectsVolume: "Volume des effets",
+    ambienceVolume: "Volume de l’ambiance",
+    effectsDescription: "Sélection, placement, réponses et célébrations.",
+    ambienceDescription: "Sons de feu pendant les célébrations.",
+    previewSound: "Écouter",
+    stopPreview: "Arrêter l’écoute",
+    audioSaveNotice: "Enregistrer applique les préférences de jeu uniquement sur cet appareil.",
+    deviceStorageError: "Ce navigateur ne peut pas enregistrer les préférences. Autorisez le stockage local et réessayez.",
     player: "Joueur",
     chooseAvatar: "Choisissez votre compagnon de route",
     avatarDescription: "Choisissez lâ€™animal qui vous reprÃ©sentera dans le jeu.",
@@ -98,7 +111,7 @@ const fr = {
       flame: "Flamme",
       celestial: "CÃ©leste",
     },
-    title: "Paramètres", eyebrow: "Votre compte", description: "Gérez votre identité, votre expérience biblique et vos préférences d’accessibilité.", profile: "Profil", displayName: "Nom affiché", displayNameDescription: "Affiché dans les classements et les groupes.", country: "Pays", notSelected: "Non sélectionné", selectCountry: "Choisissez votre pays", searchCountries: "Rechercher un pays…", noCountry: "Aucun pays ne correspond à votre recherche.", countryDescription: "Utilisé uniquement pour filtrer le classement par pays.", scriptureExperience: "Expérience biblique", interfaceLanguage: "Langue de l’interface", interfaceLanguageDescription: "Modifie les menus et les instructions du jeu. Votre traduction biblique reste indépendante.", english: "Anglais", spanish: "Espagnol", french: "Français", preferredBibleTranslation: "Traduction biblique préférée", theme: "Thème", light: "Clair", dark: "Sombre", system: "Utiliser le réglage du système", calendarTimezone: "Fuseau horaire du calendrier", timezoneDescription: "Détecté automatiquement. Modifiez-le si votre journée doit suivre un autre lieu.", audioEffects: "Effets sonores", audioDescription: "Jouer les sons pendant l’entraînement.", reducedMotion: "Animations réduites", motionDescription: "Réduire les animations non essentielles.", saveSettings: "Enregistrer les paramètres", savingSettings: "Enregistrement", saved: "Paramètres enregistrés.", checkHighlighted: "Vérifiez les paramètres signalés.", authRequired: "Authentification requise.", saveError: "Impossible d’enregistrer les paramètres. Réessayez.", journeyStats: "Statistiques de votre parcours", glowPoints: "Points de Lumière", waypoints: "Étapes", currentStreak: "Série actuelle", bestStreak: "Record : {count}", hintsUsed: "Indices utilisés"
+    title: "Paramètres", eyebrow: "Votre compte", description: "Gérez votre identité, votre expérience biblique et vos préférences d’accessibilité.", profile: "Profil", displayName: "Nom affiché", displayNameDescription: "Affiché dans les classements et les groupes.", country: "Pays", notSelected: "Non sélectionné", selectCountry: "Choisissez votre pays", searchCountries: "Rechercher un pays…", noCountry: "Aucun pays ne correspond à votre recherche.", countryDescription: "Utilisé uniquement pour filtrer le classement par pays.", scriptureExperience: "Expérience biblique", interfaceLanguage: "Langue de l’interface", interfaceLanguageDescription: "Modifie les menus et les instructions du jeu. Votre traduction biblique reste indépendante.", english: "Anglais", spanish: "Espagnol", french: "Français", preferredBibleTranslation: "Traduction biblique préférée", theme: "Thème", light: "Clair", dark: "Sombre", system: "Utiliser le réglage du système", calendarTimezone: "Fuseau horaire du calendrier", timezoneDescription: "Détecté automatiquement. Modifiez-le si votre journée doit suivre un autre lieu.", audioEffects: "Audio du jeu", audioDescription: "Interrupteur général des effets et de l’ambiance.", reducedMotion: "Animations réduites", motionDescription: "Réduire les animations non essentielles.", saveSettings: "Enregistrer les paramètres", savingSettings: "Enregistrement", saved: "Paramètres enregistrés.", checkHighlighted: "Vérifiez les paramètres signalés.", authRequired: "Authentification requise.", saveError: "Impossible d’enregistrer les paramètres. Réessayez.", journeyStats: "Statistiques de votre parcours", glowPoints: "Points de Lumière", waypoints: "Étapes", currentStreak: "Série actuelle", bestStreak: "Record : {count}", hintsUsed: "Indices utilisés"
   },
   Home: { ...en.Home, eyebrow: "VOTRE PARCOURS", journeySummary: "Résumé du parcours", glowPoints: "Points de Lumière", streak: "Série actuelle", streakDays: "{count, plural, =0 {jours consécutifs} one {jour consécutif} other {jours consécutifs}}", currentWaypoint: "REPRENEZ OÙ VOUS EN ÉTIEZ", waypoint: "Point de passage {number}", openingWaypoint: "Ouverture du point de passage", continueJourney: "Continuer le parcours", noCurrentWaypoint: "Votre chemin vous attend", noCurrentWaypointDescription: "Ouvrez la carte pour trouver votre prochain point de passage et poursuivre votre parcours biblique.", openingMap: "Ouverture de la carte", moreDestinations: "Autres destinations", badges: "Badges", openingBadges: "Ouverture des badges", welcome: "Bienvenue, {name}", ready: "Votre compte est prêt.", openMap: "Ouvrir la carte du jeu", openVault: "Ouvrir la Bibliothèque", oilShop: "Boutique d’Huile", leaderboard: "Le Grand Phare", openingLeaderboard: "Ouverture du classement", admin: "Administration", openingAdmin: "Ouverture de l’administration", currentStreak: "Série actuelle : {count} jours", loggingOut: "Déconnexion", logOut: "Se déconnecter" },
   Map: {
@@ -124,7 +137,7 @@ const fr = {
     ...en.Gameplay,
     beaconRemaining: "{count} XP pour le niveau {level}",
     introDragDrop: "Glisse un mot dans un espace, ou sélectionne-le puis touche un espace.",
-    introPuzzle: "Ordonne les pièces pour reconstituer le verset.",
+    introPuzzle: "Glisse les groupes de mots dans les espaces pour compléter le verset.",
     introSwap: "Échange les mots pour remettre le verset dans l’ordre.",
     movableWord: "Mot déplaçable",
     modeHelp: "Comment jouer : {mode}",

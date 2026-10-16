@@ -38,7 +38,6 @@ const sampleSession: GameplaySessionData = {
   },
   completedModes: [],
   currentMode: GameMode.DRAG_DROP,
-  audioEnabled: true,
   hintBalance: 3,
   beaconProgress: {
     lifetimeXp: 145,
