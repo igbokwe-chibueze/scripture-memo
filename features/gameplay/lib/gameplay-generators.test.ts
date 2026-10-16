@@ -173,7 +173,7 @@ test("swap generation tracks duplicate words by position and can be restored", (
   const tokens = tokenizeVerse("the Lord is my Lord");
   const swapped = generateSwapTokens(tokens, 100, "duplicate-safe-seed");
 
-  assert.equal(areSwapTokensCorrect(swapped), false);
+  assert.equal(areSwapTokensCorrect(swapped, tokens), false);
   assert.deepEqual(
     swapped.map(({ originalIndex }) => originalIndex).sort((left, right) => left - right),
     [0, 1, 2, 3, 4],
@@ -184,7 +184,7 @@ test("swap generation tracks duplicate words by position and can be restored", (
       originalIndex: index,
       text,
       isSwappable: true,
-    }))),
+    })), tokens),
     true,
   );
 });
@@ -207,8 +207,8 @@ test("swap interaction exchanges identities while positions remain stable", () =
     initial.map(({ position }) => position),
   );
   assert.equal(
-    getIncorrectSwapPositions(moved).length <
-      getIncorrectSwapPositions(initial).length,
+    getIncorrectSwapPositions(moved, tokens).length <
+      getIncorrectSwapPositions(initial, tokens).length,
     true,
   );
 });
@@ -223,5 +223,5 @@ test("swap reconstruction keeps punctuation anchored to canonical slots", () => 
   }));
 
   assert.equal(reconstructSwapAnswer(restored, verseTokens), "“Love,” is kind...");
-  assert.equal(areSwapTokensCorrect(restored), true);
+  assert.equal(areSwapTokensCorrect(restored, verseTokens), true);
 });

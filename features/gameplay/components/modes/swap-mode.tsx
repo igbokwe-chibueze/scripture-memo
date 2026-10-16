@@ -41,9 +41,9 @@ type PositionFeedback = Readonly<Record<number, "correct" | "incorrect">>;
 /**
  * Implements the position-based word correction mode for pointer and touch.
  *
- * WHY: Every visible token retains its original occurrence index. Repeated words
- * therefore cannot bypass validation, and the authenticated completion action
- * remains the final authority over canonical text, timing, and progression.
+ * Occurrence indices keep interactions stable; correctness compares canonical
+ * wording so identical repeated tiles are interchangeable. The authenticated
+ * completion action remains authoritative over text, timing, and progression.
  */
 export function SwapMode({
   sessionId,
@@ -119,7 +119,7 @@ export function SwapMode({
   };
 
   const checkAnswer = (): void => {
-    const incorrectPositions = getIncorrectSwapPositions(tokens);
+    const incorrectPositions = getIncorrectSwapPositions(tokens, verseTokens);
     const feedback = Object.fromEntries(
       tokens
         .filter(({ isSwappable }) => isSwappable)
@@ -130,7 +130,7 @@ export function SwapMode({
     ) as PositionFeedback;
     setPositionFeedback(feedback);
 
-    if (!areSwapTokensCorrect(tokens)) {
+    if (!areSwapTokensCorrect(tokens, verseTokens)) {
       playAudio("error");
       toast.error(
         `${incorrectPositions.length} ${

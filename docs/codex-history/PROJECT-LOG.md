@@ -1,5 +1,23 @@
 # Scripture Memo Project Log
 
+### 2026-10-16 - Swap repeated-word false negatives fixed
+
+- Owner reported two correctly placed “that” tiles marked red in John 3:16.
+  Found that Swap still compared original occurrence IDs; prior duplicate-word
+  corrections covered Drag & Drop/Puzzle but missed Swap.
+- Swap feedback and its completion gate now compare normalized visible words
+  with canonical slot wording. Occurrence IDs remain for interaction only;
+  canonical punctuation remains anchored. Server-side canonical text, timing,
+  progression, and rewards checks are unchanged.
+- Added John 3:16 regression exchanging the two “that” IDs, genuine misplaced
+  words, case-equivalent duplicates, punctuation preservation, incomplete boards,
+  and agreement with the server's shared answer normalization. Existing generator
+  tests use explicit canonical tokens. Focused gameplay includes the new test.
+- Fourteen generator/regression checks, all 175 unit checks, TypeScript, and
+  targeted lint passed. Product guidance corrected so future work cannot
+  reintroduce occurrence-ID grading.
+
+
 ### 2026-10-16 - Exact supplied stage-confetti artwork
 
 - Replaced the stage-result card's eight flat CSS marks with the owner's

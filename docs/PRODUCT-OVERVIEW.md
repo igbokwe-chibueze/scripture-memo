@@ -827,7 +827,12 @@ order.
 - Difficulty: Stage 1 — 20–35% swapped; Stage 2 — 40–60%; Stage 3 — 70–100%.
 - On all correct: confetti, success toast, Continue button.
 
-**Implementation note:** The swap generator must track token positions, not just word text. If the verse contains duplicate words (e.g., two instances of "the"), each instance is tracked by its index position to ensure fair and unambiguous validation.
+**Implementation note:** Swap tracks occurrence IDs for stable interactions, but
+correctness and per-slot feedback compare normalized visible words against the
+canonical verse slot. Identical repeated words are interchangeable, including
+case-equivalent occurrences; hidden IDs never make a correct word incorrect.
+Punctuation remains attached to canonical slots. The server independently checks
+the reconstructed answer before recording completion or awarding anything.
 
 ---
 
