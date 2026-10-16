@@ -1,5 +1,64 @@
 # Scripture Memo Project Log
 
+### 2026-10-16 - Remaining seven learning articles published
+
+- Owner authorized creating and publishing the seven remaining proposed topics:
+  five-mode repetition, progressively reduced support, errors/feedback, hints,
+  rest/sleep, rewards versus memory, and context/understanding.
+- Added seven Markdown sources and manifest entries, totaling 6,192 words
+  (848–935 each). The complete twelve-article series now totals 10,984 words.
+  Research links support scoped scientific claims; product design, personal
+  practice suggestions, and currently implemented features remain distinguished.
+- Publication validates the exact approved manifest rather than a hardcoded
+  five-article count. Published seven new records plus audit atomically in the
+  established local development database. Earlier articles and the separate
+  long-form article were preserved; the repeat run inserted zero records.
+- All twelve records are publicly readable, and each of the seven new routes
+  returned HTTP 200. Cross-article links, source validation, TypeScript, targeted
+  lint, and the five existing blog checks passed. No gameplay rules changed.
+
+
+### 2026-10-16 - Five learning-technique articles published
+
+- Owner selected the five recommended articles and explicitly authorized publication.
+  Published recognition versus recall (980 words), retrieval practice (953), spacing
+  and cooldowns (925), returning verses/successive relearning (943), and everyday
+  recall (991): 4,792 words total, with linked research and practical examples.
+- Sources and copy distinguish learning principles from unvalidated product-specific
+  claims. Current stage names, hidden-word ranges, twelve-hour unlocks, hints,
+  Journey Stage timers, and Study rules were checked. Articles link to one another.
+- Markdown sources and metadata live in features/blog/data/. The local-only
+  publish-learning-series command validates all sources/links, uses a guarded
+  development target, and creates publications plus audit in one transaction.
+  Repeated execution preserves existing published content; existing drafts block
+  rather than being overwritten or silently published.
+- All five are public at /blog/<manifest slug>. Repository visibility, a repeated
+  zero-insert run, TypeScript, targeted lint, and five blog checks passed.
+  The original long-form article was found already published by the editor;
+  this task left its content and publication state unchanged.
+
+
+### 2026-10-16 - Long-form learning philosophy editorial draft
+
+- Owner requested a lengthy explanation of Scripture Memo's philosophy, goals,
+  process, and learning science, and explicitly chose private draft review.
+- Authored 5,643 words (about 29 minutes), covering spacing, retrieval, repetition,
+  successive relearning, errors/feedback, sleep, context, both progression layers,
+  five modes, rewards, practical routines, and future evaluation priorities.
+- Eight linked research references support scoped claims. Copy distinguishes
+  research from product design: fixed twelve-hour cooldowns and curriculum
+  positions are not a validated personalized scheduler or permanent-memory
+  guarantee. Current support/timer/study/reward rules were checked against code
+  and the product specification.
+- Saved the private local CMS draft at
+  /admin/blog/cmvavgyee0000ykv9d58tb74n. Reviewable source lives in
+  features/blog/data/why-scripture-memo-exists.md. The local-only importer guards
+  port 51214, validates content, audits creation atomically, preserves any existing
+  slug/CMS revisions, and cannot publish. No existing article was overwritten.
+- TypeScript, targeted lint, and five blog checks passed. Publication remains
+  deferred to the owner's review through the admin editor.
+
+
 ### 2026-10-16 - Device preferences moved out of PostgreSQL
 
 - Owner approved local storage for theme, audio toggle, effects/ambience volumes,
