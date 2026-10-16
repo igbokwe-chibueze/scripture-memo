@@ -66,6 +66,9 @@ const fr = {
   },
   Settings: {
     ...en.Settings,
+    unsavedChange: "Non enregistré",
+    undoChanges: "Annuler les changements",
+    changesUndone: "Changements non enregistrés annulés.",
     settingsTabs: "Catégories des réglages",
     gameTab: "Jeu",
     preferencesTab: "App et étude",

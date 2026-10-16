@@ -39,4 +39,10 @@ export const updateUserSettingsSchema = accountSettingsSchema.extend({
   theme: z.enum(["light", "dark", "system"]),
 });
 export type AccountSettingsInput = z.infer<typeof accountSettingsSchema>;
+/** Patch-only writes reject browser fields and empty or undefined-only requests. */
+export const accountSettingsPatchSchema = accountSettingsSchema.partial().strict().refine(
+  (patch) => Object.values(patch).some((value) => value !== undefined),
+  "Change at least one account setting.",
+);
+export type AccountSettingsPatch = z.infer<typeof accountSettingsPatchSchema>;
 export type UpdateUserSettingsInput = z.infer<typeof updateUserSettingsSchema>;

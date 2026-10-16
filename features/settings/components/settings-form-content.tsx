@@ -1,11 +1,13 @@
 /** Shared preference form; its caller owns persistence and preference synchronization. */
 
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useRef, useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { AccessibilityIcon, SaveIcon, Volume2Icon } from "lucide-react";
+import { AccessibilityIcon, SaveIcon, Undo2Icon, Volume2Icon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { SettingChangeIndicator } from "./setting-change-indicator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -27,7 +29,7 @@ export type SettingsFormProps = {
   profileSummary?: React.ReactNode;
   learningResources?: React.ReactNode;
   isPartner: boolean;
-  save: (input: UpdateUserSettingsInput) => Promise<ActionResult>;
+  save: (input: UpdateUserSettingsInput, previous: UpdateUserSettingsInput) => Promise<ActionResult>;
   onSaved: (input: UpdateUserSettingsInput) => void;
 };
 
@@ -44,6 +46,8 @@ export function SettingsFormContent({
 }: SettingsFormProps): React.ReactNode {
   const t = useTranslations("Settings");
   const locale = useLocale();
+  const lastSaved = useRef(initialValues);
+  const [previewRun, setPreviewRun] = useState(0);
   const [activeTab, setActiveTab] = useState("game");
   const [isPending, startTransition] = useTransition();
   const form = useForm<UpdateUserSettingsInput>({
@@ -81,7 +85,7 @@ export function SettingsFormContent({
     form.clearErrors("root");
     startTransition(async () => {
       // A transport failure preserves the draft and leaves Save available to retry.
-      const result = await save(input).catch((): ActionResult => ({
+      const result = await save(input, lastSaved.current).catch((): ActionResult => ({
         success: false,
         message: t("saveError"),
       }));
@@ -97,6 +101,7 @@ export function SettingsFormContent({
       }
 
       onSaved(input);
+      lastSaved.current = input;
       form.reset(input);
       toast.success(result.message, { duration: 4_000 });
     });
@@ -104,11 +109,13 @@ export function SettingsFormContent({
 
   return (
     <form
-      onSubmit={form.handleSubmit(submit, (errors) => {
-        if (errors.displayName || errors.countryCode || errors.avatarKey || errors.avatarFrameKey) setActiveTab("profile");
-        else if (errors.locale || errors.preferredTranslation || errors.theme || errors.timeZone) setActiveTab("preferences");
-        else setActiveTab("game");
-      })}
+      onSubmit={(event) => {
+        void form.handleSubmit(submit, (errors) => {
+          if (errors.displayName || errors.countryCode || errors.avatarKey || errors.avatarFrameKey) setActiveTab("profile");
+          else if (errors.locale || errors.preferredTranslation || errors.theme || errors.timeZone) setActiveTab("preferences");
+          else setActiveTab("game");
+        })(event);
+      }}
       noValidate
       className="space-y-6"
     >
@@ -163,8 +170,9 @@ export function SettingsFormContent({
                         aria-hidden="true"
                       />
                       <div className="flex-1">
-                        <FieldLabel htmlFor="audio-enabled">
+                        <FieldLabel className="flex flex-wrap items-center gap-2" htmlFor="audio-enabled">
                           {t("audioEffects")}
+                          <SettingChangeIndicator changed={Boolean(form.formState.dirtyFields.audioEnabled)} />
                         </FieldLabel>
                         <FieldDescription>
                           {t("audioDescription")}
@@ -181,6 +189,7 @@ export function SettingsFormContent({
                 />
 
                 <GameVolumeControls
+                  key={previewRun}
                   control={form.control}
                   disabled={isPending}
                 />
@@ -200,8 +209,9 @@ export function SettingsFormContent({
                         aria-hidden="true"
                       />
                       <div className="flex-1">
-                        <FieldLabel htmlFor="reduced-motion">
+                        <FieldLabel className="flex flex-wrap items-center gap-2" htmlFor="reduced-motion">
                           {t("reducedMotion")}
+                          <SettingChangeIndicator changed={Boolean(form.formState.dirtyFields.reducedMotion)} />
                         </FieldLabel>
                         <FieldDescription>
                           {t("motionDescription")}
@@ -239,6 +249,8 @@ export function SettingsFormContent({
                   avatarKey={selectedAvatarKey}
                   frameKey={selectedAvatarFrameKey}
                   displayName={previewDisplayName}
+                  avatarChangeIndicator={<SettingChangeIndicator changed={Boolean(form.formState.dirtyFields.avatarKey)} />}
+                  frameChangeIndicator={<SettingChangeIndicator changed={Boolean(form.formState.dirtyFields.avatarFrameKey)} />}
                   isPartner={isPartner}
                   disabled={isPending}
                   onAvatarChange={(value) => {
@@ -250,8 +262,9 @@ export function SettingsFormContent({
                 />
 
                 <Field data-invalid={Boolean(form.formState.errors.displayName)}>
-                  <FieldLabel htmlFor="display-name">
+                  <FieldLabel className="flex flex-wrap items-center gap-2" htmlFor="display-name">
                     {t("displayName")}
+                    <SettingChangeIndicator changed={Boolean(form.formState.dirtyFields.displayName)} />
                   </FieldLabel>
                   <Input
                     disabled={isPending}
@@ -273,8 +286,9 @@ export function SettingsFormContent({
                   name="countryCode"
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor="country-code">
+                      <FieldLabel className="flex flex-wrap items-center gap-2" htmlFor="country-code">
                         {t("country")}
+                        <SettingChangeIndicator changed={Boolean(form.formState.dirtyFields.countryCode)} />
                       </FieldLabel>
                       <SearchableSelect
                         id="country-code"
@@ -320,8 +334,9 @@ export function SettingsFormContent({
                   name="locale"
                   render={({ field }) => (
                     <Field>
-                      <FieldLabel htmlFor="interface-language">
+                      <FieldLabel className="flex flex-wrap items-center gap-2" htmlFor="interface-language">
                         {t("interfaceLanguage")}
+                        <SettingChangeIndicator changed={Boolean(form.formState.dirtyFields.locale)} />
                       </FieldLabel>
                       <Select
                         name="interfaceLanguage"
@@ -359,8 +374,9 @@ export function SettingsFormContent({
                   name="preferredTranslation"
                   render={({ field }) => (
                     <Field>
-                      <FieldLabel htmlFor="preferred-translation">
+                      <FieldLabel className="flex flex-wrap items-center gap-2" htmlFor="preferred-translation">
                         {t("preferredBibleTranslation")}
+                        <SettingChangeIndicator changed={Boolean(form.formState.dirtyFields.preferredTranslation)} />
                       </FieldLabel>
                       <Select
                         name="preferredTranslation"
@@ -395,8 +411,9 @@ export function SettingsFormContent({
                   name="theme"
                   render={({ field }) => (
                     <Field>
-                      <FieldLabel htmlFor="theme-preference">
+                      <FieldLabel className="flex flex-wrap items-center gap-2" htmlFor="theme-preference">
                         {t("theme")}
+                        <SettingChangeIndicator changed={Boolean(form.formState.dirtyFields.theme)} />
                       </FieldLabel>
                       <Select
                         name="themePreference"
@@ -427,8 +444,9 @@ export function SettingsFormContent({
                 />
 
                 <Field data-invalid={Boolean(form.formState.errors.timeZone)}>
-                  <FieldLabel htmlFor="calendar-timezone">
+                  <FieldLabel className="flex flex-wrap items-center gap-2" htmlFor="calendar-timezone">
                     {t("calendarTimezone")}
+                    <SettingChangeIndicator changed={Boolean(form.formState.dirtyFields.timeZone)} />
                   </FieldLabel>
                   <Input
                     id="calendar-timezone"
@@ -462,17 +480,34 @@ export function SettingsFormContent({
 
 
       <FormError message={form.formState.errors.root?.message} />
-      <LoadingButton
-        type="submit"
-        size="lg"
-        className="w-full sm:w-auto"
-        isPending={isPending}
-        pendingLabel={t("savingSettings")}
-        disabled={!form.formState.isDirty}
-      >
-        <SaveIcon aria-hidden="true" />
-        {t("saveSettings")}
-      </LoadingButton>
+      <div className="flex flex-wrap items-center gap-3">
+        <LoadingButton
+          type="submit"
+          size="lg"
+          className="min-h-11"
+          isPending={isPending}
+          pendingLabel={t("savingSettings")}
+          disabled={!form.formState.isDirty}
+        >
+          <SaveIcon aria-hidden="true" />
+          {t("saveSettings")}
+        </LoadingButton>
+        <Button
+          type="button"
+          variant="outline"
+          size="lg"
+          className="min-h-11"
+          disabled={isPending || !form.formState.isDirty}
+          onClick={() => {
+            form.reset(lastSaved.current);
+            setPreviewRun((run) => run + 1);
+            toast.info(t("changesUndone"), { duration: 4_000 });
+          }}
+        >
+          <Undo2Icon aria-hidden="true" />
+          {t("undoChanges")}
+        </Button>
+      </div>
     </form>
   );
 }

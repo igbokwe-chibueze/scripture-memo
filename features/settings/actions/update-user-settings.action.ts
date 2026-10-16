@@ -6,13 +6,13 @@ import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import type { ActionResult } from "@/types/api";
 import { settingsRepository } from "@/features/settings/repositories/settings.repository";
-import { accountSettingsSchema } from "@/features/settings/schemas/update-user-settings.schema";
+import { accountSettingsPatchSchema } from "@/features/settings/schemas/update-user-settings.schema";
 
 /** Validates and saves preferences for the server-authenticated user only. */
 export async function updateUserSettingsAction(
   input: unknown,
 ): Promise<ActionResult> {
-  const parsed = accountSettingsSchema.safeParse(input);
+  const parsed = accountSettingsPatchSchema.safeParse(input);
   if (!parsed.success) {
     const t = await getTranslations("Settings");
 

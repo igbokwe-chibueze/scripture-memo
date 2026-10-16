@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Controller, useWatch, type Control } from "react-hook-form";
 import { useTranslations } from "next-intl";
+import { SettingChangeIndicator } from "./setting-change-indicator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
@@ -42,12 +43,13 @@ export function GameVolumeControls({ control, disabled }: {
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <div className="flex items-center justify-between gap-3">
-                <FieldLabel htmlFor={name}>
+                <FieldLabel className="min-w-0 flex-wrap" htmlFor={name}>
                   {t(name)}
+                  <SettingChangeIndicator changed={fieldState.isDirty} />
                 </FieldLabel>
                 <output
                   htmlFor={name}
-                  className="font-bold text-primary"
+                  className="shrink-0 font-bold text-primary"
                 >{field.value}%</output>
               </div>
               <Input

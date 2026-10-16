@@ -35,6 +35,9 @@
     "openingPartner": "Abriendo"
   },
   "Settings": {
+    "unsavedChange": "Sin guardar",
+    "undoChanges": "Deshacer cambios",
+    "changesUndone": "Cambios sin guardar deshechos.",
     "settingsTabs": "Categorías de ajustes",
     "gameTab": "Juego",
     "preferencesTab": "App y aprendizaje",

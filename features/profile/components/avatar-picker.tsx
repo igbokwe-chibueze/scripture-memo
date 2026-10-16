@@ -15,6 +15,8 @@ export type AvatarPickerProps = {
   avatarKey: AvatarKey;
   frameKey: AvatarFrameKey;
   displayName: string;
+  avatarChangeIndicator?: React.ReactNode;
+  frameChangeIndicator?: React.ReactNode;
   isPartner: boolean;
   disabled: boolean;
   onAvatarChange: (value: AvatarKey) => void;
@@ -26,6 +28,8 @@ export function AvatarPicker({
   avatarKey,
   frameKey,
   displayName,
+  avatarChangeIndicator,
+  frameChangeIndicator,
   isPartner,
   disabled,
   onAvatarChange,
@@ -46,6 +50,7 @@ export function AvatarPicker({
         <div className="min-w-0">
           <h3 id="avatar-picker-title" className="font-heading text-xl font-bold">
             {t("chooseAvatar")}
+            {avatarChangeIndicator}
           </h3>
           <p className="mt-1 text-sm text-muted-foreground">
             {t("avatarDescription")}
@@ -92,7 +97,7 @@ export function AvatarPicker({
       <div>
         <div className="mb-3 flex items-center justify-between gap-3">
           <div>
-            <h3 className="font-heading text-lg font-bold">{t("profileFrame")}</h3>
+            <h3 className="font-heading text-lg font-bold">{t("profileFrame")} {frameChangeIndicator}</h3>
             <p className="text-sm text-muted-foreground">
               {isPartner ? t("partnerFrameDescription") : t("standardFrameDescription")}
             </p>

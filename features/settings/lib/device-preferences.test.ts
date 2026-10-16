@@ -9,10 +9,14 @@ test("device values persist, malformed values fall back, and blocked storage fai
   const previousDocument = Object.getOwnPropertyDescriptor(globalThis, "document");
   const values = new Map<string, string>();
   const events: string[] = [];
+  const writes: string[] = [];
   Object.defineProperty(globalThis, "window", { configurable: true, value: {
     localStorage: {
       getItem: (key: string): string | null => values.get(key) ?? null,
-      setItem: (key: string, value: string): void => { values.set(key, value); },
+      setItem: (key: string, value: string): void => {
+        writes.push(key);
+        values.set(key, value);
+      },
     },
     dispatchEvent: (event: Event): void => { events.push(event.type); },
   } });
@@ -31,6 +35,11 @@ test("device values persist, malformed values fall back, and blocked storage fai
   const saved = { ...defaults, audioEnabled: false, soundEffectsVolume: 35, ambienceVolume: 0, reducedMotion: true, theme: "dark" as const };
   assert.equal(saveDevicePreferences(saved), true);
   assert.deepEqual(readDevicePreferences(), saved);
+  writes.length = 0;
+  assert.equal(saveDevicePreferences(saved), true);
+  assert.deepEqual(writes, [], "Unchanged preferences cause no storage writes.");
+  assert.equal(saveDevicePreferences({ ...saved, soundEffectsVolume: 40 }), true);
+  assert.deepEqual(writes, ["scripture-memo:effects-volume"]);
   assert.ok(events.includes("scripture-memo:device-preferences"));
   values.set("scripture-memo:effects-volume", "999");
   values.set("theme", "unknown");

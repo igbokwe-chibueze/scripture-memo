@@ -35,6 +35,9 @@
     "openingPartner": "Opening"
   },
   "Settings": {
+    "unsavedChange": "Unsaved",
+    "undoChanges": "Undo changes",
+    "changesUndone": "Unsaved changes undone.",
     "settingsTabs": "Settings categories",
     "gameTab": "Game",
     "preferencesTab": "App & Learning",

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -10,7 +10,8 @@ import { LOCALE_COOKIE_NAME } from "@/i18n/config";
 import { SettingsFormContent, type SettingsFormProps } from "./settings-form-content";
 import { updateUserSettingsAction } from "../actions/update-user-settings.action";
 import { accountSettingsSchema, type UpdateUserSettingsInput } from "../schemas/update-user-settings.schema";
-import { readDevicePreferences, saveDevicePreferences } from "../lib/device-preferences";
+import { devicePreferencesSchema, readDevicePreferences, saveDevicePreferences } from "../lib/device-preferences";
+import { getChangedSettings } from "../lib/settings-diff";
 import { useDevicePreferencesSnapshot } from "../hooks/use-device-preferences";
 
 /**
@@ -25,31 +26,34 @@ export function SettingsForm(
   const { setTheme } = useTheme();
   const t = useTranslations("Settings");
   const snapshot = useDevicePreferencesSnapshot();
-  const baseline = useRef(accountSettingsSchema.parse(props.initialValues));
   const needsRefresh = useRef(false);
+  const themeChanged = useRef(false);
   const initialValues = useMemo(() => ({
     ...props.initialValues,
     ...(snapshot === null ? {} : readDevicePreferences()),
   }), [props.initialValues, snapshot]);
 
-  async function save(input: UpdateUserSettingsInput): Promise<ActionResult> {
+  async function save(input: UpdateUserSettingsInput, previous: UpdateUserSettingsInput): Promise<ActionResult> {
     const account = accountSettingsSchema.parse(input);
-    const accountChanged = (Object.keys(account) as (keyof typeof account)[])
-      .some((key) => account[key] !== baseline.current[key]);
-    needsRefresh.current = accountChanged || input.locale !== props.initialValues.locale;
+    const accountPatch = getChangedSettings(accountSettingsSchema.parse(previous), account);
+    const accountChanged = Object.keys(accountPatch).length > 0;
+    const localeChanged = input.locale !== previous.locale;
+    themeChanged.current = input.theme !== previous.theme;
+    needsRefresh.current = accountChanged || localeChanged;
     if (accountChanged) {
-      const result = await updateUserSettingsAction(account);
+      const result = await updateUserSettingsAction(accountPatch);
       if (!result.success) return result;
-      baseline.current = account;
     }
-    const currentDevice = readDevicePreferences();
-    const deviceChanged = (Object.keys(currentDevice) as (keyof typeof currentDevice)[])
-      .some((key) => input[key] !== currentDevice[key]);
+    const devicePatch = getChangedSettings(
+      devicePreferencesSchema.parse(previous), devicePreferencesSchema.parse(input),
+    );
     // Account/language edits remain usable even when browser storage is blocked.
-    if (deviceChanged && !saveDevicePreferences(input)) {
+    if (Object.keys(devicePatch).length > 0 && !saveDevicePreferences({ ...readDevicePreferences(), ...devicePatch })) {
       return { success: false, message: t("deviceStorageError") };
     }
-    document.cookie = `${LOCALE_COOKIE_NAME}=${input.locale}; Path=/; Max-Age=31536000; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
+    if (localeChanged) {
+      document.cookie = `${LOCALE_COOKIE_NAME}=${input.locale}; Path=/; Max-Age=31536000; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
+    }
     return { success: true, message: t("saved") };
   }
 
@@ -62,7 +66,7 @@ export function SettingsForm(
       initialValues={initialValues}
       save={save}
       onSaved={(input) => {
-        setTheme(input.theme);
+        if (themeChanged.current) setTheme(input.theme);
         document.documentElement.lang = input.locale;
         // Refresh only server-rendered language/account data after explicit Save.
         if (needsRefresh.current) router.refresh();

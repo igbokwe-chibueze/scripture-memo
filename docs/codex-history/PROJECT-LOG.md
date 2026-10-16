@@ -1,5 +1,27 @@
 # Scripture Memo Project Log
 
+### 2026-10-16 - Settings change markers, Undo, and patch-only saves
+
+- Added a pencil/Unsaved marker beside each edited field, including individual
+  avatar/frame and volume controls. Restoring a field manually clears its marker.
+  Undo beside Save resets every tab to the last successful save, clears errors,
+  stops draft ambience, and makes no persistence call. Pending saves lock Undo.
+- Found and corrected full-account rewrites: the client now sends a non-empty
+  changed-field patch, independently validated/authenticated server-side. The
+  repository writes only affected tables/columns; display-name synchronization
+  retains an atomic User/Profile transaction. Missing profile recovery and server
+  Partner-frame enforcement remain. Single-record saves avoid a transaction.
+- Device preferences write only changed keys, merge unrelated current browser
+  values, and avoid language-cookie/theme writes when those fields are unchanged.
+  Device-only edits continue to make no account action or route refresh.
+- Browser checks passed for exact-field markers, manual reversion, cross-tab
+  Undo, new saved baselines, pending lock, rejected-save preservation, one-field
+  payloads, device-only saves, and 375px light/dark overflow. Isolated database
+  checks verify unrelated User/Profile/Settings timestamps stay unchanged.
+- Pure patch/storage checks, all 173 unit checks, production build/TypeScript,
+  localization, and repository lint passed. No schema migration was needed.
+
+
 ### 2026-10-16 - Remaining seven learning articles published
 
 - Owner authorized creating and publishing the seven remaining proposed topics:

@@ -1565,6 +1565,18 @@ Gameplay menus link to Game Settings. Sound effects use stronger master gain
 with peak compression; ambience has an independent gain. Slider movement and
 previews do not persist data; Save applies them. In-game quick mute is temporary.
 
+Each edited field shows a pencil/Unsaved marker until restored or successfully
+saved. Undo changes beside Save restores all unsaved tab drafts to the latest
+successful save, clears errors/markers, and stops audio previews without writing
+data. Both actions lock during a pending save. Failed saves keep drafts intact.
+
+Account saves submit a validated non-empty patch of changed fields only. Only
+affected records are written: translation/timezone affect UserSettings, profile
+choices affect UserProfile, and display-name changes synchronize User and
+UserProfile atomically. Unchanged account fields are not resent or overwritten.
+Device saves write only changed local-storage keys; the language cookie and
+theme provider update only when their corresponding preference changes.
+
 Editable preferences (storage ownership described above):
 - Display name
 - Country (used for country leaderboard)

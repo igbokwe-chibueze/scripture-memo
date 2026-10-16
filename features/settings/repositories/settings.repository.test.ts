@@ -28,6 +28,12 @@ test("account learning preferences survive reload without storing device fields"
     });
     created = true;
     await prisma.userSettings.create({ data: { userId } });
+    // A translation-only patch must not initialize or rewrite public identity.
+    const originalUser = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
+    await settingsRepository.updateForUser(userId, { preferredTranslation: "WEB" });
+    assert.equal(await prisma.userProfile.count({ where: { userId } }), 0);
+    assert.equal((await prisma.user.findUniqueOrThrow({ where: { id: userId } })).updatedAt.toISOString(), originalUser.updatedAt.toISOString());
+    assert.equal((await prisma.userSettings.findUniqueOrThrow({ where: { userId } })).hasConfiguredTimeZone, false);
     await settingsRepository.updateForUser(userId, {
       displayName: "Audio test", countryCode: "", avatarKey: "lion",
       avatarFrameKey: "default", preferredTranslation: "WEB",
@@ -42,6 +48,20 @@ test("account learning preferences survive reload without storing device fields"
       assert.equal(key in (restored ?? {}), false);
     }
     assert.equal(await settingsRepository.getByUserId(`${userId}-other`), null);
+    const userBefore = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
+    const profileBefore = await prisma.userProfile.findUniqueOrThrow({ where: { userId } });
+    await settingsRepository.updateForUser(userId, { timeZone: "UTC" });
+    assert.equal((await prisma.user.findUniqueOrThrow({ where: { id: userId } })).updatedAt.toISOString(), userBefore.updatedAt.toISOString());
+    assert.equal((await prisma.userProfile.findUniqueOrThrow({ where: { userId } })).updatedAt.toISOString(), profileBefore.updatedAt.toISOString());
+    assert.equal((await settingsRepository.getByUserId(userId))?.preferredTranslation, "WEB");
+    const settingsBefore = await prisma.userSettings.findUniqueOrThrow({ where: { userId } });
+    await settingsRepository.updateForUser(userId, { countryCode: "NG" });
+    assert.equal((await prisma.userSettings.findUniqueOrThrow({ where: { userId } })).updatedAt.toISOString(), settingsBefore.updatedAt.toISOString());
+    assert.equal((await prisma.user.findUniqueOrThrow({ where: { id: userId } })).updatedAt.toISOString(), userBefore.updatedAt.toISOString());
+    await settingsRepository.updateForUser(userId, { displayName: "Renamed Learner" });
+    assert.equal((await prisma.user.findUniqueOrThrow({ where: { id: userId } })).name, "Renamed Learner");
+    assert.equal((await prisma.userProfile.findUniqueOrThrow({ where: { userId } })).displayName, "Renamed Learner");
+    assert.equal((await prisma.userSettings.findUniqueOrThrow({ where: { userId } })).updatedAt.toISOString(), settingsBefore.updatedAt.toISOString());
   } finally {
     // Never remove any unrelated fixture/account, including when the empty guard fails.
     await prisma.$disconnect();

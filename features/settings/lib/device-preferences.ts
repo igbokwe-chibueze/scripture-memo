@@ -49,8 +49,11 @@ export function saveDevicePreferences(input: DevicePreferences): boolean {
   const parsed = devicePreferencesSchema.safeParse(input);
   if (!parsed.success || typeof window === "undefined") return false;
   try {
+    const previous = readDevicePreferences();
     for (const name of Object.keys(keys) as (keyof DevicePreferences)[]) {
-      window.localStorage.setItem(keys[name], String(parsed.data[name]));
+      if (previous[name] !== parsed.data[name]) {
+        window.localStorage.setItem(keys[name], String(parsed.data[name]));
+      }
     }
     applyDevicePreferences(parsed.data);
     window.dispatchEvent(new Event(DEVICE_PREFERENCES_EVENT));

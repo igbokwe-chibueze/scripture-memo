@@ -2054,6 +2054,9 @@ identity, translation, and timezone retain the existing authenticated save;
 device-only saves make no server mutation or refresh. Gameplay
 menus link to settings. Audio gain is increased with peak compression for
 effects. Puzzle preparation now shows the reference phrase tile, arrow, and blank.
+Edited fields now show an Unsaved indicator, with Undo beside Save to discard
+all tab drafts. Account saves use field patches and write affected records only;
+local saves leave unchanged storage keys and cookies alone.
 The subsequent device-preference migration removes obsolete presentation
 columns. Both migrations are applied to local development and isolated test
 databases; hosted environments must apply checked-in migrations during deployment.
