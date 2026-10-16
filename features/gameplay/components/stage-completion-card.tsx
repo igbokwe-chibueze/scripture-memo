@@ -94,11 +94,14 @@ export function StageCompletionCard({
       <p className={styles.subtitle}>{t("allModesCompleted")}</p>
       <div className={styles.hero} aria-hidden="true">
         <div className={styles.oval} />
-        <div className={styles.confetti}>
-          {Array.from({ length: 8 }, (_, index) => (
-            <i key={index} />
-          ))}
-        </div>
+        <Image
+          src="/images/game-ui/stage-confetti.png"
+          alt=""
+          width={1529}
+          height={1029}
+          sizes="(min-width: 640px) 448px, 90vw"
+          className={styles.confetti}
+        />
         <Image
           src="/images/mascot/meemo/meemo-stage-celebrate.png"
           alt=""

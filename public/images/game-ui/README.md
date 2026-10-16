@@ -15,3 +15,8 @@ Its colorful, glossy dimensional art style is the standard for future icons.
 
 Decision recorded on 2026-10-14. Character illustrations are maintained
 separately under `public/images/mascot/`.
+
+`stage-confetti.png` is the owner's supplied “Golden Stars and Teal Confetti
+Overlay.png”, copied unchanged on 2026-10-16 for stage completion. Preserve its
+glossy stars, curled teal ribbons, sparkle/glow, transparency, and 1529×1029
+aspect ratio. It replaces the former CSS dash approximation on that screen.

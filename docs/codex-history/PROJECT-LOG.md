@@ -1,5 +1,20 @@
 # Scripture Memo Project Log
 
+### 2026-10-16 - Exact supplied stage-confetti artwork
+
+- Replaced the stage-result card's eight flat CSS marks with the owner's
+  Golden Stars and Teal Confetti Overlay.png, stored as game-ui/stage-confetti.png.
+  Source/destination SHA-256 hashes match; no recoloring, regeneration, cropping,
+  or artwork edits were made. The new approved icon collection remains separate.
+- Stage hero preserves the artwork's 1529×1029 ratio and layers its glossy stars,
+  curled ribbons, sparkles, and glow behind the existing Meemo illustration.
+  Removed obsolete dash CSS and fixed heights that distorted that composition.
+- Actual-component browser screenshots inspected at 375px and desktop in both
+  themes: PNG loaded, ratio preserved, Meemo above decoration, no old CSS marks,
+  and no horizontal overflow. TypeScript and targeted lint passed. Progress,
+  completion copy, rewards, buttons, and subsequent celebration flow are unchanged.
+
+
 ### 2026-10-16 - Settings change markers, Undo, and patch-only saves
 
 - Added a pencil/Unsaved marker beside each edited field, including individual
