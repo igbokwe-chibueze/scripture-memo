@@ -154,10 +154,12 @@
   max-width: 100%;
   min-width: 0;
 }
-.verse label:focus-within:not([data-feedback]) {
-  border-color: var(--selection-border);
-  background: var(--selection-subtle);
-  color: var(--selection-text);
+/* Typing focus uses the brand-teal gap cue, independently of the purple
+ * movable-tile palette. Evaluated success/error feedback keeps priority. */
+.challenge:is([data-mode="CUE"], [data-mode="FILL"]) .verse label:focus-within:not([data-feedback]) {
+  border-color: var(--primary);
+  background: var(--secondary);
+  color: var(--secondary-foreground);
 }
 .bank {
   margin-top: 0.5rem;

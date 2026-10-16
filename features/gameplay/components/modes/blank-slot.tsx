@@ -3,6 +3,7 @@
 import { useDroppable } from "@dnd-kit/core";
 import { cn } from "@/lib/utils";
 import { GAMEPLAY_TILE_STATE_STYLES } from "@/features/gameplay/constants/gameplay-state-styles";
+import styles from "./receiving-slot.module.css";
 
 /** Droppable and tappable verse blank with per-slot validation feedback. */
 export function BlankSlot({
@@ -38,7 +39,9 @@ export function BlankSlot({
       ref={setNodeRef}
       type="button"
       data-game-slot="word"
+      data-drag-over={isOver && !placedText && !disabled}
       className={cn(
+        styles.slot,
         "inline-flex min-h-11 min-w-20 touch-manipulation items-center justify-center rounded-tile border-2 border-dashed px-2.5 py-1 align-middle font-bold transition",
         placedText ? GAMEPLAY_TILE_STATE_STYLES.available : GAMEPLAY_TILE_STATE_STYLES.idle,
         GAMEPLAY_TILE_STATE_STYLES.focus,

@@ -4,6 +4,7 @@ import { useDroppable } from "@dnd-kit/core";
 import { GripVerticalIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { GAMEPLAY_TILE_STATE_STYLES } from "@/features/gameplay/constants/gameplay-state-styles";
+import styles from "./receiving-slot.module.css";
 
 /** Inline phrase destination that remains part of the readable verse sentence. */
 export function PhraseSlot({
@@ -38,7 +39,10 @@ export function PhraseSlot({
     <button
       ref={setNodeRef}
       type="button"
+      data-game-slot="phrase"
+      data-drag-over={isOver && !placedText && !disabled}
       className={cn(
+        styles.slot,
         "inline-flex min-h-12 min-w-28 max-w-full items-center justify-center gap-2 rounded-tile border-2 border-dashed px-3 py-2 text-center font-bold transition",
         placedText ? GAMEPLAY_TILE_STATE_STYLES.available : GAMEPLAY_TILE_STATE_STYLES.idle,
         GAMEPLAY_TILE_STATE_STYLES.focus,

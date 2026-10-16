@@ -1369,9 +1369,15 @@ Reset/Check row. Word and phrase banks wrap without an internal scroll area.
 Each mode title has a help button. Detailed Swap/Cue/Fill guidance is available
 only inside its help dialog, including feedback colors and automatic input focus
 advance. Opening help neither consumes a hint nor pauses a timed attempt.
-Swap movable words are gold; selected words and focused inputs use purple.
+Swap movable words are gold; selected movable tiles use purple. Focused typing
+gaps in Cue and Fill use brand teal, with evaluated success/error colors taking
+priority over focus.
 Empty Drag & Drop/Puzzle destinations use the original brand-teal readiness
 and drag-over highlight, separately from purple selected tiles.
+  During an active drag, the hovered empty destination expands by 7% using a
+  short transform transition, without reflowing the verse. It returns to normal
+  when the drag leaves or ends; filled/disabled gaps do not expand. Saved and OS
+  reduced-motion preferences retain the teal cue without expansion.
 This owner-approved palette exception is scoped to active gameplay. Other
 surfaces and correctness feedback retain the shared theme tokens.
 

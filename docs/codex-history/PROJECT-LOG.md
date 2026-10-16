@@ -1,5 +1,32 @@
 # Scripture Memo Project Log
 
+### 2026-10-16 - Teal typing focus in Cue and Fill
+
+- Owner approved replacing purple typing-gap focus with brand teal in Cue/Fill.
+  Scoped the shared focus selector to those two modes and used primary/secondary
+  semantic tokens, independent of purple movable-tile selection variables.
+- Correct/incorrect evaluated feedback retains priority. No input behavior,
+  answer validation, timer, hint, reward, or other mode styling changed.
+- Computed-style browser checks passed for Cue and Fill in light/dark themes,
+  including preserved success/error backgrounds. Seven design-system checks
+  passed, and product guidance now reflects the approved focus color.
+
+
+### 2026-10-16 - Receiving-gap expansion for dragging
+
+- Owner approved a small expansion when dragging a word or phrase over a gap.
+  Added one shared CSS module to BlankSlot/PhraseSlot, driven by dnd-kit's existing
+  isOver state only while the gap is empty and enabled. Uses 1.07 scale and a
+  160ms transition, preserving normal verse layout and existing teal feedback.
+- Leaving/dropping restores the gap automatically. Filled/disabled gaps do not
+  expand; tap selection behavior and answer validation are unchanged. Both saved
+  and OS reduced motion disable the expansion while retaining drop highlighting.
+- Real-component/dnd-kit browser checks passed for both mouse targets, touch
+  drag/drop, leave/drop reset, filled/disabled exclusions, stable layout geometry,
+  375px overflow, and both reduced-motion sources. TypeScript and targeted lint
+  passed. No server calls, database work, or progression changes were added.
+
+
 ### 2026-10-16 - Swap repeated-word false negatives fixed
 
 - Owner reported two correctly placed “that” tiles marked red in John 3:16.
