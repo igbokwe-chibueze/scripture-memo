@@ -44,6 +44,8 @@ export type LeaderboardRanking = {
 };
 
 export type LeaderboardPageData = LeaderboardRanking & {
+  /** Snapshot time for an accurate, hydration-safe initial league countdown. */
+  generatedAt: number;
   needsEnrollment: boolean;
   scope: LeaderboardScope;
   countryCode: string | null;

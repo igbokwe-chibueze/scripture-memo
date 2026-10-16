@@ -665,6 +665,9 @@
     "errors": { "NAME_TAKEN": "Ese nombre no está disponible.", "NOT_FOUND": "No se encontró esa comunidad.", "ALREADY_MEMBER": "Ya perteneces a esa comunidad.", "NOT_MEMBER": "No eres miembro de esa comunidad.", "LEADER_CANNOT_LEAVE": "Transfiere el liderazgo o cierra la comunidad antes de salir.", "CREATION_LIMIT": "Alcanzaste el límite diario de creación.", "NOT_LEADER": "Solo el líder puede cambiar estos ajustes.", "REQUEST_PENDING": "La solicitud ya está pendiente.", "REQUEST_NOT_FOUND": "No se encontró la solicitud.", "REQUEST_NOT_PENDING": "La solicitud ya fue resuelta.", "TRANSFER_PENDING": "Ya hay una oferta de liderazgo pendiente.", "TRANSFER_NOT_FOUND": "La oferta de liderazgo ya no está disponible.", "TRANSFER_NOT_RECIPIENT": "Esta oferta se envió a otro miembro o ya venció.", "MEMBER_NOT_FOUND": "Elige un miembro actual de esta comunidad.", "DISSOLUTION_PENDING": "Esta comunidad ya se está cerrando.", "DISSOLUTION_NOT_CANCELABLE": "El periodo de recuperación terminó o no se puede cancelar el cierre.", "NAME_CONFIRMATION_MISMATCH": "El nombre de la comunidad no coincide.", "FELLOWSHIP_CLOSED": "Esta comunidad ya está cerrada.", "UNKNOWN": "No se pudo completar la acción." , "FELLOWSHIP_SUSPENDED": "Esta comunidad está suspendida.", "SUSPENSION_NOT_FOUND": "No se encontró esta suspensión activa.", "APPEAL_WINDOW_CLOSED": "El plazo de apelación terminó o la comunidad ya no puede apelar.", "APPEAL_ALREADY_SUBMITTED": "Solo se permite una apelación por suspensión.", "APPEAL_NOT_PENDING": "Esta apelación ya no espera una decisión.", "APPEAL_REVIEWER_CONFLICT": "La apelación debe ser revisada por otro administrador superior." }
   },
   "Leaderboard": {
+    "yourPosition": "Tu posici?n",
+    "jumpToMe": "Ir a mi posici?n",
+    "rankOf": "{rank} de {count}",
     "eyebrow": "El Gran Faro",
     "title": "Clasificación",
     "description": "Descubre quién lleva las Escrituras más lejos por el sendero.",

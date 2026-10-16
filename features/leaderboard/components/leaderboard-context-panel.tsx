@@ -1,74 +1,73 @@
 "use client";
 
-import {
-  CrownIcon,
-  GaugeIcon,
-} from "lucide-react";
 import { useTranslations } from "next-intl";
+import { NavigationButton } from "@/components/shared/navigation-button";
+import { Button } from "@/components/ui/button";
+import { CountryFlag } from "@/components/shared/country-flag";
+import { PlayerAvatar } from "@/features/profile";
 import type { LeaderboardPageData } from "@/features/leaderboard/types/leaderboard.types";
+import { BeaconScore } from "./leaderboard-podium";
+import styles from "./leaderboard.module.css";
 
-type LeaderboardContextPanelProps = {
-  /** Data already loaded for the main board; this panel performs no query. */
-  data: LeaderboardPageData;
-};
-
-type ContextMetricProps = {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  value: string | number;
-};
-
-/** Renders one compact, visual-first leaderboard metric. */
-function ContextMetric({
-  icon: Icon,
-  label,
-  value,
-}: ContextMetricProps): React.ReactNode {
-  return (
-    <div className="rounded-2xl border border-border/70 bg-background/70 p-3">
-      <span
-        className="mb-1.5 grid size-8 place-items-center rounded-lg bg-primary/12 text-primary"
-        aria-hidden="true"
-      >
-        <Icon className="size-4" />
-      </span>
-      <p className="text-[0.68rem] font-bold text-muted-foreground">{label}</p>
-      <p className="font-heading text-xl font-bold tabular-nums">
-        {value}
-      </p>
-    </div>
-  );
-}
-
-/**
- * Uses the desktop context rail for the signed-in player's weekly snapshot.
- *
- * WHY: These values already exist in LeaderboardPageData, so the enhanced
- * desktop experience does not add database reads. The main leaderboard remains
- * the authority; this panel is a glanceable companion, not a second dashboard.
- */
+/** Uses authorized page data without changing the shell-owned Partner card. */
 export function LeaderboardContextPanel({
   data,
-}: LeaderboardContextPanelProps): React.ReactNode {
+}: {
+  data: LeaderboardPageData;
+}): React.ReactNode {
   const t = useTranslations("Leaderboard");
   const player = data.currentUser;
+  if (!player) return null;
+  const rank = player.rank ?? 1;
+  const zone = data.scope !== "league"
+    ? null
+    : rank <= data.promotionCount
+      ? "promotion"
+      : data.totalPlayers >= 10 && rank > data.totalPlayers - data.demotionCount
+        ? "demotion"
+        : "steady";
+  // The existing repository pages twenty players starting at rank four.
+  const playerPage = Math.max(1, Math.floor((rank - 4) / 20) + 1);
+  const query = new URLSearchParams({ scope: data.scope, page: String(playerPage) });
+  if (data.activeFellowshipId) query.set("fellowship", data.activeFellowshipId);
+  const isOnPage = data.podium.some((entry) => entry.isCurrentUser)
+    || data.entries.some((entry) => entry.isCurrentUser);
 
   return (
-    <section className="text-card-foreground">
-      <div className="border-b border-border/70 p-4">
-        <h2 className="font-heading text-lg font-bold">{t("beaconProgress")}</h2>
-        <div className="mt-3 grid grid-cols-2 gap-3">
-          <ContextMetric
-            icon={GaugeIcon}
-            label={t("beaconLevel")}
-            value={player?.beaconLevel ?? 1}
+    <section className={styles.position}>
+      <h2>{t("yourPosition")}</h2>
+      <div className={styles.positionCard}>
+        <div className={styles.positionIdentity}>
+          <PlayerAvatar
+            avatarKey={player.avatarKey}
+            frameKey={player.avatarFrameKey}
+            displayName={player.displayName}
+            size="lg"
           />
-          <ContextMetric
-            icon={CrownIcon}
-            label={t("crownsLabel")}
-            value={(player?.crowns ?? 0).toLocaleString()}
-          />
+          <div className="min-w-0">
+            <p>{t("rankOf", { rank, count: data.totalPlayers })}</p>
+            <strong className="truncate">{player.displayName} ({t("you")})</strong>
+            <CountryFlag countryCode={player.countryCode} label={t("countryFlag")} />
+          </div>
         </div>
+        <BeaconScore value={data.scope === "all-time" ? player.beaconXp : player.weeklyXp} />
+        <p>{t("beaconPointsHeader")}</p>
+        {zone ? (
+          <span className={styles.status} data-zone={zone}>
+            {t(zone === "promotion" ? "promote" : zone === "demotion" ? "demote" : "stay")}
+          </span>
+        ) : null}
+        {isOnPage ? (
+          <Button
+            onClick={() => document.getElementById("leaderboard-you")?.scrollIntoView({ block: "center" })}
+          >
+            {t("jumpToMe")}
+          </Button>
+        ) : (
+          <NavigationButton href={"/leaderboard?" + query + "#leaderboard-you"} pendingLabel={t("opening")}>
+            {t("jumpToMe")}
+          </NavigationButton>
+        )}
       </div>
     </section>
   );

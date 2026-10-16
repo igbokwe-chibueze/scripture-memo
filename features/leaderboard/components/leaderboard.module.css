@@ -1,0 +1,514 @@
+/* Feature-only composition. The shell, Partner card and shared button visual
+ * system remain untouched. Metallic colors belong to supplied artwork. */
+
+.board {
+  min-width: 0;
+}
+
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: .35rem;
+  margin-bottom: .75rem;
+}
+
+.tabs a {
+  padding-inline: .25rem;
+  font-size: clamp(.7rem, 2.7vw, 1rem);
+  min-width: 0;
+  min-height: 44px;
+}
+
+.weekly {
+  position: relative;
+  border: 2px solid var(--reward-border);
+  border-radius: 1.25rem;
+  padding: .75rem;
+  background: var(--card);
+}
+
+.rankInfo {
+  min-width: 0;
+}
+
+.rankInfo button {
+  min-height: 44px;
+  padding-inline: .65rem;
+}
+
+.rankInfo button span {
+  display: inline;
+}
+
+.headerActions {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+}
+
+.headerActions .reset {
+  flex: 1;
+}
+
+.weekHeading {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  align-items: center;
+  gap: .65rem;
+}
+
+.weekHeading h2 {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+.reset {
+  grid-column: 1 / -1;
+  background: var(--secondary);
+  padding: .5rem;
+  border-radius: .9rem;
+  text-align: center;
+  font-size: .75rem;
+}
+
+.zones {
+  margin: 1rem .4rem .25rem;
+}
+
+.zoneBar {
+  position: relative;
+  display: flex;
+  height: 1.15rem;
+  border: 2px solid var(--card);
+  border-radius: 99px;
+  box-shadow: 0 0 0 1px var(--border);
+}
+
+.zoneBar > span {
+  flex: 1;
+  min-width: 0;
+  background: color-mix(in oklch, var(--muted), var(--muted-foreground) 45%);
+}
+
+.zoneBar > span:nth-child(2) {
+  border-inline: 1px solid var(--card);
+}
+
+.zoneBar > span:first-child {
+  background: linear-gradient(var(--success), color-mix(in oklch, var(--success), black 15%));
+  border-radius: 99px 0 0 99px;
+}
+
+.zoneBar > span:nth-child(3) {
+  background: linear-gradient(var(--error), color-mix(in oklch, var(--error), black 15%));
+  border-radius: 0 99px 99px 0;
+}
+
+.rankMarker {
+  position: absolute;
+  top: -.8rem;
+  transform: translateX(-50%);
+  background: var(--foreground);
+  color: var(--background);
+  border: 2px solid var(--reward-border);
+  border-radius: .5rem .5rem 1rem 1rem;
+  padding: .1rem .45rem;
+  font-weight: 700;
+}
+
+.zoneLabels {
+  display: flex;
+  text-align: center;
+  font-size: .75rem;
+  font-weight: 700;
+  margin-top: .4rem;
+}
+
+.zoneLabels span {
+  min-width: 0;
+}
+
+.zoneLabels span:first-child {
+  color: var(--success-text);
+}
+
+.zoneLabels span:last-child {
+  color: var(--error-text);
+}
+
+.podium {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
+  gap: .15rem;
+  margin-top: .5rem;
+}
+
+.podiumPlayer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.podiumPlayer:focus-visible {
+  outline: 2px solid var(--ring);
+  border-radius: 1rem;
+}
+
+.medalFrame {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: auto;
+}
+
+.podiumPortrait {
+  position: absolute;
+  top: 18%;
+  left: 24%;
+  width: 52%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--secondary);
+}
+
+.portraitImage {
+  object-fit: contain;
+}
+
+.podiumPlayer[data-place="1"] {
+  padding-top: 0;
+}
+
+.podiumPlayer:not([data-place="1"]) {
+  width: 92%;
+  justify-self: center;
+}
+
+.podiumBase {
+  position: relative;
+  width: 100%;
+  display: grid;
+  justify-items: center;
+  gap: .1rem;
+  padding: .8rem .1rem .8rem;
+  margin-top: -16%;
+  color: #071b35;
+}
+
+/* The square source has generous transparent padding; enlarge it inside a
+ * cropped base wrapper rather than distorting the metallic cylinder. */
+
+.baseImage {
+  width: 100% !important;
+  height: auto !important;
+  top: 50% !important;
+  transform: translateY(-50%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.podiumBase {
+  overflow: hidden;
+}
+
+.podiumName, .podiumBase .score {
+  position: relative;
+  z-index: 1;
+  font-size: .75rem;
+  font-weight: 700;
+}
+
+.podiumName {
+  display: flex;
+  align-items: center;
+  gap: .2rem;
+  max-width: 100%;
+}
+
+.podiumName > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.podiumName svg {
+  width: 1.1rem;
+  height: .8rem;
+  flex-shrink: 0;
+}
+
+.score {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .25rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.score img {
+  width: 1.25rem;
+  height: 1.25rem;
+  object-fit: contain;
+}
+
+.table {
+  margin-top: .5rem;
+}
+
+.tableHeader, .row {
+  display: grid;
+  grid-template-columns: 1.7rem minmax(0, 1fr) 4.3rem 3.6rem;
+  align-items: center;
+  gap: .35rem;
+}
+
+.tableHeader {
+  border-radius: .9rem;
+  background: var(--secondary);
+  min-height: 2.75rem;
+  padding: .4rem;
+  font-size: .65rem;
+  font-weight: 700;
+}
+
+.row {
+  min-height: 3.5rem;
+  padding: .4rem;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  font-size: .8rem;
+}
+
+.row:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}
+
+.row[data-you="true"] {
+  border: 2px solid var(--primary);
+  border-radius: .8rem;
+  background: var(--selection-subtle);
+}
+
+.player {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  min-width: 0;
+}
+.row:not([data-scope="league"]), .tableHeader:not([data-scope="league"]) {
+  grid-template-columns: 1.7rem minmax(0, 1fr) 4.3rem;
+}
+.row:not([data-scope="league"]) > :last-child,
+.tableHeader:not([data-scope="league"]) > :last-child {
+  display: none;
+}
+
+.playerName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.player svg {
+  width: 1.15rem;
+  flex-shrink: 0;
+}
+
+.status {
+  border-radius: 99px;
+  background: var(--muted);
+  padding: .3rem .2rem;
+  text-align: center;
+  font-weight: 700;
+  font-size: .65rem;
+}
+
+.status[data-zone="promotion"] {
+  background: var(--success-subtle);
+  color: var(--success-text);
+}
+
+.status[data-zone="demotion"] {
+  background: var(--error-subtle);
+  color: var(--error-text);
+}
+
+.pinned {
+  position: sticky;
+  bottom: 6rem;
+  z-index: 20;
+  background: var(--card);
+  border: 2px solid var(--primary);
+  border-radius: 1rem;
+  margin-top: 1rem;
+  padding: .35rem;
+}
+.pinned .row {
+  border: 0;
+}
+
+.position {
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 1.4rem;
+  background: var(--card);
+}
+
+.position h2 {
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: .75rem;
+}
+
+.positionCard {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--selection-subtle);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  text-align: center;
+}
+
+.positionIdentity {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  text-align: left;
+}
+
+.positionIdentity strong {
+  display: block;
+  font-size: 1.2rem;
+}
+
+.positionCard > .score {
+  border-top: 1px solid var(--border);
+  padding-top: .75rem;
+  font-size: 1.7rem;
+}
+
+.positionCard > button, .positionCard > a {
+  min-height: 44px;
+}
+
+.pinned > button {
+  min-height: 44px;
+}
+
+@media (min-width: 640px) {
+  .tabs a {
+    font-size: 1rem;
+  }
+  .weekHeading {
+    grid-template-columns: 5rem minmax(0, 1fr);
+  }
+  .headerActions {
+    justify-content: flex-end;
+  }
+  .weekHeading h2 {
+    font-size: 1.8rem;
+  }
+  .reset {
+    grid-column: auto;
+    max-width: 12rem;
+  }
+  .zoneBar {
+    height: 1.5rem;
+  }
+  .zoneLabels {
+    font-size: .9rem;
+  }
+  .podium {
+    max-width: 46rem;
+    margin-inline: auto;
+  }
+  .podiumName, .podiumBase .score {
+    font-size: 1rem;
+  }
+  .podiumBase {
+    padding: 1.4rem .25rem .9rem;
+  }
+  .score img {
+    width: 1.65rem;
+    height: 1.65rem;
+  }
+  .tableHeader, .row {
+    grid-template-columns: 2.5rem minmax(0, 1fr) 7rem 7rem;
+    gap: .6rem;
+    padding-inline: .75rem;
+    font-size: .9rem;
+  }
+  .row {
+    min-height: 3rem;
+  }
+  .status {
+    font-size: .8rem;
+  }
+  .pinned {
+    bottom: 1rem;
+  }
+}
+
+/* Desktop restores the compact upper-right stack from the approved reference.
+ * Both controls stay in normal flow, so they cannot overlap the league copy.
+ * Mobile retains its existing separate action row. */
+@media (min-width: 1024px) {
+  .weekHeading {
+    grid-template-columns: 5rem minmax(0, 1fr) 11rem;
+    align-items: start;
+  }
+  .headerActions {
+    grid-column: auto;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: .75rem;
+  }
+  .headerActions .rankInfo {
+    order: -1;
+  }
+  .headerActions .reset {
+    flex: none;
+    width: 100%;
+  }
+}
+
+/* A short desktop rail shares its height with the unchanged Partner card. */
+
+@media (min-width: 1024px) and (max-height: 850px) {
+  .position {
+    padding: .65rem;
+  }
+  .position h2 {
+    font-size: 1.5rem;
+    margin-bottom: .5rem;
+  }
+  .positionCard {
+    gap: .45rem;
+    padding: .7rem;
+  }
+  .positionIdentity > span {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+  .positionCard > .score {
+    font-size: 1.4rem;
+    padding-top: .4rem;
+  }
+}

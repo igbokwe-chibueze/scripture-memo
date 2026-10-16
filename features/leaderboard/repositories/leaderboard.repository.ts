@@ -264,6 +264,7 @@ export const leaderboardRepository = {
     if (!competition) {
       const week = getBeaconWeekWindow(now);
       return {
+        generatedAt: now.getTime(),
         scope: input.scope,
         countryCode,
         fellowships,
@@ -343,6 +344,7 @@ export const leaderboardRepository = {
         : [];
     return {
       ...ranking,
+      generatedAt: now.getTime(),
       rivals,
       needsEnrollment: false,
       scope,

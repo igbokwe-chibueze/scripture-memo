@@ -1876,13 +1876,23 @@ campaign or award Glow Points.
   and never affects official promotion, demotion, rewards, Crowns, or progression.
 - Leaderboard rows show only the scope-relevant Beacon Points. Selecting a row
   opens a compact detail dialog for the player's secondary Beacon statistics.
-- The leaderboard list has Rank, Player, and Beacon Points headers. Displayed
-  positions one through three receive custom crown marks and metallic gold,
-  silver, and bronze rank plates; the signed-in learner receives a violet row
-  and rank treatment so their position is immediately recognizable.
-- At the 375px foundation width, compact rank plates, portraits, gaps, and score
-  pills reserve most flexible width for the player's name. Comfortable row
-  padding provides breathing room without enlarging fixed controls.
+- All four leaderboard scopes show official top-three players on a silver,
+  gold, and bronze podium (second, first, third). Owner-supplied rank frames
+  and empty metallic bases compose with bundled avatars and live names,
+  flags, and scope-relevant scores; these frames grant no inventory entitlement.
+- Compact rows show official rank, equipped player portrait/frame, country,
+  name, Beacon Points and league status where applicable. Trail Rivals retain
+  their explanatory compass and never receive official medals or rank numbers.
+- The signed-in player receives a teal row. A sticky position summary and
+  Jump to me action support mobile; the desktop upper context rail shows
+  Your Position above the unchanged shell-owned Become a Partner card.
+- Weekly zone charts always show three fixed colored sections: Top 7 / Promote,
+  Stay, and Bottom 5 / Demote, even with a sparse cohort. Only the player's rank
+  marker moves within its corresponding section. This presentation does not
+  change server settlement safeguards. Reset timestamps explicitly use UTC,
+  and the initial countdown uses the serialized server snapshot time.
+- At 375px, four text tabs, compact rows and truncation preserve usable names
+  without horizontal scrolling. Desktop expands the same podium/list composition.
 - Trail Rivals never appear in Fellowship or All Time views and are not stored as
   users, profiles, progression records, or presence records.
 

@@ -105,6 +105,8 @@ const APPROVED_COLOR_EXCEPTION_PATHS = new Set([
   "features/auth/lib/password-reset-production-delivery.ts",
   // Owner-approved reference tile colors; the surrounding home remains themed.
   "features/home/components/home-screen.module.css",
+  // Dark ink is printed on the supplied fixed metallic podium artwork.
+  "features/leaderboard/components/leaderboard.module.css",
   // Owner-approved gameplay concepts: purple selection and gold Swap pieces
   // are local to active boards; the surrounding app remains semantically themed.
   "features/gameplay/components/active-game.module.css",

@@ -1,5 +1,52 @@
 # Scripture Memo Project Log
 
+### 2026-10-16 - Restore desktop league-header action stack
+
+- Owner preferred the previous upper-right desktop placement. At 1024px and
+  wider, the weekly header now has a dedicated right column with Rank info above
+  reset details. Both remain in normal flow; mobile's action row is unchanged.
+- Browser layout checks at 375/1024/1366/1920px in both themes confirmed no
+  overlap or horizontal overflow and a top-aligned desktop stack. All seven
+  design-system checks passed. Only feature CSS changed; Partner card untouched.
+
+### 2026-10-16 - Leaderboard header and fixed-zone corrections
+
+- Restored the visible Rank info label and moved the control into normal layout
+  beside reset details, eliminating absolute-position overlap on mobile/desktop.
+- Removed the misleading pre-hydration "League ends soon" fallback. The existing
+  repository snapshot now includes its timestamp, allowing a real countdown on
+  the server and first client render; browser minute updates remain unchanged.
+- Bar sections and labels are fixed Top 7 / Stay / Bottom 5 with rounded ends
+  and a visible neutral middle. Only the rank marker position is calculated.
+  Server settlement rules, navigation, Partner card and database queries remain
+  unchanged.
+- Browser layout checks passed at 375/1366/1920px in light/dark: label visible,
+  reset/control do not overlap, all three sections present, rounded ends and no
+  horizontal overflow. TypeScript, leaderboard lint and design-system checks passed.
+
+### 2026-10-16 - Leaderboard podium and position upgrade
+
+- Implemented approved mobile/desktop light/dark composition: visible title,
+  four text tabs, compact weekly header, rank-zone marker, three metallic podiums,
+  compact rows, teal self highlight and Jump to me. Desktop uses the existing
+  upper context-rail portal for Your Position; shell navigation and the permanent
+  Become a Partner card were not changed.
+- Copied six owner-supplied frames/bases into the separate game-ui/leaderboard
+  collection. Podium medals decorate official top-three ranks in all four scopes;
+  equipped cosmetics remain in rows/details. Trail Rivals keep their explanatory
+  compass, have no official rank number or medal, and never affect zones.
+- Retained authorized server data, pagination, enrollment recovery, polling and
+  player details. No queries, schema changes or recurring database operations
+  were added. UTC reset formatting now matches its label; partially filled
+  cohort charts respect existing promotion precedence and no-demotion rules.
+- Updated skeleton, English/Spanish strings (French fallback), product guidance
+  and the narrow fixed-ink-on-metallic-artwork color exception.
+- Browser fixtures verified 375px and desktop light/dark, loaded visible artwork,
+  all four scope compositions without horizontal overflow, and player dialog.
+  Production build, TypeScript, targeted lint, design-system, localization and
+  Beacon checks and all 175 database-free unit tests passed.
+
+
 ### 2026-10-16 - Teal typing focus in Cue and Fill
 
 - Owner approved replacing purple typing-gap focus with brand teal in Cue/Fill.
