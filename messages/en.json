@@ -29,6 +29,7 @@
     "view": "View"
   },
   "Navigation": {
+    "badgeCollection": "Badge collection",
     "sanctuary": "Sanctuary",
     "leaderboard": "Leaderboard",
     "bible": "Bible",
@@ -621,6 +622,25 @@
     "moreGlowNeeded": "More Glow needed"
   },
   "Badges": {
+    "searchBadges": "Search badges",
+    "statusLabel": "Status",
+    "allOption": "All",
+    "earningGuidance": "Complete tasks to earn badges and Glow Points.",
+    "collectionSummary": "Collection summary",
+    "earnedLabel": "earned",
+    "totalLabel": "total",
+    "badgeRarities": "Badge rarities",
+    "collectionProgress": "{earned} of {total} badges earned",
+    "groupCount": "{earned} of {total}",
+    "collectionCount": "{earned} earned · {total} badges",
+    "fullReward": "+{points} Glow Points",
+    "resultCount": "{count, plural, one {# matching badge} other {# matching badges}}",
+    "emptyCollectionDescription": "Continue your journey to discover your first achievement.",
+    "backToVault": "Back to Vault",
+    "openingVault": "Opening Vault",
+    "rarityNames": {"COMMON":"Common","UNCOMMON":"Uncommon","RARE":"Rare","EPIC":"Epic","LEGENDARY":"Legendary"},
+    "categoryNames": {"LEARNING":"Learning","STREAK":"Streak","MASTERY":"Mastery","INDEPENDENCE":"Independence","SPEED":"Speed","EXPLORATION":"Exploration"},
+    "statusNames": {"COMPLETED":"Earned","IN_PROGRESS":"In progress","LOCKED":"Locked"},
     "eyebrow": "Your achievements",
     "title": "Badge collection",
     "description": "Milestones earned across your Scripture journey.",

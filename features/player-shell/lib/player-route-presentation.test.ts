@@ -12,6 +12,8 @@ test("Sanctuary owns its header and never selects the Vault destination", () => 
 });
 
 test("Vault children and waypoint Map links retain their intended selection", () => {
+  assert.equal(getPlayerSection("/vault/badges")?.key, "badgeCollection");
+  assert.equal(getPlayerSection("/vault/badges")?.artwork, "badges");
   assert.equal(isPlayerNavigationActive("/vault/badges", "/vault", false), true);
   assert.equal(isPlayerNavigationActive("/game/waypoints/example", "/game/map", false), true);
   assert.equal(isPlayerNavigationActive("/game/map", "/game", true), false);

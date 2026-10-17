@@ -29,6 +29,7 @@
     "view": "Ver"
   },
   "Navigation": {
+    "badgeCollection": "Colección de insignias",
     "sanctuary": "Santuario",
     "leaderboard": "Clasificación",
     "bible": "Biblia",
@@ -621,6 +622,25 @@
     "moreGlowNeeded": "Necesitas más Brillo"
   },
   "Badges": {
+    "searchBadges": "Buscar insignias",
+    "statusLabel": "Estado",
+    "allOption": "Todos",
+    "earningGuidance": "Completa tareas para ganar insignias y Puntos de Luz.",
+    "collectionSummary": "Resumen de la colección",
+    "earnedLabel": "obtenidas",
+    "totalLabel": "total",
+    "badgeRarities": "Rarezas de insignias",
+    "collectionProgress": "{earned} de {total} insignias obtenidas",
+    "groupCount": "{earned} de {total}",
+    "collectionCount": "{earned} obtenidas · {total} insignias",
+    "fullReward": "+{points} Puntos de Luz",
+    "resultCount": "{count, plural, one {# insignia encontrada} other {# insignias encontradas}}",
+    "emptyCollectionDescription": "Continúa tu camino para descubrir tu primer logro.",
+    "backToVault": "Volver a la bóveda",
+    "openingVault": "Abriendo la bóveda",
+    "rarityNames": {"COMMON":"Común","UNCOMMON":"Poco común","RARE":"Rara","EPIC":"Épica","LEGENDARY":"Legendaria"},
+    "categoryNames": {"LEARNING":"Aprendizaje","STREAK":"Racha","MASTERY":"Dominio","INDEPENDENCE":"Independencia","SPEED":"Velocidad","EXPLORATION":"Exploración"},
+    "statusNames": {"COMPLETED":"Obtenida","IN_PROGRESS":"En curso","LOCKED":"Bloqueada"},
     "eyebrow": "Tus logros",
     "title": "Colección de insignias",
     "description": "Hitos obtenidos durante tu viaje por las Escrituras.",

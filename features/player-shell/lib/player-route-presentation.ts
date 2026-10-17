@@ -3,6 +3,7 @@
  * These pure rules require no session, reads, writes, or browser state.
  */
 const PLAYER_SECTIONS = [
+  { prefix: "/vault/badges", key: "badgeCollection", artwork: "badges" },
   { prefix: "/leaderboard", key: "leaderboard", artwork: "leaderboard" },
   { prefix: "/game/map", key: "map", artwork: "map" },
   { prefix: "/game/waypoints", key: "map", artwork: "map" },

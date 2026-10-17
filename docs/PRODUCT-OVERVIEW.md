@@ -1179,7 +1179,20 @@ Each badge card shows:
 - Date earned (if unlocked)
 - Completion status (unlocked / in-progress / locked)
 
-Locked badges remain visible unless marked hidden. Players can filter by: Category, Rarity, Completed, In Progress, Locked.
+The collection uses Common → Uncommon → Rare → Epic → Legendary groups with
+earned/total counts for the current results. Search, Category, and Status
+(All/Earned/In progress/Locked) filter the already-loaded authorized collection.
+Locked means not started under the existing earning rules; no badge prerequisite
+chain is introduced. Hidden badge identity remains masked until earned.
+
+Mobile uses two cards per row, with a single-column fallback below 340px.
+Desktop uses paired art/text cards and a right-panel Collection summary with
+full-collection earned/total progress and rarity totals, independent of filters.
+The existing bottom donation card remains. Back to Vault uses the shared raised
+navigation control. Existing emoji badge icons remain until replacement artwork
+is supplied; the discarded shared button hover-spread experiment is not enabled.
+All progress, rewards, and eligibility still come from the existing server read;
+search/filter interactions add no queries, writes, or polling.
 
 ### 14.10 Badge Administration
 

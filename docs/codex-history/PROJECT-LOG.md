@@ -5472,3 +5472,27 @@ concurrency subtests remain explicitly skipped as documented above.
   Existing font families, button corner radius, and mobile rules are retained.
 - Browser layout checks at 1280x900, 1366x900, 1366x600 and 1600x1080 confirm
   no clipped labels or horizontal overflow, with Settings fully visible.
+### 2026-10-17 — Badge collection concept upgrade
+
+- Replaced the old flat achievement/selection layout with Common-to-Legendary
+  groups, earned/total counts, category chips, larger existing emoji icons,
+  status pills, real criteria/rewards and in-progress bars. No prerequisite
+  chains, sample rewards, badge catalogue changes, or generated artwork.
+- Added local search plus Category/Status selectors and a clear-filter empty
+  state. Hidden badge identity remains masked, including searchable text and
+  card names/icons; hidden in-progress cards do not expose target counts.
+- Desktop uses paired art/text cards and a Collection summary in the existing
+  right rail. Summary totals are for the full collection; group counts follow
+  current results. The bottom donation card remains, with compact informational
+  summary spacing fitting a 600px-high desktop viewport without nested scrolling.
+- Header/back navigation now identifies Badge collection and returns to Vault
+  with the shared secondary NavigationButton. Existing font families and
+  semantic rarity accents remain; Epic retains its existing teal treatment.
+  The owner's discarded shared hover-spread experiment was not reintroduced.
+- Reused the same authenticated repository read and server badge rules. No new
+  database calls/writes, polling, migrations, authorization changes or rewards.
+- Validation: production build/TypeScript, scoped ESLint, 14 collection/catalogue/
+  route/localization tests and seven design checks passed. Actual-client browser
+  fixtures cover 375px light/dark two-column cards, search/status/category/clear,
+  stable summary totals, 1280/1366 desktop layouts and 600px-high summary fitting,
+  with no horizontal overflow or clipped card text. Fixtures do not mutate data.
