@@ -1,5 +1,11 @@
 # Scripture Memo Project Log
 
+### 2026-10-17 - Short leaderboard status heading
+
+- Replaced the league table's “Top 7 promote” column heading with “Status” to
+  fit the compact layout. Individual row statuses and promotion rules unchanged.
+- Added English/Spanish labels; French inherits the existing English fallback.
+
 ### 2026-10-17 - Partner support-line wording
 
 - Changed the compact card's supporting line to “Support someone’s journey”

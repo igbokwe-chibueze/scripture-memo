@@ -559,7 +559,7 @@ export function LeaderboardBoard({
                   <span>{t("rankHeader")}</span>
                   <span>{t("playerHeader")}</span>
                   <span>{t("beaconPointsHeader")}</span>
-                  <span>{data.scope === "league" ? t("promotionZone", { count: data.promotionCount }) : ""}</span>
+                  <span>{data.scope === "league" ? t("statusHeader") : ""}</span>
                 </div>
                 {listEntries.map((entry, index) => (
                   <RankingRow

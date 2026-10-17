@@ -703,6 +703,7 @@
     "rankings": "Clasificación del sendero",
     "rankHeader": "Rango",
     "playerHeader": "Jugador",
+    "statusHeader": "Estado",
     "beaconPointsHeader": "Puntos del Faro",
     "players": "{count, plural, =1 {1 jugador} other {# jugadores}}",
     "you": "Tú",

@@ -703,6 +703,7 @@
     "rankings": "Trail rankings",
     "rankHeader": "Rank",
     "playerHeader": "Player",
+    "statusHeader": "Status",
     "beaconPointsHeader": "Beacon Points",
     "players": "{count, plural, =1 {1 player} other {# players}}",
     "you": "You",
