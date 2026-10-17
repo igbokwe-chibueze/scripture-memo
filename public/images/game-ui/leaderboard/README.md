@@ -12,3 +12,6 @@ Frames decorate official top-three leaderboard placements in all scopes. They
 do not grant cosmetic inventory or replace a player's equipped profile frame.
 Names, country flags and scores remain live UI content, outside the artwork.
 No legacy assets have been deleted.
+
+`country-globe.png` is the owner's supplied “Glossy globe with Europe and Africa”
+artwork, approved for the Country ranking header on 2026-10-17.

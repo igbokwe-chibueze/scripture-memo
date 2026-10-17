@@ -173,7 +173,7 @@
 
 .podiumPortrait {
   position: absolute;
-  top: 18%;
+  top: 24%;
   left: 24%;
   width: 52%;
   aspect-ratio: 1;
@@ -183,35 +183,52 @@
 }
 
 .portraitImage {
-  object-fit: contain;
+  object-fit: cover;
+  transform: scale(1.16);
 }
 
 .podiumPlayer[data-place="1"] {
   padding-top: 0;
 }
 
-.podiumPlayer:not([data-place="1"]) {
+.podiumArt {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  /* Remove the frame source's lower transparent margin before seating its
+   * number plate on the ellipse. This scales with the frame at every width. */
+  margin-bottom: -12%;
+}
+
+.podiumPlayer:not([data-place="1"]) .podiumArt {
   width: 92%;
-  justify-self: center;
 }
 
 .podiumBase {
   position: relative;
   width: 100%;
   display: grid;
+  align-content: center;
   justify-items: center;
-  gap: .1rem;
-  padding: .8rem .1rem .8rem;
-  margin-top: -16%;
+  min-height: 6rem;
+  gap: .35rem;
+  padding: 1rem .5rem .8rem;
+  margin-top: -.8rem;
   color: #071b35;
 }
 
-/* The square source has generous transparent padding; enlarge it inside a
- * cropped base wrapper rather than distorting the metallic cylinder. */
+/* Expand the supplied cylinder to fill the taller nameplate. Its transparent
+ * source margins are cropped so the metal uses the full podium column width. */
 
 .baseImage {
-  width: 100% !important;
-  height: auto !important;
+  width: 111% !important;
+  /* Preflight's img max-width:100% would clamp the overscan width while leaving
+   * its negative left offset intact, shifting the visible cylinder off-axis. */
+  max-width: none;
+  height: 270% !important;
+  left: -5.5% !important;
   top: 50% !important;
   transform: translateY(-50%);
   z-index: 0;
@@ -229,23 +246,45 @@
   font-weight: 700;
 }
 
-.podiumName {
-  display: flex;
-  align-items: center;
-  gap: .2rem;
-  max-width: 100%;
+.podiumDetails {
+  /* The upper ellipse is the platform, not the nameplate. Center live content
+   * within the front face below it, independently of the artwork's padding. */
+  position: absolute;
+  inset: 27% 7% 7%;
+  /* Opaque front-face scanlines put the source center at 49.96% of its width.
+   * Symmetric insets center the complete flag/name and icon/score groups on
+   * that axis; do not introduce visual-estimate horizontal translations. */
+  z-index: 1;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: .15rem;
+  min-width: 0;
 }
 
-.podiumName > span {
+.podiumName {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  width: 100%;
+  min-width: 0;
+  text-align: center;
+  line-height: 1.2;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .podiumName svg {
+  display: inline-block;
   width: 1.1rem;
   height: .8rem;
-  flex-shrink: 0;
+  margin-right: .2rem;
+  vertical-align: -.05rem;
+}
+
+.podiumPlayer:not(button) {
+  cursor: default;
 }
 
 .score {
@@ -443,7 +482,8 @@
     font-size: 1rem;
   }
   .podiumBase {
-    padding: 1.4rem .25rem .9rem;
+    min-height: 7rem;
+    padding: 1.5rem .75rem 1rem;
   }
   .score img {
     width: 1.65rem;

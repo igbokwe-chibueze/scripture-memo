@@ -261,7 +261,12 @@ export const leaderboardRepository = {
       this.getUserCountryCode(input.userId),
       this.getUserFellowships(input.userId),
     ]);
-    if (!competition) {
+    // Keep the requested tab even when its prerequisites are missing. An empty
+    // scope needs neither a ranking query nor league enrollment/recovery writes.
+    const missingScopeSetup =
+      (input.scope === "country" && !countryCode) ||
+      (input.scope === "fellowship" && fellowships.length === 0);
+    if (!competition || missingScopeSetup) {
       const week = getBeaconWeekWindow(now);
       return {
         generatedAt: now.getTime(),
@@ -270,12 +275,12 @@ export const leaderboardRepository = {
         fellowships,
         activeFellowshipId: null,
         activeFellowshipName: null,
-        league: BeaconLeague.TRAVELER,
+        league: competition?.league ?? BeaconLeague.TRAVELER,
         weekStartsAt: week.startsAt.toISOString(),
         weekEndsAt: week.endsAt.toISOString(),
         promotionCount: BEACON_PROMOTION_COUNT,
         demotionCount: BEACON_DEMOTION_COUNT,
-        needsEnrollment: true,
+        needsEnrollment: !competition && !missingScopeSetup,
         podium: [],
         entries: [],
         currentUser: null,
@@ -287,7 +292,9 @@ export const leaderboardRepository = {
     }
     let scope = input.scope;
     let activeFellowship =
-      fellowships.find((item) => item.id === input.fellowshipId) ?? null;
+      fellowships.find((item) => item.id === input.fellowshipId)
+      ?? (input.scope === "fellowship" ? fellowships[0] : null)
+      ?? null;
     let query: RankingQuery;
 
     if (scope === "country" && countryCode) {

@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import {
   CrownIcon,
   CompassIcon,
@@ -430,6 +432,15 @@ export function LeaderboardBoard({
                 label={t("leagueEmblemAlt", { league: t("leagues." + data.league) })}
                 priority
               />
+            ) : data.scope === "country" ? (
+              <Image
+                src="/images/game-ui/leaderboard/country-globe.png"
+                alt=""
+                width={1254}
+                height={1254}
+                sizes="(max-width: 640px) 72px, 80px"
+                className="size-full object-contain"
+              />
             ) : <TrophyIcon className="size-14 text-primary" aria-hidden="true" />}
             <div className="min-w-0">
               <p className="text-xs font-bold tracking-widest text-primary uppercase">
@@ -438,7 +449,7 @@ export function LeaderboardBoard({
               <h2>
                 {data.scope === "league"
                   ? t("leagueName", { league: t("leagues." + data.league) })
-                  : data.activeFellowshipName ?? t("country")}
+                  : data.activeFellowshipName ?? t(data.scope === "fellowship" ? "fellowships" : "country")}
               </h2>
               <p className="mt-1 text-sm font-bold text-muted-foreground">
                 <LeagueRemainingTime endsAt={data.weekEndsAt} initialTime={initialTime} />
@@ -513,8 +524,21 @@ export function LeaderboardBoard({
             <NavigationButton
               href="/settings"
               pendingLabel={t("opening")}
+              className="min-h-11"
             >
               {t("chooseCountry")}
+            </NavigationButton>
+          }
+        />
+      ) : data.scope === "fellowship" && data.fellowships.length === 0 ? (
+        <EmptyState
+          className="mt-5"
+          icon={<Image src="/images/game-ui/fellowship.png" alt="" width={64} height={64} />}
+          title={t("fellowshipMissing")}
+          description={t("fellowshipMissingDescription")}
+          action={
+            <NavigationButton href="/fellowships" pendingLabel={t("opening")} className="min-h-11">
+              {t("joinFellowship")}
             </NavigationButton>
           }
         />

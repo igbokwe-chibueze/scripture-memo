@@ -1880,6 +1880,13 @@ campaign or award Glow Points.
   gold, and bronze podium (second, first, third). Owner-supplied rank frames
   and empty metallic bases compose with bundled avatars and live names,
   flags, and scope-relevant scores; these frames grant no inventory entitlement.
+  Bases fill their columns and provide taller nameplates; names wrap onto two
+  centered lines, with full wording available through player details.
+  Frames sit on the platform and live text centers on the base's front face.
+  Empty podium places keep their frame/base without an avatar, name, flag or score.
+  Country without a selected country stays on its tab and links to Settings.
+  Fellowship without memberships stays on its tab and links to Fellowships to
+  join/create one. Neither empty state falls back to My League or loads rankings.
 - Compact rows show official rank, equipped player portrait/frame, country,
   name, Beacon Points and league status where applicable. Trail Rivals retain
   their explanatory compass and never receive official medals or rank numbers.

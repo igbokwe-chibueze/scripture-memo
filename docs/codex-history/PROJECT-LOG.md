@@ -1,5 +1,66 @@
 # Scripture Memo Project Log
 
+### 2026-10-17 - Root cause of podium offset and missing-scope states
+
+- Found the alignment root cause: Preflight's image max-width clamped the base
+  overscan to 100% while retaining its negative left offset. Added max-width:none
+  to that artwork and removed estimated frame/content translations. Browser
+  geometry against opaque artwork scanlines now measures name/score centers
+  within 0.1px of the cylinder axis at narrow and wide board widths.
+- Missing Country/Fellowship setup now preserves the requested scope and returns
+  empty ranking data before any ranking query or enrollment recovery. Country
+  links to settings; Fellowship links to /fellowships to join/create. A member
+  without a fellowship URL parameter defaults to their first authorized membership.
+- In-memory boundary checks exercised actual repository orchestration for both
+  missing scopes with/without league enrollment (no ranking queries), plus a
+  valid default membership. No hosted/local database was mutated.
+- TypeScript, leaderboard lint, localization and design-system checks passed.
+
+### 2026-10-17 - Podium front-label optical centering
+
+- Owner identified remaining excess left space around the name/Beacon group.
+  Shifted the complete front-face content region left by 5% of its width, keeping
+  name, flag and score aligned together without changing frames or spacing.
+- Scoped CSS correction only; all seven design-system checks passed.
+
+### 2026-10-17 - Tighter podium labels and Country globe
+
+- Shifted each frame/portrait group left together to balance the visible medal
+  on its base. Removed the reserved second name line for short names and reduced
+  the name-to-Beacon score gap; two-line wrapping remains available when needed.
+- Replaced only the Country header trophy with the supplied Glossy globe with
+  Europe and Africa, saved in the separate approved leaderboard asset folder.
+- Browser fixture checks at 375/1366px showed no overflow and approximately
+  2.4px between name and score. Inspected desktop frame/base alignment visually.
+  TypeScript, leaderboard component lint and all seven design checks passed.
+
+### 2026-10-17 - Podium seating, face alignment and empty places
+
+- Corrected frame/base geometry using frame-relative transparent-margin offsets
+  and explicit foreground layering for rank plates. Portraits fill the medal
+  opening more closely at desktop and mobile sizes.
+- Moved names/flags and scores into a dedicated centered front-face region below
+  the cylinder's top ellipse. Names retain two-line wrapping and full detail text.
+- All three rank frames/bases now render even without a player. Empty places
+  contain no avatar, name, flag or score and are non-interactive with a localized
+  accessible description. No rankings or database behavior changed.
+- Actual-component browser checks at 375/1366px in both themes confirmed three
+  places/two interactive players, empty third avatar absent, centered content and
+  no horizontal overflow. TypeScript and component lint passed.
+
+### 2026-10-16 - Larger podium bases and wrapped names
+
+- Owner requested wider/taller podium bases and wrapping names. Bases now fill
+  each column, crop the asset's transparent side margins, and use 96px mobile /
+  112px desktop minimum height. Names center and wrap over two lines; unusually
+  long names truncate after two lines with the full name retained in accessible
+  labels and the existing details dialog.
+- Anchored portraits to a dedicated frame wrapper so changing base height does
+  not move the face within its medal. Existing frame/portrait widths preserved.
+- Actual-component browser fixtures passed at 375/1366px in both themes with
+  short, spaced and long unbroken names: wrapping, equal base heights and no
+  horizontal overflow. TypeScript, component lint and seven design checks passed.
+
 ### 2026-10-16 - Restore desktop league-header action stack
 
 - Owner preferred the previous upper-right desktop placement. At 1024px and

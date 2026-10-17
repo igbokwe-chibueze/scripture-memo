@@ -36,33 +36,39 @@ export function LeaderboardPodium({
       {[2, 1, 3].map((rank) => {
         const entry = entries.find((candidate) => candidate.rank === rank);
         const metal = rank === 1 ? "gold" : rank === 2 ? "silver" : "bronze";
-        if (!entry) return <div key={rank} aria-hidden="true" />;
+        // Empty places retain the medal and base without inventing a player.
+        const Place = entry ? "button" : "div";
         return (
-          <button
+          <Place
             key={rank}
-            id={entry.isCurrentUser ? "leaderboard-you" : undefined}
-            type="button"
+            id={entry?.isCurrentUser ? "leaderboard-you" : undefined}
+            type={entry ? "button" : undefined}
             className={styles.podiumPlayer}
             data-place={rank}
-            onClick={() => onSelect(entry)}
-            aria-label={`${rank}. ${entry.displayName}`}
+            onClick={entry ? () => onSelect(entry) : undefined}
+            aria-label={entry ? `${rank}. ${entry.displayName}` : t("emptyPodiumPlace", { rank })}
           >
-            <span className={styles.podiumPortrait}>
+            {/* Anchor the portrait to its frame, independently of base height. */}
+            <span className={styles.podiumArt}>
+              {entry ? (
+                <span className={styles.podiumPortrait}>
+                  <Image
+                    src={`/images/avatars/${entry.avatarKey}.png`}
+                    alt=""
+                    fill
+                    sizes="(max-width: 640px) 70px, 130px"
+                    className={styles.portraitImage}
+                  />
+                </span>
+              ) : null}
               <Image
-                src={`/images/avatars/${entry.avatarKey}.png`}
+                src={`/images/game-ui/leaderboard/${metal}-frame.png`}
                 alt=""
-                fill
-                sizes="(max-width: 640px) 70px, 130px"
-                className={styles.portraitImage}
+                width={1280}
+                height={1280}
+                className={styles.medalFrame}
               />
             </span>
-            <Image
-              src={`/images/game-ui/leaderboard/${metal}-frame.png`}
-              alt=""
-              width={1280}
-              height={1280}
-              className={styles.medalFrame}
-            />
             <span className={styles.podiumBase}>
               <Image
                 src={`/images/game-ui/leaderboard/${metal}-base.png`}
@@ -71,13 +77,17 @@ export function LeaderboardPodium({
                 sizes="(max-width: 640px) 120px, 250px"
                 className={styles.baseImage}
               />
-              <span className={styles.podiumName}>
-                <CountryFlag countryCode={entry.countryCode} label={t("countryFlag")} />
-                <span>{entry.displayName}</span>
-              </span>
-              <BeaconScore value={scope === "all-time" ? entry.beaconXp : entry.weeklyXp} />
+              {entry ? (
+                <span className={styles.podiumDetails}>
+                  <span className={styles.podiumName}>
+                    <CountryFlag countryCode={entry.countryCode} label={t("countryFlag")} />
+                    <span>{entry.displayName}</span>
+                  </span>
+                  <BeaconScore value={scope === "all-time" ? entry.beaconXp : entry.weeklyXp} />
+                </span>
+              ) : null}
             </span>
-          </button>
+          </Place>
         );
       })}
     </section>
