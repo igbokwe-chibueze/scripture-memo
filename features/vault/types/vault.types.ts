@@ -1,17 +1,7 @@
 import type {
   JourneyStage,
   TranslationCode,
-  WaypointStatus,
 } from "@/lib/generated/prisma/enums";
-
-export type VaultSummary = {
-  completedWaypoints: number;
-  glowPoints: number;
-  currentStreak: number;
-  bestStreak: number;
-  hintsRemaining: number;
-  totalHintsUsed: number;
-};
 
 export type VaultVerseItem = {
   verseId: string;
@@ -27,21 +17,10 @@ export type VaultVerseItem = {
   completedStages: JourneyStage[];
 };
 
-export type VaultWaypointItem = {
-  waypointId: string;
-  number: number;
-  reference: string;
-  journeyStage: string;
-  status: WaypointStatus;
-  completedDays: number;
-};
-
+/** Deduplicated collection sources; text is selected from the saved preference. */
 export type VaultLibraryData = {
-  summary: VaultSummary;
   completedVerses: VaultVerseItem[];
   masteredVerses: VaultVerseItem[];
   favoriteVerses: VaultVerseItem[];
-  inProgressWaypoints: VaultWaypointItem[];
-  availableTranslations: TranslationCode[];
-  packs: Array<{ slug: string; name: string }>;
+  inProgressVerses: VaultVerseItem[];
 };

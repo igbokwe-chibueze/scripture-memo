@@ -1427,13 +1427,14 @@ Reflection space shown after completing Radiance or as a standalone destination.
 ### 15.5 Vault (📖)
 
 The user's complete progress library.
-- Completed verses with mastery status (Learn / Recall / Strengthen / Master complete)
-- Mastered verses section (all four stages complete)
-- Favorite verses
-- In-progress waypoints
-- Personal stats: total Glow Points, current streak, best streak, total waypoints complete, total hints used
+- One searchable verse collection with status and favorites filtering.
+- A verse is Completed after its Learn waypoint; Mastered requires all four Journey Stages.
+- Translation follows Settings; the Vault has no separate translation selector.
+- Favorite hearts and Sanctuary links preserve server-owned study-access locks.
+- Packs is an empty state until player packs are introduced; no sample catalogue or progress.
+- The compact header retains admin testing; personal stats, replay controls, and waypoint sections are removed from the collection screen.
 - Full badge collection (link to `/vault/badges`)
-- Filter by translation, pack, completion status
+- Desktop retains the context rail and its bottom donation card.
 
 Vault replay uses Radiance-level content across all five ordered modes. It is
 untimed and hints are unavailable. Every answer and mode transition is validated

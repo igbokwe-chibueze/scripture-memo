@@ -5382,3 +5382,26 @@ concurrency subtests remain explicitly skipped as documented above.
   later actions open new cases.
 - The owner passed browser review of role-based access, filtered case links, and
   case previews (2026-10-07); local database schema is unchanged.
+### 2026-10-17 — Vault collection concept upgrade
+
+- Replaced the old intro/stat/waypoint sections with a compact illustrated Vault
+  header, Badges link, Verses/Packs switches, search, counts, and status/favorites
+  filtering. Retained administrator testing and the desktop context/donation rail.
+- Translation comes from the saved Settings preference (existing safe available
+  translation fallback retained); no local translation selector was added.
+- Cards show In progress, Completed after Learn, or Mastered after all four
+  Journey Stages. A later active waypoint never erases previously earned status.
+  Duplicate completed/favorite sources are merged by verse ID.
+- Favorite controls reuse the authorized Sanctuary action and show pending/error
+  feedback. Locked verse text stays server-redacted; locked hearts and absent
+  Sanctuary buttons preserve study-access enforcement.
+- Packs intentionally shows an empty state, with no invented packs, progress,
+  detail route, or artwork generation. Existing chest/badge/book artwork is reused.
+- Replaced overlapping completed/favorite/active and obsolete stats reads with
+  three narrow repository query calls (owned verses, preferred translation,
+  platform fallback). No schema change, initialization writes, or polling.
+- Validation: production build, TypeScript, scoped ESLint, six Vault/localization
+  tests and seven design checks passed. Browser fixture checks cover 375px light/
+  dark, no overflow at 375/1366, Mastered filtering, favorite success feedback,
+  and the empty Packs tab. Browser fixtures mock persistence/navigation; no
+  production data or database writes were involved.

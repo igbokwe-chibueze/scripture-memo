@@ -1,0 +1,46 @@
+/* Mobile-first collection layout; semantic tokens preserve both approved themes.
+ * Wider screens expand the cards while the shell owns the existing right rail. */
+.page {
+  max-width: 76rem;
+  margin-inline: auto;
+  padding: 1.25rem 1rem 2rem;
+}
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: 1.25rem;
+}
+.header > img { width: 3.5rem; height: 3.5rem; object-fit: contain; }
+.subtitle { flex-basis: 100%; color: var(--muted-foreground); font-size: 1rem; }
+.library { display: grid; gap: 1rem; }
+.tabs { display: grid; grid-template-columns: 1fr 1fr; gap: .35rem; padding: .25rem; border-radius: var(--radius-control); background: var(--muted); }
+.tab { width: 100%; min-height: 3rem; font-size: 1.125rem; }
+.tab[aria-pressed="false"] { color: var(--foreground); }
+.search { display: flex; align-items: center; gap: .75rem; padding: .75rem 1rem; min-height: 3.5rem; border: 1px solid var(--border); border-radius: var(--radius-control); background: var(--card); color: var(--muted-foreground); }
+.search:focus-within { outline: 2px solid var(--ring); outline-offset: 2px; }
+.search input { min-width: 0; width: 100%; background: transparent; outline: none; color: var(--foreground); }
+.search input::placeholder { color: var(--muted-foreground); }
+.toolbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+.toolbar select { min-height: 2.75rem; max-width: 12rem; border: 1px solid var(--border); border-radius: var(--radius-control); padding: .5rem .75rem; background: var(--card); color: var(--foreground); }
+.cards { display: grid; gap: .875rem; }
+.card { min-width: 0; border: 1px solid var(--border); border-radius: 1.25rem; padding: .875rem; background: var(--card); box-shadow: 0 3px 12px color-mix(in oklch, var(--foreground), transparent 95%); }
+.cardHeading { display: flex; align-items: start; gap: .25rem; justify-content: space-between; }
+.referenceRow { display: flex; flex-wrap: wrap; align-items: center; gap: .375rem .625rem; padding-top: .3rem; min-width: 0; }
+.status { border-radius: 999px; font-size: .75rem; font-weight: 700; padding: .25rem .7rem; background: var(--reward-subtle); color: var(--reward-text); }
+.status[data-status="completed"] { background: var(--success-subtle); color: var(--success-text); }
+.status[data-status="inProgress"] { background: var(--warning-subtle); color: var(--warning-text); }
+.cardFooter { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; margin-top: 1rem; }
+.cardFooter:empty { display: none; }
+.empty { min-height: 24rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; text-align: center; padding: 2rem .75rem; }
+.empty img { object-fit: contain; width: 10rem; height: 8rem; }
+@media (min-width: 640px) {
+  .page { padding: 2rem 1.5rem; }
+  .header { gap: .75rem; }
+  .header > img { width: 4.75rem; height: 4.75rem; }
+  .card { padding: 1.25rem; }
+}
+@media (min-width: 1536px) {
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

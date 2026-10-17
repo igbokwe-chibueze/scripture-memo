@@ -22,7 +22,7 @@ const sampleVerse: VaultVerseItem = {
 };
 
 /**
- * Exercises the real card layout with disposable fixture state. Replay waits
+ * Exercises the real card layout with disposable fixture state. Favorite waits
  * locally to reveal pending/disabled controls; it never starts a game session.
  * Study navigation uses the real NavigationButton but targets this preview page,
  * not a protected Sanctuary record. This is UI coverage, not authorization QA.
@@ -31,10 +31,10 @@ export function VaultCardTestPreview(): React.ReactNode {
   const [locked, setLocked] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  const replay = (): void => {
+  const favorite = (): void => {
     startTransition(async () => {
       await new Promise<void>((resolve) => setTimeout(resolve, 1200));
-      toast.success("Replay preview complete. No game session was created.");
+      toast.success("Favorite preview complete. No preference was saved.");
     });
   };
 
@@ -48,9 +48,9 @@ export function VaultCardTestPreview(): React.ReactNode {
         Vault card testing
       </h2>
       <p className="text-sm text-muted-foreground">
-        At 375px, check that the card and stacked buttons fit. Replay shows
+        At 375px, check that the card controls fit. Favorite shows
         pending feedback, then a success message. Sanctuary opens this preview
-        page with a test query in the address bar. No gameplay is required.
+        page. No gameplay is required.
       </p>
       <div className="grid gap-3 sm:grid-cols-2">
         <Button
@@ -80,10 +80,9 @@ export function VaultCardTestPreview(): React.ReactNode {
             studyAccess: locked ? "LOCKED" : "AVAILABLE",
             completedStages: locked ? [] : sampleVerse.completedStages,
           }}
-          canReplay={!locked}
           sanctuaryHref="/admin/testing/features#feature-test-previews"
           isPending={isPending}
-          onReplay={replay}
+          onFavorite={favorite}
         />
       </div>
     </section>
