@@ -38,8 +38,6 @@ export type LeaderboardRanking = {
   entries: LeaderboardEntry[];
   currentUser: LeaderboardEntry | null;
   rivals: LeaderboardEntry[];
-  page: number;
-  totalPages: number;
   totalPlayers: number;
 };
 

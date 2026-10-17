@@ -1890,9 +1890,11 @@ campaign or award Glow Points.
 - Compact rows show official rank, equipped player portrait/frame, country,
   name, Beacon Points and league status where applicable. Trail Rivals retain
   their explanatory compass and never receive official medals or rank numbers.
-- The signed-in player receives a teal row. A sticky position summary and
-  Jump to me action support mobile; the desktop upper context rail shows
-  Your Position above the unchanged shell-owned Become a Partner card.
+- Every scope shows the top 30 official players, including the three podium
+  places. A learner outside that group appears once after an ellipsis with their
+  actual rank; a learner inside it is not duplicated. No pagination, sticky self
+  card, Jump to me action or desktop Your Position card is shown. Self rows retain
+  teal emphasis, and the shell-owned Become a Partner card remains unchanged.
 - Weekly zone charts always show three fixed colored sections: Top 7 / Promote,
   Stay, and Bottom 5 / Demote, even with a sparse cohort. Only the player's rank
   marker moves within its corresponding section. This presentation does not

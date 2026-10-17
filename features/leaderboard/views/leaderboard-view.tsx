@@ -3,7 +3,6 @@ import { getTranslations } from "next-intl/server";
 import { GamePageColumns } from "@/components/shared/game-page-columns";
 import { ResponsiveContainer } from "@/components/shared/responsive-container";
 import { LeaderboardBoard } from "@/features/leaderboard/components/leaderboard-board";
-import { LeaderboardContextPanel } from "@/features/leaderboard/components/leaderboard-context-panel";
 import { leaderboardRepository } from "@/features/leaderboard/repositories/leaderboard.repository";
 import { requireServerSession } from "@/lib/auth/session";
 
@@ -16,7 +15,6 @@ export const metadata: Metadata = {
 type LeaderboardSearchParameters = {
   scope?: string;
   fellowship?: string;
-  page?: string;
 };
 
 /** Narrows URL input to one supported ranking scope. */
@@ -31,12 +29,6 @@ function parseScope(
     return value;
   }
   return "league";
-}
-
-/** Prevents malformed page input from reaching repository offsets. */
-function parsePage(value: string | undefined): number {
-  const page = Number.parseInt(value ?? "1", 10);
-  return Number.isSafeInteger(page) && page > 0 ? page : 1;
 }
 
 /**
@@ -57,7 +49,6 @@ export async function LeaderboardView({
       userId: session.user.id,
       scope,
       fellowshipId: parameters.fellowship?.slice(0, 64) ?? null,
-      page: parsePage(parameters.page),
     }),
     getTranslations("Leaderboard"),
   ]);
@@ -65,9 +56,7 @@ export async function LeaderboardView({
   return (
     <main className="min-h-dvh bg-[radial-gradient(circle_at_50%_0%,color-mix(in_oklch,var(--primary),transparent_78%),transparent_32%),linear-gradient(to_bottom,color-mix(in_oklch,var(--background),white_3%),var(--background))] py-3 sm:py-4">
       <ResponsiveContainer size="xl">
-        <GamePageColumns
-          contextPanel={<LeaderboardContextPanel data={data} />}
-        >
+        <GamePageColumns>
           <h1 className="mb-3 font-heading text-4xl font-bold sm:text-5xl">
             {t("title")}
           </h1>

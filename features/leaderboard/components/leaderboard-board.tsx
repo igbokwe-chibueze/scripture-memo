@@ -19,13 +19,11 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { initializeBeaconLeagueAction } from "@/features/beacon/actions/initialize-beacon-league.action";
 import { LeagueEmblem, LeagueJourneyDialog } from "@/features/beacon";
-import { Button } from "@/components/ui/button";
 import type {
   LeaderboardEntry,
   LeaderboardPageData,
   LeaderboardScope,
 } from "@/features/leaderboard/types/leaderboard.types";
-import { cn } from "@/lib/utils";
 import { PlayerAvatar } from "@/features/profile";
 import { CountryFlag } from "@/components/shared/country-flag";
 import {
@@ -95,13 +93,12 @@ function LeagueRemainingTime({
   return <>{t("leagueEndsInMinutes", { minutes })}</>;
 }
 
-/** Builds a stable URL for one server-rendered scope and page. */
+/** Builds a stable scope URL; obsolete page parameters are no longer emitted. */
 function leaderboardHref(
   scope: LeaderboardScope,
-  page = 1,
   fellowshipId?: string,
 ): string {
-  const parameters = new URLSearchParams({ scope, page: String(page) });
+  const parameters = new URLSearchParams({ scope });
   if (fellowshipId) parameters.set("fellowship", fellowshipId);
   return `/leaderboard?${parameters.toString()}`;
 }
@@ -112,13 +109,11 @@ function RankingRow({
   displayedPosition,
   onSelect,
   scope,
-  pinned = false,
   zone = "steady",
 }: {
   entry: LeaderboardEntry;
   displayedPosition: number;
   onSelect: (entry: LeaderboardEntry) => void;
-  pinned?: boolean;
   scope: LeaderboardScope;
   zone?: "promotion" | "steady" | "demotion";
 }): React.ReactNode {
@@ -126,7 +121,7 @@ function RankingRow({
   const isRival = entry.kind === "RIVAL";
   return (
     <article
-      id={entry.isCurrentUser && !pinned ? "leaderboard-you" : undefined}
+      id={entry.isCurrentUser ? "leaderboard-you" : undefined}
       role="button"
       tabIndex={0}
       className={styles.row}
@@ -298,10 +293,11 @@ export function LeaderboardBoard({
     },
   );
   const listEntries = visibleEntries.filter((entry) => entry.kind === "RIVAL" || (entry.rank ?? 0) > 3);
-  const currentUserAlreadyVisible = [...data.podium, ...data.entries].some(
-    (entry) => entry.isCurrentUser,
-  );
-  const currentFellowshipParameter = data.activeFellowshipId ?? undefined;
+  // The repository already fetched self even when outside the visible top 30.
+  // Render that row once, in normal flow after an explicit skipped-ranks marker.
+  const additionalPlayer = data.currentUser && (data.currentUser.rank ?? 0) > 30
+    ? data.currentUser
+    : null;
   const isWeeklyScope = data.scope !== "all-time";
   // The three visual zones are fixed. Only the learner's marker moves within
   // its zone; a sparse cohort must never collapse the other colored sections.
@@ -374,7 +370,7 @@ export function LeaderboardBoard({
           <NavigationButton
             key={scope}
             href={leaderboardHref(
-              scope, 1,
+              scope,
               scope === "fellowship"
                 ? data.activeFellowshipId ?? data.fellowships[0]?.id
                 : undefined,
@@ -409,7 +405,7 @@ export function LeaderboardBoard({
             onChange={(event) => {
               const fellowshipId = event.target.value;
               startFellowshipNavigation(() => {
-                router.push(leaderboardHref("fellowship", 1, fellowshipId));
+                router.push(leaderboardHref("fellowship", fellowshipId));
               });
             }}
             className="mt-2 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-bold outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
@@ -578,67 +574,21 @@ export function LeaderboardBoard({
               </div>
             ) : null}
 
-            {data.totalPages > 1 && (
-              <div className="mt-4 grid grid-cols-2 gap-3">
-                <NavigationButton
-                  href={leaderboardHref(
-                    data.scope,
-                    Math.max(1, data.page - 1),
-                    currentFellowshipParameter,
-                  )}
-                  pendingLabel={t("opening")}
-                  variant="outline"
-                  aria-disabled={data.page === 1}
-                  className={cn("min-h-11 w-full", data.page === 1 && "pointer-events-none opacity-50")}
-                >
-                  {t("previous")}
-                </NavigationButton>
-                <NavigationButton
-                  href={leaderboardHref(
-                    data.scope,
-                    Math.min(data.totalPages, data.page + 1),
-                    currentFellowshipParameter,
-                  )}
-                  pendingLabel={t("opening")}
-                  aria-disabled={data.page === data.totalPages}
-                  className={cn(
-                    "min-h-11 w-full",
-                    data.page === data.totalPages && "pointer-events-none opacity-50",
-                  )}
-                >
-                  {t("next")}
-                </NavigationButton>
+            {additionalPlayer ? (
+              <div>
+                <div className="py-3 text-center font-bold text-muted-foreground" aria-label={t("skippedRanks")}>
+                  &hellip;
+                </div>
+                <RankingRow
+                  entry={additionalPlayer}
+                  displayedPosition={additionalPlayer.rank ?? 0}
+                  onSelect={setSelectedEntry}
+                  scope={data.scope}
+                  zone={rankZone(additionalPlayer)}
+                />
               </div>
-            )}
+            ) : null}
           </section>
-
-          {data.currentUser && (
-            <aside className={cn(styles.pinned, "xl:hidden")} aria-label={t("yourRank")}>
-              <RankingRow
-                entry={data.currentUser}
-                displayedPosition={data.currentUser.rank ?? 1}
-                onSelect={setSelectedEntry}
-                scope={data.scope}
-                zone={rankZone(data.currentUser)}
-                pinned
-              />
-              <Button
-                size="sm"
-                className="mt-1 w-full"
-                onClick={() => {
-                  if (currentUserAlreadyVisible) {
-                    document.getElementById("leaderboard-you")?.scrollIntoView({ block: "center" });
-                    return;
-                  }
-                  // Rank four starts the existing twenty-row pagination.
-                  const playerPage = Math.max(1, Math.floor(((data.currentUser?.rank ?? 4) - 4) / 20) + 1);
-                  router.push(leaderboardHref(data.scope, playerPage, currentFellowshipParameter) + "#leaderboard-you");
-                }}
-              >
-                {t("jumpToMe")}
-              </Button>
-            </aside>
-          )}
         </>
       )}
 

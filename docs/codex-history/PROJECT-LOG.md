@@ -1,5 +1,22 @@
 # Scripture Memo Project Log
 
+### 2026-10-17 - Top 30 plus the learner, without position cards
+
+- Owner chose a fixed top 30 across League/Country/Fellowship/All Time, including
+  podium ranks 1–3. Learners ranked beyond 30 appear once after an ellipsis with
+  their actual rank; learners within the top 30 are not duplicated.
+- Replaced the paginated SQL window with rank <= 30 OR current user, preserving
+  authorization, deterministic ordering and privacy projection in one ranking
+  query. Removed page inputs/output, page URL generation and pagination controls.
+- Removed the mobile sticky self/Jump to me card and desktop Your Position panel,
+  its unused component and card-only CSS. Permanent Partner card unchanged.
+- Checked actual repository orchestration across all four scopes and ranks
+  1/3/15/30/31/40 (24 cases): correct bounded result, self once and one query.
+  Actual-component SSR checks at 30/31/40 verified row counts, ellipsis behavior
+  and absence of pagination/cards. No database was used for these fixtures.
+- Production build, TypeScript, leaderboard lint, localization and seven design
+  checks passed.
+
 ### 2026-10-17 - Root cause of podium offset and missing-scope states
 
 - Found the alignment root cause: Preflight's image max-width clamped the base

@@ -387,70 +387,6 @@
   color: var(--error-text);
 }
 
-.pinned {
-  position: sticky;
-  bottom: 6rem;
-  z-index: 20;
-  background: var(--card);
-  border: 2px solid var(--primary);
-  border-radius: 1rem;
-  margin-top: 1rem;
-  padding: .35rem;
-}
-.pinned .row {
-  border: 0;
-}
-
-.position {
-  padding: 1rem;
-  border: 1px solid var(--border);
-  border-radius: 1.4rem;
-  background: var(--card);
-}
-
-.position h2 {
-  font-family: var(--font-heading);
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin-bottom: .75rem;
-}
-
-.positionCard {
-  display: grid;
-  gap: 1rem;
-  padding: 1rem;
-  background: var(--selection-subtle);
-  border: 1px solid var(--border);
-  border-radius: 1rem;
-  text-align: center;
-}
-
-.positionIdentity {
-  display: flex;
-  align-items: center;
-  gap: .75rem;
-  text-align: left;
-}
-
-.positionIdentity strong {
-  display: block;
-  font-size: 1.2rem;
-}
-
-.positionCard > .score {
-  border-top: 1px solid var(--border);
-  padding-top: .75rem;
-  font-size: 1.7rem;
-}
-
-.positionCard > button, .positionCard > a {
-  min-height: 44px;
-}
-
-.pinned > button {
-  min-height: 44px;
-}
-
 @media (min-width: 640px) {
   .tabs a {
     font-size: 1rem;
@@ -501,9 +437,6 @@
   .status {
     font-size: .8rem;
   }
-  .pinned {
-    bottom: 1rem;
-  }
 }
 
 /* Desktop restores the compact upper-right stack from the approved reference.
@@ -526,29 +459,5 @@
   .headerActions .reset {
     flex: none;
     width: 100%;
-  }
-}
-
-/* A short desktop rail shares its height with the unchanged Partner card. */
-
-@media (min-width: 1024px) and (max-height: 850px) {
-  .position {
-    padding: .65rem;
-  }
-  .position h2 {
-    font-size: 1.5rem;
-    margin-bottom: .5rem;
-  }
-  .positionCard {
-    gap: .45rem;
-    padding: .7rem;
-  }
-  .positionIdentity > span {
-    width: 3.5rem;
-    height: 3.5rem;
-  }
-  .positionCard > .score {
-    font-size: 1.4rem;
-    padding-top: .4rem;
   }
 }
