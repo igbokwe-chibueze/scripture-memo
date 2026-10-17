@@ -17,7 +17,7 @@ const sections = [
   { prefix: "/game/map", key: "map", artwork: "map" },
   { prefix: "/game/waypoints", key: "map", artwork: "map" },
   { prefix: "/vault", key: "vault", artwork: "vault" },
-  { prefix: "/sanctuary", key: "vault", artwork: "vault" },
+  { prefix: "/sanctuary", key: "sanctuary", artwork: "bibleOpen" },
   { prefix: "/fellowships", key: "fellowships", artwork: "fellowship" },
   { prefix: "/oil-shop", key: "shop", artwork: "shop" },
   { prefix: "/settings", key: "settings", artwork: "settings" },

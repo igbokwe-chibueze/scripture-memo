@@ -29,6 +29,7 @@
     "view": "View"
   },
   "Navigation": {
+    "sanctuary": "Sanctuary",
     "leaderboard": "Leaderboard",
     "bible": "Bible",
     "trivia": "Trivia",
@@ -549,6 +550,11 @@
     "noFavorites": "No favorite verses yet"
   },
   "Sanctuary": {
+    "onThisPage": "On this page",
+    "screenTitle": "Sanctuary",
+    "temporaryTranslation": "Translation for this visit",
+    "saveError": "Your note could not be saved. Please try again.",
+    "favoriteError": "Favorite could not be updated.",
     "backToVault": "Back to Vault",
     "eyebrow": "The Sanctuary",
       "reflection": "Reflection",

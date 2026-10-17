@@ -10,6 +10,8 @@ export type SanctuaryData = {
   reference: string;
   translation: TranslationCode;
   verseText: string;
+  /** Authorized alternatives for temporary in-page switching, never settings writes. */
+  translations: Array<{ translation: TranslationCode; text: string }>;
   reflection: string | null;
   tags: string[];
   studySections: Array<{

@@ -5405,3 +5405,46 @@ concurrency subtests remain explicitly skipped as documented above.
   dark, no overflow at 375/1366, Mastered filtering, favorite success feedback,
   and the empty Packs tab. Browser fixtures mock persistence/navigation; no
   production data or database writes were involved.
+### 2026-10-17 — Sanctuary reader concept upgrade
+
+- Reworked mobile and desktop Sanctuary into the supplied reader composition:
+  compact Back to Vault/header, reference/translation/heart row, serif verse
+  card, shared Study/My Notes controls, tags and individual study accordions.
+  The shell identifies this route as Sanctuary with the existing book artwork.
+- Only Study note and Prayer initially expand. Other authored sections, including
+  Reflection where present, stay available collapsed. Markdown still renders on
+  the server, skips raw HTML, and keeps its safe link handling. Linked cross
+  references use chips while preserving the original authored destinations.
+- Desktop On this page replaces the duplicate verse context panel and local
+  notes sidebar. Its anchors restore Study, expand the target section, and
+  highlight the current section. The existing bottom Partner card is retained.
+- Translation starts with Settings and may switch locally among available texts;
+  refresh restores the default. Alternatives reuse the existing read and are
+  returned only after authorization/study-access checks. No preference writes,
+  extra translation queries, polling, migrations, or curriculum changes.
+- Notes and favorite actions retain their authorized persistence; network errors
+  show dismissible error feedback and preserve the draft for retry. Both panels
+  remain mounted so drafts and accordion state survive tab/translation changes.
+- Validation: TypeScript, scoped ESLint, seven design checks and seven access/
+  localization checks passed. Browser fixtures at 375/1366 in light/dark verify
+  accordion defaults, no horizontal overflow, temporary translation with no
+  save request, refresh default, note retention/retry, favorite response, and
+  desktop anchor navigation. Repository boundary fixtures additionally verify
+  Settings default, alternatives, practice/cooldown redaction and unavailable
+  access with no database connection. Production build passed.
+### 2026-10-17 — Restore Sanctuary typography rules
+
+- Removed the unapproved serif reading override. Scripture and study prose use
+  the shared Fredoka Medium 500 token; section and Markdown headings use Lilita
+  One Bold 700. Softened emphasis uses the registered Medium face, not 400.
+- Retained the Sanctuary layout and behavior. Updated the UI guide to explicitly
+  require consulting the owner before a concept overrides existing font rules.
+### 2026-10-17 — Compact Sanctuary contents links
+
+- Reduced only the Sanctuary right-panel navigation's label/icon sizes, padding,
+  heading spacing and gaps, preserving the established font families and 44px
+  link targets. Short desktop viewports use two compact columns to fit all links
+  above the existing bottom donation card without clipping them.
+- Browser layout checks with ten entries (all sections plus Tags/Reflection)
+  show no context-panel scrolling at 1366x600, 1366x768, 1366x900 and 1600x1000;
+  every link remains at least 44px tall. No persistence or data-flow changes.

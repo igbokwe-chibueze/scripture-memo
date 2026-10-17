@@ -1,0 +1,58 @@
+/* Sanctuary follows the shared typography contract: Fredoka Medium for reading,
+ * Lilita One Bold for headings, and shared action styles for controls. */
+.page { min-width: 0; padding: 1rem; max-width: 80rem; margin-inline: auto; }
+.topRow { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+.mobileIdentity { display: flex; gap: .5rem; align-items: center; color: var(--selection-text); font-weight: 700; }
+.heading { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem; margin: 1.5rem 0 .875rem; }
+.heading h1 { margin-right: auto; min-width: 0; }
+.heading select { min-height: 2.75rem; border: 1px solid var(--border); border-radius: .75rem; padding: .5rem .625rem; color: var(--selection-text); background: var(--card); }
+.heading select:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.verse { border: 1px solid var(--selection-border); border-radius: .875rem; background: var(--card); padding: 1rem; font-family: var(--font-sans); font-weight: 500; font-size: 1.2rem; line-height: 1.75; overflow-wrap: anywhere; }
+.tabs { display: grid; grid-template-columns: 1fr 1fr; gap: .25rem; border: 1px solid var(--border); border-radius: var(--radius-control); background: var(--card); padding: .2rem; margin-top: 1rem; }
+.tabs > button { width: 100%; min-height: 2.75rem; gap: .5rem; }
+.tabs > button[aria-pressed="false"] { color: var(--selection-text); }
+.study { margin-top: 1.25rem; }
+.study > * + * { margin-top: .75rem; }
+.study[hidden] { display: none; }
+.tags { scroll-margin-top: 7rem; }
+.tags > div { display: flex; flex-wrap: wrap; gap: .5rem; margin: .5rem 0 1rem; }
+.tags span { border-radius: 999px; padding: .375rem .875rem; color: var(--selection-text); background: var(--selection-subtle); font-size: .875rem; }
+.section { margin-top: .75rem; border: 1px solid var(--border); border-radius: 1rem; background: var(--card); padding: .5rem .875rem; scroll-margin-top: 7rem; }
+.section summary { min-height: 2.75rem; display: flex; align-items: center; gap: .75rem; cursor: pointer; list-style: none; }
+.section summary::-webkit-details-marker { display: none; }
+.section summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; border-radius: .5rem; }
+.section summary > svg { flex-shrink: 0; color: var(--selection-text); }
+.section summary h2 { font-family: var(--font-heading); font-weight: 700; font-size: 1rem; }
+.chevron { width: 1rem; height: 1rem; margin-left: auto; }
+.section[open] .chevron { transform: rotate(180deg); }
+.prose { padding: .5rem .25rem .75rem; font-family: var(--font-sans); font-weight: 500; font-size: 1rem; line-height: 1.6; overflow-wrap: anywhere; }
+.prose p, .prose li { color: var(--foreground); }
+.prose h3, .prose h4 { font-family: var(--font-heading); font-weight: 700; font-size: 1em; }
+.prose hr { margin-block: .75rem; border-color: var(--border); }
+/* Preserve authored destinations; only presentation changes for linked references. */
+.references a { display: inline-flex; align-items: center; min-height: 2.75rem; margin: .25rem .25rem .25rem 0; padding: .375rem .75rem; border-radius: 999px; background: var(--selection-subtle); color: var(--selection-text); font-family: var(--font-action); font-size: .875rem; text-decoration: none; }
+.bookBackground { margin: .25rem 0 .375rem; padding: .875rem; background: var(--muted); border-radius: .75rem; }
+.contents { border: 1px solid var(--border); border-radius: 1rem; background: var(--card); padding: .75rem .5rem; }
+.contents h2 { padding-inline: .375rem; font-size: 1.125rem; line-height: 1.25; }
+.contents ol { margin-top: .375rem; }
+.contents a { display: flex; align-items: center; gap: .5rem; padding: .25rem .375rem; min-height: 44px; border-left: .1875rem solid transparent; border-radius: .5rem; color: var(--foreground); font-size: .875rem; line-height: 1.25; }
+.contents a svg { width: 1.125rem; height: 1.125rem; color: var(--selection-text); flex-shrink: 0; }
+.contents a[aria-current="location"] { border-left-color: var(--selection-border); background: var(--selection-subtle); font-weight: 700; }
+.contents a:hover { background: var(--muted); }
+.contents a:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+/* Preserve every label and 44px target when the rail must also fit Donate.
+ * Two columns reduce height instead of clipping links or hiding overflow. */
+@media (min-width: 1280px) and (max-height: 850px) {
+  .contents ol { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: .25rem; }
+  .contents a { gap: .375rem; font-size: .8125rem; }
+  .contents a span { min-width: 0; overflow-wrap: anywhere; }
+}
+@media (min-width: 640px) {
+  .page { padding: 1.5rem 2rem 2rem; }
+  .verse { padding: 1.125rem 1.25rem; font-size: 1.5rem; }
+  .section { padding: .5rem 1.125rem; }
+  .prose { font-size: 1.125rem; }
+}
+@media (min-width: 1280px) {
+  .mobileIdentity { display: none; }
+}

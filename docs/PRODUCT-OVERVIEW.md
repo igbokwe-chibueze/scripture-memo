@@ -1418,7 +1418,16 @@ Reflection space shown after completing Radiance or as a standalone destination.
   the first Glimmer session through Radiance, and permanently reopens after
   Radiance. The lock is server-enforced across direct URLs, Vault actions, and
   waypoint navigation; active-practice screens never serialize the verse text.
-- Full verse displayed with the user's preferred translation
+- Full verse starts with the Settings translation; a temporary selector can
+  switch among available translations without saving a preference. Reloading
+  restores the Settings-derived default. Authorized alternatives reuse the
+  existing read; locked responses never serialize them.
+- Study and My Notes are tabs on mobile and desktop. Study sections collapse
+  individually; only Study note and Prayer start expanded. Other authored
+  material, including Reflection when present, remains available collapsed.
+- The desktop right rail contains On this page navigation and the existing
+  bottom donation card. Navigation opens the selected section and returns to
+  Study if My Notes is active. Note drafts survive tab and translation changes.
 - Reflection question and study note
 - Private notes: user can write and save a personal note about the verse
 - Favorite toggle: mark the verse as a favorite

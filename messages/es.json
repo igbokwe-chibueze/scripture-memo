@@ -29,6 +29,7 @@
     "view": "Ver"
   },
   "Navigation": {
+    "sanctuary": "Santuario",
     "leaderboard": "Clasificación",
     "bible": "Biblia",
     "trivia": "Trivia",
@@ -549,6 +550,11 @@
     "noFavorites": "Aún no hay versículos favoritos"
   },
   "Sanctuary": {
+    "onThisPage": "En esta página",
+    "screenTitle": "Santuario",
+    "temporaryTranslation": "Traducción para esta visita",
+    "saveError": "No se pudo guardar tu nota. Inténtalo de nuevo.",
+    "favoriteError": "No se pudo actualizar el favorito.",
     "backToVault": "Volver a la Bóveda",
     "eyebrow": "El Santuario",
       "reflection": "Reflexión",

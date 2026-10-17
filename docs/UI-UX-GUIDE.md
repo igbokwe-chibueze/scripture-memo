@@ -177,6 +177,9 @@ classes before changing `components/ui/button.tsx`.
 
 ## 7. Typography and Copy Density
 
+- Concept images do not authorize typography exceptions. If a concept conflicts
+  with these font rules, explain the conflict to the owner and obtain approval
+  before changing font families or their assigned roles.
 - Use Fredoka Medium 500 for paragraphs, scripture, instructions, and other
   sustained reading. The shared sans token and page body default provide this
   face so supporting copy remains consistent across routes.

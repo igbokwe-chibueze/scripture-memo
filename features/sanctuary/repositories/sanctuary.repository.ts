@@ -125,6 +125,9 @@ export const sanctuaryRepository = {
         reference: verse.reference,
         translation: selected.translation,
         verseText: selected.text,
+        // Already read for default selection; expose alternatives only after the
+        // same access check. Switching requires no new query or settings write.
+        translations: verse.translations,
         reflection: verse.reflection,
         tags: verse.tags.map(({ tag }) => tag.name),
         studySections: verse.studySections,

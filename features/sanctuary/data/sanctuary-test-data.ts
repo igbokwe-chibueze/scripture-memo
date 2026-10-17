@@ -6,6 +6,10 @@ export const SANCTUARY_TEST_DATA: SanctuaryData = {
   reference: "Psalm 23:1",
   translation: "KJV",
   verseText: "The LORD is my shepherd; I shall not want.",
+  translations: [
+    { translation: "KJV", text: "The LORD is my shepherd; I shall not want." },
+    { translation: "WEB", text: "Yahweh is my shepherd: I shall lack nothing." },
+  ],
   reflection: "Consider the care described in this verse.",
   tags: ["Trust"],
   studySections: [
