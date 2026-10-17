@@ -8,12 +8,16 @@ export const BADGE_CATEGORIES = [
 ] as const;
 export type BadgeStatusFilter = "ALL" | "COMPLETED" | "IN_PROGRESS" | "LOCKED";
 
-/** Matches existing progress states; Locked means not started, not a prerequisite. */
+/**
+ * Zero qualifying progress remains Locked, including older rows marked in progress
+ * merely because the evaluator ran. Earned status stays server-authoritative so
+ * presentation never grants an award from a progress count alone.
+ */
 export function getBadgeDisplayStatus(
   badge: BadgeCollectionItem,
 ): Exclude<BadgeStatusFilter, "ALL"> {
   if (badge.status === "COMPLETED") return "COMPLETED";
-  return badge.status === "IN_PROGRESS" ? "IN_PROGRESS" : "LOCKED";
+  return badge.progress > 0 ? "IN_PROGRESS" : "LOCKED";
 }
 
 /** Searches only the already-authorized/redacted payload; no additional reads. */

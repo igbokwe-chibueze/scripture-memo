@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   filterBadgeCollection,
   getBadgeProgressPercent,
+  getBadgeDisplayStatus,
   getBadgeRarityCounts,
 } from "./badge-collection";
 import type { BadgeCollectionItem } from "../types/badge.types";
@@ -50,6 +51,36 @@ const badges: BadgeCollectionItem[] = [
     status: "NOT_STARTED",
   },
 ];
+
+/** Covers historical zero-count rows as well as the first qualifying achievement. */
+test("zero progress is locked and positive progress is in progress until earned", () => {
+  const unearned: BadgeCollectionItem = {
+    ...badge,
+    targetValue: 50,
+    status: "IN_PROGRESS",
+    progress: 0,
+  };
+
+  assert.equal(getBadgeDisplayStatus(unearned), "LOCKED");
+  assert.equal(getBadgeDisplayStatus({ ...unearned, progress: 1 }), "IN_PROGRESS");
+  assert.equal(getBadgeDisplayStatus({ ...unearned, progress: 49 }), "IN_PROGRESS");
+  assert.equal(getBadgeDisplayStatus({
+    ...unearned,
+    progress: 50,
+    status: "COMPLETED",
+  }), "COMPLETED");
+  // Historical zero-count rows must also move into the correct filter bucket.
+  assert.equal(filterBadgeCollection([unearned], {
+    query: "",
+    category: "ALL",
+    status: "LOCKED",
+  }).length, 1);
+  assert.equal(filterBadgeCollection([unearned], {
+    query: "",
+    category: "ALL",
+    status: "IN_PROGRESS",
+  }).length, 0);
+});
 
 test("search/category/status combine without changing progress or secret identity", () => {
   const before = JSON.stringify(badges);

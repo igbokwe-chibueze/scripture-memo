@@ -5509,3 +5509,24 @@ concurrency subtests remain explicitly skipped as documented above.
 - Validation: all seven design-system checks passed; standalone decorative CSS
   browser preview inspected. No authenticated live-page browser verification
   was performed for this CSS-only adjustment.
+
+
+### 2026-10-17 ? Badge zero-progress status correction
+
+- Zero qualifying progress displays Locked; positive unfinished progress displays
+  In progress. Completed awards remain authoritative. Filters and card visuals
+  use the same rule, including historical zero-progress IN_PROGRESS records.
+- Future badge evaluations persist NOT_STARTED for zero counts. Existing rows
+  require no migration or writes during reads; reward transactions are unchanged.
+- Added regression coverage for 0/50, 1/50, 49/50, earned 50/50 and status filters.
+  All 11 collection/catalogue tests passed.
+
+
+### 2026-10-17 ? Compact badge collection summary
+
+- Reduced earned/total numbers and placed each label beside its count, with
+  tighter summary padding, heading line heights and rarity row spacing. Existing
+  fonts, rarity colors, progress bar and bottom donation card are preserved.
+- Seven design-system checks passed. Standalone browser layout checked at a
+  280px rail width in a 1280x600 window; all five rarity rows fit a 335px budget
+  without horizontal overflow. Live authenticated layout was not retested.

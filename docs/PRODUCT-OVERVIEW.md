@@ -1182,8 +1182,11 @@ Each badge card shows:
 The collection uses Common → Uncommon → Rare → Epic → Legendary groups with
 earned/total counts for the current results. Search, Category, and Status
 (All/Earned/In progress/Locked) filter the already-loaded authorized collection.
-Locked means not started under the existing earning rules; no badge prerequisite
-chain is introduced. Hidden badge identity remains masked until earned.
+Locked means zero qualifying progress. In progress requires at least one
+qualifying achievement below the target; reaching the target earns the badge
+through the server reward flow. Evaluation alone does not start a badge, and
+no badge prerequisite chain is introduced. Hidden badge identity remains masked
+until earned.
 
 Mobile uses two cards per row, with a single-column fallback below 340px.
 Desktop uses paired art/text cards and a right-panel Collection summary with
