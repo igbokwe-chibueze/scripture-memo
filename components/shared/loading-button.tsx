@@ -15,6 +15,8 @@ export type LoadingButtonProps = React.ComponentProps<typeof Button> & {
  * Both `disabled` and `aria-disabled` are set during pending work because visual
  * dimming alone does not prevent rapid taps or communicate state to assistive
  * technology. Existing disabled intent is preserved when work is not pending.
+ * Visual props such as the opt-in shimmer pass through to Button unchanged;
+ * pending/disabled state suppresses that effect in the shared stylesheet.
  */
 export function LoadingButton({
   isPending = false,

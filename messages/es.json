@@ -1,4 +1,20 @@
 {
+  "PartnerSupport": {
+  "eyebrow": "Apoya Scripture Memo",
+  "title": "Ayuda a mantener Scripture Memo gratis",
+  "description": "Tu donativo apoya la app y ayuda a que más personas aprendan las Escrituras.",
+  "donate": "Donar",
+  "comingSoon": "Próximamente",
+  "supportLine": "Apoya el camino de alguien",
+  "learnMore": "Más información",
+  "footer": "Cada donativo marca la diferencia.",
+  "opening": "Abriendo colaboración",
+  "donateNewTab": "Donar (se abre en otra pestaña)",
+  "pageTitle": "Donativos próximamente",
+  "pageDescription": "Estamos preparando una forma de apoyar Scripture Memo. Gracias por ayudar a más personas a aprender las Escrituras.",
+  "back": "Volver al inicio",
+  "openingHome": "Abriendo inicio"
+},
   "Common": {
     "back": "Volver",
     "cancel": "Cancelar",

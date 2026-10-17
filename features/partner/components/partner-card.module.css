@@ -1,0 +1,113 @@
+/* Compact invitation: artwork and copy share a row, followed by one action.
+ * Natural content height stays well below half the desktop context rail without
+ * clipping text or reducing the usable 44px navigation target. */
+.card {
+  display: grid;
+  gap: .6rem;
+  min-width: 0;
+  padding: .85rem;
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  background: var(--card);
+  color: var(--card-foreground);
+  box-shadow: 0 4px 12px color-mix(in oklch, var(--primary), transparent 92%);
+}
+
+.intro {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  align-items: center;
+  gap: .65rem;
+}
+
+.art {
+  position: relative;
+  width: 4.5rem;
+  height: 5rem;
+  isolation: isolate;
+}
+
+.art::before {
+  content: "";
+  position: absolute;
+  inset: 15% 0;
+  z-index: -1;
+  border-radius: 50%;
+  background: var(--selection-subtle);
+}
+
+.meemo {
+  object-fit: contain;
+}
+
+.copy {
+  display: grid;
+  gap: .35rem;
+  min-width: 0;
+}
+
+.title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.2rem;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+
+.supportLine {
+  font-size: .75rem;
+  color: var(--muted-foreground);
+}
+
+.donate {
+  width: 100%;
+  min-height: 44px;
+  gap: .5rem;
+  font-size: 1rem;
+}
+
+/* Very short windows get a smaller illustration, not a smaller touch target. */
+@media (min-width: 1280px) and (max-height: 500px) {
+  .card {
+    padding: .6rem;
+    gap: .5rem;
+  }
+  .intro {
+    grid-template-columns: 3rem minmax(0, 1fr);
+  }
+  .art {
+    width: 3rem;
+    height: 3rem;
+  }
+  .title {
+    font-size: 1rem;
+  }
+}
+
+/* A shallow desktop viewport uses a single row so the invitation still takes
+ * less than half the rail; the Donate control remains a full 44px target. */
+@media (min-width: 1280px) and (max-height: 400px) {
+  .card {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    padding: .5rem;
+  }
+  .intro {
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: .4rem;
+  }
+  .art {
+    width: 2rem;
+    height: 2rem;
+  }
+  .title {
+    font-size: .85rem;
+  }
+  .supportLine {
+    font-size: .65rem;
+  }
+  .donate {
+    width: auto;
+    font-size: .85rem;
+  }
+}

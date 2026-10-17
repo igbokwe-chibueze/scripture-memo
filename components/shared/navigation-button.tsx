@@ -28,6 +28,7 @@ export function NavigationButton({
   pendingLabel,
   variant,
   size,
+  shimmer = false,
   className,
   onClick,
   ...props
@@ -43,11 +44,14 @@ export function NavigationButton({
       // WHY: Navigation differs from Button only semantically. Passing all
       // visual inputs through the exact Button merge path guarantees identical
       // color, bevel, hover, press, focus, and reduced-motion behavior.
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(buttonVariants({ variant, size, shimmer, className }))}
       onClick={(event) => {
         onClick?.(event);
         if (
           event.defaultPrevented ||
+          // A new-tab link must retain native browser behavior instead of being
+          // intercepted by the same-tab router transition below.
+          (event.currentTarget.target && event.currentTarget.target !== "_self") ||
           event.button !== 0 ||
           event.metaKey ||
           event.ctrlKey ||

@@ -1,5 +1,74 @@
 # Scripture Memo Project Log
 
+### 2026-10-17 - Partner support-line wording
+
+- Changed the compact card's supporting line to “Support someone’s journey”
+  at the owner's request; updated Spanish copy. Layout and behavior unchanged.
+
+### 2026-10-17 - Shared optional white/silver shimmer and bottom Partner card
+
+- Owner requested white/silver shimmer as a shared primary/secondary capability,
+  off by default. Added the boolean shimmer variant to buttonVariants and passed
+  it through Button/NavigationButton; LoadingButton inherits it through Button.
+  Only Donate opts in. Removed feature-owned effect styling. Disabled/pending,
+  unsupported variants and both reduced-motion preferences suppress the effect.
+- Added a narrowly documented white/silver color exception for shared decorative
+  sheen. Existing shared colors, bevels, presses and new-tab behavior unchanged.
+- Right rail now uses a vertical flex budget: top contextual content can shrink
+  and scroll; the compact Partner card has auto top margin and remains at the
+  bottom, including routes with empty context slots.
+- Actual-component browser checks passed in both themes at 1366x600/1600x1000,
+  with empty and overflowing context: zero bottom-position error, same shimmer
+  classes across all three button types, default-off/variant restrictions,
+  pending/disabled suppression, white/silver gradient and both motion settings.
+- Production build, TypeScript, targeted lint and seven design checks passed.
+
+### 2026-10-17 - Partner support copy and Donate shimmer
+
+- Replaced the compact card's Coming soon line with “Help someone learn
+  Scripture.” /partner retains its accurate donation-coming-soon state; the
+  action's accessible label now simply announces Donate and its new tab.
+- Added a local, pointer-transparent reward-colored shimmer on Donate. A sweep
+  repeats every 5.5 seconds with an idle interval. Shared button bevel/press
+  visuals and native new-tab behavior are unchanged. Both saved app and OS
+  reduced motion remove the shimmer entirely.
+- Browser computed-style checks confirmed repeated animation, no intercepted
+  pointer events, both reduced-motion paths, no overflow and card height below
+  half the rail. TypeScript, component lint, locale and design checks passed.
+
+### 2026-10-17 - Compact Partner invitation
+
+- Owner requested less than half the right rail and removal of unnecessary
+  content. Replaced the tall composition with a small Meemo/title row, Coming
+  soon and one Donate action. Removed eyebrow, description, footer and Learn more.
+- Normal card height is approximately 163px; short windows compact the artwork
+  and very shallow windows use a single row. Donate keeps a 44px target and its
+  existing new-tab /partner destination. Theme tokens and shared bevel retained.
+- Production-component browser fixtures in light/dark measured 19–35% of the
+  actual rail across viewport heights 258/458/626/938px. No horizontal overflow;
+  exactly one action with target=_blank. TypeScript, component lint and seven
+  design-system checks passed.
+
+### 2026-10-17 - Partner support card and heart-holding Meemo
+
+- Owner approved generating the heart-holding pose from the supplied donation
+  concept. Saved transparent production artwork to mascot/meemo and documented
+  the built-in generation prompt/references in that collection's README.
+- Replaced the shared rail invitation with the new themed illustration/oval,
+  Support Scripture Memo copy, Donate, Coming soon, Learn more and gift footer.
+  Natural-height rail rows and hidden empty context slots replace half-height
+  budgeting; short desktop windows use compact illustration/type. Mobile rail
+  visibility and navigation are unchanged.
+- Donate points to /partner in a new tab with noopener/noreferrer. Corrected
+  NavigationButton to preserve native non-self-target behavior without changing
+  its shared visuals. Learn more retains same-tab navigation. /partner now shows
+  an authenticated coming-soon state; no payment collection or DB writes added.
+- Browser checks passed at 375/1366/1600px in both themes: loaded art, no horizontal
+  overflow, accessible actions. Trusted-gesture test confirmed a new /partner
+  tab, original page unchanged and no router push; Learn more uses router.push.
+- Production build, TypeScript, targeted lint, localization and seven design
+  checks passed. Saved artwork alpha transparency verified.
+
 ### 2026-10-17 - Top 30 plus the learner, without position cards
 
 - Owner chose a fixed top 30 across League/Country/Fellowship/All Time, including

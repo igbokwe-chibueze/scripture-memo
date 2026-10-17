@@ -144,52 +144,6 @@
   min-width: 0;
 }
 
-.partnerCard {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1.25rem;
-  border: 1px solid var(--border);
-  border-radius: 1.4rem;
-  background: var(--card);
-  text-align: center;
-  box-shadow: 0 4px 12px color-mix(in oklch, var(--primary) 8%, transparent);
-}
-
-.partnerMeemo {
-  height: min(19dvh, 11.5rem);
-  width: auto;
-  object-fit: contain;
-}
-
-.partnerEyebrow {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  color: var(--primary);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-}
-
-.partnerTitle {
-  font-family: var(--font-heading);
-  font-weight: 700;
-  font-size: clamp(1.35rem, 1.85vw, 2rem);
-  line-height: 1.15;
-}
-
-.partnerButton {
-  width: 100%;
-  min-height: 3rem;
-  margin-top: 0.5rem;
-  margin-bottom: 0.25rem;
-  border-radius: 0.9rem;
-  font-size: 1.2rem;
-}
-
 /* Five destinations allow larger labels and icons without horizontal scrolling. */
 @media (min-width: 375px) {
   .navigationItem[data-slot="button"] {
@@ -296,40 +250,19 @@
     position: fixed;
     inset: var(--player-topbar-height) 0 0 auto;
     z-index: 20;
-    display: grid;
-    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+    display: flex;
     gap: clamp(0.5rem, 2dvh, 1.5rem);
     width: var(--player-context-width);
     padding: clamp(0.5rem, 2dvh, 1.25rem);
-    overflow-y: auto;
+    overflow-y: hidden;
     border-left: 1px solid var(--border);
     background: var(--background);
+    flex-direction: column;
   }
   .contextSlot {
     min-height: 0;
     overflow: auto;
-  }
-  .partnerCard {
-    min-height: 0;
-    gap: clamp(0.25rem, 1dvh, 0.75rem);
-    padding: clamp(0.5rem, 1.5dvh, 1.25rem);
-    justify-content: center;
-  }
-  .partnerMeemo {
-    height: clamp(2.5rem, 14dvh, 11rem);
-    min-height: 0;
-    flex-shrink: 1;
-  }
-  .partnerTitle {
-    font-size: clamp(1.125rem, 2.4dvh, 1.75rem);
-  }
-  .partnerEyebrow {
-    font-size: clamp(0.75rem, 1.8dvh, 1rem);
-  }
-  .partnerButton {
-    min-height: 2.75rem;
-    margin-top: 0.25rem;
-    font-size: clamp(0.95rem, 2dvh, 1.2rem);
+    flex: 0 1 auto;
   }
   .sidebar {
     padding-inline: 1.1rem;
@@ -400,4 +333,14 @@
   .counterValue {
     font-size: clamp(1rem, 2.4dvh, 1.4rem);
   }
+  /* Keep the compact Partner invitation at the rail's bottom. Context panels
+   * above it may shrink and scroll instead of pushing the invitation away. */
+  .contextRail > :last-child {
+    margin-top: auto;
+    flex-shrink: 0;
+  }
+}
+
+.contextSlot:empty {
+  display: none;
 }

@@ -1261,9 +1261,18 @@ mobile/tablet backdrop and layout are preserved. Admin uses the owner-supplied s
 
 Daily Challenge currently displays explicitly illustrative progress and a +20
 reward placeholder; it never grants rewards or modifies learner progress. The
-desktop rail also shows a Partner card with the existing waving Meemo artwork;
-mobile omits Partner. `/bible`, `/game/trivia`, `/game/daily-challenge`, and
-`/partner` are authenticated blank destinations pending their own specifications.
+desktop rail also shows a compact theme-aware support card: small heart-holding
+Meemo beside a short heading and “Support someone’s journey,” followed by one
+Donate button with a subtle periodic shimmer (disabled for reduced motion).
+The card stays at the bottom of the right rail; contextual content above scrolls
+independently. Shimmer is the shared white/silver opt-in effect, disabled by
+default for all primary/secondary buttons and currently enabled only for Donate.
+The supporting paragraph, eyebrow, footer and Learn more link are omitted to
+keep the invitation below half the rail height. Donate opens `/partner` in a
+new tab. `/partner` is an authenticated donation-coming-soon
+page with no payment collection. Mobile still omits the rail invitation.
+`/bible`, `/game/trivia`, and `/game/daily-challenge` remain authenticated blank
+destinations pending their own specifications.
 The mascot's public name is Meemo; legacy Luna component and asset identifiers
 remain stable to avoid an unrelated internal migration.
 

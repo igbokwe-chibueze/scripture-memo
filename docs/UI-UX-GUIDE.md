@@ -141,6 +141,14 @@ For matching `variant` and `size`, all three must receive the same colors,
 border, bevel, shadow, typography, hover, press, focus, disabled, and
 reduced-motion behavior from shared `buttonVariants`.
 
+Primary (`default`) and `secondary` controls support an optional `shimmer`
+boolean on Button, LoadingButton and NavigationButton. It is **off by default**;
+enable it only on controls explicitly requested by the owner. The white/silver
+effect lives in the shared button component styles, never in feature CSS.
+Disabled/pending controls and saved/OS reduced motion suppress it. Donate is
+currently the only approved enabled control. Matching shimmer props follow the
+same variant/class-merging path for all three button behaviors.
+
 Rules:
 
 - Use approved variants rather than restyling buttons locally.

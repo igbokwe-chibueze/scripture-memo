@@ -1,10 +1,8 @@
 "use client";
 
 import { createContext, useContext, useState } from "react";
-import { HeartHandshakeIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { NavigationButton } from "@/components/shared/navigation-button";
-import { LunaMascot } from "@/components/shared/luna-mascot";
+import { PartnerCard } from "@/features/partner";
 import styles from "@/features/player-shell/components/player-shell.module.css";
 
 type DesktopContextRailContextValue = {
@@ -51,32 +49,7 @@ export function DesktopContextRailProvider({
             * the whole rail so the Partner action is never clipped. */}
           <div ref={setContextTarget} className={styles.contextSlot} />
 
-          <section className={styles.partnerCard}>
-            {/* Reuse the approved raised-hoof greeting pose. Legacy asset
-              * identifiers remain stable while visible copy calls her Meemo. */}
-            <LunaMascot
-              pose="guide"
-              decorative
-              sizes="220px"
-              className={styles.partnerMeemo}
-            />
-            <span className={styles.partnerEyebrow}>
-              <HeartHandshakeIcon className="size-6" aria-hidden="true" />
-              {t("partner")}
-            </span>
-            <h2 className={styles.partnerTitle}>
-              {t("becomePartner")}
-            </h2>
-
-            <NavigationButton
-              href="/partner"
-              pendingLabel={t("openingPartner")}
-              size="sm"
-              className={styles.partnerButton}
-            >
-              {t("learnMore")}
-            </NavigationButton>
-          </section>
+          <PartnerCard />
         </aside>
       ) : null}
     </DesktopContextRailContext.Provider>

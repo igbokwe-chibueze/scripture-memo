@@ -1,4 +1,20 @@
 {
+  "PartnerSupport": {
+  "eyebrow": "Support Scripture Memo",
+  "title": "Help keep Scripture Memo free",
+  "description": "Your gift supports the app and helps more people learn Scripture.",
+  "donate": "Donate",
+  "comingSoon": "Coming soon",
+  "supportLine": "Support someone’s journey",
+  "learnMore": "Learn more",
+  "footer": "Every gift makes a difference.",
+  "opening": "Opening Partner",
+  "donateNewTab": "Donate (opens in a new tab)",
+  "pageTitle": "Donations coming soon",
+  "pageDescription": "We are preparing a way for you to support Scripture Memo. Thank you for helping more people learn Scripture.",
+  "back": "Back to Home",
+  "openingHome": "Opening Home"
+},
   "Common": {
     "back": "Back",
     "cancel": "Cancel",

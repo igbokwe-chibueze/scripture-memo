@@ -99,6 +99,8 @@ const SEMANTIC_ROLES = [
  * ordinary interface drift and is therefore not permitted here.
  */
 const APPROVED_COLOR_EXCEPTION_PATHS = new Set([
+  // Owner-requested white/silver sheen only, opt-in for primary/secondary buttons.
+  "components/ui/button-effects.module.css",
   "features/profile/components/player-avatar.tsx",
   "features/gameplay/components/animated-flame.tsx",
   "features/auth/lib/email-verification-delivery.ts",
