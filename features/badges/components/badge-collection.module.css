@@ -1,5 +1,5 @@
 /* Approved game fonts and semantic rarity accents carry the new composition.
- * Existing Epic teal is retained; this feature introduces no palette exception. */
+ * Epic purple is owner-approved and supplied by each shared brand theme. */
 .page { min-width: 0; max-width: 80rem; margin-inline: auto; padding: 1.25rem 1rem 2rem; }
 .heading { display: flex; align-items: center; gap: .75rem; margin-block: 1.25rem; }
 .heading img { width: 2.75rem; height: 2.75rem; object-fit: contain; }
@@ -18,16 +18,46 @@
 .page [data-rarity], .summary [data-rarity] { --rarity-color: var(--muted-foreground); }
 .page [data-rarity="UNCOMMON"], .summary [data-rarity="UNCOMMON"] { --rarity-color: var(--success-border); }
 .page [data-rarity="RARE"], .summary [data-rarity="RARE"] { --rarity-color: var(--info-border); }
-.page [data-rarity="EPIC"], .summary [data-rarity="EPIC"] { --rarity-color: var(--selection-border); }
+.page [data-rarity="EPIC"], .summary [data-rarity="EPIC"] { --rarity-color: var(--badge-rarity-epic); }
 .page [data-rarity="LEGENDARY"], .summary [data-rarity="LEGENDARY"] { --rarity-color: var(--reward-border); }
-.groupHeading { display: flex; align-items: center; gap: .625rem; padding: .5rem .75rem; border-radius: .875rem; background: color-mix(in oklch, var(--rarity-color) 12%, var(--card)); }
+.groupHeading {
+  display: flex;
+  align-items: center;
+  gap: .625rem;
+  padding: .5rem .75rem;
+  border-radius: .875rem;
+  background: color-mix(in oklch, var(--rarity-color) 22%, var(--card));
+}
 .groupHeading p { margin-left: auto; white-space: nowrap; font-size: .875rem; color: var(--muted-foreground); }
-.rarityDot { width: 1.125rem; height: 1.125rem; flex-shrink: 0; border-radius: 50%; background: radial-gradient(circle at 30% 25%, var(--card), var(--rarity-color) 65%); border: 1px solid color-mix(in oklch, var(--rarity-color) 60%, transparent); }
-.card { position: relative; min-width: 0; padding: 2.25rem .625rem .875rem; border: 1.5px solid color-mix(in oklch, var(--rarity-color) 65%, var(--border)); border-radius: 1rem; background: var(--card); }
+.rarityDot {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 25%, var(--card), var(--rarity-color) 65%);
+  border: 1px solid color-mix(in oklch, var(--rarity-color) 60%, transparent);
+}
+.card {
+  position: relative;
+  min-width: 0;
+  padding: 2.25rem .625rem .875rem;
+  border: 2px solid var(--rarity-color);
+  border-radius: 1rem;
+  background: var(--card);
+}
 .category { position: absolute; top: .5rem; left: .5rem; max-width: calc(100% - 1rem); border-radius: 999px; padding: .25rem .625rem; background: var(--info-subtle); color: var(--info-text); font-size: .6875rem; line-height: 1.25; overflow-wrap: anywhere; }
 .category[data-category="STREAK"] { background: var(--warning-subtle); color: var(--warning-text); }
 .category[data-category="SPEED"] { background: var(--reward-subtle); color: var(--reward-text); }
-.art { position: relative; width: 4.5rem; height: 4.5rem; display: grid; place-items: center; margin: .125rem auto .5rem; border-radius: 50%; background: color-mix(in oklch, var(--rarity-color) 8%, var(--card)); }
+.art {
+  position: relative;
+  width: 4.5rem;
+  height: 4.5rem;
+  display: grid;
+  place-items: center;
+  margin: .125rem auto .5rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in oklch, var(--rarity-color) 24%, var(--card)) 35%, color-mix(in oklch, var(--rarity-color) 10%, var(--card)) 70%, var(--card));
+}
 .emoji { display: grid; place-items: center; font-size: 3.5rem; line-height: 1; }
 .card[data-status="LOCKED"] .emoji { filter: grayscale(.6); opacity: .75; }
 .lock { position: absolute; right: -.125rem; bottom: 0; width: 1.625rem; height: 1.625rem; padding: .25rem; border-radius: 50%; background: var(--muted); color: var(--muted-foreground); border: 1px solid var(--border); }
@@ -53,6 +83,11 @@
 .totalsRow p:first-child { color: var(--selection-text); }
 .rarityList { display: grid; gap: .375rem; margin-top: .625rem; }
 .rarityList li { display: flex; align-items: center; gap: .625rem; padding: .5rem .625rem; border-radius: .625rem; background: var(--muted); font-size: .875rem; }
+/* Summary dots stay compact so rarity emphasis does not add right-rail scrolling. */
+.summary .rarityDot {
+  width: 1.25rem;
+  height: 1.25rem;
+}
 .rarityList li > span:last-child { margin-left: auto; color: var(--muted-foreground); }
 @media (max-width: 339px) { .grid { grid-template-columns: 1fr; } }
 @media (min-width: 640px) {
@@ -85,4 +120,5 @@
   .totalsRow strong { font-size: 1.75rem; }
   .rarityList { gap: .1875rem; margin-top: .375rem; }
   .rarityList li { padding: .25rem .5rem; font-size: .8125rem; }
+  .summary .rarityDot { width: 1.125rem; height: 1.125rem; }
 }

@@ -5496,3 +5496,16 @@ concurrency subtests remain explicitly skipped as documented above.
   fixtures cover 375px light/dark two-column cards, search/status/category/clear,
   stable summary totals, 1280/1366 desktop layouts and 600px-high summary fitting,
   with no horizontal overflow or clipped card text. Fixtures do not mutate data.
+
+
+### 2026-10-17 ? Clearer badge rarity accents
+
+- Strengthened badge cards to 2px rarity borders, increased group header tint
+  and rarity dots, and added a subtle matching radial halo behind emoji art.
+- Owner explicitly selected purple for Epic. Added a dedicated semantic token
+  to all four themes in light/dark modes, with shared Tailwind registration
+  and design-contract coverage. Summary dots remain compact in short windows.
+- Typography, badge rules/rewards, navigation and database behavior are unchanged.
+- Validation: all seven design-system checks passed; standalone decorative CSS
+  browser preview inspected. No authenticated live-page browser verification
+  was performed for this CSS-only adjustment.

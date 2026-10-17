@@ -343,3 +343,11 @@ suite for only the highest-risk shared surfaces. Start with theme foundations,
 buttons, gameplay shell, invitation/authentication, completion screens, and
 mobile navigation. Baselines must be approved by the project owner and should
 not be updated merely to silence a failed test.
+
+
+### Badge rarity accents ? owner approval, 2026-10-17
+
+Epic badges use purple through `--badge-rarity-epic` in every brand theme and
+light/dark mode. This role is limited to decorative rarity borders, header
+tints, dots, and emoji halos. It does not change selection, status, typography,
+or badge earning rules. Rarity names remain visible alongside color.

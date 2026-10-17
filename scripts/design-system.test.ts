@@ -39,6 +39,7 @@ type CssVariables = ReadonlyMap<string, string>;
 type RgbColor = readonly [number, number, number];
 
 const CORE_TOKENS = [
+  "badge-rarity-epic",
   "background",
   "foreground",
   "card",
