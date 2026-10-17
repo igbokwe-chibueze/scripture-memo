@@ -95,8 +95,8 @@ export function SanctuaryContent({
         <NavigationButton
           href={backHref}
           pendingLabel={t("openingVault")}
-          variant="link"
-          className="min-h-11 gap-2 px-0"
+          variant="secondary"
+          className="min-h-11 gap-2 px-4"
         >
           <ArrowLeftIcon className="size-5" aria-hidden="true" />
           {t("backToVault")}

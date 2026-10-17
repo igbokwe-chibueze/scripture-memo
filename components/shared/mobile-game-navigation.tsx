@@ -9,6 +9,7 @@ import { NavigationButton } from "@/components/shared/navigation-button";
 import { DesktopContextRailProvider } from "@/components/shared/desktop-context-rail";
 import { PresenceHeartbeat } from "@/features/profile/components/presence-heartbeat";
 import { PlayerTopBar } from "@/features/player-shell/components/player-top-bar";
+import { isPlayerNavigationActive } from "@/features/player-shell/lib/player-route-presentation";
 import type { PlayerShellSummary } from "@/features/player-shell/types/player-shell.types";
 import type { NotificationShellData } from "@/features/notifications/types/notification.types";
 import { cn } from "@/lib/utils";
@@ -57,12 +58,7 @@ export function MobileGameNavigation({
   /** Both navigation surfaces resolve the same active state and pending behavior. */
   const renderNavigationItems = (mobile: boolean): React.ReactNode =>
     navigationItems.map(({ href, key, artwork, exact }) => {
-      const active = exact
-        ? pathname === href
-        : pathname === href ||
-          pathname.startsWith(`${href}/`) ||
-          (href === "/game/map" && pathname.startsWith("/game/waypoints/")) ||
-          (href === "/vault" && pathname.startsWith("/sanctuary/"));
+      const active = isPlayerNavigationActive(pathname, href, exact);
 
       return (
         <li

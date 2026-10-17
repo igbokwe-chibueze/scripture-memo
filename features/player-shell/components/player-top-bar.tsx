@@ -10,22 +10,7 @@ import { PlayerAvatar } from "@/features/profile";
 import type { NotificationShellData } from "@/features/notifications/types/notification.types";
 import type { PlayerShellSummary } from "@/features/player-shell/types/player-shell.types";
 import styles from "./player-shell.module.css";
-
-/** Fixed labels keep route identity separate from learner-sensitive counters. */
-const sections = [
-  { prefix: "/leaderboard", key: "leaderboard", artwork: "leaderboard" },
-  { prefix: "/game/map", key: "map", artwork: "map" },
-  { prefix: "/game/waypoints", key: "map", artwork: "map" },
-  { prefix: "/vault", key: "vault", artwork: "vault" },
-  { prefix: "/sanctuary", key: "sanctuary", artwork: "bibleOpen" },
-  { prefix: "/fellowships", key: "fellowships", artwork: "fellowship" },
-  { prefix: "/oil-shop", key: "shop", artwork: "shop" },
-  { prefix: "/settings", key: "settings", artwork: "settings" },
-  { prefix: "/bible", key: "bible", artwork: "bibleOpen" },
-  { prefix: "/game/trivia", key: "trivia", artwork: "trivia" },
-  { prefix: "/game/daily-challenge", key: "dailyChallenge", artwork: "dailyChallenge" },
-  { prefix: "/partner", key: "partner", artwork: "home" },
-] as const;
+import { getPlayerSection } from "../lib/player-route-presentation";
 
 /**
  * Renders real counters, the selected avatar, and the existing persistent inbox.
@@ -50,9 +35,7 @@ export function PlayerTopBar({
     }),
     [locale],
   );
-  const section = sections.find(
-    ({ prefix }) => pathname === prefix || pathname.startsWith(`${prefix}/`),
-  );
+  const section = getPlayerSection(pathname);
   const stats = [
     { label: topBarT("glowPoints"), value: summary.glowPoints, artwork: null },
     { label: topBarT("streakDays"), value: summary.streakDays, artwork: "flameLit" },

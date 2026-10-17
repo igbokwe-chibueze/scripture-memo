@@ -5448,3 +5448,27 @@ concurrency subtests remain explicitly skipped as documented above.
 - Browser layout checks with ten entries (all sections plus Tags/Reflection)
   show no context-panel scrolling at 1366x600, 1366x768, 1366x900 and 1600x1000;
   every link remains at least 44px tall. No persistence or data-flow changes.
+### 2026-10-17 — Sanctuary route identity and desktop navigation corrections
+
+- Removed the Sanctuary-to-Vault active navigation alias on desktop and mobile.
+  Sanctuary has its own header identity/book artwork; the fixed global menu does
+  not claim a different route as the current page. Vault children and waypoint
+  Map selection remain intact. Header/menu matching now uses tested pure rules.
+- Restored Back to Vault to the shared raised secondary NavigationButton with
+  its normal padding and 44px target, replacing the incorrect text-link variant.
+- Desktop navigation distributes free height between menu entries, leaving
+  Settings last and visible. Desktop links/highlights now use the shared control
+  radius instead of the rounded page-specific override. Mobile spacing is intact.
+- Verified actual shell rendering with a synthetic Sanctuary route: header says
+  Sanctuary, no Vault current-page marker, and Vault still selects on its route.
+  Two route regression tests passed. Browser layout checks at 1366x600/900 and
+  375x812 show no horizontal overflow, visible Settings on desktop, and matching
+  10px back-button/sidebar radii. No database reads/writes were added.
+### 2026-10-17 — Balance desktop navigation spacing and size
+
+- Capped desktop menu distribution at 40rem rather than stretching it through
+  the entire sidebar. Increased navigation target heights, icons and labels
+  slightly; a modestly wider desktop rail keeps Leaderboard from clipping.
+  Existing font families, button corner radius, and mobile rules are retained.
+- Browser layout checks at 1280x900, 1366x900, 1366x600 and 1600x1080 confirm
+  no clipped labels or horizontal overflow, with Settings fully visible.
