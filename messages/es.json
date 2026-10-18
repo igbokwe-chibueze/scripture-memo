@@ -29,6 +29,7 @@
     "view": "Ver"
   },
   "Navigation": {
+    "memberProfile": "Perfil del miembro",
     "badgeCollection": "Colección de insignias",
     "sanctuary": "Santuario",
     "leaderboard": "Clasificación",
@@ -719,6 +720,48 @@
     "requestNewReset": "Preparar otro enlace"
   },
   "Fellowships": {
+    "journeySummary": {
+      "title": "Lo logrado juntos",
+      "scope": "Progreso acumulado de los miembros actuales, incluido antes de unirse."
+    },
+    "memberList": {
+      "search": "Buscar miembros",
+      "sortBy": "Ordenar por",
+      "you": "Tú",
+      "lifetimePoints": "Puntos Beacon acumulados",
+      "lifetimeValue": "{points} puntos Beacon acumulados",
+      "waypoints": "{count, plural, =1 {1 etapa completada} other {# etapas completadas}}",
+      "results": "{shown} de {total} miembros",
+      "noResults": "No se encontraron miembros",
+      "searchHelp": "Prueba otro nombre o borra la búsqueda.",
+      "emptyHelp": "Los miembros aparecerán aquí cuando se unan.",
+      "clearSearch": "Borrar búsqueda",
+      "infoTitle": "Información de la comunidad",
+      "profileTitle": "Perfil del miembro",
+      "profileDescription": "Los perfiles de miembros estarán disponibles pronto. Vuelve a Comunidades para seguir explorando.",
+      "sorts": {
+        "LEADER_NAME": "Líder primero, luego nombre",
+        "NAME_ASC": "Nombre (A-Z)",
+        "NAME_DESC": "Nombre (Z-A)",
+        "JOINED_ASC": "Fecha de ingreso (más antiguos)",
+        "JOINED_DESC": "Fecha de ingreso (más recientes)",
+        "RANK_ASC": "Clasificación (más puntos)",
+        "RANK_DESC": "Clasificación (menos puntos)"
+      }
+    },
+    "overview": {
+      "tab": "Resumen",
+      "aboutTitle": "Acerca de",
+      "openFellowship": "Comunidad abierta",
+      "ledBy": "Dirigida por",
+      "introductionLabel": "Introducción breve",
+      "introductionHelp": "Una bienvenida breve para tu comunidad, de hasta 140 caracteres.",
+      "introductionFallback": "Creciendo juntos mediante las Escrituras.",
+      "guidelinesTitle": "Pautas del grupo",
+      "guidelinesHelp": "Una pauta por línea, hasta 8 (160 caracteres cada una). Deja el campo vacío para restaurar las pautas predeterminadas.",
+      "defaultGuidelines": "Dedica tiempo a practicar las Escrituras con regularidad.\nCelebra el progreso sin comparar ni presionar a los demás.\nRespeta a cada estudiante y actúa con amabilidad.",
+      "noMembers": "Todavía no hay miembros para mostrar."
+    },
     "discoveryDetails": {
       "view": "Ver",
       "founder": "Creada por",

@@ -19,3 +19,8 @@ test("Vault children and waypoint Map links retain their intended selection", ()
   assert.equal(isPlayerNavigationActive("/game/map", "/game", true), false);
   assert.equal(isPlayerNavigationActive("/vaulted", "/vault", false), false);
 });
+
+test("member profile placeholders own their header without selecting another destination", () => {
+  assert.equal(getPlayerSection("/profiles/sample")?.key, "memberProfile");
+  assert.equal(isPlayerNavigationActive("/profiles/sample", "/vault", false), false);
+});

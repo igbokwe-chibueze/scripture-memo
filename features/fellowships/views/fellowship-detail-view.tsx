@@ -6,12 +6,13 @@ import { NavigationButton } from "@/components/shared/navigation-button";
 import { FellowshipDetail } from "@/features/fellowships/components/fellowship-detail";
 import { fellowshipRepository } from "@/features/fellowships/repositories/fellowship.repository";
 import { getServerSession } from "@/lib/auth/session";
-import { ResponsiveContainer } from "@/components/shared/responsive-container";
+import styles from "../components/fellowship-detail.module.css";
 export const metadata: Metadata = {
   title: "Fellowship | Scripture Memo",
   robots: { index: false, follow: false },
 };
 
+/** Authenticates the route before loading member-safe overview and governance data. */
 export async function FellowshipDetailView({
   params,
 }: {
@@ -28,19 +29,17 @@ export async function FellowshipDetailView({
   if (!data) notFound();
 
   return (
-    <main className="min-h-dvh bg-background py-8">
-      <ResponsiveContainer size="lg">
-        <NavigationButton
-          href="/fellowships"
-          pendingLabel={t("opening")}
-          variant="outline"
-          className="mb-6 min-h-11"
-        >
-          <ArrowLeftIcon aria-hidden="true" />
-          {t("back")}
-        </NavigationButton>
-        <FellowshipDetail fellowship={data} />
-      </ResponsiveContainer>
+    <main className={styles.page}>
+      <NavigationButton
+        href="/fellowships"
+        pendingLabel={t("opening")}
+        variant="secondary"
+        className="mb-6 min-h-11"
+      >
+        <ArrowLeftIcon aria-hidden="true" />
+        {t("back")}
+      </NavigationButton>
+      <FellowshipDetail fellowship={data} />
     </main>
   );
 }

@@ -31,12 +31,16 @@ export type FellowshipJoinRequestItem = {
 
 export type FellowshipMemberRanking = {
   rank: number;
+  profilePublicId: string | null;
   displayName: string;
+  avatarKey: string;
+  avatarFrameKey: string;
   countryCode: string | null;
   waypointsCompleted: number;
-  glowPoints: number;
+  lifetimeBeaconPoints: number;
   joinedAt: Date;
   isLeader: boolean;
+  isCurrentUser: boolean;
 };
 
 export type FellowshipDirectoryData = {
@@ -52,6 +56,13 @@ export type FellowshipDiscoverySummary = FellowshipSummary & {
 };
 
 export type FellowshipDetailData = FellowshipSummary & {
+  introduction: string | null;
+  guidelines: string | null;
+  leader: {
+    displayName: string;
+    avatarKey: string;
+    avatarFrameKey: string;
+  };
   inviteCode: string | null;
   members: FellowshipMemberRanking[];
   joinRequests: FellowshipJoinRequestItem[];
@@ -197,6 +208,8 @@ export type FellowshipEditData = Pick<
   FellowshipSummary,
   "id" | "slug" | "name" | "description" | "isPublic" | "insigniaKey"
 > & {
+  introduction: string | null;
+  guidelines: string | null;
   inviteCode: string;
   governance: FellowshipGovernanceData;
 };

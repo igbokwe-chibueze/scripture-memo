@@ -556,4 +556,35 @@ Accepted risk justification (if applicable):
 - Isolated PostgreSQL tests verify discovery DTO privacy and preserved founder
   identity after a real leadership transfer. No hosted database was accessed.
 
+### Fellowship overview addition — 2026-10-18
+
+- Introduction/guidelines pass bounded server-side Zod validation before auth;
+  the existing leader-scoped repository lock rechecks ownership, suspension and
+  closure before saving. Non-leader update attempts are covered in PostgreSQL.
+- Saved content renders as React text, never HTML. Empty nullable fields use
+  localized defaults without read-time writes. The additive migration leaves
+  existing descriptions, founders, members and progression intact.
+- Leader name/avatar are mapped from the already-authorized roster; no extra
+  profile lookup, polling or invitation/identity exposure is introduced. Request
+  rows remain server-filtered to leaders, and membership/leave rules are unchanged.
+- Browser fixtures use synthetic actions. Isolated database tests verify real
+  save/read/reset behavior and authorization without touching hosted data.
+
+### Fellowship member navigation addition — 2026-10-18
+
+- Member DTOs whitelist display name, cosmetics, country, progress, join date,
+  lifetime Beacon points, public profile UUID, and server-derived You/Leader flags.
+  Raw auth/profile IDs, email addresses and invite codes remain excluded.
+- Public UUIDs are generated once by PostgreSQL for existing/future profiles and
+  uniquely indexed. They are navigation identifiers, never authentication or
+  authorization credentials. The new placeholder route is protected by Proxy and
+  an independent server session check, validates UUID syntax, and is noindex.
+- No profile data is implemented at this destination yet. Future profile content
+  must introduce an authorized repository read rather than treating a UUID as
+  proof of access. No write or profile lookup occurs during placeholder renders.
+- Search/sort operate only on the loaded authorized roster. Profile-row prefetch
+  is disabled; opening Members does not fan out session/profile requests.
+- PostgreSQL coverage verifies lifetime ranking against opposing waypoint totals,
+  stable public references across fellowships, and absence of private identity keys.
+
 *Last reviewed: v2.0 — review and update before every major release.*

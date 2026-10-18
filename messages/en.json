@@ -29,6 +29,7 @@
     "view": "View"
   },
   "Navigation": {
+    "memberProfile": "Member profile",
     "badgeCollection": "Badge collection",
     "sanctuary": "Sanctuary",
     "leaderboard": "Leaderboard",
@@ -719,6 +720,48 @@
     "requestNewReset": "Prepare a new link"
   },
   "Fellowships": {
+    "journeySummary": {
+      "title": "Together so far",
+      "scope": "Current members’ lifetime progress, including before they joined."
+    },
+    "memberList": {
+      "search": "Search members",
+      "sortBy": "Sort by",
+      "you": "You",
+      "lifetimePoints": "Lifetime Beacon Points",
+      "lifetimeValue": "{points} Lifetime Beacon Points",
+      "waypoints": "{count, plural, =1 {1 waypoint completed} other {# waypoints completed}}",
+      "results": "{shown} of {total} members",
+      "noResults": "No matching members",
+      "searchHelp": "Try another name or clear your search.",
+      "emptyHelp": "Members will appear here when they join.",
+      "clearSearch": "Clear search",
+      "infoTitle": "Fellowship info",
+      "profileTitle": "Member profile",
+      "profileDescription": "Member profiles are coming soon. Return to Fellowships to keep exploring.",
+      "sorts": {
+        "LEADER_NAME": "Leader first, then name",
+        "NAME_ASC": "Name (A-Z)",
+        "NAME_DESC": "Name (Z-A)",
+        "JOINED_ASC": "Date joined (oldest first)",
+        "JOINED_DESC": "Date joined (newest first)",
+        "RANK_ASC": "Ranking (highest points)",
+        "RANK_DESC": "Ranking (lowest points)"
+      }
+    },
+    "overview": {
+      "tab": "Overview",
+      "aboutTitle": "About",
+      "openFellowship": "Open fellowship",
+      "ledBy": "Led by",
+      "introductionLabel": "Short introduction",
+      "introductionHelp": "A short welcome for your fellowship, up to 140 characters.",
+      "introductionFallback": "Growing together through Scripture.",
+      "guidelinesTitle": "Group guidelines",
+      "guidelinesHelp": "One guideline per line, up to 8 (160 characters each). Leave blank to restore the defaults.",
+      "defaultGuidelines": "Make time for regular Scripture practice.\nCelebrate progress without comparing or pressuring others.\nRespect every learner and lead with kindness.",
+      "noMembers": "No members to show yet."
+    },
     "discoveryDetails": {
       "view": "View",
       "founder": "Created by",

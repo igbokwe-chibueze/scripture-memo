@@ -67,6 +67,10 @@ test("Fellowship detail preserves leader review and private membership boundarie
             create: {
               displayName: `Test player ${index}`,
               totalWaypointsCompleted: index,
+              // Deliberately oppose waypoint order to prove Beacon ranking wins.
+              beaconXp: 900 - index * 100,
+              avatarKey: index === 0 ? "lion" : "dove",
+              countryCode: "NG",
             },
           },
         },
@@ -93,7 +97,11 @@ test("Fellowship detail preserves leader review and private membership boundarie
       assert.equal(leader.joinRequests[0].status, "PENDING");
       assert.equal(leader.inviteCode, `invite-${id}`);
       assert.equal(leader.memberCount, 2);
-      assert.equal(leader.members[0].displayName, "Test player 1");
+      assert.equal(leader.members[0].displayName, "Test player 0");
+      assert.equal(leader.members[0].lifetimeBeaconPoints, 900);
+      assert.equal(leader.members[0].avatarKey, "lion");
+      assert.equal(leader.members[0].isCurrentUser, true);
+      assert.match(leader.members[0].profilePublicId ?? "", /^[0-9a-f-]{36}$/u);
 
       const member = await fellowshipRepository.getDetail(memberId, id);
       assert.ok(member);
@@ -101,10 +109,16 @@ test("Fellowship detail preserves leader review and private membership boundarie
       assert.equal(member.isLeader, false);
       assert.deepEqual(member.joinRequests, []);
       assert.equal(member.inviteCode, null);
+      assert.equal(member.members.find((entry) => entry.isCurrentUser)?.displayName, "Test player 1");
+      assert.equal(member.members[0].profilePublicId, leader.members[0].profilePublicId);
       // Public roster entries must not serialize auth identity or contact data.
       for (const entry of member.members) {
         assert.equal("email" in entry, false);
         assert.equal("userId" in entry, false);
+        assert.equal("id" in entry, false);
+        assert.equal("glowPoints" in entry, false);
+        assert.notEqual(entry.profilePublicId, leaderId);
+        assert.notEqual(entry.profilePublicId, memberId);
       }
 
       const visitor = await fellowshipRepository.getDetail(visitorId, id);
@@ -153,6 +167,46 @@ test("Fellowship detail preserves leader review and private membership boundarie
     fellowshipIds.push(createdFellowship.id);
     assert.equal(createdFellowship.founderId, leaderId);
     assert.equal(createdFellowship.createdById, leaderId);
+
+    // Null overview fields preserve localized defaults without read-time writes.
+    const initial = await fellowshipRepository.getDetail(leaderId, created.slug);
+    assert.ok(initial);
+    assert.equal(initial.introduction, null);
+    assert.equal(initial.guidelines, null);
+    assert.equal(initial.leader.displayName, "Test player 0");
+    assert.equal("email" in initial.leader, false);
+    const content = {
+      fellowshipId: createdFellowship.id,
+      name: `Overview test ${runId.slice(0, 8)}`,
+      introduction: "Learn Scripture at your own pace.",
+      description: "A longer About description, separate from the introduction.",
+      guidelines: "Practice regularly.\nBe kind to other learners.",
+      isPublic: true,
+      insigniaKey: "word-star" as const,
+    };
+    await assert.rejects(
+      fellowshipRepository.update(visitorId, content),
+      { code: "NOT_LEADER" },
+    );
+    await fellowshipRepository.update(leaderId, content);
+    const saved = await fellowshipRepository.getDetail(visitorId, created.slug);
+    assert.ok(saved);
+    assert.equal(saved.introduction, content.introduction);
+    assert.equal(saved.description, content.description);
+    assert.equal(saved.guidelines, content.guidelines);
+    const editable = await fellowshipRepository.getEditable(leaderId, created.slug);
+    assert.ok(editable);
+    assert.equal(editable.guidelines, content.guidelines);
+    assert.equal(editable.introduction, content.introduction);
+    await fellowshipRepository.update(leaderId, { ...content, introduction: "", guidelines: "" });
+    const reset = await fellowshipRepository.getDetail(leaderId, created.slug);
+    assert.equal(reset?.introduction, null);
+    assert.equal(reset?.guidelines, null);
+    // Updating overview copy never changes the permanent founder.
+    assert.equal((await prisma.fellowship.findUniqueOrThrow({
+      where: { id: createdFellowship.id },
+      select: { founderId: true },
+    })).founderId, leaderId);
   } finally {
     // Cascade removes only these fellowships' requests/members and users'
     // profiles. Disconnect even if cleanup fails so the test cannot hang.

@@ -1504,6 +1504,41 @@ Social group system.
   supported, and the server accepts only fixed catalogue keys.
 - Fellowship leaders can later edit the name, description, discovery status,
   and insignia. The stable fellowship URL does not change when its name changes.
+- Fellowship detail opens on Overview, followed by Members and leader-only
+  Requests (with a pending count). Overview shows About, Group guidelines, an
+  access-status card explaining immediate public joining versus private leader
+  approval, and the current leader's selected avatar/name.
+- Members use their selected avatars/frames and country flags, with You and Leader
+  badges. Search and sorting use the already-loaded complete roster locally.
+  A separate # column before members shows #1, #2, and so on in displayed order;
+  numbering restarts at #1 after searching and follows the selected sort.
+  Default order is leader first, then alphabetical; name, date joined and ranking
+  sorts support both directions. Ranking uses lifetime Beacon XP descending,
+  then completed waypoints and earlier join date for ties. Glow Points do not
+  determine this member ranking. The visible label is Lifetime Beacon Points.
+- Member rows navigate to `/profiles/[publicId]`. Each profile has an independent,
+  stable public UUID; private auth and profile-record IDs are not exposed. The
+  authenticated, noindex destination is an empty coming-soon screen until the
+  profile feature is built. It performs no member lookup or initialization write.
+  Row prefetch is disabled to avoid an authenticated request per visible member.
+- Across all fellowship detail tabs, the desktop rail shows Together so far above
+  the unchanged bottom donation card: combined lifetime Beacon Points and completed
+  waypoints from the full current roster, including progress before joining.
+  Searches and sorts do not affect these totals. No extra database read is needed.
+- Member cards retain a 12px gap on mobile and desktop so shared hover effects
+  have room without overlapping adjacent members.
+- A separate optional 140-character introduction appears below the fellowship
+  identity. It can be set during creation or in Manage; the existing description
+  stays in About. Empty introductions use a localized welcome rather than
+  duplicating the About paragraph.
+- Leaders edit guidelines in Manage as plain text, one per line (up to 8 lines,
+  160 characters each, 1,000 total). Defaults encourage regular Scripture practice,
+  celebrating progress without comparison or pressure, and kindness to learners.
+  There is no reference to a discussion feature. Clearing the field restores
+  localized defaults; existing fellowships need no initialization write.
+- Header actions preserve permissions: eligible leaders have Manage and Invite;
+  ordinary members can Leave. Leaders still transfer leadership before leaving,
+  and closing/suspended fellowships retain their existing governance restrictions.
 - Invite secrets are not permanently exposed in the Fellowship header. The
   leader opens a responsive Invite panel to share or copy the prefilled joining
   link/code. Code rotation belongs in leader settings when an older invitation

@@ -145,6 +145,7 @@ export const config = {
   matcher: [
     "/game/:path*", "/map/:path*", "/waypoints/:path*", "/vault/:path*",
     "/sanctuary/:path*", "/oil-shop/:path*", "/fellowships/:path*",
+    "/profiles/:path*",
     "/leaderboard/:path*", "/settings/:path*", "/select-translation/:path*",
     "/admin/:path*", "/map-positioner",
     {

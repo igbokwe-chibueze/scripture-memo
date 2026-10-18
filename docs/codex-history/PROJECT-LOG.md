@@ -5560,3 +5560,78 @@ concurrency subtests remain explicitly skipped as documented above.
   cover View-first actions, metadata, 375px light/dark bounds, Escape/focus return,
   request, cancel, failed join and successful join at desktop width. Existing
   fonts/buttons are preserved. No real memberships changed during browser QA.
+
+
+### 2026-10-18 ? Fellowship detail overview and editable welcome content
+
+- Rebuilt the detail composition around identity/access/member badges, separate
+  introduction and tactile header actions. Overview is the first tab, with About,
+  Group guidelines and the current leader profile/avatar. Existing member ranking,
+  leader-only request queue/count, Invite and governance notices remain available.
+- Preserved Leader terminology, ordinary-member Leave, leader Manage/Invite and
+  all suspension/closure/leadership constraints. Back navigation uses the shared
+  secondary NavigationButton; fonts, theme roles and shared button effects remain.
+- Added optional 140-character introduction at creation/in Manage and leader-edited
+  guidelines in Manage: one per line, up to eight lines, 160 characters per line
+  and 1,000 total. Defaults support regular practice, progress without comparison
+  or pressure and kindness; no unsupported discussion feature is implied. Blank
+  content restores localized defaults. About descriptions remain independent.
+- Nullable additive migration applied to local development and test instances.
+  Server validation precedes auth; existing leader-scoped locks authorize saves.
+  Content renders as plain React text. Reads reuse the authorized roster for the
+  leader profile, with no extra per-card reads, polling or initialization writes.
+- Validation: nine schema/localization checks, seven design-system checks, scoped
+  ESLint, TypeScript and production build passed. Disposable PostgreSQL verifies
+  leader-only save/read/reset, separate content and unchanged founder identity.
+  Actual-component synthetic browser QA covers 375px light/dark, translated long
+  names, role-specific controls, all three tabs, Leave success/failure, Manage
+  defaults/submission and 1366px desktop without horizontal overflow. No real
+  membership/content was changed by browser fixtures or hosted databases accessed.
+
+
+### 2026-10-18 ? Fellowship overview access explanation
+
+- Added an Overview status card using the saved public/private setting and
+  existing localized joining explanations: public groups allow immediate joining;
+  private groups require leader approval. This is separate from governance closure.
+- Reused the overview card treatment and shared icons/fonts. Four cards stack on
+  mobile and form two paired desktop rows. No new queries or permission changes.
+- Validation: scoped ESLint and TypeScript checks.
+
+
+### 2026-10-18 ? Searchable fellowship members and profile placeholders
+
+- Replaced compact metric blocks with avatar/frame/country member cards on mobile
+  and aligned desktop columns. You and Leader badges identify the learner and
+  fellowship leader; the current learner receives the shared teal highlight.
+- Default order is leader first, then alphabetical. Native sort options include
+  name, join date and ranking in both directions. Ranking now uses lifetime
+  Beacon XP, then completed waypoints/join date for ties; the visible label is
+  Lifetime Beacon Points. Search is case/accent insensitive, includes count and
+  clear-search empty state, and never mutates or truncates the loaded roster.
+- Member navigation uses shared NavigationButton feedback and independent public
+  profile UUIDs. Added a DB-default unique publicId to UserProfile, backfilled
+  through an additive migration on local development/test only. Auth/profile
+  record IDs remain private. Prefetch is disabled to prevent per-row request fanout.
+- Added protected, noindex /profiles/[publicId] coming-soon placeholders with UUID
+  validation and independent server session checks; no full profile data or
+  read-time initialization is implemented. Their header owns Member profile.
+- Members activates a compact Fellowship info panel through the existing desktop
+  portal; switching tabs removes it. Donation layout/artwork/button remain unchanged
+  at the rail bottom. Shared fonts, button effects and permission rules are preserved.
+- Validation: Prisma schema/generation, production build/TypeScript, scoped lint,
+  eight browsing/profile/route/localization tests and seven design checks passed.
+  Disposable PostgreSQL tests prove lifetime ordering against opposing waypoint
+  totals, UUID generation/stability and safe DTOs. Actual-component browser QA
+  covers 375px light/dark, translated long names, all sort directions, search/clear,
+  self highlighting, profile links, empty states and real desktop portal behavior.
+  The info panel fits a 1366x600 rail without nested scrolling. The built profile
+  route redirects unauthenticated HTML and RSC requests to login. No real member
+  mutations or hosted database operations were performed.
+
+### 2026-10-18 - Fellowship spacing and permanent journey summary
+
+- Restored independent member cards with 12px gaps, preserving shared hover effects.
+- Together so far now persists across all detail tabs and totals lifetime Beacon Points and completed waypoints from the full current roster. Local search/sort do not change totals; scope includes pre-join progress. No additional database operations.
+- Approved fonts, buttons and bottom donation placement remain unchanged.
+- Validation: five totals/browsing/localization tests, seven design checks, typecheck and scoped ESLint passed. Live browser inspection was not repeated for this spacing adjustment.

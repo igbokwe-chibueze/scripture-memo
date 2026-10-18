@@ -270,6 +270,8 @@ model User {
 
 model UserProfile {
   id                      String    @id @default(cuid())
+  /// Stable navigation identifier; never expose the private auth userId in profile URLs.
+  publicId                String    @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId                  String    @unique
   displayName             String
   countryCode             String?
@@ -695,6 +697,10 @@ model Fellowship {
   name                String
   slug                String                         @unique
   description         String?
+  /// Optional header copy, separate from the full About description.
+  introduction        String?
+  /// One plain-text guideline per line; null uses localized application defaults.
+  guidelines          String?
   isPublic            Boolean                        @default(true)
   insigniaKey         String                         @default("word-star")
   inviteCode          String                         @unique

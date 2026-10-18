@@ -216,6 +216,8 @@ export const fellowshipRepository = {
         description: true,
         isPublic: true,
         createdById: true,
+        introduction: true,
+        guidelines: true,
         insigniaKey: true,
         inviteCode: true,
         members: {
@@ -231,7 +233,10 @@ export const fellowshipRepository = {
                     displayName: true,
                     countryCode: true,
                     totalWaypointsCompleted: true,
-                    totalGlowPoints: true,
+                    beaconXp: true,
+                    publicId: true,
+                    avatarKey: true,
+                    avatarFrameKey: true,
                   },
                 },
               },
@@ -317,14 +322,18 @@ export const fellowshipRepository = {
       return null;
     }
     const isLeader = fellowship.createdById === userId;
-    // Preserve the complete roster and existing rank/tie ordering. Pagination
-    // would change visible membership behavior and is not part of this repair.
+    // Reuse the authorized roster; a separate leader profile query is redundant.
+    const leaderProfile = fellowship.members.find(
+      (member) => member.userId === fellowship.createdById,
+    )?.user.profile;
+    // Ranking is lifetime Beacon progression, never spendable Glow Points.
+    // The client can reorder/filter the complete authorized roster without reads.
     const ranked = [...fellowship.members].sort(
       (left, right) =>
+        (right.user.profile?.beaconXp ?? 0) -
+          (left.user.profile?.beaconXp ?? 0) ||
         (right.user.profile?.totalWaypointsCompleted ?? 0) -
           (left.user.profile?.totalWaypointsCompleted ?? 0) ||
-        (right.user.profile?.totalGlowPoints ?? 0) -
-          (left.user.profile?.totalGlowPoints ?? 0) ||
         left.joinedAt.getTime() - right.joinedAt.getTime(),
     );
     return {
@@ -332,6 +341,13 @@ export const fellowshipRepository = {
       slug: fellowship.slug,
       name: fellowship.name,
       description: fellowship.description,
+      introduction: fellowship.introduction,
+      guidelines: fellowship.guidelines,
+      leader: {
+        displayName: leaderProfile?.displayName ?? "Player",
+        avatarKey: leaderProfile?.avatarKey ?? "lion",
+        avatarFrameKey: leaderProfile?.avatarFrameKey ?? "default",
+      },
       isPublic: fellowship.isPublic,
       // The complete roster is already loaded; a second relation count is redundant.
       memberCount: fellowship.members.length,
@@ -346,12 +362,16 @@ export const fellowshipRepository = {
       requestId: null,
       members: ranked.map((member, index) => ({
         rank: index + 1,
+        profilePublicId: member.user.profile?.publicId ?? null,
         displayName: member.user.profile?.displayName ?? "Player",
+        avatarKey: member.user.profile?.avatarKey ?? "lion",
+        avatarFrameKey: member.user.profile?.avatarFrameKey ?? "default",
         countryCode: member.user.profile?.countryCode ?? null,
         waypointsCompleted: member.user.profile?.totalWaypointsCompleted ?? 0,
-        glowPoints: member.user.profile?.totalGlowPoints ?? 0,
+        lifetimeBeaconPoints: member.user.profile?.beaconXp ?? 0,
         joinedAt: member.joinedAt,
         isLeader: member.userId === fellowship.createdById,
+        isCurrentUser: member.userId === userId,
       })),
       // Retain the output guard as well as the database filter so leader-only
       // review data stays private if this selection is extended in the future.
@@ -423,6 +443,7 @@ export const fellowshipRepository = {
           data: {
             ...input,
             description: input.description || null,
+            introduction: input.introduction || null,
             slug,
             inviteCode: randomBytes(16).toString("base64url"),
             createdById: userId,
@@ -454,6 +475,8 @@ export const fellowshipRepository = {
         slug: true,
         name: true,
         description: true,
+        introduction: true,
+        guidelines: true,
         isPublic: true,
         insigniaKey: true,
         inviteCode: true,
@@ -485,6 +508,8 @@ export const fellowshipRepository = {
       slug: fellowship.slug,
       name: fellowship.name,
       description: fellowship.description,
+      introduction: fellowship.introduction,
+      guidelines: fellowship.guidelines,
       isPublic: fellowship.isPublic,
       insigniaKey: fellowship.insigniaKey,
       inviteCode: fellowship.inviteCode,
@@ -529,6 +554,8 @@ export const fellowshipRepository = {
         data: {
           name: input.name,
           description: input.description || null,
+          introduction: input.introduction || null,
+          guidelines: input.guidelines || null,
           isPublic: input.isPublic,
           insigniaKey: input.insigniaKey,
         },
