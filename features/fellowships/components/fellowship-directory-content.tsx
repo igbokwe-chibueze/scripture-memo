@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { KeyRoundIcon, LockKeyholeIcon, SearchIcon, ShieldCheckIcon, UserRoundCheckIcon, UsersRoundIcon, XIcon } from "lucide-react";
+import { EyeIcon, KeyRoundIcon, LockKeyholeIcon, SearchIcon, ShieldCheckIcon, UserRoundCheckIcon, UsersRoundIcon, XIcon } from "lucide-react";
 import { toast } from "sonner";
 import { BadgeUnlockSequence } from "@/features/badges";
 import { NavigationButton } from "@/components/shared/navigation-button";
@@ -13,8 +13,10 @@ import type { BadgeUnlockResult } from "@/features/badges/types/badge.types";
 import { LoadingButton } from "@/components/shared/loading-button";
 import type { FellowshipDirectoryTransport } from "@/features/fellowships/types/fellowship-preview.types";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { FellowshipDiscoveryDialog } from "./fellowship-discovery-dialog";
 
-/** Shows progress only on the selected card while preventing competing writes. */
+/** Keeps membership navigation direct while discovery opens details before any mutation. */
 function FellowshipCard({
   fellowship,
   onJoin,
@@ -23,6 +25,7 @@ function FellowshipCard({
   pending,
   activeMutation,
   linkHref,
+  onView,
 }: {
   fellowship: FellowshipSummary;
   onJoin: (id: string) => void;
@@ -31,6 +34,7 @@ function FellowshipCard({
   pending: boolean;
   activeMutation: string | null;
   linkHref: (href: string) => string;
+  onView?: () => void;
 }): React.ReactNode {
   const t = useTranslations("Fellowships");
   return (
@@ -54,7 +58,12 @@ function FellowshipCard({
       {/* Stack translated actions at the mobile baseline; shared loading
        * controls expose pending work and prevent duplicate mutations. */}
       <div className="mt-5 grid gap-2">
-        {fellowship.isMember ? (
+        {onView ? (
+          <Button onClick={onView}>
+            <EyeIcon />
+            {t("discoveryDetails.view")}
+          </Button>
+        ) : fellowship.isMember ? (
           <NavigationButton
             className="min-h-11"
             href={linkHref(`/fellowships/${fellowship.slug}`)}
@@ -114,6 +123,11 @@ export function FellowshipDirectoryContent({
   const [unlocks, setUnlocks] = useState<BadgeUnlockResult[]>([]);
   const [unlockIndex, setUnlockIndex] = useState(0);
   const [pendingSlug, setPendingSlug] = useState<string | null>(null);
+  // Keep only the selected ID; refreshed request/membership data stays authoritative.
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selectedFellowship = data.discoverableFellowships.find(
+    (item) => item.id === selectedId,
+  ) ?? null;
 
   const handleResult = (result: Awaited<ReturnType<FellowshipDirectoryTransport["join"]>>): void => {
     if (!result.success || !result.data) {
@@ -121,6 +135,7 @@ export function FellowshipDirectoryContent({
       return;
     }
     toast.success(result.message);
+    setSelectedId(null);
     if (result.data.outcome === "REQUESTED") {
       transport.refresh();
       return;
@@ -220,6 +235,7 @@ export function FellowshipDirectoryContent({
               <FellowshipCard
                 key={item.id}
                 fellowship={item}
+                onView={() => setSelectedId(item.id)}
                 onJoin={join}
                 onRequest={requestJoin}
                 onCancel={cancelRequest}
@@ -235,6 +251,15 @@ export function FellowshipDirectoryContent({
           </p>
         )}
       </section>
+      <FellowshipDiscoveryDialog
+        fellowship={selectedFellowship}
+        onClose={() => setSelectedId(null)}
+        onJoin={join}
+        onRequest={requestJoin}
+        onCancel={cancelRequest}
+        pending={isPending}
+        activeMutation={activeMutation}
+      />
       {unlocks.length > 0 && <BadgeUnlockSequence badges={unlocks} index={unlockIndex} onAdvance={() => { if (unlockIndex + 1 < unlocks.length) { setUnlockIndex((value) => value + 1); return; } setUnlocks([]); if (pendingSlug) { transport.navigate(`/fellowships/${pendingSlug}`); transport.refresh(); } }} />}
     </>
   );

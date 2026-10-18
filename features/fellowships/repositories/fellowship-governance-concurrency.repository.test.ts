@@ -101,6 +101,7 @@ test(
             slug: fellowshipId,
             inviteCode: `invite-${fellowshipId}`,
             createdById: leaderId,
+            founderId: leaderId,
             isPublic: true,
             members: {
               create: [{ userId: leaderId }, { userId: targetId }],
@@ -192,7 +193,7 @@ test(
         await Promise.all([
           prisma.fellowship.findUniqueOrThrow({
             where: { id: fellowshipIds[0] },
-            select: { createdById: true },
+            select: { createdById: true, founderId: true },
           }),
           prisma.fellowshipGovernanceCase.findUniqueOrThrow({
             where: { id: originalTransferCase.id },
@@ -208,6 +209,7 @@ test(
         ]);
 
       assert.equal(updatedFellowship.createdById, targetId);
+      assert.equal(updatedFellowship.founderId, leaderId);
       assert.equal(acceptedTransfer.status, "ACCEPTED");
       assert.equal(updatedTransferCase.currentStatus, "ACCEPTED");
       assert.equal(updatedTransferCase.caseNumber, originalTransferCase.caseNumber);

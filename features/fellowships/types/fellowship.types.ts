@@ -41,7 +41,14 @@ export type FellowshipMemberRanking = {
 
 export type FellowshipDirectoryData = {
   memberships: FellowshipSummary[];
-  discoverableFellowships: FellowshipSummary[];
+  discoverableFellowships: FellowshipDiscoverySummary[];
+};
+
+/** Public directory metadata only; never exposes account IDs, emails or invite codes. */
+export type FellowshipDiscoverySummary = FellowshipSummary & {
+  founderDisplayName: string | null;
+  leaderDisplayName: string | null;
+  createdAt: Date;
 };
 
 export type FellowshipDetailData = FellowshipSummary & {

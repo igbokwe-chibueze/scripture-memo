@@ -249,6 +249,7 @@ model User {
   fellowshipAppealsMade      FellowshipSuspensionAppeal[]   @relation("FellowshipSuspensionAppellant")
   fellowshipAppealsReviewed  FellowshipSuspensionAppeal[]   @relation("FellowshipSuspensionReviewer")
   fellowshipsCreated         Fellowship[]                   @relation("FellowshipCreator")
+  fellowshipsFounded         Fellowship[]                   @relation("FellowshipFounder")
   shopPurchases              UserShopPurchase[]
   verseNotes                 UserVerseNote[]
   favoriteVerses             UserFavoriteVerse[]
@@ -698,9 +699,12 @@ model Fellowship {
   insigniaKey         String                         @default("word-star")
   inviteCode          String                         @unique
   createdById         String
+  /// Original founder, preserved across leadership transfers; null after account deletion.
+  founderId           String?
   createdAt           DateTime                       @default(now())
   updatedAt           DateTime                       @updatedAt
   createdBy           User                           @relation("FellowshipCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  founder             User?                          @relation("FellowshipFounder", fields: [founderId], references: [id], onDelete: SetNull)
   members             FellowshipMember[]
   joinRequests        FellowshipJoinRequest[]
   leadershipTransfers FellowshipLeadershipTransfer[]

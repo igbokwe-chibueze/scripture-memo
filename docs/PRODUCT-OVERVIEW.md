@@ -1490,6 +1490,15 @@ Social group system.
 - View fellowships the user belongs to
 - Browse/search public and private fellowships. Private results disclose only
   their public identity and clearly require leader approval.
+- Discovery cards use View to open a details modal with the full description,
+  founder and current leader display names, creation date, member count and
+  public/private access. Join or Request to join lives inside this modal;
+  pending requests can be cancelled there. Existing membership cards still Open.
+- Original founder identity is stored separately from the current leader and
+  stays unchanged during leadership transfers. Existing fellowships recover the
+  founder from the earliest accepted handover, falling back to the current leader
+  only when no handover occurred. Deleted founder accounts display Unavailable.
+  Discovery never returns email addresses, raw founder/leader IDs or invite codes.
 - Create a fellowship (name, description, public/private setting)
 - Select one of twelve curated fellowship insignias; uploaded insignias are not
   supported, and the server accepts only fixed catalogue keys.

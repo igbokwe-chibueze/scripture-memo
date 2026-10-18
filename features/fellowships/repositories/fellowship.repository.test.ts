@@ -80,6 +80,7 @@ test("Fellowship detail preserves leader review and private membership boundarie
           name: id,
           isPublic: index === 0,
           createdById: leaderId,
+          founderId: leaderId,
           inviteCode: `invite-${id}`,
           members: { create: [{ userId: leaderId }, { userId: memberId }] },
           joinRequests: { create: { userId: visitorId, source: "DIRECTORY" } },
@@ -116,7 +117,42 @@ test("Fellowship detail preserves leader review and private membership boundarie
         assert.equal(visitor, null);
       }
     }
+    // Discovery exposes safe details even for request-only private groups, while
+    // preserving the existing private roster boundary. A leader change must not
+    // rewrite the original founder or leak contact/authentication fields.
+    await prisma.fellowship.update({
+      where: { id: fellowshipIds[0] },
+      data: { createdById: memberId },
+    });
+    const directory = await fellowshipRepository.getDirectory(visitorId);
+    assert.equal(directory.discoverableFellowships.length, 2);
+    const transferred = directory.discoverableFellowships.find((item) => item.id === fellowshipIds[0]);
+    assert.ok(transferred);
+    assert.equal(transferred.founderDisplayName, "Test player 0");
+    assert.equal(transferred.leaderDisplayName, "Test player 1");
+    assert.ok(transferred.createdAt instanceof Date);
+    for (const item of directory.discoverableFellowships) {
+      for (const privateKey of ["email", "createdById", "founderId", "inviteCode", "members"]) {
+        assert.equal(privateKey in item, false);
+      }
+    }
     assert.equal(await fellowshipRepository.getDetail(visitorId, `missing-${runId}`), null);
+
+    // Creation binds founder identity to the trusted server user, independently
+    // of future transfers; no founder value is accepted from the form payload.
+    const created = await fellowshipRepository.create(leaderId, {
+      name: `Founder test ${runId.slice(0, 8)}`,
+      description: "Founder persistence check.",
+      isPublic: true,
+      insigniaKey: "word-star",
+    });
+    const createdFellowship = await prisma.fellowship.findUniqueOrThrow({
+      where: { slug: created.slug },
+      select: { id: true, founderId: true, createdById: true },
+    });
+    fellowshipIds.push(createdFellowship.id);
+    assert.equal(createdFellowship.founderId, leaderId);
+    assert.equal(createdFellowship.createdById, leaderId);
   } finally {
     // Cascade removes only these fellowships' requests/members and users'
     // profiles. Disconnect even if cleanup fails so the test cannot hang.

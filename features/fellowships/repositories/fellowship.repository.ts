@@ -117,7 +117,25 @@ export const fellowshipRepository = {
         },
         orderBy: [{ members: { _count: "desc" } }, { name: "asc" }],
         take: 50,
-        include: { _count: { select: { members: true } }, joinRequests: { where: { userId }, select: { id: true, status: true }, take: 1 } },
+        // Load safe profile labels in the existing bounded directory query.
+        // No click-time reads, member rosters, contact details or invite secrets.
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          description: true,
+          isPublic: true,
+          insigniaKey: true,
+          createdAt: true,
+          founder: { select: { profile: { select: { displayName: true } } } },
+          createdBy: { select: { profile: { select: { displayName: true } } } },
+          _count: { select: { members: true } },
+          joinRequests: {
+            where: { userId },
+            select: { id: true, status: true },
+            take: 1,
+          },
+        },
       }),
     ]);
     const memberMap = (item: (typeof memberships)[number]) => ({
@@ -137,6 +155,9 @@ export const fellowshipRepository = {
       requestId: null,
     });
     const discoveryMap = (item: (typeof discoverableFellowships)[number]) => ({
+      founderDisplayName: item.founder?.profile?.displayName ?? null,
+      leaderDisplayName: item.createdBy.profile?.displayName ?? null,
+      createdAt: item.createdAt,
       id: item.id,
       slug: item.slug,
       name: item.name,
@@ -398,7 +419,19 @@ export const fellowshipRepository = {
       const baseSlug = slugify(input.name);
       const slug = `${baseSlug}-${randomBytes(3).toString("hex")}`;
       try {
-        const created = await transaction.fellowship.create({ data: { ...input, description: input.description || null, slug, inviteCode: randomBytes(16).toString("base64url"), createdById: userId, members: { create: { userId } } }, select: { slug: true } });
+        const created = await transaction.fellowship.create({
+          data: {
+            ...input,
+            description: input.description || null,
+            slug,
+            inviteCode: randomBytes(16).toString("base64url"),
+            createdById: userId,
+            // Server-derived once; later leadership changes touch createdById only.
+            founderId: userId,
+            members: { create: { userId } },
+          },
+          select: { slug: true },
+        });
         return created;
       } catch (error) {
         if (typeof error === "object" && error !== null && "code" in error && error.code === "P2002") throw new FellowshipConflictError("NAME_TAKEN");

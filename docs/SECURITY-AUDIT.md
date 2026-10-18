@@ -543,4 +543,17 @@ Accepted risk justification (if applicable):
 - The starter-article installer is local-only, explicit, additive, and idempotent;
   it never overwrites an existing slug or accesses a hosted database.
 
+### Fellowship discovery addition — 2026-10-18
+
+- The authenticated, bounded directory read selects founder/current-leader
+  profile display names and creation date. Discovery DTOs exclude contact data,
+  account identifiers, invite codes and private member rosters.
+- View opens local details without a new data endpoint or read-time writes.
+  Existing join/request/cancel actions remain the mutation and authorization
+  boundaries, including rechecking stale directory eligibility.
+- Founder is set from the server user at creation, independently of current
+  leadership. Its nullable relation preserves existing account-deletion behavior.
+- Isolated PostgreSQL tests verify discovery DTO privacy and preserved founder
+  identity after a real leadership transfer. No hosted database was accessed.
+
 *Last reviewed: v2.0 — review and update before every major release.*

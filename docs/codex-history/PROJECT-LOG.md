@@ -5530,3 +5530,33 @@ concurrency subtests remain explicitly skipped as documented above.
 - Seven design-system checks passed. Standalone browser layout checked at a
   280px rail width in a 1280x600 window; all five rarity rows fit a 335px budget
   without horizontal overflow. Live authenticated layout was not retested.
+
+
+### 2026-10-18 ? Fellowship discovery details and permanent founder
+
+- Discovery cards now use View. The shared accessible dialog shows full description,
+  insignia, original founder/current leader display names, creation date, member
+  count and access type. Join/Request to join and pending-request cancellation
+  live inside it; membership cards retain Open. Existing authorized mutations,
+  feedback and badge celebration/navigation behavior are reused.
+- Added nullable founder relation, set once from the server identity at creation.
+  Leadership handovers keep changing only the existing current-leader field.
+  Additive transactional migration recovers the founder from the earliest accepted
+  handover (including administrator transfers), or the original current leader
+  when no handover occurred. Account deletion retains the group and clears the
+  founder relation; missing profile labels use Unavailable.
+- The existing bounded directory read selects safe metadata; opening details
+  performs no network request, polling, write or per-card lookup. DTOs exclude
+  account IDs, emails, invitation secrets and private rosters.
+- Migration applied to local development/test listeners only. An initial failed
+  local attempt left no schema change; its history was resolved as rolled back
+  before applying the corrected mapped-table foreign key. Services were restored
+  with their existing persisted storage; no reset, seed or hosted access. The
+  populated local backfill audit matched the expected founder for every group.
+- Validation: Prisma validate/generate, production build/TypeScript, scoped ESLint,
+  16 schema/localization checks and seven design-system checks passed. Disposable
+  PostgreSQL suites cover safe discovery DTOs, founder creation and preservation
+  through real concurrent handovers. Actual-component synthetic browser checks
+  cover View-first actions, metadata, 375px light/dark bounds, Escape/focus return,
+  request, cancel, failed join and successful join at desktop width. Existing
+  fonts/buttons are preserved. No real memberships changed during browser QA.
