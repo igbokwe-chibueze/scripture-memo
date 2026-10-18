@@ -1,0 +1,132 @@
+﻿/* Full-viewport grid budgets space for text/status first, allowing the original
+ * portrait artwork to shrink proportionally instead of clipping or forcing scroll.
+ * Fireflies stay decorative and all motion honors system/app reduced motion. */
+.screen {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  isolation: isolate;
+  display: grid;
+  width: 100%;
+  height: 100dvh;
+  box-sizing: border-box;
+  place-items: center;
+  overflow: hidden;
+  padding: clamp(.75rem, 2dvh, 1.5rem) 1rem;
+  background: var(--background);
+  color: var(--foreground);
+}
+.scene {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  gap: clamp(.5rem, 1.5dvh, 1rem);
+  width: 100%;
+  max-width: 60rem;
+  height: 100%;
+  max-height: 46rem;
+  min-height: 0;
+  text-align: center;
+}
+.heading {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: clamp(1.125rem, 4.8vw, 2.5rem);
+  line-height: 1.2;
+}
+.meemo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: contain;
+}
+.carousel {
+  min-width: 0;
+  width: 100%;
+  max-width: 50rem;
+  justify-self: center;
+  border-radius: var(--radius-control);
+}
+.carousel:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+}
+.verseSlot {
+  display: grid;
+  align-items: center;
+  min-height: 6rem;
+}
+.verse {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: clamp(.875rem, 2.4dvh, 1.25rem);
+  font-weight: 500;
+  line-height: 1.5;
+  animation: verse-enter .45s ease-out;
+}
+.status p {
+  margin-top: .625rem;
+  font-size: .875rem;
+  color: var(--muted-foreground);
+}
+.indicator {
+  width: min(16rem, 70%);
+  height: .75rem;
+  margin-inline: auto;
+  overflow: hidden;
+  border: 1px solid var(--selection-border);
+  border-radius: 999px;
+  background: var(--muted);
+}
+.indicator span {
+  display: block;
+  width: 45%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--primary);
+  animation: loading-travel 2s ease-in-out infinite alternate;
+}
+.lights {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.lights span {
+  --firefly-color: var(--reward);
+  position: absolute;
+  width: .375rem;
+  height: .375rem;
+  border-radius: 50%;
+  background: var(--firefly-color);
+  opacity: .85;
+  box-shadow: 0 0 .625rem .125rem color-mix(in oklch, var(--firefly-color), transparent 35%);
+  animation: firefly-drift 10s ease-in-out infinite alternate;
+}
+.lights span[data-cool="true"] {
+  --firefly-color: color-mix(in oklch, var(--info) 35%, var(--info-foreground));
+}
+:global(.dark) .lights span {
+  opacity: .9;
+  box-shadow: 0 0 .875rem .25rem color-mix(in oklch, var(--firefly-color), transparent 30%);
+}
+@keyframes firefly-drift {
+  from { transform: translate(-12px, 20px); }
+  to { transform: translate(22px, -45px); }
+}
+@keyframes loading-travel {
+  from { transform: translateX(0); }
+  to { transform: translateX(123%); }
+}
+@keyframes verse-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+:global(.reduce-motion) .screen * { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .screen * { animation: none; }
+}
+@media (min-width: 640px) {
+  .verse { font-size: 1.25rem; }
+}

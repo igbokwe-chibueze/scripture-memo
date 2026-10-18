@@ -5635,3 +5635,16 @@ concurrency subtests remain explicitly skipped as documented above.
 - Together so far now persists across all detail tabs and totals lifetime Beacon Points and completed waypoints from the full current roster. Local search/sort do not change totals; scope includes pre-join progress. No additional database operations.
 - Approved fonts, buttons and bottom donation placement remain unchanged.
 - Validation: five totals/browsing/localization tests, seven design checks, typecheck and scoped ESLint passed. Live browser inspection was not repeated for this spacing adjustment.
+
+### 2026-10-18 - Global Meemo loading scene
+
+- New owner-approved transparent Meemo flame pose generated with built-in imagegen; prompt recorded in artwork/meemo/loading-way-prompt.md. Existing mascot registry and route skeletons unchanged.
+- Fixed twelve-verse weighted carousel, priority weight 2, no immediate repeat, reading timers preserve remaining time during hover/focus/manual/hidden pause. Touch Pause/Resume and reduced-motion styling included.
+- Fireflies drift across the screen with stronger dark-theme glow. Existing approved fonts and semantic theme tokens retained; no database traffic or navigation delay.
+- Validation: TypeScript, scoped ESLint, three weighted-selection/duration tests and seven design checks passed. Actual-component browser QA at 375px light/dark and desktop verified no mobile overflow, hover pause, resumed rotation and reduced-motion suppression.
+
+### 2026-10-18 - Loading screen owner corrections
+
+- Replaced rejected generated artwork with the exact owner-supplied Meemo portrait, preserving intrinsic proportions.
+- Fixed viewport grid removes page scrolling; heading uses one line, verse reference/manual pause/extra flame removed. Wider loading bar appears directly below the verse. Fireflies are more visible in light theme. Hover/focus and hidden-tab pause remain.
+- Browser checks at 375x498, 375x812, 1366x600 and 1366x900 confirm no horizontal/vertical document overflow and a visible loading indicator. Typecheck, scoped ESLint, weighted-verse tests and design checks passed.

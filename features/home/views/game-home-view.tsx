@@ -122,6 +122,7 @@ export async function GameHomeView(): Promise<React.ReactNode> {
             href={destination}
             pendingLabel={t("openingAdventure")}
             size="lg"
+            shimmer
             className={styles.continueButton}
           >
             <PlayIcon

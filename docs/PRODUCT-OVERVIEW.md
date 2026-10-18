@@ -2244,3 +2244,20 @@ The application is production-ready when:
 ---
 
 *End of Scripture Memo Production Technical Document v2.0*
+
+### Global loading scene (2026-10-18)
+
+- GlobalLoading fills the viewport without scrolling, using the owner's supplied
+  portrait Meemo walking image with its original proportions, a single-line heading,
+  shared typography, a wider loading bar and visible drifting fireflies in both themes.
+  Route-specific loading skeletons remain unchanged.
+- Twelve owner-supplied scripture excerpts retain exact English wording regardless
+  of translation settings. Each priority passage has weight 2; others weight 1.
+  Initial selection is randomized after hydration, with no consecutive repeat.
+- Verses rotate after max(8 seconds, 0.3 seconds per word). Hover, keyboard focus
+  and hidden document state pause the remaining reading time. The verse region is
+  keyboard focusable. No verse references, pause button or extra indicator flame
+  are displayed. Navigation never waits for this timer.
+- Reduced motion removes verse fades, dot motion and drifting lights. Scripture
+  changes are not repeatedly announced by screen readers; loading status is stable.
+  All data is bundled locally, with no database reads or polling.
