@@ -1267,6 +1267,11 @@ theme; shortcut backgrounds retain blue, purple, coral, and gold, with Shop
 reusing blue and Admin reusing purple.
 Mobile omits the top-bar divider; tablet and desktop retain it. The supplied
 golden diamond artwork represents Glow Points in the top bar and daily reward.
+Header Glow balances below 1,000 remain exact. Larger balances truncate down to
+one compact decimal with a plus sign (1,275 becomes 1.2K+), never rounding up to
+unavailable funds. Tapping or hovering the balance opens its exact localized
+amount using the shared popover; the trigger also exposes it to screen readers.
+Other header counters retain their existing formatting. No extra query is needed.
 Mobile navigation shows icons only, retaining accessible destination labels;
 desktop retains text. The Leaderboard artwork is enlarged to compensate for
 its transparent padding. Desktop Home scales artwork/cards with viewport height

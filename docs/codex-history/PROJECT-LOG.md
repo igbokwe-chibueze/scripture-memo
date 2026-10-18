@@ -5648,3 +5648,9 @@ concurrency subtests remain explicitly skipped as documented above.
 - Replaced rejected generated artwork with the exact owner-supplied Meemo portrait, preserving intrinsic proportions.
 - Fixed viewport grid removes page scrolling; heading uses one line, verse reference/manual pause/extra flame removed. Wider loading bar appears directly below the verse. Fireflies are more visible in light theme. Hover/focus and hidden-tab pause remain.
 - Browser checks at 375x498, 375x812, 1366x600 and 1366x900 confirm no horizontal/vertical document overflow and a visible loading indicator. Typecheck, scoped ESLint, weighted-verse tests and design checks passed.
+
+### 2026-10-18 - Exact Glow balance disclosure
+
+- Header Glow Points truncate to one compact decimal plus a plus sign from 1,000 onward; lower values remain exact. Example 1,275 displays 1.2K+, not 1.3K. Other resource counters retain their current formatting.
+- Reused shared Base UI popover for exact localized balance on hover/tap and keyboard activation. Accessible trigger label includes the exact amount. Uses existing authorized shell data without another query.
+- Boundary regression tests, scoped ESLint and TypeScript passed.

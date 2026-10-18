@@ -80,6 +80,18 @@
   height: 1.5rem;
 }
 
+/* Preserve the approved counter pill while making its exact balance accessible. */
+.balanceTrigger {
+  min-height: 44px;
+  cursor: pointer;
+  color: var(--foreground);
+}
+
+.balanceTrigger:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
 .counterValue {
   font-weight: 700;
   font-size: 0.85rem;

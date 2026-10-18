@@ -3,7 +3,8 @@
 import { useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
-import { GameArtwork, GlowGem } from "@/components/shared/game-artwork";
+import { GameArtwork } from "@/components/shared/game-artwork";
+import { GlowBalanceCounter } from "./glow-balance-counter";
 import { NavigationButton } from "@/components/shared/navigation-button";
 import { NotificationCenter } from "@/features/notifications";
 import { PlayerAvatar } from "@/features/profile";
@@ -37,7 +38,6 @@ export function PlayerTopBar({
   );
   const section = getPlayerSection(pathname);
   const stats = [
-    { label: topBarT("glowPoints"), value: summary.glowPoints, artwork: null },
     { label: topBarT("streakDays"), value: summary.streakDays, artwork: "flameLit" },
     { label: topBarT("beaconPoints"), value: summary.beaconPoints, artwork: "beacon" },
   ] as const;
@@ -70,21 +70,18 @@ export function PlayerTopBar({
             className={styles.playerAvatar}
           />
         </NavigationButton>
+        <GlowBalanceCounter value={summary.glowPoints} />
         {stats.map(({ label, value, artwork }) => (
           <div
             key={label}
             className={styles.counter}
             title={`${label}: ${value.toLocaleString(locale)}`}
           >
-            {artwork ? (
-              <GameArtwork
-                name={artwork}
-                className={styles.counterArtwork}
-                sizes="40px"
-              />
-            ) : (
-              <GlowGem className={styles.counterArtwork} />
-            )}
+            <GameArtwork
+              name={artwork}
+              className={styles.counterArtwork}
+              sizes="40px"
+            />
             <span className={styles.counterValue}>{numberFormatter.format(value)}</span>
             <span className="sr-only">{label}</span>
           </div>
