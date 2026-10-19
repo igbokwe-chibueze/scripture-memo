@@ -6,6 +6,7 @@ import { normalizeVerseText } from "@/features/verses/lib/normalize-verse-text";
 import { parseLegacyStudySections } from "@/features/verses/lib/parse-legacy-study-sections";
 import { assertLocalDatabaseUrl } from "@/features/dev-fixtures/lib/assert-local-database-url";
 import { LOCAL_CURRICULUM_FIXTURES } from "@/features/dev-fixtures/data/local-curriculum-fixtures";
+import { FREE_AVATAR_KEYS } from "@/features/profile/data/avatar-catalog";
 
 export type LocalFixtureSummary = {
   createdVerses: number;
@@ -281,6 +282,9 @@ export function createLocalFixtureRepository(databaseUrl: string) {
           where: { userId: user.id },
         });
 
+        // Ownership must be removed before its purchase foreign key, not inside
+        // Promise.all. This explicit local reset retires all purchased inventory.
+        await transaction.userAvatarOwnership.deleteMany({ where: { userId: user.id } });
         const [badgeProgress, rewardLedger] = await Promise.all([
           transaction.userBadgeProgress.deleteMany({ where: { userId: user.id } }),
           transaction.rewardLedger.deleteMany({ where: { userId: user.id } }),
@@ -292,7 +296,12 @@ export function createLocalFixtureRepository(databaseUrl: string) {
         ]);
 
         // Reset derived counters instead of replacing the profile, preserving
-        // the learner's chosen avatar, frame, country, display name, and partner.
+        // the learner's frame, country, display name, partner and free avatar.
+        // Purchased portraits return to Lion because inventory was reset above.
+        await transaction.userProfile.updateMany({
+          where: { userId: user.id, avatarKey: { notIn: [...FREE_AVATAR_KEYS] } },
+          data: { avatarKey: "lion" },
+        });
         await transaction.userProfile.update({
           where: { userId: user.id },
           data: {

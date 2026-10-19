@@ -251,6 +251,7 @@ model User {
   fellowshipsCreated         Fellowship[]                   @relation("FellowshipCreator")
   fellowshipsFounded         Fellowship[]                   @relation("FellowshipFounder")
   shopPurchases              UserShopPurchase[]
+  ownedAvatars               UserAvatarOwnership[]
   verseNotes                 UserVerseNote[]
   favoriteVerses             UserFavoriteVerse[]
   versesCreated              Verse[]                        @relation("VerseCreator")
@@ -887,9 +888,22 @@ model UserShopPurchase {
   purchasedAt         DateTime @default(now())
   user                User     @relation(fields: [userId], references: [id], onDelete: Restrict)
   shopItem            ShopItem @relation(fields: [shopItemId], references: [id], onDelete: Restrict)
+  avatarOwnership     UserAvatarOwnership?
 
   @@index([userId, purchasedAt(sort: Desc)])
   @@index([shopItemId])
+}
+
+/// Permanent, unique cosmetic entitlement backed by an immutable purchase snapshot.
+model UserAvatarOwnership {
+  userId     String
+  avatarKey  String
+  purchaseId String           @unique
+  acquiredAt DateTime         @default(now())
+  user       User             @relation(fields: [userId], references: [id], onDelete: Restrict)
+  purchase   UserShopPurchase @relation(fields: [purchaseId], references: [id], onDelete: Restrict)
+
+  @@id([userId, avatarKey])
 }
 
 model UserVerseNote {

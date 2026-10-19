@@ -588,3 +588,27 @@ Accepted risk justification (if applicable):
   stable public references across fellowships, and absence of private identity keys.
 
 *Last reviewed: v2.0 — review and update before every major release.*
+
+### Shop avatars and catalogue rollout - 2026-10-18
+
+- Purchases accept only bounded opaque item IDs and a UUID request key. User
+  identity, active offer, cost, grant and cosmetic key come from trusted server data.
+- The per-user shop transaction lock serializes duplicate requests. Purchase,
+  balance debit, negative reward ledger and unique avatar ownership commit together.
+  A second request for an owned avatar does not charge again. Hints count only
+  historical HINT_PACK entitlement snapshots, including retired offers.
+- Shop equip and Settings saves verify permanent ownership for all paid portraits;
+  selecting a free portrait or equipping owned inventory never spends Glow Points.
+  Partner frame restrictions are unchanged. A one-time migration resets non-free
+  selected avatars to Lion, explicitly chosen by the owner; no free ownership is
+  inferred from an old selection. Ordinary reads and seeds never repeat this reset.
+- Requests cannot grant arbitrary artwork or another user's ownership. User/avatar
+  uniqueness and a unique purchase link enforce one durable cosmetic entitlement.
+- Normal shop reads use five bounded queries per visit, including one new batched
+  inventory read; no polling, read-time writes or per-card requests are introduced.
+- Local integration verification covers concurrent cosmetics, idempotent hints,
+  insufficient funds, cross-user request keys, cross-user/unowned equip attempts,
+  forged Settings selections and retirement-safe historical hint totals.
+- Migrations applied only to local development 51214 and isolated test 51224.
+  Hosted data was not accessed. Operational errors use SHP-001/002/003 with safe
+  messages and centralized reference entries; UI uses showActionError/Sonner.

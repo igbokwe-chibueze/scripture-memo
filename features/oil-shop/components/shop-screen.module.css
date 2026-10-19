@@ -1,0 +1,280 @@
+/* Mobile-first shop cards preserve the approved button, heading and theme system. */
+.previewHeader {
+  /* Reserve the shared close control's 44px target and a gap for wrapped copy.
+   * Keep the reservation while pending to prevent the description shifting. */
+  padding-right: 3.5rem;
+}
+
+.hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  min-height: 13rem;
+}
+
+.heroCopy {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  padding-block: 1rem;
+}
+
+.title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: clamp(2.5rem, 8vw, 4rem);
+  line-height: 1.1;
+}
+
+.subtitle {
+  margin-top: .375rem;
+  font-size: .875rem;
+  color: var(--muted-foreground);
+}
+
+.heroArt {
+  position: relative;
+  align-self: stretch;
+  min-height: 13rem;
+}
+
+.heroHalo {
+  position: absolute;
+  inset: 15% -5% 5% -15%;
+  border-radius: 50%;
+  background: var(--selection-subtle);
+}
+
+.balance {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: .875rem;
+  padding: .625rem;
+  border: 1px solid var(--selection-border);
+  border-radius: var(--radius-control);
+  background: var(--selection-subtle);
+}
+
+.balance strong {
+  display: block;
+  overflow-wrap: anywhere;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.625rem;
+  line-height: 1.1;
+}
+
+.balance span {
+  display: block;
+  font-size: .75rem;
+  color: var(--muted-foreground);
+}
+
+.section {
+  margin-top: 1.25rem;
+}
+
+/* Scope the concept's teal selection to this new storefront, not shared tabs. */
+.tab[data-active] {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+}
+
+.sectionTitle {
+  font-family: var(--font-heading);
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.sectionCopy {
+  margin: .25rem 0 1rem;
+  color: var(--muted-foreground);
+  font-size: .875rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .75rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: .75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--card);
+  text-align: center;
+}
+
+.card[data-equipped="true"] {
+  border: 2px solid var(--selection-border);
+  background: var(--selection-subtle);
+}
+
+.cardTitle {
+  font-weight: 700;
+  font-size: .875rem;
+  overflow-wrap: anywhere;
+}
+
+.quantity {
+  margin-block: .25rem .75rem;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: clamp(1.625rem, 5vw, 2.5rem);
+  line-height: 1.1;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .375rem;
+  margin-top: auto;
+}
+
+.actions > button {
+  flex-grow: 1;
+  min-height: 44px;
+  padding-inline: .5rem;
+  font-size: .75rem;
+}
+
+.price {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .25rem;
+  font-weight: 700;
+  font-size: .8125rem;
+}
+
+.need {
+  margin-top: .375rem;
+  font-size: .6875rem;
+  color: var(--muted-foreground);
+}
+
+.hintArt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 5.5rem;
+  width: 100%;
+  padding-inline: .375rem;
+}
+
+.bulb {
+  position: relative;
+  flex: 0 1 4rem;
+  min-width: 0;
+  height: 100%;
+}
+
+.hintArt[data-fit="true"] {
+  height: 100%;
+  padding: 0;
+}
+
+.bulb + .bulb {
+  margin-left: -1rem;
+  transform: rotate(12deg);
+}
+
+.bulb:first-child:not(:last-child) {
+  transform: rotate(-12deg);
+}
+
+.avatarArt {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1.15;
+  margin-bottom: .5rem;
+}
+
+.avatarArt img {
+  object-fit: contain;
+}
+
+.panel {
+  display: grid;
+  gap: .75rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--card);
+}
+
+.panel h2 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.panel p {
+  color: var(--muted-foreground);
+  font-size: .875rem;
+}
+
+.panel strong {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 2rem;
+}
+
+@media (min-width: 640px) {
+  .hero {
+    min-height: 16rem;
+  }
+
+  .heroArt {
+    min-height: 16rem;
+  }
+
+  .subtitle {
+    font-size: 1.125rem;
+  }
+
+  .balance {
+    padding: .875rem 1rem;
+  }
+
+  .balance strong {
+    font-size: 2rem;
+  }
+
+  .card {
+    padding: 1rem;
+  }
+
+  .cardTitle {
+    font-size: 1.125rem;
+  }
+
+  .hintArt {
+    height: 6rem;
+  }
+
+  .bulb {
+    flex-basis: 5.5rem;
+  }
+
+  .avatarArt {
+    max-height: 13rem;
+  }
+
+  .actions > button, .price {
+    font-size: .875rem;
+  }
+
+}
+

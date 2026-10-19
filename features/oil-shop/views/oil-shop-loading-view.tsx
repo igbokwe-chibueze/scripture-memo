@@ -6,11 +6,14 @@ export function OilShopLoadingView(): React.ReactNode {
         <div className="h-11 w-36 rounded-xl bg-muted" />
         {/* Balances now live inside the header; reserve one combined surface. */}
         <div className="my-6 h-64 rounded-[2rem] bg-muted sm:h-58" />
-        <div className="space-y-3 rounded-[2rem] border border-border p-4">
-          <div className="h-14 rounded-xl bg-muted" />
-          <div className="h-32 rounded-3xl bg-muted" />
-          <div className="h-32 rounded-3xl bg-muted" />
-          <div className="h-32 rounded-3xl bg-muted" />
+        <div className="space-y-3">
+          <div className="h-12 rounded-control bg-muted" />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="h-52 rounded-card bg-muted" />
+            <div className="h-52 rounded-card bg-muted" />
+            <div className="h-52 rounded-card bg-muted" />
+            <div className="h-52 rounded-card bg-muted" />
+          </div>
         </div>
       </div>
     </main>

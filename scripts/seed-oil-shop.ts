@@ -3,7 +3,8 @@
  *
  * Run with `npm run oil-shop:seed` after the Phase 25 migration and Prisma
  * generation. The script requires DATABASE_URL and may be safely rerun: it
- * upserts only the three first-party hint products by stable slug. It never
+ * upserts four hint packs and nine avatar products by stable slug, retiring
+ * obsolete hint offers in the same transaction. It never
  * reads or changes learners, balances, purchases, progression, badges, verses,
  * or waypoints. Existing purchase history remains attached to the same items.
  *
@@ -21,7 +22,7 @@ import {
 async function run(): Promise<void> {
   try {
     const synchronizedItems = await seedHintShopCatalog();
-    process.stdout.write(`Oil Shop seed complete: synchronized ${synchronizedItems} hint packs.\n`);
+    process.stdout.write(`Shop seed complete: synchronized ${synchronizedItems} products.\n`);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown Oil Shop seed failure.";
     process.stderr.write(`Oil Shop seed failed: ${message}\n`);

@@ -1476,10 +1476,27 @@ one Vault replay and evaluates the Vault Explorer badge from that trusted total.
 
 Marketplace for spending Glow Points.
 - Current Glow Points balance displayed prominently at top
-- The MVP catalogue begins with consumable hint packs: 1 hint for 50 Glow
-  Points, 3 hints for 125, and 5 hints for 200. Profile themes, map cosmetics,
-  flame styles, and other visual inventory remain deferred.
-- Grid of available shop items, beginning with extra hints
+- The catalogue offers 3 hints for 120 Glow Points, 10 for 300, 25 for 600,
+  and 50 for 1,000. Older packs are retired without changing prior purchases
+  or their snapshotted hint entitlements.
+- The responsive Shop has Hint packs, Avatars and Donations tabs, a welcoming
+  Meemo hero, exact Glow balance and two-column item cards. Approved fonts,
+  tactile buttons and semantic light/dark theme colors remain unchanged.
+- Lion, Dove and Deer remain free in Settings. The other nine existing avatars
+  cost 250 Glow Points each, permanently, and are purchased/equipped in Shop.
+  Settings displays only the three free options, plus a link to the avatar shop.
+  Both Settings and Shop verify paid-avatar ownership on the server.
+- At the owner-approved rollout, users equipped with a paid avatar reset to Lion;
+  no prior avatar selection grants free ownership. This reset occurs only in the
+  migration, never on a read or subsequent catalogue seed.
+- Cosmetic ownership is unique per learner/avatar. Repeated/concurrent purchases
+  charge once; equipping owned or free avatars never spends points. Avatar
+  purchases do not grant hints. Profile themes, map cosmetics and flame styles
+  remain deferred, and Partner frame rules remain unchanged.
+- Donations remains a coming-soon state with a button opening `/partner` in a
+  new tab. Shop remains accessed from Home rather than adding a nav destination.
+- The shop read uses five bounded queries per visit (one more inventory read),
+  independent of item count, without polling or initialization writes.
 - Clicking an item opens a preview modal with description and cost
 - Purchase button deducts Glow Points via a server-side transaction
 - On success: Sonner toast "Purchased [item name]!" and balance updates
@@ -1938,8 +1955,9 @@ campaign or award Glow Points.
 
 ### 18.1 Player Portraits and Partner Frames
 
-- Players choose from twelve bundled animal portraits. User uploads and remote
-  avatar URLs are not accepted.
+- Twelve bundled animal portraits exist: Lion, Dove and Deer are free in Settings;
+  the other nine are permanent Shop purchases at 250 Glow Points each. Purchased
+  portraits equip in Shop. User uploads and remote avatar URLs are not accepted.
 - Profiles persist stable catalog keys rather than asset paths. Unknown legacy
   keys fall back to the lion portrait and standard frame.
 - Every player receives the standard frame. A persisted Partner entitlement is

@@ -30,6 +30,13 @@ export const AVATAR_FRAME_KEYS = [
 export type AvatarFrameKey = (typeof AVATAR_FRAME_KEYS)[number];
 
 export const DEFAULT_AVATAR_KEY: AvatarKey = "lion";
+/** These three portraits remain freely selectable in Settings; others are shop inventory. */
+export const FREE_AVATAR_KEYS: readonly AvatarKey[] = ["lion", "dove", "deer"];
+
+/** Shared entitlement predicate; presentation and server checks use the same free set. */
+export function isFreeAvatar(key: string): boolean {
+  return FREE_AVATAR_KEYS.some((freeKey) => freeKey === key);
+}
 export const DEFAULT_AVATAR_FRAME_KEY: AvatarFrameKey = "default";
 
 export type AvatarCatalogEntry = {

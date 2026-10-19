@@ -29,15 +29,20 @@ export async function purchaseShopItemAction(
     );
     revalidatePath("/oil-shop");
     revalidatePath("/vault");
+    revalidatePath("/", "layout");
     return { success: true, message: `Purchased ${purchase.itemName}!`, data: purchase };
   } catch (error) {
     if (error instanceof OilShopConflictError) {
       if (error.code === "INSUFFICIENT_BALANCE") {
-        return { success: false, message: "You need more Glow Points for this pack." };
+        return { success: false, message: "You need more Glow Points for this item." };
       }
       return { success: false, message: "This item is no longer available." };
     }
     logger.error("Oil Shop purchase failed.", { error, userId: session.user.id });
-    return { success: false, message: "The purchase could not be completed." };
+    return {
+      success: false,
+      message: "The purchase could not be completed. Please try again.",
+      errorCode: "SHP-001",
+    };
   }
 }

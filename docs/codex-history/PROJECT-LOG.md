@@ -5654,3 +5654,24 @@ concurrency subtests remain explicitly skipped as documented above.
 - Header Glow Points truncate to one compact decimal plus a plus sign from 1,000 onward; lower values remain exact. Example 1,275 displays 1.2K+, not 1.3K. Other resource counters retain their current formatting.
 - Reused shared Base UI popover for exact localized balance on hover/tap and keyboard activation. Accessible trigger label includes the exact amount. Uses existing authorized shell data without another query.
 - Boundary regression tests, scoped ESLint and TypeScript passed.
+
+### 2026-10-18 - Shop redesign, new packs and permanent avatar inventory
+
+- Rebuilt mobile-first Shop with welcoming generated Meemo cutout, exact Glow balance, Hint packs/Avatars/Donations tabs and two-column cards. Preserved approved fonts, shared buttons, purchase celebration, admin diagnostics and bottom Partner placement. Desktop guidance uses the existing context portal.
+- New packs: 3/120, 10/300, 25/600, 50/1000 (hints/Glow). Old offers retire without changing purchase snapshots or granted hints. Catalogue seed is atomic and repeatable.
+- Lion, Dove and Deer stay free in Settings; remaining nine portraits cost 250 Glow Points each in Shop. Purchase once, then equip there. Server checks prevent Settings or Shop equip from bypassing ownership. Partner frame rules unchanged.
+- Added unique user/avatar ownership linked to purchase snapshots. Per-user shop lock, conditional debit and ledger transaction prevent negative balances and duplicate cosmetic charges across distinct retry keys. No read-time writes or polling; shop uses five bounded reads per visit.
+- Owner chose no grandfathering: migration resets old paid selections to Lion exactly once. Local fixture resets now clear ownership before purchases and reset paid portraits. Applied migration only on local development 51214 and isolated test 51224. Initial SQL BOM parse failure ran no statements; removed BOM, marked local failed attempts rolled back and successfully deployed the corrected file.
+- Donations stays coming soon, with /partner opening in a new tab. Shop remains linked from Home. Added localized English/Spanish/French shop labels and SHP operational error references.
+- Verification: production build, TypeScript, scoped ESLint, nine catalogue/profile/localization/error unit checks, seven design checks, shop concurrency/access/rollout integration tests and Settings integration checks passed. Real-component browser QA covers 375px light/dark, Spanish/French wrapping, desktop portal, low-balance preview, hint purchase celebration, avatar purchase/equip and donation target. SQL rollout tested in an isolated schema preserves snapshots, resets paid selection, retains free choice and seeds thirteen active offers.
+- Artwork: public/images/mascot/meemo/meemo-shop-welcome.png; built-in imagegen prompt in artwork/meemo/shop-welcome-prompt.md. No hosted data accessed. Ready for owner review.
+
+### 2026-10-19 - Owner-supplied shop Meemo and bulb art
+
+- Replaced the rejected generated hero with the exact supplied wider Meemo cutout, preserving proportions and alpha. New source: public/images/mascot/meemo/meemo-shop-welcome-owner.png.
+- Replaced code bulb icons with the supplied public/images/oil-shop/hint-bulb-owner.png. One reusable HintPackArtwork component serves cards, previews, celebration pack artwork and the celebration hint balance. One/four bulb clusters fit their containers without stretching. Existing purchase logic, prices, ownership and fonts remain unchanged.
+- Scoped ESLint and TypeScript passed. Actual-component headless browser checks at 375px light/dark and desktop confirm loaded assets, no horizontal overflow and correct compact celebration sizing. Original supplied image bytes are retained unchanged.
+
+### 2026-10-19 - Shop preview close-button clearance
+
+- Added reserved header space beside the shared 44px close button in avatar and hint-pack previews, allowing descriptions to wrap without overlap. Reservation remains during pending requests to prevent layout shifts. Shared dialog/button styling is unchanged. Scoped ESLint and TypeScript passed.

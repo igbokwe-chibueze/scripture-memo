@@ -21,6 +21,8 @@ function createData(scenario: Scenario): OilShopData {
     balance: scenario === "insufficient" ? 0 : 500,
     hintsRemaining: 5,
     purchasedHints: 0,
+    avatars: [],
+    equippedAvatarKey: "lion",
     // Reuse static catalogue copy so all three cutouts can be reviewed without
     // querying the database. Synthetic IDs stay inside the in-memory transport.
     items: HINT_SHOP_CATALOG.map((item) => ({
@@ -67,6 +69,7 @@ function createTransport(data: OilShopData, scenario: Scenario): OilShopTranspor
     // Administrator diagnostics are hidden; still fail safely if invoked.
     verifyPurchase: async () => ({ success: false, message: "Unavailable in this preview." }),
     verifyBalance: async () => ({ success: false, message: "Unavailable in this preview." }),
+    equipAvatar: async () => ({ success: false, message: "Unavailable in this preview." }),
   };
 }
 

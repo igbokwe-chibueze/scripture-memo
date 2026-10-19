@@ -5,11 +5,13 @@ import { useTranslations } from "next-intl";
 import { PlayerAvatar } from "@/features/profile/components/player-avatar";
 import {
   AVATAR_CATALOG,
+  isFreeAvatar,
   AVATAR_FRAME_KEYS,
   type AvatarFrameKey,
   type AvatarKey,
 } from "@/features/profile/data/avatar-catalog";
 import { cn } from "@/lib/utils";
+import { NavigationButton } from "@/components/shared/navigation-button";
 
 export type AvatarPickerProps = {
   avatarKey: AvatarKey;
@@ -36,6 +38,7 @@ export function AvatarPicker({
   onFrameChange,
 }: AvatarPickerProps): React.ReactNode {
   const t = useTranslations("Settings");
+  const shop = useTranslations("Shop");
 
   return (
     <section className="space-y-6" aria-labelledby="avatar-picker-title">
@@ -58,8 +61,8 @@ export function AvatarPicker({
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
-        {AVATAR_CATALOG.map((avatar) => {
+      <div className="grid grid-cols-3 gap-3">
+        {AVATAR_CATALOG.filter((avatar) => isFreeAvatar(avatar.key)).map((avatar) => {
           const isSelected = avatar.key === avatarKey;
           return (
             <button
@@ -93,6 +96,15 @@ export function AvatarPicker({
           );
         })}
       </div>
+
+      <NavigationButton
+        href="/oil-shop?tab=avatars"
+        pendingLabel={shop("avatars")}
+        variant="secondary"
+        className="min-h-11"
+      >
+        {shop("avatars")}
+      </NavigationButton>
 
       <div>
         <div className="mb-3 flex items-center justify-between gap-3">

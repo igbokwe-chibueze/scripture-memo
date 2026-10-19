@@ -1,3 +1,5 @@
+import type { AvatarKey } from "@/features/profile/data/avatar-catalog";
+
 /** A server-authorized consumable displayed in the Oil Shop. */
 export type OilShopItem = {
   id: string;
@@ -13,6 +15,16 @@ export type OilShopData = {
   hintsRemaining: number;
   purchasedHints: number;
   items: OilShopItem[];
+  avatars: ShopAvatarItem[];
+  equippedAvatarKey: AvatarKey;
+};
+
+/** Cosmetic prices/ownership come from the authorized shop read, never the browser. */
+export type ShopAvatarItem = {
+  id: string;
+  avatarKey: AvatarKey;
+  cost: number;
+  owned: boolean;
 };
 
 /** Safe result returned after an atomic purchase. */
@@ -21,6 +33,7 @@ export type OilShopPurchaseResult = {
   balance: number;
   hintsRemaining: number;
   purchasedHints: number;
+  avatarKey?: AvatarKey;
 };
 
 export type OilShopConflictCode =

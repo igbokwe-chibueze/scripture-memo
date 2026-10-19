@@ -2,6 +2,7 @@ import type { Prisma } from "@/lib/generated/prisma/client";
 import type { TranslationCode } from "@/lib/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import type { AccountSettingsPatch } from "@/features/settings/schemas/update-user-settings.schema";
+import { isFreeAvatar } from "@/features/profile/data/avatar-catalog";
 
 export type UserSettingsValues = {
   preferredTranslation: TranslationCode;
@@ -42,6 +43,15 @@ export const settingsRepository = {
    * and missing-row recovery reads are scoped to the affected profile only.
    */
   async updateForUser(userId: string, input: AccountSettingsPatch): Promise<void> {
+    // Never trust a forged Settings payload to equip a paid portrait. Ownership
+    // is permanent, so this read remains valid through the subsequent save.
+    if (input.avatarKey !== undefined && !isFreeAvatar(input.avatarKey)) {
+      const owned = await prisma.userAvatarOwnership.findUnique({
+        where: { userId_avatarKey: { userId, avatarKey: input.avatarKey } },
+        select: { avatarKey: true },
+      });
+      if (!owned) throw new Error("Purchase this avatar in the shop before equipping it.");
+    }
     const writes: Prisma.PrismaPromise<unknown>[] = [];
     const profileChanged = input.displayName !== undefined || input.countryCode !== undefined ||
       input.avatarKey !== undefined || input.avatarFrameKey !== undefined;
