@@ -5732,3 +5732,12 @@ concurrency subtests remain explicitly skipped as documented above.
 
 - Owner confirmed no connect links were used. Deleted app/connect and its unused player-invite view completely; no redirect remains. Sharing uses profiles only. Updated the product specification.
 - Regenerated Next route types and passed TypeScript. Verified no connect route or runtime references remain.
+
+### 2026-10-20 - Private detailed player statistics
+
+- Added owner-only /stats, linked from the signed-in player's own profile. Public summaries stay unchanged. Reuses approved fonts, semantic themes, shared controls, loading skeletons and noindex metadata.
+- Lifetime summaries cover activity/streaks, curriculum/mastery/books/challenges, mode outcomes/timing, translations, Beacon/leagues, badges, Glow ledger, hints, avatars and connections. Missing durations remain unavailable; elapsed attempt time is distinguished from focused study time.
+- Calendar defaults to the latest twelve months, supports earlier years and uses the Settings timezone. Completed modes include Vault practice and exclude admin testing. Compact annual heatmap plus 44px month/day controls; month/day browsing is local.
+- Two parameterized read-only queries per explicit page request. Session-derived identity, bounded aggregates, no email/note content/private IDs, no polling, read-time writes, migrations or hosted database access. Product/roadmap/security docs and English/Spanish/French labels updated.
+- Validation: production build, TypeScript, scoped ESLint, locale contracts and eight stats unit tests passed. Guarded local PostgreSQL tests cover ownership, timezone boundaries, practice/admin separation, mastery, historical purchases, league ordering and read-only behavior. Synthetic actual-component Edge checks passed five mobile/desktop/theme/locale layouts, 44px controls, no horizontal overflow, keyboard/day selection and an empty earlier year. Screenshots/results retained in .local-backups/stats-qa.
+- Current state: implemented, ready for owner review from Profile > View detailed stats. No unresolved product questions or schema deployment steps.

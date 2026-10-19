@@ -636,3 +636,20 @@ Accepted risk justification (if applicable):
 - Outgoing new requests have a shared database-backed 30/hour actor quota. Explicit paginated search and disabled social-link prefetch bound directory reads. No read-time writes or polling were added.
 - Invitations reveal no identity while signed out and retain only a validated internal profile return path through existing verification/onboarding. Visiting or registering never implicitly creates friendship.
 - Isolated real PostgreSQL tests cover duplicate and crossed requests, unauthorized acceptance/cancellation, unique-handle races and cooldowns, private-field exclusion, stable UUIDs after renaming, both-way block visibility, block/accept races, ownership of unblock, request quotas and banned targets. Tests use the existing guarded disposable local runner because Prisma Local multiplexing cannot safely exercise competing unique-constraint transactions. No hosted database was used.
+
+### Private player statistics - 2026-10-20
+
+- `/stats` requires a server session; account identity comes exclusively from
+  that session. Validated query parameters select a period, never an account.
+  Suspended/banned accounts are rejected and metadata is noindex/nofollow.
+- Every history query is owner-filtered, including both attempt and session
+  ownership. Admin-test sessions are excluded. Notes expose a count only; no
+  note content, email or private auth IDs are sent to the client.
+- Two parameterized read-only database queries per explicit route request:
+  one compact owner/settings row and one aggregate. At most 366 activity rows,
+  66 books and fixed enum-sized breakdowns return. No read-time initialization,
+  locks, transactions, polling, or tracking writes. Month/day interactions have
+  zero database operations; changing the year explicitly reloads the aggregate.
+- Local PostgreSQL integration tests cover account isolation, unavailable
+  accounts, timezone boundaries, practice/admin separation, historical grant
+  snapshots, mastery, league order and absence of read-time reward writes.

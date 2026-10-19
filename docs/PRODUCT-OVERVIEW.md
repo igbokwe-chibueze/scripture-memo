@@ -2349,3 +2349,22 @@ The application is production-ready when:
 - Reduced motion removes verse fades, dot motion and drifting lights. Scripture
   changes are not repeatedly announced by screen readers; loading status is stable.
   All data is bundled locally, with no database reads or polling.
+
+### Private player statistics (2026-10-20)
+
+- `/stats` is available only to the signed-in account and is linked from that
+  player's own profile. Other players retain the existing public summary.
+- Lifetime sections cover completed modes, activity days, streaks, curriculum
+  and verse mastery, books, challenge stages, attempt outcomes and durations,
+  translations, Beacon progression/leagues, earned badges, Glow ledger totals,
+  hints, owned avatars and connection counts. No new activity tracking is added.
+- The activity heatmap counts successfully completed modes, including Vault
+  practice and excluding admin testing. Dates use the Settings timezone. It
+  defaults to the latest 12 months and supports earlier calendar years.
+  Lifetime totals stay independent of the calendar's selected period.
+- A compact year overview pairs with a month grid of tappable 44px days and
+  learning/practice details. Browsing months or days is entirely local.
+- Completion rate excludes unfinished attempts. Recorded attempt time can
+  include waiting; missing historical durations remain unavailable rather than
+  fabricated. Streaks retain the existing progression rules; practice activity
+  on the calendar does not change those rules.

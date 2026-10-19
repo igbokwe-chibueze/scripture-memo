@@ -110,6 +110,17 @@ export async function MemberProfileView({ params }: {
             />
           )}
           {self && <ProfileShareTools publicId={profile.publicId} />}
+          {self && (
+            <NavigationButton
+              href="/stats"
+              pendingLabel={t("opening")}
+              variant="secondary"
+              prefetch={false}
+              className="min-h-11"
+            >
+              {t("viewStats")}
+            </NavigationButton>
+          )}
         </header>
         {self && (
           <UsernameForm

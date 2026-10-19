@@ -2067,3 +2067,12 @@ databases; hosted environments must apply checked-in migrations during deploymen
 ### Player profiles and friends extension (2026-10-19)
 
 Owner-approved addition: signed-in player profiles, explicitly chosen unique lowercase usernames (3-24 characters, 30-day change interval), private Friends hub, consent-based requests, removal/blocking, native sharing and resumable registration invitations. Permanent profile UUIDs and internal account IDs remain unchanged. Implemented with bounded reads, no polling/read-time initialization, database pair/handle constraints and sorted transaction locks. Local additive migration applied on development/test listeners only. Social concurrency coverage uses the disposable embedded PostgreSQL runner via npm run test:social:integration; --social selects the focused suite. Normal concurrency runs now include it.
+
+### Private player statistics extension (2026-10-20)
+
+Owner-approved detailed `/stats` page, linked from the owner's profile. Includes
+timezone-aware rolling-year and earlier-year activity heatmaps, completed modes
+including practice, and lifetime progress/gameplay/Beacon/badge/reward/inventory
+summaries. Reuses existing history with two read-only aggregate queries per page
+request; no migration, polling or additional gameplay writes. Month/day browsing
+is local. English, Spanish and French labels follow the existing design system.
