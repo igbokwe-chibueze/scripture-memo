@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { GamePageColumns } from "@/components/shared/game-page-columns";
 import { SanctuaryContent, type SanctuaryTransport } from "./sanctuary-content";
 import { SANCTUARY_TEST_DATA } from "../data/sanctuary-test-data";
 
@@ -42,13 +43,14 @@ function PreviewRun({
 }): React.ReactNode {
   const [transport] = useState(() => createTransport(rejectOnce));
   return (
-    <SanctuaryContent
-      data={SANCTUARY_TEST_DATA}
-      transport={transport}
-      studyContent={studyContent}
-      contentsNavigation={contentsNavigation}
-      backHref="/admin/testing/features#feature-test-previews"
-    />
+    <GamePageColumns contextPanel={contentsNavigation}>
+      <SanctuaryContent
+        data={SANCTUARY_TEST_DATA}
+        transport={transport}
+        studyContent={studyContent}
+        backHref="/admin/testing/features#feature-test-previews"
+      />
+    </GamePageColumns>
   );
 }
 

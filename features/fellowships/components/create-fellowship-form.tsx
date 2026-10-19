@@ -14,7 +14,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { LoadingButton } from "@/components/shared/loading-button";
+import { FELLOWSHIP_INTRODUCTION_LIMIT } from "../lib/fellowship-content";
 
+/** Creates a fellowship with optional header copy; defaults remain editable later in Manage. */
 export function CreateFellowshipForm(): React.ReactNode {
   const t = useTranslations("Fellowships");
   const router = useRouter();
@@ -25,9 +27,25 @@ export function CreateFellowshipForm(): React.ReactNode {
   const [unlockIndex, setUnlockIndex] = useState(0);
   const [pendingSlug, setPendingSlug] = useState<string | null>(null);
   const submit = (formData: FormData): void => startTransition(async () => {
-    const result = await createFellowshipAction({ name: formData.get("name"), description: formData.get("description"), isPublic, insigniaKey });
-    if (!result.success || !result.data) { toast.error(result.message, { duration: Infinity }); return; }
-    toast.success(result.message); if (result.data.badgeUnlocks.length > 0) { setUnlocks(result.data.badgeUnlocks); setPendingSlug(result.data.slug); } else { router.push(`/fellowships/${result.data.slug}`); router.refresh(); }
+    const result = await createFellowshipAction({
+      name: formData.get("name"),
+      introduction: formData.get("introduction"),
+      description: formData.get("description"),
+      isPublic,
+      insigniaKey,
+    });
+    if (!result.success || !result.data) {
+      toast.error(result.message, { duration: Infinity });
+      return;
+    }
+    toast.success(result.message);
+    if (result.data.badgeUnlocks.length > 0) {
+      setUnlocks(result.data.badgeUnlocks);
+      setPendingSlug(result.data.slug);
+    } else {
+      router.push(`/fellowships/${result.data.slug}`);
+      router.refresh();
+    }
   });
   return (
     <>
@@ -38,6 +56,20 @@ export function CreateFellowshipForm(): React.ReactNode {
         <label className="grid gap-2 font-bold">
           {t("name")}
           <Input name="name" required minLength={3} maxLength={50} />
+        </label>
+        <label className="grid gap-2 font-bold">
+          {t("overview.introductionLabel")}
+          <Input
+            name="introduction"
+            className="min-h-11"
+            maxLength={FELLOWSHIP_INTRODUCTION_LIMIT}
+            placeholder={t("overview.introductionFallback")}
+            disabled={isPending}
+            aria-describedby="create-fellowship-introduction-help"
+          />
+          <span id="create-fellowship-introduction-help" className="text-sm font-medium text-muted-foreground">
+            {t("overview.introductionHelp")}
+          </span>
         </label>
         <label className="grid gap-2 font-bold">
           {t("descriptionLabel")}

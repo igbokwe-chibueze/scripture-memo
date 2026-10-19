@@ -89,6 +89,8 @@
   --selection-subtle: var(--secondary);
   --selection-text: var(--secondary-foreground);
   --selection-border: var(--primary);
+  /* Owner-approved Epic badge identity; never a selection or correctness color. */
+  --badge-rarity-epic: oklch(0.60 0.20 300);
   --available: var(--secondary);
   --available-foreground: var(--secondary-foreground);
   --available-subtle: var(--secondary);
@@ -174,6 +176,8 @@
   --selection-subtle: var(--secondary);
   --selection-text: var(--secondary-foreground);
   --selection-border: var(--primary);
+  /* Owner-approved Epic badge identity; never a selection or correctness color. */
+  --badge-rarity-epic: oklch(0.76 0.16 300);
   --available: var(--secondary);
   --available-foreground: var(--secondary-foreground);
   --available-subtle: var(--secondary);

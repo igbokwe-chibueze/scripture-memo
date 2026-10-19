@@ -1,5 +1,6 @@
 "use client";
 
+import styles from "../active-game.module.css";
 import { useTranslations } from "next-intl";
 
 import { DraggablePhrase } from "@/features/gameplay/components/modes/draggable-phrase";
@@ -23,7 +24,7 @@ export function PhraseBank({
   return (
     <section
       aria-labelledby="phrase-bank-title"
-      className="rounded-2xl bg-muted/70 p-4 dark:bg-background/20"
+      className={styles.bank}
     >
       <h3 id="phrase-bank-title" className="font-heading text-sm font-bold text-foreground">
         {t("phraseBank")}
@@ -31,7 +32,7 @@ export function PhraseBank({
       <p className="mt-1 text-xs text-muted-foreground">
         {t("phraseInstruction")}
       </p>
-      <div className="mt-3 flex max-h-64 flex-col gap-2 overflow-y-auto sm:flex-row sm:flex-wrap">
+      <div className={styles.bankItems}>
         {phraseIndexes.map((phraseIndex) => (
           <DraggablePhrase
             key={phraseIndex}

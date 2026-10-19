@@ -1,11 +1,12 @@
 "use client";
 
+import Image from "next/image";
+
 import {
   CrownIcon,
   CompassIcon,
   FlameIcon,
   MapPinCheckIcon,
-  MedalIcon,
   SparklesIcon,
   TrophyIcon,
 } from "lucide-react";
@@ -18,13 +19,11 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { initializeBeaconLeagueAction } from "@/features/beacon/actions/initialize-beacon-league.action";
 import { LeagueEmblem, LeagueJourneyDialog } from "@/features/beacon";
-import { BEACON_COHORT_SIZE } from "@/features/beacon/constants/beacon-progression";
 import type {
   LeaderboardEntry,
   LeaderboardPageData,
   LeaderboardScope,
 } from "@/features/leaderboard/types/leaderboard.types";
-import { cn } from "@/lib/utils";
 import { PlayerAvatar } from "@/features/profile";
 import { CountryFlag } from "@/components/shared/country-flag";
 import {
@@ -40,18 +39,30 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+import { LeaderboardPodium, BeaconScore } from "./leaderboard-podium";
+import styles from "./leaderboard.module.css";
+
 type LeaderboardBoardProps = {
   data: LeaderboardPageData;
+  /** Server timestamp keeps the first countdown render identical on every device. */
+  initialTime: number;
 };
 
 /**
- * Shows a compact league deadline without making the server-rendered markup
- * depend on the device clock. The placeholder is identical during SSR and the
- * first client render; the real value appears immediately after hydration.
+ * Render a real countdown during SSR and hydration, using the same serialized
+ * server timestamp. Browser ticks take over afterward; no DB polling is added.
  */
-function LeagueRemainingTime({ endsAt }: { endsAt: string }): React.ReactNode {
+function LeagueRemainingTime({
+  endsAt,
+  initialTime,
+}: {
+  endsAt: string;
+  initialTime: number;
+}): React.ReactNode {
   const t = useTranslations("Leaderboard");
-  const [remainingMs, setRemainingMs] = useState<number | null>(null);
+  const [remainingMs, setRemainingMs] = useState(
+    () => Math.max(0, new Date(endsAt).getTime() - initialTime),
+  );
 
   useEffect(() => {
     const deadline = new Date(endsAt).getTime();
@@ -65,10 +76,6 @@ function LeagueRemainingTime({ endsAt }: { endsAt: string }): React.ReactNode {
 
     return () => window.clearInterval(intervalId);
   }, [endsAt]);
-
-  if (remainingMs === null) {
-    return <>{t("leagueEndsSoon")}</>;
-  }
 
   const totalMinutes = Math.max(0, Math.ceil(remainingMs / 60_000));
   const days = Math.floor(totalMinutes / (24 * 60));
@@ -86,152 +93,81 @@ function LeagueRemainingTime({ endsAt }: { endsAt: string }): React.ReactNode {
   return <>{t("leagueEndsInMinutes", { minutes })}</>;
 }
 
-/** Builds a stable URL for one server-rendered scope and page. */
+/** Builds a stable scope URL; obsolete page parameters are no longer emitted. */
 function leaderboardHref(
   scope: LeaderboardScope,
-  page = 1,
   fellowshipId?: string,
 ): string {
-  const parameters = new URLSearchParams({ scope, page: String(page) });
+  const parameters = new URLSearchParams({ scope });
   if (fellowshipId) parameters.set("fellowship", fellowshipId);
   return `/leaderboard?${parameters.toString()}`;
 }
 
-/** A compact filled crown designed specifically for the top-three rank plates. */
-function RankCrownIcon({ className }: { className?: string }): React.ReactNode {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className={className}
-      aria-hidden="true"
-    >
-      <path
-        fill="currentColor"
-        d="m3.2 7.2 4.3 3.1L12 4l4.5 6.3 4.3-3.1-1.7 9.1H4.9L3.2 7.2Zm2.1 10.6h13.4v2H5.3v-2Z"
-      />
-    </svg>
-  );
-}
-
-/** Gives podium places and the signed-in player distinct, game-like rank plates. */
-function RankPlate({
-  position,
-  isCurrentUser,
-}: {
-  position: number;
-  isCurrentUser: boolean;
-}): React.ReactNode {
-  const isPodium = position <= 3;
-
-  return (
-    <span
-      className={cn(
-        "grid min-h-12 grid-cols-[auto_auto] place-content-center gap-0.5 rounded-control border px-1 font-heading text-base font-bold shadow-[0_3px_0_color-mix(in_oklch,var(--foreground),transparent_82%)] sm:min-h-16 sm:gap-1 sm:rounded-card sm:px-2 sm:text-xl",
-        position === 1 &&
-          "border-reward-border bg-linear-to-br from-reward via-reward to-reward text-reward-text",
-        position === 2 &&
-          "border-border bg-linear-to-br from-card via-secondary to-muted text-foreground",
-        position === 3 &&
-          "border-decoration-border bg-linear-to-br from-decoration via-reward to-decoration text-decoration-text",
-        !isPodium &&
-          !isCurrentUser &&
-          "border-border bg-muted/55 text-foreground",
-        !isPodium &&
-          isCurrentUser &&
-          "border-selection-border bg-linear-to-br from-selection to-selection text-foreground",
-      )}
-    >
-      <span>{position}</span>
-      {isPodium && <RankCrownIcon className="size-3.5 sm:size-5" />}
-    </span>
-  );
-}
-
-/** Compact mobile-first row used for rank four and below. */
+/** Compact row preserves equipped cosmetics and the official server rank. */
 function RankingRow({
   entry,
   displayedPosition,
   onSelect,
-  pinned = false,
   scope,
   zone = "steady",
 }: {
   entry: LeaderboardEntry;
   displayedPosition: number;
   onSelect: (entry: LeaderboardEntry) => void;
-  pinned?: boolean;
   scope: LeaderboardScope;
   zone?: "promotion" | "steady" | "demotion";
 }): React.ReactNode {
   const t = useTranslations("Leaderboard");
   const isRival = entry.kind === "RIVAL";
-  const visibleDisplayName = entry.isCurrentUser
-    ? t("you")
-    : entry.displayName;
-
   return (
     <article
+      id={entry.isCurrentUser ? "leaderboard-you" : undefined}
       role="button"
       tabIndex={0}
+      className={styles.row}
+      data-you={entry.isCurrentUser}
+      data-scope={scope}
       onClick={() => onSelect(entry)}
       onKeyDown={(event) => {
-        // Rows behave like one large touch target while remaining operable for
-        // keyboard players without nesting interactive buttons inside buttons.
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
           onSelect(entry);
         }
       }}
-      className={cn(
-        "grid min-h-24 w-full grid-cols-[2.75rem_2.75rem_minmax(0,1fr)_auto] items-center gap-x-2 border-b px-3 py-4 text-left last:border-0 hover:bg-muted/45 focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-primary sm:min-h-28 sm:grid-cols-[4rem_3.5rem_minmax(0,1fr)_auto] sm:gap-x-3 sm:px-4 sm:py-5",
-        entry.isCurrentUser &&
-          "bg-selection-subtle text-selection-text dark:text-selection-text",
-        pinned && "rounded-2xl border border-selection-border/40 bg-selection-subtle",
-        zone === "promotion" && "border-l-4 border-l-emerald-500",
-        zone === "demotion" && "border-l-4 border-l-rose-500",
-      )}
     >
-      <RankPlate
-        position={displayedPosition}
-        isCurrentUser={entry.isCurrentUser}
-      />
-      <PlayerAvatar
-        avatarKey={entry.avatarKey}
-        frameKey={entry.avatarFrameKey}
-        displayName={visibleDisplayName}
-        size="sm"
-        className="size-11 sm:size-14"
-        isOnline={entry.isOnline}
-        loading={displayedPosition <= 3 ? "eager" : "lazy"}
-      />
-      <div className="min-w-0">
-        <p className="truncate text-sm font-bold sm:text-lg">
-          {visibleDisplayName}
-          {isRival && (
-            <Tooltip>
-              <TooltipTrigger
-                aria-label={t("trailRival")}
-                className="ml-2 inline-grid size-6 place-items-center rounded-full bg-selection-subtle align-middle text-selection-text dark:text-selection-text"
-                onClick={(event) => event.stopPropagation()}
-              >
-                <CompassIcon className="size-4" aria-hidden="true" />
-              </TooltipTrigger>
-              <TooltipContent>{t("trailRivalExplanation")}</TooltipContent>
-            </Tooltip>
-          )}
-        </p>
-        <CountryFlag
-          countryCode={entry.countryCode}
-          label={entry.countryCode ? t("countryFlag") : t("globalPlayer")}
-          className="mt-1.5 h-5 w-7 sm:h-6 sm:w-9"
+      <strong>{isRival ? "?" : entry.rank ?? displayedPosition}</strong>
+      <span className={styles.player}>
+        <PlayerAvatar
+          avatarKey={entry.avatarKey}
+          frameKey={entry.avatarFrameKey}
+          displayName={entry.displayName}
+          size="sm"
+          className="size-9 sm:size-10"
+          isOnline={entry.isOnline}
         />
-      </div>
-      <div className="text-sm font-bold sm:text-lg">
-        <span className="inline-flex min-h-10 items-center gap-1 rounded-xl bg-primary/10 px-2 py-2 text-primary sm:min-h-12 sm:gap-2 sm:rounded-2xl sm:px-4 sm:py-3">
-          <SparklesIcon className="size-4 shrink-0 sm:size-5" aria-hidden="true" />
-          {(scope === "all-time" ? entry.beaconXp : entry.weeklyXp).toLocaleString()}
+        <CountryFlag countryCode={entry.countryCode} label={t("countryFlag")} />
+        <span className={styles.playerName}>
+          {entry.displayName}{entry.isCurrentUser ? " (" + t("you") + ")" : ""}
         </span>
-      </div>
+        {isRival ? (
+          <Tooltip>
+            <TooltipTrigger
+              className="grid size-11 shrink-0 place-items-center"
+              aria-label={t("trailRival")}
+              onClick={(event) => event.stopPropagation()}
+            >
+              <CompassIcon className="size-4" aria-hidden="true" />
+            </TooltipTrigger>
+            <TooltipContent>{t("trailRivalExplanation")}</TooltipContent>
+          </Tooltip>
+        ) : null}
+      </span>
+      <BeaconScore value={scope === "all-time" ? entry.beaconXp : entry.weeklyXp} />
+      {scope === "league" && !isRival ? (
+        <span className={styles.status} data-zone={zone}>
+          {t(zone === "promotion" ? "promote" : zone === "demotion" ? "demote" : "stay")}
+        </span>
+      ) : <span />}
     </article>
   );
 }
@@ -335,6 +271,7 @@ function PlayerDetailsDialog({
  */
 export function LeaderboardBoard({
   data,
+  initialTime,
 }: LeaderboardBoardProps): React.ReactNode {
   const t = useTranslations("Leaderboard");
   const router = useRouter();
@@ -355,11 +292,25 @@ export function LeaderboardBoard({
       return right.weeklyXp - left.weeklyXp;
     },
   );
-  const currentUserAlreadyVisible = [...data.podium, ...data.entries].some(
-    (entry) => entry.isCurrentUser,
-  );
-  const currentFellowshipParameter = data.activeFellowshipId ?? undefined;
+  const listEntries = visibleEntries.filter((entry) => entry.kind === "RIVAL" || (entry.rank ?? 0) > 3);
+  // The repository already fetched self even when outside the visible top 30.
+  // Render that row once, in normal flow after an explicit skipped-ranks marker.
+  const additionalPlayer = data.currentUser && (data.currentUser.rank ?? 0) > 30
+    ? data.currentUser
+    : null;
   const isWeeklyScope = data.scope !== "all-time";
+  // The three visual zones are fixed. Only the learner's marker moves within
+  // its zone; a sparse cohort must never collapse the other colored sections.
+  const promotionSlots = data.promotionCount;
+  const demotionSlots = data.demotionCount;
+  const steadySlots = Math.max(0, data.totalPlayers - promotionSlots - demotionSlots);
+  const playerRank = data.currentUser?.rank ?? 1;
+  const third = 100 / 3;
+  const markerPercent = playerRank <= promotionSlots
+    ? ((playerRank - 0.5) / promotionSlots) * third
+    : playerRank > data.totalPlayers - demotionSlots
+      ? 2 * third + ((playerRank - (data.totalPlayers - demotionSlots) - 0.5) / demotionSlots) * third
+      : third + ((playerRank - promotionSlots - 0.5) / Math.max(1, steadySlots)) * third;
 
   const rankZone = (
     entry: LeaderboardEntry,
@@ -414,75 +365,23 @@ export function LeaderboardBoard({
 
   return (
     <>
-      <nav
-        className="py-3"
-        aria-label={t("scopes")}
-      >
-        {/* WHY: Four stable scopes fit as one segmented mobile control, so the
-         * learner can compare every destination without scrolling or spending
-         * two rows of valuable vertical space. Fellowship growth remains
-         * inside its own scope and therefore cannot expand this navigation. */}
-        <div className="grid grid-cols-4 gap-0 rounded-[1.5rem] border border-border/70 bg-card p-1.5 shadow-lg sm:gap-2 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
+      <nav className={styles.tabs} aria-label={t("scopes")}>
+        {(["league", "country", "fellowship", "all-time"] as const).map((scope) => (
           <NavigationButton
-            href={leaderboardHref("league")}
-            pendingLabel={t("opening")}
-            variant={data.scope === "league" ? "default" : "ghost"}
-            className={cn(
-              "min-h-16 min-w-0 flex-col gap-1 rounded-xl px-0.5 text-[0.65rem] shadow-none sm:min-h-11 sm:flex-row sm:px-2 sm:text-sm",
-              data.scope === "league" &&
-                "bg-selection text-selection-foreground shadow-[0_4px_0_var(--control-edge)] hover:bg-primary-hover",
-            )}
-          >
-            <TrophyIcon className="size-5" aria-hidden="true" />
-            {t("myLeague")}
-          </NavigationButton>
-          <NavigationButton
-            href={leaderboardHref("country")}
-            pendingLabel={t("opening")}
-            variant={data.scope === "country" ? "default" : "ghost"}
-            className={cn(
-              "min-h-16 min-w-0 flex-col gap-1 rounded-xl px-0.5 text-[0.65rem] shadow-none sm:min-h-11 sm:flex-row sm:px-2 sm:text-sm",
-              data.scope === "country" &&
-                "bg-selection text-selection-foreground shadow-[0_4px_0_var(--control-edge)] hover:bg-primary-hover",
-            )}
-          >
-            <CountryFlag
-              countryCode={data.countryCode}
-              label={t("countryFlag")}
-            />
-            {t("country")}
-          </NavigationButton>
-          <NavigationButton
+            key={scope}
             href={leaderboardHref(
-              "fellowship",
-              1,
-              data.activeFellowshipId ?? data.fellowships[0]?.id,
+              scope,
+              scope === "fellowship"
+                ? data.activeFellowshipId ?? data.fellowships[0]?.id
+                : undefined,
             )}
             pendingLabel={t("opening")}
-            variant={data.scope === "fellowship" ? "default" : "ghost"}
-            className={cn(
-              "min-h-16 min-w-0 flex-col gap-1 rounded-xl px-0.5 text-[0.65rem] shadow-none sm:min-h-11 sm:flex-row sm:px-2 sm:text-sm",
-              data.scope === "fellowship" &&
-                "bg-selection text-selection-foreground shadow-[0_4px_0_var(--control-edge)] hover:bg-primary-hover",
-            )}
+            variant={data.scope === scope ? "default" : "secondary"}
+            aria-current={data.scope === scope ? "page" : undefined}
           >
-            <MedalIcon className="size-5" aria-hidden="true" />
-            {t("fellowships")}
+            {t(scope === "league" ? "myLeague" : scope === "country" ? "country" : scope === "fellowship" ? "fellowships" : "allTime")}
           </NavigationButton>
-          <NavigationButton
-            href={leaderboardHref("all-time")}
-            pendingLabel={t("opening")}
-            variant={data.scope === "all-time" ? "default" : "ghost"}
-            className={cn(
-              "min-h-16 min-w-0 flex-col gap-1 rounded-xl px-0.5 text-[0.65rem] shadow-none sm:min-h-11 sm:flex-row sm:px-2 sm:text-sm",
-              data.scope === "all-time" &&
-                "bg-selection text-selection-foreground shadow-[0_4px_0_var(--control-edge)] hover:bg-primary-hover",
-            )}
-          >
-            <CrownIcon className="size-5" aria-hidden="true" />
-            {t("allTime")}
-          </NavigationButton>
-        </div>
+        ))}
       </nav>
 
       {data.scope === "fellowship" && data.fellowships.length > 1 ? (
@@ -506,7 +405,7 @@ export function LeaderboardBoard({
             onChange={(event) => {
               const fellowshipId = event.target.value;
               startFellowshipNavigation(() => {
-                router.push(leaderboardHref("fellowship", 1, fellowshipId));
+                router.push(leaderboardHref("fellowship", fellowshipId));
               });
             }}
             className="mt-2 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-bold outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
@@ -521,115 +420,95 @@ export function LeaderboardBoard({
       ) : null}
 
       {isWeeklyScope && (
-        <section className="overflow-hidden rounded-3xl border border-selection-border/25 bg-linear-to-br from-card via-card to-selection/10 p-3 shadow-lg sm:p-5">
-          <div className="relative grid grid-cols-[5.75rem_minmax(0,1fr)] items-center gap-2.5 max-[359px]:grid-cols-[5rem_minmax(0,1fr)] sm:grid-cols-[8.5rem_minmax(0,1fr)] sm:gap-4">
-            <div className="grid size-[5.75rem] place-items-center max-[359px]:size-20 sm:size-auto sm:aspect-square">
-              {data.scope === "league" ? (
-                <LeagueEmblem
-                  league={data.league}
-                  label={t("leagueEmblemAlt", {
-                    league: t(`leagues.${data.league}`),
-                  })}
-                  priority
-                />
-              ) : (
-                <span className="grid size-20 place-items-center rounded-3xl bg-selection-subtle text-selection-text dark:text-selection-text">
-                  <TrophyIcon className="size-10" aria-hidden="true" />
-                </span>
-              )}
-            </div>
+        <section className={styles.weekly}>
+          <div className={styles.weekHeading}>
+            {data.scope === "league" ? (
+              <LeagueEmblem
+                league={data.league}
+                label={t("leagueEmblemAlt", { league: t("leagues." + data.league) })}
+                priority
+              />
+            ) : data.scope === "country" ? (
+              <Image
+                src="/images/game-ui/leaderboard/country-globe.png"
+                alt=""
+                width={1254}
+                height={1254}
+                sizes="(max-width: 640px) 72px, 80px"
+                className="size-full object-contain"
+              />
+            ) : <TrophyIcon className="size-14 text-primary" aria-hidden="true" />}
             <div className="min-w-0">
-              <p className="text-[0.6875rem] font-bold tracking-[0.14em] text-selection-text uppercase dark:text-selection-text sm:text-xs sm:tracking-[0.16em]">
-                {data.scope === "league"
-                  ? t("leagueCompetition")
-                  : t("weeklyCompetition")}
+              <p className="text-xs font-bold tracking-widest text-primary uppercase">
+                {t(data.scope === "league" ? "leagueCompetition" : "weeklyCompetition")}
               </p>
-              <p className="mt-1 font-heading text-xl leading-tight font-bold max-[359px]:text-lg max-[359px]:whitespace-nowrap sm:text-3xl">
+              <h2>
                 {data.scope === "league"
-                  ? t("leagueName", { league: t(`leagues.${data.league}`) })
-                  : data.activeFellowshipName ?? t("country")}
-              </p>
-              <p className="mt-1 text-xs font-bold text-muted-foreground sm:text-sm">
-                <LeagueRemainingTime endsAt={data.weekEndsAt} />
+                  ? t("leagueName", { league: t("leagues." + data.league) })
+                  : data.activeFellowshipName ?? t(data.scope === "fellowship" ? "fellowships" : "country")}
+              </h2>
+              <p className="mt-1 text-sm font-bold text-muted-foreground">
+                <LeagueRemainingTime endsAt={data.weekEndsAt} initialTime={initialTime} />
               </p>
             </div>
-            <div className="col-span-2 mt-1 grid grid-cols-[auto_minmax(0,1fr)] items-stretch gap-2 sm:absolute sm:top-0 sm:right-0 sm:col-span-1 sm:mt-0 sm:flex sm:flex-col sm:items-end sm:gap-4">
-              {data.scope === "league" ? (
-                <LeagueJourneyDialog currentLeague={data.league} />
-              ) : null}
-              <div className="grid content-center rounded-xl bg-selection-subtle px-2.5 py-1.5 text-center sm:px-3 sm:py-2 sm:text-right">
-                <p className="text-[0.6875rem] font-bold leading-tight text-muted-foreground sm:text-xs">
-                  {t("weekEnds")}
-                </p>
-                <p className="mt-0.5 text-xs leading-tight font-bold sm:text-sm">
+            <div className={styles.headerActions}>
+              <div className={styles.reset}>
+                <p>{t("weekEnds")}</p>
+                <strong>
                   {new Intl.DateTimeFormat(undefined, {
+                    timeZone: "UTC",
                     weekday: "short",
                     month: "short",
                     day: "numeric",
                     hour: "numeric",
                     minute: "2-digit",
                   }).format(new Date(data.weekEndsAt))}
-                </p>
+                </strong>
               </div>
+              {data.scope === "league" ? (
+                <div className={styles.rankInfo}>
+                  <LeagueJourneyDialog currentLeague={data.league} />
+                </div>
+              ) : null}
             </div>
           </div>
-          {data.scope === "league" && (
-            <div className="mt-4 rounded-2xl border bg-background/65 p-3 sm:mt-5">
-              <div className="grid grid-cols-3 text-center text-[0.65rem] font-bold sm:text-xs">
-                <span className="grid gap-0.5 text-success-text dark:text-success-text">
-                  <span>{t("promote")}</span>
-                  <span>{t("topCount", { count: data.promotionCount })}</span>
-                </span>
-                <span className="self-start">{t("stay")}</span>
-                <span className="grid gap-0.5 text-error-text dark:text-error-text">
-                  <span>{t("demote")}</span>
-                  <span>{t("bottomCount", { count: data.demotionCount })}</span>
-                </span>
-              </div>
-              <div className="relative mt-2 flex h-3 overflow-visible rounded-full">
-                <span
-                  className="rounded-l-full bg-success"
-                  style={{ flex: data.promotionCount }}
-                />
-                <span
-                  className="bg-secondary dark:bg-muted"
-                  style={{
-                    flex:
-                      BEACON_COHORT_SIZE -
-                      data.promotionCount -
-                      data.demotionCount,
-                  }}
-                />
-                <span
-                  className="rounded-r-full bg-error"
-                  style={{ flex: data.demotionCount }}
-                />
-                {data.currentUser && (
-                  <span
-                    className="absolute top-1/2 grid size-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-xl bg-selection font-heading text-xs font-bold text-foreground shadow-lg ring-2 ring-ring dark:ring-ring"
-                    style={{
-                      left: `${Math.min(
-                        98,
-                        Math.max(
-                          2,
-                          (((data.currentUser.rank ?? 1) - 0.5) /
-                            BEACON_COHORT_SIZE) *
-                            100,
-                        ),
-                      )}%`,
-                    }}
-                    aria-label={t("yourRankNumber", {
-                      rank: data.currentUser.rank ?? 1,
-                    })}
-                  >
-                    {data.currentUser.rank ?? 1}
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
         </section>
       )}
+      {data.scope === "league" && data.totalPlayers > 0 ? (
+        <div className={styles.zones}>
+          {/* Fixed zones describe the league rules, even with one player.
+            Simulated rivals do not affect the official player's marker. */}
+          <div className={styles.zoneBar}>
+            <span />
+            <span />
+            <span />
+            {data.currentUser?.rank ? (
+              <strong
+                className={styles.rankMarker}
+                style={{ left: Math.min(97, Math.max(3, markerPercent)) + "%" }}
+                aria-label={t("yourRankNumber", { rank: data.currentUser.rank })}
+              >
+                {data.currentUser.rank}
+              </strong>
+            ) : null}
+          </div>
+          <div className={styles.zoneLabels}>
+            <span className="flex-1">
+              {t("topCount", { count: promotionSlots })}
+              <br />
+              {t("promote")}
+            </span>
+            <span className="flex-1">
+              {t("stay")}
+            </span>
+            <span className="flex-1">
+              {t("bottomCount", { count: demotionSlots })}
+              <br />
+              {t("demote")}
+            </span>
+          </div>
+        </div>
+      ) : null}
 
       {!data.countryCode && data.scope === "country" ? (
         <EmptyState
@@ -641,8 +520,21 @@ export function LeaderboardBoard({
             <NavigationButton
               href="/settings"
               pendingLabel={t("opening")}
+              className="min-h-11"
             >
               {t("chooseCountry")}
+            </NavigationButton>
+          }
+        />
+      ) : data.scope === "fellowship" && data.fellowships.length === 0 ? (
+        <EmptyState
+          className="mt-5"
+          icon={<Image src="/images/game-ui/fellowship.png" alt="" width={64} height={64} />}
+          title={t("fellowshipMissing")}
+          description={t("fellowshipMissingDescription")}
+          action={
+            <NavigationButton href="/fellowships" pendingLabel={t("opening")} className="min-h-11">
+              {t("joinFellowship")}
             </NavigationButton>
           }
         />
@@ -655,101 +547,48 @@ export function LeaderboardBoard({
         />
       ) : (
         <>
-          <section className="mt-6" aria-labelledby="rankings-title">
-            <div className="flex items-center justify-between gap-3">
-              <h2 id="rankings-title" className="font-heading text-2xl font-bold">
-                {t("rankings")}
-              </h2>
-              {/*
-               * Temporarily hidden while the live leaderboard population is
-               * small. Keep the localized count nearby so it can be restored
-               * without rebuilding the heading when participation grows.
-               */}
-              {/*
-                <span className="text-sm font-bold text-muted-foreground">
-                  {t("players", { count: data.totalPlayers })}
-                </span>
-              */}
-            </div>
-            {visibleEntries.length > 0 ? (
-              <div className="mt-4 overflow-hidden rounded-3xl border bg-card shadow-lg">
-                <div className="grid min-h-14 grid-cols-[2.75rem_2.75rem_minmax(0,1fr)_auto] items-center gap-x-2 border-b bg-muted/45 px-3 py-3 text-[0.6875rem] font-bold tracking-wide text-muted-foreground uppercase sm:min-h-16 sm:grid-cols-[4rem_3.5rem_minmax(0,1fr)_auto] sm:gap-x-3 sm:px-4 sm:text-xs">
+          <LeaderboardPodium
+            entries={data.podium}
+            scope={data.scope}
+            onSelect={setSelectedEntry}
+          />
+          <section className={styles.table} aria-label={t("rankings")}>
+            {listEntries.length > 0 ? (
+              <div>
+                <div className={styles.tableHeader} data-scope={data.scope}>
                   <span>{t("rankHeader")}</span>
-                  <span className="col-span-2">{t("playerHeader")}</span>
-                  <span className="max-w-20 text-center leading-tight">
-                    {t("beaconPointsHeader")}
-                  </span>
+                  <span>{t("playerHeader")}</span>
+                  <span>{t("beaconPointsHeader")}</span>
+                  <span>{data.scope === "league" ? t("statusHeader") : ""}</span>
                 </div>
-                {visibleEntries.map((entry, index) => (
+                {listEntries.map((entry, index) => (
                   <RankingRow
-                    key={
-                      entry.kind === "RIVAL"
-                        ? `rival-${entry.displayName}-${entry.avatarKey}-${index}`
-                        : `player-${entry.rank}`
-                    }
+                    key={entry.kind === "RIVAL" ? "rival-" + entry.displayName + index : "player-" + entry.rank}
                     entry={entry}
-                    displayedPosition={index + 1}
+                    displayedPosition={index + 4}
                     onSelect={setSelectedEntry}
                     scope={data.scope}
                     zone={rankZone(entry)}
                   />
                 ))}
               </div>
-            ) : (
-              <p className="mt-4 rounded-2xl border bg-card p-5 text-center text-muted-foreground">
-                {t("noMorePlayers")}
-              </p>
-            )}
+            ) : null}
 
-            {data.totalPages > 1 && (
-              <div className="mt-4 grid grid-cols-2 gap-3">
-                <NavigationButton
-                  href={leaderboardHref(
-                    data.scope,
-                    Math.max(1, data.page - 1),
-                    currentFellowshipParameter,
-                  )}
-                  pendingLabel={t("opening")}
-                  variant="outline"
-                  aria-disabled={data.page === 1}
-                  className={cn("w-full", data.page === 1 && "pointer-events-none opacity-50")}
-                >
-                  {t("previous")}
-                </NavigationButton>
-                <NavigationButton
-                  href={leaderboardHref(
-                    data.scope,
-                    Math.min(data.totalPages, data.page + 1),
-                    currentFellowshipParameter,
-                  )}
-                  pendingLabel={t("opening")}
-                  aria-disabled={data.page === data.totalPages}
-                  className={cn(
-                    "w-full",
-                    data.page === data.totalPages && "pointer-events-none opacity-50",
-                  )}
-                >
-                  {t("next")}
-                </NavigationButton>
+            {additionalPlayer ? (
+              <div>
+                <div className="py-3 text-center font-bold text-muted-foreground" aria-label={t("skippedRanks")}>
+                  &hellip;
+                </div>
+                <RankingRow
+                  entry={additionalPlayer}
+                  displayedPosition={additionalPlayer.rank ?? 0}
+                  onSelect={setSelectedEntry}
+                  scope={data.scope}
+                  zone={rankZone(additionalPlayer)}
+                />
               </div>
-            )}
+            ) : null}
           </section>
-
-          {data.currentUser && !currentUserAlreadyVisible && (
-            <aside className="sticky bottom-24 z-20 mt-5" aria-label={t("yourRank")}>
-              <p className="mb-2 text-xs font-bold tracking-wider text-reward-text uppercase dark:text-reward-text">
-                {t("yourRank")}
-              </p>
-              <RankingRow
-                entry={data.currentUser}
-                displayedPosition={data.currentUser.rank ?? 1}
-                onSelect={setSelectedEntry}
-                scope={data.scope}
-                zone={rankZone(data.currentUser)}
-                pinned
-              />
-            </aside>
-          )}
         </>
       )}
 

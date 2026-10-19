@@ -20,10 +20,10 @@ The platform is built on four scientifically grounded memorization principles:
 
 The application combines two layered progression systems that work together:
 
-- **The Three-Day Challenge System** — how a user completes a single waypoint (Glimmer → Glow → Radiance).
+- **The Three-Stage Challenge System** — how a user completes a single waypoint (Glimmer → Glow → Radiance).
 - **The Journey Stage System** — how a verse progresses across multiple waypoints over the expanding journey (Learn → Recall → Strengthen → Master).
 
-These two systems are independent but complementary. A user always plays the full three-day challenge at each waypoint. The Journey Stage tells them which appearance of that verse they are currently working on.
+These two systems are independent but complementary. A user always plays the full three-stage challenge at each waypoint. The Journey Stage tells them which appearance of that verse they are currently working on.
 
 ---
 
@@ -338,7 +338,7 @@ Do not create empty folders. Create a folder only when files actually go inside 
 
 - Register and log in.
 - Play unlocked waypoints.
-- Complete the three-day challenge for each waypoint.
+- Complete the three-stage challenge for each waypoint.
 - Earn Glow Points.
 - Use hints (where the Journey Stage allows).
 - View personal progress, stats, and badges.
@@ -550,8 +550,8 @@ requires a separately approved, reason-bearing, fully audited design.
   is the only waypoint unlocked for a new user. In a normally configured
   curriculum this is Waypoint 1.
 - All other waypoints are locked until the previous waypoint is fully completed.
-- A waypoint is fully completed when all three days of its challenge are complete.
-- Completing a waypoint's Day 3 automatically unlocks the next currently
+- A waypoint is fully completed when all three challenge stages of its challenge are complete.
+- Completing a waypoint's Stage 3 automatically unlocks the next currently
   published waypoint returned by the database; numbering gaps are not treated
   as learner failures.
 - A completed waypoint displays **three flames** on the map.
@@ -569,9 +569,9 @@ retry it if an earlier database operation was interrupted.
 |---|---|
 | `LOCKED` | Previous waypoint not yet completed |
 | `UNLOCKED` | Previous waypoint complete; this waypoint not yet started |
-| `IN_PROGRESS` | At least Day 1 started but Day 3 not yet complete |
+| `IN_PROGRESS` | At least Stage 1 started but Stage 3 not yet complete |
 | `COOLDOWN` | Awaiting 12-hour cooldown before next day unlocks |
-| `COMPLETED` | All three days complete |
+| `COMPLETED` | All three challenge stages complete |
 
 ---
 
@@ -579,7 +579,7 @@ retry it if an earlier database operation was interrupted.
 
 The Journey Stage System is a macro-level progression layer that tracks each
 verse's repeated appearances across the expanding waypoint journey. It is
-separate from and independent of the Three-Day Challenge System.
+separate from and independent of the Three-Stage Challenge System.
 
 ### 8.1 Journey Stages
 
@@ -601,7 +601,7 @@ Each verse progresses through four stages across separate waypoints. Example usi
 | Waypoint 67 | John 3:16 | Strengthen | 3rd |
 | Waypoint 154 | John 3:16 | Master | 4th |
 
-At each of these waypoints, the user still completes the full Three-Day Challenge (Glimmer → Glow → Radiance). The Journey Stage affects the availability of hints and the presence of a time limit — not the challenge structure itself.
+At each of these waypoints, the user still completes the full Three-Stage Challenge (Glimmer → Glow → Radiance). The Journey Stage affects the availability of hints and the presence of a time limit — not the challenge structure itself.
 
 If a verse needs to appear more than four times (additional `MASTER` stage appearances), this is supported and may be added by admins.
 
@@ -649,36 +649,41 @@ role; hiding the launcher in the browser is not treated as authorization.
 
 ### 8.5 Verse Mastery
 
-After successfully completing the **Master** stage waypoint for a verse (all three days complete), that verse is considered **permanently mastered** within the main progression. The Vault displays mastered verses in a dedicated section. Players may replay any mastered verse from the Vault at any time without affecting main campaign progression.
+After successfully completing the **Master** stage waypoint for a verse (all three challenge stages complete), that verse is considered **permanently mastered** within the main progression. The Vault displays mastered verses in a dedicated section. Players may replay any mastered verse from the Vault at any time without affecting main campaign progression.
 
 ---
 
-## 9. The Three-Day Challenge System
+## 9. The Three-Stage Challenge System
 
-Each waypoint contains three challenge days. The days must be completed in order. A rolling 12-hour cooldown is enforced between days.
+Each waypoint contains three challenge stages: Glimmer, Glow, and Radiance.
+Complete them in order, with a rolling 12-hour cooldown between stages.
+Completion messages use “Glimmer Complete!”, “Glow Complete!”, and “Radiance
+Complete!”. Radiance retains its separate existing waypoint celebration.
+Internal `DayLevel`/day-progress names are legacy persistence identifiers, not
+calendar-day promises and not the player-facing challenge terminology.
 
-### 9.1 Day 1 — Glimmer
+### 9.1 Stage 1 — Glimmer
 
 - Difficulty: Easy
 - Words hidden: 20–35%
 - Unlock condition: Available immediately when the waypoint is unlocked
 - Glow Points reward: Base amount (X)
 
-### 9.2 Day 2 — Glow
+### 9.2 Stage 2 — Glow
 
 - Difficulty: Medium
 - Words hidden: 40–60%
-- Unlock condition: Day 1 complete
-- Unlock timing: 12 elapsed hours after Day 1 completion
-- Glow Points reward: 1.5× the Day 1 base
+- Unlock condition: Stage 1 complete
+- Unlock timing: 12 elapsed hours after Stage 1 completion
+- Glow Points reward: 1.5× the Stage 1 base
 
-### 9.3 Day 3 — Radiance
+### 9.3 Stage 3 — Radiance
 
 - Difficulty: Hard
 - Words hidden: 70–100%
-- Unlock condition: Day 2 complete
-- Unlock timing: 12 elapsed hours after Day 2 completion
-- Glow Points reward: 2× the Day 1 base
+- Unlock condition: Stage 2 complete
+- Unlock timing: 12 elapsed hours after Stage 2 completion
+- Glow Points reward: 2× the Stage 1 base
 - Completion effect: Waypoint marked complete, next waypoint unlocked
 
 ### 9.4 Cooldown Rules
@@ -694,15 +699,15 @@ Each waypoint contains three challenge days. The days must be completed in order
 ### 9.5 Cooldown Calculation
 
 ```
-Day 2 unlock time = Day 1 completedAt + 12 hours
-Day 3 unlock time = Day 2 completedAt + 12 hours
+Stage 2 unlock time = Stage 1 completedAt + 12 hours
+Stage 3 unlock time = Stage 2 completedAt + 12 hours
 ```
 
 The server computes whether a day is playable by comparing the current UTC timestamp against the stored unlock timestamp. The client never decides this.
 
 Starting a day requires an unlocked learner-waypoint record, the preceding day
 where applicable, and a currently published waypoint and verse. Completing a
-day requires a server-created `IN_PROGRESS` day record. Day 3 completion,
+day requires a server-created `IN_PROGRESS` day record. Stage 3 completion,
 waypoint completion, and the next available waypoint unlock commit in one
 transaction so a partial advancement state cannot be observed.
 
@@ -741,10 +746,9 @@ Every game mode must include:
   Shared gameplay surfaces use semantic theme colors with intentional
   light/dark accents; a mode must never force the complete experience into one
   color scheme.
-- The shared public theme switcher persists its selection to `UserSettings`
-  whenever the visitor is authenticated. Anonymous visitors retain a
-  browser-only choice. Protected layouts and public controls must never maintain
-  competing theme values that cause navigation to restore an older appearance.
+- The shared public theme switcher persists its selection in browser local
+  storage through next-themes. Protected layouts never restore database themes.
+  Appearance is device-specific for both authenticated and anonymous visitors.
 - After a successful mode submission, show an animated completion interstitial
   with a deliberate Continue action; do not advance the visible mode
   automatically.
@@ -820,10 +824,15 @@ order.
 - Clicking or tapping the same selected word again deselects it (returns to yellow).
 - The Check button validates all positions.
 - Words in correct positions turn **green**; words still in wrong positions turn **red**.
-- Difficulty: Day 1 — 20–35% swapped; Day 2 — 40–60%; Day 3 — 70–100%.
+- Difficulty: Stage 1 — 20–35% swapped; Stage 2 — 40–60%; Stage 3 — 70–100%.
 - On all correct: confetti, success toast, Continue button.
 
-**Implementation note:** The swap generator must track token positions, not just word text. If the verse contains duplicate words (e.g., two instances of "the"), each instance is tracked by its index position to ensure fair and unambiguous validation.
+**Implementation note:** Swap tracks occurrence IDs for stable interactions, but
+correctness and per-slot feedback compare normalized visible words against the
+canonical verse slot. Identical repeated words are interchangeable, including
+case-equivalent occurrences; hidden IDs never make a correct word incorrect.
+Punctuation remains attached to canonical slots. The server independently checks
+the reconstructed answer before recording completion or awarding anything.
 
 ---
 
@@ -862,7 +871,7 @@ order.
 
 **Note:** Fill Mode is the final mode of each day. Its successful completion
 triggers the server-owned day transition, which sets the next-day cooldown and
-— on Day 3 — marks the waypoint complete and unlocks the next currently
+— on Stage 3 — marks the waypoint complete and unlocks the next currently
 published waypoint atomically. Glow Point awards, streak updates, and badge
 evaluation are added by their dedicated roadmap phases and must not be claimed
 by the UI before those systems are implemented.
@@ -930,9 +939,9 @@ Glow Points are the sole reward currency of Scripture Memo. There is no separate
 
 | Day | Reward |
 |---|---|
-| Day 1 — Glimmer | Base amount (X, configured by Super Admin) |
-| Day 2 — Glow | 1.5 × base |
-| Day 3 — Radiance | 2 × base |
+| Stage 1 — Glimmer | Base amount (X, configured by Super Admin) |
+| Stage 2 — Glow | 1.5 × base |
+| Stage 3 — Radiance | 2 × base |
 
 The default base reward is **100 Glow Points** until a Super Admin override is
 configured. New users start with a balance of **0 Glow Points**; the base reward
@@ -1170,7 +1179,23 @@ Each badge card shows:
 - Date earned (if unlocked)
 - Completion status (unlocked / in-progress / locked)
 
-Locked badges remain visible unless marked hidden. Players can filter by: Category, Rarity, Completed, In Progress, Locked.
+The collection uses Common → Uncommon → Rare → Epic → Legendary groups with
+earned/total counts for the current results. Search, Category, and Status
+(All/Earned/In progress/Locked) filter the already-loaded authorized collection.
+Locked means zero qualifying progress. In progress requires at least one
+qualifying achievement below the target; reaching the target earns the badge
+through the server reward flow. Evaluation alone does not start a badge, and
+no badge prerequisite chain is introduced. Hidden badge identity remains masked
+until earned.
+
+Mobile uses two cards per row, with a single-column fallback below 340px.
+Desktop uses paired art/text cards and a right-panel Collection summary with
+full-collection earned/total progress and rarity totals, independent of filters.
+The existing bottom donation card remains. Back to Vault uses the shared raised
+navigation control. Existing emoji badge icons remain until replacement artwork
+is supplied; the discarded shared button hover-spread experiment is not enabled.
+All progress, rewards, and eligibility still come from the existing server read;
+search/filter interactions add no queries, writes, or polling.
 
 ### 14.10 Badge Administration
 
@@ -1227,10 +1252,50 @@ preferences remove transform-based feedback without weakening usability.
 ### 15.1 Game Home
 
 The landing page after login. Shows:
-- User's current Glow Points and streak
+- User's avatar with its saved frame, current Glow Points, streak, and permanent Beacon XP
 - Current active waypoint and its Journey Stage
-- Quick-access button to resume gameplay
-- Navigation to all main sections
+- Three flames reflecting completed days and a button to resume the adventure
+- Meemo reading a Bible, following the owner-approved light/dark references
+- Fixed-color Bible, Trivia, Fellowship, and Badges shortcuts on the first row
+- Shop on the second row, followed by Admin for ADMIN and SUPER_ADMIN users only
+
+The shared player shell uses a desktop sidebar and mobile bottom navigation for
+Home, Map, Vault, Leaderboard, and Settings. Shop lives on Home rather than in
+either navigation bar. Its top bar includes the real
+notification inbox. Shared surfaces follow the selected brand and light/dark
+theme; shortcut backgrounds retain blue, purple, coral, and gold, with Shop
+reusing blue and Admin reusing purple.
+Mobile omits the top-bar divider; tablet and desktop retain it. The supplied
+golden diamond artwork represents Glow Points in the top bar and daily reward.
+Header Glow balances below 1,000 remain exact. Larger balances truncate down to
+one compact decimal with a plus sign (1,275 becomes 1.2K+), never rounding up to
+unavailable funds. Tapping or hovering the balance opens its exact localized
+amount using the shared popover; the trigger also exposes it to screen readers.
+Other header counters retain their existing formatting. No extra query is needed.
+Mobile navigation shows icons only, retaining accessible destination labels;
+desktop retains text. The Leaderboard artwork is enlarged to compensate for
+its transparent padding. Desktop Home scales artwork/cards with viewport height
+to keep the main adventure and first shortcut row visible; the second row may
+sit below the fold. Desktop alone corrects the stretched Meemo backdrop to a
+circle and budgets sidebar/context cards for short viewport heights. The approved
+mobile/tablet backdrop and layout are preserved. Admin uses the owner-supplied shield-and-key artwork.
+
+Daily Challenge currently displays explicitly illustrative progress and a +20
+reward placeholder; it never grants rewards or modifies learner progress. The
+desktop rail also shows a compact theme-aware support card: small heart-holding
+Meemo beside a short heading and “Support someone’s journey,” followed by one
+Donate button with a subtle periodic shimmer (disabled for reduced motion).
+The card stays at the bottom of the right rail; contextual content above scrolls
+independently. Shimmer is the shared white/silver opt-in effect, disabled by
+default for all primary/secondary buttons and currently enabled only for Donate.
+The supporting paragraph, eyebrow, footer and Learn more link are omitted to
+keep the invitation below half the rail height. Donate opens `/partner` in a
+new tab. `/partner` is an authenticated donation-coming-soon
+page with no payment collection. Mobile still omits the rail invitation.
+`/bible`, `/game/trivia`, and `/game/daily-challenge` remain authenticated blank
+destinations pending their own specifications.
+The mascot's public name is Meemo; legacy Luna component and asset identifiers
+remain stable to avoid an unrelated internal migration.
 
 ### 15.2 Game Map (🗺️)
 
@@ -1276,14 +1341,96 @@ original Scripture reference and Journey Stage preview for comparison.
 
 ### 15.3 Day Selection Screen
 
+The owner-approved light/dark concept composition uses a Today's Challenge
+header with a generated welcome-Meemo bust, waypoint number, Journey Stage,
+verse reference, and Study control. Mobile stacks the illustrated Glimmer,
+Glow, and Radiance cards; desktop reorganizes them into three columns within
+the unchanged player shell. Supplied emblems and locked artwork live in the
+new collection at `public/images/game-ui/waypoints/`, separate from legacy icons.
+Surfaces follow the selected brand and light/dark themes.
+
+Study access, recorded rewards, day order, cooldowns, and completed-mode practice
+remain server-authoritative. Pre-study scripture is available in a disclosure;
+locked Study never renders it. Timed-stage/no-hint notices and administrator
+testing remain accessible. Concept sample values never replace live player data.
+
 For a selected waypoint:
 - Verse reference and preferred translation displayed
 - Journey Stage badge clearly visible
-- Day 1 (Glimmer), Day 2 (Glow), Day 3 (Radiance) cards
+- Stage 1 (Glimmer), Stage 2 (Glow), Stage 3 (Radiance) cards
 - Each day card shows: status, reward preview, flame indicator if complete
 - For cooldown days: real-time countdown timer (`CountdownTimer` component)
 - Start button for days that are ready
 - Sonner toast when user tries to click a locked or cooldown day
+
+#### Session preparation and shared header (approved 2026-10-15)
+
+`/game/sessions/[sessionId]` uses the approved light/dark concept for its shared
+header and pre-mode introduction. The header shows the reference, Journey Stage,
+mode count, colored completed segments without check marks, and Beacon progress with a contrasting
+unfilled track and remaining XP to the next level. All values remain server-owned.
+
+Each of the five modes has its own concise instruction and decorative example,
+with the generated presenting-Meemo pose. Swap's illustrative “trust” and “Lord”
+tiles remain static alongside the directional arrows. The illustration has no
+hover, tap, or click effects and is independent of the active verse and answer.
+
+The introduction displays the actual Journey Stage time allowance and available
+hint count (or unavailable/test status). Begin retains the existing server action;
+no attempt, timer, hint consumption, or reward starts just from viewing the card.
+The interactive hint control remains on active gameplay surfaces. Mobile stacks
+header and introduction; desktop presents them side by side. Themes remain semantic.
+
+Drag & Drop preparation follows its revised concept: a static gold “Son” tile,
+curved arrow, and lower empty destination beside presenting Meemo. Instructions
+describe both drag and tap placement; timing, hint count, and Begin use live data.
+
+#### Active game boards (approved 2026-10-15)
+
+Active boards use the corrected concept header: static Meemo artwork over an
+oval, centered verse reference and Journey Stage, and the existing menu. The
+gameplay-only mascot variant shows both small hands and no blue head marks. Day/
+waypoint labels, mode count/segments, and Beacon XP are omitted during active
+play. Required server-backed attempt timers remain visible for timed stages.
+
+Drag & Drop and Swap follow the supplied light/dark board concepts. Puzzle,
+Cue, and Fill adapt the same compact text-only mode heading, verse surface, and
+Reset/Check row. Word and phrase banks wrap without an internal scroll area.
+Each mode title has a help button. Detailed Swap/Cue/Fill guidance is available
+only inside its help dialog, including feedback colors and automatic input focus
+advance. Opening help neither consumes a hint nor pauses a timed attempt.
+Swap movable words are gold; selected movable tiles use purple. Focused typing
+gaps in Cue and Fill use brand teal, with evaluated success/error colors taking
+priority over focus.
+Empty Drag & Drop/Puzzle destinations use the original brand-teal readiness
+and drag-over highlight, separately from purple selected tiles.
+  During an active drag, the hovered empty destination expands by 7% using a
+  short transform transition, without reflowing the verse. It returns to normal
+  when the drag leaves or ends; filled/disabled gaps do not expand. Saved and OS
+  reduced-motion preferences retain the teal cue without expansion.
+This owner-approved palette exception is scoped to active gameplay. Other
+surfaces and correctness feedback retain the shared theme tokens.
+
+Desktop retains the mobile composition in a wider card. Illustrations remain
+static, existing tap/drag/keyboard input and server validation remain intact,
+and hints retain their server-authorized balance and Journey Stage restrictions.
+Stage completion now follows the approved celebration concept: named stage
+heading, celebrating Meemo, verse/Journey Stage, 5/5 mode status, Flame kindled,
+Beacon progress, and the stage's actual Glow Points/Beacon XP. It reuses the
+approved diamond, flame, and blue-star icons. A level-up notice remains when earned.
+The button says Continue if badge/streak/waypoint celebrations remain; otherwise
+Exit gameplay. The existing celebration order and destinations are preserved.
+Individual mode, badge, streak, and waypoint celebration designs remain unchanged.
+
+The server returns stageEarnedXp after verifying all five ordered modes: the
+final award (including stage and Radiance waypoint bonuses) plus the four prior
+mode awards. Current totals are 75/90/210 XP for Glimmer/Glow/Radiance. This adds
+no database operation and never awards XP a second time. The Glow Points line
+uses the stage reward amount, excluding separate badge rewards and account balance.
+Reopening a completed campaign session renders this same result card from the
+recorded stage reward and that session's XP ledger entries. Two bounded indexed
+reads run only for completed campaign sessions; active-session reads are unchanged.
+Reopening never awards rewards or replays the badge/streak/waypoint sequence.
 
 ### 15.4 Sanctuary (🕊️)
 
@@ -1292,7 +1439,16 @@ Reflection space shown after completing Radiance or as a standalone destination.
   the first Glimmer session through Radiance, and permanently reopens after
   Radiance. The lock is server-enforced across direct URLs, Vault actions, and
   waypoint navigation; active-practice screens never serialize the verse text.
-- Full verse displayed with the user's preferred translation
+- Full verse starts with the Settings translation; a temporary selector can
+  switch among available translations without saving a preference. Reloading
+  restores the Settings-derived default. Authorized alternatives reuse the
+  existing read; locked responses never serialize them.
+- Study and My Notes are tabs on mobile and desktop. Study sections collapse
+  individually; only Study note and Prayer start expanded. Other authored
+  material, including Reflection when present, remains available collapsed.
+- The desktop right rail contains On this page navigation and the existing
+  bottom donation card. Navigation opens the selected section and returns to
+  Study if My Notes is active. Note drafts survive tab and translation changes.
 - Reflection question and study note
 - Private notes: user can write and save a personal note about the verse
 - Favorite toggle: mark the verse as a favorite
@@ -1301,13 +1457,14 @@ Reflection space shown after completing Radiance or as a standalone destination.
 ### 15.5 Vault (📖)
 
 The user's complete progress library.
-- Completed verses with mastery status (Learn / Recall / Strengthen / Master complete)
-- Mastered verses section (all four stages complete)
-- Favorite verses
-- In-progress waypoints
-- Personal stats: total Glow Points, current streak, best streak, total waypoints complete, total hints used
+- One searchable verse collection with status and favorites filtering.
+- A verse is Completed after its Learn waypoint; Mastered requires all four Journey Stages.
+- Translation follows Settings; the Vault has no separate translation selector.
+- Favorite hearts and Sanctuary links preserve server-owned study-access locks.
+- Packs is an empty state until player packs are introduced; no sample catalogue or progress.
+- The compact header retains admin testing; personal stats, replay controls, and waypoint sections are removed from the collection screen.
 - Full badge collection (link to `/vault/badges`)
-- Filter by translation, pack, completion status
+- Desktop retains the context rail and its bottom donation card.
 
 Vault replay uses Radiance-level content across all five ordered modes. It is
 untimed and hints are unavailable. Every answer and mode transition is validated
@@ -1319,10 +1476,27 @@ one Vault replay and evaluates the Vault Explorer badge from that trusted total.
 
 Marketplace for spending Glow Points.
 - Current Glow Points balance displayed prominently at top
-- The MVP catalogue begins with consumable hint packs: 1 hint for 50 Glow
-  Points, 3 hints for 125, and 5 hints for 200. Profile themes, map cosmetics,
-  flame styles, and other visual inventory remain deferred.
-- Grid of available shop items, beginning with extra hints
+- The catalogue offers 3 hints for 120 Glow Points, 10 for 300, 25 for 600,
+  and 50 for 1,000. Older packs are retired without changing prior purchases
+  or their snapshotted hint entitlements.
+- The responsive Shop has Hint packs, Avatars and Donations tabs, a welcoming
+  Meemo hero, exact Glow balance and two-column item cards. Approved fonts,
+  tactile buttons and semantic light/dark theme colors remain unchanged.
+- Lion, Dove and Deer remain free in Settings. The other nine existing avatars
+  cost 250 Glow Points each, permanently, and are purchased/equipped in Shop.
+  Settings displays only the three free options, plus a link to the avatar shop.
+  Both Settings and Shop verify paid-avatar ownership on the server.
+- At the owner-approved rollout, users equipped with a paid avatar reset to Lion;
+  no prior avatar selection grants free ownership. This reset occurs only in the
+  migration, never on a read or subsequent catalogue seed.
+- Cosmetic ownership is unique per learner/avatar. Repeated/concurrent purchases
+  charge once; equipping owned or free avatars never spends points. Avatar
+  purchases do not grant hints. Profile themes, map cosmetics and flame styles
+  remain deferred, and Partner frame rules remain unchanged.
+- Donations remains a coming-soon state with a button opening `/partner` in a
+  new tab. Shop remains accessed from Home rather than adding a nav destination.
+- The shop read uses five bounded queries per visit (one more inventory read),
+  independent of item count, without polling or initialization writes.
 - Clicking an item opens a preview modal with description and cost
 - Purchase button deducts Glow Points via a server-side transaction
 - On success: Sonner toast "Purchased [item name]!" and balance updates
@@ -1338,11 +1512,55 @@ Social group system.
 - View fellowships the user belongs to
 - Browse/search public and private fellowships. Private results disclose only
   their public identity and clearly require leader approval.
+- Discovery cards use View to open a details modal with the full description,
+  founder and current leader display names, creation date, member count and
+  public/private access. Join or Request to join lives inside this modal;
+  pending requests can be cancelled there. Existing membership cards still Open.
+- Original founder identity is stored separately from the current leader and
+  stays unchanged during leadership transfers. Existing fellowships recover the
+  founder from the earliest accepted handover, falling back to the current leader
+  only when no handover occurred. Deleted founder accounts display Unavailable.
+  Discovery never returns email addresses, raw founder/leader IDs or invite codes.
 - Create a fellowship (name, description, public/private setting)
 - Select one of twelve curated fellowship insignias; uploaded insignias are not
   supported, and the server accepts only fixed catalogue keys.
 - Fellowship leaders can later edit the name, description, discovery status,
   and insignia. The stable fellowship URL does not change when its name changes.
+- Fellowship detail opens on Overview, followed by Members and leader-only
+  Requests (with a pending count). Overview shows About, Group guidelines, an
+  access-status card explaining immediate public joining versus private leader
+  approval, and the current leader's selected avatar/name.
+- Members use their selected avatars/frames and country flags, with You and Leader
+  badges. Search and sorting use the already-loaded complete roster locally.
+  A separate # column before members shows #1, #2, and so on in displayed order;
+  numbering restarts at #1 after searching and follows the selected sort.
+  Default order is leader first, then alphabetical; name, date joined and ranking
+  sorts support both directions. Ranking uses lifetime Beacon XP descending,
+  then completed waypoints and earlier join date for ties. Glow Points do not
+  determine this member ranking. The visible label is Lifetime Beacon Points.
+- Member rows navigate to `/profiles/[publicId]`. Each profile has an independent,
+  stable public UUID; private auth and profile-record IDs are not exposed. The
+  authenticated, noindex destination is an empty coming-soon screen until the
+  profile feature is built. It performs no member lookup or initialization write.
+  Row prefetch is disabled to avoid an authenticated request per visible member.
+- Across all fellowship detail tabs, the desktop rail shows Together so far above
+  the unchanged bottom donation card: combined lifetime Beacon Points and completed
+  waypoints from the full current roster, including progress before joining.
+  Searches and sorts do not affect these totals. No extra database read is needed.
+- Member cards retain a 12px gap on mobile and desktop so shared hover effects
+  have room without overlapping adjacent members.
+- A separate optional 140-character introduction appears below the fellowship
+  identity. It can be set during creation or in Manage; the existing description
+  stays in About. Empty introductions use a localized welcome rather than
+  duplicating the About paragraph.
+- Leaders edit guidelines in Manage as plain text, one per line (up to 8 lines,
+  160 characters each, 1,000 total). Defaults encourage regular Scripture practice,
+  celebrating progress without comparison or pressure, and kindness to learners.
+  There is no reference to a discussion feature. Clearing the field restores
+  localized defaults; existing fellowships need no initialization write.
+- Header actions preserve permissions: eligible leaders have Manage and Invite;
+  ordinary members can Leave. Leaders still transfer leadership before leaving,
+  and closing/suspended fellowships retain their existing governance restrictions.
 - Invite secrets are not permanently exposed in the Fellowship header. The
   leader opens a responsive Invite panel to share or copy the prefilled joining
   link/code. Code rotation belongs in leader settings when an older invitation
@@ -1438,13 +1656,46 @@ Display:
 
 ### 15.9 Settings
 
-User settings:
+User settings are organized into three tabs. Game opens by default on navigation:
+- **Game:** master audio toggle, separate sound-effects and ambience volumes
+  (0–100%, defaults 80%/60%), preview controls, and reduced motion.
+- **Profile:** display identity, avatar/frame, country, and journey statistics.
+- **App & Learning:** Bible translation, interface language, theme, timezone,
+  and journal guides. Translation remains independent of audio settings.
+
+Save routes each preference to its appropriate owner. Profile identity,
+avatar/frame, country, Bible translation, and timezone persist in PostgreSQL and
+follow the account. Theme, audio on/off, effects/ambience volumes, and reduced
+motion live in local storage for this browser. Interface language lives in a
+cookie so server rendering uses it without a database lookup. Device-only saves
+perform no server mutation or route refresh. Browser-only values never enter an
+account repository. Missing/corrupt local values use defaults; blocked storage
+shows a save error. Existing browser theme/language survive the transition;
+old account-level presentation choices are intentionally discarded.
+
+Gameplay menus link to Game Settings. Sound effects use stronger master gain
+with peak compression; ambience has an independent gain. Slider movement and
+previews do not persist data; Save applies them. In-game quick mute is temporary.
+
+Each edited field shows a pencil/Unsaved marker until restored or successfully
+saved. Undo changes beside Save restores all unsaved tab drafts to the latest
+successful save, clears errors/markers, and stops audio previews without writing
+data. Both actions lock during a pending save. Failed saves keep drafts intact.
+
+Account saves submit a validated non-empty patch of changed fields only. Only
+affected records are written: translation/timezone affect UserSettings, profile
+choices affect UserProfile, and display-name changes synchronize User and
+UserProfile atomically. Unchanged account fields are not resent or overwritten.
+Device saves write only changed local-storage keys; the language cookie and
+theme provider update only when their corresponding preference changes.
+
+Editable preferences (storage ownership described above):
 - Display name
 - Country (used for country leaderboard)
 - Preferred Bible translation (KJV / WEB / BSB; KJV is the platform default)
 - Preferred interface language (English / Spanish / French initially; independently
   expandable without changing the player's Bible translation)
-- Audio effects on/off
+- Audio on/off, sound-effects volume, and ambience volume
 - Reduced motion preference
 - Theme preference (light/dark/system)
 
@@ -1461,6 +1712,32 @@ Admin settings (Super Admin only):
   event metadata are withheld from the browser view.
 
 ---
+
+### 15.10 Public Journal and Game Guides (owner-approved 2026-10-14)
+
+- `/blog` is public without login, with submitted text search, category filters,
+  bounded 12-article pagination, and an intentional empty state.
+- Categories are Game Guides, News & Announcements, and Behind the Scenes.
+  `/blog/[slug]` displays published content, its public byline, publication date,
+  last updated date, and estimated reading time. Draft URLs show the not-found
+  page and noindex metadata without exposing draft content.
+- `/admin/blog` and `/admin/blog/[articleId]` are ADMIN/SUPER_ADMIN-only. The
+  `new` segment opens an unsaved draft. The Markdown editor supports preview,
+  draft saving, publishing, updating, and returning a published article to draft.
+- Publication is explicit when saving. Published summaries require at least
+  20 characters and bodies at least 80 characters. Bodies are limited to 60,000
+  characters; raw HTML, embedded scripts, and remote images are not rendered.
+- Slugs are unique and permanent after first publication. Version matching
+  prevents stale editors from overwriting newer content. Saves and audit records
+  commit atomically. No automatic deletion or article autosave polling occurs.
+- The initial local installation includes seven game guides, a welcome
+  announcement, and a design article. These are editable database articles,
+  not runtime copies of project documentation. Update the relevant guide when
+  changing a documented player-facing rule; its last updated date changes on save.
+- Landing and Settings link to the public journal; the admin control center links
+  to the editor. Existing player navigation remains unchanged.
+- Ordinary article reads do not write data or award rewards. Blog publication
+  never exposes gated verse-study content or private player/account records.
 
 ## 16. Reusable Components
 
@@ -1499,7 +1776,7 @@ Build the following as shared, reusable components before implementing features 
 | `<HintButton>` | Shows remaining hints count; opens hint modal on click; hidden on Strengthen/Master stages |
 | `<FlameIndicator>` | Shows 0, 1, 2, or 3 flame icons for waypoint day completion |
 | `<WaypointCard>` | Waypoint tile for the game map with status, number, stage, and flame count |
-| `<DayCard>` | Day challenge card with name, status, reward preview, and countdown timer |
+| `<DayCard>` | Challenge stage card with name, status, reward preview, and countdown timer |
 | `<JourneyStageBadge>` | Pill showing Learn / Recall / Strengthen / Master with stage-appropriate color |
 
 ---
@@ -1678,8 +1955,9 @@ campaign or award Glow Points.
 
 ### 18.1 Player Portraits and Partner Frames
 
-- Players choose from twelve bundled animal portraits. User uploads and remote
-  avatar URLs are not accepted.
+- Twelve bundled animal portraits exist: Lion, Dove and Deer are free in Settings;
+  the other nine are permanent Shop purchases at 250 Glow Points each. Purchased
+  portraits equip in Shop. User uploads and remote avatar URLs are not accepted.
 - Profiles persist stable catalog keys rather than asset paths. Unknown legacy
   keys fall back to the lion portrait and standard frame.
 - Every player receives the standard frame. A persisted Partner entitlement is
@@ -1700,13 +1978,32 @@ campaign or award Glow Points.
   and never affects official promotion, demotion, rewards, Crowns, or progression.
 - Leaderboard rows show only the scope-relevant Beacon Points. Selecting a row
   opens a compact detail dialog for the player's secondary Beacon statistics.
-- The leaderboard list has Rank, Player, and Beacon Points headers. Displayed
-  positions one through three receive custom crown marks and metallic gold,
-  silver, and bronze rank plates; the signed-in learner receives a violet row
-  and rank treatment so their position is immediately recognizable.
-- At the 375px foundation width, compact rank plates, portraits, gaps, and score
-  pills reserve most flexible width for the player's name. Comfortable row
-  padding provides breathing room without enlarging fixed controls.
+- All four leaderboard scopes show official top-three players on a silver,
+  gold, and bronze podium (second, first, third). Owner-supplied rank frames
+  and empty metallic bases compose with bundled avatars and live names,
+  flags, and scope-relevant scores; these frames grant no inventory entitlement.
+  Bases fill their columns and provide taller nameplates; names wrap onto two
+  centered lines, with full wording available through player details.
+  Frames sit on the platform and live text centers on the base's front face.
+  Empty podium places keep their frame/base without an avatar, name, flag or score.
+  Country without a selected country stays on its tab and links to Settings.
+  Fellowship without memberships stays on its tab and links to Fellowships to
+  join/create one. Neither empty state falls back to My League or loads rankings.
+- Compact rows show official rank, equipped player portrait/frame, country,
+  name, Beacon Points and league status where applicable. Trail Rivals retain
+  their explanatory compass and never receive official medals or rank numbers.
+- Every scope shows the top 30 official players, including the three podium
+  places. A learner outside that group appears once after an ellipsis with their
+  actual rank; a learner inside it is not duplicated. No pagination, sticky self
+  card, Jump to me action or desktop Your Position card is shown. Self rows retain
+  teal emphasis, and the shell-owned Become a Partner card remains unchanged.
+- Weekly zone charts always show three fixed colored sections: Top 7 / Promote,
+  Stay, and Bottom 5 / Demote, even with a sparse cohort. Only the player's rank
+  marker moves within its corresponding section. This presentation does not
+  change server settlement safeguards. Reset timestamps explicitly use UTC,
+  and the initial countdown uses the serialized server snapshot time.
+- At 375px, four text tabs, compact rows and truncation preserve usable names
+  without horizontal scrolling. Desktop expands the same podium/list composition.
 - Trail Rivals never appear in Fellowship or All Time views and are not stored as
   users, profiles, progression records, or presence records.
 
@@ -1745,7 +2042,7 @@ campaign or award Glow Points.
 - `startGameSessionAction`
 - `completeGameModeAction` — records attempt, evaluates badges
 - `completeDayAction` — awards Glow Points, sets next cooldown, evaluates badges
-- `unlockNextWaypointAction` — triggered after Day 3 completion
+- `unlockNextWaypointAction` — triggered after Stage 3 completion
 - `useHintAction` — decrements hint count, records usage
 
 ### Rewards Actions
@@ -1802,7 +2099,7 @@ Use Sonner for all user-facing feedback. Never use `alert()`. Never silently fai
 |---|---|
 | Success | "Login successful.", "Verse created.", "Day completed. +120 Glow Points earned.", "Badge unlocked! Verse Scholar 🏅" |
 | Error | "Invalid email or password.", "Something went wrong. Please try again.", "Not enough Glow Points." |
-| Info | "Day 2 unlocks in 23h 14m.", "Hint used. 2 hints remaining." |
+| Info | "Stage 2 unlocks in 23h 14m.", "Hint used. 2 hints remaining." |
 | Warning | "You only have 1 hint remaining.", "Unsaved changes will be lost." |
 
 - Error toasts persist until dismissed by the user.
@@ -1921,20 +2218,25 @@ if (isUnlocked) { ... }
 - Sonner toasts throughout
 - Security checks throughout
 
+### Implemented Extensions Beyond the Original MVP
+
+- Player map practice: select an individually completed mode from a completed
+  Glimmer, Glow, or Radiance card. Practice is untimed, hint-free, and reward-free;
+  it changes no campaign attempts, cooldowns, streaks, or waypoint history.
+  Vault replay remains the long-term mastery library.
+- Administrative bulk CSV verse import (see §6.3 Administrative CSV Import).
+- Fellowship leadership transfer, closure, suspension/appeal, and Super Admin
+  governance-case administration.
+- Game Home, contextual desktop panels, platform settings/audit viewing,
+  and registered brand-theme preview/global selection.
+
 ### Defer Post-MVP
 
-- Player-accessible map replay for completed challenge days. A player may choose
-  any individually completed mode from a completed Glimmer, Glow, or Radiance
-  card. These practice sessions are explicitly non-progressing and reward-free
-  by default; they never alter attempts, cooldowns, streaks, campaign progress,
-  or waypoint history. Vault replay remains available as the organized
-  long-term mastery library. Revisit any limited daily practice reward only as
-  a separate, abuse-resistant product decision.
+- Any daily practice reward requires a separate abuse-resistant product decision.
 - Advanced Oil Shop cosmetics (map skins, flame styles)
-- Fellowship moderation tools
+- Additional Fellowship moderation capabilities beyond the implemented governance workflows
 - Push notifications
 - Advanced analytics dashboard
-- Bulk verse import UI
 - Mobile app wrapper
 
 ---
@@ -1965,3 +2267,20 @@ The application is production-ready when:
 ---
 
 *End of Scripture Memo Production Technical Document v2.0*
+
+### Global loading scene (2026-10-18)
+
+- GlobalLoading fills the viewport without scrolling, using the owner's supplied
+  portrait Meemo walking image with its original proportions, a single-line heading,
+  shared typography, a wider loading bar and visible drifting fireflies in both themes.
+  Route-specific loading skeletons remain unchanged.
+- Twelve owner-supplied scripture excerpts retain exact English wording regardless
+  of translation settings. Each priority passage has weight 2; others weight 1.
+  Initial selection is randomized after hydration, with no consecutive repeat.
+- Verses rotate after max(8 seconds, 0.3 seconds per word). Hover, keyboard focus
+  and hidden document state pause the remaining reading time. The verse region is
+  keyboard focusable. No verse references, pause button or extra indicator flame
+  are displayed. Navigation never waits for this timer.
+- Reduced motion removes verse fades, dot motion and drifting lights. Scripture
+  changes are not repeatedly announced by screen readers; loading status is stable.
+  All data is bundled locally, with no database reads or polling.

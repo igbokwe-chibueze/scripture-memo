@@ -6,4 +6,6 @@ export type GameHomeWaypoint = {
   number: number;
   journeyStage: JourneyStage;
   reference: string;
+  /** Actual completed challenge days; never derived from sample reference art. */
+  completedDays: number;
 };

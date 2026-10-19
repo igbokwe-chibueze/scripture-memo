@@ -1,14 +1,11 @@
+import type { Prisma } from "@/lib/generated/prisma/client";
 import type { TranslationCode } from "@/lib/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
-import type { UpdateUserSettingsInput } from "@/features/settings/schemas/update-user-settings.schema";
-import { DEFAULT_LOCALE, isSupportedLocale, type AppLocale } from "@/i18n/config";
+import type { AccountSettingsPatch } from "@/features/settings/schemas/update-user-settings.schema";
+import { isFreeAvatar } from "@/features/profile/data/avatar-catalog";
 
 export type UserSettingsValues = {
   preferredTranslation: TranslationCode;
-  locale: AppLocale;
-  audioEnabled: boolean;
-  reducedMotion: boolean;
-  theme: "light" | "dark" | "system";
   timeZone: string;
   hasConfiguredTimeZone: boolean;
   hasSelectedTranslation: boolean;
@@ -25,10 +22,6 @@ export const settingsRepository = {
       where: { userId },
       select: {
         preferredTranslation: true,
-        locale: true,
-        audioEnabled: true,
-        reducedMotion: true,
-        theme: true,
         timeZone: true,
         hasConfiguredTimeZone: true,
         hasSelectedTranslation: true,
@@ -38,13 +31,6 @@ export const settingsRepository = {
 
     return {
       preferredTranslation: settings.preferredTranslation,
-      locale: isSupportedLocale(settings.locale) ? settings.locale : DEFAULT_LOCALE,
-      audioEnabled: settings.audioEnabled,
-      reducedMotion: settings.reducedMotion,
-      theme:
-        settings.theme === "light" || settings.theme === "dark"
-          ? settings.theme
-          : "system",
       timeZone: settings.timeZone,
       hasConfiguredTimeZone: settings.hasConfiguredTimeZone,
       hasSelectedTranslation: settings.hasSelectedTranslation,
@@ -52,86 +38,73 @@ export const settingsRepository = {
   },
 
   /**
-   * Updates auth display identity, public profile, and private preferences in one
-   * transaction so every surface observes a consistent saved configuration.
+   * Persist only requested fields and affected records. Display-name changes need
+   * an atomic auth/profile update; one-record edits avoid a transaction. Entitlement
+   * and missing-row recovery reads are scoped to the affected profile only.
    */
-  async updateForUser(
-    userId: string,
-    input: UpdateUserSettingsInput,
-  ): Promise<void> {
-    const currentProfile = await prisma.userProfile.findUnique({
-      where: { userId },
-      select: { isPartner: true },
-    });
-    // WHY: Partner frame authorization uses persisted entitlement. Hiding
-    // premium choices in the browser alone would not stop a forged action.
-    const authorizedFrameKey = currentProfile?.isPartner
-      ? input.avatarFrameKey
-      : "default";
-
-    await prisma.$transaction([
-      prisma.user.update({
-        where: { id: userId },
-        data: { name: input.displayName },
-      }),
-      prisma.userProfile.upsert({
+  async updateForUser(userId: string, input: AccountSettingsPatch): Promise<void> {
+    // Never trust a forged Settings payload to equip a paid portrait. Ownership
+    // is permanent, so this read remains valid through the subsequent save.
+    if (input.avatarKey !== undefined && !isFreeAvatar(input.avatarKey)) {
+      const owned = await prisma.userAvatarOwnership.findUnique({
+        where: { userId_avatarKey: { userId, avatarKey: input.avatarKey } },
+        select: { avatarKey: true },
+      });
+      if (!owned) throw new Error("Purchase this avatar in the shop before equipping it.");
+    }
+    const writes: Prisma.PrismaPromise<unknown>[] = [];
+    const profileChanged = input.displayName !== undefined || input.countryCode !== undefined ||
+      input.avatarKey !== undefined || input.avatarFrameKey !== undefined;
+    if (profileChanged) {
+      const profile = await prisma.userProfile.findUnique({
         where: { userId },
-        update: {
-          displayName: input.displayName,
-          countryCode: input.countryCode || null,
-          avatarKey: input.avatarKey,
-          avatarFrameKey: authorizedFrameKey,
-        },
+        select: { displayName: true, isPartner: true },
+      });
+      // Recover a missing legacy profile only on this explicit save, using trusted identity.
+      const owner = profile ? null : await prisma.user.findUnique({
+        where: { id: userId }, select: { name: true },
+      });
+      if (!profile && !owner) throw new Error("Account is unavailable.");
+      const profilePatch = {
+        ...(input.displayName !== undefined ? { displayName: input.displayName } : {}),
+        ...(input.countryCode !== undefined ? { countryCode: input.countryCode || null } : {}),
+        ...(input.avatarKey !== undefined ? { avatarKey: input.avatarKey } : {}),
+        ...(input.avatarFrameKey !== undefined ? {
+          avatarFrameKey: profile?.isPartner ? input.avatarFrameKey : "default",
+        } : {}),
+      };
+      if (input.displayName !== undefined) {
+        writes.push(prisma.user.update({
+          where: { id: userId }, data: { name: input.displayName },
+        }));
+      }
+      writes.push(prisma.userProfile.upsert({
+        where: { userId },
+        update: profilePatch,
         create: {
           userId,
-          displayName: input.displayName,
-          countryCode: input.countryCode || null,
-          avatarKey: input.avatarKey,
-          avatarFrameKey: authorizedFrameKey,
+          ...profilePatch,
+          displayName: input.displayName ?? profile?.displayName ?? owner?.name ?? "Player",
         },
-      }),
-      prisma.userSettings.upsert({
+      }));
+    }
+    if (input.preferredTranslation !== undefined || input.timeZone !== undefined) {
+      const settingsPatch = {
+        ...(input.preferredTranslation !== undefined ? {
+          preferredTranslation: input.preferredTranslation, hasSelectedTranslation: true,
+        } : {}),
+        ...(input.timeZone !== undefined ? {
+          timeZone: input.timeZone, hasConfiguredTimeZone: true,
+        } : {}),
+      };
+      writes.push(prisma.userSettings.upsert({
         where: { userId },
-        update: {
-          preferredTranslation: input.preferredTranslation,
-          locale: input.locale,
-          audioEnabled: input.audioEnabled,
-          reducedMotion: input.reducedMotion,
-          theme: input.theme,
-          timeZone: input.timeZone,
-          hasConfiguredTimeZone: true,
-          hasSelectedTranslation: true,
-        },
-        create: {
-          userId,
-          preferredTranslation: input.preferredTranslation,
-          locale: input.locale,
-          audioEnabled: input.audioEnabled,
-          reducedMotion: input.reducedMotion,
-          theme: input.theme,
-          timeZone: input.timeZone,
-          hasConfiguredTimeZone: true,
-          hasSelectedTranslation: true,
-        },
-      }),
-    ]);
-  },
-
-  /**
-   * Persists the compact theme-switcher choice without overwriting profile data.
-   *
-   * The upsert supports authenticated accounts whose settings initialization
-   * has not completed yet; all unrelated settings retain schema defaults.
-   */
-  async updateThemeForUser(
-    userId: string,
-    theme: "light" | "dark" | "system",
-  ): Promise<void> {
-    await prisma.userSettings.upsert({
-      where: { userId },
-      update: { theme },
-      create: { userId, theme },
-    });
+        update: settingsPatch,
+        create: { userId, ...settingsPatch },
+      }));
+    }
+    if (writes.length === 1) await writes[0];
+    else if (writes.length > 1) await prisma.$transaction(writes);
   },
 
   /**

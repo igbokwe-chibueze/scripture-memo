@@ -37,7 +37,7 @@ Confirm the following before proceeding:
 ### Acceptance Criteria
 
 - No code written yet.
-- AI can correctly describe the difference between the Three-Day Challenge System and the Journey Stage System.
+- AI can correctly describe the difference between the Three-Stage Challenge System and the Journey Stage System.
 - AI can correctly describe the five game mode names and their order.
 - AI understands that hints are disabled for Strengthen and Master stages.
 - AI understands that Glow Points are the only spendable currency. Beacon XP is non-spendable progression, and Crowns are non-spendable prestige.
@@ -1652,6 +1652,10 @@ removes temporary database files. No development or hosted database was used.
 Manual acceptance remains complete; this closes the previously recorded
 multi-connection concurrency exception without reopening the phase.
 
+Both GitHub CI jobs passed after the Prisma generation and 12-hour cooldown
+assertion corrections (owner confirmation, 2026-10-10). Required branch
+protection/ruleset configuration remains unconfirmed.
+
 ### Manual Test Flows
 
 1. **Auth**: Register → Login → Logout → Login again → correct redirect.
@@ -1663,7 +1667,7 @@ multi-connection concurrency exception without reopening the phase.
      `/admin/waypoints`. It runs a selected real mode against the assigned
      waypoint's server-authoritative stage rules without changing learner
      progression, rewards, cooldowns, streaks, badges, flames, or hint balance.
-6. **Three-Day Challenge**: Complete all 5 modes for Day 1 → confirm flame added → confirm Day 2 shows cooldown → confirm server blocks Day 2 start before 12 elapsed hours.
+6. **Three-Stage Challenge**: Complete all 5 modes for Day 1 → confirm flame added → confirm Day 2 shows cooldown → confirm server blocks Day 2 start before 12 elapsed hours.
 7. **Cooldown bypass test**: Manually alter client state or time → attempt to start Day 2 early → confirm server rejects.
 8. **Day 3 completion**: Complete Day 3 → confirm waypoint gets 3 flames → confirm next waypoint unlocks → confirm Glow Points awarded.
 9. **Duplicate reward prevention**: Submit Day completion action twice → confirm points awarded only once.
@@ -1734,7 +1738,7 @@ Phase 31 is complete. Phase 32 — Final Security Audit is next.
 
 **Status:** In progress. The ordered 32.1–32.9 closeout sequence below is the
 active plan. Do not treat this phase or the production approval checklist as
-complete while deployment configuration, dependency audit access, or required
+complete while deployment configuration or required
 owner acceptance remains unresolved.
 
 **Goal:** Verify the application against the complete security checklist before deployment.
@@ -1791,8 +1795,11 @@ now reports zero vulnerabilities; no forced major downgrade was used.
 
 #### 32.3 — Confirm the production app host and proxy behavior (`SECURITY-AUDIT.md` 11.9, High)
 
-**Status:** Pending production app-host selection. Verify its forwarded-client-IP
-contract before configuring the production rate-limit IP source.
+**Status:** Vercel selected for the initial production trial (owner decision,
+2026-10-10). A later move to another host remains possible; no permanent host
+has been selected. Verify Vercel's forwarded-client-IP contract before configuring
+the production rate-limit IP source. Host selection does not complete the proxy
+verification or authorize deployment; the remaining production gates still apply.
 
 #### 32.4 — Verify security settings on the existing hosted Prisma database (`SECURITY-AUDIT.md` 12.10, 16.6, 16.7; High)
 
@@ -2013,5 +2020,45 @@ events exist. Every preview item has a **View** button that filters by
 Fellowship, case number, kind, and current case status.
 
 ---
+
+### Public Journal and Searchable Guides — owner-requested addition (2026-10-14)
+
+Implemented public `/blog` and article pages, submitted search/category filters,
+bounded pagination, and ADMIN/SUPER_ADMIN drafting/preview/publication tools.
+The additive BlogArticle migration is applied to local development and test
+databases; nine initial public articles are installed locally. The bootstrap
+installer preserves subsequent editorial changes and refuses hosted targets.
+Article saves are audited and protected against stale edits; drafts remain private.
+This owner request takes precedence over the earlier feature sequence. Ongoing
+feature work must update relevant game guides when functionality changes.
+
+### Session preparation visual upgrade (2026-10-15)
+
+Owner approved redesigning the shared session header and all five mode
+introductions from the light/dark concept, generating a presenting-Meemo pose,
+and adding the static Swap word illustration (animation removed at owner request).
+The later active-board approval implements all five modes with the corrected
+Meemo header, compact board layout, and scoped purple/gold tile colors. Desktop
+keeps the same composition in a wider card. The stage-complete screen is now
+upgraded from its approved concept with celebrating Meemo and stage-specific
+reward summaries. Individual-mode, badge, streak, and waypoint celebration
+redesigns remain deferred. These presentation-only updates add
+no database reads/writes, reward rules, or timing changes.
+
+### Settings tabs and gameplay audio (2026-10-16)
+
+Implemented owner-approved Game/Profile/App & Learning tabs, with Game first on
+navigation. Effects/ambience volumes and reduced motion now persist locally,
+alongside the next-themes appearance choice. Language uses a cookie. Account
+identity, translation, and timezone retain the existing authenticated save;
+device-only saves make no server mutation or refresh. Gameplay
+menus link to settings. Audio gain is increased with peak compression for
+effects. Puzzle preparation now shows the reference phrase tile, arrow, and blank.
+Edited fields now show an Unsaved indicator, with Undo beside Save to discard
+all tab drafts. Account saves use field patches and write affected records only;
+local saves leave unchanged storage keys and cookies alone.
+The subsequent device-preference migration removes obsolete presentation
+columns. Both migrations are applied to local development and isolated test
+databases; hosted environments must apply checked-in migrations during deployment.
 
 *End of Scripture Memo AI Build Roadmap v2.0*

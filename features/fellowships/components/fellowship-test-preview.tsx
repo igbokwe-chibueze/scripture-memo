@@ -34,11 +34,28 @@ function createDirectory(): FellowshipDirectoryData {
   return {
     memberships: [],
     discoverableFellowships: [
-      base,
-      { ...base, id: "preview-private", slug: "preview-private", name: "Quiet Waters", isPublic: false },
+      {
+        ...base,
+        founderDisplayName: "Sample founder",
+        leaderDisplayName: "Sample leader",
+        createdAt: new Date("2026-01-01T00:00:00Z"),
+      },
+      {
+        ...base,
+        id: "preview-private",
+        slug: "preview-private",
+        name: "Quiet Waters",
+        isPublic: false,
+        founderDisplayName: "Sample founder",
+        leaderDisplayName: "Sample leader",
+        createdAt: new Date("2026-01-01T00:00:00Z"),
+      },
       {
         ...base,
         id: "preview-pending",
+        founderDisplayName: null,
+        leaderDisplayName: "Sample leader",
+        createdAt: new Date("2026-01-01T00:00:00Z"),
         slug: "preview-pending",
         name: "Daily Encouragement",
         isPublic: false,

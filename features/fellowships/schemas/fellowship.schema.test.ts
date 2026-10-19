@@ -1,7 +1,8 @@
 /** Validates the public Fellowship input boundary without touching a database. */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { cancelJoinRequestSchema, createFellowshipSchema, joinByInviteSchema, regenerateFellowshipInviteSchema, resolveJoinRequestSchema } from "./fellowship.schema";
+import { cancelJoinRequestSchema, createFellowshipSchema, joinByInviteSchema, regenerateFellowshipInviteSchema, resolveJoinRequestSchema, updateFellowshipSchema } from "./fellowship.schema";
+import { splitFellowshipGuidelines } from "../lib/fellowship-content";
 
 test("fellowship creation accepts constrained multilingual names", () => {
   assert.equal(createFellowshipSchema.safeParse({ name: "Grâce & Vérité", description: "Un cercle accueillant.", isPublic: true, insigniaKey: "good-shepherd" }).success, true);
@@ -31,4 +32,27 @@ test("join-request decisions accept only explicit leader outcomes", () => {
   assert.equal(resolveJoinRequestSchema.safeParse({ requestId, decision: "APPROVE" }).success, true);
   assert.equal(resolveJoinRequestSchema.safeParse({ requestId, decision: "DELETE" }).success, false);
   assert.equal(cancelJoinRequestSchema.safeParse({ requestId }).success, true);
+});
+
+/** New overview copy is bounded before authorization or database access. */
+test("overview validation bounds introduction and individual guideline lines", () => {
+  const input = {
+    fellowshipId: "cm12345678901234567890123",
+    name: "Faith Circle",
+    introduction: "  Practice Scripture together.  ",
+    description: "A welcoming fellowship.",
+    guidelines: " Make time for practice.\r\n\r\n Be kind. ",
+    isPublic: true,
+    insigniaKey: "word-star",
+  };
+  const parsed = updateFellowshipSchema.parse(input);
+  assert.equal(parsed.introduction, "Practice Scripture together.");
+  assert.deepEqual(splitFellowshipGuidelines(parsed.guidelines), [
+    "Make time for practice.",
+    "Be kind.",
+  ]);
+  assert.equal(updateFellowshipSchema.safeParse({ ...input, introduction: "x".repeat(141) }).success, false);
+  assert.equal(updateFellowshipSchema.safeParse({ ...input, guidelines: "x".repeat(161) }).success, false);
+  assert.equal(updateFellowshipSchema.safeParse({ ...input, guidelines: Array(9).fill("Be kind.").join("\n") }).success, false);
+  assert.equal(updateFellowshipSchema.safeParse({ ...input, guidelines: " " }).success, true);
 });

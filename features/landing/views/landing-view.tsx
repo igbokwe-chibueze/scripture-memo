@@ -14,6 +14,7 @@ import {
 import { ResponsiveContainer } from "@/components/shared/responsive-container";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { ThemeSwitcher } from "@/components/shared/theme-switcher";
+import { NavigationButton } from "@/components/shared/navigation-button";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -23,7 +24,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: "Scripture Memo | Turn Bible Memory Into a Journey",
   description:
-    "Memorize Bible verses through guided three-day challenges, five interactive game modes, meaningful progression, and devotional reflection.",
+    "Memorize Bible verses through guided three-stage challenges, five interactive game modes, meaningful progression, and devotional reflection.",
   keywords: [
     "Bible memorization",
     "Scripture memory game",
@@ -99,7 +100,12 @@ export function LandingView(): React.ReactNode {
             </span>
             Scripture Memo
           </Link>
-          <ThemeSwitcher />
+          <div className="flex flex-wrap items-center justify-end gap-3">
+            <NavigationButton href="/blog" pendingLabel="Opening the journal" variant="ghost" className="min-h-11">
+              Guides & updates
+            </NavigationButton>
+            <ThemeSwitcher />
+          </div>
         </ResponsiveContainer>
       </header>
 
@@ -121,7 +127,7 @@ export function LandingView(): React.ReactNode {
                   </span>
                 </h1>
                 <p className="mx-auto mt-6 max-w-2xl text-pretty text-base leading-7 text-muted-foreground sm:text-lg lg:mx-0">
-                  Move through 220 waypoints, practice each verse across three days,
+                  Move through 220 waypoints, practice each verse across three stages,
                   and strengthen your memory with five interactive challenges designed
                   to take you from first glimpse to confident recall.
                 </p>
@@ -217,7 +223,7 @@ export function LandingView(): React.ReactNode {
           <ResponsiveContainer>
             <div className="mx-auto max-w-2xl text-center">
               <p className="text-sm font-bold uppercase tracking-[0.18em] text-primary">
-                Three days. Deeper memory.
+                Three stages. Deeper memory.
               </p>
               <h2 className="mt-3 text-balance font-heading text-3xl font-bold tracking-tight sm:text-4xl">
                 From a glimmer to lasting radiance

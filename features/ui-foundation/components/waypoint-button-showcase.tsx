@@ -95,7 +95,7 @@ export function WaypointButtonShowcase(): React.ReactNode {
         </div>
 
         <div className="space-y-2">
-          <h3 className="font-heading font-bold">Completed challenge days</h3>
+          <h3 className="font-heading font-bold">Completed challenge stages</h3>
           <div className="flex flex-wrap gap-2" aria-label="Flame progress">
             {[0, 1, 2, 3].map((count) => (
               <Button

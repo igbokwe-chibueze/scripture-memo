@@ -114,7 +114,7 @@ The server and database are the only sources of truth for all security-sensitive
 | 5.2 | Day unlock status is always computed server-side from stored timestamps | 🔴 Critical | ✅ Implemented | `isDayPlayable` is reapplied inside the guarded start transaction |
 | 5.3 | Day 2 unlock requires Day 1 to be marked complete in the database | 🔴 Critical | ✅ Implemented | Progression transaction verifies the preceding persisted day |
 | 5.4 | Day 3 unlock requires Day 2 to be marked complete in the database | 🔴 Critical | ✅ Implemented | Progression transaction verifies the preceding persisted day |
-| 5.5 | 24-hour cooldown is calculated from the stored `completedAt` timestamp — never from client time | 🔴 Critical | ✅ Implemented | Server-derived completion time plus exact elapsed UTC hours; client countdowns remain display-only |
+| 5.5 | 12-hour cooldown is calculated from the stored `completedAt` timestamp — never from client time | 🔴 Critical | ✅ Implemented | Server-derived completion time plus exact elapsed UTC hours; client countdowns remain display-only |
 | 5.6 | `overrideCooldownAction` requires ADMIN or SUPER_ADMIN role | 🟠 High | ✅ Verified 2026-09-24 | Server role check, restricted self-test scope, and AuditLog transaction are in place |
 | 5.7 | Completing Day 3 unlocks only the next currently published waypoint selected by the server | 🟠 High | ✅ Implemented | Database ordering is used rather than a client ID or an `N+1` assumption |
 | 5.8 | Duplicate day completion is prevented by the unique `(userId, waypointId, dayLevel)` record, transaction lock, and completed-state check | 🔴 Critical | ✅ Verified 2026-10-07 | Concurrent day-completion and duplicate game-mode submission tests passed against disposable PostgreSQL with multiple connections; only one state transition commits. |
@@ -383,7 +383,7 @@ the evidence map above determines whether a new owner action is needed.
 ### Test 4 — Cooldown Bypass Attempt
 1. Log in as a regular user.
 2. Complete Day 1 of Waypoint 1.
-3. Attempt to start Day 2 immediately (before 24 hours) — either through UI or direct Server Action call.
+3. Attempt to start Day 2 immediately (before 12 elapsed hours) — either through UI or direct Server Action call.
 4. **Expected:** Server rejects the request. Day 2 session does not start. User sees an appropriate error message.
 
 ### Test 5 — Client Timer Manipulation
@@ -501,7 +501,7 @@ Accepted risk justification (if applicable):
 - [ ] No `any` type exists in the codebase.
 - [ ] No `console.log` debug statements remain.
 - [ ] `GameMode.CUE` is used — `HINT` does not appear as a game mode.
-- [ ] No XP or experience point references exist.
+- [ ] Glow Points are the only spendable currency; Beacon XP is non-spendable progression and Crowns are non-spendable prestige.
 
 ### Environment
 - [ ] `.env` is in `.gitignore` and has not been committed.
@@ -522,4 +522,93 @@ Accepted risk justification (if applicable):
 
 *Security is not a feature. It is a baseline requirement. No item in this document is optional.*
 
+### Editorial addition — 2026-10-14
+
+- Public listing/detail repository methods always filter PUBLISHED. Metadata
+  uses the same published-only detail lookup; drafts render the same not-found
+  page as missing articles and noindex metadata. Next.js documents HTTP 200 for
+  streamed not-found pages and 404 for non-streamed ones; neither exposes draft
+  content. No user identity, session, email, or editorial actor ID is delivered publicly.
+- Every editor read and save checks ADMIN/SUPER_ADMIN server-side. Save input
+  is Zod-validated first. Article bodies render through restricted Markdown,
+  skipping raw HTML and rejecting executable URL schemes and remote images.
+- Slug uniqueness is enforced by PostgreSQL. Previously published URLs remain
+  stable. Optimistic versions and an atomic save/audit transaction prevent lost
+  changes and partially audited publication.
+- Separate local test-database integration verifies draft exclusion, search,
+  publication/unpublication, stable URLs, audit records, and stale-save rejection.
+- Search is submitted rather than polled or queried on keystrokes: two bounded
+  database queries per listing request, one request-deduplicated article read for
+  detail/metadata, no N+1 requests or initialization writes during public reads.
+- The starter-article installer is local-only, explicit, additive, and idempotent;
+  it never overwrites an existing slug or accesses a hosted database.
+
+### Fellowship discovery addition — 2026-10-18
+
+- The authenticated, bounded directory read selects founder/current-leader
+  profile display names and creation date. Discovery DTOs exclude contact data,
+  account identifiers, invite codes and private member rosters.
+- View opens local details without a new data endpoint or read-time writes.
+  Existing join/request/cancel actions remain the mutation and authorization
+  boundaries, including rechecking stale directory eligibility.
+- Founder is set from the server user at creation, independently of current
+  leadership. Its nullable relation preserves existing account-deletion behavior.
+- Isolated PostgreSQL tests verify discovery DTO privacy and preserved founder
+  identity after a real leadership transfer. No hosted database was accessed.
+
+### Fellowship overview addition — 2026-10-18
+
+- Introduction/guidelines pass bounded server-side Zod validation before auth;
+  the existing leader-scoped repository lock rechecks ownership, suspension and
+  closure before saving. Non-leader update attempts are covered in PostgreSQL.
+- Saved content renders as React text, never HTML. Empty nullable fields use
+  localized defaults without read-time writes. The additive migration leaves
+  existing descriptions, founders, members and progression intact.
+- Leader name/avatar are mapped from the already-authorized roster; no extra
+  profile lookup, polling or invitation/identity exposure is introduced. Request
+  rows remain server-filtered to leaders, and membership/leave rules are unchanged.
+- Browser fixtures use synthetic actions. Isolated database tests verify real
+  save/read/reset behavior and authorization without touching hosted data.
+
+### Fellowship member navigation addition — 2026-10-18
+
+- Member DTOs whitelist display name, cosmetics, country, progress, join date,
+  lifetime Beacon points, public profile UUID, and server-derived You/Leader flags.
+  Raw auth/profile IDs, email addresses and invite codes remain excluded.
+- Public UUIDs are generated once by PostgreSQL for existing/future profiles and
+  uniquely indexed. They are navigation identifiers, never authentication or
+  authorization credentials. The new placeholder route is protected by Proxy and
+  an independent server session check, validates UUID syntax, and is noindex.
+- No profile data is implemented at this destination yet. Future profile content
+  must introduce an authorized repository read rather than treating a UUID as
+  proof of access. No write or profile lookup occurs during placeholder renders.
+- Search/sort operate only on the loaded authorized roster. Profile-row prefetch
+  is disabled; opening Members does not fan out session/profile requests.
+- PostgreSQL coverage verifies lifetime ranking against opposing waypoint totals,
+  stable public references across fellowships, and absence of private identity keys.
+
 *Last reviewed: v2.0 — review and update before every major release.*
+
+### Shop avatars and catalogue rollout - 2026-10-18
+
+- Purchases accept only bounded opaque item IDs and a UUID request key. User
+  identity, active offer, cost, grant and cosmetic key come from trusted server data.
+- The per-user shop transaction lock serializes duplicate requests. Purchase,
+  balance debit, negative reward ledger and unique avatar ownership commit together.
+  A second request for an owned avatar does not charge again. Hints count only
+  historical HINT_PACK entitlement snapshots, including retired offers.
+- Shop equip and Settings saves verify permanent ownership for all paid portraits;
+  selecting a free portrait or equipping owned inventory never spends Glow Points.
+  Partner frame restrictions are unchanged. A one-time migration resets non-free
+  selected avatars to Lion, explicitly chosen by the owner; no free ownership is
+  inferred from an old selection. Ordinary reads and seeds never repeat this reset.
+- Requests cannot grant arbitrary artwork or another user's ownership. User/avatar
+  uniqueness and a unique purchase link enforce one durable cosmetic entitlement.
+- Normal shop reads use five bounded queries per visit, including one new batched
+  inventory read; no polling, read-time writes or per-card requests are introduced.
+- Local integration verification covers concurrent cosmetics, idempotent hints,
+  insufficient funds, cross-user request keys, cross-user/unowned equip attempts,
+  forged Settings selections and retirement-safe historical hint totals.
+- Migrations applied only to local development 51214 and isolated test 51224.
+  Hosted data was not accessed. Operational errors use SHP-001/002/003 with safe
+  messages and centralized reference entries; UI uses showActionError/Sonner.

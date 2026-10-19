@@ -21,8 +21,7 @@ import type {
 } from "@/features/leaderboard/types/leaderboard.types";
 import { createTrailRivals } from "@/features/leaderboard/data/trail-rivals";
 
-const FIRST_PAGINATED_RANK = 4;
-const DEFAULT_PAGE_SIZE = 20;
+const LEADERBOARD_TOP_COUNT = 30;
 
 type RawLeaderboardEntry = {
   userId: string;
@@ -46,15 +45,6 @@ type RankingQuery = {
   where: Prisma.Sql;
   order: Prisma.Sql;
 };
-
-function normalizePage(page: number): number {
-  return Number.isSafeInteger(page) && page > 0 ? page : 1;
-}
-
-function normalizeLimit(limit: number): number {
-  if (!Number.isSafeInteger(limit)) return DEFAULT_PAGE_SIZE;
-  return Math.min(50, Math.max(5, limit));
-}
 
 /** Removes internal identity immediately after the raw ranking query. */
 function toLeaderboardEntry(
@@ -85,19 +75,13 @@ function toLeaderboardEntry(
   };
 }
 
-/** Executes one privacy-safe weekly or lifetime ranking window. */
+/** Fetches official ranks 1 through 30 and the learner in one privacy-safe query. */
 async function getRanking(input: {
   currentUserId: string;
   weekId: string;
-  page: number;
-  limit: number;
   query: RankingQuery;
   now: Date;
 }): Promise<LeaderboardRanking> {
-  const page = normalizePage(input.page);
-  const limit = normalizeLimit(input.limit);
-  const pageStart = FIRST_PAGINATED_RANK + (page - 1) * limit;
-  const pageEnd = pageStart + limit - 1;
   const rows = await prisma.$queryRaw<RawLeaderboardEntry[]>(Prisma.sql`
     WITH ranked AS (
       SELECT
@@ -127,8 +111,7 @@ async function getRanking(input: {
       ${input.query.where}
     )
     SELECT * FROM ranked
-    WHERE rank <= 3
-      OR rank BETWEEN ${pageStart} AND ${pageEnd}
+    WHERE rank <= ${LEADERBOARD_TOP_COUNT}
       OR "userId" = ${input.currentUserId}
     ORDER BY rank ASC
   `);
@@ -144,13 +127,11 @@ async function getRanking(input: {
     entries: entries.filter(
       (entry) =>
         entry.rank !== null &&
-        entry.rank >= pageStart &&
-        entry.rank <= pageEnd,
+        entry.rank > 3 &&
+        entry.rank <= LEADERBOARD_TOP_COUNT,
     ),
     currentUser: entries.find((entry) => entry.isCurrentUser) ?? null,
     rivals: [],
-    page,
-    totalPages: Math.max(1, Math.ceil(Math.max(0, totalPlayers - 3) / limit)),
     totalPlayers,
   };
 }
@@ -253,7 +234,6 @@ export const leaderboardRepository = {
     userId: string;
     scope: LeaderboardScope;
     fellowshipId: string | null;
-    page: number;
   }): Promise<LeaderboardPageData> {
     const now = new Date();
     const [competition, countryCode, fellowships] = await Promise.all([
@@ -261,32 +241,38 @@ export const leaderboardRepository = {
       this.getUserCountryCode(input.userId),
       this.getUserFellowships(input.userId),
     ]);
-    if (!competition) {
+    // Keep the requested tab even when its prerequisites are missing. An empty
+    // scope needs neither a ranking query nor league enrollment/recovery writes.
+    const missingScopeSetup =
+      (input.scope === "country" && !countryCode) ||
+      (input.scope === "fellowship" && fellowships.length === 0);
+    if (!competition || missingScopeSetup) {
       const week = getBeaconWeekWindow(now);
       return {
+        generatedAt: now.getTime(),
         scope: input.scope,
         countryCode,
         fellowships,
         activeFellowshipId: null,
         activeFellowshipName: null,
-        league: BeaconLeague.TRAVELER,
+        league: competition?.league ?? BeaconLeague.TRAVELER,
         weekStartsAt: week.startsAt.toISOString(),
         weekEndsAt: week.endsAt.toISOString(),
         promotionCount: BEACON_PROMOTION_COUNT,
         demotionCount: BEACON_DEMOTION_COUNT,
-        needsEnrollment: true,
+        needsEnrollment: !competition && !missingScopeSetup,
         podium: [],
         entries: [],
         currentUser: null,
         rivals: [],
-        page: 1,
-        totalPages: 1,
         totalPlayers: 0,
       };
     }
     let scope = input.scope;
     let activeFellowship =
-      fellowships.find((item) => item.id === input.fellowshipId) ?? null;
+      fellowships.find((item) => item.id === input.fellowshipId)
+      ?? (input.scope === "fellowship" ? fellowships[0] : null)
+      ?? null;
     let query: RankingQuery;
 
     if (scope === "country" && countryCode) {
@@ -324,8 +310,6 @@ export const leaderboardRepository = {
     const ranking = await getRanking({
       currentUserId: input.userId,
       weekId: competition.weekId,
-      page: input.page,
-      limit: DEFAULT_PAGE_SIZE,
       query,
       now,
     });
@@ -343,6 +327,7 @@ export const leaderboardRepository = {
         : [];
     return {
       ...ranking,
+      generatedAt: now.getTime(),
       rivals,
       needsEnrollment: false,
       scope,
@@ -364,7 +349,6 @@ export const leaderboardRepository = {
       userId,
       scope: "all-time",
       fellowshipId: null,
-      page: 1,
     });
     return { global: data.currentUser?.rank ?? null, country: null, fellowships: [] };
   },

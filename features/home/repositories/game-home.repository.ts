@@ -1,6 +1,7 @@
 import "server-only";
 
 import {
+  CompletionStatus,
   WaypointStatus,
 } from "@/lib/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -40,6 +41,15 @@ export const gameHomeRepository = {
             number: true,
             journeyStage: true,
             verse: { select: { reference: true } },
+            // The filtered count shares this bounded relation read. We do not
+            // fetch sessions or pre-create progress to draw the three flames.
+            _count: {
+              select: {
+                dayProgress: {
+                  where: { userId, status: CompletionStatus.COMPLETED },
+                },
+              },
+            },
           },
         },
       },
@@ -54,6 +64,7 @@ export const gameHomeRepository = {
       number: waypoint.number,
       journeyStage: waypoint.journeyStage,
       reference: waypoint.verse.reference,
+      completedDays: waypoint._count.dayProgress,
     };
   },
 } as const;

@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import { ActiveModeHeading } from "../active-mode-heading";
+import styles from "../active-game.module.css";
 import { useTranslations } from "next-intl";
 import {
   DndContext,
@@ -336,81 +338,77 @@ export function PuzzleMode({
         onDragEnd={handleDragEnd}
         onDragCancel={() => setActiveDragPhraseIndex(null)}
       >
-        <section className="w-full max-w-2xl text-left" aria-labelledby="puzzle-title">
-          <div className="text-center">
-            <p className="text-xs font-bold tracking-[0.16em] text-selection-text uppercase dark:text-selection-text">
-              {t("restoreStructure")}
-            </p>
-            <h2 id="puzzle-title" className="mt-2 font-heading text-3xl font-bold">
-              {t("puzzle")}
-            </h2>
-          </div>
+        <section className={styles.mode} aria-labelledby="puzzle-title">
+          <div className={styles.challenge} data-mode="PUZZLE">
+            <ActiveModeHeading mode="PUZZLE" />
 
-          <div
-            className="mt-6 flex flex-wrap items-center gap-x-2 gap-y-3 rounded-2xl border border-border bg-muted/35 p-4 text-lg leading-relaxed dark:border-border/10 dark:bg-card/5 sm:p-6 sm:text-xl"
-            aria-label="Verse phrase positions"
-          >
-            {phrases.map((phrase) => (
-              hiddenPhraseSet.has(phrase.index) ? (
-                <PhraseSlot
-                  key={phrase.index}
-                  slotIndex={phrase.index}
-                  placedText={
-                    placements[phrase.index] === undefined
-                      ? null
-                      : (phrases[placements[phrase.index]]?.text ?? null)
-                  }
-                  selectedPhraseAvailable={
-                    selectedPhraseIndex !== null ||
-                    activeDragPhraseIndex !== null
-                  }
-                  feedback={slotFeedback[phrase.index] ?? null}
-                  disabled={isPending || isComplete}
-                  onPlaceSelected={() => {
-                    if (selectedPhraseIndex !== null) {
-                      placePhrase(selectedPhraseIndex, phrase.index);
+            <div
+              className={`${styles.verse} ${styles.phraseVerse}`}
+              aria-label="Verse phrase positions"
+            >
+              {phrases.map((phrase) => (
+                hiddenPhraseSet.has(phrase.index) ? (
+                  <PhraseSlot
+                    key={phrase.index}
+                    slotIndex={phrase.index}
+                    placedText={
+                      placements[phrase.index] === undefined
+                        ? null
+                        : (phrases[placements[phrase.index]]?.text ?? null)
                     }
-                  }}
-                  onReturnPhrase={() => {
-                    setPlacements((current) =>
-                      removePuzzlePlacement(current, phrase.index),
-                    );
-                    setSlotFeedback((current) => {
-                      const next = { ...current };
-                      delete next[phrase.index];
-                      return next;
-                    });
-                    playAudio("drop");
-                  }}
-                />
-              ) : (
-                <span key={phrase.index} className="py-2 font-bold text-foreground">
-                  {phrase.text}
-                </span>
-              )
-            ))}
+                    selectedPhraseAvailable={
+                      selectedPhraseIndex !== null ||
+                      activeDragPhraseIndex !== null
+                    }
+                    feedback={slotFeedback[phrase.index] ?? null}
+                    disabled={isPending || isComplete}
+                    onPlaceSelected={() => {
+                      if (selectedPhraseIndex !== null) {
+                        placePhrase(selectedPhraseIndex, phrase.index);
+                      }
+                    }}
+                    onReturnPhrase={() => {
+                      setPlacements((current) =>
+                        removePuzzlePlacement(current, phrase.index),
+                      );
+                      setSlotFeedback((current) => {
+                        const next = { ...current };
+                        delete next[phrase.index];
+                        return next;
+                      });
+                      playAudio("drop");
+                    }}
+                  />
+                ) : (
+                  <span key={phrase.index} className="py-2 font-bold text-foreground">
+                    {phrase.text}
+                  </span>
+                )
+              ))}
+            </div>
+
+            <div>
+              <PhraseBank
+                phrases={phrases}
+                phraseIndexes={availablePhraseIndexes}
+                selectedPhraseIndex={selectedPhraseIndex}
+                disabled={isPending || isComplete}
+                onSelect={(phraseIndex) => {
+                  setSelectedPhraseIndex((current) =>
+                    current === phraseIndex ? null : phraseIndex,
+                  );
+                  playAudio("pick");
+                }}
+              />
+            </div>
+
           </div>
 
-          <div className="mt-5">
-            <PhraseBank
-              phrases={phrases}
-              phraseIndexes={availablePhraseIndexes}
-              selectedPhraseIndex={selectedPhraseIndex}
-              disabled={isPending || isComplete}
-              onSelect={(phraseIndex) => {
-                setSelectedPhraseIndex((current) =>
-                  current === phraseIndex ? null : phraseIndex,
-                );
-                playAudio("pick");
-              }}
-            />
-          </div>
-
-          <div className="mt-5 grid grid-cols-[auto_1fr] gap-3">
+          <div className={styles.actions}>
             <Button
               type="button"
-              variant="ghost"
-              className="min-h-12 rounded-xl px-4 text-muted-foreground hover:bg-muted hover:text-foreground dark:hover:bg-card/10 dark:hover:text-foreground"
+              variant="outline"
+              className="text-primary"
               disabled={
                 isPending ||
                 isComplete ||

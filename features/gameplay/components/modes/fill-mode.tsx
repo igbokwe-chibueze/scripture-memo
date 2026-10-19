@@ -1,8 +1,10 @@
 "use client";
 
 import { useMemo, useRef, useState, useTransition } from "react";
+import { ActiveModeHeading } from "../active-mode-heading";
+import styles from "../active-game.module.css";
 import { useTranslations } from "next-intl";
-import { CheckIcon, KeyboardIcon, RotateCcwIcon } from "lucide-react";
+import { CheckIcon, RotateCcwIcon } from "lucide-react";
 import { toast } from "sonner";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { Button } from "@/components/ui/button";
@@ -38,7 +40,7 @@ import type {
 } from "@/features/gameplay/types/game-session.types";
 import type { DayRewardResult } from "@/features/rewards/types/reward.types";
 import { cn } from "@/lib/utils";
-import type { DayLevel } from "@/lib/generated/prisma/enums";
+import type { DayLevel, JourneyStage } from "@/lib/generated/prisma/enums";
 
 type InputFeedback = Readonly<Record<number, "correct" | "incorrect">>;
 
@@ -54,6 +56,9 @@ export function FillMode({
   dayLevel,
   waypointNumber,
   verseReference,
+  journeyStage,
+  audioEnabled = false,
+  onToggleAudio,
   verseText,
   attempt,
   replayKind,
@@ -69,6 +74,9 @@ export function FillMode({
   dayLevel: DayLevel;
   waypointNumber: number;
   verseReference: string;
+  journeyStage?: JourneyStage;
+  audioEnabled?: boolean;
+  onToggleAudio?: () => void;
   verseText: string;
   attempt: GameModeAttemptData | null;
   replayKind?: LocalReplayKind;
@@ -81,6 +89,8 @@ export function FillMode({
   onReplayExit?: () => void;
 }): React.ReactNode {
   const t = useTranslations("Gameplay");
+  const stageT = useTranslations("DaySelection");
+  const stageLabel = stageT(dayLevel.toLowerCase() as "glimmer" | "glow" | "radiance");
   const playAudio = useAudioFeedback();
   const inputRefs = useRef(new Map<number, HTMLInputElement>());
   const [answers, setAnswers] = useState<FillAnswers>({});
@@ -96,6 +106,7 @@ export function FillMode({
   const [earnedReward, setEarnedReward] = useState<DayRewardResult | null>(null);
   const [beaconProgression, setBeaconProgression] =
     useState<BeaconProgressionResult | null>(null);
+  const [stageEarnedXp, setStageEarnedXp] = useState<number | null>(null);
   const [waypointOutcome, setWaypointOutcome] = useState<{
     unlockedWaypointNumber: number | null;
     caughtUp: boolean;
@@ -227,9 +238,13 @@ export function FillMode({
           : null,
       );
       if (completion?.status === "day-complete") {
+        setStageEarnedXp(completion.stageEarnedXp);
         setEarnedReward(completion.dayCompletion.reward);
         toast.success(
-          `Challenge day complete! +${completion.dayCompletion.reward.amount} Glow Points earned.`,
+          t("stageCompleteReward", {
+            stage: stageLabel,
+            points: completion.dayCompletion.reward.amount,
+          }),
           { duration: 4_000 },
         );
         if (completion.dayCompletion.unlockedWaypoint) {
@@ -250,7 +265,7 @@ export function FillMode({
             totalBalance: completion.dayCompletion.reward.balance,
           });
         } else if (completion.dayCompletion.nextDayUnlocksAt) {
-          toast.info("The next challenge day is now on cooldown.", {
+          toast.info(t("nextStageCooldown"), {
             duration: 4_000,
           });
         }
@@ -274,6 +289,7 @@ export function FillMode({
     setShowStreakCompletion(false);
     setShowWaypointCompletion(false);
     setEarnedReward(null);
+    setStageEarnedXp(null);
     setWaypointOutcome(null);
   };
 
@@ -303,6 +319,24 @@ export function FillMode({
       {showCompletion && (
         <ModeCompletionScreen
           completedMode="FILL"
+          completedChallengeStage={dayLevel}
+          stageSummary={
+            stageEarnedXp !== null && onToggleAudio
+              ? {
+                  waypointNumber,
+                  verseReference,
+                  journeyStage,
+                  earnedXp: stageEarnedXp,
+                  hasMoreCelebrations: Boolean(
+                    badgeUnlocks.length > 0 ||
+                    (streak && streak.status !== "unchanged") ||
+                    waypointOutcome,
+                  ),
+                  audioEnabled,
+                  onToggleAudio,
+                }
+              : undefined
+          }
           nextMode={nextMode}
           replayKind={replayKind}
           isAdminTest={isAdminTest}
@@ -346,99 +380,82 @@ export function FillMode({
           onContinue={onWaypointContinue}
         />
       )}
-      <section className="w-full max-w-2xl text-left" aria-labelledby="fill-title">
-        <div className="text-center">
-          <p className="text-xs font-bold tracking-[0.16em] text-selection-text uppercase dark:text-selection-text">
-            {t("completeMissing")}
-          </p>
-          <h2 id="fill-title" className="mt-2 font-heading text-3xl font-bold">
-            {t("fill")}
-          </h2>
-        </div>
+      <section className={styles.mode} aria-labelledby="fill-title">
+        <div className={styles.challenge} data-mode="FILL">
+          <ActiveModeHeading mode="FILL" />
 
-        <div
-          className="mt-6 rounded-2xl border border-border bg-muted/35 p-4 text-lg leading-[3.5rem] font-medium dark:border-border/10 dark:bg-card/5 sm:p-6 sm:text-xl"
-          aria-label="Verse with unassisted word inputs"
-        >
-          {tokens.map((token) => {
-            if (!hiddenTokenSet.has(token.index)) {
+          <div
+            className={styles.verse}
+            aria-label="Verse with unassisted word inputs"
+          >
+            {tokens.map((token) => {
+              if (!hiddenTokenSet.has(token.index)) {
+                return (
+                  <span key={token.index} className="mx-0.5 inline-block">
+                    {token.text}
+                  </span>
+                );
+              }
+
+              const feedback = inputFeedback[token.index] ?? null;
               return (
-                <span key={token.index} className="mx-0.5 inline-block">
-                  {token.text}
+                <span
+                  key={token.index}
+                  className="mx-1 my-1.5 inline-flex items-center align-middle"
+                >
+                  {token.leadingPunctuation}
+                  <label
+                    data-feedback={feedback ?? undefined}
+                    className={cn(
+                      "inline-flex min-h-11 items-center rounded-control border-2 border-dashed px-2 align-middle transition",
+                      GAMEPLAY_TILE_STATE_STYLES.idle,
+                      "focus-within:border-ring focus-within:ring-2 focus-within:ring-ring",
+                      feedback === "correct" && GAMEPLAY_TILE_STATE_STYLES.correct,
+                      feedback === "incorrect" && GAMEPLAY_TILE_STATE_STYLES.incorrect,
+                    )}
+                  >
+                    <span className="sr-only">
+                      Enter missing word {token.index + 1}.
+                    </span>
+                    <input
+                      id={`fill-answer-${token.index}`}
+                      name={`fillAnswer-${token.index}`}
+                      ref={(element) => {
+                        if (element) inputRefs.current.set(token.index, element);
+                        else inputRefs.current.delete(token.index);
+                      }}
+                      type="text"
+                      value={answers[token.index] ?? ""}
+                      className="min-w-12 bg-transparent px-0.5 font-bold text-inherit outline-none"
+                      style={{
+                        width: `${Math.max(4, Array.from(token.normalizedText).length + 1)}ch`,
+                      }}
+                      autoComplete="off"
+                      autoCorrect="off"
+                      autoCapitalize="none"
+                      spellCheck={false}
+                      inputMode="text"
+                      maxLength={Array.from(token.normalizedText).length}
+                      disabled={isPending || isComplete}
+                      aria-label={`Missing word ${token.index + 1}`}
+                      onChange={(event) =>
+                        updateAnswer(token.index, event.currentTarget.value)
+                      }
+                    />
+                  </label>
+                  {token.trailingPunctuation}
                 </span>
               );
-            }
-
-            const feedback = inputFeedback[token.index] ?? null;
-            return (
-              <span
-                key={token.index}
-                className="mx-1 my-1.5 inline-flex items-center align-middle"
-              >
-                {token.leadingPunctuation}
-                <label
-                  className={cn(
-                    "inline-flex min-h-11 items-center rounded-control border-2 border-dashed px-2 align-middle transition",
-                    GAMEPLAY_TILE_STATE_STYLES.idle,
-                    "focus-within:border-ring focus-within:ring-2 focus-within:ring-ring",
-                    feedback === "correct" && GAMEPLAY_TILE_STATE_STYLES.correct,
-                    feedback === "incorrect" && GAMEPLAY_TILE_STATE_STYLES.incorrect,
-                  )}
-                >
-                  <span className="sr-only">
-                    Enter missing word {token.index + 1}.
-                  </span>
-                  <input
-                    id={`fill-answer-${token.index}`}
-                    name={`fillAnswer-${token.index}`}
-                    ref={(element) => {
-                      if (element) inputRefs.current.set(token.index, element);
-                      else inputRefs.current.delete(token.index);
-                    }}
-                    type="text"
-                    value={answers[token.index] ?? ""}
-                    className="min-w-12 bg-transparent px-0.5 font-bold text-inherit outline-none"
-                    style={{
-                      width: `${Math.max(4, Array.from(token.normalizedText).length + 1)}ch`,
-                    }}
-                    autoComplete="off"
-                    autoCorrect="off"
-                    autoCapitalize="none"
-                    spellCheck={false}
-                    inputMode="text"
-                    maxLength={Array.from(token.normalizedText).length}
-                    disabled={isPending || isComplete}
-                    aria-label={`Missing word ${token.index + 1}`}
-                    onChange={(event) =>
-                      updateAnswer(token.index, event.currentTarget.value)
-                    }
-                  />
-                </label>
-                {token.trailingPunctuation}
-              </span>
-            );
-          })}
-        </div>
-
-        <div className="mt-5 rounded-2xl bg-muted/70 p-4 dark:bg-background/20">
-          <div className="flex items-start gap-3">
-            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-info-subtle text-info-text dark:text-info-text">
-              <KeyboardIcon className="size-5" aria-hidden="true" />
-            </span>
-            <div>
-              <h3 className="font-heading text-sm font-bold text-foreground">{t("fullRecall")}</h3>
-              <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                {t("fillHelp")}
-              </p>
-            </div>
+            })}
           </div>
+
         </div>
 
-        <div className="mt-5 grid grid-cols-[auto_1fr] gap-3">
+        <div className={styles.actions}>
           <Button
             type="button"
-            variant="ghost"
-            className="min-h-12 rounded-xl px-4 text-muted-foreground hover:bg-muted hover:text-foreground dark:hover:bg-card/10 dark:hover:text-foreground"
+            variant="outline"
+            className="text-primary"
             disabled={
               isPending || isComplete || Object.keys(answers).length === 0
             }

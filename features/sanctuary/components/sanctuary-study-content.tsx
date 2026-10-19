@@ -1,42 +1,24 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { getTranslations } from "next-intl/server";
-import {
-  BookHeartIcon,
-  BookOpenIcon,
-  ListTreeIcon,
-  SparklesIcon,
-} from "lucide-react";
+import { BookOpenIcon, ChevronDownIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SanctuaryContents } from "./sanctuary-contents";
+import { SanctuarySectionIcon, type SanctuaryContentsItem } from "./sanctuary-section-icon";
+import styles from "./sanctuary.module.css";
 import type { SanctuaryData } from "../types/sanctuary.types";
 import type { VerseStudySectionType } from "@/lib/generated/prisma/enums";
 
-type StudySection = {
-  id: string;
-  type: VerseStudySectionType;
-  title: string;
-  markdown: string;
-};
-
-/** Stable translation keys and anchors for each persisted study-section type. */
-const STUDY_SECTION_PRESENTATION: Record<
-  VerseStudySectionType,
-  { labelKey: string; id: string }
-> = {
-  BOOK_BACKGROUND: { labelKey: "bookBackground", id: "study-book-background" },
-  HISTORICAL_CONTEXT: {
-    labelKey: "historicalContext",
-    id: "study-historical-context",
-  },
-  STUDY_NOTE: { labelKey: "studyNote", id: "study-note" },
-  KEY_LESSON: { labelKey: "keyLesson", id: "study-key-lesson" },
-  APPLICATION: { labelKey: "application", id: "study-application" },
-  CROSS_REFERENCES: {
-    labelKey: "crossReferences",
-    id: "study-cross-references",
-  },
-  WORD_STUDY: { labelKey: "wordStudy", id: "study-word-study" },
-  PRAYER: { labelKey: "prayer", id: "study-prayer" },
+/** Stable anchors survive temporary translation changes and accordion toggles. */
+const PRESENTATION: Record<VerseStudySectionType, { label: string; id: string }> = {
+  BOOK_BACKGROUND: { label: "bookBackground", id: "study-book-background" },
+  HISTORICAL_CONTEXT: { label: "historicalContext", id: "study-historical-context" },
+  STUDY_NOTE: { label: "studyNote", id: "study-note" },
+  KEY_LESSON: { label: "keyLesson", id: "study-key-lesson" },
+  APPLICATION: { label: "application", id: "study-application" },
+  CROSS_REFERENCES: { label: "crossReferences", id: "study-cross-references" },
+  WORD_STUDY: { label: "wordStudy", id: "study-word-study" },
+  PRAYER: { label: "prayer", id: "study-prayer" },
 };
 
 /** Renders trusted admin-authored Markdown while refusing embedded HTML. */
@@ -52,23 +34,44 @@ function StudyMarkdown({
       remarkPlugins={[remarkGfm]}
       skipHtml
       components={{
-        h1: ({ children: value }) => <h3 className="mb-3 font-heading text-xl font-bold">{value}</h3>,
-        h2: ({ children: value }) => <h3 className="mb-3 font-heading text-xl font-bold">{value}</h3>,
-        h3: ({ children: value }) => <h4 className="mb-2 mt-5 font-heading font-bold first:mt-0">{value}</h4>,
-        p: ({ children: value }) => <p className="mb-4 leading-7 text-foreground/78 last:mb-0 sm:leading-8">{value}</p>,
-        ul: ({ children: value }) => <ul className="mb-4 list-disc space-y-3 pl-5 marker:text-selection-text">{value}</ul>,
-        ol: ({ children: value }) => <ol className="mb-4 list-decimal space-y-3 pl-5 marker:font-bold marker:text-selection-text">{value}</ol>,
-        li: ({ children: value }) => <li className="pl-1 leading-7 text-foreground/78">{value}</li>,
+        h1: ({ children: value }) => (
+          <h3 className="mb-3 font-bold">{value}</h3>
+        ),
+        h2: ({ children: value }) => (
+          <h3 className="mb-3 font-bold">{value}</h3>
+        ),
+        h3: ({ children: value }) => (
+          <h4 className="mb-2 mt-5 font-bold first:mt-0">{value}</h4>
+        ),
+        p: ({ children: value }) => (
+          <p className="mb-4 last:mb-0">{value}</p>
+        ),
+        ul: ({ children: value }) => (
+          <ul className="mb-4 list-disc space-y-2 pl-5 marker:text-selection-text">{value}</ul>
+        ),
+        ol: ({ children: value }) => (
+          <ol className="mb-4 list-decimal space-y-2 pl-5 marker:font-bold marker:text-selection-text">{value}</ol>
+        ),
+        li: ({ children: value }) => (
+          <li className="pl-1">{value}</li>
+        ),
         blockquote: ({ children: value }) => (
-          <blockquote className="my-5 rounded-2xl border border-reward-border/60 bg-reward-subtle p-4 font-sans italic text-foreground/85 dark:border-reward-border/15 dark:bg-reward">
+          <blockquote className="my-5 rounded-2xl border border-reward-border/60 bg-reward-subtle p-4 italic text-foreground/85 dark:border-reward-border/15 dark:bg-reward">
             {value}
           </blockquote>
         ),
         strong: ({ children: value }) => (
-          <strong className={cn("text-foreground", softenEmphasis ? "font-normal" : "font-bold")}>{value}</strong>
+          <strong className={cn("text-foreground", softenEmphasis ? "font-medium" : "font-bold")}>
+            {value}
+          </strong>
         ),
         a: ({ children: value, href }) => (
-          <a href={href} target="_blank" rel="noreferrer noopener" className="font-bold text-selection-text underline underline-offset-4 dark:text-selection-text">
+          <a
+            href={href}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="font-bold text-selection-text underline underline-offset-4"
+          >
             {value}
           </a>
         ),
@@ -79,130 +82,88 @@ function StudyMarkdown({
   );
 }
 
-/** Identifies sections whose imported bold markup should read as normal copy. */
-function usesRegularBodyWeight(type: VerseStudySectionType): boolean {
-  return type === "KEY_LESSON";
-}
-
-/** Gives the most devotional sections a warmer, more prominent surface. */
-function sectionTreatment(type: VerseStudySectionType): string {
-  if (type === "PRAYER") return "border-reward-border/60 bg-reward-subtle dark:border-reward-border/15 dark:bg-reward";
-  if (type === "KEY_LESSON") return "border-success-border/60 bg-success-subtle dark:border-success-border/15 dark:bg-success";
-  if (type === "APPLICATION") return "border-selection-border/60 bg-selection-subtle dark:border-selection-border/15 dark:bg-selection";
-  return "border-border/70 bg-card/72";
-}
-
-/** Resolves translated section labels once on the server for article and navigation. */
-async function getStudyPresentation(data: SanctuaryData): Promise<{
-  sections: StudySection[];
-  path: Array<{ id: string; title: string }>;
-}> {
+/** Server-rendered accordion content keeps parsing out of the client bundle.
+ * Native details provide keyboard/touch toggles with no persistent UI writes.
+ */
+export async function SanctuaryStudyContent({
+  data,
+}: {
+  data: SanctuaryData;
+}): Promise<React.ReactNode> {
   const t = await getTranslations("Sanctuary");
-  const sections = data.studySections.map((section) => {
-    const presentation = STUDY_SECTION_PRESENTATION[section.type];
-    return {
-      id: presentation.id,
-      type: section.type,
-      title: t(presentation.labelKey),
-      markdown: section.content,
-    };
-  });
-  return {
-    sections,
-    path: [
-      ...(data.tags.length > 0 ? [{ id: "study-tags", title: t("tags") }] : []),
-      ...(data.reflection ? [{ id: "study-reflection", title: t("reflection") }] : []),
-      ...sections.map(({ id, title }) => ({ id, title })),
-    ],
-  };
-}
-
-/** Server-rendered study article keeps Markdown parsing out of the client bundle. */
-export async function SanctuaryStudyContent({ data }: { data: SanctuaryData }): Promise<React.ReactNode> {
-  const t = await getTranslations("Sanctuary");
-  const { sections, path } = await getStudyPresentation(data);
-  const hasContent = path.length > 0;
-
+  const hasContent = data.tags.length > 0 || Boolean(data.reflection) || data.studySections.length > 0;
   return (
     <>
-      {path.length > 0 && (
-        <details className="rounded-2xl border bg-card/90 p-4 lg:hidden">
-          <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 font-bold text-selection-text dark:text-selection-text">
-            <ListTreeIcon className="size-5" aria-hidden="true" />
-            {t("contents")}
+      {data.tags.length > 0 && (
+        <section id="study-tags" className={styles.tags}>
+          <h2 className="font-heading text-xl font-bold">{t("tags")}</h2>
+          <div>
+            {data.tags.map((tag) => <span key={tag}>{tag}</span>)}
+          </div>
+        </section>
+      )}
+      {data.reflection && (
+        <details id="study-reflection" className={styles.section}>
+          <summary>
+            <SanctuarySectionIcon type="REFLECTION" className="size-6" />
+            <h2>{t("reflection")}</h2>
+            <ChevronDownIcon className={styles.chevron} aria-hidden="true" />
           </summary>
-          <ol className="mt-2 space-y-1 border-t pt-3">
-            {path.map((section, index) => (
-              <li key={section.id}>
-                <a href={`#${section.id}`} className="flex min-h-11 items-center gap-3 rounded-xl px-2 text-sm font-bold text-muted-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
-                  <span className="grid size-6 shrink-0 place-items-center rounded-lg bg-selection-subtle text-xs text-selection-text dark:text-selection-text">{index + 1}</span>
-                  <span>{section.title}</span>
-                </a>
-              </li>
-            ))}
-          </ol>
+          <div className={styles.prose}>{data.reflection}</div>
         </details>
       )}
-
-      {data.tags.length > 0 && (
-        <section id="study-tags" className="scroll-mt-6 rounded-3xl border border-selection-border/70 bg-card/82 p-5 dark:border-selection-border/15 sm:p-7">
-          <div className="flex items-center gap-3">
-            <SparklesIcon className="size-5 shrink-0 text-selection-text" aria-hidden="true" />
-            <h2 className="font-heading text-xl font-bold">{t("tags")}</h2>
+      {data.studySections.map((section) => (
+        <details
+          key={section.type}
+          id={PRESENTATION[section.type].id}
+          className={styles.section}
+          open={section.type === "STUDY_NOTE" || section.type === "PRAYER"}
+        >
+          <summary>
+            <SanctuarySectionIcon type={section.type} className="size-6" />
+            <h2>{t(PRESENTATION[section.type].label)}</h2>
+            <ChevronDownIcon className={styles.chevron} aria-hidden="true" />
+          </summary>
+          <div
+            className={cn(
+              styles.prose,
+              section.type === "BOOK_BACKGROUND" && styles.bookBackground,
+              section.type === "CROSS_REFERENCES" && styles.references,
+            )}
+          >
+            <StudyMarkdown softenEmphasis={section.type === "KEY_LESSON"}>
+              {section.content}
+            </StudyMarkdown>
           </div>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {data.tags.map((tag) => <span key={tag} className="rounded-full border border-selection-border/70 bg-selection-subtle px-3 py-1.5 text-sm font-normal text-foreground/78 dark:border-selection-border/15">{tag}</span>)}
-          </div>
-        </section>
-      )}
-
-      {data.reflection && (
-        <section id="study-reflection" className="scroll-mt-6 rounded-3xl border border-success-border/60 bg-success-subtle p-5 dark:border-success-border/15 dark:bg-success sm:p-7">
-          <div className="flex items-center gap-3">
-            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-success-subtle text-success-text dark:text-success-text"><BookHeartIcon className="size-5" aria-hidden="true" /></span>
-            <h2 className="font-heading text-xl font-bold">{t("reflection")}</h2>
-          </div>
-          <p className="mt-4 leading-7 text-foreground/78 sm:leading-8">{data.reflection}</p>
-        </section>
-      )}
-
-      {hasContent ? sections.map((section) => (
-        <section key={section.id} id={section.id} className={cn("scroll-mt-6 rounded-3xl border p-5 sm:p-7", sectionTreatment(section.type))}>
-          <div className="mb-4 flex items-center gap-3">
-            <SparklesIcon className="size-5 shrink-0 text-selection-text" aria-hidden="true" />
-            <h2 className="font-heading text-xl font-bold sm:text-2xl">{section.title}</h2>
-          </div>
-          <StudyMarkdown softenEmphasis={usesRegularBodyWeight(section.type)}>{section.markdown}</StudyMarkdown>
-        </section>
-      )) : (
-        <section className="rounded-3xl border border-dashed bg-card/70 p-7 text-center sm:p-10">
+        </details>
+      ))}
+      {!hasContent && (
+        <section className="rounded-2xl border border-dashed bg-card p-7 text-center">
           <BookOpenIcon className="mx-auto size-9 text-selection-text" aria-hidden="true" />
           <h2 className="mt-4 font-heading text-xl font-bold">{t("studyComingSoon")}</h2>
-          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">{t("studyComingSoonBody")}</p>
+          <p className="mt-2 text-sm text-muted-foreground">{t("studyComingSoonBody")}</p>
         </section>
       )}
     </>
   );
 }
 
-/** Server-rendered desktop table of contents accompanies the interactive notes. */
-export async function SanctuaryContentsNavigation({ data }: { data: SanctuaryData }): Promise<React.ReactNode> {
+/** Only existing sections appear in the right rail; no placeholder headings. */
+export async function SanctuaryContentsNavigation({
+  data,
+}: {
+  data: SanctuaryData;
+}): Promise<React.ReactNode> {
   const t = await getTranslations("Sanctuary");
-  const { path } = await getStudyPresentation(data);
-  if (path.length === 0) return null;
-  return (
-    <nav className="hidden rounded-3xl border bg-card/82 p-4 lg:block" aria-label={t("contents")}>
-      <p className="text-xs font-bold tracking-[0.14em] text-selection-text uppercase dark:text-selection-text">{t("contents")}</p>
-      <ol className="mt-2 space-y-0.5">
-        {path.map((section, index) => (
-          <li key={section.id}>
-            <a href={`#${section.id}`} className="flex min-h-8 items-center gap-2 rounded-lg px-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-selection-subtle hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
-              <span className="grid size-5 shrink-0 place-items-center rounded-md bg-selection-subtle text-[0.65rem] text-selection-text dark:text-selection-text">{index + 1}</span>
-              <span className="line-clamp-1">{section.title}</span>
-            </a>
-          </li>
-        ))}
-      </ol>
-    </nav>
-  );
+  const items: SanctuaryContentsItem[] = [];
+  if (data.tags.length > 0) items.push({ id: "study-tags", title: t("tags"), type: "TAGS" });
+  if (data.reflection) items.push({ id: "study-reflection", title: t("reflection"), type: "REFLECTION" });
+  for (const section of data.studySections) {
+    items.push({
+      id: PRESENTATION[section.type].id,
+      title: t(PRESENTATION[section.type].label),
+      type: section.type,
+    });
+  }
+  return <SanctuaryContents items={items} title={t("onThisPage")} />;
 }

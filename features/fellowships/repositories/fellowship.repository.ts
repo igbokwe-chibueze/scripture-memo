@@ -117,7 +117,25 @@ export const fellowshipRepository = {
         },
         orderBy: [{ members: { _count: "desc" } }, { name: "asc" }],
         take: 50,
-        include: { _count: { select: { members: true } }, joinRequests: { where: { userId }, select: { id: true, status: true }, take: 1 } },
+        // Load safe profile labels in the existing bounded directory query.
+        // No click-time reads, member rosters, contact details or invite secrets.
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          description: true,
+          isPublic: true,
+          insigniaKey: true,
+          createdAt: true,
+          founder: { select: { profile: { select: { displayName: true } } } },
+          createdBy: { select: { profile: { select: { displayName: true } } } },
+          _count: { select: { members: true } },
+          joinRequests: {
+            where: { userId },
+            select: { id: true, status: true },
+            take: 1,
+          },
+        },
       }),
     ]);
     const memberMap = (item: (typeof memberships)[number]) => ({
@@ -137,6 +155,9 @@ export const fellowshipRepository = {
       requestId: null,
     });
     const discoveryMap = (item: (typeof discoverableFellowships)[number]) => ({
+      founderDisplayName: item.founder?.profile?.displayName ?? null,
+      leaderDisplayName: item.createdBy.profile?.displayName ?? null,
+      createdAt: item.createdAt,
       id: item.id,
       slug: item.slug,
       name: item.name,
@@ -195,6 +216,8 @@ export const fellowshipRepository = {
         description: true,
         isPublic: true,
         createdById: true,
+        introduction: true,
+        guidelines: true,
         insigniaKey: true,
         inviteCode: true,
         members: {
@@ -210,7 +233,10 @@ export const fellowshipRepository = {
                     displayName: true,
                     countryCode: true,
                     totalWaypointsCompleted: true,
-                    totalGlowPoints: true,
+                    beaconXp: true,
+                    publicId: true,
+                    avatarKey: true,
+                    avatarFrameKey: true,
                   },
                 },
               },
@@ -296,14 +322,18 @@ export const fellowshipRepository = {
       return null;
     }
     const isLeader = fellowship.createdById === userId;
-    // Preserve the complete roster and existing rank/tie ordering. Pagination
-    // would change visible membership behavior and is not part of this repair.
+    // Reuse the authorized roster; a separate leader profile query is redundant.
+    const leaderProfile = fellowship.members.find(
+      (member) => member.userId === fellowship.createdById,
+    )?.user.profile;
+    // Ranking is lifetime Beacon progression, never spendable Glow Points.
+    // The client can reorder/filter the complete authorized roster without reads.
     const ranked = [...fellowship.members].sort(
       (left, right) =>
+        (right.user.profile?.beaconXp ?? 0) -
+          (left.user.profile?.beaconXp ?? 0) ||
         (right.user.profile?.totalWaypointsCompleted ?? 0) -
           (left.user.profile?.totalWaypointsCompleted ?? 0) ||
-        (right.user.profile?.totalGlowPoints ?? 0) -
-          (left.user.profile?.totalGlowPoints ?? 0) ||
         left.joinedAt.getTime() - right.joinedAt.getTime(),
     );
     return {
@@ -311,6 +341,13 @@ export const fellowshipRepository = {
       slug: fellowship.slug,
       name: fellowship.name,
       description: fellowship.description,
+      introduction: fellowship.introduction,
+      guidelines: fellowship.guidelines,
+      leader: {
+        displayName: leaderProfile?.displayName ?? "Player",
+        avatarKey: leaderProfile?.avatarKey ?? "lion",
+        avatarFrameKey: leaderProfile?.avatarFrameKey ?? "default",
+      },
       isPublic: fellowship.isPublic,
       // The complete roster is already loaded; a second relation count is redundant.
       memberCount: fellowship.members.length,
@@ -325,12 +362,16 @@ export const fellowshipRepository = {
       requestId: null,
       members: ranked.map((member, index) => ({
         rank: index + 1,
+        profilePublicId: member.user.profile?.publicId ?? null,
         displayName: member.user.profile?.displayName ?? "Player",
+        avatarKey: member.user.profile?.avatarKey ?? "lion",
+        avatarFrameKey: member.user.profile?.avatarFrameKey ?? "default",
         countryCode: member.user.profile?.countryCode ?? null,
         waypointsCompleted: member.user.profile?.totalWaypointsCompleted ?? 0,
-        glowPoints: member.user.profile?.totalGlowPoints ?? 0,
+        lifetimeBeaconPoints: member.user.profile?.beaconXp ?? 0,
         joinedAt: member.joinedAt,
         isLeader: member.userId === fellowship.createdById,
+        isCurrentUser: member.userId === userId,
       })),
       // Retain the output guard as well as the database filter so leader-only
       // review data stays private if this selection is extended in the future.
@@ -398,7 +439,20 @@ export const fellowshipRepository = {
       const baseSlug = slugify(input.name);
       const slug = `${baseSlug}-${randomBytes(3).toString("hex")}`;
       try {
-        const created = await transaction.fellowship.create({ data: { ...input, description: input.description || null, slug, inviteCode: randomBytes(16).toString("base64url"), createdById: userId, members: { create: { userId } } }, select: { slug: true } });
+        const created = await transaction.fellowship.create({
+          data: {
+            ...input,
+            description: input.description || null,
+            introduction: input.introduction || null,
+            slug,
+            inviteCode: randomBytes(16).toString("base64url"),
+            createdById: userId,
+            // Server-derived once; later leadership changes touch createdById only.
+            founderId: userId,
+            members: { create: { userId } },
+          },
+          select: { slug: true },
+        });
         return created;
       } catch (error) {
         if (typeof error === "object" && error !== null && "code" in error && error.code === "P2002") throw new FellowshipConflictError("NAME_TAKEN");
@@ -421,6 +475,8 @@ export const fellowshipRepository = {
         slug: true,
         name: true,
         description: true,
+        introduction: true,
+        guidelines: true,
         isPublic: true,
         insigniaKey: true,
         inviteCode: true,
@@ -452,6 +508,8 @@ export const fellowshipRepository = {
       slug: fellowship.slug,
       name: fellowship.name,
       description: fellowship.description,
+      introduction: fellowship.introduction,
+      guidelines: fellowship.guidelines,
       isPublic: fellowship.isPublic,
       insigniaKey: fellowship.insigniaKey,
       inviteCode: fellowship.inviteCode,
@@ -496,6 +554,8 @@ export const fellowshipRepository = {
         data: {
           name: input.name,
           description: input.description || null,
+          introduction: input.introduction || null,
+          guidelines: input.guidelines || null,
           isPublic: input.isPublic,
           insigniaKey: input.insigniaKey,
         },

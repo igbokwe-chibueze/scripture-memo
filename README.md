@@ -2,6 +2,27 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+### Public journal and admin editor
+
+- Public articles and search: `/blog` (no login required).
+- Administrator editorial workspace: `/admin/blog`; choose **New article** to
+  write, preview, save a private draft, or publish. ADMIN and SUPER_ADMIN can edit.
+- To unpublish, open an article, choose **Draft**, and save. Previously published
+  article URLs remain fixed; conflicting edits are rejected rather than overwritten.
+- Game Guides should be updated when the documented functionality changes.
+  Public articles display their last updated date.
+
+After applying the checked-in migrations to the existing local development
+database, `npm run blog:install-guides` installs the nine initial articles.
+The command accepts only the development listener on port 51214, preserves
+existing slugs and editorial revisions, and never connects to a hosted database.
+Content thereafter lives in PostgreSQL and is maintained through the editor.
+
+`npm run test:blog` checks validation, safe links, and starter content.
+`npm run test:blog:integration` uses the separately guarded `TEST_DATABASE_URL`
+to check draft privacy, publication, audit records, and edit conflicts. It never
+falls back to the development database. The unit suite includes blog unit tests.
+
 ### Start the isolated local database
 
 Routine development must not point at hosted Prisma Postgres. Start the named

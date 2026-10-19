@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { BookHeartIcon, BookOpenTextIcon } from "lucide-react";
+import { BookHeartIcon } from "lucide-react";
 import { ContextPanelCard } from "@/components/shared/context-panel-card";
 import { GamePageColumns } from "@/components/shared/game-page-columns";
-import { NavigationButton } from "@/components/shared/navigation-button";
 import { requireServerSession } from "@/lib/auth/session";
 import { SanctuarySpace } from "@/features/sanctuary/components/sanctuary-space";
 import { SanctuaryLocked } from "@/features/sanctuary/components/sanctuary-locked";
@@ -54,43 +53,11 @@ export async function SanctuaryView({
     );
   }
   return (
-    <GamePageColumns
-      contextPanel={
-        <ContextPanelCard
-          icon={<BookHeartIcon aria-hidden="true" />}
-          eyebrow={t("eyebrow")}
-          title={result.data.reference}
-          description={result.data.verseText}
-          detail={
-            <div className="space-y-2 text-muted-foreground">
-              <p>{result.data.translation}</p>
-              {result.data.tags.length > 0 ? (
-                <p className="line-clamp-2">
-                  {result.data.tags.join(" · ")}
-                </p>
-              ) : null}
-              <p>{t("contextSectionCount", { count: result.data.studySections.length })}</p>
-            </div>
-          }
-          action={
-            <NavigationButton
-              href="/vault"
-              pendingLabel={t("openingVault")}
-              size="sm"
-              variant="outline"
-              className="w-full"
-            >
-              <BookOpenTextIcon data-icon="inline-start" aria-hidden="true" />
-              {t("backToVault")}
-            </NavigationButton>
-          }
-        />
-      }
-    >
+    <GamePageColumns contextPanel={<SanctuaryContentsNavigation data={result.data} />}>
       <SanctuarySpace
+        key={result.data.verseId}
         data={result.data}
         studyContent={<SanctuaryStudyContent data={result.data} />}
-        contentsNavigation={<SanctuaryContentsNavigation data={result.data} />}
       />
     </GamePageColumns>
   );

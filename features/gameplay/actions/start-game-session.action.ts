@@ -20,19 +20,19 @@ function getProgressionError(error: ProgressionConflictError): {
     case "WAYPOINT_LOCKED":
       return { message: "Complete the preceding waypoint before starting this one.", errorCode: "PRG-002" };
     case "DAY_COOLDOWN_ACTIVE":
-      return { message: "This challenge day is not unlocked yet.", errorCode: "PRG-004" };
+      return { message: "This challenge stage is not unlocked yet.", errorCode: "PRG-004" };
     case "PREVIOUS_DAY_INCOMPLETE":
-      return { message: "Complete the previous challenge day first.", errorCode: "PRG-005" };
+      return { message: "Complete the previous challenge stage first.", errorCode: "PRG-005" };
     case "DAY_ALREADY_COMPLETED":
-      return { message: "This challenge day has already been completed.", errorCode: "PRG-006" };
+      return { message: "This challenge stage has already been completed.", errorCode: "PRG-006" };
     case "DAY_NOT_INITIALIZED":
-      return { message: "This challenge day is not ready yet.", errorCode: "PRG-007" };
+      return { message: "This challenge stage is not ready yet.", errorCode: "PRG-007" };
     default:
       return { message: "Your progression could not be updated.", errorCode: "PRG-008" };
   }
 }
 
-/** Validates, authorizes, and atomically starts or resumes one challenge day. */
+/** Validates, authorizes, and atomically starts or resumes one challenge stage. */
 export async function startGameSessionAction(
   input: unknown,
 ): Promise<ActionResult<{ sessionId: string; redirectTo: string }>> {

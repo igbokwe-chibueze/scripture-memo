@@ -14,8 +14,12 @@ export const GAMEPLAY_TILE_STATE_STYLES = {
     "border-available-border bg-available-subtle text-available-text hover:border-available-border hover:bg-available-subtle",
   selected:
     "border-selection-border bg-selection-subtle text-selection-text ring-2 ring-selection-border",
+  // Receiving gaps retain the original brand-teal treatment independently of
+  // the owner-approved purple selection palette on movable word/phrase tiles.
+  receiving:
+    "border-primary bg-secondary text-secondary-foreground ring-2 ring-primary",
   dropTarget:
-    "border-selection-border bg-selection-subtle text-selection-text outline-2 outline-dashed outline-selection-border",
+    "border-primary bg-secondary text-secondary-foreground outline-2 outline-dashed outline-primary",
   correct:
     "border-success-border bg-success-subtle text-success-text",
   incorrect:

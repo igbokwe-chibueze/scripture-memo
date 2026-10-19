@@ -39,6 +39,7 @@ type CssVariables = ReadonlyMap<string, string>;
 type RgbColor = readonly [number, number, number];
 
 const CORE_TOKENS = [
+  "badge-rarity-epic",
   "background",
   "foreground",
   "card",
@@ -99,10 +100,19 @@ const SEMANTIC_ROLES = [
  * ordinary interface drift and is therefore not permitted here.
  */
 const APPROVED_COLOR_EXCEPTION_PATHS = new Set([
+  // Owner-requested white/silver sheen only, opt-in for primary/secondary buttons.
+  "components/ui/button-effects.module.css",
   "features/profile/components/player-avatar.tsx",
   "features/gameplay/components/animated-flame.tsx",
   "features/auth/lib/email-verification-delivery.ts",
   "features/auth/lib/password-reset-production-delivery.ts",
+  // Owner-approved reference tile colors; the surrounding home remains themed.
+  "features/home/components/home-screen.module.css",
+  // Dark ink is printed on the supplied fixed metallic podium artwork.
+  "features/leaderboard/components/leaderboard.module.css",
+  // Owner-approved gameplay concepts: purple selection and gold Swap pieces
+  // are local to active boards; the surrounding app remains semantically themed.
+  "features/gameplay/components/active-game.module.css",
 ]);
 
 /** Reads the direct color declarations for one registered theme mode. */

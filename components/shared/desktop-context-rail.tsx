@@ -1,10 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { createContext, useContext, useState } from "react";
-import { HeartHandshakeIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { NavigationButton } from "@/components/shared/navigation-button";
+import { PartnerCard } from "@/features/partner";
+import styles from "@/features/player-shell/components/player-shell.module.css";
 
 type DesktopContextRailContextValue = {
   /** Portal destination for the current route's optional contextual content. */
@@ -43,45 +42,14 @@ export function DesktopContextRailProvider({
 
       {enabled ? (
         <aside
-          className="fixed top-16 right-0 bottom-0 z-30 hidden w-64 flex-col border-l border-border/70 bg-background text-foreground xl:flex"
+          className={styles.contextRail}
           aria-label={t("contextRail")}
         >
-          {/* WHY: Context content is intentionally bounded and visual-first.
-           * The rail should never become a second scrolling page or repeat the
-           * primary information already presented in the centre. */}
-          <div ref={setContextTarget} className="min-h-0 flex-1 overflow-hidden" />
+          {/* Route panels remain compact; short desktop windows may scroll
+            * the whole rail so the Partner action is never clipped. */}
+          <div ref={setContextTarget} className={styles.contextSlot} />
 
-          <section className="border-t border-border/70 p-3">
-            <div className="relative overflow-hidden rounded-card border border-border bg-card p-3">
-              <div className="relative flex items-center gap-2.5">
-                <Image
-                  src="/images/mascot/luna/luna-encourage.png"
-                  alt=""
-                  width={256}
-                  height={256}
-                  className="size-14 shrink-0 object-contain"
-                />
-                <div className="min-w-0">
-                  <span className="inline-flex items-center gap-1 text-[0.65rem] font-bold tracking-[0.12em] text-primary uppercase">
-                    <HeartHandshakeIcon className="size-3.5" aria-hidden="true" />
-                    {t("partner")}
-                  </span>
-                  <h2 className="font-heading text-base leading-tight font-bold">
-                    {t("becomePartner")}
-                  </h2>
-                </div>
-              </div>
-
-              <NavigationButton
-                href="/oil-shop?tab=donations"
-                pendingLabel={t("openingPartner")}
-                size="sm"
-                className="relative mt-2.5 w-full"
-              >
-                {t("learnMore")}
-              </NavigationButton>
-            </div>
-          </section>
+          <PartnerCard />
         </aside>
       ) : null}
     </DesktopContextRailContext.Provider>

@@ -19,6 +19,37 @@ enum UserRole {
   SUPER_ADMIN
 }
 
+// Public editorial content is separate from learner data. Drafts are never
+// returned by public repository methods; the version prevents lost edits.
+enum BlogArticleStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum BlogCategory {
+  GUIDE
+  NEWS
+  BEHIND_SCENES
+}
+
+model BlogArticle {
+  id          String            @id @default(cuid())
+  slug        String            @unique
+  title       String
+  excerpt     String
+  content     String            @db.Text
+  category    BlogCategory       @default(GUIDE)
+  status      BlogArticleStatus  @default(DRAFT)
+  byline      String            @default("Scripture Memo")
+  version     Int               @default(1)
+  publishedAt DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([status, category, publishedAt(sort: Desc)])
+  @@index([status, publishedAt(sort: Desc)])
+}
+
 enum TranslationCode {
   NIV
   ESV
@@ -218,7 +249,9 @@ model User {
   fellowshipAppealsMade      FellowshipSuspensionAppeal[]   @relation("FellowshipSuspensionAppellant")
   fellowshipAppealsReviewed  FellowshipSuspensionAppeal[]   @relation("FellowshipSuspensionReviewer")
   fellowshipsCreated         Fellowship[]                   @relation("FellowshipCreator")
+  fellowshipsFounded         Fellowship[]                   @relation("FellowshipFounder")
   shopPurchases              UserShopPurchase[]
+  ownedAvatars               UserAvatarOwnership[]
   verseNotes                 UserVerseNote[]
   favoriteVerses             UserFavoriteVerse[]
   versesCreated              Verse[]                        @relation("VerseCreator")
@@ -238,6 +271,8 @@ model User {
 
 model UserProfile {
   id                      String    @id @default(cuid())
+  /// Stable navigation identifier; never expose the private auth userId in profile URLs.
+  publicId                String    @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId                  String    @unique
   displayName             String
   countryCode             String?
@@ -268,10 +303,6 @@ model UserSettings {
   userId                 String          @unique
   preferredTranslation   TranslationCode @default(KJV)
   hasSelectedTranslation Boolean         @default(false)
-  audioEnabled           Boolean         @default(true)
-  reducedMotion          Boolean         @default(false)
-  theme                  String          @default("system")
-  locale                 String          @default("en")
   timeZone               String          @default("UTC")
   hasConfiguredTimeZone  Boolean         @default(false)
   createdAt              DateTime        @default(now())
@@ -667,13 +698,20 @@ model Fellowship {
   name                String
   slug                String                         @unique
   description         String?
+  /// Optional header copy, separate from the full About description.
+  introduction        String?
+  /// One plain-text guideline per line; null uses localized application defaults.
+  guidelines          String?
   isPublic            Boolean                        @default(true)
   insigniaKey         String                         @default("word-star")
   inviteCode          String                         @unique
   createdById         String
+  /// Original founder, preserved across leadership transfers; null after account deletion.
+  founderId           String?
   createdAt           DateTime                       @default(now())
   updatedAt           DateTime                       @updatedAt
   createdBy           User                           @relation("FellowshipCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  founder             User?                          @relation("FellowshipFounder", fields: [founderId], references: [id], onDelete: SetNull)
   members             FellowshipMember[]
   joinRequests        FellowshipJoinRequest[]
   leadershipTransfers FellowshipLeadershipTransfer[]
@@ -850,9 +888,22 @@ model UserShopPurchase {
   purchasedAt         DateTime @default(now())
   user                User     @relation(fields: [userId], references: [id], onDelete: Restrict)
   shopItem            ShopItem @relation(fields: [shopItemId], references: [id], onDelete: Restrict)
+  avatarOwnership     UserAvatarOwnership?
 
   @@index([userId, purchasedAt(sort: Desc)])
   @@index([shopItemId])
+}
+
+/// Permanent, unique cosmetic entitlement backed by an immutable purchase snapshot.
+model UserAvatarOwnership {
+  userId     String
+  avatarKey  String
+  purchaseId String           @unique
+  acquiredAt DateTime         @default(now())
+  user       User             @relation(fields: [userId], references: [id], onDelete: Restrict)
+  purchase   UserShopPurchase @relation(fields: [purchaseId], references: [id], onDelete: Restrict)
+
+  @@id([userId, avatarKey])
 }
 
 model UserVerseNote {

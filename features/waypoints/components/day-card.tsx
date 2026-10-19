@@ -1,29 +1,21 @@
 "use client";
 
+import Image from "next/image";
 import { useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import {
-  CheckCircle2Icon,
-  Clock3Icon,
-  FlameIcon,
-  LockKeyholeIcon,
-  PlayIcon,
-  SparklesIcon,
-} from "lucide-react";
+import { CheckCircle2Icon, Clock3Icon, LockKeyholeIcon, PlayIcon } from "lucide-react";
 import { toast } from "sonner";
 import { CountdownTimer } from "@/components/shared/countdown-timer";
-import { LunaMascot } from "@/components/shared/luna-mascot";
 import { LoadingButton } from "@/components/shared/loading-button";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { showActionError } from "@/lib/errors/show-action-error";
 import { cn } from "@/lib/utils";
 import { startGameSessionAction } from "@/features/gameplay/actions/start-game-session.action";
-import { CompletedModePracticeMenu } from "@/features/waypoints/components/completed-mode-practice-menu";
-import type { DayCardData } from "@/features/waypoints/types/day-selection.types";
+import { CompletedModePracticeMenu } from "./completed-mode-practice-menu";
+import type { DayCardData } from "../types/day-selection.types";
 import type { ActionResult } from "@/types/api";
+import styles from "./day-selection.module.css";
 
 export type StartDay = (input: {
   waypointId: string;
@@ -37,7 +29,11 @@ const statusPresentation = {
   COMPLETE: { labelKey: "completed", icon: CheckCircle2Icon },
 } as const;
 
-/** Interactive challenge-day card with visible feedback for every state. */
+/**
+ * Illustrated day card retaining the existing action and server-owned state.
+ * Locked/cooldown controls explain their restriction; they never start a day.
+ * Countdown expiry refreshes presentation only, leaving server enforcement intact.
+ */
 export function DayCard({
   card,
   waypointId,
@@ -56,8 +52,14 @@ export function DayCard({
   const StatusIcon = status.icon;
   const dayKey = card.dayLevel.toLowerCase() as "glimmer" | "glow" | "radiance";
   const dayName = t(dayKey);
-  const daySubtitle = t(`${dayKey}Subtitle`);
+  const isBlocked = card.status === "LOCKED" || card.status === "COOLDOWN";
+  const unlockedArtwork = dayKey === "glimmer" ? "glimmer-emblem" : dayKey;
+  const artwork = isBlocked ? `${dayKey}-locked` : unlockedArtwork;
+  const statusClass = styles[
+    card.status.toLowerCase() as "ready" | "complete" | "locked" | "cooldown"
+  ];
 
+  /** Explain a blocked action without sending a mutation or bypassing its lock. */
   function explainBlockedDay(): void {
     if (!card.blockedReason) return;
     toast.info(card.blockedReason, {
@@ -66,129 +68,109 @@ export function DayCard({
     });
   }
 
+  /** Submit the existing validated action; errors keep the card safely retryable. */
   function startDay(): void {
     startTransition(async () => {
-      const result = await startDayAction({
-        waypointId,
-        dayLevel: card.dayLevel,
-      });
-      if (!result.success) {
-        showActionError(result);
-        router.refresh();
-        return;
+      try {
+        const result = await startDayAction({
+          waypointId,
+          dayLevel: card.dayLevel,
+        });
+        if (!result.success) {
+          showActionError(result);
+          router.refresh();
+          return;
+        }
+        toast.success(result.message, { duration: 4_000 });
+        if (result.data?.redirectTo) router.push(result.data.redirectTo);
+      } catch {
+        // Transport failures must not leave an apparently frozen start control.
+        toast.error(t("startFailed"), { duration: Infinity });
       }
-
-      toast.success(result.message, { duration: 4_000 });
-      if (result.data?.redirectTo) router.push(result.data.redirectTo);
     });
   }
 
   return (
-    <Card
-      className={cn(
-        "relative overflow-hidden border py-0 shadow-lg shadow-foreground/5",
-        card.status === "READY" &&
-          "border-available-border ring-2 ring-selection/20",
-        card.status === "COMPLETE" &&
-          "border-success-border bg-success-subtle",
-        (card.status === "LOCKED" || card.status === "COOLDOWN") &&
-          "border-border bg-muted",
-      )}
+    <article
+      className={cn(styles.dayCard, statusClass)}
+      aria-labelledby={`day-${index}-heading`}
+      data-day-status={card.status}
     >
-      <CardHeader className="grid grid-cols-[3.25rem_1fr_auto] items-center gap-3 px-4 pt-4">
-        <span
-          className={cn(
-            "grid size-13 place-items-center rounded-2xl text-lg font-bold shadow-inner",
-            card.status === "COMPLETE"
-              ? "bg-success text-success-foreground"
-              : card.status === "READY"
-                ? "bg-available-subtle text-available-text"
-                : "bg-disabled text-disabled-foreground",
-          )}
-        >
-          {index + 1}
-        </span>
-        <span className="min-w-0">
-          <span className="font-heading block text-xl font-bold">{dayName}</span>
-          <span className="block text-xs font-medium text-muted-foreground">
-            {daySubtitle}
-          </span>
-        </span>
-        <Badge variant="outline" className="gap-1.5 rounded-full px-2.5 py-1">
-          <StatusIcon className="size-3.5" aria-hidden="true" />
-          {t(status.labelKey)}
-        </Badge>
-      </CardHeader>
-
-      <CardContent className="space-y-4 px-4 pb-4">
-        <div className="flex items-center justify-between gap-3 rounded-xl bg-muted/65 px-3 py-2.5">
-          <span className="inline-flex items-center gap-2 text-sm font-bold">
-            <SparklesIcon className="size-4 text-reward-text" aria-hidden="true" />
-            {t("rewardPreview")}
-          </span>
-          <span className="font-heading font-bold text-reward-text dark:text-reward-text">
+      <div className={styles.dayBody}>
+        <Image
+          src={`/images/game-ui/waypoints/${artwork}.png`}
+          alt=""
+          width={160}
+          height={160}
+          sizes="(min-width: 1024px) 150px, 27vw"
+          className={styles.dayArtwork}
+        />
+        <div className={styles.dayCopy}>
+          <h2 id={`day-${index}-heading`} className={styles.dayTitle}>
+            {dayName}
+          </h2>
+          <p className={styles.daySubtitle}>{t(`${dayKey}Subtitle`)}</p>
+          <p className={styles.reward}>
+            <Image src="/images/game-ui/diamond.png" alt="" width={28} height={28} />
             {t("glowPoints", { points: card.reward })}
-          </span>
+          </p>
+          {card.status === "COMPLETE" && (
+            <p className={styles.kindled}>
+              <Image src="/images/game-ui/flame-lit.png" alt="" width={24} height={24} />
+              {t("flameKindled")}
+            </p>
+          )}
         </div>
+        <span className={styles.status}>
+          <StatusIcon className="size-4" aria-hidden="true" />
+          {t(status.labelKey)}
+        </span>
+      </div>
 
-        {card.status === "COMPLETE" && (
-          <div className="flex items-center gap-2 text-sm font-bold text-success-text dark:text-success-text">
-            <FlameIcon className="size-5 fill-reward text-reward-text" aria-hidden="true" />
-            {t("flameKindled")}
-          </div>
-        )}
+      {card.status === "COOLDOWN" && card.unlocksAt && (
+        <div className={styles.countdown}>
+          <span>{t("readyIn")}</span>
+          <CountdownTimer
+            targetDate={card.unlocksAt}
+            label={t("unlocksIn", { day: dayName })}
+            onExpire={() => router.refresh()}
+          />
+        </div>
+      )}
 
-        {card.status === "COOLDOWN" && card.unlocksAt && (
-          <div className="relative -mx-1 flex min-h-44 overflow-hidden rounded-card border border-border bg-muted p-4">
-            <div className="relative z-10 min-w-0 flex-1">
-              <p className="text-xs font-bold tracking-[0.14em] text-muted-foreground uppercase">{t("restFlame")}</p>
-              <p className="mt-1 font-heading text-lg font-bold">{t("preparing", { day: dayName })}</p>
-              <p className="mt-1 max-w-56 text-xs leading-5 text-muted-foreground">{t("lunaKeepsPlace")}</p>
-              <div className="mt-3 w-fit rounded-control border border-border bg-card px-3 py-2 shadow-sm">
-                <p className="text-[0.6rem] font-bold tracking-wide text-muted-foreground uppercase">{t("readyIn")}</p>
-                <CountdownTimer targetDate={card.unlocksAt} label={t("unlocksIn", { day: dayName })} className="mt-1" onExpire={() => router.refresh()} />
-              </div>
-            </div>
-            <LunaMascot pose="guide" decorative className="-mr-10 mt-auto w-28 shrink-0 self-end sm:-mr-7 sm:w-36" sizes="144px" />
-          </div>
-        )}
-      </CardContent>
-
-      <CardFooter className="p-4">
+      <div className={styles.dayAction}>
         {card.status === "READY" ? (
           <LoadingButton
             isPending={isPending}
             pendingLabel={t("preparingChallenge")}
             onClick={startDay}
-            className="h-12 w-full rounded-xl text-base font-bold"
+            className={styles.actionButton}
           >
-            <PlayIcon className="size-5" aria-hidden="true" />
+            <PlayIcon className="size-6 fill-current" aria-hidden="true" />
             {t("startDay", { day: dayName })}
           </LoadingButton>
-        ) : card.status === "LOCKED" || card.status === "COOLDOWN" ? (
-          <div className="grid w-full grid-cols-1 gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={explainBlockedDay}
-              className="min-h-11 rounded-xl"
-            >
-              <StatusIcon className="size-4" aria-hidden="true" />
-              {card.status === "COOLDOWN" ? t("coolingDown") : t("locked")}
-            </Button>
-          </div>
+        ) : isBlocked ? (
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={explainBlockedDay}
+            className={styles.actionButton}
+          >
+            <StatusIcon className="size-5" aria-hidden="true" />
+            {card.status === "COOLDOWN" ? t("coolingDown") : t("locked")}
+          </Button>
         ) : card.completedSessionId && card.completedModes.length > 0 ? (
           <CompletedModePracticeMenu
             sessionId={card.completedSessionId}
             dayLevel={card.dayLevel}
             completedModes={card.completedModes}
+            label={t("practiceAgain")}
+            className={styles.actionButton}
           />
         ) : (
-          <p className="w-full text-center text-sm font-bold text-success-text dark:text-success-text">
-            {t("challengeComplete")}
-          </p>
+          <p className={styles.completeMessage}>{t("challengeComplete")}</p>
         )}
-      </CardFooter>
-    </Card>
+      </div>
+    </article>
   );
 }

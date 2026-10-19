@@ -1,232 +1,134 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import {
-  BookHeartIcon,
-  BookOpenIcon,
-  BookOpenCheckIcon,
-  FilterIcon,
-  HeartIcon,
-  MapPinIcon,
-} from "lucide-react";
+import { SearchIcon } from "lucide-react";
 import { toast } from "sonner";
-import { VaultVerseCard } from "@/features/vault/components/vault-verse-card";
-import { EmptyState } from "@/components/shared/empty-state";
+import { Button } from "@/components/ui/button";
 import { showActionError } from "@/lib/errors/show-action-error";
-import { startVaultReplayAction } from "@/features/vault/actions/start-vault-replay.action";
-import type {
-  VaultLibraryData,
-  VaultVerseItem,
-} from "@/features/vault/types/vault.types";
+import { toggleSanctuaryFavoriteAction } from "@/features/sanctuary/actions/toggle-sanctuary-favorite.action";
+import { VaultVerseCard } from "./vault-verse-card";
+import { collectVaultVerses, getVaultStatus } from "../lib/vault-library";
+import type { VaultLibraryData } from "../types/vault.types";
+import styles from "./vault.module.css";
 
-/** Reusable private verse card with an optional server-authorized replay action. */
-function VerseCard({
-  verse,
-  canReplay,
-}: {
-  verse: VaultVerseItem;
-  canReplay: boolean;
-}): React.ReactNode {
+/** Instant local search/filtering over authorized, server-redacted verse data.
+ * Translation comes exclusively from Settings. Packs intentionally has no
+ * catalogue or invented progress until the owner introduces player packs.
+ */
+export function VaultLibrary({ data }: { data: VaultLibraryData }): React.ReactNode {
   const t = useTranslations("Vault");
-  const router = useRouter();
+  const [tab, setTab] = useState("verses");
+  const [query, setQuery] = useState("");
+  const [status, setStatus] = useState("all");
+  const [favorites, setFavorites] = useState<Record<string, boolean>>({});
+  const [pendingVerse, setPendingVerse] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const verses = collectVaultVerses(data).map((verse) => ({
+    ...verse,
+    isFavorite: favorites[verse.verseId] ?? verse.isFavorite,
+  }));
+  const search = query.trim().toLocaleLowerCase();
+  const visible = verses.filter((verse) => {
+    const matchesStatus = status === "all" ||
+      (status === "favorites" ? verse.isFavorite : getVaultStatus(verse) === status);
+    // Locked text is null at the repository boundary, including during search.
+    const matchesSearch = (verse.reference + " " + (verse.text ?? ""))
+      .toLocaleLowerCase().includes(search);
+    return matchesStatus && matchesSearch;
+  });
+  const packs = tab === "packs";
+  const filtered = Boolean(search) || status !== "all";
 
-  const replay = (): void => {
+  /** Server action retains Sanctuary authorization; update only after success. */
+  const toggleFavorite = (verseId: string): void => {
+    setPendingVerse(verseId);
     startTransition(async () => {
-      const result = await startVaultReplayAction({ verseId: verse.verseId });
-      if (!result.success) {
-        showActionError(result);
-        return;
+      try {
+        const result = await toggleSanctuaryFavoriteAction({ verseId });
+        if (!result.success) {
+          showActionError(result);
+          return;
+        }
+        if (result.data) {
+          const savedFavorite = result.data.isFavorite;
+          setFavorites((previous) => ({ ...previous, [verseId]: savedFavorite }));
+        }
+        toast.success(result.message, { duration: 4_000 });
+      } catch {
+        toast.error(t("favoriteError"), { duration: Infinity });
+      } finally {
+        setPendingVerse(null);
       }
-      if (!result.data) {
-        toast.error(t("replayUnavailable"), {
-          duration: Infinity,
-        });
-        return;
-      }
-      toast.success(result.message, { duration: 4_000 });
-      router.push(`/game/sessions/${result.data.sessionId}`);
     });
   };
 
   return (
-    <VaultVerseCard
-      verse={verse}
-      canReplay={canReplay}
-      sanctuaryHref={`/sanctuary/${verse.verseId}`}
-      isPending={isPending}
-      onReplay={replay}
-    />
-  );
-}
-
-/** Client-side filters keep private Vault browsing instant without new data reads. */
-export function VaultLibrary({ data }: { data: VaultLibraryData }): React.ReactNode {
-  const t = useTranslations("Vault");
-  const [translation, setTranslation] = useState("ALL");
-  const [pack, setPack] = useState("ALL");
-  const filterVerses = (verses: VaultVerseItem[]): VaultVerseItem[] =>
-    verses.filter(
-      (verse) =>
-        (translation === "ALL" ||
-          verse.availableTranslations.includes(
-            translation as VaultVerseItem["translation"],
-          )) &&
-        (pack === "ALL" || verse.packSlugs.includes(pack)),
-    );
-  const mastered = useMemo(
-    () => filterVerses(data.masteredVerses),
-    // The local filters and immutable server payload fully determine this list.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [data.masteredVerses, pack, translation],
-  );
-  const completed = useMemo(
-    () => filterVerses(data.completedVerses),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [data.completedVerses, pack, translation],
-  );
-  const favorites = useMemo(
-    () => filterVerses(data.favoriteVerses),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [data.favoriteVerses, pack, translation],
-  );
-
-  return (
-    <div className="space-y-9">
-      <section className="rounded-2xl border border-border bg-card/70 p-4">
-        <div className="flex items-center gap-2 font-bold">
-          <FilterIcon className="size-4" aria-hidden="true" />
-          {t("libraryFilters")}
+    <section className={styles.library} aria-label={t("libraryLabel")}>
+      <div className={styles.tabs} role="group" aria-label={t("libraryLabel")}>
+        {["verses", "packs"].map((value) => (
+          <Button
+            key={value}
+            variant={tab === value ? "default" : "ghost"}
+            className={styles.tab}
+            aria-pressed={tab === value}
+            onClick={() => { setTab(value); setQuery(""); setStatus("all"); }}
+          >
+            {t(value === "verses" ? "versesTab" : "packsTab")}
+          </Button>
+        ))}
+      </div>
+      <label className={styles.search}>
+        <SearchIcon className="size-6" aria-hidden="true" />
+        <span className="sr-only">{t(packs ? "searchPacks" : "searchVerses")}</span>
+        <input
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder={t(packs ? "searchPacks" : "searchVerses")}
+        />
+      </label>
+      <div className={styles.toolbar}>
+        <p className="font-heading text-xl font-bold" aria-live="polite">
+          {t(packs ? "packCount" : "verseCount", { count: packs ? 0 : visible.length })}
+        </p>
+        <label>
+          <span className="sr-only">{t("statusFilter")}</span>
+          <select value={status} onChange={(event) => setStatus(event.target.value)}>
+            <option value="all">{t(packs ? "allPacks" : "allVerses")}</option>
+            <option value="inProgress">{t("inProgress")}</option>
+            <option value="completed">{t("completed")}</option>
+            {!packs && <option value="mastered">{t("mastered")}</option>}
+            {!packs && <option value="favorites">{t("favorites")}</option>}
+          </select>
+        </label>
+      </div>
+      {!packs && visible.length > 0 ? (
+        <div className={styles.cards}>
+          {visible.map((verse) => (
+            <VaultVerseCard
+              key={verse.verseId}
+              verse={verse}
+              sanctuaryHref={"/sanctuary/" + verse.verseId}
+              isPending={isPending && pendingVerse === verse.verseId}
+              favoriteDisabled={isPending}
+              onFavorite={() => toggleFavorite(verse.verseId)}
+            />
+          ))}
         </div>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          <label className="grid gap-1 text-xs font-bold text-muted-foreground">
-            {t("translation")}
-            <select
-              id="vault-translation-filter"
-              name="vaultTranslation"
-              className="min-h-11 rounded-xl border border-border bg-background px-3 text-sm text-foreground"
-              value={translation}
-              onChange={(event) => setTranslation(event.currentTarget.value)}
-            >
-              <option value="ALL">{t("allTranslations")}</option>
-              {data.availableTranslations.map((value) => (
-                <option key={value} value={value}>{value}</option>
-              ))}
-            </select>
-          </label>
-          <label className="grid gap-1 text-xs font-bold text-muted-foreground">
-            {t("pack")}
-            <select
-              id="vault-pack-filter"
-              name="vaultPack"
-              className="min-h-11 rounded-xl border border-border bg-background px-3 text-sm text-foreground"
-              value={pack}
-              onChange={(event) => setPack(event.currentTarget.value)}
-            >
-              <option value="ALL">{t("allPacks")}</option>
-              {data.packs.map((value) => (
-                <option key={value.slug} value={value.slug}>{value.name}</option>
-              ))}
-            </select>
-          </label>
+      ) : (
+        <div className={styles.empty}>
+          <Image src="/images/game-ui/bible-open.png" alt="" width={180} height={140} />
+          <h2 className="font-heading text-2xl font-bold">{t(packs ? "packsEmpty" : "nothingYet")}</h2>
+          <p className="text-muted-foreground">{t(packs ? "packsEmptyDescription" : "emptyDescription")}</p>
+          {filtered && (
+            <Button variant="secondary" className="min-h-11 px-5" onClick={() => { setQuery(""); setStatus("all"); }}>
+              {t("clearFilters")}
+            </Button>
+          )}
         </div>
-      </section>
-
-      <section aria-labelledby="completed-heading">
-        <div className="flex items-center gap-3">
-          <BookOpenIcon className="size-7 text-selection-text" aria-hidden="true" />
-          <h2 id="completed-heading" className="font-heading text-2xl font-bold">{t("completedVerses")}</h2>
-        </div>
-        {completed.length > 0 ? (
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
-            {completed.map((verse) => (
-              <VerseCard
-                key={verse.verseId}
-                verse={verse}
-                canReplay={data.masteredVerses.some((masteredVerse) => masteredVerse.verseId === verse.verseId)}
-              />
-            ))}
-          </div>
-        ) : (
-          <EmptyState
-            className="mt-4"
-            variant={data.completedVerses.length ? "default" : "mascot"}
-            icon={data.completedVerses.length ? <BookOpenIcon /> : undefined}
-            title={data.completedVerses.length ? t("noCompletedMatch") : t("emptyCompleted")}
-            description={data.completedVerses.length ? t("tryAnotherFilter") : t("completeWaypointPrompt")}
-          />
-        )}
-      </section>
-
-      <section aria-labelledby="mastered-heading">
-        <div className="flex items-center gap-3">
-          <BookOpenCheckIcon className="size-7 text-success-text" aria-hidden="true" />
-          <div>
-            <h2 id="mastered-heading" className="font-heading text-2xl font-bold">{t("masteredVerses")}</h2>
-            <p className="text-sm text-muted-foreground">{t("allStagesComplete")}</p>
-          </div>
-        </div>
-        {mastered.length > 0 ? (
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
-            {mastered.map((verse) => <VerseCard key={verse.verseId} verse={verse} canReplay />)}
-          </div>
-        ) : (
-          <EmptyState
-            className="mt-4"
-            variant={data.masteredVerses.length ? "default" : "mascot"}
-            icon={data.masteredVerses.length ? <BookOpenCheckIcon /> : undefined}
-            title={data.masteredVerses.length ? t("noVersesMatch") : t("masteryWaiting")}
-            description={data.masteredVerses.length ? t("tryTranslationOrPack") : t("masteryPrompt")}
-          />
-        )}
-      </section>
-
-      <section aria-labelledby="progress-heading">
-        <div className="flex items-center gap-3">
-          <MapPinIcon className="size-7 text-reward-text" aria-hidden="true" />
-          <h2 id="progress-heading" className="font-heading text-2xl font-bold">{t("inProgressWaypoints")}</h2>
-        </div>
-        {data.inProgressWaypoints.length > 0 ? (
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            {data.inProgressWaypoints.map((waypoint) => (
-              <Link
-                key={waypoint.waypointId}
-                href={`/game/waypoints/${waypoint.waypointId}`}
-                className="rounded-2xl border border-reward-border/20 bg-reward-subtle p-4 transition hover:-translate-y-0.5 hover:bg-reward-subtle"
-              >
-                <p className="text-xs font-bold text-reward-text uppercase dark:text-reward-text">Waypoint {waypoint.number} · {waypoint.journeyStage}</p>
-                <h3 className="mt-1 font-heading text-lg font-bold">{waypoint.reference}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{t("flamesKindled", { count: waypoint.completedDays })}</p>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <EmptyState className="mt-4" variant="mascot" title={t("noActiveWaypoint")} description={t("nextChallengePrompt")} />
-        )}
-      </section>
-
-      <section aria-labelledby="favorites-heading">
-        <div className="flex items-center gap-3">
-          <BookHeartIcon className="size-7 text-error-text" aria-hidden="true" />
-          <h2 id="favorites-heading" className="font-heading text-2xl font-bold">{t("favoriteVerses")}</h2>
-        </div>
-        {favorites.length > 0 ? (
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
-            {favorites.map((verse) => <VerseCard key={verse.verseId} verse={verse} canReplay={false} />)}
-          </div>
-        ) : (
-          <EmptyState
-            className="mt-4"
-            variant={data.favoriteVerses.length ? "default" : "mascot"}
-            icon={data.favoriteVerses.length ? <HeartIcon /> : undefined}
-            title={data.favoriteVerses.length ? t("noFavoritesMatch") : t("noFavorites")}
-            description={data.favoriteVerses.length ? t("tryTranslationOrPack") : t("emptyFavorites")}
-          />
-        )}
-      </section>
-    </div>
+      )}
+    </section>
   );
 }

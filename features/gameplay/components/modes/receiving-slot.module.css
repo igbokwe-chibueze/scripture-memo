@@ -1,0 +1,28 @@
+/* Shared word/phrase drop cue. Transform-only expansion avoids reflowing the
+ * verse or changing dnd-kit's layout geometry while a tile crosses a gap. */
+.slot {
+  position: relative;
+  transform-origin: center;
+  transition: transform 160ms ease-out, background-color 150ms, border-color 150ms;
+}
+
+.slot[data-drag-over="true"] {
+  z-index: 1;
+  transform: scale(1.07);
+}
+
+/* Keep the existing teal receiving highlight, but suppress movement for both
+ * the saved in-app preference and the operating system's reduced-motion setting. */
+:global(.reduce-motion) .slot,
+:global(.reduce-motion) .slot[data-drag-over="true"] {
+  transition: none;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slot,
+  .slot[data-drag-over="true"] {
+    transition: none;
+    transform: none;
+  }
+}

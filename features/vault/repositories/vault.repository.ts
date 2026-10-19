@@ -14,7 +14,6 @@ import type {
 } from "@/features/vault/types/vault.types";
 import { VAULT_REPLAY_DAY_LEVEL } from "@/features/vault/constants/vault-replay-rules";
 import { hasCompletedEveryJourneyStage } from "@/features/vault/lib/vault-mastery";
-import { calculateHintBalance } from "@/features/hints/lib/hint-balance";
 import { getStudyAccessState, isStudyAvailable } from "@/features/sanctuary/lib/study-access";
 
 const vaultTransactionOptions = { maxWait: 10_000, timeout: 60_000 } as const;
@@ -122,174 +121,44 @@ const vaultVerseSelect = (userId: string) => ({
 
 /** Database boundary for private Vault reads and isolated replay creation. */
 export const vaultRepository = {
+  /** Reads only owned collection verses and the settings needed to select text.
+   * One verse query replaces overlapping completed/favorite/active reads and
+   * drops obsolete hint/stat queries. mapVerse redacts text before serialization.
+   */
   async getLibrary(userId: string): Promise<VaultLibraryData> {
-    const [userSummary, completedProgress, purchasedHints, favorites, activeProgress, platformSettings] =
-      await Promise.all([
-        // WHY: Profile, streak, and settings are one-to-one relations owned by
-        // the same learner. Reading them through User replaces three database
-        // operations with one narrow relation query on every Vault visit.
-        prisma.user.findUnique({
-          where: { id: userId },
-          select: {
-            profile: {
-              select: {
-                totalWaypointsCompleted: true,
-                totalGlowPoints: true,
-                totalHintsUsed: true,
-                startingHintAllowance: true,
-              },
-            },
-            streak: {
-              select: {
-                currentStreak: true,
-                bestStreak: true,
-              },
-            },
-            settings: {
-              select: {
-                preferredTranslation: true,
-              },
-            },
-          },
-        }),
-        prisma.userWaypointProgress.findMany({
-          where: { userId, status: WaypointStatus.COMPLETED },
-          select: {
-            waypoint: {
-              select: {
-                journeyStage: true,
-                verseId: true,
-                verse: { select: vaultVerseSelect(userId) },
-              },
-            },
-          },
-        }),
-        prisma.userShopPurchase.aggregate({
-          where: { userId, shopItem: { itemType: "HINT_PACK" } },
-          _sum: { entitlementQuantity: true },
-        }),
-        prisma.userFavoriteVerse.findMany({
-          where: { userId },
-          select: { verse: { select: vaultVerseSelect(userId) } },
-          orderBy: { createdAt: "desc" },
-        }),
-        prisma.userWaypointProgress.findMany({
-          where: {
-            userId,
-            status: {
-              in: [
-                WaypointStatus.UNLOCKED,
-                WaypointStatus.IN_PROGRESS,
-                WaypointStatus.COOLDOWN,
-              ],
-            },
-          },
-          select: {
-            waypointId: true,
-            status: true,
-            waypoint: {
-              select: {
-                number: true,
-                journeyStage: true,
-                verse: { select: { reference: true } },
-                dayProgress: {
-                  where: { userId, status: CompletionStatus.COMPLETED },
-                  select: { id: true },
-                },
-              },
-            },
-          },
-          orderBy: { waypoint: { number: "asc" } },
-        }),
-        prisma.platformSettings.findUnique({
-          where: { id: "global" },
-          select: { defaultTranslation: true },
-        }),
-      ]);
-
-    const profile = userSummary?.profile;
-    const streak = userSummary?.streak;
-    const preferred =
-      userSummary?.settings?.preferredTranslation ??
-      platformSettings?.defaultTranslation ??
-      TranslationCode.KJV;
-    const fallback =
-      platformSettings?.defaultTranslation ?? TranslationCode.KJV;
-    const stagesByVerse = new Map<
-      string,
-      {
-        stages: Set<JourneyStage>;
-        verse: NonNullable<
-          (typeof completedProgress)[number]["waypoint"]["verse"]
-        >;
-      }
-    >();
-    completedProgress.forEach(({ waypoint }) => {
-      if (!waypoint.verseId || !waypoint.verse) return;
-      const existing = stagesByVerse.get(waypoint.verseId) ?? {
-        stages: new Set<JourneyStage>(),
-        verse: waypoint.verse,
-      };
-      existing.stages.add(waypoint.journeyStage);
-      stagesByVerse.set(waypoint.verseId, existing);
-    });
-
-    const completedVerses = [...stagesByVerse.values()]
-      .flatMap(({ verse }) => {
-        const item = mapVerse(verse, preferred, fallback);
-        return item ? [item] : [];
-      })
-      .sort((left, right) => left.reference.localeCompare(right.reference));
-    const masteredVerses = completedVerses.filter((verse) =>
-      hasCompletedEveryJourneyStage(new Set(verse.completedStages)),
-    );
-    const favoriteVerses = favorites.flatMap(({ verse }) => {
+    const [verses, settings, platformSettings] = await Promise.all([
+      prisma.verse.findMany({
+        where: {
+          OR: [
+            { favorites: { some: { userId } } },
+            { waypoints: { some: { userProgress: { some: { userId } } } } },
+          ],
+        },
+        select: vaultVerseSelect(userId),
+        orderBy: { reference: "asc" },
+      }),
+      prisma.userSettings.findUnique({
+        where: { userId },
+        select: { preferredTranslation: true },
+      }),
+      prisma.platformSettings.findUnique({
+        where: { id: "global" },
+        select: { defaultTranslation: true },
+      }),
+    ]);
+    const fallback = platformSettings?.defaultTranslation ?? TranslationCode.KJV;
+    const preferred = settings?.preferredTranslation ?? fallback;
+    const items = verses.flatMap((verse) => {
       const item = mapVerse(verse, preferred, fallback);
       return item ? [item] : [];
     });
-    const packs = new Map<string, string>();
-    [...completedVerses, ...favoriteVerses].forEach((verse) => {
-      verse.packSlugs.forEach((slug, index) => {
-        packs.set(slug, verse.packNames[index] ?? slug);
-      });
-    });
-
-    const totalHintsUsed = profile?.totalHintsUsed ?? 0;
-
     return {
-      summary: {
-        completedWaypoints: profile?.totalWaypointsCompleted ?? 0,
-        glowPoints: profile?.totalGlowPoints ?? 0,
-        currentStreak: streak?.currentStreak ?? 0,
-        bestStreak: streak?.bestStreak ?? 0,
-        hintsRemaining: calculateHintBalance(
-          totalHintsUsed,
-          purchasedHints._sum.entitlementQuantity ?? 0,
-          profile?.startingHintAllowance,
-        ),
-        totalHintsUsed,
-      },
-      completedVerses,
-      masteredVerses,
-      favoriteVerses,
-      inProgressWaypoints: activeProgress.flatMap(({ waypointId, status, waypoint }) =>
-        waypoint.verse
-          ? [{
-              waypointId,
-              number: waypoint.number,
-              reference: waypoint.verse.reference,
-              journeyStage: waypoint.journeyStage,
-              status,
-              completedDays: waypoint.dayProgress.length,
-            }]
-          : [],
+      completedVerses: items.filter((verse) => verse.completedStages.includes(JourneyStage.LEARN)),
+      masteredVerses: items.filter((verse) =>
+        hasCompletedEveryJourneyStage(new Set(verse.completedStages)),
       ),
-      availableTranslations: [...new Set(
-        [...completedVerses, ...favoriteVerses].flatMap(
-          ({ availableTranslations }) => availableTranslations,
-        ),
-      )].sort(),
-      packs: [...packs].map(([slug, name]) => ({ slug, name })),
+      favoriteVerses: items.filter((verse) => verse.isFavorite),
+      inProgressVerses: items.filter((verse) => !verse.completedStages.includes(JourneyStage.LEARN)),
     };
   },
 

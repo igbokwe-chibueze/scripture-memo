@@ -194,18 +194,26 @@ export async function evaluateBadgeProgressInTransaction(
     const existing = badge.userProgress[0];
     if (existing?.status === CompletionStatus.COMPLETED) continue;
     const unlocked = progress >= badge.targetValue;
+    // Evaluation alone is not progress: zero qualifying achievements remain
+    // not started. The collection also handles legacy zero-progress rows without
+    // requiring a database migration or writes during ordinary page reads.
+    const status = unlocked
+      ? CompletionStatus.COMPLETED
+      : progress > 0
+        ? CompletionStatus.IN_PROGRESS
+        : CompletionStatus.NOT_STARTED;
     await transaction.userBadgeProgress.upsert({
       where: { userId_badgeId: { userId, badgeId: badge.id } },
       update: {
         progress,
-        status: unlocked ? CompletionStatus.COMPLETED : CompletionStatus.IN_PROGRESS,
+        status,
         ...(unlocked ? { unlockedAt: occurredAt } : {}),
       },
       create: {
         userId,
         badgeId: badge.id,
         progress,
-        status: unlocked ? CompletionStatus.COMPLETED : CompletionStatus.IN_PROGRESS,
+        status,
         unlockedAt: unlocked ? occurredAt : null,
       },
     });

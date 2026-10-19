@@ -35,6 +35,7 @@ import type {
 } from "@/features/notifications/types/notification.types";
 import type { NotificationInboxActions } from "@/features/notifications/types/notification-inbox.types";
 import { cn } from "@/lib/utils";
+import { GameArtwork } from "@/components/shared/game-artwork";
 
 /** Maps persistence event names to the visual weekly outcome family. */
 function leagueOutcome(item: NotificationItem): LeagueResultOutcome | null {
@@ -355,12 +356,13 @@ export function NotificationInbox({
         size="icon-lg"
         aria-label={t("open")}
         onClick={() => setSheetOpen(true)}
-        className="relative size-10 min-h-10 shrink-0 rounded-2xl border-border/70 bg-background shadow-none hover:translate-y-0 hover:bg-muted hover:shadow-none active:translate-y-0 active:scale-95 active:shadow-none dark:shadow-none dark:hover:shadow-none dark:active:shadow-none"
+        className="relative size-11 shrink-0 rounded-full border-transparent bg-transparent p-0 shadow-none hover:translate-y-0 hover:bg-muted hover:shadow-none active:translate-y-0 active:scale-95 active:shadow-none xl:size-14 dark:shadow-none dark:hover:shadow-none dark:active:shadow-none"
       >
-        <BellIcon aria-hidden="true" />
+        <GameArtwork name="bellLight" className="size-9 dark:hidden" sizes="44px" />
+        <GameArtwork name="bellDark" className="hidden size-9 dark:block" sizes="44px" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1.5 -right-1.5 grid min-h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[0.65rem] font-bold text-primary-foreground ring-2 ring-background">
-            {unreadCount > 9 ? "9+" : unreadCount}
+          <span className="absolute top-0 right-0 size-3 rounded-full bg-error ring-2 ring-background xl:size-4">
+            <span className="sr-only">{unreadCount}</span>
           </span>
         )}
       </Button>

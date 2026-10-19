@@ -59,6 +59,15 @@ Theme context → page surface → semantic tokens → shared component → vari
 
 ### 3.2 One application palette
 
+Owner-approved exception (2026-10-15): active gameplay boards use purple for
+selected words/inputs and gold for movable Swap words, matching the supplied
+concepts. Drag & Drop and Puzzle available pieces remain bright mint. These
+colors are scoped to the board; success/error, shared controls, preparation,
+and all other application surfaces retain the standard semantic palette.
+Empty receiving gaps in Drag & Drop/Puzzle retain the original brand-teal
+highlight for selection readiness and drag-over; purple applies to selected
+movable tiles, not to their destinations.
+
 The Tropical Teal design system is the application-wide source of truth. Use
 teal for primary actions and selection, honey gold for earned rewards, restrained
 tangerine for decoration and streak flames, dedicated green and red for success
@@ -132,6 +141,14 @@ For matching `variant` and `size`, all three must receive the same colors,
 border, bevel, shadow, typography, hover, press, focus, disabled, and
 reduced-motion behavior from shared `buttonVariants`.
 
+Primary (`default`) and `secondary` controls support an optional `shimmer`
+boolean on Button, LoadingButton and NavigationButton. It is **off by default**;
+enable it only on controls explicitly requested by the owner. The white/silver
+effect lives in the shared button component styles, never in feature CSS.
+Disabled/pending controls and saved/OS reduced motion suppress it. Donate is
+currently the only approved enabled control. Matching shimmer props follow the
+same variant/class-merging path for all three button behaviors.
+
 Rules:
 
 - Use approved variants rather than restyling buttons locally.
@@ -160,6 +177,9 @@ classes before changing `components/ui/button.tsx`.
 
 ## 7. Typography and Copy Density
 
+- Concept images do not authorize typography exceptions. If a concept conflicts
+  with these font rules, explain the conflict to the owner and obtain approval
+  before changing font families or their assigned roles.
 - Use Fredoka Medium 500 for paragraphs, scripture, instructions, and other
   sustained reading. The shared sans token and page body default provide this
   face so supporting copy remains consistent across routes.
@@ -221,6 +241,15 @@ classes before changing `components/ui/button.tsx`.
   state changes or disabling timing rules.
 
 ## 11. Luna
+
+### Approved icon direction (2026-10-14)
+
+The new Home icon collection in `public/images/game-ui/` is the standard for
+future icon work. Follow its colorful, glossy dimensional art style and keep
+these assets separate from previous collections. If an appropriate new icon is
+missing, ask the owner before substituting other artwork. Preserve old icons
+until the owner explicitly requests deletion; this decision does not initiate
+a bulk replacement of existing screens. See that directory's `README.md`.
 
 - Luna supports loading, recoverable errors, empty states, reminders, and selected
   completion moments approved by the project owner.
@@ -314,3 +343,11 @@ suite for only the highest-risk shared surfaces. Start with theme foundations,
 buttons, gameplay shell, invitation/authentication, completion screens, and
 mobile navigation. Baselines must be approved by the project owner and should
 not be updated merely to silence a failed test.
+
+
+### Badge rarity accents ? owner approval, 2026-10-17
+
+Epic badges use purple through `--badge-rarity-epic` in every brand theme and
+light/dark mode. This role is limited to decorative rarity borders, header
+tints, dots, and emoji halos. It does not change selection, status, typography,
+or badge earning rules. Rarity names remain visible alongside color.

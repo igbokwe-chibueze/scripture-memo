@@ -1,5 +1,6 @@
 import type { ActionResult } from "@/types/api";
 import type { OilShopPurchaseResult } from "./oil-shop.types";
+import type { AvatarKey } from "@/features/profile/data/avatar-catalog";
 
 /** Client callbacks bound by production or QA, never accepted by a server API. */
 export type OilShopTransport = {
@@ -9,4 +10,5 @@ export type OilShopTransport = {
   }) => Promise<ActionResult<OilShopPurchaseResult>>;
   verifyPurchase: () => Promise<ActionResult>;
   verifyBalance: () => Promise<ActionResult>;
+  equipAvatar: (input: { avatarKey: AvatarKey }) => Promise<ActionResult>;
 };

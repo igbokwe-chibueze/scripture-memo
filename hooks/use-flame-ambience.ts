@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useAudioPreferences } from "@/hooks/use-audio-preferences";
 
 /** Returns the browser's Web Audio constructor, including Safari's alias. */
 function getAudioContextConstructor(): typeof AudioContext | undefined {
@@ -19,10 +20,16 @@ function getAudioContextConstructor(): typeof AudioContext | undefined {
  * crackles add texture. Synthesis avoids an unlicensed sample, honors the
  * synchronized audio preference, and guarantees cleanup when the modal closes.
  */
-export function useFlameAmbience(active = true): void {
+export function useFlameAmbience(
+  active = true,
+  volumeOverride?: number,
+  enabledOverride?: boolean,
+): void {
+  const preferences = useAudioPreferences();
+  const volume = volumeOverride ?? preferences.ambienceVolume;
+  const enabled = enabledOverride ?? preferences.enabled;
   useEffect(() => {
-    if (!active) return;
-    if (document.documentElement.dataset.audioEnabled === "false") return;
+    if (!active || !enabled || volume <= 0) return;
     const AudioContextConstructor = getAudioContextConstructor();
     if (!AudioContextConstructor) return;
 
@@ -33,7 +40,7 @@ export function useFlameAmbience(active = true): void {
 
     try {
       context = new AudioContextConstructor();
-      void context.resume();
+      void context.resume().catch(() => undefined);
       const sampleCount = Math.ceil(context.sampleRate * 1.5);
       const buffer = context.createBuffer(1, sampleCount, context.sampleRate);
       const samples = buffer.getChannelData(0);
@@ -54,7 +61,7 @@ export function useFlameAmbience(active = true): void {
       bandPass.Q.value = 0.55;
       masterGain.gain.setValueAtTime(0.0001, context.currentTime);
       masterGain.gain.exponentialRampToValueAtTime(
-        0.055,
+        0.11 * volume / 100,
         context.currentTime + 0.35,
       );
       fireSource.connect(lowPass);
@@ -100,5 +107,5 @@ export function useFlameAmbience(active = true): void {
         void context.close();
       }
     };
-  }, [active]);
+  }, [active, enabled, volume]);
 }

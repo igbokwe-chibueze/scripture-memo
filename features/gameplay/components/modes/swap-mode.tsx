@@ -1,8 +1,10 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import { ActiveModeHeading, SwapTileLegend } from "../active-mode-heading";
+import styles from "../active-game.module.css";
 import { useTranslations } from "next-intl";
-import { CheckIcon, RotateCcwIcon, ShuffleIcon } from "lucide-react";
+import { CheckIcon, RotateCcwIcon } from "lucide-react";
 import { toast } from "sonner";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { Button } from "@/components/ui/button";
@@ -39,9 +41,9 @@ type PositionFeedback = Readonly<Record<number, "correct" | "incorrect">>;
 /**
  * Implements the position-based word correction mode for pointer and touch.
  *
- * WHY: Every visible token retains its original occurrence index. Repeated words
- * therefore cannot bypass validation, and the authenticated completion action
- * remains the final authority over canonical text, timing, and progression.
+ * Occurrence indices keep interactions stable; correctness compares canonical
+ * wording so identical repeated tiles are interchangeable. The authenticated
+ * completion action remains authoritative over text, timing, and progression.
  */
 export function SwapMode({
   sessionId,
@@ -117,7 +119,7 @@ export function SwapMode({
   };
 
   const checkAnswer = (): void => {
-    const incorrectPositions = getIncorrectSwapPositions(tokens);
+    const incorrectPositions = getIncorrectSwapPositions(tokens, verseTokens);
     const feedback = Object.fromEntries(
       tokens
         .filter(({ isSwappable }) => isSwappable)
@@ -128,7 +130,7 @@ export function SwapMode({
     ) as PositionFeedback;
     setPositionFeedback(feedback);
 
-    if (!areSwapTokensCorrect(tokens)) {
+    if (!areSwapTokensCorrect(tokens, verseTokens)) {
       playAudio("error");
       toast.error(
         `${incorrectPositions.length} ${
@@ -263,88 +265,68 @@ export function SwapMode({
       {showStreakCompletion && streak && (
         <StreakCompletionScreen streak={streak} onContinue={onContinue} />
       )}
-      <section className="w-full max-w-2xl text-left" aria-labelledby="swap-title">
-        <div className="text-center">
-          <p className="text-xs font-bold tracking-[0.16em] text-selection-text uppercase dark:text-selection-text">
-            {t("returnWords")}
-          </p>
-          <h2 id="swap-title" className="mt-2 font-heading text-3xl font-bold">
-            {t("swap")}
-          </h2>
-          <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground">
-            {t("swapInstruction")}
-          </p>
-        </div>
+      <section className={styles.mode} aria-labelledby="swap-title">
+        <div className={styles.challenge} data-mode="SWAP">
+          <ActiveModeHeading mode="SWAP" />
 
-        <div
-          className="mt-6 rounded-2xl border border-border bg-muted/35 p-4 text-lg leading-[3.5rem] font-medium dark:border-border/10 dark:bg-card/5 sm:p-6 sm:text-xl"
-          aria-label="Verse with words to swap"
-        >
-          {tokens.map((token) => {
-            const canonicalToken = verseTokens[token.position];
-            if (!canonicalToken) return null;
-            if (!token.isSwappable) {
+          <div
+            className={styles.verse}
+            aria-label="Verse with words to swap"
+          >
+            {tokens.map((token) => {
+              const canonicalToken = verseTokens[token.position];
+              if (!canonicalToken) return null;
+              if (!token.isSwappable) {
+                return (
+                  <span key={token.position} className="mx-0.5 inline-block">
+                    {canonicalToken.text}
+                  </span>
+                );
+              }
+
+              const feedback = positionFeedback[token.position] ?? null;
               return (
-                <span key={token.position} className="mx-0.5 inline-block">
-                  {canonicalToken.text}
+                <span
+                  key={token.position}
+                  className="mx-1 my-1.5 inline-flex items-center align-middle"
+                >
+                  {canonicalToken.leadingPunctuation}
+                  <button
+                    type="button"
+                    className={cn(
+                      "inline-flex min-h-11 touch-manipulation items-center justify-center rounded-tile border px-3 py-1 align-middle font-bold transition",
+                      GAMEPLAY_TILE_STATE_STYLES.available,
+                      GAMEPLAY_TILE_STATE_STYLES.focus,
+                      selectedPosition === token.position &&
+                        `scale-105 ${GAMEPLAY_TILE_STATE_STYLES.selected}`,
+                      feedback === "correct" && GAMEPLAY_TILE_STATE_STYLES.correct,
+                      feedback === "incorrect" && GAMEPLAY_TILE_STATE_STYLES.incorrect,
+                    )}
+                    disabled={isPending || isComplete}
+                    aria-pressed={selectedPosition === token.position}
+                    aria-label={`${token.text}, swap position ${token.position + 1}. ${
+                      selectedPosition === token.position
+                        ? "Selected; choose another highlighted word."
+                        : "Select this word."
+                    }`}
+                    onClick={() => choosePosition(token.position)}
+                  >
+                    {token.text}
+                  </button>
+                  {canonicalToken.trailingPunctuation}
                 </span>
               );
-            }
-
-            const feedback = positionFeedback[token.position] ?? null;
-            return (
-              <span
-                key={token.position}
-                className="mx-1 my-1.5 inline-flex items-center align-middle"
-              >
-                {canonicalToken.leadingPunctuation}
-                <button
-                  type="button"
-                  className={cn(
-                    "inline-flex min-h-11 touch-manipulation items-center justify-center rounded-tile border px-3 py-1 align-middle font-bold transition",
-                    GAMEPLAY_TILE_STATE_STYLES.available,
-                    GAMEPLAY_TILE_STATE_STYLES.focus,
-                    selectedPosition === token.position &&
-                      `scale-105 ${GAMEPLAY_TILE_STATE_STYLES.selected}`,
-                    feedback === "correct" && GAMEPLAY_TILE_STATE_STYLES.correct,
-                    feedback === "incorrect" && GAMEPLAY_TILE_STATE_STYLES.incorrect,
-                  )}
-                  disabled={isPending || isComplete}
-                  aria-pressed={selectedPosition === token.position}
-                  aria-label={`${token.text}, swap position ${token.position + 1}. ${
-                    selectedPosition === token.position
-                      ? "Selected; choose another highlighted word."
-                      : "Select this word."
-                  }`}
-                  onClick={() => choosePosition(token.position)}
-                >
-                  {token.text}
-                </button>
-                {canonicalToken.trailingPunctuation}
-              </span>
-            );
-          })}
-        </div>
-
-        <div className="mt-5 rounded-2xl bg-muted/70 p-4 dark:bg-background/20">
-          <div className="flex items-start gap-3">
-            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-selection-subtle text-selection-text dark:text-selection-text">
-              <ShuffleIcon className="size-5" aria-hidden="true" />
-            </span>
-            <div>
-              <h3 className="font-heading text-sm font-bold text-foreground">{t("howToSwap")}</h3>
-              <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                {t("swapHelp")}
-              </p>
-            </div>
+            })}
           </div>
+
+          <SwapTileLegend />
         </div>
 
-        <div className="mt-5 grid grid-cols-[auto_1fr] gap-3">
+        <div className={styles.actions}>
           <Button
             type="button"
-            variant="ghost"
-            className="min-h-12 rounded-xl px-4 text-muted-foreground hover:bg-muted hover:text-foreground dark:hover:bg-card/10 dark:hover:text-foreground"
+            variant="outline"
+            className="text-primary"
             disabled={isPending || isComplete}
             onClick={resetTokens}
           >

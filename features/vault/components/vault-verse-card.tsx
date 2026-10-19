@@ -1,120 +1,65 @@
-/** Shared client-only Vault card markup; persistence belongs to its caller. */
+/** Presentation shared by the private library and isolated admin preview.
+ * Locked text never arrives here; the server remains the study-access authority.
+ */
 import { useTranslations } from "next-intl";
-import {
-  BookHeartIcon,
-  HeartIcon,
-  LockKeyholeIcon,
-  PlayIcon,
-  StickyNoteIcon,
-} from "lucide-react";
+import { BookOpenIcon, HeartIcon, LoaderCircleIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { LoadingButton } from "@/components/shared/loading-button";
 import { NavigationButton } from "@/components/shared/navigation-button";
-import { cn } from "@/lib/utils";
-import type { VaultVerseItem } from "@/features/vault/types/vault.types";
+import { getVaultStatus } from "../lib/vault-library";
+import type { VaultVerseItem } from "../types/vault.types";
+import styles from "./vault.module.css";
 
-/** Renders the same mobile card and controls in the library and isolated QA. */
+/** A compact card keeps the heart separate from wrapped reference/status text. */
 export function VaultVerseCard({
-  verse,
-  canReplay,
-  sanctuaryHref,
-  isPending,
-  onReplay,
+  verse, sanctuaryHref, isPending, onFavorite, favoriteDisabled = false,
 }: Readonly<{
   verse: VaultVerseItem;
-  canReplay: boolean;
   sanctuaryHref: string;
   isPending: boolean;
-  onReplay: () => void;
+  onFavorite: () => void;
+  favoriteDisabled?: boolean;
 }>): React.ReactNode {
   const t = useTranslations("Vault");
+  const status = getVaultStatus(verse);
+  const available = verse.studyAccess === "AVAILABLE";
   return (
-    <article className="rounded-3xl border border-selection-border/15 bg-card/90 p-5 shadow-sm">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-bold tracking-[0.14em] text-selection-text uppercase dark:text-selection-text">
-            {verse.translation}
+    <article className={styles.card}>
+      <div className={styles.cardHeading}>
+        <div className={styles.referenceRow}>
+          <h3 className="font-heading text-xl font-bold">{verse.reference}</h3>
+          <span className={styles.status} data-status={status}>{t(status)}</span>
+        </div>
+        <Button
+          variant="ghost"
+          className="size-11 shrink-0 rounded-full"
+          aria-label={t(verse.isFavorite ? "removeFavorite" : "addFavorite", { reference: verse.reference })}
+          aria-pressed={verse.isFavorite}
+          aria-busy={isPending}
+          disabled={favoriteDisabled || !available}
+          title={!available ? t("studyLocked") : undefined}
+          onClick={onFavorite}
+        >
+          {isPending ? <LoaderCircleIcon className="size-6 animate-spin motion-reduce:animate-none" /> : (
+            <HeartIcon className={verse.isFavorite ? "size-7 fill-error text-error-text" : "size-7 text-muted-foreground"} aria-hidden="true" />
+          )}
+        </Button>
+      </div>
+      <p className="mt-1 line-clamp-1 text-base text-muted-foreground">
+        {available ? verse.text : t("practiceInProgress")}
+      </p>
+      {status === "mastered" && <p className="mt-1 text-sm text-muted-foreground">{t("masteryAchieved")}</p>}
+      <div className={styles.cardFooter}>
+        {verse.packSlugs.length > 0 && (
+          <p className="flex items-center gap-2 text-sm text-muted-foreground">
+            <BookOpenIcon className="size-6 text-selection-text" aria-hidden="true" />
+            {t("inPacks", { count: verse.packSlugs.length })}
           </p>
-          <h3 className="mt-1 font-heading text-xl font-bold">
-            {verse.reference}
-          </h3>
-        </div>
-        <div className="flex items-center gap-2">
-          {verse.hasPersonalNote && (
-            <StickyNoteIcon
-              className="size-5 text-selection-text"
-              aria-label={t("privateNote")}
-            />
-          )}
-          {verse.isFavorite && (
-            <HeartIcon
-              className="size-5 fill-error text-error-text"
-              aria-label={t("favorite")}
-            />
-          )}
-        </div>
-      </div>
-      {verse.studyAccess === "LOCKED" ? (
-        <div className="mt-4 flex min-h-18 items-center justify-center gap-2 rounded-2xl border border-dashed border-selection-border/50 bg-selection-subtle text-sm font-bold text-selection-text dark:text-selection-text">
-          <LockKeyholeIcon className="size-4" aria-hidden="true" /> {t("practiceInProgress")}
-        </div>
-      ) : (
-        <p className="mt-4 line-clamp-3 text-sm leading-6 text-muted-foreground">
-          {verse.text}
-        </p>
-      )}
-      {verse.packNames.length > 0 && (
-        <p className="mt-3 text-xs font-bold text-muted-foreground">
-          {verse.packNames.join(" · ")}
-        </p>
-      )}
-      <div className="mt-3 flex flex-wrap gap-1.5" aria-label={t("completedStages")}>
-        {verse.completedStages.map((stage) => (
-          <span
-            key={stage}
-            className="rounded-full bg-selection-subtle px-2.5 py-1 text-[0.65rem] font-bold tracking-wide text-selection-text uppercase dark:text-selection-text"
-          >
-            {stage}
-          </span>
-        ))}
-      </div>
-      {/* At 375px each translated label gets a full-width touch target. Wider
-       * cards can place study and replay alongside each other without clipping. */}
-      <div
-        className={cn(
-          "mt-5 grid gap-2",
-          canReplay && verse.studyAccess === "AVAILABLE" && "sm:grid-cols-2",
         )}
-      >
-        {verse.studyAccess === "AVAILABLE" ? (
-          <NavigationButton
-            href={sanctuaryHref}
-            pendingLabel={t("opening")}
-            variant="outline"
-            className="min-h-11"
-          >
-            <BookHeartIcon className="size-4" aria-hidden="true" /> {t("sanctuary")}
+        {available && status !== "inProgress" && (
+          <NavigationButton href={sanctuaryHref} pendingLabel={t("opening")} variant="secondary" className="ml-auto min-h-11 px-3">
+            <BookOpenIcon className="size-5" aria-hidden="true" />
+            {t("sanctuary")}
           </NavigationButton>
-        ) : (
-          <Button
-            type="button"
-            variant="outline"
-            className="min-h-11 rounded-xl"
-            disabled
-          >
-            <LockKeyholeIcon aria-hidden="true" /> {t("studyLocked")}
-          </Button>
-        )}
-        {canReplay && verse.studyAccess === "AVAILABLE" && (
-          <LoadingButton
-            type="button"
-            isPending={isPending}
-            pendingLabel={t("opening")}
-            onClick={onReplay}
-          >
-            <PlayIcon data-icon="inline-start" aria-hidden="true" />
-            {t("replayFromVault")}
-          </LoadingButton>
         )}
       </div>
     </article>

@@ -1,17 +1,15 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import Link from "next/link";
 import { ArrowLeftIcon } from "lucide-react";
 import type { UserRole } from "@/lib/generated/prisma/enums";
 import { requireServerSession } from "@/lib/auth/session";
 import { isAdmin } from "@/lib/permissions";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { NavigationButton } from "@/components/shared/navigation-button";
 import { OilShop } from "@/features/oil-shop/components/oil-shop";
 import { oilShopRepository } from "@/features/oil-shop/repositories/oil-shop.repository";
 
 export const metadata: Metadata = {
-  title: "Oil Shop | Scripture Memo",
+  title: "Shop | Scripture Memo",
   description: "Spend earned Glow Points on helpful supplies for your Scripture journey.",
   robots: { index: false, follow: false },
 };
@@ -32,14 +30,21 @@ export async function OilShopView({
     oilShopRepository.getShopData(session.user.id),
     searchParams,
   ]);
-  const initialTab = parameters.tab === "donations" ? "donations" : "hints";
+  const initialTab = parameters.tab === "donations" || parameters.tab === "avatars"
+    ? parameters.tab : "hints";
 
   return (
     <main className="min-h-dvh bg-background px-4 py-6 text-foreground sm:px-6 sm:py-10">
       <div className="mx-auto max-w-7xl">
-        <Link href="/game" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "min-h-11 gap-2 rounded-xl px-4 font-bold")}>
-          <ArrowLeftIcon className="size-4" aria-hidden="true" /> {t("journeyHome")}
-        </Link>
+        <NavigationButton
+          href="/game"
+          pendingLabel={t("journeyHome")}
+          variant="secondary"
+          className="min-h-11 gap-2 px-4"
+        >
+          <ArrowLeftIcon className="size-4" aria-hidden="true" />
+          {t("journeyHome")}
+        </NavigationButton>
         <div className="mt-6" />
         <OilShop
           initialData={data}

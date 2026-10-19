@@ -1,5 +1,780 @@
 # Scripture Memo Project Log
 
+### 2026-10-17 - Short leaderboard status heading
+
+- Replaced the league table's “Top 7 promote” column heading with “Status” to
+  fit the compact layout. Individual row statuses and promotion rules unchanged.
+- Added English/Spanish labels; French inherits the existing English fallback.
+
+### 2026-10-17 - Partner support-line wording
+
+- Changed the compact card's supporting line to “Support someone’s journey”
+  at the owner's request; updated Spanish copy. Layout and behavior unchanged.
+
+### 2026-10-17 - Shared optional white/silver shimmer and bottom Partner card
+
+- Owner requested white/silver shimmer as a shared primary/secondary capability,
+  off by default. Added the boolean shimmer variant to buttonVariants and passed
+  it through Button/NavigationButton; LoadingButton inherits it through Button.
+  Only Donate opts in. Removed feature-owned effect styling. Disabled/pending,
+  unsupported variants and both reduced-motion preferences suppress the effect.
+- Added a narrowly documented white/silver color exception for shared decorative
+  sheen. Existing shared colors, bevels, presses and new-tab behavior unchanged.
+- Right rail now uses a vertical flex budget: top contextual content can shrink
+  and scroll; the compact Partner card has auto top margin and remains at the
+  bottom, including routes with empty context slots.
+- Actual-component browser checks passed in both themes at 1366x600/1600x1000,
+  with empty and overflowing context: zero bottom-position error, same shimmer
+  classes across all three button types, default-off/variant restrictions,
+  pending/disabled suppression, white/silver gradient and both motion settings.
+- Production build, TypeScript, targeted lint and seven design checks passed.
+
+### 2026-10-17 - Partner support copy and Donate shimmer
+
+- Replaced the compact card's Coming soon line with “Help someone learn
+  Scripture.” /partner retains its accurate donation-coming-soon state; the
+  action's accessible label now simply announces Donate and its new tab.
+- Added a local, pointer-transparent reward-colored shimmer on Donate. A sweep
+  repeats every 5.5 seconds with an idle interval. Shared button bevel/press
+  visuals and native new-tab behavior are unchanged. Both saved app and OS
+  reduced motion remove the shimmer entirely.
+- Browser computed-style checks confirmed repeated animation, no intercepted
+  pointer events, both reduced-motion paths, no overflow and card height below
+  half the rail. TypeScript, component lint, locale and design checks passed.
+
+### 2026-10-17 - Compact Partner invitation
+
+- Owner requested less than half the right rail and removal of unnecessary
+  content. Replaced the tall composition with a small Meemo/title row, Coming
+  soon and one Donate action. Removed eyebrow, description, footer and Learn more.
+- Normal card height is approximately 163px; short windows compact the artwork
+  and very shallow windows use a single row. Donate keeps a 44px target and its
+  existing new-tab /partner destination. Theme tokens and shared bevel retained.
+- Production-component browser fixtures in light/dark measured 19–35% of the
+  actual rail across viewport heights 258/458/626/938px. No horizontal overflow;
+  exactly one action with target=_blank. TypeScript, component lint and seven
+  design-system checks passed.
+
+### 2026-10-17 - Partner support card and heart-holding Meemo
+
+- Owner approved generating the heart-holding pose from the supplied donation
+  concept. Saved transparent production artwork to mascot/meemo and documented
+  the built-in generation prompt/references in that collection's README.
+- Replaced the shared rail invitation with the new themed illustration/oval,
+  Support Scripture Memo copy, Donate, Coming soon, Learn more and gift footer.
+  Natural-height rail rows and hidden empty context slots replace half-height
+  budgeting; short desktop windows use compact illustration/type. Mobile rail
+  visibility and navigation are unchanged.
+- Donate points to /partner in a new tab with noopener/noreferrer. Corrected
+  NavigationButton to preserve native non-self-target behavior without changing
+  its shared visuals. Learn more retains same-tab navigation. /partner now shows
+  an authenticated coming-soon state; no payment collection or DB writes added.
+- Browser checks passed at 375/1366/1600px in both themes: loaded art, no horizontal
+  overflow, accessible actions. Trusted-gesture test confirmed a new /partner
+  tab, original page unchanged and no router push; Learn more uses router.push.
+- Production build, TypeScript, targeted lint, localization and seven design
+  checks passed. Saved artwork alpha transparency verified.
+
+### 2026-10-17 - Top 30 plus the learner, without position cards
+
+- Owner chose a fixed top 30 across League/Country/Fellowship/All Time, including
+  podium ranks 1–3. Learners ranked beyond 30 appear once after an ellipsis with
+  their actual rank; learners within the top 30 are not duplicated.
+- Replaced the paginated SQL window with rank <= 30 OR current user, preserving
+  authorization, deterministic ordering and privacy projection in one ranking
+  query. Removed page inputs/output, page URL generation and pagination controls.
+- Removed the mobile sticky self/Jump to me card and desktop Your Position panel,
+  its unused component and card-only CSS. Permanent Partner card unchanged.
+- Checked actual repository orchestration across all four scopes and ranks
+  1/3/15/30/31/40 (24 cases): correct bounded result, self once and one query.
+  Actual-component SSR checks at 30/31/40 verified row counts, ellipsis behavior
+  and absence of pagination/cards. No database was used for these fixtures.
+- Production build, TypeScript, leaderboard lint, localization and seven design
+  checks passed.
+
+### 2026-10-17 - Root cause of podium offset and missing-scope states
+
+- Found the alignment root cause: Preflight's image max-width clamped the base
+  overscan to 100% while retaining its negative left offset. Added max-width:none
+  to that artwork and removed estimated frame/content translations. Browser
+  geometry against opaque artwork scanlines now measures name/score centers
+  within 0.1px of the cylinder axis at narrow and wide board widths.
+- Missing Country/Fellowship setup now preserves the requested scope and returns
+  empty ranking data before any ranking query or enrollment recovery. Country
+  links to settings; Fellowship links to /fellowships to join/create. A member
+  without a fellowship URL parameter defaults to their first authorized membership.
+- In-memory boundary checks exercised actual repository orchestration for both
+  missing scopes with/without league enrollment (no ranking queries), plus a
+  valid default membership. No hosted/local database was mutated.
+- TypeScript, leaderboard lint, localization and design-system checks passed.
+
+### 2026-10-17 - Podium front-label optical centering
+
+- Owner identified remaining excess left space around the name/Beacon group.
+  Shifted the complete front-face content region left by 5% of its width, keeping
+  name, flag and score aligned together without changing frames or spacing.
+- Scoped CSS correction only; all seven design-system checks passed.
+
+### 2026-10-17 - Tighter podium labels and Country globe
+
+- Shifted each frame/portrait group left together to balance the visible medal
+  on its base. Removed the reserved second name line for short names and reduced
+  the name-to-Beacon score gap; two-line wrapping remains available when needed.
+- Replaced only the Country header trophy with the supplied Glossy globe with
+  Europe and Africa, saved in the separate approved leaderboard asset folder.
+- Browser fixture checks at 375/1366px showed no overflow and approximately
+  2.4px between name and score. Inspected desktop frame/base alignment visually.
+  TypeScript, leaderboard component lint and all seven design checks passed.
+
+### 2026-10-17 - Podium seating, face alignment and empty places
+
+- Corrected frame/base geometry using frame-relative transparent-margin offsets
+  and explicit foreground layering for rank plates. Portraits fill the medal
+  opening more closely at desktop and mobile sizes.
+- Moved names/flags and scores into a dedicated centered front-face region below
+  the cylinder's top ellipse. Names retain two-line wrapping and full detail text.
+- All three rank frames/bases now render even without a player. Empty places
+  contain no avatar, name, flag or score and are non-interactive with a localized
+  accessible description. No rankings or database behavior changed.
+- Actual-component browser checks at 375/1366px in both themes confirmed three
+  places/two interactive players, empty third avatar absent, centered content and
+  no horizontal overflow. TypeScript and component lint passed.
+
+### 2026-10-16 - Larger podium bases and wrapped names
+
+- Owner requested wider/taller podium bases and wrapping names. Bases now fill
+  each column, crop the asset's transparent side margins, and use 96px mobile /
+  112px desktop minimum height. Names center and wrap over two lines; unusually
+  long names truncate after two lines with the full name retained in accessible
+  labels and the existing details dialog.
+- Anchored portraits to a dedicated frame wrapper so changing base height does
+  not move the face within its medal. Existing frame/portrait widths preserved.
+- Actual-component browser fixtures passed at 375/1366px in both themes with
+  short, spaced and long unbroken names: wrapping, equal base heights and no
+  horizontal overflow. TypeScript, component lint and seven design checks passed.
+
+### 2026-10-16 - Restore desktop league-header action stack
+
+- Owner preferred the previous upper-right desktop placement. At 1024px and
+  wider, the weekly header now has a dedicated right column with Rank info above
+  reset details. Both remain in normal flow; mobile's action row is unchanged.
+- Browser layout checks at 375/1024/1366/1920px in both themes confirmed no
+  overlap or horizontal overflow and a top-aligned desktop stack. All seven
+  design-system checks passed. Only feature CSS changed; Partner card untouched.
+
+### 2026-10-16 - Leaderboard header and fixed-zone corrections
+
+- Restored the visible Rank info label and moved the control into normal layout
+  beside reset details, eliminating absolute-position overlap on mobile/desktop.
+- Removed the misleading pre-hydration "League ends soon" fallback. The existing
+  repository snapshot now includes its timestamp, allowing a real countdown on
+  the server and first client render; browser minute updates remain unchanged.
+- Bar sections and labels are fixed Top 7 / Stay / Bottom 5 with rounded ends
+  and a visible neutral middle. Only the rank marker position is calculated.
+  Server settlement rules, navigation, Partner card and database queries remain
+  unchanged.
+- Browser layout checks passed at 375/1366/1920px in light/dark: label visible,
+  reset/control do not overlap, all three sections present, rounded ends and no
+  horizontal overflow. TypeScript, leaderboard lint and design-system checks passed.
+
+### 2026-10-16 - Leaderboard podium and position upgrade
+
+- Implemented approved mobile/desktop light/dark composition: visible title,
+  four text tabs, compact weekly header, rank-zone marker, three metallic podiums,
+  compact rows, teal self highlight and Jump to me. Desktop uses the existing
+  upper context-rail portal for Your Position; shell navigation and the permanent
+  Become a Partner card were not changed.
+- Copied six owner-supplied frames/bases into the separate game-ui/leaderboard
+  collection. Podium medals decorate official top-three ranks in all four scopes;
+  equipped cosmetics remain in rows/details. Trail Rivals keep their explanatory
+  compass, have no official rank number or medal, and never affect zones.
+- Retained authorized server data, pagination, enrollment recovery, polling and
+  player details. No queries, schema changes or recurring database operations
+  were added. UTC reset formatting now matches its label; partially filled
+  cohort charts respect existing promotion precedence and no-demotion rules.
+- Updated skeleton, English/Spanish strings (French fallback), product guidance
+  and the narrow fixed-ink-on-metallic-artwork color exception.
+- Browser fixtures verified 375px and desktop light/dark, loaded visible artwork,
+  all four scope compositions without horizontal overflow, and player dialog.
+  Production build, TypeScript, targeted lint, design-system, localization and
+  Beacon checks and all 175 database-free unit tests passed.
+
+
+### 2026-10-16 - Teal typing focus in Cue and Fill
+
+- Owner approved replacing purple typing-gap focus with brand teal in Cue/Fill.
+  Scoped the shared focus selector to those two modes and used primary/secondary
+  semantic tokens, independent of purple movable-tile selection variables.
+- Correct/incorrect evaluated feedback retains priority. No input behavior,
+  answer validation, timer, hint, reward, or other mode styling changed.
+- Computed-style browser checks passed for Cue and Fill in light/dark themes,
+  including preserved success/error backgrounds. Seven design-system checks
+  passed, and product guidance now reflects the approved focus color.
+
+
+### 2026-10-16 - Receiving-gap expansion for dragging
+
+- Owner approved a small expansion when dragging a word or phrase over a gap.
+  Added one shared CSS module to BlankSlot/PhraseSlot, driven by dnd-kit's existing
+  isOver state only while the gap is empty and enabled. Uses 1.07 scale and a
+  160ms transition, preserving normal verse layout and existing teal feedback.
+- Leaving/dropping restores the gap automatically. Filled/disabled gaps do not
+  expand; tap selection behavior and answer validation are unchanged. Both saved
+  and OS reduced motion disable the expansion while retaining drop highlighting.
+- Real-component/dnd-kit browser checks passed for both mouse targets, touch
+  drag/drop, leave/drop reset, filled/disabled exclusions, stable layout geometry,
+  375px overflow, and both reduced-motion sources. TypeScript and targeted lint
+  passed. No server calls, database work, or progression changes were added.
+
+
+### 2026-10-16 - Swap repeated-word false negatives fixed
+
+- Owner reported two correctly placed “that” tiles marked red in John 3:16.
+  Found that Swap still compared original occurrence IDs; prior duplicate-word
+  corrections covered Drag & Drop/Puzzle but missed Swap.
+- Swap feedback and its completion gate now compare normalized visible words
+  with canonical slot wording. Occurrence IDs remain for interaction only;
+  canonical punctuation remains anchored. Server-side canonical text, timing,
+  progression, and rewards checks are unchanged.
+- Added John 3:16 regression exchanging the two “that” IDs, genuine misplaced
+  words, case-equivalent duplicates, punctuation preservation, incomplete boards,
+  and agreement with the server's shared answer normalization. Existing generator
+  tests use explicit canonical tokens. Focused gameplay includes the new test.
+- Fourteen generator/regression checks, all 175 unit checks, TypeScript, and
+  targeted lint passed. Product guidance corrected so future work cannot
+  reintroduce occurrence-ID grading.
+
+
+### 2026-10-16 - Exact supplied stage-confetti artwork
+
+- Replaced the stage-result card's eight flat CSS marks with the owner's
+  Golden Stars and Teal Confetti Overlay.png, stored as game-ui/stage-confetti.png.
+  Source/destination SHA-256 hashes match; no recoloring, regeneration, cropping,
+  or artwork edits were made. The new approved icon collection remains separate.
+- Stage hero preserves the artwork's 1529×1029 ratio and layers its glossy stars,
+  curled ribbons, sparkles, and glow behind the existing Meemo illustration.
+  Removed obsolete dash CSS and fixed heights that distorted that composition.
+- Actual-component browser screenshots inspected at 375px and desktop in both
+  themes: PNG loaded, ratio preserved, Meemo above decoration, no old CSS marks,
+  and no horizontal overflow. TypeScript and targeted lint passed. Progress,
+  completion copy, rewards, buttons, and subsequent celebration flow are unchanged.
+
+
+### 2026-10-16 - Settings change markers, Undo, and patch-only saves
+
+- Added a pencil/Unsaved marker beside each edited field, including individual
+  avatar/frame and volume controls. Restoring a field manually clears its marker.
+  Undo beside Save resets every tab to the last successful save, clears errors,
+  stops draft ambience, and makes no persistence call. Pending saves lock Undo.
+- Found and corrected full-account rewrites: the client now sends a non-empty
+  changed-field patch, independently validated/authenticated server-side. The
+  repository writes only affected tables/columns; display-name synchronization
+  retains an atomic User/Profile transaction. Missing profile recovery and server
+  Partner-frame enforcement remain. Single-record saves avoid a transaction.
+- Device preferences write only changed keys, merge unrelated current browser
+  values, and avoid language-cookie/theme writes when those fields are unchanged.
+  Device-only edits continue to make no account action or route refresh.
+- Browser checks passed for exact-field markers, manual reversion, cross-tab
+  Undo, new saved baselines, pending lock, rejected-save preservation, one-field
+  payloads, device-only saves, and 375px light/dark overflow. Isolated database
+  checks verify unrelated User/Profile/Settings timestamps stay unchanged.
+- Pure patch/storage checks, all 173 unit checks, production build/TypeScript,
+  localization, and repository lint passed. No schema migration was needed.
+
+
+### 2026-10-16 - Remaining seven learning articles published
+
+- Owner authorized creating and publishing the seven remaining proposed topics:
+  five-mode repetition, progressively reduced support, errors/feedback, hints,
+  rest/sleep, rewards versus memory, and context/understanding.
+- Added seven Markdown sources and manifest entries, totaling 6,192 words
+  (848–935 each). The complete twelve-article series now totals 10,984 words.
+  Research links support scoped scientific claims; product design, personal
+  practice suggestions, and currently implemented features remain distinguished.
+- Publication validates the exact approved manifest rather than a hardcoded
+  five-article count. Published seven new records plus audit atomically in the
+  established local development database. Earlier articles and the separate
+  long-form article were preserved; the repeat run inserted zero records.
+- All twelve records are publicly readable, and each of the seven new routes
+  returned HTTP 200. Cross-article links, source validation, TypeScript, targeted
+  lint, and the five existing blog checks passed. No gameplay rules changed.
+
+
+### 2026-10-16 - Five learning-technique articles published
+
+- Owner selected the five recommended articles and explicitly authorized publication.
+  Published recognition versus recall (980 words), retrieval practice (953), spacing
+  and cooldowns (925), returning verses/successive relearning (943), and everyday
+  recall (991): 4,792 words total, with linked research and practical examples.
+- Sources and copy distinguish learning principles from unvalidated product-specific
+  claims. Current stage names, hidden-word ranges, twelve-hour unlocks, hints,
+  Journey Stage timers, and Study rules were checked. Articles link to one another.
+- Markdown sources and metadata live in features/blog/data/. The local-only
+  publish-learning-series command validates all sources/links, uses a guarded
+  development target, and creates publications plus audit in one transaction.
+  Repeated execution preserves existing published content; existing drafts block
+  rather than being overwritten or silently published.
+- All five are public at /blog/<manifest slug>. Repository visibility, a repeated
+  zero-insert run, TypeScript, targeted lint, and five blog checks passed.
+  The original long-form article was found already published by the editor;
+  this task left its content and publication state unchanged.
+
+
+### 2026-10-16 - Long-form learning philosophy editorial draft
+
+- Owner requested a lengthy explanation of Scripture Memo's philosophy, goals,
+  process, and learning science, and explicitly chose private draft review.
+- Authored 5,643 words (about 29 minutes), covering spacing, retrieval, repetition,
+  successive relearning, errors/feedback, sleep, context, both progression layers,
+  five modes, rewards, practical routines, and future evaluation priorities.
+- Eight linked research references support scoped claims. Copy distinguishes
+  research from product design: fixed twelve-hour cooldowns and curriculum
+  positions are not a validated personalized scheduler or permanent-memory
+  guarantee. Current support/timer/study/reward rules were checked against code
+  and the product specification.
+- Saved the private local CMS draft at
+  /admin/blog/cmvavgyee0000ykv9d58tb74n. Reviewable source lives in
+  features/blog/data/why-scripture-memo-exists.md. The local-only importer guards
+  port 51214, validates content, audits creation atomically, preserves any existing
+  slug/CMS revisions, and cannot publish. No existing article was overwritten.
+- TypeScript, targeted lint, and five blog checks passed. Publication remains
+  deferred to the owner's review through the admin editor.
+
+
+### 2026-10-16 - Device preferences moved out of PostgreSQL
+
+- Owner approved local storage for theme, audio toggle, effects/ambience volumes,
+  and reduced motion; interface language uses a cookie. Profile, avatar/frame,
+  country, Bible translation, and timezone stay account-backed. Owner explicitly
+  approved default values where browsers lack local audio/motion preferences.
+- Removed six obsolete UserSettings columns through a new migration, applied
+  only to development 51214 and isolated test 51224. Existing browser theme and
+  language remain; old account presentation choices are discarded as approved.
+- Settings saves only changed account fields through the authenticated action.
+  Device-only Save makes no server call or refresh. Language resolution is now
+  cookie/Accept-Language only, with no session or database lookup. Removed the
+  obsolete theme action and gameplay audio-settings join. Local values validate,
+  restore after hydration, synchronize across tabs, and handle blocked storage.
+- Browser fixture verified volume reload, default Game tab, no device-save
+  server calls, account-only payload, language cookie updates without account
+  mutation, and no 375px overflow. Pure validation/storage tests and isolated
+  account persistence passed. Production build/TypeScript, repository lint, and
+  all 171 unit checks passed.
+
+
+### 2026-10-16 - Puzzle intro, tabbed settings, and gameplay volume
+
+- Puzzle preparation uses the approved gold “only begotten Son” phrase tile,
+  curved arrow, and receiving blank beside the existing presenting Meemo.
+- Settings opens Game first; Profile owns identity/stats and App & Learning owns
+  translation, language, theme, timezone, and guides. One save retains drafts
+  across tabs. Game contains master mute, effects/ambience sliders and previews,
+  and reduced motion. Gameplay and stage-result menus link to settings.
+- Account volumes default to 80% effects / 60% ambience. Existing authenticated
+  reads and save transaction carry both fields; no new recurring queries or
+  slider writes. Shared audio hooks honor mute/zero and clean up ambience.
+  Effects have stronger gain and peak compression. Old artwork is preserved.
+- Applied the additive/check-constrained migration to local development 51214
+  and isolated test 51224. The test server needed elevated filesystem access to
+  its existing Prisma Local lock directory; startup then succeeded. No hosted
+  database was used. Deployment must apply the checked-in migration.
+- Production build/TypeScript, repository lint, all 169 unit checks, and
+  design-system/localization checks passed. New
+  percentage validation/fallback tests and isolated account persistence/SQL
+  bounds checks passed. Edge checks verified default tab, draft/save behavior,
+  menu link, preview auto-stop, zero-volume silence, and Puzzle light/dark
+  layouts at 375px and desktop without horizontal overflow.
+
+
+### 2026-10-15 - Completed-session reload shows the new result card
+
+- Fixed a missed entry path: direct/reloaded completed sessions still rendered
+  the obsolete Up next fallback because the new card previously depended on
+  transient FillMode completion state. GameShell now renders the shared card
+  from its server-loaded completedStage summary when no mode remains.
+- Repository loads recorded Glow Points and sums session-specific XP ledger
+  entries in two parallel indexed reads only for verified completed campaign
+  sessions. Active-session query count is unchanged; all reads are learner-scoped.
+  No awards, initialization, writes, or repeated milestone celebrations occur.
+- Reopened results exit to waypoint details; the live completion chain still
+  preserves badge/streak/waypoint celebrations. Current Beacon progress is reused.
+- Actual GameShell browser checks passed at 375px and desktop for direct load,
+  reload, persisted-summary display, no old Up next content, and exit destination.
+  Fixtures use no server writes or database. TypeScript and targeted lint passed.
+
+### 2026-10-15 - Reference-led stage completion celebration
+
+- Owner approved stage-named headings, Flame kindled in the lower status strip,
+  actual stage-only reward totals, and a generated celebrating Meemo pose.
+- Added the new card for normal campaign stage completion only. Reused approved
+  diamond/flame/blue-star assets, the shared Journey Stage badge, Beacon progress,
+  buttons, and sound menu primitives. Other completion contexts/designs remain.
+- Added stageEarnedXp to the verified server completion result: the final award
+  plus four preceding mode awards. Current stage totals are 75/90/210 XP,
+  including Radiance's waypoint bonus. No new query, transaction, or award was
+  introduced; Glow Points show reward.amount rather than account/badge totals.
+- Continue appears when badge, streak, or waypoint celebrations remain; otherwise
+  Exit gameplay uses the existing callback. The badge → streak → waypoint order,
+  existing destinations, and scroll-lock cleanup are preserved. Level-up notices
+  remain visible. Normal Radiance still leads into its separate waypoint card.
+- Generated transparent Meemo art with the built-in image tool, preserving older
+  artwork. Saved the exact prompt in artwork/meemo/stage-celebrate-prompt.md.
+- Real-component Edge fixture checks passed for Glimmer/Glow/Radiance at 375px
+  and desktop in both themes: correct stage rewards, 58% at 540/750 XP bounds,
+  remaining XP, labels, menu/continuation, scroll restoration, no broken assets
+  or horizontal overflow, and 44px+ primary actions. Fixture made no DB calls.
+- Production build/TypeScript, two localization checks, 29 gameplay checks,
+  six Beacon checks, seven design-system checks, and repository lint passed.
+  Product and roadmap describe the approved scope.
+
+### 2026-10-15 - Three-Stage Challenge terminology
+
+- Owner approved Three-Stage Challenge as the player-facing name and stage-named
+  completion messages: Glimmer Complete!, Glow Complete!, Radiance Complete!.
+- Final-mode celebrations now receive the completed challenge stage and use its
+  localized name. Stage reward toasts and the shell's completed fallback match;
+  the existing subsequent waypoint celebration is preserved. Practice, Vault,
+  and admin-test celebrations retain their distinct messages.
+- Updated English/Spanish/French challenge labels, home/map progress and screen
+  reader copy, return links, admin test labels, landing copy, route metadata,
+  and progression error messages. Corrected stale 24-hour error-reference copy
+  to the implemented 12-hour cooldown. Product/roadmap/root terminology updated.
+- Internal DayLevel, day-progress fields, status discriminants, and translation
+  keys used by unchanged components remain compatibility identifiers. Calendar
+  streak days/daily practice and all progression/reward rules are unchanged.
+- Real completion-component renders passed for all three stages plus Vault,
+  admin, and practice exclusions. Lint, TypeScript, two localization checks,
+  29 gameplay checks, and five stage-selection checks passed.
+
+### 2026-10-15 - Restore teal receiving-gap colors
+
+- Separated receiving-gap readiness from movable-tile selection. Drag & Drop
+  and Puzzle now use the original primary/secondary brand-teal tokens for ready
+  and drag-over gaps, independent of the local purple selected-tile palette.
+- Selected bank/Swap tiles remain purple. Correct/incorrect feedback retains
+  priority; no placement, timing, hint, or reward behavior changed.
+
+### 2026-10-15 - Restore detailed instructions through Help
+
+- Added a 44px question-mark help button beside active mode titles using the
+  existing shared dialog and button primitives. Swap/Cue/Fill detailed guidance
+  is restored only inside the dialog; no inline help cards were reintroduced.
+- Drag & Drop/Puzzle expose their placement guidance through the same control.
+  Help is static instructional copy: it reveals no live answer, consumes no hint,
+  performs no database work, and does not pause server-created deadlines.
+- Added localized help labels for English, Spanish, and French. Shared dialog
+  focus management, Escape dismissal, and close controls remain unchanged.
+- TypeScript, targeted lint, localization, and whitespace checks passed.
+
+### 2026-10-15 - Restore ready destination highlighting
+
+- Restored selected/dragged-item highlighting for all empty Drag & Drop and
+  Puzzle destinations. Filled and pending/disabled slots remain unaffected;
+  evaluated correct/incorrect feedback keeps its color priority.
+- Audited the redesign against HEAD. All five modes' pre-render gameplay logic
+  is unchanged (verified with TypeScript AST printing). Reset/check handlers,
+  input normalization/focus advance, attempt submission, reward sequencing, and
+  completion state were not removed. Existing shell menu, hints, and timer remain.
+- Other removed guidance: detailed Swap/Cue/Fill help cards were replaced with
+  shorter mode instructions. This hides explanatory details such as automatic
+  focus advance; reported to the owner rather than silently changing the layout.
+  Active mode progress/Beacon/day labels were hidden with explicit owner approval.
+- Twelve real-component render checks passed across word/phrase readiness,
+  filled, disabled, correct, and incorrect states. Targeted lint and TypeScript
+  passed. No server/database or gameplay-rule changes were made.
+
+### 2026-10-15 - Gameplay mascot and Drag & Drop intro correction
+
+- Owner clarified the active-header pose: two small hands visible below the
+  fleece, with no blue marks beside Meemo's head. Generated a transparent sibling
+  asset with the built-in image tool, preserving the existing waypoint portrait.
+  Saved the exact prompt in `artwork/meemo/gameplay-header-prompt.md`.
+- Active boards now reference `meemo-gameplay-header.png`; removed the decorative
+  diagrams beside all five active mode titles. Other mascot consumers are intact.
+- Updated only Drag & Drop's preparation card to the new concept: static gold
+  Son tile, curved arrow, lower empty slot, and existing presenting Meemo. Updated
+  English/Spanish/French instructions for both drag and tap placement.
+- Isolated real-component checks passed at 375px and desktop in light/dark:
+  no horizontal overflow, broken images, title graphics, or running animations.
+  Asset inspection confirms a 1254px square PNG with alpha. Gameplay, rewards,
+  server deadlines, shared buttons, and completion screens are unchanged.
+- TypeScript, repository lint, localization, design-system, and whitespace
+  checks passed for this refinement.
+
+### 2026-10-15 - Concept-led active game boards
+
+- Implemented the supplied Drag & Drop/Swap concepts and adapted Puzzle, Cue,
+  and Fill with owner approval. Active boards use static Meemo artwork, centered
+  reference/stage, the existing menu, and a compact illustrated mode heading.
+- Removed day/waypoint, mode-progress, and Beacon displays during active play.
+  Server-created timers remain visible for timed stages; hint availability and
+  consumption keep their existing Journey Stage checks and server actions.
+- Approved a local purple-selection/gold-Swap palette exception. Other available
+  pieces use mint; correctness remains green/red. Documented the exception in
+  the UI guide and narrow design-system allowlist, with no global theme changes.
+- Added wrapping banks, dashed empty destinations, labeled Swap state dots,
+  Reset/Check controls, and a scoped gold hint surface. Desktop retains the same
+  composition in the existing wider card. Completion designs are unchanged.
+- Reused approved Meemo art and extracted the existing static mode illustrations
+  for reuse. No new images, database queries, migrations, polling, or reward changes.
+- Isolated real-component Edge checks covered all five modes at 375px and desktop,
+  light/dark, word/phrase placement, Swap selection/exchange, and typing. No
+  horizontal overflow, broken images, or undersized primary actions were found.
+  Timed Master keeps its timer and omits hints; all four brand themes retain the
+  layout and static illustrations. The fixture replaces server writes locally.
+- Production build, TypeScript, 29 gameplay tests, two localization checks,
+  seven design-system checks, and repository-wide lint passed.
+
+### 2026-10-15 - Static Swap introduction illustration
+
+- At the owner's request, removed automatic Swap animation and all hover,
+  click, tap, and keyboard replay behavior. The tiles and arrows remain static.
+- Replaced the replay button with decorative markup and removed animation CSS,
+  replay handlers, and unused localized replay labels. Gameplay is unchanged.
+
+### 2026-10-15 - Session progress and Swap replay refinement
+
+- Removed completed-mode check marks, retaining colored segments and accessible
+  state labels. Owner selected both automatic and hover/mobile-tap replay.
+- Swap now exchanges words, holds three seconds, returns, and rests twelve
+  seconds before repeating. A shared ghost button replays the CSS timelines on
+  mouse hover or activation, supporting mobile taps and keyboard activation.
+- Both reduced-motion preferences retain the static example. No gameplay,
+  timer, reward, database, or active-board behavior changed.
+- TypeScript and targeted lint passed. Native Edge checks observed multiple
+  accelerated cycles and verified hover/click replay and reduced-motion behavior.
+
+### 2026-10-15 - Reference-led session header and mode introductions
+
+- Owner approved redesigning the shared session header and all five pre-mode
+  introductions. Active game boards and completion screens are explicitly deferred.
+- Added the reference preparation card, stage/mode indicators with completed
+  checks, generated presenting-Meemo artwork, and mode-specific instructions and
+  decorative diagrams. Mobile stacks the layout; desktop uses two panels.
+- Swap's trust/Lord tiles swap on separate curved paths, hold about three seconds,
+  return, and repeat in an eight-second CSS loop. OS and saved in-app reduced
+  motion stop the loop. No actual answer/session state is animated or mutated.
+- Corrected Beacon track contrast and added server-derived XP remaining. Browser
+  fixture at Level 2 / 470 XP verifies 44% and 280 XP to Level 3.
+- Begin retains the existing server action and now handles transport errors with
+  a persistent toast. Stage timing/hint availability remain authoritative. The
+  preparation card shows available hints; active gameplay retains its hint control.
+- Preserved active mode/replay/completion render branches verbatim, verified
+  against HEAD. No database operations, migrations, new polling, reward changes,
+  global theme/button changes, or deployment occurred.
+- Generated artwork with the built-in image tool, referencing the approved
+  reading-Meemo identity/style. Saved runtime art and final prompt separately;
+  existing mascot/icon collections remain untouched.
+- Isolated actual-component browser checks passed at 375px light/dark and
+  1366x768 / 1586x992 desktop, all five modes, timed Recall/Master, and Spanish/
+  French. No horizontal overflow or broken images; Begin targets exceed 44px.
+  Verified swap/hold/return positions, both reduced-motion preferences, pending
+  feedback, rejected-start recovery, and transition to the original active board.
+- Lint, typecheck, production build, seven design-system checks, 29 gameplay
+  tests, two localization checks, and whitespace checks passed. Product/roadmap
+  documentation records the implementation and deferred screen scope.
+
+### 2026-10-14 - Public journal, searchable guides, and admin editor
+
+- Owner approved a public blog with an ADMIN/SUPER_ADMIN editor, built now.
+  Added `/blog`, `/blog/[slug]`, `/admin/blog`, and `/admin/blog/[articleId]`;
+  `new` opens an unsaved article. Linked the journal from Landing and Settings
+  and the editorial workspace from the admin control center.
+- Added Game Guides, News & Announcements, and Behind the Scenes categories;
+  submitted search, 12-article pagination, last updated dates, reading estimates,
+  and intentional loading/empty/pending/error states. Public UI uses the new
+  game artwork and semantic themes; existing player navigation is unchanged.
+- Editor supports Markdown preview, private drafts, publish/update/unpublish,
+  unique stable slugs, optimistic edit versions, and transactionally paired audit
+  records. Public repositories/metadata exclude drafts; unsafe HTML/URL schemes,
+  embeds, and remote images are not rendered. No article autosave/polling.
+- Applied additive BlogArticle migration to existing local development (51214)
+  and isolated tests (51224). Installed nine public starter articles locally:
+  seven guides, welcome news, and a design article. A second installer run added
+  zero and preserved existing content. Hosted databases were not accessed.
+- Restarted the existing local app server to load its regenerated Prisma client.
+  Local app remains available at localhost:3000. Next dev automatically refreshed
+  its managed instruction block in AGENTS.md; no application rules were changed.
+- Validation: 167 unit tests, seven design-system checks, error-catalog checks,
+  and guarded blog repository integration passed (draft/search boundaries,
+  publish/unpublish, duplicate URLs, stale versions, stable URLs, atomic audit).
+- Actual browser checks passed for public light/dark at 375px and desktop,
+  article reading, search/empty state, and mobile/desktop editor preview/save.
+  A disposable account on the separate test database verified publication and
+  unpublication, anonymous denial, and ordinary-player denial. Test fixtures
+  were removed narrowly; development learner records were untouched.
+- Draft/missing articles render the same not-found page with noindex. Bundled
+  Next documentation confirms streamed not-found responses can carry HTTP 200;
+  browser checks verify no draft content leaks rather than relying on status alone.
+- Updated product, roadmap, security, and README guidance. Future rule changes
+  should update the relevant editable guide. Final lint, typecheck, production
+  build, and whitespace checks passed. No commit or deployment performed.
+
+### 2026-10-14 - Waypoint admin menu moved beside Study
+
+- Moved the existing administrator testing menu from below the day cards to the
+  Study row at the top, for both available and locked Study states.
+- Preserved admin visibility and every menu action. Empty menus reserve no
+  width; the Study control wraps its label within the remaining mobile space.
+
+### 2026-10-14 - Reference-led waypoint details redesign
+
+- Rebuilt waypoint details around the supplied light/dark concepts: generated
+  welcome-Meemo header, Study strip, illustrated day cards, status badges, and
+  shared tactile actions. Mobile stacks cards; desktop uses three columns.
+- Navigation and the shared player shell remain unchanged. Owner approved
+  rearranging verse, translation, stage notices, and administrator controls.
+- Imported seven supplied icons into the separate new-style waypoint collection;
+  generated Meemo with the built-in image tool using the approved reading pose
+  as identity/style reference. Final prompt is in artwork/meemo/.
+- Retained existing server data, recorded rewards, Study access, cooldowns,
+  completed-mode practice, and admin testing. No repository/action changes,
+  database writes, migrations, or reward-rule changes were introduced.
+- Isolated actual-component browser previews with synthetic state checked 375px
+  light/dark, 768px tablet, 1280x640, 1366x768, and 1586x992 desktop plus Study
+  and cooldown states. No horizontal overflow or broken images. Practice menu,
+  start pending/error recovery, and blocked-day toast checks passed.
+- Typecheck, lint, seven design-system checks, five day-selection tests, and
+  two localization checks passed. No deployment or commit performed.
+
+### 2026-10-14 - New icon collection established as the future standard
+
+- Owner designated the new Home icons and their art style as the standard for
+  future work. Collection remains separate in `public/images/game-ui/`.
+- Added collection guidance and updated the UI/UX guide. Ask when a matching
+  icon is missing; do not silently fall back to legacy artwork.
+- Older icons remain untouched pending the owner's explicit deletion request.
+  No bulk screen migration or asset deletion was performed.
+
+### 2026-10-14 - Local development database started
+
+- Restarted the existing persisted scripture-memo instance with the installed
+  Prisma Local runtime on port 51214. No migrations, resets, or seeds performed.
+
+
+### 2026-10-11 - Desktop-only sizing correction
+
+- Owner reverted the preceding attempt because it changed the mobile Meemo
+  backdrop. All sizing corrections now apply exclusively at 1280px and up.
+- Desktop uses a circular backdrop, smaller Home content, compact sidebar
+  spacing, and two contextual rows sized to the available viewport height.
+  The second shortcut row may remain below the fold as approved.
+- Compared non-desktop CSS declarations against HEAD: mobile/tablet geometry
+  remains unchanged. Only the requested shortcut colors change across sizes:
+  Shop green and Admin orange give all six tiles distinct bright hues.
+- Typecheck, lint, all seven design-system checks, and diff whitespace checks
+  passed. No data, authorization, or routing changes.
+
+
+### 2026-10-11 - Supplied Admin icon and compact desktop Home
+
+- Replaced the temporary Admin symbol with the owner's Royal Shield, Golden Key
+  PNG, bundled as `public/images/game-ui/admin.png`.
+- Mobile navigation now shows only icons with accessible destination labels;
+  desktop retains labels. Enlarged the Leaderboard artwork by 30% to compensate
+  for its transparent padding without shrinking adjacent touch targets.
+- Reduced desktop Home typography, artwork, card, and tile dimensions with
+  viewport-height-aware sizing. Owner approved the second Shop/Admin row below
+  the fold; no fixed-height clipping or forced no-scroll container was added.
+- Actual component previews with synthetic data verified 375px mobile,
+  1366x768 laptop, and 1586x992 light/dark desktop. The first tile row ended at
+  710px on the laptop and 871px at reference size. No horizontal overflow or
+  broken images after decoding; mobile targets remain approximately 69x64px.
+- Typecheck, lint, and seven design-system checks passed. No database operations,
+  authorization changes, migrations, or deployment occurred.
+
+### 2026-10-11 - Five-item navigation and second-row shortcuts
+
+- Removed Shop from both desktop and mobile navigation. The five remaining
+  items have larger icons, labels, targets, and more spacing; desktop icons
+  scale within the available sidebar width.
+- Added Shop then Admin to Home's second grid row, retaining the first four
+  tiles. Shop reuses blue and Admin purple, with a shield/user admin symbol.
+- Admin visibility uses the trusted server session and existing isAdmin helper
+  for ADMIN/SUPER_ADMIN; destination authorization remains unchanged. No new
+  database operations or client role checks were introduced.
+- Updated English, Spanish, French, the product overview, and documented color
+  exceptions. Typecheck, lint, and seven design-system checks passed. A static
+  CSS browser probe verified four first-row tiles, Shop/Admin on the next row,
+  five mobile targets measuring 69 by 64px at 375px, and a 1280px layout review.
+
+### 2026-10-11 - Home artwork and profile presentation corrections
+
+- Replaced the temporary vector diamond with the owner's supplied PNG in both
+  top-bar balances and the Daily Challenge placeholder. Source was found in
+  Downloads/Icons; runtime asset is `public/images/game-ui/diamond.png`.
+- Restored the saved avatar frame through the shared PlayerAvatar component.
+  The existing shell query now selects the frame alongside the portrait;
+  no extra reads, writes, migrations, or polling were added.
+- Removed the top-bar divider below the tablet breakpoint and retained it on
+  larger screens. Avatar frame depth is no longer clipped by its link.
+- Generated reading Meemo revision 3 from the existing approved guide/avatar
+  artwork: painted style, two hind legs, and two exposed brown forearms holding
+  the Bible. Preserved the master and exact prompt in `artwork/meemo/` and used
+  a versioned runtime path to avoid stale optimized-image caches.
+- Typecheck, lint, and all seven design-system checks passed. Isolated browser
+  previews verified light/dark mobile, default/gold frames, supplied diamonds,
+  no broken images or horizontal overflow, no mobile divider, and a retained
+  desktop divider. Preview identity/progress were synthetic; no database used.
+
+### 2026-10-10 - Reference-led Meemo home redesign implemented
+
+- Rebuilt `/game` around the supplied desktop and mobile references, using the
+  supplied icon collection and a generated transparent reading-Meemo hero.
+  Reused the existing waving guide artwork for the desktop Partner card.
+- Applied the new shared top bar, sidebar, and mobile navigation across player
+  screens. Live identity, balances, notifications, waypoint, and completed-day
+  flames remain authoritative; Daily Challenge is presentation-only.
+- Added the four approved authenticated blank routes. Updated visible mascot
+  copy to Meemo while preserving legacy internal Luna identifiers and paths.
+- Documented the four fixed-color shortcut exceptions and updated the product
+  overview. No database writes, migrations, production configuration, or
+  deployment occurred.
+- Validation: lint, typecheck, 162 unit tests, seven design-system checks, and
+  production build passed. Regenerating Next route types resolved stale local
+  type artifacts. Isolated Edge previews checked light/dark desktop and 375px
+  mobile plus a 320px alternate-theme empty state: no horizontal overflow,
+  broken images, or interactive targets below 44px. Preview data was synthetic.
+
+### 2026-10-10 — Meemo rename and home redesign requirements
+
+- Owner renamed Luna to Meemo. Existing filenames and identifiers have not yet
+  been migrated; use Meemo for new user-facing references.
+- Redesign `/game` to match supplied desktop light/dark and mobile references.
+  Apply the reference navigation/top-bar redesign across player screens.
+- Approved blank destinations: `/bible`, `/game/trivia`,
+  `/game/daily-challenge`, and `/partner`. Daily Challenge progress and +20
+  reward are placeholder presentation, not a new reward mechanism.
+- Mobile follows the supplied reference without the desktop Partner card.
+  Surfaces respond to brand themes where possible; Bible, Trivia, Fellowship,
+  and Badges shortcut tile backgrounds keep their reference colors.
+- Generated a first reading-Meemo authoring master and recorded its prompt in
+  `artwork/meemo/README.md`. No home implementation or global rename has been
+  applied yet. Matching waving-Meemo artwork is awaiting owner clarification.
+
+### 2026-10-10 — Initial production trial host selected
+
+- Owner plans to try production on Vercel first, with a possible later move to
+  another host. Vercel is the initial trial host; the permanent host is undecided.
+- Phase 32.3 now proceeds to Vercel proxy/client-IP verification. Production
+  database, secrets, migrations, HTTPS/runtime, backups, and final approval
+  remain open. No deployment or external configuration was performed.
+
+### 2026-10-10 — Documentation reconciliation and CI confirmation
+
+- Owner confirmed both GitHub CI jobs passed after the generation and cooldown
+  assertion fixes. This supersedes earlier pending push/rerun notes; required
+  branch protection has not been confirmed.
+- Reconciled current summaries with 400 waypoints, Next.js 16.3.6, completed
+  Phase 31, completed Phase 32.1/32.2, implemented extras, and remaining
+  production closeout. Preserved dated historical records.
+- Updated QA evidence, security cooldown/currency wording, and product scope
+  for already implemented map practice, CSV import, and Fellowship governance.
+- Recorded local review: lint and 162 unit tests passed; generated Next.js route
+  references prevented typecheck. No source fixes, database operations, or
+  production deployment occurred.
+
+
 ### 2026-10-10 - Correct stale progression integration expectation
 
 - GitHub Actions confirmed that the PostgreSQL service, migrations, and first
@@ -1801,70 +2576,50 @@ authoritative repository sources and correct this log.
 
 ## Project Summary
 
-Scripture Memo is a full-stack, mobile-first scripture memorization web
-application built with Next.js 16.2.10, strict TypeScript, Prisma 7, PostgreSQL,
-Better Auth, Tailwind CSS 4, shadcn/ui, React Hook Form, Zod, and Sonner.
+Scripture Memo is a full-stack, mobile-first scripture memorization game built
+with Next.js 16.3.6, strict TypeScript, Prisma 7, PostgreSQL, Better Auth,
+Tailwind CSS 4, shadcn/ui, React Hook Form, Zod, and Sonner.
 
-Players progress through an expanding sequential waypoint curriculum
-bootstrapped with 220 records. Every waypoint combines a Three-Day Challenge
-(Glimmer, Glow, Radiance) with five ordered game modes (Drag & Drop, Puzzle,
-Swap, Cue, Fill). Journey Stages (Learn, Recall, Strengthen, Master) control
-long-term verse difficulty. Glow Points are the only currency.
+The bootstrap curriculum contains 100 verses across 400 published waypoint
+assignments and can expand continuously. Each waypoint combines Glimmer, Glow,
+and Radiance with five ordered modes: Drag & Drop, Puzzle, Swap, Cue, and Fill.
+Challenge days unlock 12 elapsed hours after the preceding day's completion.
+Learn, Recall, Strengthen, and Master govern hints and per-attempt timing.
+Glow Points are the only spendable currency; Beacon XP is non-spendable
+progression and Crowns are non-spendable prestige.
 
 ## Current Project State
 
-- Branch: `testing`.
-- Current committed HEAD at this update: `1ecb7d6`.
-- Phase 30 is complete: all 16 manual regression flows passed. Phase 31 is
-  in progress; its current evidence is tracked in `docs/PERFORMANCE-AUDIT.md`.
-- The Oil Shop purchase preview passed all three in-app Reduced Motion checks
-  on 2026-09-14. Remaining query, route-state, and mobile audits are next.
-- Phases 0–9 are complete and manually accepted, including bulk CSV import,
-  dynamic verse-list search, and admin pack management.
-- The public landing page and internal UI-foundation preview are implemented.
-- Better Auth registration, login, logout, onboarding, and protected-route flows
-  are implemented and accepted.
-- The complete product-aware Prisma schema and migrations are present and were
-  applied successfully during Phase 3.
-- Root `AGENTS.md` is the single authoritative agent instruction file;
-  `docs/AGENTS.md` was removed.
-- Phase 9 waypoint management, curriculum-history hardening, and Phase 9A's
-  application-wide error reference are merged at the current HEAD.
-- Phase 10 progression engine is complete with lazy initialization,
-  server-authoritative cooldowns, atomic advancement, and real PostgreSQL tests.
-- Phase 11 Game Map, shared responsive trail coordinates, and Trail Navigator
-  are implemented and have passed automated and project-owner manual acceptance.
-- Phase 12 Day Selection is complete and manually accepted, with server-derived
-  states, live cooldowns, and atomic session starts.
-- Phase 13 Gameplay Shared Engine is complete and manually accepted with the reusable gameplay
-  shell, deterministic generators, server-owned ordered attempts, stage-based
-  limits, and atomic final-mode/day completion.
-- Phase 14 Drag & Drop Mode is complete and manually accepted, including
-  desktop/touch placement, feedback audio, victory variants, the completion
-  interstitial, Exit navigation, and administrator Test Replay.
-- Phase 15 Puzzle Mode is complete and manually accepted.
-- Phase 16 Swap Mode is complete and manually accepted.
-- Phase 17 Cue Mode is complete and manually accepted.
-- Phase 18 Fill Mode is complete and manually accepted.
-- Completed-day administrator Test Replay entry and audited self-testing
-  cooldown overrides are implemented.
-- Phase 19 Glow Points and Rewards is complete and manually accepted.
-- Phase 20 Hint System is complete and manually accepted. The longer
-  Strengthen/Master end-to-end progression scenario is recorded for the final
-  regression pass; both UI omission and server-side rejection are implemented.
-- Phase 21 Streak System is complete and manually accepted. A natural
-  next-calendar-day increment remains recorded for the final regression pass.
-- Phase 22 Badge System is complete and manually accepted. The SUPER_ADMIN
-  manual-award flow remains recorded for later testing when a second account is
-  available.
+- Reconciled on 2026-10-10 against branch `visual-upgrade`, HEAD `969cec5`.
+- Phases 0–31 are complete; Phase 32 — Final Security Audit remains in progress.
+- Core learner and administrator flows are implemented, including all five
+  modes, progression, rewards, hints, streaks, badges, Vault, Sanctuary, Oil Shop,
+  Fellowships, Beacon competition, curriculum management, and CSV verse import.
+- Later additions include Game Home, reward-free player map practice, contextual
+  desktop panels, Fellowship governance/case management, platform settings,
+  audit viewing, account suspension enforcement, and shared database rate limits.
+- Four registered brand themes support Super Admin preview and audited global
+  selection; Tropical Teal remains the fallback/default.
+- Email verification and password recovery use Better Auth with local Light Dev
+  delivery and Resend delivery. Development Resend acceptance is complete.
+- Owner confirmed on 2026-10-10 that both GitHub CI jobs passed after the Prisma
+  generation and 12-hour cooldown assertion corrections. Required branch
+  protection/ruleset configuration has not been confirmed.
+- Local review on 2026-10-10: ESLint passed; 162 database-free tests passed across
+  42 files with no skips. TypeScript reported generated `.next` route references
+  to absent daily-challenge, trivia, and profile pages; stale generated output
+  is suspected but regeneration has not been performed to confirm.
+- No database or production build was rerun during that review. Earlier accepted
+  browser, build, integration, and concurrency evidence remains in the roadmap
+  and QA/performance records; accepted scenarios need not be repeated.
 
 ## Current Roadmap Position
 
-Phases through Phase 31 are complete. Phase 32 — Final Security Audit is in
-progress. Phase 32.1 email-verification implementation and owner browser
-acceptance are complete, and development Resend delivery has passed. Phase 32.2
-is next; its online npm audit remains pending authorization for the dependency
-metadata sent to the public registry. Production deployment checks remain open.
+Phases through Phase 31 are complete. Phase 32.1 email verification and
+Phase 32.2 dependency audit are complete. Phase 32.3–32.9 remain open:
+Vercel trial-host proxy verification, hosted database security, separate secrets,
+migration deployment, HTTPS/runtime settings, backups/recovery, and audit closure.
+Production approval has not been granted.
 
 ## Completed Work
 
@@ -1913,34 +2668,25 @@ metadata sent to the public registry. Production deployment checks remain open.
 
 ## Current Task
 
-Continue Phase 31 — Performance and Polish: query payloads, client boundaries,
-route states, and mobile review. The purchase preview is accepted.
+The reference-led `/game` redesign includes the supplied Admin icon, icons-only
+mobile navigation, enlarged Leaderboard artwork, and compact desktop sizing.
+The Shop/Admin second row may sit below the fold; ready for owner review.
+Production closeout is paused while the owner reviews the visual redesign.
 
 ## Exact Next Task
 
-Continue the remaining visual/state and performance checks in
-`docs/PERFORMANCE-AUDIT.md`. Fellowship/Oil Shop pending controls are corrected.
-Local test isolation is now configured: development uses 51214 and tests use
-51224, both with 31 migrations. Fellowship integration passes. Two progression
-lock-race subtests remain skipped on the single-connection local runtime; do not
-resume the retired hosted test migration plan.
-The Vault header 375px check has passed.
-Do not repeat the accepted purchase preview or Vault check. Small-population local
-ranking plans were inspected on 2026-09-15; representative-scale SQL plans and
-browser bundle measurements remain unverified. The owner passed all prepared
-notification, Vault verse-card, and Fellowship scenarios on 2026-09-23.
-Oil Shop controls and the latest no-inner-scroll selected-pack correction are
-accepted. Settings save scenarios also passed per the owner. Do not repeat those
-checks. Sanctuary sample note/favorite scenarios also passed per the owner.
-The owner also passed the prepared OS-only reduced-motion check. Do not repeat
-accepted motion and Sanctuary rendering scenarios. Sanctuary study Markdown now renders on the server;
-the identical analyzer measured 149,329 fewer route-associated browser JS bytes
-(11.4%) and removed the Markdown family from the client graph. Next: visually
-The owner passed the Study/Notes regression after this rendering-boundary change;
-do not repeat it. Defer gameplay lazy-loading until timed-attempt loading is
-addressed. Next: remaining read-only high-read repository and index review. Other
-Phase 31 checks remain open.
-Phase 31 remains in progress.
+Review `/game` with the owner and address any visual adjustments. When the owner
+resumes hosting work, continue Phase 32.3 by verifying Vercel's trusted client-IP/proxy contract before
+configuring production rate limits. Vercel is selected for an initial production
+trial; the permanent host remains undecided. Deployment still requires the
+remaining production gates and approval.
+
+The stale local TypeScript artifact issue is resolved: Next.js route types were
+regenerated and typecheck passed during the home redesign.
+Both CI jobs are owner-confirmed passing; branch protection remains unconfirmed.
+Keep development on Prisma Local 51214, routine integration on separate 51224,
+and multi-connection races on disposable PostgreSQL. Do not use hosted data for
+routine development or tests, or repeat already accepted manual scenarios.
 
 ## Important Decisions
 
@@ -1978,11 +2724,10 @@ Phase 31 remains in progress.
   with a centered ambient halo and scale-based Z-axis hover response rather
   than a light layer displaced below it. The accepted amber selected treatment
   remains unchanged.
-- Player-accessible replay from completed map challenge cards is deferred to
-  Post-Roadmap Extras. It will use individual mode selection, remain
-  non-progressing and reward-free by default, and coexist with organized Vault
-  replay. Any limited practice reward requires a separate abuse-resistant
-  product decision.
+- Player-accessible practice from completed map challenge cards is implemented
+  and accepted. Individual mode selection is untimed, hint-free, non-progressing,
+  and reward-free, and coexists with organized Vault replay. Any limited practice
+  reward requires a separate abuse-resistant product decision.
 - Root `AGENTS.md` overrides supporting documents when instructions conflict.
 - Available Codex conversation history remains useful and should be read when
   present; this file is only a continuity backup and status summary.
@@ -2002,10 +2747,10 @@ Phase 31 remains in progress.
   and automatically hide when their final verse is removed.
 - Pack ordering uses one-based `PackVerse.position` values and supports pointer,
   touch, keyboard, and explicit arrow-button reordering.
-- All 220 waypoint placeholders start hidden and unassigned with provisional
+- Newly appended waypoint drafts start hidden and unassigned with provisional
   `LEARN` stage. Assignment requires an explicit stage, and publishing requires
   an assigned, currently published verse.
-- The initial 220 waypoints are a bootstrap count, not a maximum. Administrators
+- The current 400 assigned waypoints are a bootstrap count, not a maximum. Administrators
   append individual waypoints to one continuous historical sequence without
   year grouping.
 - Published waypoints form a continuous prefix. Per verse, Learn, Recall, and
@@ -2039,31 +2784,32 @@ Phase 31 remains in progress.
 - Pre-launch map comparison uses Map A (winding trail) and Map B (original card
   grid) over one shared data and navigation controller. Tester preference is
   browser-local, URL assignment takes precedence, and neither affects progress.
-- Automated destructive database tests use only the separately provisioned
-  `scripture-memo-integration-tests` Prisma Postgres resource. `DATABASE_URL`
-  remains protected, test configuration fails closed, and Prisma MCP write
-  operations require explicit project-owner approval.
+- Destructive database tests use guarded isolated local/test databases only:
+  Prisma Local 51224, disposable PostgreSQL for multi-connection races, or the
+  temporary CI PostgreSQL service. Hosted test credentials are retired.
+  `DATABASE_URL` remains protected, test configuration fails closed, and Prisma
+  MCP write operations require explicit project-owner approval.
 - Complex operational failures use stable feature codes from one structured
   catalogue. Sonner shows only the short safe message and code; the ADMIN-only
   reference page renders detailed safe guidance. Ordinary validation stays
   uncoded, and codes identify conditions rather than individual occurrences.
-- The error reference is application-wide even though its first entries cover
-  Waypoints and Verses. Its permanent link belongs on the future admin front
-  page, not on either feature's management page.
+- The error reference is application-wide and has a permanent navigation entry
+  on the implemented admin front page.
 - The Phase 4 placeholder Server Action using `ActionResult` belongs to the auth
   feature because authentication is the next feature that will consume the
   shared contract.
 - `DEFAULT_HINT_ALLOWANCE = 5`.
-- `BASE_GLOW_POINTS = 100` controls the Glimmer earning rate. New users start
-  with 0 Glow Points.
-- The Phase 4 rate limiter is process-local. Production authentication requires
-  a distributed provider shared by every application instance.
+- The default base Glimmer reward is 100 Glow Points and may be changed through
+  Super Admin platform settings for future completions. New users start with
+  0 Glow Points; completed awards retain their recorded amounts.
+- Custom authentication actions and gameplay completion submissions use shared
+  database-backed rate limits with advisory locking across application instances.
 - Better Auth's public API uses its database-backed rate limiter. Server Action
   calls use the application limiter because Better Auth excludes internal
   `auth.api` calls from its own request limiter.
-- Email verification and password reset are deferred until an email delivery
-  provider is selected; neither is required by the Phase 5 roadmap acceptance
-  criteria.
+- Email verification and password reset are implemented with Better Auth-owned
+  tokens, Light Dev local delivery, and Resend production delivery. Production
+  credentials remain separate from the accepted development setup.
 - No `src/` directory; application code uses root-based, feature-owned folders.
 - Route pages are one-line feature-view re-exports.
 - Prisma access is repository-only, except singleton definition and Better Auth
@@ -2077,12 +2823,17 @@ Phase 31 remains in progress.
   fresh retry of that mode without erasing completed modes or awarding progress.
 - Hints are disabled during Strengthen and Master.
 - Cooldowns, game order, completion, and rewards are server-authoritative.
-- Glow Points are the only currency; no XP system exists.
+- Glow Points are the only spendable currency. Beacon XP is non-spendable
+  progression, and Crowns are non-spendable prestige.
 - Reward balance changes require a transaction and immutable ledger entry.
 - The database schema includes private notes, favorites, suspension state, and
   explicit Vault replay classification.
 
 ## Recent Important File Changes
+
+This section retains earlier implementation milestones. See the dated entries
+at the top of this log for the latest changes and the current-state sections for
+the active handoff; descriptions below do not establish current pending work.
 
 - `features/map/`: Phase 11 batch repository read, map-state helpers and tests,
   ten-node navigator, waypoint cards, skeleton, protected view composition, and
@@ -2097,8 +2848,8 @@ Phase 31 remains in progress.
   `components/shared/flame-indicator.tsx`: reusable learner-facing progression
   indicators for the map and upcoming Day Selection screen.
 - `app/(protected)/game/map/`: one-line page and loading re-exports.
-- `features/auth/views/authenticated-home-placeholder-view.tsx`: discoverable
-  link to the new map while the later Game Home phase remains pending.
+- `features/home/views/game-home-view.tsx`: implemented Game Home replaces the
+  earlier authenticated-home placeholder.
 - `AGENTS.md`: consolidated all agent instructions at the repository root; added
   authority, JSON persistence, and project-continuity rules.
 - `docs/AGENTS.md`: deleted after consolidation into root `AGENTS.md`.
@@ -2135,24 +2886,25 @@ Phase 31 remains in progress.
 
 ## Outstanding Tasks
 
-- Commit and merge the manually accepted Phase 22 changes.
-- Select an email delivery provider before implementing verification or password
-  reset.
-- Phases 23–32 remain pending in roadmap order.
-- `.env.example` remains absent and is required by the security checklist.
-- Before upgrading to `pg` 9, update the configured database SSL mode explicitly
-  to `verify-full` to preserve the current certificate-verification behavior.
+- Complete Phase 32.3–32.9 production configuration and final audit approval.
+- Confirm whether both passing CI checks are required by branch protection.
+- Investigate the local generated Next.js route-type references before claiming
+  a fresh local TypeScript pass.
+- Complete the planned pre-production artwork packaging/mobile image audit and
+  independent Fellowship insignia work; Phase 31 remains closed.
 
 ## Blockers and Unresolved Questions
 
-- No implementation blocker exists. The dedicated test database is configured,
-  migrated, and verified; both repository integration suites pass and clean up
-  their fixtures.
-- No email delivery provider has been selected, so verification and password
-  reset are intentionally not implemented.
-- The recovered transcript contains historical references to the deleted
-  `docs/AGENTS.md`. They are intentionally preserved because the file is an
-  archive of what occurred, not a live instruction source.
+- Vercel is the initial production trial host. Its proxy/IP trust, release
+  configuration, and runtime verification remain pending; a permanent hosting
+  decision is deferred.
+- Both CI jobs passed per owner confirmation on 2026-10-10. The latest local
+  test listener was unavailable and embedded PostgreSQL initialization failed
+  with a restricted-token error; no hosted test fallback is permitted.
+- Production database security, secrets, migrations, HTTPS, and backup evidence
+  remain open in Phase 32. No production deployment is approved.
+- Dated entries and the recovered transcript are historical evidence. Current
+  summaries and the roadmap supersede their earlier pending states.
 
 ## Dated Session Updates
 
@@ -4630,3 +5382,296 @@ concurrency subtests remain explicitly skipped as documented above.
   later actions open new cases.
 - The owner passed browser review of role-based access, filtered case links, and
   case previews (2026-10-07); local database schema is unchanged.
+### 2026-10-17 � Vault collection concept upgrade
+
+- Replaced the old intro/stat/waypoint sections with a compact illustrated Vault
+  header, Badges link, Verses/Packs switches, search, counts, and status/favorites
+  filtering. Retained administrator testing and the desktop context/donation rail.
+- Translation comes from the saved Settings preference (existing safe available
+  translation fallback retained); no local translation selector was added.
+- Cards show In progress, Completed after Learn, or Mastered after all four
+  Journey Stages. A later active waypoint never erases previously earned status.
+  Duplicate completed/favorite sources are merged by verse ID.
+- Favorite controls reuse the authorized Sanctuary action and show pending/error
+  feedback. Locked verse text stays server-redacted; locked hearts and absent
+  Sanctuary buttons preserve study-access enforcement.
+- Packs intentionally shows an empty state, with no invented packs, progress,
+  detail route, or artwork generation. Existing chest/badge/book artwork is reused.
+- Replaced overlapping completed/favorite/active and obsolete stats reads with
+  three narrow repository query calls (owned verses, preferred translation,
+  platform fallback). No schema change, initialization writes, or polling.
+- Validation: production build, TypeScript, scoped ESLint, six Vault/localization
+  tests and seven design checks passed. Browser fixture checks cover 375px light/
+  dark, no overflow at 375/1366, Mastered filtering, favorite success feedback,
+  and the empty Packs tab. Browser fixtures mock persistence/navigation; no
+  production data or database writes were involved.
+### 2026-10-17 � Sanctuary reader concept upgrade
+
+- Reworked mobile and desktop Sanctuary into the supplied reader composition:
+  compact Back to Vault/header, reference/translation/heart row, serif verse
+  card, shared Study/My Notes controls, tags and individual study accordions.
+  The shell identifies this route as Sanctuary with the existing book artwork.
+- Only Study note and Prayer initially expand. Other authored sections, including
+  Reflection where present, stay available collapsed. Markdown still renders on
+  the server, skips raw HTML, and keeps its safe link handling. Linked cross
+  references use chips while preserving the original authored destinations.
+- Desktop On this page replaces the duplicate verse context panel and local
+  notes sidebar. Its anchors restore Study, expand the target section, and
+  highlight the current section. The existing bottom Partner card is retained.
+- Translation starts with Settings and may switch locally among available texts;
+  refresh restores the default. Alternatives reuse the existing read and are
+  returned only after authorization/study-access checks. No preference writes,
+  extra translation queries, polling, migrations, or curriculum changes.
+- Notes and favorite actions retain their authorized persistence; network errors
+  show dismissible error feedback and preserve the draft for retry. Both panels
+  remain mounted so drafts and accordion state survive tab/translation changes.
+- Validation: TypeScript, scoped ESLint, seven design checks and seven access/
+  localization checks passed. Browser fixtures at 375/1366 in light/dark verify
+  accordion defaults, no horizontal overflow, temporary translation with no
+  save request, refresh default, note retention/retry, favorite response, and
+  desktop anchor navigation. Repository boundary fixtures additionally verify
+  Settings default, alternatives, practice/cooldown redaction and unavailable
+  access with no database connection. Production build passed.
+### 2026-10-17 � Restore Sanctuary typography rules
+
+- Removed the unapproved serif reading override. Scripture and study prose use
+  the shared Fredoka Medium 500 token; section and Markdown headings use Lilita
+  One Bold 700. Softened emphasis uses the registered Medium face, not 400.
+- Retained the Sanctuary layout and behavior. Updated the UI guide to explicitly
+  require consulting the owner before a concept overrides existing font rules.
+### 2026-10-17 � Compact Sanctuary contents links
+
+- Reduced only the Sanctuary right-panel navigation's label/icon sizes, padding,
+  heading spacing and gaps, preserving the established font families and 44px
+  link targets. Short desktop viewports use two compact columns to fit all links
+  above the existing bottom donation card without clipping them.
+- Browser layout checks with ten entries (all sections plus Tags/Reflection)
+  show no context-panel scrolling at 1366x600, 1366x768, 1366x900 and 1600x1000;
+  every link remains at least 44px tall. No persistence or data-flow changes.
+### 2026-10-17 � Sanctuary route identity and desktop navigation corrections
+
+- Removed the Sanctuary-to-Vault active navigation alias on desktop and mobile.
+  Sanctuary has its own header identity/book artwork; the fixed global menu does
+  not claim a different route as the current page. Vault children and waypoint
+  Map selection remain intact. Header/menu matching now uses tested pure rules.
+- Restored Back to Vault to the shared raised secondary NavigationButton with
+  its normal padding and 44px target, replacing the incorrect text-link variant.
+- Desktop navigation distributes free height between menu entries, leaving
+  Settings last and visible. Desktop links/highlights now use the shared control
+  radius instead of the rounded page-specific override. Mobile spacing is intact.
+- Verified actual shell rendering with a synthetic Sanctuary route: header says
+  Sanctuary, no Vault current-page marker, and Vault still selects on its route.
+  Two route regression tests passed. Browser layout checks at 1366x600/900 and
+  375x812 show no horizontal overflow, visible Settings on desktop, and matching
+  10px back-button/sidebar radii. No database reads/writes were added.
+### 2026-10-17 � Balance desktop navigation spacing and size
+
+- Capped desktop menu distribution at 40rem rather than stretching it through
+  the entire sidebar. Increased navigation target heights, icons and labels
+  slightly; a modestly wider desktop rail keeps Leaderboard from clipping.
+  Existing font families, button corner radius, and mobile rules are retained.
+- Browser layout checks at 1280x900, 1366x900, 1366x600 and 1600x1080 confirm
+  no clipped labels or horizontal overflow, with Settings fully visible.
+### 2026-10-17 � Badge collection concept upgrade
+
+- Replaced the old flat achievement/selection layout with Common-to-Legendary
+  groups, earned/total counts, category chips, larger existing emoji icons,
+  status pills, real criteria/rewards and in-progress bars. No prerequisite
+  chains, sample rewards, badge catalogue changes, or generated artwork.
+- Added local search plus Category/Status selectors and a clear-filter empty
+  state. Hidden badge identity remains masked, including searchable text and
+  card names/icons; hidden in-progress cards do not expose target counts.
+- Desktop uses paired art/text cards and a Collection summary in the existing
+  right rail. Summary totals are for the full collection; group counts follow
+  current results. The bottom donation card remains, with compact informational
+  summary spacing fitting a 600px-high desktop viewport without nested scrolling.
+- Header/back navigation now identifies Badge collection and returns to Vault
+  with the shared secondary NavigationButton. Existing font families and
+  semantic rarity accents remain; Epic retains its existing teal treatment.
+  The owner's discarded shared hover-spread experiment was not reintroduced.
+- Reused the same authenticated repository read and server badge rules. No new
+  database calls/writes, polling, migrations, authorization changes or rewards.
+- Validation: production build/TypeScript, scoped ESLint, 14 collection/catalogue/
+  route/localization tests and seven design checks passed. Actual-client browser
+  fixtures cover 375px light/dark two-column cards, search/status/category/clear,
+  stable summary totals, 1280/1366 desktop layouts and 600px-high summary fitting,
+  with no horizontal overflow or clipped card text. Fixtures do not mutate data.
+
+
+### 2026-10-17 ? Clearer badge rarity accents
+
+- Strengthened badge cards to 2px rarity borders, increased group header tint
+  and rarity dots, and added a subtle matching radial halo behind emoji art.
+- Owner explicitly selected purple for Epic. Added a dedicated semantic token
+  to all four themes in light/dark modes, with shared Tailwind registration
+  and design-contract coverage. Summary dots remain compact in short windows.
+- Typography, badge rules/rewards, navigation and database behavior are unchanged.
+- Validation: all seven design-system checks passed; standalone decorative CSS
+  browser preview inspected. No authenticated live-page browser verification
+  was performed for this CSS-only adjustment.
+
+
+### 2026-10-17 ? Badge zero-progress status correction
+
+- Zero qualifying progress displays Locked; positive unfinished progress displays
+  In progress. Completed awards remain authoritative. Filters and card visuals
+  use the same rule, including historical zero-progress IN_PROGRESS records.
+- Future badge evaluations persist NOT_STARTED for zero counts. Existing rows
+  require no migration or writes during reads; reward transactions are unchanged.
+- Added regression coverage for 0/50, 1/50, 49/50, earned 50/50 and status filters.
+  All 11 collection/catalogue tests passed.
+
+
+### 2026-10-17 ? Compact badge collection summary
+
+- Reduced earned/total numbers and placed each label beside its count, with
+  tighter summary padding, heading line heights and rarity row spacing. Existing
+  fonts, rarity colors, progress bar and bottom donation card are preserved.
+- Seven design-system checks passed. Standalone browser layout checked at a
+  280px rail width in a 1280x600 window; all five rarity rows fit a 335px budget
+  without horizontal overflow. Live authenticated layout was not retested.
+
+
+### 2026-10-18 ? Fellowship discovery details and permanent founder
+
+- Discovery cards now use View. The shared accessible dialog shows full description,
+  insignia, original founder/current leader display names, creation date, member
+  count and access type. Join/Request to join and pending-request cancellation
+  live inside it; membership cards retain Open. Existing authorized mutations,
+  feedback and badge celebration/navigation behavior are reused.
+- Added nullable founder relation, set once from the server identity at creation.
+  Leadership handovers keep changing only the existing current-leader field.
+  Additive transactional migration recovers the founder from the earliest accepted
+  handover (including administrator transfers), or the original current leader
+  when no handover occurred. Account deletion retains the group and clears the
+  founder relation; missing profile labels use Unavailable.
+- The existing bounded directory read selects safe metadata; opening details
+  performs no network request, polling, write or per-card lookup. DTOs exclude
+  account IDs, emails, invitation secrets and private rosters.
+- Migration applied to local development/test listeners only. An initial failed
+  local attempt left no schema change; its history was resolved as rolled back
+  before applying the corrected mapped-table foreign key. Services were restored
+  with their existing persisted storage; no reset, seed or hosted access. The
+  populated local backfill audit matched the expected founder for every group.
+- Validation: Prisma validate/generate, production build/TypeScript, scoped ESLint,
+  16 schema/localization checks and seven design-system checks passed. Disposable
+  PostgreSQL suites cover safe discovery DTOs, founder creation and preservation
+  through real concurrent handovers. Actual-component synthetic browser checks
+  cover View-first actions, metadata, 375px light/dark bounds, Escape/focus return,
+  request, cancel, failed join and successful join at desktop width. Existing
+  fonts/buttons are preserved. No real memberships changed during browser QA.
+
+
+### 2026-10-18 ? Fellowship detail overview and editable welcome content
+
+- Rebuilt the detail composition around identity/access/member badges, separate
+  introduction and tactile header actions. Overview is the first tab, with About,
+  Group guidelines and the current leader profile/avatar. Existing member ranking,
+  leader-only request queue/count, Invite and governance notices remain available.
+- Preserved Leader terminology, ordinary-member Leave, leader Manage/Invite and
+  all suspension/closure/leadership constraints. Back navigation uses the shared
+  secondary NavigationButton; fonts, theme roles and shared button effects remain.
+- Added optional 140-character introduction at creation/in Manage and leader-edited
+  guidelines in Manage: one per line, up to eight lines, 160 characters per line
+  and 1,000 total. Defaults support regular practice, progress without comparison
+  or pressure and kindness; no unsupported discussion feature is implied. Blank
+  content restores localized defaults. About descriptions remain independent.
+- Nullable additive migration applied to local development and test instances.
+  Server validation precedes auth; existing leader-scoped locks authorize saves.
+  Content renders as plain React text. Reads reuse the authorized roster for the
+  leader profile, with no extra per-card reads, polling or initialization writes.
+- Validation: nine schema/localization checks, seven design-system checks, scoped
+  ESLint, TypeScript and production build passed. Disposable PostgreSQL verifies
+  leader-only save/read/reset, separate content and unchanged founder identity.
+  Actual-component synthetic browser QA covers 375px light/dark, translated long
+  names, role-specific controls, all three tabs, Leave success/failure, Manage
+  defaults/submission and 1366px desktop without horizontal overflow. No real
+  membership/content was changed by browser fixtures or hosted databases accessed.
+
+
+### 2026-10-18 ? Fellowship overview access explanation
+
+- Added an Overview status card using the saved public/private setting and
+  existing localized joining explanations: public groups allow immediate joining;
+  private groups require leader approval. This is separate from governance closure.
+- Reused the overview card treatment and shared icons/fonts. Four cards stack on
+  mobile and form two paired desktop rows. No new queries or permission changes.
+- Validation: scoped ESLint and TypeScript checks.
+
+
+### 2026-10-18 ? Searchable fellowship members and profile placeholders
+
+- Replaced compact metric blocks with avatar/frame/country member cards on mobile
+  and aligned desktop columns. You and Leader badges identify the learner and
+  fellowship leader; the current learner receives the shared teal highlight.
+- Default order is leader first, then alphabetical. Native sort options include
+  name, join date and ranking in both directions. Ranking now uses lifetime
+  Beacon XP, then completed waypoints/join date for ties; the visible label is
+  Lifetime Beacon Points. Search is case/accent insensitive, includes count and
+  clear-search empty state, and never mutates or truncates the loaded roster.
+- Member navigation uses shared NavigationButton feedback and independent public
+  profile UUIDs. Added a DB-default unique publicId to UserProfile, backfilled
+  through an additive migration on local development/test only. Auth/profile
+  record IDs remain private. Prefetch is disabled to prevent per-row request fanout.
+- Added protected, noindex /profiles/[publicId] coming-soon placeholders with UUID
+  validation and independent server session checks; no full profile data or
+  read-time initialization is implemented. Their header owns Member profile.
+- Members activates a compact Fellowship info panel through the existing desktop
+  portal; switching tabs removes it. Donation layout/artwork/button remain unchanged
+  at the rail bottom. Shared fonts, button effects and permission rules are preserved.
+- Validation: Prisma schema/generation, production build/TypeScript, scoped lint,
+  eight browsing/profile/route/localization tests and seven design checks passed.
+  Disposable PostgreSQL tests prove lifetime ordering against opposing waypoint
+  totals, UUID generation/stability and safe DTOs. Actual-component browser QA
+  covers 375px light/dark, translated long names, all sort directions, search/clear,
+  self highlighting, profile links, empty states and real desktop portal behavior.
+  The info panel fits a 1366x600 rail without nested scrolling. The built profile
+  route redirects unauthenticated HTML and RSC requests to login. No real member
+  mutations or hosted database operations were performed.
+
+### 2026-10-18 - Fellowship spacing and permanent journey summary
+
+- Restored independent member cards with 12px gaps, preserving shared hover effects.
+- Together so far now persists across all detail tabs and totals lifetime Beacon Points and completed waypoints from the full current roster. Local search/sort do not change totals; scope includes pre-join progress. No additional database operations.
+- Approved fonts, buttons and bottom donation placement remain unchanged.
+- Validation: five totals/browsing/localization tests, seven design checks, typecheck and scoped ESLint passed. Live browser inspection was not repeated for this spacing adjustment.
+
+### 2026-10-18 - Global Meemo loading scene
+
+- New owner-approved transparent Meemo flame pose generated with built-in imagegen; prompt recorded in artwork/meemo/loading-way-prompt.md. Existing mascot registry and route skeletons unchanged.
+- Fixed twelve-verse weighted carousel, priority weight 2, no immediate repeat, reading timers preserve remaining time during hover/focus/manual/hidden pause. Touch Pause/Resume and reduced-motion styling included.
+- Fireflies drift across the screen with stronger dark-theme glow. Existing approved fonts and semantic theme tokens retained; no database traffic or navigation delay.
+- Validation: TypeScript, scoped ESLint, three weighted-selection/duration tests and seven design checks passed. Actual-component browser QA at 375px light/dark and desktop verified no mobile overflow, hover pause, resumed rotation and reduced-motion suppression.
+
+### 2026-10-18 - Loading screen owner corrections
+
+- Replaced rejected generated artwork with the exact owner-supplied Meemo portrait, preserving intrinsic proportions.
+- Fixed viewport grid removes page scrolling; heading uses one line, verse reference/manual pause/extra flame removed. Wider loading bar appears directly below the verse. Fireflies are more visible in light theme. Hover/focus and hidden-tab pause remain.
+- Browser checks at 375x498, 375x812, 1366x600 and 1366x900 confirm no horizontal/vertical document overflow and a visible loading indicator. Typecheck, scoped ESLint, weighted-verse tests and design checks passed.
+
+### 2026-10-18 - Exact Glow balance disclosure
+
+- Header Glow Points truncate to one compact decimal plus a plus sign from 1,000 onward; lower values remain exact. Example 1,275 displays 1.2K+, not 1.3K. Other resource counters retain their current formatting.
+- Reused shared Base UI popover for exact localized balance on hover/tap and keyboard activation. Accessible trigger label includes the exact amount. Uses existing authorized shell data without another query.
+- Boundary regression tests, scoped ESLint and TypeScript passed.
+
+### 2026-10-18 - Shop redesign, new packs and permanent avatar inventory
+
+- Rebuilt mobile-first Shop with welcoming generated Meemo cutout, exact Glow balance, Hint packs/Avatars/Donations tabs and two-column cards. Preserved approved fonts, shared buttons, purchase celebration, admin diagnostics and bottom Partner placement. Desktop guidance uses the existing context portal.
+- New packs: 3/120, 10/300, 25/600, 50/1000 (hints/Glow). Old offers retire without changing purchase snapshots or granted hints. Catalogue seed is atomic and repeatable.
+- Lion, Dove and Deer stay free in Settings; remaining nine portraits cost 250 Glow Points each in Shop. Purchase once, then equip there. Server checks prevent Settings or Shop equip from bypassing ownership. Partner frame rules unchanged.
+- Added unique user/avatar ownership linked to purchase snapshots. Per-user shop lock, conditional debit and ledger transaction prevent negative balances and duplicate cosmetic charges across distinct retry keys. No read-time writes or polling; shop uses five bounded reads per visit.
+- Owner chose no grandfathering: migration resets old paid selections to Lion exactly once. Local fixture resets now clear ownership before purchases and reset paid portraits. Applied migration only on local development 51214 and isolated test 51224. Initial SQL BOM parse failure ran no statements; removed BOM, marked local failed attempts rolled back and successfully deployed the corrected file.
+- Donations stays coming soon, with /partner opening in a new tab. Shop remains linked from Home. Added localized English/Spanish/French shop labels and SHP operational error references.
+- Verification: production build, TypeScript, scoped ESLint, nine catalogue/profile/localization/error unit checks, seven design checks, shop concurrency/access/rollout integration tests and Settings integration checks passed. Real-component browser QA covers 375px light/dark, Spanish/French wrapping, desktop portal, low-balance preview, hint purchase celebration, avatar purchase/equip and donation target. SQL rollout tested in an isolated schema preserves snapshots, resets paid selection, retains free choice and seeds thirteen active offers.
+- Artwork: public/images/mascot/meemo/meemo-shop-welcome.png; built-in imagegen prompt in artwork/meemo/shop-welcome-prompt.md. No hosted data accessed. Ready for owner review.
+
+### 2026-10-19 - Owner-supplied shop Meemo and bulb art
+
+- Replaced the rejected generated hero with the exact supplied wider Meemo cutout, preserving proportions and alpha. New source: public/images/mascot/meemo/meemo-shop-welcome-owner.png.
+- Replaced code bulb icons with the supplied public/images/oil-shop/hint-bulb-owner.png. One reusable HintPackArtwork component serves cards, previews, celebration pack artwork and the celebration hint balance. One/four bulb clusters fit their containers without stretching. Existing purchase logic, prices, ownership and fonts remain unchanged.
+- Scoped ESLint and TypeScript passed. Actual-component headless browser checks at 375px light/dark and desktop confirm loaded assets, no horizontal overflow and correct compact celebration sizing. Original supplied image bytes are retained unchanged.
+
+### 2026-10-19 - Shop preview close-button clearance
+
+- Added reserved header space beside the shared 44px close button in avatar and hint-pack previews, allowing descriptions to wrap without overlap. Reservation remains during pending requests to prevent layout shifts. Shared dialog/button styling is unchanged. Scoped ESLint and TypeScript passed.

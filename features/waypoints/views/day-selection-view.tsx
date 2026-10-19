@@ -1,20 +1,19 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeftIcon } from "lucide-react";
-import { buttonVariants } from "@/components/ui/button";
-import { ResponsiveContainer } from "@/components/shared/responsive-container";
+import { NavigationButton } from "@/components/shared/navigation-button";
 import { requireServerSession } from "@/lib/auth/session";
 import type { UserRole } from "@/lib/generated/prisma/enums";
 import { isAdmin } from "@/lib/permissions";
 import { DaySelection } from "@/features/waypoints/components/day-selection";
 import { buildDayCards } from "@/features/waypoints/lib/day-selection";
 import { daySelectionRepository } from "@/features/waypoints/repositories/day-selection.repository";
+import styles from "../components/day-selection.module.css";
 
 /** Personalized gameplay preparation pages must never appear in search results. */
 export const metadata: Metadata = {
-  title: "Choose a challenge day | Scripture Memo",
+  title: "Choose a challenge stage | Scripture Memo",
   description: "Choose the next private challenge in your Scripture journey.",
   robots: { index: false, follow: false },
 };
@@ -41,24 +40,21 @@ export async function DaySelectionView({
   );
 
   return (
-    <main className="min-h-svh bg-background py-5 sm:py-8">
-      <ResponsiveContainer size="lg" className="space-y-5">
-        <Link
-          href="/game/map"
-          className={buttonVariants({
-            variant: "ghost",
-            className: "min-h-11 rounded-xl px-3",
-          })}
-        >
-          <ArrowLeftIcon className="size-4" aria-hidden="true" />
-          {t("backToMap")}
-        </Link>
-        <DaySelection
-          data={data}
-          cards={cards}
-          isAdmin={isAdmin(session.user.role as UserRole | undefined)}
-        />
-      </ResponsiveContainer>
+    <main className={styles.page}>
+      <NavigationButton
+        href="/game/map"
+        pendingLabel={t("openingMap")}
+        variant="ghost"
+        className={styles.backButton}
+      >
+        <ArrowLeftIcon className="size-4" aria-hidden="true" />
+        {t("backToMap")}
+      </NavigationButton>
+      <DaySelection
+        data={data}
+        cards={cards}
+        isAdmin={isAdmin(session.user.role as UserRole | undefined)}
+      />
     </main>
   );
 }

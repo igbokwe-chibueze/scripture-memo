@@ -5,16 +5,20 @@ import { useTranslations } from "next-intl";
 import { PlayerAvatar } from "@/features/profile/components/player-avatar";
 import {
   AVATAR_CATALOG,
+  isFreeAvatar,
   AVATAR_FRAME_KEYS,
   type AvatarFrameKey,
   type AvatarKey,
 } from "@/features/profile/data/avatar-catalog";
 import { cn } from "@/lib/utils";
+import { NavigationButton } from "@/components/shared/navigation-button";
 
 export type AvatarPickerProps = {
   avatarKey: AvatarKey;
   frameKey: AvatarFrameKey;
   displayName: string;
+  avatarChangeIndicator?: React.ReactNode;
+  frameChangeIndicator?: React.ReactNode;
   isPartner: boolean;
   disabled: boolean;
   onAvatarChange: (value: AvatarKey) => void;
@@ -26,12 +30,15 @@ export function AvatarPicker({
   avatarKey,
   frameKey,
   displayName,
+  avatarChangeIndicator,
+  frameChangeIndicator,
   isPartner,
   disabled,
   onAvatarChange,
   onFrameChange,
 }: AvatarPickerProps): React.ReactNode {
   const t = useTranslations("Settings");
+  const shop = useTranslations("Shop");
 
   return (
     <section className="space-y-6" aria-labelledby="avatar-picker-title">
@@ -46,6 +53,7 @@ export function AvatarPicker({
         <div className="min-w-0">
           <h3 id="avatar-picker-title" className="font-heading text-xl font-bold">
             {t("chooseAvatar")}
+            {avatarChangeIndicator}
           </h3>
           <p className="mt-1 text-sm text-muted-foreground">
             {t("avatarDescription")}
@@ -53,8 +61,8 @@ export function AvatarPicker({
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
-        {AVATAR_CATALOG.map((avatar) => {
+      <div className="grid grid-cols-3 gap-3">
+        {AVATAR_CATALOG.filter((avatar) => isFreeAvatar(avatar.key)).map((avatar) => {
           const isSelected = avatar.key === avatarKey;
           return (
             <button
@@ -89,10 +97,19 @@ export function AvatarPicker({
         })}
       </div>
 
+      <NavigationButton
+        href="/oil-shop?tab=avatars"
+        pendingLabel={shop("avatars")}
+        variant="secondary"
+        className="min-h-11"
+      >
+        {shop("avatars")}
+      </NavigationButton>
+
       <div>
         <div className="mb-3 flex items-center justify-between gap-3">
           <div>
-            <h3 className="font-heading text-lg font-bold">{t("profileFrame")}</h3>
+            <h3 className="font-heading text-lg font-bold">{t("profileFrame")} {frameChangeIndicator}</h3>
             <p className="text-sm text-muted-foreground">
               {isPartner ? t("partnerFrameDescription") : t("standardFrameDescription")}
             </p>

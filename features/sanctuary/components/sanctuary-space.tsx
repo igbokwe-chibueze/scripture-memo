@@ -14,18 +14,15 @@ const transport: SanctuaryTransport = {
 export function SanctuarySpace({
   data,
   studyContent,
-  contentsNavigation,
 }: {
   data: SanctuaryData;
   studyContent: React.ReactNode;
-  contentsNavigation: React.ReactNode;
 }): React.ReactNode {
   return (
     <SanctuaryContent
       data={data}
       transport={transport}
       studyContent={studyContent}
-      contentsNavigation={contentsNavigation}
     />
   );
 }

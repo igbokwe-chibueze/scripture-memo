@@ -65,7 +65,7 @@ export function GlobalError({
           Oops we hit a snag
         </h1>
         <p className="mx-auto mt-3 max-w-sm text-sm leading-6 font-medium text-muted-foreground dark:text-foreground">
-          Luna could not load this. Try again.
+          Meemo could not load this. Try again.
         </p>
 
         <Button

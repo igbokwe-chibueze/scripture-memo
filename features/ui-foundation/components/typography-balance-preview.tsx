@@ -215,7 +215,7 @@ function TypographySample({
           style={labelTreatment.style}
         >
           <SparklesIcon className="size-4" aria-hidden="true" />
-          <span>Day 1 complete</span>
+          <span>Glimmer Complete!</span>
         </div>
       </div>
 

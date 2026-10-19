@@ -11,10 +11,11 @@ import {
 } from "lucide-react";
 import { LunaMascot } from "@/components/shared/luna-mascot";
 import { Button } from "@/components/ui/button";
-import type { GameMode } from "@/lib/generated/prisma/enums";
+import type { DayLevel, GameMode } from "@/lib/generated/prisma/enums";
 import type { DayRewardResult } from "@/features/rewards/types/reward.types";
 import type { BeaconProgressionResult } from "@/features/beacon/types/beacon.types";
 import type { LocalReplayKind } from "@/features/gameplay/types/game-session.types";
+import { StageCompletionCard, type StageCompletionSummary } from "./stage-completion-card";
 
 /**
  * Pauses progression on a celebratory, explicit learner-controlled transition.
@@ -25,6 +26,8 @@ import type { LocalReplayKind } from "@/features/gameplay/types/game-session.typ
  */
 export function ModeCompletionScreen({
   completedMode,
+  completedChallengeStage,
+  stageSummary,
   nextMode,
   replayKind,
   isAdminTest = false,
@@ -35,6 +38,8 @@ export function ModeCompletionScreen({
   beaconProgression = null,
 }: {
   completedMode: GameMode;
+  completedChallengeStage?: DayLevel;
+  stageSummary?: StageCompletionSummary;
   nextMode: GameMode | null;
   replayKind?: LocalReplayKind;
   isAdminTest?: boolean;
@@ -46,9 +51,26 @@ export function ModeCompletionScreen({
 }): React.ReactNode {
   const t = useTranslations("Completion");
   const gameT = useTranslations("Gameplay");
+  const stageT = useTranslations("DaySelection");
   const isLocalReplay = replayKind !== undefined;
+  // Only a normal final-mode completion names the completed challenge stage.
+  // Practice, Vault, and admin celebrations retain their existing messages.
+  const isStageComplete = Boolean(
+    completedChallengeStage &&
+      !nextMode &&
+      !isLocalReplay &&
+      !isAdminTest &&
+      !isVaultReplay,
+  );
+  const stageLabel = completedChallengeStage
+    ? stageT(completedChallengeStage.toLowerCase() as "glimmer" | "glow" | "radiance")
+    : "";
   const modeLabels: Record<GameMode, string> = {
-    DRAG_DROP: gameT("dragDrop"), PUZZLE: gameT("puzzle"), SWAP: gameT("swap"), CUE: gameT("cue"), FILL: gameT("fill"),
+    DRAG_DROP: gameT("dragDrop"),
+    PUZZLE: gameT("puzzle"),
+    SWAP: gameT("swap"),
+    CUE: gameT("cue"),
+    FILL: gameT("fill"),
   };
   const shouldReduceMotion = useReducedMotionPreference();
   const levelProgress = beaconProgression
@@ -80,6 +102,29 @@ export function ModeCompletionScreen({
       document.documentElement.style.overflow = previousRootOverflow;
     };
   }, []);
+
+  // Only real campaign stage results use the new surface. The same scroll lock
+  // and caller-owned celebration sequence apply to both presentation branches.
+  if (isStageComplete && completedChallengeStage && stageSummary && reward && beaconProgression) {
+    return (
+      <div
+        className="fixed inset-0 z-40 overflow-y-auto bg-background px-3"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="mode-complete-title"
+      >
+        <div className="flex min-h-full justify-center py-3 sm:py-6">
+          <StageCompletionCard
+            stage={completedChallengeStage}
+            summary={stageSummary}
+            reward={reward}
+            beacon={beaconProgression}
+            onContinue={onContinue}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -144,7 +189,7 @@ export function ModeCompletionScreen({
                 : t("modeRestored")}
           </p>
           <h2 id="mode-complete-title" className="mt-2 font-heading text-4xl font-bold">
-            {t("beautifulWork")}
+            {isStageComplete ? t("stageComplete", { stage: stageLabel }) : t("beautifulWork")}
           </h2>
           <p className="mt-3 text-lg font-medium text-foreground/80 dark:text-foreground">
             {t("modeComplete", { mode: modeLabels[completedMode] })}
@@ -163,7 +208,7 @@ export function ModeCompletionScreen({
                     : t("vaultComplete")
                 : nextMode
                   ? t("nextReady", { mode: modeLabels[nextMode] })
-                  : t("dayComplete")}
+                  : t("stageCompleteBody", { stage: stageLabel })}
             </p>
             {!isLocalReplay && reward && (
               <div className="mt-3">

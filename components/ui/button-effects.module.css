@@ -1,0 +1,50 @@
+/* Owner-approved white/silver decorative sheen. Shared controls opt in through
+ * buttonVariants; the default remains completely static. No bevel/press styling
+ * belongs here, and the overlay never intercepts pointer or keyboard input. */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: -30% auto -30% -40%;
+  width: 30%;
+  pointer-events: none;
+  background: linear-gradient(
+    110deg,
+    transparent,
+    rgb(220 225 230 / 18%),
+    rgb(255 255 255 / 55%),
+    transparent
+  );
+  transform: translateX(0) skewX(-20deg);
+  animation: button-shimmer 5.5s ease-in-out 1s infinite;
+}
+
+@keyframes button-shimmer {
+  0%, 75% {
+    transform: translateX(0) skewX(-20deg);
+  }
+  100% {
+    transform: translateX(500%) skewX(-20deg);
+  }
+}
+
+/* Pending/disabled controls stay quiet. Both motion preferences remove the
+ * effect rather than letting a frozen stripe obscure the button label. */
+.shimmer:disabled::after,
+.shimmer[aria-disabled="true"]::after,
+.shimmer[aria-busy="true"]::after,
+:global(.reduce-motion) .shimmer::after {
+  display: none;
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shimmer::after {
+    display: none;
+    animation: none;
+  }
+}

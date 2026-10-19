@@ -1,22 +1,26 @@
 "use client";
 
+import { useAudioPreferences } from "@/hooks/use-audio-preferences";
+
 import { useState, useTransition } from "react";
+import Image from "next/image";
+import activeStyles from "./active-game.module.css";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+import { AUDIO_PREFERENCES_EVENT } from "@/features/settings/lib/audio-preferences";
+import { GameSettingsMenuItem } from "@/components/shared/game-settings-menu-item";
 import {
   Clock3Icon,
   EllipsisVerticalIcon,
   LightbulbIcon,
   LogOutIcon,
-  PlayIcon,
   RotateCcwIcon,
   ShieldCheckIcon,
-  SparklesIcon,
   Volume2Icon,
   VolumeXIcon,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,14 +52,19 @@ import type {
 import type { GameMode } from "@/lib/generated/prisma/enums";
 import type { ActionResult } from "@/types/api";
 import { HintButton } from "@/features/hints";
+import { ModeIntroduction } from "./mode-introduction";
+import { SessionBeaconProgress } from "./session-beacon-progress";
+import { StageCompletionCard } from "./stage-completion-card";
+import styles from "./session-introduction.module.css";
 import { verifyLearnHintAccountingAction } from "@/features/hints/actions/verify-learn-hint-accounting.action";
 import { verifyStageHintBlockAction } from "@/features/hints/actions/verify-stage-hint-block.action";
 
 /**
  * Shared mobile-first frame used by every gameplay mode.
  *
- * Phase 13 owns progress, timer presentation, audio preference, and the hint
- * placeholder. Mode interaction surfaces plug into the central panel later.
+ * Preparation retains its progression header; active boards use the approved
+ * compact mascot header. Completion surfaces remain owned by their existing
+ * components. Artwork never starts attempts, changes deadlines, or awards XP.
  */
 export function GameShell({
   gameSession,
@@ -87,7 +96,7 @@ export function GameShell({
     ? dayT(gameSession.dayLevel.toLowerCase() as "glimmer" | "glow" | "radiance")
     : "";
   const [attempt, setAttempt] = useState<GameModeAttemptData | null>(null);
-  const [audioEnabled, setAudioEnabled] = useState(gameSession.audioEnabled);
+  const { enabled: audioEnabled } = useAudioPreferences();
   const [adminTestReplayMode, setAdminTestReplayMode] =
     useState<GameMode | null>(null);
   const replayMode = playerPracticeMode ?? adminTestReplayMode;
@@ -135,43 +144,41 @@ export function GameShell({
   const modeTimeLimitMinutes = modeTimeLimitSeconds
     ? Math.ceil(modeTimeLimitSeconds / 60)
     : null;
-  const beaconLevelRange =
-    gameSession.beaconProgress.nextLevelXp -
-    gameSession.beaconProgress.currentLevelStartXp;
-  const beaconLevelProgress = Math.min(
-    100,
-    Math.max(
-      0,
-      ((gameSession.beaconProgress.lifetimeXp -
-        gameSession.beaconProgress.currentLevelStartXp) /
-        beaconLevelRange) *
-        100,
-    ),
+  const isIntroduction = Boolean(
+    currentMode && !attempt && !replayMode && currentMode !== expiredMode,
   );
+  // Only live boards use the compact mascot header. Preparation, expiry, and
+  // completion retain their separate compositions and existing progression UI.
+  const isActiveBoard = Boolean((attempt || replayMode) && !isAwaitingContinue);
 
   const beginMode = (): void => {
     if (!currentMode) return;
     startTransition(async () => {
-      const result = await startModeAction({
-        sessionId: gameSession.id,
-        gameMode: currentMode,
-      });
-      if (!result.success) {
-        showActionError(result);
-        return;
+      try {
+        const result = await startModeAction({
+          sessionId: gameSession.id,
+          gameMode: currentMode,
+        });
+        if (!result.success) {
+          showActionError(result);
+          return;
+        }
+        if (result.data) {
+          setAttempt(result.data);
+          setExpiredMode(null);
+        }
+        toast.success(result.message, { duration: 4_000 });
+      } catch {
+        // Keep the preparation/retry state usable after a transport failure.
+        toast.error(t("introStartFailed"), { duration: Infinity });
       }
-      if (result.data) {
-        setAttempt(result.data);
-        setExpiredMode(null);
-      }
-      toast.success(result.message, { duration: 4_000 });
     });
   };
 
   const toggleAudio = (): void => {
     const nextEnabled = !audioEnabled;
-    setAudioEnabled(nextEnabled);
     document.documentElement.dataset.audioEnabled = String(nextEnabled);
+    window.dispatchEvent(new Event(AUDIO_PREFERENCES_EVENT));
     toast.info(
       nextEnabled
         ? t("audioOn")
@@ -257,31 +264,106 @@ export function GameShell({
     setIsAwaitingContinue(false);
   };
 
+  // Reopening a completed campaign session must render the same result card as
+  // live completion. Recorded awards are display-only; exiting does not replay
+  // milestones or issue completion/award actions a second time.
+  if (!currentMode && !replayMode && gameSession.completedStage && gameSession.dayLevel) {
+    return (
+      <main className="flex min-h-svh justify-center bg-background px-3 py-3 text-foreground sm:py-6">
+        <StageCompletionCard
+          stage={gameSession.dayLevel}
+          summary={{
+            waypointNumber: gameSession.waypoint?.number ?? 0,
+            verseReference: gameSession.verse.reference,
+            journeyStage: gameSession.waypoint?.journeyStage,
+            earnedXp: gameSession.completedStage.earnedXp,
+            hasMoreCelebrations: false,
+            audioEnabled,
+            onToggleAudio: toggleAudio,
+          }}
+          reward={{ amount: gameSession.completedStage.glowPoints }}
+          beacon={gameSession.beaconProgress}
+          onContinue={() => continueToMode(null)}
+        />
+      </main>
+    );
+  }
+
   return (
-    <main className="min-h-svh bg-background px-4 py-5 text-foreground sm:px-6 sm:py-8">
-      <section className="mx-auto flex min-h-[calc(100svh-2.5rem)] max-w-3xl flex-col overflow-hidden rounded-[2rem] border border-border bg-card/95 shadow-[0_18px_44px_color-mix(in_oklch,var(--foreground)_12%,transparent)] sm:min-h-[calc(100svh-4rem)]">
-        <header className="border-b border-border px-5 py-5 dark:border-border/10 sm:px-8">
-          <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0">
-              <p className="whitespace-nowrap text-xs font-bold tracking-[0.12em] text-reward-text uppercase dark:text-reward-text sm:tracking-[0.16em]">
-                {playerPracticeMode
-                  ? t("playerPractice")
-                  : gameSession.isAdminTest
-                    ? t("adminTesting")
-                    : gameSession.isVaultReplay
-                      ? t("vaultReplay")
-                      : t("dayWaypoint", {
-                          day: dayLabel,
-                          number: gameSession.waypoint?.number ?? 0,
-                        })}
-              </p>
-              <h1 className="mt-1 font-heading text-2xl font-bold sm:text-3xl">
+    <main
+      className={cn(
+        "min-h-svh bg-background px-4 py-5 text-foreground sm:px-6 sm:py-8",
+        isIntroduction && styles.introPage,
+        isActiveBoard && activeStyles.activePage,
+      )}
+    >
+      <section
+        className={cn(
+          "mx-auto flex min-h-[calc(100svh-2.5rem)] max-w-3xl flex-col",
+          "overflow-hidden rounded-[2rem] border border-border bg-card/95",
+          "shadow-[0_18px_44px_color-mix(in_oklch,var(--foreground)_12%,transparent)]",
+          "sm:min-h-[calc(100svh-4rem)]",
+          isIntroduction && styles.introFrame,
+          isActiveBoard && activeStyles.activeFrame,
+        )}
+      >
+        <header
+          className={cn(
+            "border-b border-border px-5 py-5 dark:border-border/10 sm:px-8",
+            styles.header,
+            isActiveBoard && activeStyles.activeHeader,
+          )}
+        >
+          {isActiveBoard && (
+            <div className={activeStyles.mascotScene}>
+              <Image
+                src="/images/mascot/meemo/meemo-gameplay-header.png"
+                alt=""
+                aria-hidden="true"
+                width={1254}
+                height={1254}
+                sizes="160px"
+              />
+            </div>
+          )}
+          <div
+            className={cn(
+              styles.headingRow,
+              isActiveBoard && activeStyles.activeHeading,
+            )}
+          >
+            <div className={styles.headingCopy}>
+              {!isActiveBoard && (
+                <p className={styles.eyebrow}>
+                  {playerPracticeMode
+                    ? t("playerPractice")
+                    : gameSession.isAdminTest
+                      ? t("adminTesting")
+                      : gameSession.isVaultReplay
+                        ? t("vaultReplay")
+                        : t("dayWaypoint", {
+                            day: dayLabel,
+                            number: gameSession.waypoint?.number ?? 0,
+                          })}
+                </p>
+              )}
+              <h1
+                className={isActiveBoard ? activeStyles.activeTitle : styles.verseTitle}
+              >
                 {gameSession.verse.reference}
               </h1>
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger
-                className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-background text-foreground shadow-sm transition hover:bg-muted focus-visible:ring-2 focus-visible:ring-selection focus-visible:outline-none dark:border-border/15 dark:bg-card/5 dark:text-foreground dark:hover:bg-card/10"
+                data-slot="button"
+                className={buttonVariants({
+                  variant: "outline",
+                  size: "icon",
+                  className: cn(
+                    styles.menuButton,
+                    isActiveBoard && activeStyles.activeMenu,
+                  ),
+                })}
                 aria-label={t("openMenu")}
               >
                 <EllipsisVerticalIcon className="size-5" aria-hidden="true" />
@@ -294,6 +376,7 @@ export function GameShell({
                   <DropdownMenuLabel className="px-2 py-1.5 font-bold text-foreground">
                     {t("gameMenu")}
                   </DropdownMenuLabel>
+                  <GameSettingsMenuItem />
                   <DropdownMenuItem
                     className="min-h-11 cursor-pointer gap-3 rounded-lg px-3 py-2 font-bold"
                     onClick={toggleAudio}
@@ -399,12 +482,17 @@ export function GameShell({
             </DropdownMenu>
           </div>
 
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-            {gameSession.waypoint && (
-              <JourneyStageBadge stage={gameSession.waypoint.journeyStage} />
+          <div
+            className={cn(
+              styles.stageRow,
+              isActiveBoard && activeStyles.activeStage,
             )}
-            {!playerPracticeMode && (
-              <p className="text-sm font-bold text-muted-foreground">
+          >
+            {gameSession.waypoint && (
+              <JourneyStageBadge stage={gameSession.waypoint.journeyStage} className={styles.stage} />
+            )}
+            {!playerPracticeMode && !isActiveBoard && (
+              <p className={styles.modeCount}>
                 {t("modeProgress", {
                   current: Math.min(
                     currentModeIndex + 1,
@@ -416,18 +504,18 @@ export function GameShell({
             )}
           </div>
 
-          {!playerPracticeMode && (
+          {!playerPracticeMode && !isActiveBoard && (
             <ol
-              className="mt-4 grid grid-cols-5 gap-1.5"
+              className={styles.modeSegments}
               aria-label={t("progress")}
             >
               {GAME_MODE_ORDER.map((mode, index) => (
                 <li
                   key={mode}
                   className={cn(
-                    "h-2 rounded-full bg-muted",
-                    index < currentModeIndex && "bg-success",
-                    index === currentModeIndex && "bg-reward",
+                    styles.segment,
+                    index < currentModeIndex && styles.segmentComplete,
+                    index === currentModeIndex && styles.segmentCurrent,
                   )}
                   aria-label={`${modeLabels[mode]}: ${
                     index < currentModeIndex
@@ -441,34 +529,8 @@ export function GameShell({
             </ol>
           )}
 
-          {!playerPracticeMode && (
-            <div className="mt-4 rounded-2xl border border-selection-border/20 bg-selection-subtle p-3">
-              <div className="flex items-center justify-between gap-3 text-xs font-bold">
-                <span>
-                  {t("beaconLevel", {
-                    level: gameSession.beaconProgress.level,
-                  })}
-                </span>
-                <span className="text-selection-text dark:text-selection-text">
-                  {t("beaconXp", {
-                    count: gameSession.beaconProgress.lifetimeXp,
-                  })}
-                </span>
-              </div>
-              <div
-                className="mt-2 h-2.5 overflow-hidden rounded-full bg-selection dark:bg-background/35"
-                role="progressbar"
-                aria-label={t("beaconProgress")}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={Math.round(beaconLevelProgress)}
-              >
-                <div
-                  className="h-full rounded-full bg-primary"
-                  style={{ width: `${beaconLevelProgress}%` }}
-                />
-              </div>
-            </div>
+          {!playerPracticeMode && !isActiveBoard && (
+            <SessionBeaconProgress progress={gameSession.beaconProgress} />
           )}
 
           {(gameSession.isAdminTest || playerPracticeMode) && (
@@ -480,7 +542,14 @@ export function GameShell({
 
         </header>
 
-        <div className="flex flex-1 flex-col items-center px-5 py-8 text-center sm:px-10">
+        <div
+          className={isIntroduction
+            ? styles.introPanel
+            : isActiveBoard
+            ? activeStyles.activePanel
+            : "flex flex-1 flex-col items-center px-5 py-8 text-center sm:px-10"
+          }
+        >
           {attempt?.expiresAt &&
             !isAwaitingContinue &&
             !replayMode &&
@@ -555,6 +624,9 @@ export function GameShell({
               dayLevel={gameSession.dayLevel}
               waypointNumber={gameSession.waypoint?.number ?? 0}
               verseReference={gameSession.verse.reference}
+              journeyStage={gameSession.waypoint?.journeyStage}
+              audioEnabled={audioEnabled}
+              onToggleAudio={toggleAudio}
               verseText={gameSession.verse.translationText}
               attempt={null}
               replayKind={replayKind}
@@ -642,6 +714,9 @@ export function GameShell({
               dayLevel={gameSession.dayLevel}
               waypointNumber={gameSession.waypoint?.number ?? 0}
               verseReference={gameSession.verse.reference}
+              journeyStage={gameSession.waypoint?.journeyStage}
+              audioEnabled={audioEnabled}
+              onToggleAudio={toggleAudio}
               verseText={gameSession.verse.translationText}
               attempt={attempt}
               isVaultReplay={gameSession.isVaultReplay}
@@ -657,50 +732,26 @@ export function GameShell({
               isPending={isPending}
               onRetry={beginMode}
             />
+          ) : currentMode ? (
+            <ModeIntroduction
+              mode={currentMode}
+              modeLabel={modeLabels[currentMode]}
+              minutes={modeTimeLimitMinutes}
+              hintsAllowed={hintsAllowed}
+              hintBalance={gameSession.hintBalance}
+              isTestHint={gameSession.isAdminTest || useSampleHint}
+              isPending={isPending}
+              onBegin={beginMode}
+            />
           ) : (
             <div className="my-auto w-full max-w-xl overflow-hidden rounded-dialog border border-border bg-card p-5 text-left sm:p-8">
               <p className="text-xs font-bold tracking-[0.16em] text-selection-text uppercase dark:text-selection-text">
                 {t("upNext")}
               </p>
               <h2 className="mt-2 font-heading text-2xl leading-tight font-bold sm:text-3xl">
-                {currentMode ? modeLabels[currentMode] : t("dayComplete")}
+                {t("stageComplete", { stage: dayLabel || dayT("radiance") })}
               </h2>
-
               <div className="mt-4 grid grid-cols-[minmax(0,1fr)_6rem] items-end gap-3 sm:grid-cols-[minmax(0,1fr)_10rem] sm:gap-6">
-                {!attempt && currentMode && (
-                  <div className="rounded-2xl border border-selection-border/40 bg-background/75 p-3 sm:p-4">
-                    {modeTimeLimitMinutes ? (
-                      <>
-                        <p className="flex items-center gap-2 text-sm font-bold sm:text-base">
-                          <Clock3Icon
-                            className="size-5 shrink-0 text-selection-text"
-                            aria-hidden="true"
-                          />
-                          {t("minuteChallenge", {
-                            minutes: modeTimeLimitMinutes,
-                          })}
-                        </p>
-                        <p className="mt-1 text-sm leading-5 text-muted-foreground">
-                          {t("clockStarts")}
-                        </p>
-                      </>
-                    ) : (
-                      <>
-                        <p className="flex items-center gap-2 text-sm font-bold sm:text-base">
-                          <SparklesIcon
-                            className="size-5 shrink-0 text-reward-text"
-                            aria-hidden="true"
-                          />
-                          {t("learnPace")}
-                        </p>
-                        <p className="mt-1 text-sm leading-5 text-muted-foreground">
-                          {t("noTimer")}
-                        </p>
-                      </>
-                    )}
-                  </div>
-                )}
-
                 <LunaMascot
                   pose={modeTimeLimitMinutes ? "encourage" : "guide"}
                   decorative
@@ -708,27 +759,15 @@ export function GameShell({
                   sizes="160px"
                 />
               </div>
-
-              {currentMode && !attempt && (
-                <Button
-                  type="button"
-                  size="lg"
-                  className="mt-4 min-h-12 w-full rounded-game-action px-4 font-bold sm:mt-5 sm:px-7"
-                  disabled={isPending}
-                  onClick={beginMode}
-                >
-                  <PlayIcon data-icon="inline-start" aria-hidden="true" />
-                  {isPending ? t("starting") : t("beginMode", { mode: modeLabels[currentMode] })}
-                </Button>
-              )}
             </div>
           )}
         </div>
 
-        {!playerPracticeMode &&
+        {!isIntroduction &&
+          !playerPracticeMode &&
           hintsAllowed &&
           (currentMode || adminTestReplayMode) && (
-          <footer className="border-t border-border px-5 py-4 dark:border-border/10 sm:px-8">
+          <footer className={isActiveBoard ? activeStyles.hintFooter : "border-t border-border px-5 py-4 dark:border-border/10 sm:px-8"}>
             <HintButton
               sessionId={gameSession.id}
               initialBalance={gameSession.hintBalance}
@@ -737,6 +776,7 @@ export function GameShell({
               isAdminTest={gameSession.isAdminTest}
               testReference={gameSession.verse.reference}
               testVerseText={gameSession.verse.translationText}
+              className={isActiveBoard ? activeStyles.hintButton : undefined}
             />
           </footer>
         )}

@@ -1,16 +1,17 @@
+﻿/** Repository owns every shop read/write; clients never supply prices or grants. */
 import { RewardEventType, type Prisma } from "@/lib/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { calculateHintBalance } from "@/features/hints/lib/hint-balance";
-import { HINT_PACK_ITEM_TYPE } from "@/features/oil-shop/data/hint-shop-catalog";
-import type {
-  OilShopConflictCode,
-  OilShopData,
-  OilShopPurchaseResult,
-} from "@/features/oil-shop/types/oil-shop.types";
+import { normalizeAvatarKey, isFreeAvatar, type AvatarKey } from "@/features/profile/data/avatar-catalog";
+import { HINT_PACK_ITEM_TYPE } from "../data/hint-shop-catalog";
+import { AVATAR_ITEM_TYPE, avatarKeyForSlug } from "../data/avatar-shop-catalog";
+import type { OilShopConflictCode, OilShopData, OilShopPurchaseResult } from "../types/oil-shop.types";
 
+type ShopClient = Prisma.TransactionClient | typeof prisma;
+type ShopBalance = Pick<OilShopPurchaseResult, "balance" | "hintsRemaining" | "purchasedHints">;
 const purchaseTransactionOptions = { maxWait: 10_000, timeout: 30_000 } as const;
 
-/** Trusted purchase conflict mapped to a concise learner-facing action result. */
+/** Trusted conflicts expose safe learner-facing errors without raw database details. */
 export class OilShopConflictError extends Error {
   constructor(readonly code: OilShopConflictCode) {
     super(code);
@@ -18,11 +19,8 @@ export class OilShopConflictError extends Error {
   }
 }
 
-/** Sums immutable entitlement snapshots rather than mutable current product data. */
-async function getPurchasedHintTotal(
-  client: Prisma.TransactionClient | typeof prisma,
-  userId: string,
-): Promise<number> {
+/** Sum historical snapshots, including retired packs; avatar grants never count as hints. */
+async function getPurchasedHintTotal(client: ShopClient, userId: string): Promise<number> {
   const result = await client.userShopPurchase.aggregate({
     where: { userId, shopItem: { itemType: HINT_PACK_ITEM_TYPE } },
     _sum: { entitlementQuantity: true },
@@ -30,48 +28,88 @@ async function getPurchasedHintTotal(
   return result._sum.entitlementQuantity ?? 0;
 }
 
-/** Database boundary for the learner shop catalogue, inventory, and purchases. */
+/** Produce the same authoritative balance shape for a new purchase or a safe retry. */
+async function getPurchaseBalance(client: ShopClient, userId: string): Promise<ShopBalance> {
+  const [profile, usedHints, purchasedHints] = await Promise.all([
+    client.userProfile.findUnique({
+      where: { userId },
+      select: { totalGlowPoints: true, startingHintAllowance: true },
+    }),
+    client.hintUsage.count({ where: { userId } }),
+    getPurchasedHintTotal(client, userId),
+  ]);
+  return {
+    balance: profile?.totalGlowPoints ?? 0,
+    hintsRemaining: calculateHintBalance(usedHints, purchasedHints, profile?.startingHintAllowance),
+    purchasedHints,
+  };
+}
+
+/** Database boundary for authorized catalogue, permanent ownership and currency integrity. */
 export const oilShopRepository = {
-  /** Returns active hint products and the learner's server-derived balances. */
+  /** Five bounded reads per visit, no initialization, locks, polling or per-item queries. */
   async getShopData(userId: string): Promise<OilShopData> {
-    const [profile, items, usedHints, purchasedHints] = await Promise.all([
+    const [profile, items, usedHints, purchasedHints, ownership] = await Promise.all([
       prisma.userProfile.findUnique({
         where: { userId },
-        select: { totalGlowPoints: true, startingHintAllowance: true },
+        select: { totalGlowPoints: true, startingHintAllowance: true, avatarKey: true },
       }),
       prisma.shopItem.findMany({
-        where: { isActive: true, itemType: HINT_PACK_ITEM_TYPE },
+        where: {
+          isActive: true,
+          itemType: { in: [HINT_PACK_ITEM_TYPE, AVATAR_ITEM_TYPE] },
+        },
         orderBy: [{ cost: "asc" }, { name: "asc" }],
-        select: { id: true, name: true, description: true, cost: true, grantQuantity: true },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          itemType: true,
+          description: true,
+          cost: true,
+          grantQuantity: true,
+        },
       }),
       prisma.hintUsage.count({ where: { userId } }),
       getPurchasedHintTotal(prisma, userId),
+      prisma.userAvatarOwnership.findMany({
+        where: { userId },
+        select: { avatarKey: true },
+      }),
     ]);
+    const ownedKeys = new Set(ownership.map((owned) => owned.avatarKey));
 
     return {
       balance: profile?.totalGlowPoints ?? 0,
-      hintsRemaining: calculateHintBalance(
-        usedHints,
-        purchasedHints,
-        profile?.startingHintAllowance,
-      ),
+      hintsRemaining: calculateHintBalance(usedHints, purchasedHints, profile?.startingHintAllowance),
       purchasedHints,
-      items: items.map((item) => ({
-        id: item.id,
-        name: item.name,
-        description: item.description,
-        cost: item.cost,
-        hintQuantity: item.grantQuantity,
-      })),
+      equippedAvatarKey: normalizeAvatarKey(profile?.avatarKey),
+      avatars: items.flatMap((item) => {
+        const avatarKey = item.itemType === AVATAR_ITEM_TYPE
+          ? avatarKeyForSlug(item.slug) : undefined;
+        return avatarKey ? [{
+          id: item.id,
+          avatarKey,
+          cost: item.cost,
+          owned: ownedKeys.has(avatarKey),
+        }] : [];
+      }),
+      items: items
+        .filter((item) => item.itemType === HINT_PACK_ITEM_TYPE)
+        .map((item) => ({
+          id: item.id,
+          name: item.name,
+          description: item.description,
+          cost: item.cost,
+          hintQuantity: item.grantQuantity,
+        })),
     };
   },
 
   /**
-   * Atomically deducts Glow Points and grants a durable hint entitlement.
-   *
-   * WHY: The advisory lock serializes purchases for one learner. The guarded
-   * balance update, purchase snapshot, and negative immutable ledger row share
-   * one transaction, making partial inventory or negative balances impossible.
+   * One per-user lock serializes retries, repeated cosmetic requests, and purchases.
+   * Balance debit, immutable purchase/ledger and cosmetic ownership commit together.
+   * A conditional debit prevents negative balances even against other balance writers.
    */
   async purchaseItem(
     userId: string,
@@ -80,35 +118,58 @@ export const oilShopRepository = {
   ): Promise<OilShopPurchaseResult> {
     return prisma.$transaction(async (transaction) => {
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('scripture-memo-shop'), hashtext(${userId}))`;
-
       const prior = await transaction.userShopPurchase.findUnique({
         where: { idempotencyKey },
-        include: { shopItem: { select: { name: true } } },
+        select: {
+          userId: true,
+          shopItemId: true,
+          shopItem: { select: { name: true, slug: true, itemType: true } },
+        },
       });
       if (prior) {
         if (prior.userId !== userId || prior.shopItemId !== itemId) {
           throw new OilShopConflictError("ITEM_UNAVAILABLE");
         }
-        const [profile, usedHints, purchasedHints] = await Promise.all([
-          transaction.userProfile.findUnique({ where: { userId }, select: { totalGlowPoints: true, startingHintAllowance: true } }),
-          transaction.hintUsage.count({ where: { userId } }),
-          getPurchasedHintTotal(transaction, userId),
-        ]);
         return {
+          ...await getPurchaseBalance(transaction, userId),
           itemName: prior.shopItem.name,
-          balance: profile?.totalGlowPoints ?? 0,
-          hintsRemaining: calculateHintBalance(usedHints, purchasedHints, profile?.startingHintAllowance),
-          purchasedHints,
+          avatarKey: prior.shopItem.itemType === AVATAR_ITEM_TYPE
+            ? avatarKeyForSlug(prior.shopItem.slug) : undefined,
         };
       }
 
       const item = await transaction.shopItem.findFirst({
         where: { id: itemId, isActive: true },
-        select: { id: true, name: true, itemType: true, cost: true, grantQuantity: true },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          itemType: true,
+          cost: true,
+          grantQuantity: true,
+        },
       });
       if (!item) throw new OilShopConflictError("ITEM_UNAVAILABLE");
-      if (item.itemType !== HINT_PACK_ITEM_TYPE || item.grantQuantity <= 0) {
+      const avatarKey = item.itemType === AVATAR_ITEM_TYPE
+        ? avatarKeyForSlug(item.slug) : undefined;
+      if ((!avatarKey && item.itemType !== HINT_PACK_ITEM_TYPE) || item.grantQuantity <= 0 || item.cost < 0) {
         throw new OilShopConflictError("INVALID_ITEM_TYPE");
+      }
+
+      // Ownership is unique and permanent. A second request key for the same
+      // portrait succeeds without another purchase, ledger entry or currency debit.
+      if (avatarKey) {
+        const owned = await transaction.userAvatarOwnership.findUnique({
+          where: { userId_avatarKey: { userId, avatarKey } },
+          select: { avatarKey: true },
+        });
+        if (owned) {
+          return {
+            ...await getPurchaseBalance(transaction, userId),
+            itemName: item.name,
+            avatarKey,
+          };
+        }
       }
 
       const deducted = await transaction.userProfile.updateMany({
@@ -116,8 +177,7 @@ export const oilShopRepository = {
         data: { totalGlowPoints: { decrement: item.cost } },
       });
       if (deducted.count !== 1) throw new OilShopConflictError("INSUFFICIENT_BALANCE");
-
-      await transaction.userShopPurchase.create({
+      const purchase = await transaction.userShopPurchase.create({
         data: {
           userId,
           shopItemId: item.id,
@@ -127,7 +187,13 @@ export const oilShopRepository = {
           entitlementQuantity: item.grantQuantity,
           idempotencyKey,
         },
+        select: { id: true },
       });
+      if (avatarKey) {
+        await transaction.userAvatarOwnership.create({
+          data: { userId, avatarKey, purchaseId: purchase.id },
+        });
+      }
       await transaction.rewardLedger.create({
         data: {
           userId,
@@ -137,18 +203,23 @@ export const oilShopRepository = {
           idempotencyKey: `shop:${idempotencyKey}`,
         },
       });
-
-      const [profile, usedHints, purchasedHints] = await Promise.all([
-        transaction.userProfile.findUnique({ where: { userId }, select: { totalGlowPoints: true, startingHintAllowance: true } }),
-        transaction.hintUsage.count({ where: { userId } }),
-        getPurchasedHintTotal(transaction, userId),
-      ]);
       return {
+        ...await getPurchaseBalance(transaction, userId),
         itemName: item.name,
-        balance: profile?.totalGlowPoints ?? 0,
-        hintsRemaining: calculateHintBalance(usedHints, purchasedHints, profile?.startingHintAllowance),
-        purchasedHints,
+        avatarKey,
       };
     }, purchaseTransactionOptions);
+  },
+
+  /** Permanent ownership makes a pre-write check safe; equipping never spends points. */
+  async equipAvatar(userId: string, avatarKey: AvatarKey): Promise<void> {
+    if (!isFreeAvatar(avatarKey)) {
+      const owned = await prisma.userAvatarOwnership.findUnique({
+        where: { userId_avatarKey: { userId, avatarKey } },
+        select: { avatarKey: true },
+      });
+      if (!owned) throw new OilShopConflictError("ITEM_UNAVAILABLE");
+    }
+    await prisma.userProfile.update({ where: { userId }, data: { avatarKey } });
   },
 } as const;

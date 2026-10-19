@@ -38,12 +38,12 @@ export type LeaderboardRanking = {
   entries: LeaderboardEntry[];
   currentUser: LeaderboardEntry | null;
   rivals: LeaderboardEntry[];
-  page: number;
-  totalPages: number;
   totalPlayers: number;
 };
 
 export type LeaderboardPageData = LeaderboardRanking & {
+  /** Snapshot time for an accurate, hydration-safe initial league countdown. */
+  generatedAt: number;
   needsEnrollment: boolean;
   scope: LeaderboardScope;
   countryCode: string | null;

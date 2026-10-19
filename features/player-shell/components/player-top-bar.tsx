@@ -3,27 +3,21 @@
 import { useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
-import {
-  FlameIcon,
-  GemIcon,
-  HomeIcon,
-  MapIcon,
-  SettingsIcon,
-  SparklesIcon,
-  TrophyIcon,
-  UsersRoundIcon,
-  VaultIcon,
-} from "lucide-react";
+import { GameArtwork } from "@/components/shared/game-artwork";
+import { GlowBalanceCounter } from "./glow-balance-counter";
+import { NavigationButton } from "@/components/shared/navigation-button";
 import { NotificationCenter } from "@/features/notifications";
+import { PlayerAvatar } from "@/features/profile";
 import type { NotificationShellData } from "@/features/notifications/types/notification.types";
 import type { PlayerShellSummary } from "@/features/player-shell/types/player-shell.types";
+import styles from "./player-shell.module.css";
+import { getPlayerSection } from "../lib/player-route-presentation";
 
-type SectionIdentity = {
-  label: string;
-  icon: React.ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
-};
-
-/** Renders global player counters without competing with route-owned content. */
+/**
+ * Renders real counters, the selected avatar, and the existing persistent inbox.
+ * No client polling or new identity endpoint is needed: the request-cached shell
+ * query already returns the minimal public presentation fields for this user.
+ */
 export function PlayerTopBar({
   summary,
   notifications,
@@ -33,97 +27,69 @@ export function PlayerTopBar({
 }>): React.ReactNode {
   const pathname = usePathname();
   const locale = useLocale();
-  const navigationT = useTranslations("Navigation");
-  const leaderboardT = useTranslations("Leaderboard");
+  const t = useTranslations("Navigation");
   const topBarT = useTranslations("PlayerTopBar");
   const numberFormatter = useMemo(
-    () =>
-      new Intl.NumberFormat(locale, {
-        notation: "compact",
-        maximumFractionDigits: 1,
-      }),
+    () => new Intl.NumberFormat(locale, {
+      notation: "compact",
+      maximumFractionDigits: 1,
+    }),
     [locale],
   );
-
-  const section: SectionIdentity = pathname.startsWith("/leaderboard")
-    ? { label: leaderboardT("title"), icon: TrophyIcon }
-    : pathname.startsWith("/game/map") || pathname.startsWith("/game/waypoints")
-      ? { label: navigationT("map"), icon: MapIcon }
-      : pathname.startsWith("/vault") || pathname.startsWith("/sanctuary")
-        ? { label: navigationT("vault"), icon: VaultIcon }
-        : pathname.startsWith("/fellowships")
-          ? { label: navigationT("fellowships"), icon: UsersRoundIcon }
-          : pathname.startsWith("/settings")
-            ? { label: navigationT("settings"), icon: SettingsIcon }
-            : { label: navigationT("home"), icon: HomeIcon };
-  const SectionIcon = section.icon;
-
+  const section = getPlayerSection(pathname);
   const stats = [
-    {
-      label: topBarT("glowPoints"),
-      value: summary.glowPoints,
-      icon: GemIcon,
-      className: "text-reward-text",
-    },
-    {
-      label: topBarT("streakDays"),
-      value: summary.streakDays,
-      icon: FlameIcon,
-      className: "text-decoration-text",
-    },
-    {
-      label: topBarT("beaconPoints"),
-      value: summary.beaconPoints,
-      icon: SparklesIcon,
-      className: "text-selection-text",
-    },
+    { label: topBarT("streakDays"), value: summary.streakDays, artwork: "flameLit" },
+    { label: topBarT("beaconPoints"), value: summary.beaconPoints, artwork: "beacon" },
   ] as const;
 
   return (
-    <header className="fixed top-0 right-0 left-0 z-30 h-16 border-b border-border/70 bg-card/95 text-card-foreground backdrop-blur-xl md:left-24 xl:left-48">
-      <div className="flex h-full min-w-0 items-center gap-2 px-2.5 sm:px-4">
-        <div className="flex min-w-0 items-center gap-2 sm:flex-1">
-          <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary/12 text-primary">
-            <SectionIcon className="size-5" aria-hidden={true} />
-          </span>
-          {/* WHY: Narrow phones do not have enough horizontal room for a route
-           * label plus three counters and notifications. The icon communicates
-           * the current section without clipping an unfinished word. */}
-          <span className="hidden truncate font-heading text-sm font-bold sm:inline sm:text-base">
-            {section.label}
-          </span>
-        </div>
-
-        <div className="ml-auto flex min-w-0 items-center gap-1.5 sm:gap-2">
-          {stats.map((stat) => {
-            const StatIcon = stat.icon;
-            return (
-              <div
-                key={stat.label}
-                title={`${stat.label}: ${stat.value.toLocaleString(locale)}`}
-                className="flex min-h-10 min-w-0 items-center gap-1 rounded-2xl border border-border/70 bg-background px-2 sm:px-3"
-              >
-                <StatIcon
-                  className={`size-4 shrink-0 ${stat.className}`}
-                  aria-hidden="true"
-                />
-                <span className="text-xs font-bold tabular-nums sm:text-sm">
-                  {numberFormatter.format(stat.value)}
-                </span>
-                <span className="sr-only">{stat.label}</span>
-              </div>
-            );
-          })}
-
-          <NotificationCenter
-            key={
-              notifications.pendingLeagueResult?.id ??
-              notifications.items[0]?.id ??
-              "empty-notifications"
-            }
-            data={notifications}
+    <header className={styles.topBar}>
+      <div className={styles.sectionIdentity}>
+        <span className={styles.sectionArtwork}>
+          <GameArtwork
+            name={section?.artwork ?? "home"}
+            className="size-9"
+            sizes="36px"
           />
-        </div>
+        </span>
+        <span>{t(section?.key ?? "home")}</span>
+      </div>
+      <div className={styles.counters}>
+        <NavigationButton
+          href="/settings"
+          pendingLabel={t("opening")}
+          variant="ghost"
+          aria-label={topBarT("openProfile", { name: summary.displayName ?? "" })}
+          className={styles.avatarButton}
+        >
+          <PlayerAvatar
+            avatarKey={summary.avatarKey ?? null}
+            frameKey={summary.avatarFrameKey ?? null}
+            displayName={summary.displayName ?? ""}
+            size="sm"
+            className={styles.playerAvatar}
+          />
+        </NavigationButton>
+        <GlowBalanceCounter value={summary.glowPoints} />
+        {stats.map(({ label, value, artwork }) => (
+          <div
+            key={label}
+            className={styles.counter}
+            title={`${label}: ${value.toLocaleString(locale)}`}
+          >
+            <GameArtwork
+              name={artwork}
+              className={styles.counterArtwork}
+              sizes="40px"
+            />
+            <span className={styles.counterValue}>{numberFormatter.format(value)}</span>
+            <span className="sr-only">{label}</span>
+          </div>
+        ))}
+        <NotificationCenter
+          key={notifications.pendingLeagueResult?.id ?? notifications.items[0]?.id ?? "empty-notifications"}
+          data={notifications}
+        />
       </div>
     </header>
   );

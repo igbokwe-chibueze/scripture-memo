@@ -27,7 +27,6 @@ const completedSession: GameplaySessionData = {
   },
   completedModes: [GameMode.DRAG_DROP, GameMode.PUZZLE],
   currentMode: null,
-  audioEnabled: true,
   hintBalance: 0,
   beaconProgress: {
     lifetimeXp: 0,

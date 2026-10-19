@@ -8,11 +8,13 @@ writing code. When any supporting document conflicts with this file, this root
 do not replace these implementation rules.
 
 <!-- BEGIN:nextjs-agent-rules -->
-## This is NOT the Next.js you know
 
-This version has breaking changes — APIs, conventions, and file structure may
-all differ from your training data. Read the relevant guide in
-`node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
 <!-- END:nextjs-agent-rules -->
 
 ---
@@ -42,7 +44,7 @@ all differ from your training data. Read the relevant guide in
 Scripture Memo helps users memorize Bible verses through an expanding sequential
 waypoint curriculum bootstrapped with 400 records. Administrators append new
 waypoints to the same continuous history. Each waypoint is assigned one verse
-and a Journey Stage. Users complete a Three-Day Challenge (Glimmer → Glow →
+and a Journey Stage. Users complete a Three-Stage Challenge (Glimmer → Glow →
 Radiance) at every waypoint using five game modes per day (Drag & Drop → Puzzle
 → Swap → Cue → Fill). The app rewards learning with Glow Points (the only
 currency), streaks, and a Badge System.
@@ -516,7 +518,7 @@ The same verse may appear at multiple waypoints with different Journey Stages. T
   repository-owned PostgreSQL advisory locks documented by the waypoint and
   verse repositories. Client-side disabled controls are never the authority.
 
-### 8.3 Three-Day Challenge Rules
+### 8.3 Three-Stage Challenge Rules
 
 ```
 Day 1 (GLIMMER): 20–35% words hidden. Available immediately on waypoint unlock.

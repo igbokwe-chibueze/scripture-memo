@@ -102,7 +102,13 @@ export async function completeGameModeAction(
     }
     return {
       success: true,
-      message: result.status === "day-complete" ? "Challenge day complete!" : "Mode complete!",
+      message: result.status === "day-complete"
+        ? `${{
+            GLIMMER: "Glimmer",
+            GLOW: "Glow",
+            RADIANCE: "Radiance",
+          }[result.dayCompletion.completedDay]} Complete!`
+        : "Mode complete!",
       data: result,
     };
   } catch (error) {

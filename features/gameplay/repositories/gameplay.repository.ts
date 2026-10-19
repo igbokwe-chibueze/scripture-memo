@@ -403,11 +403,6 @@ export const gameplayRepository = {
           where: { status: GameModeAttemptStatus.COMPLETED },
           select: { gameMode: true },
         },
-        user: {
-          select: {
-            settings: { select: { audioEnabled: true } },
-          },
-        },
       },
     });
     if (!session?.waypointId || !session.dayLevel || !session.waypoint) {
@@ -439,7 +434,6 @@ export const gameplayRepository = {
         session.attempts.some((attempt) => attempt.gameMode === mode),
       ),
       currentMode: null,
-      audioEnabled: session.user.settings?.audioEnabled ?? true,
       hintBalance: 0,
       beaconProgress: {
         lifetimeXp: 0,
@@ -479,22 +473,15 @@ export const gameplayRepository = {
           },
           attempts: {
             where: { status: GameModeAttemptStatus.COMPLETED },
-            select: { gameMode: true },
+            select: { id: true, gameMode: true },
             orderBy: { createdAt: "asc" },
           },
         },
       }),
-      // WHY: Settings and Beacon progress are one-to-one relations on the same
-      // learner. Selecting both through User removes one database operation
-      // from every gameplay render without broadening the returned data.
+      // Load only trusted gameplay progress; presentation preferences stay local.
       prisma.user.findUnique({
         where: { id: userId },
         select: {
-          settings: {
-            select: {
-              audioEnabled: true,
-            },
-          },
           profile: {
             select: {
               beaconXp: true,
@@ -512,7 +499,6 @@ export const gameplayRepository = {
     ]);
     if (!session) return null;
 
-    const settings = userSummary?.settings;
     const profile = userSummary?.profile;
 
     const translation =
@@ -529,6 +515,47 @@ export const gameplayRepository = {
         ? session.adminTestMode
         : null
       : getCurrentMode(completedModes);
+
+    // Completed routes need their recorded summary, not the live-only result
+    // kept in FillMode state. These two bounded indexed reads run only after
+    // all modes finish; active sessions add no query and no read path writes.
+    let completedStage: GameplaySessionData["completedStage"];
+    if (
+      session.status === CompletionStatus.COMPLETED &&
+      !session.isAdminTest &&
+      !session.isVaultReplay &&
+      session.dayLevel &&
+      session.waypointId &&
+      completedModes.length === GAME_MODE_ORDER.length
+    ) {
+      const [progress, xp] = await Promise.all([
+        prisma.userDayProgress.findUnique({
+          where: {
+            userId_waypointId_dayLevel: {
+              userId,
+              waypointId: session.waypointId,
+              dayLevel: session.dayLevel,
+            },
+          },
+          select: { glowPointsAwarded: true },
+        }),
+        prisma.beaconXpLedger.aggregate({
+          where: {
+            userId,
+            idempotencyKey: {
+              in: session.attempts.map((attempt) => `mode:${attempt.id}`),
+            },
+          },
+          _sum: { amount: true },
+        }),
+      ]);
+      if (progress) {
+        completedStage = {
+          glowPoints: progress.glowPointsAwarded,
+          earnedXp: xp._sum.amount ?? 0,
+        };
+      }
+    }
 
     return {
       id: session.id,
@@ -547,7 +574,7 @@ export const gameplayRepository = {
       },
       completedModes,
       currentMode,
-      audioEnabled: settings?.audioEnabled ?? true,
+      completedStage,
       hintBalance: calculateHintBalance(
         usedHintCount,
         purchasedHints._sum.entitlementQuantity ?? 0,
@@ -1000,6 +1027,11 @@ export const gameplayRepository = {
           : reward;
       return {
         status: "day-complete",
+        // Reaching this branch proves the four preceding mode awards completed.
+        // Include them in the presentation total without another query or award;
+        // earnedXp already contains the final mode and stage/waypoint bonuses.
+        stageEarnedXp:
+          beaconProgression.earnedXp + BEACON_MODE_XP * (GAME_MODE_ORDER.length - 1),
         gameMode: requestedMode,
         nextMode: null,
         dayCompletion: { ...dayCompletion, reward: finalReward },

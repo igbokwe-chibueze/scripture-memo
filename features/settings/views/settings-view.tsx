@@ -6,6 +6,7 @@ import { ResponsiveContainer } from "@/components/shared/responsive-container";
 import { StatCard } from "@/components/shared/stat-card";
 import { SettingsForm } from "@/features/settings/components/settings-form";
 import { getSettingsPageData } from "@/features/settings/lib/get-settings-page-data";
+import { NavigationButton } from "@/components/shared/navigation-button";
 
 export const metadata: Metadata = {
   title: "Settings | Scripture Memo",
@@ -20,29 +21,65 @@ export async function SettingsView(): Promise<React.ReactNode> {
 
   return (
     <main className="min-h-svh bg-background py-8">
-      <ResponsiveContainer size="md" className="space-y-8">
+      <ResponsiveContainer
+        size="md"
+        className="space-y-8"
+      >
         <PageHeader
           eyebrow={t("eyebrow")}
           title={t("title")}
           description={t("description")}
         />
 
-        <section aria-label={t("journeyStats")} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard label={t("glowPoints")} value={data.stats.totalGlowPoints} icon={<SparklesIcon />} />
-          <StatCard label={t("waypoints")} value={data.stats.totalWaypointsCompleted} icon={<MapPinCheckIcon />} />
-          <StatCard
-            label={t("currentStreak")}
-            value={data.stats.currentStreak}
-            supportingText={t("bestStreak", { count: data.stats.bestStreak })}
-            icon={<FlameIcon />}
-          />
-          <StatCard label={t("hintsUsed")} value={data.stats.totalHintsUsed} icon={<LightbulbIcon />} />
-        </section>
-
         <SettingsForm
           initialValues={data.formValues}
           isPartner={data.isPartner}
+          profileSummary={(
+            <section
+              aria-label={t("journeyStats")}
+              className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
+            >
+              <StatCard
+                label={t("glowPoints")}
+                value={data.stats.totalGlowPoints}
+                icon={<SparklesIcon />}
+              />
+              <StatCard
+                label={t("waypoints")}
+                value={data.stats.totalWaypointsCompleted}
+                icon={<MapPinCheckIcon />}
+              />
+              <StatCard
+                label={t("currentStreak")}
+                value={data.stats.currentStreak}
+                supportingText={t("bestStreak", { count: data.stats.bestStreak })}
+                icon={<FlameIcon />}
+              />
+              <StatCard
+                label={t("hintsUsed")}
+                value={data.stats.totalHintsUsed}
+                icon={<LightbulbIcon />}
+              />
+            </section>
+          )}
+          learningResources={(
+            <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
+              <h2 className="font-heading text-xl font-bold">Guides & updates</h2>
+              <p className="text-sm text-muted-foreground">
+                Find answers about challenges, Beacon Levels, rewards, and what’s new.
+              </p>
+              <NavigationButton
+                href="/blog"
+                pendingLabel="Opening guides"
+                variant="outline"
+                className="min-h-11"
+              >
+                Open the journal
+              </NavigationButton>
+            </section>
+          )}
         />
+
       </ResponsiveContainer>
     </main>
   );

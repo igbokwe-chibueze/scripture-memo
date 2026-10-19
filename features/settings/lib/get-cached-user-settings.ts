@@ -7,7 +7,7 @@ import type { UserSettingsValues } from "@/features/settings/repositories/settin
 /**
  * Shares one settings read across callers participating in the same render.
  *
- * WHY: Locale fallback, the protected application shell, and the Settings page
+ * WHY: Account timezone setup, gameplay translation, and the Settings page
  * can all need the same row. React's request/render-scoped cache deduplicates
  * that read without allowing one learner's private preferences to leak into a
  * later request or become stale in a process-wide cache.

@@ -63,7 +63,11 @@ export type GameplaySessionData = {
   };
   completedModes: GameMode[];
   currentMode: GameMode | null;
-  audioEnabled: boolean;
+  /** Persisted result for reopening a finished campaign stage; never re-awarded. */
+  completedStage?: {
+    glowPoints: number;
+    earnedXp: number;
+  };
   hintBalance: number;
   beaconProgress: {
     lifetimeXp: number;
@@ -117,6 +121,8 @@ export type CompleteModeResult =
     }
   | {
       status: "day-complete";
+      /** All five mode awards plus bonuses granted at this stage's completion. */
+      stageEarnedXp: number;
       gameMode: GameMode;
       nextMode: null;
       dayCompletion: CompleteDayResult & { reward: DayRewardResult };

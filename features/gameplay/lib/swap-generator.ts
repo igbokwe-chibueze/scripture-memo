@@ -1,5 +1,6 @@
 import { deterministicShuffle } from "@/features/gameplay/lib/deterministic-random";
 import type { VerseToken } from "@/features/gameplay/lib/verse-tokenizer";
+import { normalizeGameplayAnswer } from "./answer-validator";
 
 export type SwapToken = {
   /** Current visible slot. */
@@ -17,7 +18,8 @@ export type SwapToken = {
  * WHY: Tokens are tracked by original index, never by word text. In “the Lord
  * is my Lord”, both Lord occurrences remain distinguishable even though their
  * display text matches. Selected occurrences rotate through chosen positions;
- * validation succeeds only when every `originalIndex` returns to its position.
+ * occurrence IDs support interaction only. Correctness compares the visible
+ * wording with the canonical slot so equivalent repeated words are interchangeable.
  */
 export function generateSwapTokens(
   tokens: readonly VerseToken[],
@@ -62,9 +64,20 @@ export function generateSwapTokens(
   });
 }
 
-/** Position identity makes duplicate-word validation unambiguous. */
-export function areSwapTokensCorrect(tokens: readonly SwapToken[]): boolean {
-  return tokens.every(({ position, originalIndex }) => position === originalIndex);
+/** Compare wording, never hidden occurrence identity, against the canonical slot. */
+function isSwapTokenCorrect(token: SwapToken, verseTokens: readonly VerseToken[]): boolean {
+  const expected = verseTokens[token.position];
+  return expected !== undefined &&
+    normalizeGameplayAnswer(token.text) === expected.normalizedText;
+}
+
+/** A complete visible reconstruction must match the canonical words in every slot. */
+export function areSwapTokensCorrect(
+  tokens: readonly SwapToken[],
+  verseTokens: readonly VerseToken[],
+): boolean {
+  return tokens.length === verseTokens.length &&
+    tokens.every((token) => isSwapTokenCorrect(token, verseTokens));
 }
 
 /**
@@ -110,14 +123,14 @@ export function swapTokenPositions(
   });
 }
 
-/** Returns every eligible slot whose occurrence has not reached its origin. */
+/** Mark only genuinely different words; equivalent duplicates never become red. */
 export function getIncorrectSwapPositions(
   tokens: readonly SwapToken[],
+  verseTokens: readonly VerseToken[],
 ): number[] {
   return tokens
     .filter(
-      ({ isSwappable, position, originalIndex }) =>
-        isSwappable && position !== originalIndex,
+      (token) => token.isSwappable && !isSwapTokenCorrect(token, verseTokens),
     )
     .map(({ position }) => position);
 }
