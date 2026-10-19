@@ -626,3 +626,13 @@ Accepted risk justification (if applicable):
 - Existing debit/ledger/idempotency/unique-ownership protections remain intact.
   Local PostgreSQL checks additionally cover returned ownership and continued
   access to retired cosmetic inventory. No schema change or hosted operation.
+
+
+### Player profiles and friends - 2026-10-19
+
+- Every mutation validates strict Zod inputs before a server session check; actor IDs are session-derived. Repositories verify current account eligibility, request ownership/direction, and blocks. Expected uniqueness/cooldown failures are safe; operational failures use SOC-001.
+- Public profile DTOs deliberately exclude email, private account/profile IDs, Glow balance, notes and friend lists. Only the authenticated owner's graph is listed. Blocked and unavailable profiles return the same neutral unavailable state; blocked pairs are excluded in both discovery directions. Shared fellowships remain unchanged.
+- Database lowercase/unique username enforcement and 30-day server cooldown survive concurrent claims. Canonical friendship pair, self-link/request-owner/acceptance constraints and sorted participant locks serialize conflicting requests, acceptance and blocks. Block notices are never sent; old social notices between the pair are removed.
+- Outgoing new requests have a shared database-backed 30/hour actor quota. Explicit paginated search and disabled social-link prefetch bound directory reads. No read-time writes or polling were added.
+- Invitations reveal no identity while signed out and retain only a validated internal profile return path through existing verification/onboarding. Visiting or registering never implicitly creates friendship.
+- Isolated real PostgreSQL tests cover duplicate and crossed requests, unauthorized acceptance/cancellation, unique-handle races and cooldowns, private-field exclusion, stable UUIDs after renaming, both-way block visibility, block/accept races, ownership of unblock, request quotas and banned targets. Tests use the existing guarded disposable local runner because Prisma Local multiplexing cannot safely exercise competing unique-constraint transactions. No hosted database was used.

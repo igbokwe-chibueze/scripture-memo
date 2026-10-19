@@ -52,7 +52,15 @@ const CONCURRENCY_TEST_FILES = [
   "features/gameplay/repositories/gameplay-submission-limit.repository.test.ts",
   "features/gameplay/repositories/gameplay-completion-concurrency.repository.test.ts",
   "features/fellowships/repositories/fellowship-governance-concurrency.repository.test.ts",
+  "features/friends/repositories/friend.repository.test.ts",
 ] as const;
+
+// Social claims deliberately race unique constraints and transactions. Prisma
+// Local multiplexes one connection, so --social uses this real disposable server
+// for the focused feature suite without rerunning unrelated concurrency suites.
+const selectedTestFiles = process.argv.includes("--social")
+  ? ["features/friends/repositories/friend.repository.test.ts"]
+  : CONCURRENCY_TEST_FILES;
 
 /** Reserve an ephemeral loopback port so the test server never assumes 5432. */
 async function findAvailableLoopbackPort(): Promise<number> {
@@ -252,7 +260,7 @@ async function runLocalConcurrencyTests(): Promise<void> {
       testEnvironment,
     );
 
-    for (const testFile of CONCURRENCY_TEST_FILES) {
+    for (const testFile of selectedTestFiles) {
       console.info(`Running ${testFile}…`);
       await runNodeScript(
         testFile,

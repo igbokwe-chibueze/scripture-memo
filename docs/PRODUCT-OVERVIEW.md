@@ -1555,8 +1555,9 @@ Social group system.
   determine this member ranking. The visible label is Lifetime Beacon Points.
 - Member rows navigate to `/profiles/[publicId]`. Each profile has an independent,
   stable public UUID; private auth and profile-record IDs are not exposed. The
-  authenticated, noindex destination is an empty coming-soon screen until the
-  profile feature is built. It performs no member lookup or initialization write.
+  authenticated, noindex destination shows the player's approved public profile
+  fields. Blocked and unavailable profiles share a neutral not-found state;
+  visiting a profile never initializes data or changes friendships.
   Row prefetch is disabled to avoid an authenticated request per visible member.
 - Across all fellowship detail tabs, the desktop rail shows Together so far above
   the unchanged bottom donation card: combined lifetime Beacon Points and completed
@@ -1753,6 +1754,55 @@ Admin settings (Super Admin only):
   to the editor. Existing player navigation remains unchanged.
 - Ordinary article reads do not write data or award rewards. Blog publication
   never exposes gated verse-study content or private player/account records.
+
+### 15.11 Player Profiles and Friends (owner-approved 2026-10-19)
+
+- Preserve private account IDs and existing permanent public profile UUIDs.
+  `/profiles` opens your own profile; `/profiles/[publicId]` remains stable when
+  a display name or username changes. Only signed-in, active players can view
+  profiles; pages and invitation entry points are noindex and stay out of sitemaps.
+- Display names remain expressive, changeable and non-unique. Players explicitly
+  choose a unique username in their own profile: 3-24 ASCII letters, digits or
+  underscores, normalized to lowercase. Optional leading @ is accepted in the
+  form. Database uniqueness and a format constraint enforce case-insensitive
+  ownership. Existing/new profiles keep a null handle until the player chooses;
+  no handle is invented and ordinary learning is not gated on this choice.
+- A first claim or real change starts a server-enforced 30-day username cooldown.
+  Saving the same handle does not restart it. Friendships reference private
+  permanent account IDs; browser DTOs and shared URLs expose public UUIDs only.
+- Profiles show the selected avatar/frame, display name, handle, optional country,
+  join date, Beacon Level, lifetime Beacon XP, completed waypoints, current/best
+  streak and earned badges. Email, Glow balance, private notes and friend lists
+  are excluded. Earned badge presentation is capped to the 60 most recent entries.
+- `/friends` is linked from Home and profiles. The owner's private tabs show
+  Friends, incoming Requests, Sent requests, Find players and Blocked players.
+  Lists use 20-row pages plus one lookahead row, without a separate count query.
+  Search is explicitly submitted, uses at least two characters, and accepts an
+  exact @handle or a handle/display-name prefix. Search never returns the viewer.
+- Sending a request never creates an accepted friendship. Only its recipient
+  can accept or decline; the sender can cancel. Either friend can remove an
+  accepted friendship. Crossing requests still require explicit acceptance.
+  Pair uniqueness, database checks and sorted participant transaction locks
+  prevent duplicate friendships and resolve concurrent block/accept operations.
+- Blocking privately removes the friendship and pending requests, removes old
+  social notices between the pair, hides each profile/search result from the
+  other and rejects new requests in either direction. It does not change shared
+  fellowships. Only the blocker can unblock; unblocking restores no relationship.
+  Block and remove-friend controls ask for confirmation before mutation.
+- New requests and accepted requests create transactionally consistent inbox
+  notices. Newly created outgoing requests are limited to 30 per actor per hour
+  with a database-backed counter. Idempotent retries do not consume another
+  request or create duplicate notices. No friend activity awards currency or XP.
+- One Share profile button uses the existing public UUID URL for both existing
+  and new players, without a separate invitation route or welcome page.
+  Registration, email verification, login and translation onboarding retain the
+  inviter's profile as the validated next destination. No auto-friending occurs.
+  Native sharing has a selectable/copyable link fallback when unsupported.
+- Reads perform no writes, advisory locks, initialization or polling. A profile
+  uses one bounded nested read plus at most one relationship lookup. A list uses
+  an owner-link read plus one bounded list; search adds one batched relationship
+  read instead of per-result lookups. New social links disable speculative
+  prefetch to avoid multiplying those reads before a player clicks.
 
 ## 16. Reusable Components
 

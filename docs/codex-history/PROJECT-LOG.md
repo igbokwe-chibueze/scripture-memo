@@ -5708,3 +5708,27 @@ concurrency subtests remain explicitly skipped as documented above.
 - Mobile hero now aligns the balance card and Meemo at the lower edge, retaining the narrower oval and original artwork proportions. Desktop rules are unchanged.
 - One reusable receipt number now counts both hint balances and avatar collection totals from the previous value to the acknowledged total. Starts after the entrance (350ms) and counts over 1.2 seconds; reduced-motion users receive the final total immediately. Existing hint animation had remained present with a longer delay; avatar count had been static.
 - TypeScript and scoped ESLint passed. Live browser visual verification was unavailable.
+
+
+### 2026-10-19 - Player profiles, usernames and friends
+
+- Replaced authenticated profile placeholders with real public-field profiles and an own-profile redirect. Header avatar opens your profile; Home includes Friends. Kept approved fonts, game controls, original permanent public UUIDs and private auth IDs. No global button redesign.
+- Players choose lowercase unique 3-24 character handles in their own profile; database canonical/unique constraints and server 30-day cooldown apply. Existing/new users have no invented handle. Display-name duplicates remain allowed. Stable links/friendships survive renaming.
+- Added owner-only paginated Friends/Requests/Sent/Find players/Blocked hub. Explicit prefix or exact @handle search, literal wildcard escaping, 20-row pages and disabled social-link prefetch. Profiles exclude email, Glow balance, notes and friend lists. No polling or read-time initialization.
+- Added request/accept/decline/cancel/unfriend/block/unblock server flows. Canonical pair constraints and sorted participant locks preserve consent and handle races. A shared 30/hour new-request quota and transactional inbox notices prevent request amplification; blocks remove connections/notices and hide profiles/search in both directions. Only an owner can unblock, including suspended targets, without recreating friendships.
+- Native profile/invitation sharing has selectable clipboard fallback. Neutral /connect/[publicId] entry discloses no signed-out player identity; existing validated login/verification/translation return paths resume the inviter profile without automatic friending. Uppercase public UUIDs normalize before Prisma queries.
+- Additive migration 20261019180000_player_profiles_and_friends applied only to local dev 51214 and isolated test 51224; no hosted operations. Concurrency suite uses the existing disposable embedded PostgreSQL runner (--social), added to default concurrency coverage. Prisma Local's single-connection adapter cannot safely run competing unique-constraint transactions.
+- Validation: production build and TypeScript passed; 202 database-free tests, locale/design/error contracts and scoped ESLint passed. Real local PostgreSQL suite verifies uniqueness/cooldown, request ownership/idempotence, block/accept races, privacy, quotas and stable IDs. Synthetic actual-component Edge checks cover seven 375px/desktop/light/dark/en/es/fr layouts, long names, 44px controls, no overflow, sharing links, focus/Escape, close-button clearance and block confirmation. Screenshots/results retained in .local-backups/social-qa; temporary QA scripts removed. Product/roadmap/security docs updated. Ready for owner review.
+
+
+### 2026-10-19 - One profile sharing flow
+
+- Removed the redundant Invite someone new button. Share profile always creates /profiles/[publicId] links for both existing and new players; existing login/registration return paths resume that profile.
+- Previously shared /connect/[publicId] links validate the UUID and redirect directly to the profile, with no separate landing screen or database/session read. No automatic friendship is created.
+- Updated product documentation. TypeScript, scoped ESLint and all eight social unit tests passed. No database or shared button changes.
+
+
+### 2026-10-19 - Remove unused connect route
+
+- Owner confirmed no connect links were used. Deleted app/connect and its unused player-invite view completely; no redirect remains. Sharing uses profiles only. Updated the product specification.
+- Regenerated Next route types and passed TypeScript. Verified no connect route or runtime references remain.

@@ -56,7 +56,8 @@ export function PlayerTopBar({
       </div>
       <div className={styles.counters}>
         <NavigationButton
-          href="/settings"
+          href="/profiles"
+          prefetch={false}
           pendingLabel={t("opening")}
           variant="ghost"
           aria-label={topBarT("openProfile", { name: summary.displayName ?? "" })}

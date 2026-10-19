@@ -20,7 +20,9 @@ test("Vault children and waypoint Map links retain their intended selection", ()
   assert.equal(isPlayerNavigationActive("/vaulted", "/vault", false), false);
 });
 
-test("member profile placeholders own their header without selecting another destination", () => {
+test("profiles and friends own their headers without selecting another destination", () => {
   assert.equal(getPlayerSection("/profiles/sample")?.key, "memberProfile");
   assert.equal(isPlayerNavigationActive("/profiles/sample", "/vault", false), false);
+  assert.equal(getPlayerSection("/friends")?.key, "friends");
+  assert.equal(isPlayerNavigationActive("/friends", "/game", true), false);
 });

@@ -10,6 +10,7 @@ export const PROTECTED_PATH_PREFIXES = [
   "/oil-shop",
   "/fellowships",
   "/profiles",
+  "/friends",
   "/leaderboard",
   "/settings",
   "/select-translation",
