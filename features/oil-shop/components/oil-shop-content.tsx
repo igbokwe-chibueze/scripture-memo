@@ -14,6 +14,8 @@ import { showActionError } from "@/lib/errors/show-action-error";
 import { OilShopHeader } from "./oil-shop-header";
 import { ShopAvatarGrid } from "./shop-avatar-grid";
 import { HintPackArtwork } from "./hint-pack-artwork";
+import { getAvatarCollection } from "../lib/avatar-collection";
+import { createPurchaseRequestKey } from "../lib/purchase-request-key";
 import { PurchaseCelebrationDialog, type PurchaseCelebration } from "./purchase-celebration-dialog";
 import type { OilShopData, OilShopItem, OilShopPurchaseResult } from "../types/oil-shop.types";
 import type { OilShopTransport } from "../types/oil-shop-transport.types";
@@ -38,7 +40,7 @@ export function OilShopContent({
   isPreview?: boolean;
 }): React.ReactNode {
   const t = useTranslations("Shop");
-  const common = useTranslations("Common");
+  const partner = useTranslations("PartnerSupport");
   const locale = useLocale();
   const [data, setData] = useState(initialData);
   const [selected, setSelected] = useState<OilShopItem | null>(null);
@@ -55,11 +57,21 @@ export function OilShopContent({
 
   /** Update both inventories from trusted results, keeping the displayed balance exact. */
   function acceptPurchase(result: OilShopPurchaseResult): void {
+    if (result.avatarKey) {
+      setCelebration({
+        kind: "avatar",
+        avatarKey: result.avatarKey,
+        collection: getAvatarCollection(result.ownedAvatarKeys ?? data.ownedAvatarKeys, result.avatarKey),
+      });
+    }
     setData((current) => ({
       ...current,
       balance: result.balance,
       hintsRemaining: result.hintsRemaining,
       purchasedHints: result.purchasedHints,
+      ownedAvatarKeys: result.ownedAvatarKeys ?? (result.avatarKey
+        ? [...new Set([...current.ownedAvatarKeys, result.avatarKey])]
+        : current.ownedAvatarKeys),
       avatars: current.avatars.map((avatar) => (
         avatar.avatarKey === result.avatarKey ? { ...avatar, owned: true } : avatar
       )),
@@ -67,7 +79,7 @@ export function OilShopContent({
   }
 
   function previewPack(item: OilShopItem): void {
-    requestKey.current = crypto.randomUUID();
+    requestKey.current = createPurchaseRequestKey();
     setSelected(item);
   }
 
@@ -75,7 +87,6 @@ export function OilShopContent({
   function purchase(): void {
     if (!selected || isPending) return;
     const item = selected;
-    const previousHintBalance = data.hintsRemaining;
     startTransition(async () => {
       try {
         const result = await transport.purchase({
@@ -84,9 +95,19 @@ export function OilShopContent({
         });
         if (!result.success) return showActionError(result);
         if (!result.data) return;
+        const acknowledgedItem = {
+          ...item,
+          hintQuantity: result.data.hintQuantity ?? item.hintQuantity,
+        };
         acceptPurchase(result.data);
         setSelected(null);
-        setCelebration({ item, previousHintBalance, newHintBalance: result.data.hintsRemaining });
+        // Keep the receipt arithmetic aligned with the acknowledged balance,
+        // even if this tab's pre-request balance was stale from another device.
+        setCelebration({
+          item: acknowledgedItem,
+          previousHintBalance: Math.max(0, result.data.hintsRemaining - acknowledgedItem.hintQuantity),
+          newHintBalance: result.data.hintsRemaining,
+        });
         toast.success(result.message);
       } catch {
         toast.error(t("requestFailed"), { duration: Infinity });
@@ -196,7 +217,7 @@ export function OilShopContent({
                 href="/partner"
                 target="_blank"
                 rel="noopener noreferrer"
-                pendingLabel={common("loading")}
+                pendingLabel={partner("opening")}
                 className="min-h-11"
               >
                 {t("supportJourney")}

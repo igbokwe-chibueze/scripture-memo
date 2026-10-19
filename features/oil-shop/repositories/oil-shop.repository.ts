@@ -8,7 +8,7 @@ import { AVATAR_ITEM_TYPE, avatarKeyForSlug } from "../data/avatar-shop-catalog"
 import type { OilShopConflictCode, OilShopData, OilShopPurchaseResult } from "../types/oil-shop.types";
 
 type ShopClient = Prisma.TransactionClient | typeof prisma;
-type ShopBalance = Pick<OilShopPurchaseResult, "balance" | "hintsRemaining" | "purchasedHints">;
+type ShopBalance = Pick<OilShopPurchaseResult, "balance" | "hintsRemaining" | "purchasedHints" | "ownedAvatarKeys">;
 const purchaseTransactionOptions = { maxWait: 10_000, timeout: 30_000 } as const;
 
 /** Trusted conflicts expose safe learner-facing errors without raw database details. */
@@ -29,19 +29,30 @@ async function getPurchasedHintTotal(client: ShopClient, userId: string): Promis
 }
 
 /** Produce the same authoritative balance shape for a new purchase or a safe retry. */
-async function getPurchaseBalance(client: ShopClient, userId: string): Promise<ShopBalance> {
-  const [profile, usedHints, purchasedHints] = await Promise.all([
+async function getPurchaseBalance(
+  client: ShopClient,
+  userId: string,
+  avatarKey?: AvatarKey,
+): Promise<ShopBalance> {
+  const [profile, usedHints, purchasedHints, ownership] = await Promise.all([
     client.userProfile.findUnique({
       where: { userId },
       select: { totalGlowPoints: true, startingHintAllowance: true },
     }),
     client.hintUsage.count({ where: { userId } }),
     getPurchasedHintTotal(client, userId),
+    // One inventory read only for an avatar acknowledgement (at most nine new
+    // portraits per learner), never for a hint purchase or recurring background work.
+    avatarKey ? client.userAvatarOwnership.findMany({
+      where: { userId },
+      select: { avatarKey: true },
+    }) : Promise.resolve([]),
   ]);
   return {
     balance: profile?.totalGlowPoints ?? 0,
     hintsRemaining: calculateHintBalance(usedHints, purchasedHints, profile?.startingHintAllowance),
     purchasedHints,
+    ownedAvatarKeys: avatarKey ? ownership.map((owned) => normalizeAvatarKey(owned.avatarKey)) : undefined,
   };
 }
 
@@ -84,6 +95,7 @@ export const oilShopRepository = {
       hintsRemaining: calculateHintBalance(usedHints, purchasedHints, profile?.startingHintAllowance),
       purchasedHints,
       equippedAvatarKey: normalizeAvatarKey(profile?.avatarKey),
+      ownedAvatarKeys: ownership.map((owned) => normalizeAvatarKey(owned.avatarKey)),
       avatars: items.flatMap((item) => {
         const avatarKey = item.itemType === AVATAR_ITEM_TYPE
           ? avatarKeyForSlug(item.slug) : undefined;
@@ -123,6 +135,7 @@ export const oilShopRepository = {
         select: {
           userId: true,
           shopItemId: true,
+          entitlementQuantity: true,
           shopItem: { select: { name: true, slug: true, itemType: true } },
         },
       });
@@ -131,10 +144,16 @@ export const oilShopRepository = {
           throw new OilShopConflictError("ITEM_UNAVAILABLE");
         }
         return {
-          ...await getPurchaseBalance(transaction, userId),
+          ...await getPurchaseBalance(
+            transaction,
+            userId,
+            prior.shopItem.itemType === AVATAR_ITEM_TYPE ? avatarKeyForSlug(prior.shopItem.slug) : undefined,
+          ),
           itemName: prior.shopItem.name,
           avatarKey: prior.shopItem.itemType === AVATAR_ITEM_TYPE
             ? avatarKeyForSlug(prior.shopItem.slug) : undefined,
+          hintQuantity: prior.shopItem.itemType === HINT_PACK_ITEM_TYPE
+            ? prior.entitlementQuantity : undefined,
         };
       }
 
@@ -165,7 +184,7 @@ export const oilShopRepository = {
         });
         if (owned) {
           return {
-            ...await getPurchaseBalance(transaction, userId),
+            ...await getPurchaseBalance(transaction, userId, avatarKey),
             itemName: item.name,
             avatarKey,
           };
@@ -204,9 +223,10 @@ export const oilShopRepository = {
         },
       });
       return {
-        ...await getPurchaseBalance(transaction, userId),
+        ...await getPurchaseBalance(transaction, userId, avatarKey),
         itemName: item.name,
         avatarKey,
+        hintQuantity: avatarKey ? undefined : item.grantQuantity,
       };
     }, purchaseTransactionOptions);
   },

@@ -16,6 +16,8 @@ export type OilShopData = {
   purchasedHints: number;
   items: OilShopItem[];
   avatars: ShopAvatarItem[];
+  /** All permanent ownership, including any offer later retired from sale. */
+  ownedAvatarKeys: AvatarKey[];
   equippedAvatarKey: AvatarKey;
 };
 
@@ -34,6 +36,10 @@ export type OilShopPurchaseResult = {
   hintsRemaining: number;
   purchasedHints: number;
   avatarKey?: AvatarKey;
+  /** Avatar receipts refresh the full inventory, including purchases from other devices. */
+  ownedAvatarKeys?: AvatarKey[];
+  /** Quantity from the acknowledged purchase snapshot, not a stale catalogue preview. */
+  hintQuantity?: number;
 };
 
 export type OilShopConflictCode =

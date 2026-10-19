@@ -22,6 +22,7 @@ function createData(scenario: Scenario): OilShopData {
     hintsRemaining: 5,
     purchasedHints: 0,
     avatars: [],
+    ownedAvatarKeys: [],
     equippedAvatarKey: "lion",
     // Reuse static catalogue copy so all three cutouts can be reviewed without
     // querying the database. Synthetic IDs stay inside the in-memory transport.

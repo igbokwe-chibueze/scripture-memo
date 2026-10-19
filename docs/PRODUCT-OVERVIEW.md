@@ -1500,6 +1500,21 @@ Marketplace for spending Glow Points.
 - Clicking an item opens a preview modal with description and cost
 - Purchase button deducts Glow Points via a server-side transaction
 - On success: Sonner toast "Purchased [item name]!" and balance updates
+- Hint success receipts highlight the supplied bulb artwork and pack quantity,
+  with Previous hints, Purchased and Your hint balance rows. The final total comes
+  from the acknowledged server result; the granted quantity is returned from the
+  purchase snapshot rather than a potentially stale catalogue preview.
+- Avatar success receipts highlight the unlocked portrait and show a representative
+  thumbnail stack plus the full usable collection count: three free portraits and
+  all purchased portraits, including retired offers. The newly unlocked avatar is
+  highlighted in the stack. Equipping remains a separate choice in the Shop.
+- Both receipt variants keep the shared audio/reduced-motion preferences, approved
+  fonts/theme tokens, a clear close-button column, and explicit dismissal. Hint
+  totals count up visually; reduced motion shows the final total immediately.
+  Shared UI testing provides separate hint and avatar purchase previews.
+- Avatar acknowledgements add one bounded inventory read to refresh the collection
+  after cross-device purchases. Hint purchases do not add this read. No polling,
+  read-time initialization, or new schema/migration is required for these receipts.
 - On insufficient Glow Points: error Sonner toast
 - Purchased hint quantities are snapshotted on each purchase and extend the
   same server-authoritative allowance used by gameplay, the Vault, and the shop.

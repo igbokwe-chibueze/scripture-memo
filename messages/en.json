@@ -644,7 +644,16 @@
       "10": "Medium pack",
       "25": "Large pack",
       "50": "Extra pack"
-    }
+    },
+    "successPackName": "{count, plural, =3 {Small hint pack} =10 {Medium hint pack} =25 {Large hint pack} =50 {Extra hint pack} other {Hint pack}}",
+    "avatarUnlocked": "Avatar unlocked",
+    "avatarAdded": "Added to your avatar collection.",
+    "hintsAdded": "Added to your hints.",
+    "previousHints": "Previous hints",
+    "purchasedLabel": "Purchased",
+    "yourHintBalance": "Your hint balance",
+    "hintsUnit": "{count, plural, one {hint} other {hints}}",
+    "yourAvatarCollection": "Your avatar collection"
   },
   "Badges": {
     "searchBadges": "Search badges",

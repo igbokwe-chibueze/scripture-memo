@@ -644,7 +644,16 @@
       "10": "Paquete mediano",
       "25": "Paquete grande",
       "50": "Paquete extra"
-    }
+    },
+    "successPackName": "{count, plural, =3 {Paquete pequeño de pistas} =10 {Paquete mediano de pistas} =25 {Paquete grande de pistas} =50 {Paquete extra de pistas} other {Paquete de pistas}}",
+    "avatarUnlocked": "Avatar desbloqueado",
+    "avatarAdded": "Añadido a tu colección de avatares.",
+    "hintsAdded": "Añadidas a tus pistas.",
+    "previousHints": "Pistas anteriores",
+    "purchasedLabel": "Compradas",
+    "yourHintBalance": "Tu saldo de pistas",
+    "hintsUnit": "{count, plural, one {pista} other {pistas}}",
+    "yourAvatarCollection": "Tu colección de avatares"
   },
   "Badges": {
     "searchBadges": "Buscar insignias",

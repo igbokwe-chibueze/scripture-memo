@@ -9,6 +9,7 @@ import { GlowGem } from "@/components/shared/game-artwork";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/shared/empty-state";
 import { showActionError } from "@/lib/errors/show-action-error";
+import { createPurchaseRequestKey } from "../lib/purchase-request-key";
 import type { AvatarKey } from "@/features/profile/data/avatar-catalog";
 import type { OilShopData, OilShopPurchaseResult, ShopAvatarItem } from "../types/oil-shop.types";
 import type { OilShopTransport } from "../types/oil-shop-transport.types";
@@ -36,7 +37,7 @@ export function ShopAvatarGrid({
 
   /** Keep the same request key on a retry after uncertain transport failure. */
   function preview(item: ShopAvatarItem): void {
-    requestKey.current = crypto.randomUUID();
+    requestKey.current = createPurchaseRequestKey();
     setSelected(item);
   }
 

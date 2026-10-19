@@ -612,3 +612,17 @@ Accepted risk justification (if applicable):
 - Migrations applied only to local development 51214 and isolated test 51224.
   Hosted data was not accessed. Operational errors use SHP-001/002/003 with safe
   messages and centralized reference entries; UI uses showActionError/Sonner.
+
+### Purchase receipt data - 2026-10-19
+
+- Success modals consume acknowledged results only; no client-side reward or
+  ownership grant was added. Hint quantity comes from the durable purchase
+  entitlement snapshot, including safe retries, rather than a stale catalogue.
+- Avatar acknowledgement includes only approved owned keys from the server,
+  adding one bounded read within the existing purchase transaction. Normal shop
+  visits retain five reads, hint purchases add no inventory read, and there is
+  no polling or per-thumbnail data fetch. Collection counts include the three
+  free keys once and preserve owned portraits whose offers were retired.
+- Existing debit/ledger/idempotency/unique-ownership protections remain intact.
+  Local PostgreSQL checks additionally cover returned ownership and continued
+  access to retired cosmetic inventory. No schema change or hosted operation.

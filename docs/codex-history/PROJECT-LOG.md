@@ -5675,3 +5675,36 @@ concurrency subtests remain explicitly skipped as documented above.
 ### 2026-10-19 - Shop preview close-button clearance
 
 - Added reserved header space beside the shared 44px close button in avatar and hint-pack previews, allowing descriptions to wrap without overlap. Reservation remains during pending requests to prevent layout shifts. Shared dialog/button styling is unchanged. Scoped ESLint and TypeScript passed.
+
+### 2026-10-19 - Hint and avatar purchase success receipts
+
+- Replaced the old Meemo celebration composition with item-focused, theme-aware receipts matching the supplied concepts. Reused the owner bulb and existing portrait art, approved Lilita/Fredoka roles and shared button styling. Added restrained gold sparkles and retained purchase audio/reduced-motion behavior.
+- Hints show pack name, granted quantity, Previous hints, Purchased and Your hint balance with a visual count-up. Acknowledgements now return the snapshotted hint grant; breakdown uses the trusted current balance rather than the tab's old balance.
+- Avatar purchases now open the same reusable receipt shell with Avatar unlocked, a newly highlighted thumbnail and the collection count. Owner confirmed that count includes all three free portraits plus purchased portraits. Permanent inventory is returned on acknowledgement (one extra bounded read only for avatar receipts), including retired offers and cross-device purchases. Equipping remains separate.
+- Close control owns a dedicated 44px header column. Viewport grid fits short 375x498 screens; avatar receipt is shorter to remove empty space. Added localized en/es/fr receipt labels and both isolated previews to shared UI testing. No migrations, purchase-price changes or hosted operations.
+- Validation: production build, TypeScript, scoped ESLint, five shop unit tests, locale contract and seven design checks passed. Local PostgreSQL purchase/rollout integration checks passed, including retired owned avatars. Actual-component browser checks cover 375px short/tall light/dark, Spanish/French, desktop, close-header clearance, hint count-up and real synthetic hint/avatar purchase transitions.
+
+
+### 2026-10-19 - Shop Partner pending-label translation fix
+
+- Replaced the nonexistent Common.loading lookup with the existing localized PartnerSupport.opening label. The donation destination and new-tab behavior are unchanged.
+- Validation: locale contract tests and scoped ESLint passed.
+
+
+### 2026-10-19 - Shop UUID compatibility
+
+- Both hint and avatar previews use one purchase-key helper. Native randomUUID is preferred; browsers lacking it use cryptographic getRandomValues with UUID v4 version/variant bits. Existing stable retry keys and server purchase validation remain intact; no database changes.
+- Added regression coverage for missing randomUUID, UUID validation and distinct keys to test:shop. Both tests, TypeScript and scoped ESLint passed.
+
+
+### 2026-10-19 - Mobile Shop Meemo alignment
+
+- Scoped artwork correction below 640px: centered the approved cutout against a narrower, fixed-aspect oval instead of a stretched backdrop and bottom-aligned image. Original image proportions and desktop CSS remain unchanged.
+- TypeScript passed. Live browser visual verification was not available this turn.
+
+
+### 2026-10-19 - Shop baseline and purchase count-up
+
+- Mobile hero now aligns the balance card and Meemo at the lower edge, retaining the narrower oval and original artwork proportions. Desktop rules are unchanged.
+- One reusable receipt number now counts both hint balances and avatar collection totals from the previous value to the acknowledged total. Starts after the entrance (350ms) and counts over 1.2 seconds; reduced-motion users receive the final total immediately. Existing hint animation had remained present with a longer delay; avatar count had been static.
+- TypeScript and scoped ESLint passed. Live browser visual verification was unavailable.

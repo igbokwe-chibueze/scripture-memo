@@ -46,6 +46,29 @@
   background: var(--selection-subtle);
 }
 
+/* Align the mobile portrait and balance card along the hero's lower edge.
+ * The oval follows the portrait rather than stretching with the text column;
+ * desktop keeps its approved spacing and artwork positioning. */
+@media (max-width: 639px) {
+  .heroCopy {
+    align-self: end;
+    padding-bottom: 0;
+  }
+
+  .heroHalo {
+    inset: auto;
+    bottom: 0;
+    left: 50%;
+    width: 110%;
+    aspect-ratio: 1.4;
+    transform: translateX(-50%);
+  }
+
+  .heroArt > img {
+    object-position: center bottom;
+  }
+}
+
 .balance {
   display: flex;
   align-items: center;
