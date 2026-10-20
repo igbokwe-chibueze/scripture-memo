@@ -1,17 +1,18 @@
-/** Owner-only social hub. No list of another player's friends is ever queried. */
+﻿/** Private social hub; tab totals are global while each displayed list is filtered and paginated. */
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
-import { UsersRoundIcon } from "lucide-react";
+import { getLocale, getTranslations } from "next-intl/server";
+import { ArrowLeftIcon, UsersRoundIcon } from "lucide-react";
 import { requireServerSession } from "@/lib/auth/session";
-import { PlayerAvatar } from "@/features/profile";
 import { EmptyState } from "@/components/shared/empty-state";
 import { NavigationButton } from "@/components/shared/navigation-button";
 import { GamePageColumns } from "@/components/shared/game-page-columns";
 import { friendRepository } from "../repositories/friend.repository";
 import { friendsPageSchema } from "../schemas/friend.schema";
-import { FriendControls } from "../components/friend-controls";
 import { PlayerSearchForm } from "../components/player-search-form";
+import { AddFriendsDialog } from "../components/add-friends-dialog";
+import { FriendPlayerCard } from "../components/friend-player-card";
+import { FriendsShareCard } from "../components/friends-share-card";
 
 export const metadata: Metadata = {
   title: "Friends | Scripture Memo",
@@ -19,127 +20,99 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-/** Validate bounded filters before any player-directory read. */
-export async function FriendsView({ searchParams }: {
+/** Legacy discovery URLs open the dialog; private data is always read for the server actor. */
+export async function FriendsView({
+  searchParams,
+}: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }): Promise<React.ReactNode> {
-  const input = friendsPageSchema.parse(await searchParams);
+  const requested = friendsPageSchema.parse(await searchParams);
+  const input =
+    requested.tab === "search"
+      ? { ...requested, tab: "friends" as const, q: "", page: 1 }
+      : requested;
   const session = await requireServerSession();
-  const [data, t] = await Promise.all([
+  const [data, t, locale] = await Promise.all([
     friendRepository.getPage(session.user.id, input),
     getTranslations("PlayerSocial"),
+    getLocale(),
   ]);
   if (!data) notFound();
-  const pageLink = (page: number): string => `/friends?${new URLSearchParams({
-    tab: input.tab, q: input.q, page: String(page),
-  })}`;
-
+  const pageLink = (page: number): string =>
+    `/friends?${new URLSearchParams({ tab: input.tab, q: input.q, page: String(page) })}`;
   return (
-    <GamePageColumns contextPanel={(
-      <aside className="space-y-3 rounded-card border border-border bg-card p-5">
-        <h2 className="font-heading text-xl">{t("connectTitle")}</h2>
-        <p className="text-muted-foreground">{t("connectDescription")}</p>
-        <NavigationButton
-          href={`/profiles/${data.ownPublicId}`}
-          pendingLabel={t("opening")}
-          variant="secondary"
-          className="min-h-11"
-          prefetch={false}
-        >
-          {t("myProfile")}
-        </NavigationButton>
-      </aside>
-    )}>
-      <main className="mx-auto w-full max-w-4xl space-y-5 p-4 sm:p-6">
+    <GamePageColumns
+      contextPanel={<FriendsShareCard publicId={data.ownPublicId} />}
+    >
+      <main className="mx-auto w-full max-w-4xl space-y-4 p-4 sm:p-6">
         <header className="space-y-3">
           <NavigationButton
-            href="/game"
+            href={`/profiles/${data.ownPublicId}`}
             pendingLabel={t("opening")}
             variant="secondary"
             className="min-h-11"
             prefetch={false}
           >
-            {t("journeyHome")}
+            <ArrowLeftIcon aria-hidden="true" />
+            {t("backToProfile")}
           </NavigationButton>
-          <h1 className="font-heading text-3xl sm:text-4xl">{t("friendsTitle")}</h1>
-          <NavigationButton
-            href={`/profiles/${data.ownPublicId}`}
-            pendingLabel={t("opening")}
-            variant="outline"
-            className="min-h-11"
-            prefetch={false}
-          >
-            {t("myProfile")}
-          </NavigationButton>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h1 className="font-heading text-4xl font-bold sm:text-5xl">
+              {t("friendsTitle")}
+            </h1>
+            <AddFriendsDialog
+              initiallyOpen={requested.tab === "search"}
+              initialQuery={requested.tab === "search" ? requested.q : ""}
+            />
+          </div>
+          <p className="text-muted-foreground">{t("friendsSubtitle")}</p>
         </header>
         <nav
-          className="flex flex-wrap gap-3"
           aria-label={t("friendsTitle")}
+          className="flex flex-wrap gap-1 rounded-card border border-border bg-muted p-1"
         >
-          {(["friends", "requests", "sent", "search", "blocked"] as const).map((tab) => (
+          {(["friends", "requests", "sent", "blocked"] as const).map((tab) => (
             <NavigationButton
               key={tab}
               href={`/friends?tab=${tab}`}
               pendingLabel={t("opening")}
-              variant={input.tab === tab ? "default" : "secondary"}
+              variant={input.tab === tab ? "default" : "ghost"}
               aria-current={input.tab === tab ? "page" : undefined}
-              className="min-h-11"
+              aria-label={data.counts[tab] > 0
+                ? `${t(`tabs.${tab}`)}: ${data.counts[tab].toLocaleString(locale)}`
+                : t(`tabs.${tab}`)}
+              className="h-auto min-h-12 min-w-fit flex-1 flex-row gap-1 whitespace-nowrap px-1 py-2 text-xs sm:gap-2 sm:text-sm"
               prefetch={false}
             >
-              {t(`tabs.${tab}`)}
+              <span>{t(`tabs.${tab}`)}</span>
+              {data.counts[tab] > 0 && (
+                <span
+                  className={`inline-flex shrink-0 items-center justify-center rounded-full py-0.5 text-xs tabular-nums ${tab === "requests" && data.counts.requests > 0 ? "min-w-6 bg-error px-1.5 text-error-foreground" : ""}`}
+                >
+                  {data.counts[tab].toLocaleString(locale)}
+                </span>
+              )}
             </NavigationButton>
           ))}
         </nav>
-        {input.tab === "search" && (
-          <section className="space-y-2">
-            <PlayerSearchForm key={input.q} initialQuery={input.q} />
-            <p className="text-sm text-muted-foreground">{t("searchHelp")}</p>
-          </section>
-        )}
+        <PlayerSearchForm
+          key={`${input.tab}:${input.q}`}
+          initialQuery={input.q}
+          tab={input.tab === "search" ? "friends" : input.tab}
+        />
         {data.players.length === 0 ? (
           <EmptyState
             icon={<UsersRoundIcon aria-hidden="true" />}
-            title={t(`empty.${input.tab}`)}
-            description={t(`emptyHelp.${input.tab}`)}
+            title={t(input.q ? "noListMatches" : `empty.${input.tab}`)}
+            description={t(
+              input.q ? "tryAnotherName" : `emptyHelp.${input.tab}`,
+            )}
           />
         ) : (
-          <ul className="space-y-4">
+          <ul className="space-y-3">
             {data.players.map((player) => (
-              <li
-                key={player.publicId}
-                className="space-y-4 rounded-card border border-border bg-card p-4 sm:p-5"
-              >
-                <div className="flex items-center gap-4">
-                  <PlayerAvatar
-                    avatarKey={player.avatarKey}
-                    frameKey={player.avatarFrameKey}
-                    displayName={player.displayName}
-                  />
-                  <div className="min-w-0 flex-1">
-                    <h2 className="break-words font-heading text-xl">{player.displayName}</h2>
-                    <p className="break-all text-sm text-muted-foreground">
-                      {player.username ? `@${player.username}` : t("noUsername")}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-3">
-                  {input.tab !== "blocked" && (
-                    <NavigationButton
-                      href={`/profiles/${player.publicId}`}
-                      pendingLabel={t("opening")}
-                      variant="outline"
-                      className="min-h-11"
-                      prefetch={false}
-                    >
-                      {t("viewProfile")}
-                    </NavigationButton>
-                  )}
-                  <FriendControls
-                    publicId={player.publicId}
-                    relationship={player.relationship}
-                    displayName={player.displayName}
-                  />
-                </div>
+              <li key={player.publicId}>
+                <FriendPlayerCard player={player} />
               </li>
             ))}
           </ul>
@@ -171,6 +144,9 @@ export async function FriendsView({ searchParams }: {
             </NavigationButton>
           )}
         </nav>
+        <div className="xl:hidden">
+          <FriendsShareCard publicId={data.ownPublicId} />
+        </div>
       </main>
     </GamePageColumns>
   );

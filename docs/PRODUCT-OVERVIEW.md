@@ -1784,10 +1784,20 @@ Admin settings (Super Admin only):
   Three recent earned badges appear on the page; View all opens the existing
   bounded earned-badge collection in a dialog for either own or other profiles.
 - `/friends` is linked from Home and profiles. The owner's private tabs show
-  Friends, incoming Requests, Sent requests, Find players and Blocked players.
-  Lists use 20-row pages plus one lookahead row, without a separate count query.
+  Friends, incoming Requests, Sent requests and Blocked players. Every tab shows
+  its full total when greater than zero, independent of filtering or page. Only the
+  Requests count has a red background when greater than zero. Counts sit beside
+  tab names. One aggregate supplies the four totals.
+  Lists use 20-row pages plus one lookahead row. Explicit list search matches
+  name or username within that private list, with literal wildcard escaping.
+  Add friends opens an explicitly submitted, paginated player-search dialog.
   Search is explicitly submitted, uses at least two characters, and accepts an
   exact @handle or a handle/display-name prefix. Search never returns the viewer.
+- List rows show country, completed waypoints and labelled lifetime Beacon
+  Points. Blocked rows retain only identity for unblocking, without progress or
+  a profile link. The ellipsis menu reuses the existing consent and confirmation
+  controls. A profile-link copy card appears in the desktop rail or below the
+  mobile list, with manual-copy fallback; it never creates friendship itself.
 - Sending a request never creates an accepted friendship. Only its recipient
   can accept or decline; the sender can cancel. Either friend can remove an
   accepted friendship. Crossing requests still require explicit acceptance.
@@ -1810,7 +1820,8 @@ Admin settings (Super Admin only):
 - Reads perform no writes, advisory locks, initialization or polling. A profile
   uses one bounded nested read, one aggregate summary, an owner-only inventory
   read or another-player relationship lookup. A list uses
-  an owner-link read plus one bounded list; search adds one batched relationship
+  an owner-link read, one four-total aggregate and one bounded list. Directory
+  search skips unused tab counts and adds one batched relationship
   read instead of per-result lookups. New social links disable speculative
   prefetch to avoid multiplying those reads before a player clicks.
 

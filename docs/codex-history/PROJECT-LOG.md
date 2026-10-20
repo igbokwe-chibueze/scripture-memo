@@ -5761,3 +5761,23 @@ concurrency subtests remain explicitly skipped as documented above.
 
 - Home Friends shortcut now uses the supplied blue Friends icon through the shared GameArtwork catalog. Fellowship retains its existing icon. Layout, routes and button behavior unchanged.
 - TypeScript passed; no new assets or database operations.
+
+### 2026-10-20 - Friends screen redesign
+
+- Rebuilt the Friends hub with four counted tabs: Friends, Requests, Sent and Blocked. Every count is the full total across pages and list filters, including zero; only Requests has a red count background. Counts share one owner-filtered aggregate.
+- Add friends opens an explicit paginated discovery dialog instead of a fifth tab. Directory search preserves exact @handle/prefix matching and excludes blocked/unavailable accounts. Private list search supports names/handles with escaped literal wildcards. No per-keystroke queries or polling.
+- Compact cards show avatar/frame, name, username, country, completed waypoints and explicitly labelled lifetime Beacon Points. Blocked cards retain identity only and no profile link. Ellipsis menus reuse current operations, pending feedback and destructive confirmations. Discovery updates relationship controls immediately after mutations.
+- Back to profile uses NavigationButton. A profile-link copy card lives in the desktop rail and below the mobile list, with clipboard-denied selectable fallback. It uses the existing permanent /profiles URL and never adds a friend automatically. Approved fonts/buttons/themes retained; Partner card remains shell-owned.
+- Updated product/roadmap/security docs and English/Spanish/French labels. Production build, TypeScript, scoped ESLint, eight social unit tests, locale/design contracts and disposable PostgreSQL social tests passed. Added coverage for incoming/outgoing totals, totals independent of filters/pages, wildcard escaping and blocked-progress exclusion. No schema or hosted database operations.
+- Synthetic actual-component Edge checks passed seven 375px/desktop/theme/locale/request/blocked variants, four counts with only Requests red, zero counts, 44px controls, no overflow, ellipsis confirmation, Add friends search/request state updates and manual profile-link copy fallback. Screenshots/results retained in .local-backups/friends-refresh-qa; temporary helpers removed.
+- Current state: complete and ready for owner review at /friends; no unresolved questions or migration steps.
+
+### 2026-10-20 - Inline Friends tab counts
+
+- Tab counts now sit beside their labels at all widths. Tabs wrap as complete label/count pairs when translated text needs more room. Requests receives a red count background only when its total is greater than zero; zero remains visible without red.
+- Updated product wording. TypeScript passed; counts, queries and social behavior unchanged.
+
+### 2026-10-20 - Hide empty Friends tab counts
+
+- All four tabs now omit zero counts, including from their accessible labels. Positive totals remain beside labels; only positive Requests has the red badge. Data queries and tab behavior unchanged.
+- Updated product guidance. TypeScript passed.

@@ -651,6 +651,23 @@ Accepted risk justification (if applicable):
 - The disposable PostgreSQL social suite verifies owner-only details, cooldown
   rollback, paid-avatar rejection and a valid save alongside existing race tests.
 
+### Friends screen totals and discovery dialog - 2026-10-20
+
+- One parameterized aggregate supplies all four owner-only tab totals. It
+  ignores pagination and list filters, matches peer eligibility/block rules and
+  performs no writes. List searches remain bounded and escape literal LIKE
+  wildcards. Directory search keeps the existing exact-handle/prefix rules.
+- The search Server Function validates its strict query/page input, verifies
+  the server session, and returns at most 20 public player summaries plus a
+  pagination flag. No client account selector, polling or per-keystroke reads.
+  Directory requests skip the unused totals aggregate; ordinary list requests
+  use three reads, while submitted discovery uses at most three reads.
+- Country, waypoints and lifetime Beacon Points are explicit public fields;
+  blocked lists continue to expose identity only. Menu controls reuse existing
+  atomic request/accept/block/unfriend rules and destructive confirmations.
+- Disposable PostgreSQL tests cover full totals independent of filters/pages,
+  incoming/outgoing counts, wildcard escaping and blocked progress exclusion.
+
 ### Private player statistics - 2026-10-20
 
 - `/stats` requires a server session; account identity comes exclusively from

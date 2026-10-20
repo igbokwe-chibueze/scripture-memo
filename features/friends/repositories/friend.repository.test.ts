@@ -65,6 +65,10 @@ test("handles and friendships preserve identity, consent, privacy and concurrenc
     await assert.rejects(friendRepository.mutate(c, ap.publicId, "accept"), PlayerSocialConflictError);
     await assert.rejects(friendRepository.mutate(a, ap.publicId, "request"), PlayerSocialConflictError);
     assert.equal((await friendRepository.getPage(b, { tab: "requests", q: "", page: 1 }))?.players[0]?.relationship, "incoming");
+    assert.deepEqual((await friendRepository.getPage(a, { tab: "sent", q: "", page: 1 }))?.counts,
+      { friends: 0, requests: 0, sent: 1, blocked: 0 });
+    assert.deepEqual((await friendRepository.getPage(b, { tab: "requests", q: "", page: 1 }))?.counts,
+      { friends: 0, requests: 1, sent: 0, blocked: 0 });
 
     await Promise.all(Array.from({ length: 3 }, () => friendRepository.mutate(b, ap.publicId, "accept")));
     assert.equal(await prisma.playerFriendship.count({ where: { status: "ACCEPTED" } }), 1);
@@ -72,6 +76,17 @@ test("handles and friendships preserve identity, consent, privacy and concurrenc
     const page = await friendRepository.getPage(a, { tab: "friends", q: "", page: 1 });
     assert.equal(page?.players[0]?.publicId, bp.publicId);
     assert.equal(page?.players[0]?.relationship, "friends");
+    assert.deepEqual(page?.counts, { friends: 1, requests: 0, sent: 0, blocked: 0 });
+    assert.equal(page?.players[0]?.lifetimeBeaconXp, 540);
+    assert.equal(page?.players[0]?.completedWaypoints, 0);
+    const filteredPage = await friendRepository.getPage(a, { tab: "friends", q: "NoMatchingName", page: 1 });
+    assert.equal(filteredPage?.players.length, 0);
+    assert.equal(filteredPage?.counts.friends, 1, "Tab totals ignore the current filter.");
+    assert.equal((await friendRepository.getPage(a, { tab: "friends", q: "shared", page: 1 }))?.players.length, 1);
+    assert.equal((await friendRepository.getPage(a, { tab: "friends", q: "%", page: 1 }))?.players.length, 0);
+    const laterPage = await friendRepository.getPage(a, { tab: "friends", q: "", page: 2 });
+    assert.equal(laterPage?.players.length, 0);
+    assert.equal(laterPage?.counts.friends, 1, "Tab totals ignore pagination.");
     const publicProfile = await playerProfileRepository.getProfile(a, bp.publicId);
     assert.equal(publicProfile?.privateDetails, null, "Other players never receive private counts or avatar inventory.");
     const ownProfile = await playerProfileRepository.getProfile(a, ap.publicId);
@@ -114,6 +129,10 @@ test("handles and friendships preserve identity, consent, privacy and concurrenc
     ]);
     assert.equal(blockRace[0].status, "fulfilled", String(blockRace[0].status === "rejected" ? blockRace[0].reason : ""));
     assert.equal(await prisma.playerFriendship.count(), 0);
+    const blockedList = await friendRepository.getPage(a, { tab: "blocked", q: "", page: 1 });
+    assert.equal(blockedList?.players[0]?.lifetimeBeaconXp, null, "Blocked lists reveal identity for unblocking, not profile progress.");
+    assert.deepEqual((await friendRepository.getPage(a, { tab: "blocked", q: "NoMatchingName", page: 1 }))?.counts,
+      { friends: 0, requests: 0, sent: 0, blocked: 1 });
     assert.equal(await playerProfileRepository.getProfile(a, bp.publicId), null);
     assert.equal(await playerProfileRepository.getProfile(b, ap.publicId), null);
     assert.equal((await friendRepository.getPage(b, { tab: "search", q: "Shared", page: 1 }))?.players.some((row) => row.publicId === ap.publicId), false);

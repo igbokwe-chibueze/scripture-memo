@@ -2066,6 +2066,11 @@ databases; hosted environments must apply checked-in migrations during deploymen
 
 ### Player profiles and friends extension (2026-10-19)
 
+Friends presentation extension (2026-10-20): four counted tabs, explicit private
+list filters, an Add friends discovery dialog, compact public-progress rows and
+existing-action menus. Counts are full totals; only Requests uses a red count
+badge. Profile sharing remains a copyable permanent profile URL. No migration.
+
 Owner-approved addition: signed-in player profiles, explicitly chosen unique lowercase usernames (3-24 characters, 30-day change interval), private Friends hub, consent-based requests, removal/blocking, native sharing and resumable registration invitations. Permanent profile UUIDs and internal account IDs remain unchanged. Implemented with bounded reads, no polling/read-time initialization, database pair/handle constraints and sorted transaction locks. Local additive migration applied on development/test listeners only. Social concurrency coverage uses the disposable embedded PostgreSQL runner via npm run test:social:integration; --social selects the focused suite. Normal concurrency runs now include it.
 
 ### Profile presentation extension (2026-10-20)

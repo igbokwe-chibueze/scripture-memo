@@ -129,6 +129,24 @@
     }
   },
   "PlayerSocial": {
+    "memberActions": "Actions for {name}",
+    "searchComplete": "Player search complete.",
+    "waypointCount": "{count, plural, one {# waypoint} other {# waypoints}}",
+    "lifetimeBeaconPoints": "Lifetime Beacon Points",
+    "addFriends": "Add friends",
+    "inviteFriend": "Invite a friend",
+    "shareYourProfile": "Share your profile link",
+    "copyProfileLink": "Copy profile link",
+    "backToProfile": "Back to profile",
+    "friendsSubtitle": "Grow together, one verse at a time.",
+    "noListMatches": "No matching players",
+    "tryAnotherName": "Try another name or username, or clear your search.",
+    "listSearch": {
+      "friends": "Search friends",
+      "requests": "Search requests",
+      "sent": "Search sent requests",
+      "blocked": "Search blocked players"
+    },
     "quickLinks": "Quick links",
     "quickBadges": "Badges",
     "quickAllStats": "All stats",

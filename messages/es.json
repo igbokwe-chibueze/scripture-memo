@@ -129,6 +129,24 @@
     }
   },
   "PlayerSocial": {
+    "memberActions": "Acciones para {name}",
+    "searchComplete": "Búsqueda completada.",
+    "waypointCount": "{count, plural, one {# punto de ruta} other {# puntos de ruta}}",
+    "lifetimeBeaconPoints": "Puntos de Faro de por vida",
+    "addFriends": "Añadir amigos",
+    "inviteFriend": "Invita a un amigo",
+    "shareYourProfile": "Comparte el enlace de tu perfil",
+    "copyProfileLink": "Copiar enlace del perfil",
+    "backToProfile": "Volver al perfil",
+    "friendsSubtitle": "Creced juntos, un versículo a la vez.",
+    "noListMatches": "No hay coincidencias",
+    "tryAnotherName": "Prueba otro nombre o usuario, o borra la búsqueda.",
+    "listSearch": {
+      "friends": "Buscar amigos",
+      "requests": "Buscar solicitudes",
+      "sent": "Buscar solicitudes enviadas",
+      "blocked": "Buscar jugadores bloqueados"
+    },
     "quickLinks": "Accesos rápidos",
     "quickBadges": "Insignias",
     "quickAllStats": "Estadísticas",
