@@ -1774,6 +1774,15 @@ Admin settings (Super Admin only):
   join date, Beacon Level, lifetime Beacon XP, completed waypoints, current/best
   streak and earned badges. Email, Glow balance, private notes and friend lists
   are excluded. Earned badge presentation is capped to the 60 most recent entries.
+- Profiles use the approved centered portrait layout in both themes, with real
+  Beacon progress and a journey summary. Mastered verses require all four Journey
+  Stages. Only the owner sees hints-used, friend/fellowship counts, available avatar
+  inventory, edit/share controls and the detailed-statistics link.
+- Edit profile opens one dialog for display name, username, country and free or
+  purchased avatars. All fields save atomically; handle uniqueness/cooldown and
+  avatar ownership remain server-enforced. Existing avatar frames are preserved.
+  Three recent earned badges appear on the page; View all opens the existing
+  bounded earned-badge collection in a dialog for either own or other profiles.
 - `/friends` is linked from Home and profiles. The owner's private tabs show
   Friends, incoming Requests, Sent requests, Find players and Blocked players.
   Lists use 20-row pages plus one lookahead row, without a separate count query.
@@ -1799,7 +1808,8 @@ Admin settings (Super Admin only):
   inviter's profile as the validated next destination. No auto-friending occurs.
   Native sharing has a selectable/copyable link fallback when unsupported.
 - Reads perform no writes, advisory locks, initialization or polling. A profile
-  uses one bounded nested read plus at most one relationship lookup. A list uses
+  uses one bounded nested read, one aggregate summary, an owner-only inventory
+  read or another-player relationship lookup. A list uses
   an owner-link read plus one bounded list; search adds one batched relationship
   read instead of per-result lookups. New social links disable speculative
   prefetch to avoid multiplying those reads before a player clicks.

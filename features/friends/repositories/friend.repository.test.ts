@@ -73,6 +73,22 @@ test("handles and friendships preserve identity, consent, privacy and concurrenc
     assert.equal(page?.players[0]?.publicId, bp.publicId);
     assert.equal(page?.players[0]?.relationship, "friends");
     const publicProfile = await playerProfileRepository.getProfile(a, bp.publicId);
+    assert.equal(publicProfile?.privateDetails, null, "Other players never receive private counts or avatar inventory.");
+    const ownProfile = await playerProfileRepository.getProfile(a, ap.publicId);
+    assert.equal(ownProfile?.privateDetails?.friends, 1);
+    assert.equal(ownProfile?.privateDetails?.availableAvatars.length, 3);
+    // A handle rejection must roll back unrelated fields in the same dialog save.
+    await assert.rejects(playerProfileRepository.editProfile(winner, {
+      displayName: "Must not save", countryCode: "NG", avatarKey: "lion", username: "cooldown_change",
+    }), PlayerSocialConflictError);
+    assert.equal((await prisma.userProfile.findUnique({ where: { userId: winner } }))?.displayName, "Shared display name");
+    await assert.rejects(playerProfileRepository.editProfile(c, {
+      displayName: "Unowned avatar", countryCode: "NG", avatarKey: "fox",
+    }), PlayerSocialConflictError);
+    await playerProfileRepository.editProfile(winner, {
+      displayName: "Shared display name", countryCode: "NG", avatarKey: "dove", username: "amara_grace",
+    });
+    assert.equal((await prisma.userProfile.findUnique({ where: { userId: winner } }))?.avatarKey, "dove");
     assert.equal(publicProfile?.lifetimeBeaconXp, 540);
     for (const forbidden of ["userId", "email", "totalGlowPoints", "friends", "notes"]) {
       assert.equal(forbidden in (publicProfile ?? {}), false, forbidden);

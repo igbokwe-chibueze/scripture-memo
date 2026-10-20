@@ -2068,6 +2068,12 @@ databases; hosted environments must apply checked-in migrations during deploymen
 
 Owner-approved addition: signed-in player profiles, explicitly chosen unique lowercase usernames (3-24 characters, 30-day change interval), private Friends hub, consent-based requests, removal/blocking, native sharing and resumable registration invitations. Permanent profile UUIDs and internal account IDs remain unchanged. Implemented with bounded reads, no polling/read-time initialization, database pair/handle constraints and sorted transaction locks. Local additive migration applied on development/test listeners only. Social concurrency coverage uses the disposable embedded PostgreSQL runner via npm run test:social:integration; --social selects the focused suite. Normal concurrency runs now include it.
 
+### Profile presentation extension (2026-10-20)
+
+Profile presentation extension: approved portrait/Beacon/journey layout on own
+and other profiles, one atomic edit dialog and three recent badges with a bounded
+earned-badge dialog. Owner-only fields stay private; no migration is required.
+
 ### Private player statistics extension (2026-10-20)
 
 Owner-approved detailed `/stats` page, linked from the owner's profile. Includes

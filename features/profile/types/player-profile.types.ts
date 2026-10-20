@@ -10,6 +10,13 @@ export type PlayerProfileData = PlayerSummary & {
   completedWaypoints: number;
   currentStreak: number;
   bestStreak: number;
+  masteredVerses: number;
+  privateDetails: {
+    friends: number;
+    fellowships: number;
+    hintsUsed: number;
+    availableAvatars: string[];
+  } | null;
   nextUsernameChangeAt: string | null;
   badges: { id: string; name: string; icon: string | null; rarity: string }[];
   hasMoreBadges: boolean;

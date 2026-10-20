@@ -637,6 +637,20 @@ Accepted risk justification (if applicable):
 - Invitations reveal no identity while signed out and retain only a validated internal profile return path through existing verification/onboarding. Visiting or registering never implicitly creates friendship.
 - Isolated real PostgreSQL tests cover duplicate and crossed requests, unauthorized acceptance/cancellation, unique-handle races and cooldowns, private-field exclusion, stable UUIDs after renaming, both-way block visibility, block/accept races, ownership of unblock, request quotas and banned targets. Tests use the existing guarded disposable local runner because Prisma Local multiplexing cannot safely exercise competing unique-constraint transactions. No hosted database was used.
 
+### Profile presentation and atomic editing - 2026-10-20
+
+- Private profile details are null for other viewers. Friend/fellowship/hint
+  counts and owned avatars are available only to the owner; existing visibility
+  and block checks still run before those reads. Public mastery is aggregated
+  without returning curriculum history rows. Reads add no writes or polling.
+- The unified edit action validates a strict shape before authentication and
+  accepts no account identifier. One transaction verifies account eligibility,
+  paid-avatar ownership, and canonical username cooldown before changing any
+  field. The existing per-account handle lock and unique index guard competing
+  edits. Username conflicts roll back name/country/avatar changes as well.
+- The disposable PostgreSQL social suite verifies owner-only details, cooldown
+  rollback, paid-avatar rejection and a valid save alongside existing race tests.
+
 ### Private player statistics - 2026-10-20
 
 - `/stats` requires a server session; account identity comes exclusively from

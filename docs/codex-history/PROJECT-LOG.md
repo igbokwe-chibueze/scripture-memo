@@ -5741,3 +5741,23 @@ concurrency subtests remain explicitly skipped as documented above.
 - Two parameterized read-only queries per explicit page request. Session-derived identity, bounded aggregates, no email/note content/private IDs, no polling, read-time writes, migrations or hosted database access. Product/roadmap/security docs and English/Spanish/French labels updated.
 - Validation: production build, TypeScript, scoped ESLint, locale contracts and eight stats unit tests passed. Guarded local PostgreSQL tests cover ownership, timezone boundaries, practice/admin separation, mastery, historical purchases, league ordering and read-only behavior. Synthetic actual-component Edge checks passed five mobile/desktop/theme/locale layouts, 44px controls, no horizontal overflow, keyboard/day selection and an empty earlier year. Screenshots/results retained in .local-backups/stats-qa.
 - Current state: implemented, ready for owner review from Profile > View detailed stats. No unresolved product questions or schema deployment steps.
+
+### 2026-10-20 - Profile presentation and unified editing
+
+- Updated own and other-player profiles to the approved centered portrait, country/join month, Beacon level progress, compact journey cards and recent-badge layout. Preserved approved fonts, game buttons, selected avatar frames, actual XP thresholds and supplied artwork. Owner-only social counts, hints used, avatar inventory and detailed stats remain private.
+- One Edit profile dialog handles name, username, country and free/purchased avatars with an atomic server save. Existing username normalization, uniqueness, 30-day cooldown, account checks and avatar ownership remain enforced; failed handles roll back all fields. Pending/network/error feedback preserves drafts. Frame settings stay unchanged.
+- Three recent badges appear on the profile; View all opens the bounded earned-badge dialog for that player. Sharing continues to use the permanent profile URL. No schema migration, polling or read-time writes.
+- Updated product/roadmap/security guidance and English/Spanish/French labels. TypeScript, scoped ESLint, production build, localization and design-system checks passed. Disposable local PostgreSQL social tests pass with added privacy, cooldown rollback, owned-avatar and valid-save checks. The runner required execution outside the Windows sandbox for initdb; no hosted database was used.
+- Synthetic actual-component Edge checks passed six mobile/desktop/theme/locale/other-player variants, no horizontal overflow, usable controls, editor save, avatar inventory and earned-badge dialog. Screenshots/results retained in .local-backups/profile-refresh-qa; temporary QA helpers removed.
+- Current state: complete and ready for owner review on the profile route. No schema/deployment steps or outstanding product questions.
+
+### 2026-10-20 - Profile right-panel Quick links
+
+- Replaced the profile's Grow together panel with Quick links: Friends, Fellowships, Badges and All stats. Each opens the signed-in viewer's corresponding route through the shared pending NavigationButton; no additional database reads or privacy changes.
+- Copied the owner's supplied blue friends and three-color statistics artwork unchanged to public/images/game-ui/friends.png and stats.png. Hashes match the originals. Fellowship and Badges reuse existing approved assets; the shell's Partner card remains in place.
+- Added English/Spanish/French labels and documented asset provenance. TypeScript, locale contracts and scoped ESLint passed. Existing fonts, button treatment and mobile composition remain unchanged.
+
+### 2026-10-20 - Home Friends artwork
+
+- Home Friends shortcut now uses the supplied blue Friends icon through the shared GameArtwork catalog. Fellowship retains its existing icon. Layout, routes and button behavior unchanged.
+- TypeScript passed; no new assets or database operations.
