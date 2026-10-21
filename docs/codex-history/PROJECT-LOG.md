@@ -5805,3 +5805,17 @@ concurrency subtests remain explicitly skipped as documented above.
 - Kept existing XP-earned amounts, level-up celebrations, surrounding reward motion, replay/admin visibility rules and authoritative reward data. No gameplay, timing, XP-award, repository or database changes. Product documentation now names every consumer.
 - Production build, TypeScript, scoped ESLint, six Beacon tests, 31 gameplay tests and seven design-system checks passed. Searched remaining UI sources: no separate Beacon level bar implementations remain; leaderboard XP values and statistics metrics remain numeric summaries.
 - Current state: shared Beacon level bar migration complete.
+
+### 2026-10-21 - Temporary admin golden-yellow tile comparison
+
+- Owner approved an admin-only toggle for Drag & Drop and Puzzle, defaulting to Swap's exact golden-yellow available-tile palette. One temporary browser preference applies to both modes and survives reloads; non-admins retain teal even if that browser has a gold preference. Swap, Cue and Fill are unchanged.
+- Added a small removable toggle component and browser-only external-store hook; GameShell gates control/marker using its existing trusted isAdmin value. No server actions, database writes/reads, gameplay state, timing, rewards or hint changes. Selected tiles remain purple; empty receiving gaps and success/error feedback retain existing colors. Blocked storage falls back to a session choice with feedback.
+- English/Spanish/French labels and product guidance updated. Production build, TypeScript, scoped ESLint, 31 gameplay tests, locale contracts and seven design checks passed.
+- Synthetic actual hook/toggle/tile Edge checks passed six 375px light/dark/es/fr/regular-player/blocked-storage variants: exact Swap colors, purple selection, shared mode preference, persistence after reload, no regular-player effect, no overflow and 44px controls. Results/screenshots retained in .local-backups/tile-preview-qa; temporary QA helpers removed.
+- Current state: temporary preview is ready on active admin Drag & Drop/Puzzle boards. Awaiting owner's preferred final palette before removing the toggle.
+
+### 2026-10-21 - Final golden-yellow movable tiles
+
+- Owner chose golden yellow. Drag & Drop and Puzzle now use Swap's exact golden-yellow available-tile palette for all players. Selected tiles, receiving gaps, correctness feedback and all gameplay behavior remain unchanged.
+- Removed the temporary admin toggle, storage hook, shell markers/conditions and preview translations. Old browser choices are no longer read or applied. Product guidance reflects the final choice.
+- TypeScript, locale contracts and seven design-system checks passed. No temporary preview runtime references remain; no database changes.

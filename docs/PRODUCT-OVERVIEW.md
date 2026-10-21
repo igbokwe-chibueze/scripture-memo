@@ -1402,6 +1402,12 @@ advance. Opening help neither consumes a hint nor pauses a timed attempt.
 Swap movable words are gold; selected movable tiles use purple. Focused typing
 gaps in Cue and Fill use brand teal, with evaluated success/error colors taking
 priority over focus.
+
+Drag & Drop and Puzzle use the same golden-yellow available tiles as Swap for
+all players, following the owner's final palette choice. The temporary admin
+toggle and browser preference have been removed. Selected tiles remain purple;
+receiving gaps, feedback, timers, hints and rewards are unchanged.
+
 Empty Drag & Drop/Puzzle destinations use the original brand-teal readiness
 and drag-over highlight, separately from purple selected tiles.
   During an active drag, the hovered empty destination expands by 7% using a

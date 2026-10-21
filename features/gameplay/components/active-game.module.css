@@ -86,7 +86,9 @@
   border-radius: 1.1rem;
   background: linear-gradient(145deg, color-mix(in oklch, var(--primary) 7%, var(--card)), var(--card));
 }
-.challenge[data-mode="SWAP"] {
+/* Owner-approved golden-yellow available tiles across all three movable-tile
+ * modes. Selection, receiving gaps and evaluated feedback keep their own tokens. */
+.challenge:is([data-mode="SWAP"], [data-mode="DRAG_DROP"], [data-mode="PUZZLE"]) {
   --available-subtle: #ffda68;
   --available-border: #e8a723;
   --available-text: #302104;
