@@ -98,42 +98,6 @@
 .segmentCurrent {
   background: var(--reward);
 }
-.beaconCard {
-  margin-top: 0.9rem;
-  padding: 0.85rem;
-  border: 1px solid color-mix(in oklch, var(--primary) 30%, var(--border));
-  border-radius: 1.25rem;
-  background: linear-gradient(135deg, var(--selection-subtle), var(--card));
-}
-.beaconLabels {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 0.5rem;
-  font-weight: 700;
-  font-size: 0.95rem;
-}
-.xpLabel {
-  color: var(--primary);
-}
-.beaconTrack {
-  height: 0.85rem;
-  margin-top: 0.75rem;
-  overflow: hidden;
-  border-radius: 2rem;
-  /* The unfilled part must never share the fill's teal, especially in light. */
-  background: color-mix(in oklch, var(--foreground) 17%, var(--card));
-}
-.beaconFill {
-  height: 100%;
-  border-radius: inherit;
-  background: var(--primary);
-}
-.remainingXp {
-  margin-top: 0.45rem;
-  color: var(--muted-foreground);
-  font-size: 0.875rem;
-}
 .introPanel {
   padding: 0.9rem 1rem 1rem;
 }

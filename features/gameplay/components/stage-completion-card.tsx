@@ -20,7 +20,7 @@ import { JourneyStageBadge } from "@/components/shared/journey-stage-badge";
 import type { BeaconProgressionResult } from "@/features/beacon/types/beacon.types";
 import type { DayRewardResult } from "@/features/rewards/types/reward.types";
 import type { DayLevel, JourneyStage } from "@/lib/generated/prisma/enums";
-import { SessionBeaconProgress } from "./session-beacon-progress";
+import { BeaconLevelBar } from "@/features/beacon";
 import { GameSettingsMenuItem } from "@/components/shared/game-settings-menu-item";
 import styles from "./stage-completion.module.css";
 
@@ -128,7 +128,10 @@ export function StageCompletionCard({
         </span>
       </div>
       <div className="text-left">
-        <SessionBeaconProgress progress={beacon} />
+        <BeaconLevelBar
+          lifetimeXp={beacon.lifetimeXp}
+          className="mt-3.5"
+        />
       </div>
       {beacon.leveledUp && (
         <p className="mt-2 font-heading text-lg font-bold text-primary" role="status">

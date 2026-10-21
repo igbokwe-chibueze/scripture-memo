@@ -5781,3 +5781,27 @@ concurrency subtests remain explicitly skipped as documented above.
 
 - All four tabs now omit zero counts, including from their accessible labels. Positive totals remain beside labels; only positive Requests has the red badge. Data queries and tab behavior unchanged.
 - Updated product guidance. TypeScript passed.
+
+### 2026-10-21 - Reusable Beacon level bar
+
+- Extracted BeaconLevelBar into the Beacon feature's public component API; profile passes lifetime XP only. Current/next level labels sit at opposite ends, lifetime XP / next cumulative threshold appears on the bar, and a single line states XP remaining to the next level. Removed the repeated top total and percentage display.
+- Fill continues to measure the current level segment against existing shared thresholds. At 540 lifetime XP: Level 2 to Level 3, 540 / 750, 210 XP remaining to Level 3. No XP/reward rules, queries or database writes changed. Accessible progress text describes the cumulative values and next goal.
+- Added English/Spanish/French labels and product guidance. Production build, TypeScript, scoped ESLint, locale contracts and six existing Beacon progression tests passed. Ready for profile review.
+
+### 2026-10-21 - Beacon remaining-XP alignment
+
+- Right-aligned the remaining-XP line in BeaconLevelBar. Pill placement is pending the owner's low-progress preference: minimum visual fill to fit it versus an accurate fill with the pill below until it fits. No progression changes.
+
+### 2026-10-21 - Beacon pill contained by visual fill
+
+- Owner approved a minimum visual fill to keep the XP pill inside at every progress value. BeaconLevelBar now uses an intrinsic CSS grid minimum based on the pill's real width, with the pill aligned to the fill's right edge. No client measurement, timer or extra dependency. Remaining XP stays right-aligned.
+- Native accessible progress and XP/level/remaining values remain exact; only low visual fill is enlarged to fit the pill. Product guidance updated.
+- TypeScript and scoped ESLint passed. Actual-component local Edge checks at a 375px composition passed for XP 0, 250, 540, 749, 750 and 1,000,000: every pill fully inside its fill and all remaining-XP lines right-aligned. Results retained in .local-backups/beacon-pill-qa/results.json; temporary QA helpers removed.
+- Current state: completed, no outstanding low-progress decision.
+
+### 2026-10-21 - Reuse BeaconLevelBar across gameplay
+
+- Completed the shared-component migration: profile, gameplay introduction, mode completion and challenge-stage completion all use BeaconLevelBar through the Beacon feature's public API. Removed SessionBeaconProgress and its unused CSS; removed the separate mode-completion fill calculation/markup and redundant level heading.
+- Kept existing XP-earned amounts, level-up celebrations, surrounding reward motion, replay/admin visibility rules and authoritative reward data. No gameplay, timing, XP-award, repository or database changes. Product documentation now names every consumer.
+- Production build, TypeScript, scoped ESLint, six Beacon tests, 31 gameplay tests and seven design-system checks passed. Searched remaining UI sources: no separate Beacon level bar implementations remain; leaderboard XP values and statistics metrics remain numeric summaries.
+- Current state: shared Beacon level bar migration complete.

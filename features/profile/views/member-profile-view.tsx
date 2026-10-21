@@ -9,10 +9,7 @@ import { GamePageColumns } from "@/components/shared/game-page-columns";
 import { NavigationButton } from "@/components/shared/navigation-button";
 import { CountryFlag } from "@/components/shared/country-flag";
 import { FriendControls } from "@/features/friends";
-import {
-  beaconLevelStartXp,
-  beaconLevelFromXp,
-} from "@/features/beacon/constants/beacon-progression";
+import { BeaconLevelBar } from "@/features/beacon";
 import { PlayerAvatar } from "../components/player-avatar";
 import { ProfileEditor } from "../components/profile-editor";
 import { ProfileBadges } from "../components/profile-badges";
@@ -48,11 +45,6 @@ export async function MemberProfileView({
   if (!profile) notFound();
   const self = profile.relationship === "self";
   const number = (value: number): string => value.toLocaleString(locale);
-  // Preserve the actual cumulative XP rules rather than copying concept numbers.
-  const level = beaconLevelFromXp(profile.lifetimeBeaconXp);
-  const required = beaconLevelStartXp(level + 1) - beaconLevelStartXp(level);
-  const earned = profile.lifetimeBeaconXp - beaconLevelStartXp(level);
-  const percent = Math.floor((earned / required) * 100);
   const country = profile.countryCode
     ? new Intl.DisplayNames(locale, { type: "region" }).of(profile.countryCode)
     : null;
@@ -182,46 +174,7 @@ export async function MemberProfileView({
             </div>
           )}
         </header>
-        <section
-          className="space-y-3 rounded-card border border-border bg-card p-4"
-          aria-label={t("beaconLevel")}
-        >
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="flex items-center gap-2 font-heading text-xl font-bold">
-              <Image
-                src="/images/game-ui/beacon.png"
-                alt=""
-                width={36}
-                height={36}
-              />
-              {t("levelNumber", { level })}
-            </h2>
-            <p>{t("totalXp", { count: profile.lifetimeBeaconXp })}</p>
-          </div>
-          <div className="relative">
-            <progress
-              value={earned}
-              max={required}
-              aria-label={t("levelProgress")}
-              className="block h-7 w-full appearance-none overflow-hidden rounded-full bg-muted [&::-webkit-progress-bar]:bg-muted [&::-webkit-progress-value]:rounded-full [&::-webkit-progress-value]:bg-primary [&::-moz-progress-bar]:bg-primary"
-            />
-            <span className="pointer-events-none absolute inset-0 grid place-items-center text-sm font-bold">
-              <span className="rounded-full bg-card px-2 text-foreground">
-                {percent}%
-              </span>
-            </span>
-          </div>
-          <div className="flex flex-wrap justify-between gap-2 text-sm text-muted-foreground">
-            <span>
-              {t("levelXp", {
-                earned: number(earned),
-                required: number(required),
-                level: level + 1,
-              })}
-            </span>
-            <span>{t("xpRemaining", { count: required - earned })}</span>
-          </div>
-        </section>
+        <BeaconLevelBar lifetimeXp={profile.lifetimeBeaconXp} />
         <section className="space-y-3" aria-labelledby="profile-journey">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2

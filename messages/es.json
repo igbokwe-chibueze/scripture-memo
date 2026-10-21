@@ -128,6 +128,12 @@
       "LEGENDARY": "Legendaria"
     }
   },
+  "BeaconLevelBar": {
+    "label": "Progreso del nivel de Faro",
+    "level": "Nivel {level, number}",
+    "remaining": "Faltan {count, number} XP para el nivel {level, number}",
+    "accessibleValue": "{total, number} / {target, number} XP de por vida; faltan {remaining, number} XP para el nivel {level, number}"
+  },
   "PlayerSocial": {
     "memberActions": "Acciones para {name}",
     "searchComplete": "Búsqueda completada.",

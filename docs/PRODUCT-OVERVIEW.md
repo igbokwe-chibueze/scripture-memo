@@ -1778,6 +1778,16 @@ Admin settings (Super Admin only):
   Beacon progress and a journey summary. Mastered verses require all four Journey
   Stages. Only the owner sees hints-used, friend/fellowship counts, available avatar
   inventory, edit/share controls and the detailed-statistics link.
+- Beacon level progress uses the reusable `BeaconLevelBar` component. Current
+  and next levels label opposite ends, the bar shows lifetime XP against the
+  next cumulative threshold (for example 540 / 750), and the line below gives
+  XP remaining to that level. No percentage or repeated top total is displayed.
+  Fill measures the current level segment, with an approved minimum visual width
+  to keep the XP pill inside at low progress. The remaining-XP line is right-aligned;
+  accessible progress values and existing XP thresholds remain exact.
+  The same component is used by profile, gameplay introductions, mode completion
+  and challenge-stage completion. Reward/level-up feedback remains around it;
+  there are no separate gameplay implementations of the level bar.
 - Edit profile opens one dialog for display name, username, country and free or
   purchased avatars. All fields save atomically; handle uniqueness/cooldown and
   avatar ownership remain server-enforced. Existing avatar frames are preserved.

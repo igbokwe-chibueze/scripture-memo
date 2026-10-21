@@ -139,6 +139,12 @@ const fr = {
       "LEGENDARY": "Légendaire"
     }
   },
+  BeaconLevelBar: {
+    label: "Progression du niveau de Balise",
+    level: "Niveau {level, number}",
+    remaining: "{count, number} XP restants avant le niveau {level, number}",
+    accessibleValue: "{total, number} / {target, number} XP à vie ; {remaining, number} XP restants avant le niveau {level, number}",
+  },
   PlayerSocial: {
     ...en.PlayerSocial,
     "memberActions": "Actions pour {name}",

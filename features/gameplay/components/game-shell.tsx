@@ -53,7 +53,7 @@ import type { GameMode } from "@/lib/generated/prisma/enums";
 import type { ActionResult } from "@/types/api";
 import { HintButton } from "@/features/hints";
 import { ModeIntroduction } from "./mode-introduction";
-import { SessionBeaconProgress } from "./session-beacon-progress";
+import { BeaconLevelBar } from "@/features/beacon";
 import { StageCompletionCard } from "./stage-completion-card";
 import styles from "./session-introduction.module.css";
 import { verifyLearnHintAccountingAction } from "@/features/hints/actions/verify-learn-hint-accounting.action";
@@ -530,7 +530,10 @@ export function GameShell({
           )}
 
           {!playerPracticeMode && !isActiveBoard && (
-            <SessionBeaconProgress progress={gameSession.beaconProgress} />
+            <BeaconLevelBar
+              lifetimeXp={gameSession.beaconProgress.lifetimeXp}
+              className="mt-3.5"
+            />
           )}
 
           {(gameSession.isAdminTest || playerPracticeMode) && (
