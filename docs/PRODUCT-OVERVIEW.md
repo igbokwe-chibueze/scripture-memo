@@ -1476,9 +1476,13 @@ Reflection space shown after completing Radiance or as a standalone destination.
   Home uses illustrated testament cards and a swipeable topic preview with dot
   controls. Selecting a topic opens its existing passage choices in a dialog.
   Topic rotation uses a 15-second interval. Home's Go to a verse starts collapsed
-  and shows the current session's last opened reference and edition in its summary;
+  and shows this browser's last opened reference and edition in its summary;
   opening it reveals selectors initialized to that passage. Bible navigation uses
   the game navbar's artwork sizing, muted labels and subtle teal active state.
+  Reading position persists in localStorage across refreshes on that device,
+  with zero database reads/writes or cross-device synchronization. Explicit
+  passage links override and update the browser preference. Only opening a
+  passage saves it; ordinary reads and unsubmitted picker drafts do not.
   Book/chapter/verse selectors share one mobile row on Home; the reader dialog
   retains its roomier picker layout. All interactive targets remain at least
   44px. Supplied PNG originals are preserved under `public/images/bible/`.

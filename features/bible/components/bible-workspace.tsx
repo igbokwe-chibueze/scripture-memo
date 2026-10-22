@@ -1,7 +1,13 @@
 "use client";
 
 /** Standalone Bible composition replaces game chrome only within /bible. */
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import {
+  readBibleDevicePosition,
+  parseBibleDevicePosition,
+  saveBibleDevicePosition,
+  subscribeBibleDevicePosition,
+} from "../lib/bible-device-position";
 import { useTranslations } from "next-intl";
 import { toast } from "@/lib/toast";
 import { BookmarkIcon } from "lucide-react";
@@ -36,18 +42,38 @@ export function BibleWorkspace({
   player: PlayerShellSummary;
 }): React.ReactNode {
   const t = useTranslations("Bible");
-  const initial = initialReference ?? {
-    book: "GEN",
-    chapter: 1,
-    verse: 1,
-    translation,
-  };
-  const [reference, setReference] = useState<BibleReference>(initial);
-  const [tabs, setTabs] = useState<BibleReference[]>([initial]);
+  // The server snapshot is null so hydration matches server HTML. After
+  // hydration, browser storage supplies the last passage without a DB request.
+  const storedPosition = useSyncExternalStore(
+    subscribeBibleDevicePosition,
+    readBibleDevicePosition,
+    () => null,
+  );
+  const initial = initialReference ??
+    parseBibleDevicePosition(storedPosition) ?? {
+      book: "GEN",
+      chapter: 1,
+      verse: 1,
+      translation,
+    };
+  const [openedReference, setReference] = useState<BibleReference | null>(null);
+  const reference = openedReference ?? initial;
+  const [tabs, setTabs] = useState<BibleReference[]>([]);
   const [screen, setScreen] = useState<"home" | "read" | "saved" | "books">(
     initialReference ? "read" : "home",
   );
   const [testament, setTestament] = useState<"old" | "new">("old");
+
+  useEffect(() => {
+    // Opening a shared/deep link is also an explicit passage choice. Merely
+    // visiting Bible Home never writes a default over the stored reference.
+    if (!initialReference) return;
+    try {
+      saveBibleDevicePosition(initialReference);
+    } catch {
+      toast.error(t("failed"));
+    }
+  }, [initialReference, t]);
 
   function openPassage(value: BibleReference): void {
     const parsed = bibleReferenceSchema.safeParse(value);
@@ -56,6 +82,11 @@ export function BibleWorkspace({
       return;
     }
     setReference(parsed.data);
+    try {
+      saveBibleDevicePosition(parsed.data);
+    } catch {
+      toast.error(t("failed"));
+    }
     setTabs((current) => {
       const matching = current.findIndex(
         (item) =>
@@ -165,7 +196,7 @@ export function BibleWorkspace({
           {screen === "read" && (
             <BibleReader
               reference={reference}
-              tabs={tabs}
+              tabs={tabs.length ? tabs : [reference]}
               authors={authors}
               onOpen={openPassage}
               onBack={() => {

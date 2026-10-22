@@ -100,8 +100,9 @@ export function BibleHome({
           ))}
         </div>
       </section>
-      <details className="group rounded-card border border-border bg-card p-4 shadow-sm sm:p-5">
-        <summary className="mb-2 flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 font-heading text-2xl font-bold [&::-webkit-details-marker]:hidden">
+      {/* Keep the closed summary compact; expanded controls retain roomy padding. */}
+      <details className="group rounded-card border border-border bg-card px-4 py-2 shadow-sm open:py-4 sm:px-5 sm:open:py-5">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 font-heading text-xl font-bold group-open:mb-2 group-open:text-2xl [&::-webkit-details-marker]:hidden">
           <span className="min-w-0">
             <span className="block">{t("goToVerse")}</span>
             {/* The workspace reference is the last opened passage, not an
@@ -115,7 +116,12 @@ export function BibleHome({
             className="size-6 transition-transform group-open:rotate-180 motion-reduce:transition-none"
           />
         </summary>
-        <BiblePassagePicker reference={reference} onOpen={onOpen} compact />
+        <BiblePassagePicker
+          key={`${reference.book}:${reference.chapter}:${reference.verse}:${reference.translation}`}
+          reference={reference}
+          onOpen={onOpen}
+          compact
+        />
       </details>
       <section
         className="space-y-3"

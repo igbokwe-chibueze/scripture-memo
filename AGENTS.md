@@ -222,6 +222,10 @@ optimization.
 - Avoid polling when event-driven invalidation is possible. Necessary polling
   must pause while the page is hidden and use the longest interval compatible
   with the product requirement.
+- Keep device-only presentation and resume preferences in browser storage when
+  cross-device synchronization is not requested. Do not introduce database
+  persistence or extra reads/writes merely to survive refreshes; ask the owner
+  before expanding a simple device preference into account-wide persistence.
 - Select only required columns, batch related work, avoid N+1 queries, and use a
   single transaction only where atomicity is required.
 - Before adding a recurring query, estimate its operations per active user and

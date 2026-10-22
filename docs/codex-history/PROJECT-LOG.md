@@ -5875,3 +5875,22 @@ concurrency subtests remain explicitly skipped as documented above.
 - Slowed topic rotation from nine to fifteen seconds; existing hover/focus/dialog/hidden-page/reduced-motion pauses remain.
 - Restyled only Bible's three-tab bottom navbar to match the game navbar's 64px controls, 36px artwork, muted labels, spacing and subtle teal active treatment. Home and Read use approved game artwork; Saved retains a bookmark symbol. Shared buttons still own focus/press effects; the game's navbar is unchanged.
 - Product rules updated. TypeScript, scoped ESLint and all seven design-system checks passed. Mobile layout retains three equal-width 44px-plus targets and existing content/safe-area clearance; no API, auth, database or reward changes. Updates remain unstaged.
+
+### 2026-10-22 - Persist Bible reading position across refreshes
+
+- Corrected the session-only resume behavior: one private BibleReadingPosition row per account now stores the last explicitly opened canonical book/chapter/verse/edition. Home restores it on refresh and future visits, including other devices; explicit passage URL parameters take priority. Unsubmitted picker drafts do not change it.
+- Added validated/authenticated save action, repository-owned atomic upsert and authorized server loader. Client saves serialize so slow prior opens cannot overwrite newer choices; failures use existing Sonner error handling. Account deletion cascades the preference. No bookmarks, translation Settings, curriculum or reward data is changed.
+- Cost: one selected-row read per Bible route request and one upsert per explicit passage opening, no polling, no read-time initialization. Migration 20261022160000_bible_reading_position applied only to verified local development database localhost:51214; generated client refreshed and verified workspace dev server restarted on port 3000.
+- Verification: TypeScript and scoped ESLint passed. Disposable embedded PostgreSQL integration suite passed position replacement, owner isolation, no initialization on reads, one-row bound and account-deletion cascade, alongside existing annotation checks. Initial sandbox PostgreSQL startup failed; elevated disposable-local retry passed. No hosted database used. Updates remain unstaged.
+
+### 2026-10-22 - Correct reading-position persistence cost and scope
+
+- Owner rejected cross-device synchronization and unnecessary DB cost. Replaced the previous account-wide reading-position implementation with device-only localStorage, validated with the existing canonical schema. Reads use a hydration-safe primitive useSyncExternalStore snapshot; explicit passage selection saves synchronously before navigation so immediate refresh works. Deep links take priority and update the device preference. No account identifier, Scripture text or private notes are stored.
+- Removed the resume action, repository methods, server loader and extra route query; restored schema and existing annotation tests. A forward cleanup migration removes the superseded table while retaining already-applied migration history. Applied cleanup only to verified local development database localhost:51214 and regenerated Prisma client. No hosted database touched.
+- Zero additional DB reads/writes or network calls for remembering/restoring passages; storage-disabled reads safely fall back and save failures surface through Sonner without blocking reading. Home picker remounts on restored canonical reference so its selectors match the collapsed summary.
+- Added the owner's cost preference to root AGENTS.md: device-only preferences stay in browser storage; request approval before expanding to account-wide persistence. Updated product scope. Browser-storage regression passed persistence, replacement, malformed input and blocked-storage handling; TypeScript and scoped ESLint passed. Added regression to test:bible.
+- Important Git state: owner had staged the previous DB implementation before this turn. The index was preserved; this correction remains unstaged and must be staged over that older version before committing. No other staged work was changed.
+
+### 2026-10-22 - Compact closed Go to a verse panel
+
+- Reduced closed panel vertical padding to 8px and heading to text-xl; removed the closed summary's trailing margin. Expanded picker retains its original padding/title size. Saved reference remains visible and summary keeps a 44px minimum touch target. Presentation-only change; no storage, network or database operations added. Existing index preserved; this adjustment is unstaged.
