@@ -44,12 +44,24 @@ test("shop purchases serialize, grant avatars once and enforce Settings ownershi
     const results = await Promise.all(Array.from({ length: 4 }, () =>
       oilShopRepository.purchaseItem(ids[0], fox.id, randomUUID())));
     assert.ok(results.every((result) => result.balance === 250 && result.avatarKey === "fox"));
+    assert.ok(results.every((result) => result.ownedAvatarKeys?.includes("fox")));
     assert.equal(await prisma.userAvatarOwnership.count({ where: { userId: ids[0] } }), 1);
     assert.equal(await prisma.userShopPurchase.count({ where: { userId: ids[0] } }), 1);
     assert.equal(await prisma.rewardLedger.count({ where: { userId: ids[0] } }), 1);
     const ledger = await prisma.rewardLedger.findFirstOrThrow({ where: { userId: ids[0] } });
     assert.equal(ledger.amount, -250);
     assert.equal((await oilShopRepository.getShopData(ids[0])).purchasedHints, 0);
+    assert.deepEqual((await oilShopRepository.getShopData(ids[0])).ownedAvatarKeys, ["fox"]);
+    // A retired listing remains in the learner's usable collection and can equip.
+    await prisma.shopItem.update({ where: { id: fox.id }, data: { isActive: false } });
+    try {
+      const retired = await oilShopRepository.getShopData(ids[0]);
+      assert.ok(!retired.avatars.some((avatar) => avatar.avatarKey === "fox"));
+      assert.ok(retired.ownedAvatarKeys.includes("fox"));
+      await oilShopRepository.equipAvatar(ids[0], "fox");
+    } finally {
+      await prisma.shopItem.update({ where: { id: fox.id }, data: { isActive: true } });
+    }
     await oilShopRepository.equipAvatar(ids[0], "fox");
     await settingsRepository.updateForUser(ids[0], { avatarKey: "fox" });
     assert.equal((await oilShopRepository.getShopData(ids[0])).equippedAvatarKey, "fox");
@@ -62,6 +74,7 @@ test("shop purchases serialize, grant avatars once and enforce Settings ownershi
     const hints = await Promise.all(Array.from({ length: 3 }, () =>
       oilShopRepository.purchaseItem(ids[0], pack.id, key)));
     assert.ok(hints.every((result) => result.balance === 130 && result.purchasedHints === 3));
+    assert.ok(hints.every((result) => result.hintQuantity === 3));
     assert.equal(await prisma.rewardLedger.count({ where: { userId: ids[0] } }), 2);
     await assert.rejects(oilShopRepository.purchaseItem(ids[1], pack.id, key), OilShopConflictError);
     // Four different hint purchases compete for 500; at most four 120-point packs succeed.

@@ -28,6 +28,7 @@ const shortcuts = [
   { key: "fellowship", href: "/fellowships", artwork: "fellowship" },
   { key: "badges", href: "/vault/badges", artwork: "badges" },
   { key: "shop", href: "/oil-shop", artwork: "shop" },
+  { key: "friends", href: "/friends", artwork: "friends" },
   { key: "admin", href: "/admin", artwork: "admin" },
 ] as const;
 
@@ -144,6 +145,7 @@ export async function GameHomeView(): Promise<React.ReactNode> {
             <NavigationButton
               key={key}
               href={href}
+              prefetch={key === "friends" ? false : undefined}
               pendingLabel={t("opening")}
               className={`${styles.shortcutTile} ${styles[key]}`}
             >

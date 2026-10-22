@@ -380,6 +380,16 @@ export const ERROR_CATALOG = [
     examples: ["The database disconnects while the final mode and day completion are committing."],
     solutions: ["Refresh and retry once.", "If the error repeats, inspect sanitized server logs."],
   },
+  {
+    code: "SOC-001",
+    title: "Player connection could not be updated",
+    feature: "Users",
+    userMessage: "Your player connection could not be updated. Please try again.",
+    explanation: "The requested profile or friendship update could not be committed. Failed transactions leave the prior state unchanged.",
+    commonCauses: ["A temporary connection failure.", "A database transaction could not finish."],
+    examples: ["The connection drops while accepting a friend request."],
+    solutions: ["Refresh to confirm the current state, then retry if needed."],
+  },
 ] as const satisfies readonly ErrorCatalogEntry[];
 
 export type AppErrorCode = (typeof ERROR_CATALOG)[number]["code"];

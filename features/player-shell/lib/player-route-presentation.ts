@@ -11,6 +11,8 @@ const PLAYER_SECTIONS = [
   { prefix: "/sanctuary", key: "sanctuary", artwork: "bibleOpen" },
   { prefix: "/fellowships", key: "fellowships", artwork: "fellowship" },
   { prefix: "/profiles", key: "memberProfile", artwork: "fellowship" },
+  { prefix: "/stats", key: "stats", artwork: "beacon" },
+  { prefix: "/friends", key: "friends", artwork: "fellowship" },
   { prefix: "/oil-shop", key: "shop", artwork: "shop" },
   { prefix: "/settings", key: "settings", artwork: "settings" },
   { prefix: "/bible", key: "bible", artwork: "bibleOpen" },

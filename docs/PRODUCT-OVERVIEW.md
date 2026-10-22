@@ -1402,6 +1402,12 @@ advance. Opening help neither consumes a hint nor pauses a timed attempt.
 Swap movable words are gold; selected movable tiles use purple. Focused typing
 gaps in Cue and Fill use brand teal, with evaluated success/error colors taking
 priority over focus.
+
+Drag & Drop and Puzzle use the same golden-yellow available tiles as Swap for
+all players, following the owner's final palette choice. The temporary admin
+toggle and browser preference have been removed. Selected tiles remain purple;
+receiving gaps, feedback, timers, hints and rewards are unchanged.
+
 Empty Drag & Drop/Puzzle destinations use the original brand-teal readiness
 and drag-over highlight, separately from purple selected tiles.
   During an active drag, the hovered empty destination expands by 7% using a
@@ -1500,6 +1506,21 @@ Marketplace for spending Glow Points.
 - Clicking an item opens a preview modal with description and cost
 - Purchase button deducts Glow Points via a server-side transaction
 - On success: Sonner toast "Purchased [item name]!" and balance updates
+- Hint success receipts highlight the supplied bulb artwork and pack quantity,
+  with Previous hints, Purchased and Your hint balance rows. The final total comes
+  from the acknowledged server result; the granted quantity is returned from the
+  purchase snapshot rather than a potentially stale catalogue preview.
+- Avatar success receipts highlight the unlocked portrait and show a representative
+  thumbnail stack plus the full usable collection count: three free portraits and
+  all purchased portraits, including retired offers. The newly unlocked avatar is
+  highlighted in the stack. Equipping remains a separate choice in the Shop.
+- Both receipt variants keep the shared audio/reduced-motion preferences, approved
+  fonts/theme tokens, a clear close-button column, and explicit dismissal. Hint
+  totals count up visually; reduced motion shows the final total immediately.
+  Shared UI testing provides separate hint and avatar purchase previews.
+- Avatar acknowledgements add one bounded inventory read to refresh the collection
+  after cross-device purchases. Hint purchases do not add this read. No polling,
+  read-time initialization, or new schema/migration is required for these receipts.
 - On insufficient Glow Points: error Sonner toast
 - Purchased hint quantities are snapshotted on each purchase and extend the
   same server-authoritative allowance used by gameplay, the Vault, and the shop.
@@ -1540,8 +1561,9 @@ Social group system.
   determine this member ranking. The visible label is Lifetime Beacon Points.
 - Member rows navigate to `/profiles/[publicId]`. Each profile has an independent,
   stable public UUID; private auth and profile-record IDs are not exposed. The
-  authenticated, noindex destination is an empty coming-soon screen until the
-  profile feature is built. It performs no member lookup or initialization write.
+  authenticated, noindex destination shows the player's approved public profile
+  fields. Blocked and unavailable profiles share a neutral not-found state;
+  visiting a profile never initializes data or changes friendships.
   Row prefetch is disabled to avoid an authenticated request per visible member.
 - Across all fellowship detail tabs, the desktop rail shows Together so far above
   the unchanged bottom donation card: combined lifetime Beacon Points and completed
@@ -1738,6 +1760,86 @@ Admin settings (Super Admin only):
   to the editor. Existing player navigation remains unchanged.
 - Ordinary article reads do not write data or award rewards. Blog publication
   never exposes gated verse-study content or private player/account records.
+
+### 15.11 Player Profiles and Friends (owner-approved 2026-10-19)
+
+- Preserve private account IDs and existing permanent public profile UUIDs.
+  `/profiles` opens your own profile; `/profiles/[publicId]` remains stable when
+  a display name or username changes. Only signed-in, active players can view
+  profiles; pages and invitation entry points are noindex and stay out of sitemaps.
+- Display names remain expressive, changeable and non-unique. Players explicitly
+  choose a unique username in their own profile: 3-24 ASCII letters, digits or
+  underscores, normalized to lowercase. Optional leading @ is accepted in the
+  form. Database uniqueness and a format constraint enforce case-insensitive
+  ownership. Existing/new profiles keep a null handle until the player chooses;
+  no handle is invented and ordinary learning is not gated on this choice.
+- A first claim or real change starts a server-enforced 30-day username cooldown.
+  Saving the same handle does not restart it. Friendships reference private
+  permanent account IDs; browser DTOs and shared URLs expose public UUIDs only.
+- Profiles show the selected avatar/frame, display name, handle, optional country,
+  join date, Beacon Level, lifetime Beacon XP, completed waypoints, current/best
+  streak and earned badges. Email, Glow balance, private notes and friend lists
+  are excluded. Earned badge presentation is capped to the 60 most recent entries.
+- Profiles use the approved centered portrait layout in both themes, with real
+  Beacon progress and a journey summary. Mastered verses require all four Journey
+  Stages. Only the owner sees hints-used, friend/fellowship counts, available avatar
+  inventory, edit/share controls and the detailed-statistics link.
+- Beacon level progress uses the reusable `BeaconLevelBar` component. Current
+  and next levels label opposite ends, the bar shows lifetime XP against the
+  next cumulative threshold (for example 540 / 750), and the line below gives
+  XP remaining to that level. No percentage or repeated top total is displayed.
+  Fill measures the current level segment, with an approved minimum visual width
+  to keep the XP pill inside at low progress. The remaining-XP line is right-aligned;
+  accessible progress values and existing XP thresholds remain exact.
+  The same component is used by profile, gameplay introductions, mode completion
+  and challenge-stage completion. Reward/level-up feedback remains around it;
+  there are no separate gameplay implementations of the level bar.
+- Edit profile opens one dialog for display name, username, country and free or
+  purchased avatars. All fields save atomically; handle uniqueness/cooldown and
+  avatar ownership remain server-enforced. Existing avatar frames are preserved.
+  Three recent earned badges appear on the page; View all opens the existing
+  bounded earned-badge collection in a dialog for either own or other profiles.
+- `/friends` is linked from Home and profiles. The owner's private tabs show
+  Friends, incoming Requests, Sent requests and Blocked players. Every tab shows
+  its full total when greater than zero, independent of filtering or page. Only the
+  Requests count has a red background when greater than zero. Counts sit beside
+  tab names. One aggregate supplies the four totals.
+  Lists use 20-row pages plus one lookahead row. Explicit list search matches
+  name or username within that private list, with literal wildcard escaping.
+  Add friends opens an explicitly submitted, paginated player-search dialog.
+  Search is explicitly submitted, uses at least two characters, and accepts an
+  exact @handle or a handle/display-name prefix. Search never returns the viewer.
+- List rows show country, completed waypoints and labelled lifetime Beacon
+  Points. Blocked rows retain only identity for unblocking, without progress or
+  a profile link. The ellipsis menu reuses the existing consent and confirmation
+  controls. A profile-link copy card appears in the desktop rail or below the
+  mobile list, with manual-copy fallback; it never creates friendship itself.
+- Sending a request never creates an accepted friendship. Only its recipient
+  can accept or decline; the sender can cancel. Either friend can remove an
+  accepted friendship. Crossing requests still require explicit acceptance.
+  Pair uniqueness, database checks and sorted participant transaction locks
+  prevent duplicate friendships and resolve concurrent block/accept operations.
+- Blocking privately removes the friendship and pending requests, removes old
+  social notices between the pair, hides each profile/search result from the
+  other and rejects new requests in either direction. It does not change shared
+  fellowships. Only the blocker can unblock; unblocking restores no relationship.
+  Block and remove-friend controls ask for confirmation before mutation.
+- New requests and accepted requests create transactionally consistent inbox
+  notices. Newly created outgoing requests are limited to 30 per actor per hour
+  with a database-backed counter. Idempotent retries do not consume another
+  request or create duplicate notices. No friend activity awards currency or XP.
+- One Share profile button uses the existing public UUID URL for both existing
+  and new players, without a separate invitation route or welcome page.
+  Registration, email verification, login and translation onboarding retain the
+  inviter's profile as the validated next destination. No auto-friending occurs.
+  Native sharing has a selectable/copyable link fallback when unsupported.
+- Reads perform no writes, advisory locks, initialization or polling. A profile
+  uses one bounded nested read, one aggregate summary, an owner-only inventory
+  read or another-player relationship lookup. A list uses
+  an owner-link read, one four-total aggregate and one bounded list. Directory
+  search skips unused tab counts and adds one batched relationship
+  read instead of per-result lookups. New social links disable speculative
+  prefetch to avoid multiplying those reads before a player clicks.
 
 ## 16. Reusable Components
 
@@ -2284,3 +2386,22 @@ The application is production-ready when:
 - Reduced motion removes verse fades, dot motion and drifting lights. Scripture
   changes are not repeatedly announced by screen readers; loading status is stable.
   All data is bundled locally, with no database reads or polling.
+
+### Private player statistics (2026-10-20)
+
+- `/stats` is available only to the signed-in account and is linked from that
+  player's own profile. Other players retain the existing public summary.
+- Lifetime sections cover completed modes, activity days, streaks, curriculum
+  and verse mastery, books, challenge stages, attempt outcomes and durations,
+  translations, Beacon progression/leagues, earned badges, Glow ledger totals,
+  hints, owned avatars and connection counts. No new activity tracking is added.
+- The activity heatmap counts successfully completed modes, including Vault
+  practice and excluding admin testing. Dates use the Settings timezone. It
+  defaults to the latest 12 months and supports earlier calendar years.
+  Lifetime totals stay independent of the calendar's selected period.
+- A compact year overview pairs with a month grid of tappable 44px days and
+  learning/practice details. Browsing months or days is entirely local.
+- Completion rate excludes unfinished attempts. Recorded attempt time can
+  include waiting; missing historical durations remain unavailable rather than
+  fabricated. Streaks retain the existing progression rules; practice activity
+  on the calendar does not change those rules.

@@ -1,198 +1,211 @@
-/** Client-only shop UI shared with isolated QA; the caller owns persistence. */
-
+﻿/** Shared purchase receipts for hints and permanent avatar unlocks; no persistence. */
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { useTranslations } from "next-intl";
-import {
-  XIcon,
-} from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { SparkleIcon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import type { OilShopItem } from "@/features/oil-shop/types/oil-shop.types";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { useAudioFeedback } from "@/hooks/use-audio-feedback";
 import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preference";
-import { HintPackArtwork } from "./hint-pack-artwork";
+import type { AvatarKey } from "@/features/profile/data/avatar-catalog";
+import type { OilShopItem } from "../types/oil-shop.types";
+import styles from "./purchase-celebration.module.css";
 
+/** Keep the existing hint preview contract while distinguishing avatar receipts. */
 export type PurchaseCelebration = {
+  kind?: "hints";
   item: OilShopItem;
   previousHintBalance: number;
   newHintBalance: number;
+} | {
+  kind: "avatar";
+  avatarKey: AvatarKey;
+  collection: AvatarKey[];
 };
 
-/** Counts one trusted purchased-hint balance after the earlier effects settle. */
-function PurchasedHintBalance({
-  previousValue,
-  newValue,
-  reducedMotion,
-}: {
-  previousValue: number;
-  newValue: number;
+const SPARKLES = [
+  { left: "14%", top: "22%", delay: 0 },
+  { left: "7%", top: "56%", delay: .2 },
+  { left: "21%", top: "77%", delay: .4 },
+  { left: "80%", top: "34%", delay: .1 },
+  { left: "88%", top: "65%", delay: .3 },
+] as const;
+
+/** Both receipts count from their previous inventory; accessible text states the final total. */
+function PurchaseTotalNumber({ previous, current, reducedMotion }: {
+  previous: number;
+  current: number;
   reducedMotion: boolean;
 }): React.ReactNode {
-  const [displayedValue, setDisplayedValue] = useState(previousValue);
-
+  const locale = useLocale();
+  const [displayed, setDisplayed] = useState(previous);
   useEffect(() => {
-    // Reduced motion resolves the trusted result directly during render. Do not
-    // schedule the normal 1.5-second animation delay or a follow-up state write.
     if (reducedMotion) return;
-
-    let animationFrame = 0;
-    // WHY: The balance is deliberately the final celebration beat. Waiting for
-    // the modal, Luna, particles, and item to settle prevents competing motion.
-    const startTimer = window.setTimeout(() => {
-      const startedAt = performance.now();
-      const durationMs = 850;
-      const step = (timestamp: number): void => {
-        const progress = Math.min(1, (timestamp - startedAt) / durationMs);
-        setDisplayedValue(Math.floor(previousValue + (newValue - previousValue) * progress));
-        if (progress < 1) animationFrame = window.requestAnimationFrame(step);
+    let frame = 0;
+    // Begin once the entrance settles, so the count-up is visible immediately
+    // after the receipt appears, including small purchases of a single avatar.
+    const delay = window.setTimeout(() => {
+      const start = performance.now();
+      const step = (now: number): void => {
+        const progress = Math.min(1, (now - start) / 1200);
+        setDisplayed(Math.floor(previous + (current - previous) * progress));
+        if (progress < 1) frame = window.requestAnimationFrame(step);
       };
-      animationFrame = window.requestAnimationFrame(step);
-    }, 1_500);
+      frame = window.requestAnimationFrame(step);
+    }, 350);
     return () => {
-      window.clearTimeout(startTimer);
-      window.cancelAnimationFrame(animationFrame);
+      window.clearTimeout(delay);
+      window.cancelAnimationFrame(frame);
     };
-  }, [newValue, previousValue, reducedMotion]);
-
+  }, [previous, current, reducedMotion]);
   return (
-    <motion.div
-      key={reducedMotion ? newValue : displayedValue}
-      initial={reducedMotion ? false : { scale: 0.94 }}
-      animate={{ scale: 1 }}
-      className="rounded-xl bg-muted px-3 py-2 text-center text-foreground"
-    >
-      <div className="mx-auto size-8">
-        <HintPackArtwork quantity={1} fit />
-      </div>
-      <strong>{reducedMotion ? newValue : displayedValue}</strong>
-    </motion.div>
+    <>
+      <span aria-hidden="true">{(reducedMotion ? current : displayed).toLocaleString(locale)}</span>
+      <span className="sr-only">{current.toLocaleString(locale)}</span>
+    </>
   );
 }
 
-/** Animated purchase acknowledgement that remains open until the learner closes it. */
-export function PurchaseCelebrationDialog({
-  celebration,
-  onClose,
-}: {
+/** Receipts stay open until dismissed and inherit shared focus/keyboard/modal behavior. */
+export function PurchaseCelebrationDialog({ celebration, onClose }: {
   celebration: PurchaseCelebration | null;
   onClose: () => void;
 }): React.ReactNode {
   const t = useTranslations("Shop");
   const common = useTranslations("Common");
+  const animals = useTranslations("Settings.animals");
+  const locale = useLocale();
   const playAudio = useAudioFeedback();
-  const shouldReduceMotion = useReducedMotionPreference();
-
+  const reducedMotion = useReducedMotionPreference();
   useEffect(() => {
     if (celebration) playAudio("shop-purchase");
   }, [celebration, playAudio]);
 
+  const avatar = celebration?.kind === "avatar" ? celebration : null;
+  const hints = celebration && celebration.kind !== "avatar" ? celebration : null;
+  const name = avatar ? animals(avatar.avatarKey)
+    : hints ? t("successPackName", { count: hints.item.hintQuantity }) : "";
+  // Show a small representative stack, always ending with the newly unlocked
+  // portrait. Count the full collection, including all three free options.
+  const thumbnails = avatar
+    ? [...avatar.collection.filter((key) => key !== avatar.avatarKey).slice(-2), avatar.avatarKey]
+    : [];
+
   return (
     <Dialog open={celebration !== null} onOpenChange={(open) => !open && onClose()}>
-      {/* The celebration inherits the same light/dark card palette as the shop;
-       * Luna, warm reward effects, and motion provide the celebratory identity. */}
       <DialogContent
         showCloseButton={false}
-        className="h-[calc(100dvh-1rem)] max-h-[46rem] overflow-hidden rounded-[2rem] border-2 border-border bg-card p-0 text-card-foreground sm:max-w-lg"
+        className={styles.dialog}
+        data-receipt={avatar ? "avatar" : "hints"}
       >
         {celebration && (
           <motion.div
-            initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.82 }}
+            key={avatar?.avatarKey ?? hints?.item.id}
+            className={styles.receipt}
+            initial={reducedMotion ? false : { opacity: 0, scale: .94 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={
-              shouldReduceMotion
-                ? { duration: 0 }
-                : { type: "spring", duration: 0.75, bounce: 0.28 }
-            }
-            className="relative grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] gap-3 px-4 pb-4 pt-5 text-center min-[390px]:px-5 min-[390px]:pb-5 min-[390px]:pt-7"
+            transition={{ duration: reducedMotion ? 0 : .3 }}
           >
-            <Button
-              type="button"
-              variant="outline"
-              size="icon-lg"
-              onClick={onClose}
-              aria-label={common("close")}
-              className="absolute right-3 top-3 z-20 size-11 rounded-2xl"
-            >
-              <XIcon className="size-5" aria-hidden="true" />
-            </Button>
-            <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-              {!shouldReduceMotion && Array.from({ length: 12 }, (_, index) => (
-                <motion.span
-                  key={index}
-                  className="absolute size-2 rotate-45 bg-reward-subtle"
-                  style={{ left: `${8 + ((index * 17) % 84)}%`, top: `${12 + ((index * 23) % 62)}%` }}
-                  animate={
-                    shouldReduceMotion
-                      ? undefined
-                      : {
-                          y: [0, -18, 8],
-                          rotate: [45, 160, 260],
-                          opacity: [0, 1, 0],
-                        }
-                  }
-                  transition={{ duration: 1.8, delay: index * 0.07, repeat: Infinity, repeatDelay: 0.5 }}
-                />
-              ))}
-            </div>
-            <div className="px-12">
-              <p className="text-[0.6rem] font-bold tracking-[0.2em] text-reward-text uppercase min-[390px]:text-xs dark:text-reward-text">
-                {t("purchaseComplete")}
-              </p>
-              <h2 className="mt-1 font-heading text-3xl font-bold min-[390px]:text-4xl">
-                {t("trailSupplied")}
-              </h2>
-            </div>
-            <div className="relative mx-auto h-full min-h-0 w-full max-w-sm">
-              <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-                <motion.div
-                  className="absolute left-1/2 top-1/2 aspect-square w-[120%] -translate-x-1/2 -translate-y-1/2 bg-reward/10 [mask-image:radial-gradient(circle,var(--reward)_0%,transparent_88%)]"
-                  animate={
-                    shouldReduceMotion
-                      ? undefined
-                      : { rotate: 360, scale: [0.98, 1.04, 0.98] }
-                  }
-                  transition={{ rotate: { duration: 28, repeat: Infinity, ease: "linear" }, scale: { duration: 3.6, repeat: Infinity, ease: "easeInOut" } }}
-                />
-                <div className="absolute left-1/2 top-1/2 size-[68%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-reward-subtle blur-[3.5rem]" />
-              </div>
-              <Image src="/images/mascot/luna/luna-reward.png" alt={t("celebrationAlt")} fill className="z-10 object-contain" sizes="384px" />
-              <motion.div
-                initial={
-                  shouldReduceMotion
-                    ? false
-                    : { x: 30, scale: 0.4, rotate: 12 }
-                }
-                animate={{ x: 0, scale: 1, rotate: -4 }}
-                transition={{ type: "spring", delay: 0.3, duration: 0.8 }}
-                className="absolute bottom-1 right-1 z-20 size-24 overflow-hidden rounded-3xl border-2 border-border bg-muted shadow-lg min-[390px]:size-28"
+            <header className={styles.header}>
+              <DialogTitle className={styles.heading}>{t("purchaseComplete")}</DialogTitle>
+              <Button
+                variant="outline"
+                size="icon-lg"
+                className={styles.close}
+                onClick={onClose}
+                aria-label={common("close")}
               >
-                <HintPackArtwork
-                  quantity={celebration.item.hintQuantity}
-                  fit
-                />
-              </motion.div>
-            </div>
-            <div className="mx-auto grid w-full max-w-sm grid-cols-[1fr_auto] items-center gap-3 rounded-2xl border border-border bg-background p-3 text-left text-foreground min-[390px]:p-4">
-              <div>
-                <p className="font-heading text-lg font-bold min-[390px]:text-xl">
-                  {celebration.item.name}
-                </p>
-                <p className="text-xs text-muted-foreground min-[390px]:text-sm">
-                  {t("receivedHints", { count: celebration.item.hintQuantity })}
-                </p>
-              </div>
-              <PurchasedHintBalance
-                previousValue={celebration.previousHintBalance}
-                newValue={celebration.newHintBalance}
-                reducedMotion={shouldReduceMotion}
+                <XIcon className="size-5" aria-hidden="true" />
+              </Button>
+            </header>
+            <div className={styles.artScene} aria-hidden="true">
+              <div className={styles.glow} />
+              {SPARKLES.map((sparkle) => (
+                <motion.span
+                  key={sparkle.left}
+                  className={styles.sparkle}
+                  style={{ left: sparkle.left, top: sparkle.top }}
+                  animate={reducedMotion ? undefined : { opacity: [.45, 1, .45], y: [0, -5, 0] }}
+                  transition={{ duration: 2, delay: sparkle.delay, repeat: Infinity }}
+                >
+                  <SparkleIcon />
+                </motion.span>
+              ))}
+              <Image
+                src={avatar ? `/images/avatars/${avatar.avatarKey}.png` : "/images/oil-shop/hint-bulb-owner.png"}
+                alt=""
+                fill
+                sizes="(max-width: 640px) 220px, 280px"
+                className={styles.itemImage}
               />
             </div>
+            <div className={styles.copy}>
+              <h3 className={styles.itemName}>{name}</h3>
+              <p className={avatar ? styles.unlock : styles.quantity}>
+                {avatar ? t("avatarUnlocked") : t("hintCount", { count: hints?.item.hintQuantity ?? 0 })}
+              </p>
+              <DialogDescription className={styles.description}>
+                {t(avatar ? "avatarAdded" : "hintsAdded")}
+              </DialogDescription>
+            </div>
+            {hints && (
+              <dl className={styles.breakdown}>
+                <div className={styles.line}>
+                  <dt>{t("previousHints")}</dt>
+                  <dd>{hints.previousHintBalance.toLocaleString(locale)}</dd>
+                </div>
+                <div className={styles.line}>
+                  <dt>{t("purchasedLabel")}</dt>
+                  <dd>+{hints.item.hintQuantity.toLocaleString(locale)}</dd>
+                </div>
+                <div className={styles.total}>
+                  <dt>{t("yourHintBalance")}</dt>
+                  <dd>
+                    <PurchaseTotalNumber
+                      key={`${hints.previousHintBalance}-${hints.newHintBalance}`}
+                      previous={hints.previousHintBalance}
+                      current={hints.newHintBalance}
+                      reducedMotion={reducedMotion}
+                    />
+                    {" "}{t("hintsUnit", { count: hints.newHintBalance })}
+                  </dd>
+                </div>
+              </dl>
+            )}
+            {avatar && (
+              <section className={styles.collection} aria-label={t("yourAvatarCollection")}>
+                <h4>{t("yourAvatarCollection")}</h4>
+                <div className={styles.collectionRow}>
+                  <div className={styles.thumbnails}>
+                    {thumbnails.map((key) => (
+                      <span key={key} className={styles.thumbnail} data-new={key === avatar.avatarKey}>
+                        <Image
+                          src={`/images/avatars/${key}.png`}
+                          alt={animals(key)}
+                          width={64}
+                          height={64}
+                        />
+                      </span>
+                    ))}
+                  </div>
+                  <p className={styles.collectionCount}>
+                    <strong>
+                      <PurchaseTotalNumber
+                        key={`${avatar.avatarKey}-${avatar.collection.length}`}
+                        previous={Math.max(0, avatar.collection.length - 1)}
+                        current={avatar.collection.length}
+                        reducedMotion={reducedMotion}
+                      />
+                    </strong>
+                    <span>{t("avatars")}</span>
+                  </p>
+                </div>
+              </section>
+            )}
           </motion.div>
         )}
       </DialogContent>
     </Dialog>
   );
 }
-

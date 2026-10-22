@@ -38,8 +38,8 @@ model BlogArticle {
   title       String
   excerpt     String
   content     String            @db.Text
-  category    BlogCategory       @default(GUIDE)
-  status      BlogArticleStatus  @default(DRAFT)
+  category    BlogCategory      @default(GUIDE)
+  status      BlogArticleStatus @default(DRAFT)
   byline      String            @default("Scripture Memo")
   version     Int               @default(1)
   publishedAt DateTime?
@@ -192,6 +192,8 @@ enum BeaconLeague {
 // Notifications store stable event meaning instead of translated prose so the
 // same record can render correctly after a learner changes language.
 enum UserNotificationType {
+  FRIEND_REQUEST
+  FRIEND_ACCEPTED
   BADGE_AWARDED
   LEAGUE_PROMOTED
   LEAGUE_DEMOTED
@@ -263,6 +265,10 @@ model User {
   beaconWeeklyScores         BeaconWeeklyScore[]
   beaconLeagueMemberships    BeaconLeagueMembership[]
   notifications              UserNotification[]
+  friendshipsLow             PlayerFriendship[]             @relation("FriendshipLow")
+  friendshipsHigh            PlayerFriendship[]             @relation("FriendshipHigh")
+  blocksMade                 PlayerBlock[]                  @relation("PlayerBlocker")
+  blocksReceived             PlayerBlock[]                  @relation("PlayerBlocked")
 
   @@index([role])
   @@index([suspendedAt])
@@ -275,6 +281,9 @@ model UserProfile {
   publicId                String    @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId                  String    @unique
   displayName             String
+  /// Canonical lowercase handle; null until the learner explicitly chooses one.
+  username                String?   @unique
+  usernameChangedAt       DateTime?
   countryCode             String?
   totalGlowPoints         Int       @default(0)
   totalWaypointsCompleted Int       @default(0)
@@ -296,6 +305,40 @@ model UserProfile {
   @@index([countryCode, totalWaypointsCompleted(sort: Desc), totalGlowPoints(sort: Desc)])
   @@index([beaconLevel(sort: Desc), beaconXp(sort: Desc)])
   @@index([lastSeenAt])
+}
+
+// A canonical pair has at most one pending request or accepted friendship.
+// Internal IDs preserve connections across display-name and handle changes.
+enum PlayerFriendshipStatus {
+  PENDING
+  ACCEPTED
+}
+
+model PlayerFriendship {
+  lowUserId   String
+  highUserId  String
+  requesterId String
+  status      PlayerFriendshipStatus @default(PENDING)
+  createdAt   DateTime               @default(now())
+  acceptedAt  DateTime?
+  lowUser     User                   @relation("FriendshipLow", fields: [lowUserId], references: [id], onDelete: Cascade)
+  highUser    User                   @relation("FriendshipHigh", fields: [highUserId], references: [id], onDelete: Cascade)
+
+  @@id([lowUserId, highUserId])
+  @@index([lowUserId, status, createdAt])
+  @@index([highUserId, status, createdAt])
+}
+
+// Direction is private: nobody receives a notification that they were blocked.
+model PlayerBlock {
+  blockerId String
+  blockedId String
+  createdAt DateTime @default(now())
+  blocker   User     @relation("PlayerBlocker", fields: [blockerId], references: [id], onDelete: Cascade)
+  blocked   User     @relation("PlayerBlocked", fields: [blockedId], references: [id], onDelete: Cascade)
+
+  @@id([blockerId, blockedId])
+  @@index([blockedId, blockerId])
 }
 
 model UserSettings {
@@ -877,17 +920,17 @@ model ShopItem {
 }
 
 model UserShopPurchase {
-  id                  String   @id @default(cuid())
+  id                  String               @id @default(cuid())
   userId              String
   shopItemId          String
-  quantity            Int      @default(1)
+  quantity            Int                  @default(1)
   unitCost            Int
   totalCost           Int
   entitlementQuantity Int
-  idempotencyKey      String   @unique
-  purchasedAt         DateTime @default(now())
-  user                User     @relation(fields: [userId], references: [id], onDelete: Restrict)
-  shopItem            ShopItem @relation(fields: [shopItemId], references: [id], onDelete: Restrict)
+  idempotencyKey      String               @unique
+  purchasedAt         DateTime             @default(now())
+  user                User                 @relation(fields: [userId], references: [id], onDelete: Restrict)
+  shopItem            ShopItem             @relation(fields: [shopItemId], references: [id], onDelete: Restrict)
   avatarOwnership     UserAvatarOwnership?
 
   @@index([userId, purchasedAt(sort: Desc)])
@@ -952,16 +995,16 @@ model AuditLog {
 
 // These four models must remain compatible with Better Auth's generated schema.
 model Session {
-  id        String   @id
-  expiresAt DateTime
-  token     String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  ipAddress String?
-  userAgent String?
+  id             String   @id
+  expiresAt      DateTime
+  token          String   @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  ipAddress      String?
+  userAgent      String?
   impersonatedBy String?
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@map("session")

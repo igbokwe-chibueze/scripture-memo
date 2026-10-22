@@ -10,6 +10,7 @@ export const GAME_ARTWORK = {
   shop: "shop",
   settings: "settings",
   fellowship: "fellowship",
+  friends: "friends",
   trivia: "trivia",
   badges: "badges",
   bibleClosed: "bible-closed",

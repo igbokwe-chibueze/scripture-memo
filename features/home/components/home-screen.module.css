@@ -222,6 +222,12 @@
   margin-top: 0.85rem;
 }
 
+/* Friends reuses the shared teal surface instead of adding another palette. */
+.friends[data-slot="button"] {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
 .shortcutTile[data-slot="button"] {
   display: flex;
   flex-direction: column;

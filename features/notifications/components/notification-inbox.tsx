@@ -86,6 +86,9 @@ function fellowshipNoticeKey(item: NotificationItem): string | null {
 
 /** Renders the established inbox icon for both the list and detail view. */
 function notificationIcon(item: NotificationItem): React.ReactNode {
+  if (item.type === "FRIEND_REQUEST" || item.type === "FRIEND_ACCEPTED") {
+    return <UsersRoundIcon aria-hidden="true" />;
+  }
   if (item.type === "BADGE_AWARDED") {
     return <AwardIcon aria-hidden="true" />;
   }
@@ -115,8 +118,12 @@ function notificationDestination(
     | "viewBadges"
     | "viewFellowships"
     | "openFellowship"
-    | "viewLeaderboard";
+    | "viewLeaderboard"
+    | "viewFriends";
 } | null {
+  if (item.type === "FRIEND_REQUEST" || item.type === "FRIEND_ACCEPTED") {
+    return { href: item.type === "FRIEND_REQUEST" ? "/friends?tab=requests" : "/friends", label: "viewFriends" };
+  }
   if (item.type === "BADGE_AWARDED") {
     return { href: "/vault/badges", label: "viewBadges" };
   }
@@ -199,6 +206,8 @@ export function NotificationInbox({
     const outcome = leagueOutcome(item);
     const fellowshipNotice = fellowshipNoticeKey(item);
 
+    if (item.type === "FRIEND_REQUEST") return t("friendRequestTitle");
+    if (item.type === "FRIEND_ACCEPTED") return t("friendAcceptedTitle");
     if (item.type === "BADGE_AWARDED") return t("badgeAwardedTitle");
     if (fellowshipNotice) return t(`${fellowshipNotice}Title`);
     if (outcome) return t(`${outcome}Title`);
@@ -211,6 +220,12 @@ export function NotificationInbox({
   ): string => {
     const outcome = leagueOutcome(item);
     const fellowshipNotice = fellowshipNoticeKey(item);
+
+    if (item.type === "FRIEND_REQUEST" || item.type === "FRIEND_ACCEPTED") {
+      return t(item.type === "FRIEND_REQUEST" ? "friendRequestBody" : "friendAcceptedBody", {
+        name: item.payload.playerDisplayName ?? "",
+      });
+    }
 
     if (item.type === "BADGE_AWARDED") {
       return t("badgeAwardedBody", {

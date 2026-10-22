@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import type { DayLevel, GameMode } from "@/lib/generated/prisma/enums";
 import type { DayRewardResult } from "@/features/rewards/types/reward.types";
 import type { BeaconProgressionResult } from "@/features/beacon/types/beacon.types";
+import { BeaconLevelBar } from "@/features/beacon";
 import type { LocalReplayKind } from "@/features/gameplay/types/game-session.types";
 import { StageCompletionCard, type StageCompletionSummary } from "./stage-completion-card";
 
@@ -73,19 +74,6 @@ export function ModeCompletionScreen({
     FILL: gameT("fill"),
   };
   const shouldReduceMotion = useReducedMotionPreference();
-  const levelProgress = beaconProgression
-    ? Math.min(
-        100,
-        Math.max(
-          0,
-          ((beaconProgression.lifetimeXp -
-            beaconProgression.currentLevelStartXp) /
-            (beaconProgression.nextLevelXp -
-              beaconProgression.currentLevelStartXp)) *
-            100,
-        ),
-      )
-    : 0;
 
   useEffect(() => {
     const previousBodyOverflow = document.body.style.overflow;
@@ -237,29 +225,15 @@ export function ModeCompletionScreen({
                   <p className="text-xs font-bold tracking-[0.14em] text-selection-text uppercase dark:text-selection-text">
                     {t("beaconXpEarned", { count: beaconProgression.earnedXp })}
                   </p>
-                  <p className="mt-1 font-heading text-lg font-bold">
-                    {t("beaconLevel", { level: beaconProgression.level })}
-                  </p>
                 </div>
                 <span className="font-heading text-2xl font-bold text-selection-text dark:text-selection-text">
                   +{beaconProgression.earnedXp}
                 </span>
               </div>
-              <div
-                className="mt-3 h-3 overflow-hidden rounded-full bg-selection dark:bg-background/35"
-                role="progressbar"
-                aria-label={t("beaconLevelProgress")}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={Math.round(levelProgress)}
-              >
-                <motion.div
-                  className="h-full rounded-full bg-primary"
-                  initial={{ width: shouldReduceMotion ? `${levelProgress}%` : 0 }}
-                  animate={{ width: `${levelProgress}%` }}
-                  transition={{ duration: shouldReduceMotion ? 0 : 0.8, delay: 0.5 }}
-                />
-              </div>
+              <BeaconLevelBar
+                lifetimeXp={beaconProgression.lifetimeXp}
+                className="mt-3 border-0 bg-transparent p-0"
+              />
               {beaconProgression.leveledUp && (
                 <motion.p
                   className="mt-3 text-center font-heading text-lg font-bold text-fuchsia-700 dark:text-fuchsia-300"

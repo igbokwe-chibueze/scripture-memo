@@ -16,6 +16,11 @@ Its colorful, glossy dimensional art style is the standard for future icons.
 Decision recorded on 2026-10-14. Character illustrations are maintained
 separately under `public/images/mascot/`.
 
+`friends.png` and `stats.png` are the owner's supplied blue friends bust and
+three-color stats bars, copied unchanged on 2026-10-20 for the profile Quick
+links panel. Fellowship and badge shortcuts reuse this collection's existing
+`fellowship.png` and `badges.png`.
+
 `stage-confetti.png` is the owner's supplied “Golden Stars and Teal Confetti
 Overlay.png”, copied unchanged on 2026-10-16 for stage completion. Preserve its
 glossy stars, curled teal ribbons, sparkle/glow, transparency, and 1529×1029

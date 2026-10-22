@@ -612,3 +612,75 @@ Accepted risk justification (if applicable):
 - Migrations applied only to local development 51214 and isolated test 51224.
   Hosted data was not accessed. Operational errors use SHP-001/002/003 with safe
   messages and centralized reference entries; UI uses showActionError/Sonner.
+
+### Purchase receipt data - 2026-10-19
+
+- Success modals consume acknowledged results only; no client-side reward or
+  ownership grant was added. Hint quantity comes from the durable purchase
+  entitlement snapshot, including safe retries, rather than a stale catalogue.
+- Avatar acknowledgement includes only approved owned keys from the server,
+  adding one bounded read within the existing purchase transaction. Normal shop
+  visits retain five reads, hint purchases add no inventory read, and there is
+  no polling or per-thumbnail data fetch. Collection counts include the three
+  free keys once and preserve owned portraits whose offers were retired.
+- Existing debit/ledger/idempotency/unique-ownership protections remain intact.
+  Local PostgreSQL checks additionally cover returned ownership and continued
+  access to retired cosmetic inventory. No schema change or hosted operation.
+
+
+### Player profiles and friends - 2026-10-19
+
+- Every mutation validates strict Zod inputs before a server session check; actor IDs are session-derived. Repositories verify current account eligibility, request ownership/direction, and blocks. Expected uniqueness/cooldown failures are safe; operational failures use SOC-001.
+- Public profile DTOs deliberately exclude email, private account/profile IDs, Glow balance, notes and friend lists. Only the authenticated owner's graph is listed. Blocked and unavailable profiles return the same neutral unavailable state; blocked pairs are excluded in both discovery directions. Shared fellowships remain unchanged.
+- Database lowercase/unique username enforcement and 30-day server cooldown survive concurrent claims. Canonical friendship pair, self-link/request-owner/acceptance constraints and sorted participant locks serialize conflicting requests, acceptance and blocks. Block notices are never sent; old social notices between the pair are removed.
+- Outgoing new requests have a shared database-backed 30/hour actor quota. Explicit paginated search and disabled social-link prefetch bound directory reads. No read-time writes or polling were added.
+- Invitations reveal no identity while signed out and retain only a validated internal profile return path through existing verification/onboarding. Visiting or registering never implicitly creates friendship.
+- Isolated real PostgreSQL tests cover duplicate and crossed requests, unauthorized acceptance/cancellation, unique-handle races and cooldowns, private-field exclusion, stable UUIDs after renaming, both-way block visibility, block/accept races, ownership of unblock, request quotas and banned targets. Tests use the existing guarded disposable local runner because Prisma Local multiplexing cannot safely exercise competing unique-constraint transactions. No hosted database was used.
+
+### Profile presentation and atomic editing - 2026-10-20
+
+- Private profile details are null for other viewers. Friend/fellowship/hint
+  counts and owned avatars are available only to the owner; existing visibility
+  and block checks still run before those reads. Public mastery is aggregated
+  without returning curriculum history rows. Reads add no writes or polling.
+- The unified edit action validates a strict shape before authentication and
+  accepts no account identifier. One transaction verifies account eligibility,
+  paid-avatar ownership, and canonical username cooldown before changing any
+  field. The existing per-account handle lock and unique index guard competing
+  edits. Username conflicts roll back name/country/avatar changes as well.
+- The disposable PostgreSQL social suite verifies owner-only details, cooldown
+  rollback, paid-avatar rejection and a valid save alongside existing race tests.
+
+### Friends screen totals and discovery dialog - 2026-10-20
+
+- One parameterized aggregate supplies all four owner-only tab totals. It
+  ignores pagination and list filters, matches peer eligibility/block rules and
+  performs no writes. List searches remain bounded and escape literal LIKE
+  wildcards. Directory search keeps the existing exact-handle/prefix rules.
+- The search Server Function validates its strict query/page input, verifies
+  the server session, and returns at most 20 public player summaries plus a
+  pagination flag. No client account selector, polling or per-keystroke reads.
+  Directory requests skip the unused totals aggregate; ordinary list requests
+  use three reads, while submitted discovery uses at most three reads.
+- Country, waypoints and lifetime Beacon Points are explicit public fields;
+  blocked lists continue to expose identity only. Menu controls reuse existing
+  atomic request/accept/block/unfriend rules and destructive confirmations.
+- Disposable PostgreSQL tests cover full totals independent of filters/pages,
+  incoming/outgoing counts, wildcard escaping and blocked progress exclusion.
+
+### Private player statistics - 2026-10-20
+
+- `/stats` requires a server session; account identity comes exclusively from
+  that session. Validated query parameters select a period, never an account.
+  Suspended/banned accounts are rejected and metadata is noindex/nofollow.
+- Every history query is owner-filtered, including both attempt and session
+  ownership. Admin-test sessions are excluded. Notes expose a count only; no
+  note content, email or private auth IDs are sent to the client.
+- Two parameterized read-only database queries per explicit route request:
+  one compact owner/settings row and one aggregate. At most 366 activity rows,
+  66 books and fixed enum-sized breakdowns return. No read-time initialization,
+  locks, transactions, polling, or tracking writes. Month/day interactions have
+  zero database operations; changing the year explicitly reloads the aggregate.
+- Local PostgreSQL integration tests cover account isolation, unavailable
+  accounts, timezone boundaries, practice/admin separation, historical grant
+  snapshots, mastery, league order and absence of read-time reward writes.

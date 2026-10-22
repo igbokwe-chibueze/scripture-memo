@@ -5675,3 +5675,147 @@ concurrency subtests remain explicitly skipped as documented above.
 ### 2026-10-19 - Shop preview close-button clearance
 
 - Added reserved header space beside the shared 44px close button in avatar and hint-pack previews, allowing descriptions to wrap without overlap. Reservation remains during pending requests to prevent layout shifts. Shared dialog/button styling is unchanged. Scoped ESLint and TypeScript passed.
+
+### 2026-10-19 - Hint and avatar purchase success receipts
+
+- Replaced the old Meemo celebration composition with item-focused, theme-aware receipts matching the supplied concepts. Reused the owner bulb and existing portrait art, approved Lilita/Fredoka roles and shared button styling. Added restrained gold sparkles and retained purchase audio/reduced-motion behavior.
+- Hints show pack name, granted quantity, Previous hints, Purchased and Your hint balance with a visual count-up. Acknowledgements now return the snapshotted hint grant; breakdown uses the trusted current balance rather than the tab's old balance.
+- Avatar purchases now open the same reusable receipt shell with Avatar unlocked, a newly highlighted thumbnail and the collection count. Owner confirmed that count includes all three free portraits plus purchased portraits. Permanent inventory is returned on acknowledgement (one extra bounded read only for avatar receipts), including retired offers and cross-device purchases. Equipping remains separate.
+- Close control owns a dedicated 44px header column. Viewport grid fits short 375x498 screens; avatar receipt is shorter to remove empty space. Added localized en/es/fr receipt labels and both isolated previews to shared UI testing. No migrations, purchase-price changes or hosted operations.
+- Validation: production build, TypeScript, scoped ESLint, five shop unit tests, locale contract and seven design checks passed. Local PostgreSQL purchase/rollout integration checks passed, including retired owned avatars. Actual-component browser checks cover 375px short/tall light/dark, Spanish/French, desktop, close-header clearance, hint count-up and real synthetic hint/avatar purchase transitions.
+
+
+### 2026-10-19 - Shop Partner pending-label translation fix
+
+- Replaced the nonexistent Common.loading lookup with the existing localized PartnerSupport.opening label. The donation destination and new-tab behavior are unchanged.
+- Validation: locale contract tests and scoped ESLint passed.
+
+
+### 2026-10-19 - Shop UUID compatibility
+
+- Both hint and avatar previews use one purchase-key helper. Native randomUUID is preferred; browsers lacking it use cryptographic getRandomValues with UUID v4 version/variant bits. Existing stable retry keys and server purchase validation remain intact; no database changes.
+- Added regression coverage for missing randomUUID, UUID validation and distinct keys to test:shop. Both tests, TypeScript and scoped ESLint passed.
+
+
+### 2026-10-19 - Mobile Shop Meemo alignment
+
+- Scoped artwork correction below 640px: centered the approved cutout against a narrower, fixed-aspect oval instead of a stretched backdrop and bottom-aligned image. Original image proportions and desktop CSS remain unchanged.
+- TypeScript passed. Live browser visual verification was not available this turn.
+
+
+### 2026-10-19 - Shop baseline and purchase count-up
+
+- Mobile hero now aligns the balance card and Meemo at the lower edge, retaining the narrower oval and original artwork proportions. Desktop rules are unchanged.
+- One reusable receipt number now counts both hint balances and avatar collection totals from the previous value to the acknowledged total. Starts after the entrance (350ms) and counts over 1.2 seconds; reduced-motion users receive the final total immediately. Existing hint animation had remained present with a longer delay; avatar count had been static.
+- TypeScript and scoped ESLint passed. Live browser visual verification was unavailable.
+
+
+### 2026-10-19 - Player profiles, usernames and friends
+
+- Replaced authenticated profile placeholders with real public-field profiles and an own-profile redirect. Header avatar opens your profile; Home includes Friends. Kept approved fonts, game controls, original permanent public UUIDs and private auth IDs. No global button redesign.
+- Players choose lowercase unique 3-24 character handles in their own profile; database canonical/unique constraints and server 30-day cooldown apply. Existing/new users have no invented handle. Display-name duplicates remain allowed. Stable links/friendships survive renaming.
+- Added owner-only paginated Friends/Requests/Sent/Find players/Blocked hub. Explicit prefix or exact @handle search, literal wildcard escaping, 20-row pages and disabled social-link prefetch. Profiles exclude email, Glow balance, notes and friend lists. No polling or read-time initialization.
+- Added request/accept/decline/cancel/unfriend/block/unblock server flows. Canonical pair constraints and sorted participant locks preserve consent and handle races. A shared 30/hour new-request quota and transactional inbox notices prevent request amplification; blocks remove connections/notices and hide profiles/search in both directions. Only an owner can unblock, including suspended targets, without recreating friendships.
+- Native profile/invitation sharing has selectable clipboard fallback. Neutral /connect/[publicId] entry discloses no signed-out player identity; existing validated login/verification/translation return paths resume the inviter profile without automatic friending. Uppercase public UUIDs normalize before Prisma queries.
+- Additive migration 20261019180000_player_profiles_and_friends applied only to local dev 51214 and isolated test 51224; no hosted operations. Concurrency suite uses the existing disposable embedded PostgreSQL runner (--social), added to default concurrency coverage. Prisma Local's single-connection adapter cannot safely run competing unique-constraint transactions.
+- Validation: production build and TypeScript passed; 202 database-free tests, locale/design/error contracts and scoped ESLint passed. Real local PostgreSQL suite verifies uniqueness/cooldown, request ownership/idempotence, block/accept races, privacy, quotas and stable IDs. Synthetic actual-component Edge checks cover seven 375px/desktop/light/dark/en/es/fr layouts, long names, 44px controls, no overflow, sharing links, focus/Escape, close-button clearance and block confirmation. Screenshots/results retained in .local-backups/social-qa; temporary QA scripts removed. Product/roadmap/security docs updated. Ready for owner review.
+
+
+### 2026-10-19 - One profile sharing flow
+
+- Removed the redundant Invite someone new button. Share profile always creates /profiles/[publicId] links for both existing and new players; existing login/registration return paths resume that profile.
+- Previously shared /connect/[publicId] links validate the UUID and redirect directly to the profile, with no separate landing screen or database/session read. No automatic friendship is created.
+- Updated product documentation. TypeScript, scoped ESLint and all eight social unit tests passed. No database or shared button changes.
+
+
+### 2026-10-19 - Remove unused connect route
+
+- Owner confirmed no connect links were used. Deleted app/connect and its unused player-invite view completely; no redirect remains. Sharing uses profiles only. Updated the product specification.
+- Regenerated Next route types and passed TypeScript. Verified no connect route or runtime references remain.
+
+### 2026-10-20 - Private detailed player statistics
+
+- Added owner-only /stats, linked from the signed-in player's own profile. Public summaries stay unchanged. Reuses approved fonts, semantic themes, shared controls, loading skeletons and noindex metadata.
+- Lifetime summaries cover activity/streaks, curriculum/mastery/books/challenges, mode outcomes/timing, translations, Beacon/leagues, badges, Glow ledger, hints, avatars and connections. Missing durations remain unavailable; elapsed attempt time is distinguished from focused study time.
+- Calendar defaults to the latest twelve months, supports earlier years and uses the Settings timezone. Completed modes include Vault practice and exclude admin testing. Compact annual heatmap plus 44px month/day controls; month/day browsing is local.
+- Two parameterized read-only queries per explicit page request. Session-derived identity, bounded aggregates, no email/note content/private IDs, no polling, read-time writes, migrations or hosted database access. Product/roadmap/security docs and English/Spanish/French labels updated.
+- Validation: production build, TypeScript, scoped ESLint, locale contracts and eight stats unit tests passed. Guarded local PostgreSQL tests cover ownership, timezone boundaries, practice/admin separation, mastery, historical purchases, league ordering and read-only behavior. Synthetic actual-component Edge checks passed five mobile/desktop/theme/locale layouts, 44px controls, no horizontal overflow, keyboard/day selection and an empty earlier year. Screenshots/results retained in .local-backups/stats-qa.
+- Current state: implemented, ready for owner review from Profile > View detailed stats. No unresolved product questions or schema deployment steps.
+
+### 2026-10-20 - Profile presentation and unified editing
+
+- Updated own and other-player profiles to the approved centered portrait, country/join month, Beacon level progress, compact journey cards and recent-badge layout. Preserved approved fonts, game buttons, selected avatar frames, actual XP thresholds and supplied artwork. Owner-only social counts, hints used, avatar inventory and detailed stats remain private.
+- One Edit profile dialog handles name, username, country and free/purchased avatars with an atomic server save. Existing username normalization, uniqueness, 30-day cooldown, account checks and avatar ownership remain enforced; failed handles roll back all fields. Pending/network/error feedback preserves drafts. Frame settings stay unchanged.
+- Three recent badges appear on the profile; View all opens the bounded earned-badge dialog for that player. Sharing continues to use the permanent profile URL. No schema migration, polling or read-time writes.
+- Updated product/roadmap/security guidance and English/Spanish/French labels. TypeScript, scoped ESLint, production build, localization and design-system checks passed. Disposable local PostgreSQL social tests pass with added privacy, cooldown rollback, owned-avatar and valid-save checks. The runner required execution outside the Windows sandbox for initdb; no hosted database was used.
+- Synthetic actual-component Edge checks passed six mobile/desktop/theme/locale/other-player variants, no horizontal overflow, usable controls, editor save, avatar inventory and earned-badge dialog. Screenshots/results retained in .local-backups/profile-refresh-qa; temporary QA helpers removed.
+- Current state: complete and ready for owner review on the profile route. No schema/deployment steps or outstanding product questions.
+
+### 2026-10-20 - Profile right-panel Quick links
+
+- Replaced the profile's Grow together panel with Quick links: Friends, Fellowships, Badges and All stats. Each opens the signed-in viewer's corresponding route through the shared pending NavigationButton; no additional database reads or privacy changes.
+- Copied the owner's supplied blue friends and three-color statistics artwork unchanged to public/images/game-ui/friends.png and stats.png. Hashes match the originals. Fellowship and Badges reuse existing approved assets; the shell's Partner card remains in place.
+- Added English/Spanish/French labels and documented asset provenance. TypeScript, locale contracts and scoped ESLint passed. Existing fonts, button treatment and mobile composition remain unchanged.
+
+### 2026-10-20 - Home Friends artwork
+
+- Home Friends shortcut now uses the supplied blue Friends icon through the shared GameArtwork catalog. Fellowship retains its existing icon. Layout, routes and button behavior unchanged.
+- TypeScript passed; no new assets or database operations.
+
+### 2026-10-20 - Friends screen redesign
+
+- Rebuilt the Friends hub with four counted tabs: Friends, Requests, Sent and Blocked. Every count is the full total across pages and list filters, including zero; only Requests has a red count background. Counts share one owner-filtered aggregate.
+- Add friends opens an explicit paginated discovery dialog instead of a fifth tab. Directory search preserves exact @handle/prefix matching and excludes blocked/unavailable accounts. Private list search supports names/handles with escaped literal wildcards. No per-keystroke queries or polling.
+- Compact cards show avatar/frame, name, username, country, completed waypoints and explicitly labelled lifetime Beacon Points. Blocked cards retain identity only and no profile link. Ellipsis menus reuse current operations, pending feedback and destructive confirmations. Discovery updates relationship controls immediately after mutations.
+- Back to profile uses NavigationButton. A profile-link copy card lives in the desktop rail and below the mobile list, with clipboard-denied selectable fallback. It uses the existing permanent /profiles URL and never adds a friend automatically. Approved fonts/buttons/themes retained; Partner card remains shell-owned.
+- Updated product/roadmap/security docs and English/Spanish/French labels. Production build, TypeScript, scoped ESLint, eight social unit tests, locale/design contracts and disposable PostgreSQL social tests passed. Added coverage for incoming/outgoing totals, totals independent of filters/pages, wildcard escaping and blocked-progress exclusion. No schema or hosted database operations.
+- Synthetic actual-component Edge checks passed seven 375px/desktop/theme/locale/request/blocked variants, four counts with only Requests red, zero counts, 44px controls, no overflow, ellipsis confirmation, Add friends search/request state updates and manual profile-link copy fallback. Screenshots/results retained in .local-backups/friends-refresh-qa; temporary helpers removed.
+- Current state: complete and ready for owner review at /friends; no unresolved questions or migration steps.
+
+### 2026-10-20 - Inline Friends tab counts
+
+- Tab counts now sit beside their labels at all widths. Tabs wrap as complete label/count pairs when translated text needs more room. Requests receives a red count background only when its total is greater than zero; zero remains visible without red.
+- Updated product wording. TypeScript passed; counts, queries and social behavior unchanged.
+
+### 2026-10-20 - Hide empty Friends tab counts
+
+- All four tabs now omit zero counts, including from their accessible labels. Positive totals remain beside labels; only positive Requests has the red badge. Data queries and tab behavior unchanged.
+- Updated product guidance. TypeScript passed.
+
+### 2026-10-21 - Reusable Beacon level bar
+
+- Extracted BeaconLevelBar into the Beacon feature's public component API; profile passes lifetime XP only. Current/next level labels sit at opposite ends, lifetime XP / next cumulative threshold appears on the bar, and a single line states XP remaining to the next level. Removed the repeated top total and percentage display.
+- Fill continues to measure the current level segment against existing shared thresholds. At 540 lifetime XP: Level 2 to Level 3, 540 / 750, 210 XP remaining to Level 3. No XP/reward rules, queries or database writes changed. Accessible progress text describes the cumulative values and next goal.
+- Added English/Spanish/French labels and product guidance. Production build, TypeScript, scoped ESLint, locale contracts and six existing Beacon progression tests passed. Ready for profile review.
+
+### 2026-10-21 - Beacon remaining-XP alignment
+
+- Right-aligned the remaining-XP line in BeaconLevelBar. Pill placement is pending the owner's low-progress preference: minimum visual fill to fit it versus an accurate fill with the pill below until it fits. No progression changes.
+
+### 2026-10-21 - Beacon pill contained by visual fill
+
+- Owner approved a minimum visual fill to keep the XP pill inside at every progress value. BeaconLevelBar now uses an intrinsic CSS grid minimum based on the pill's real width, with the pill aligned to the fill's right edge. No client measurement, timer or extra dependency. Remaining XP stays right-aligned.
+- Native accessible progress and XP/level/remaining values remain exact; only low visual fill is enlarged to fit the pill. Product guidance updated.
+- TypeScript and scoped ESLint passed. Actual-component local Edge checks at a 375px composition passed for XP 0, 250, 540, 749, 750 and 1,000,000: every pill fully inside its fill and all remaining-XP lines right-aligned. Results retained in .local-backups/beacon-pill-qa/results.json; temporary QA helpers removed.
+- Current state: completed, no outstanding low-progress decision.
+
+### 2026-10-21 - Reuse BeaconLevelBar across gameplay
+
+- Completed the shared-component migration: profile, gameplay introduction, mode completion and challenge-stage completion all use BeaconLevelBar through the Beacon feature's public API. Removed SessionBeaconProgress and its unused CSS; removed the separate mode-completion fill calculation/markup and redundant level heading.
+- Kept existing XP-earned amounts, level-up celebrations, surrounding reward motion, replay/admin visibility rules and authoritative reward data. No gameplay, timing, XP-award, repository or database changes. Product documentation now names every consumer.
+- Production build, TypeScript, scoped ESLint, six Beacon tests, 31 gameplay tests and seven design-system checks passed. Searched remaining UI sources: no separate Beacon level bar implementations remain; leaderboard XP values and statistics metrics remain numeric summaries.
+- Current state: shared Beacon level bar migration complete.
+
+### 2026-10-21 - Temporary admin golden-yellow tile comparison
+
+- Owner approved an admin-only toggle for Drag & Drop and Puzzle, defaulting to Swap's exact golden-yellow available-tile palette. One temporary browser preference applies to both modes and survives reloads; non-admins retain teal even if that browser has a gold preference. Swap, Cue and Fill are unchanged.
+- Added a small removable toggle component and browser-only external-store hook; GameShell gates control/marker using its existing trusted isAdmin value. No server actions, database writes/reads, gameplay state, timing, rewards or hint changes. Selected tiles remain purple; empty receiving gaps and success/error feedback retain existing colors. Blocked storage falls back to a session choice with feedback.
+- English/Spanish/French labels and product guidance updated. Production build, TypeScript, scoped ESLint, 31 gameplay tests, locale contracts and seven design checks passed.
+- Synthetic actual hook/toggle/tile Edge checks passed six 375px light/dark/es/fr/regular-player/blocked-storage variants: exact Swap colors, purple selection, shared mode preference, persistence after reload, no regular-player effect, no overflow and 44px controls. Results/screenshots retained in .local-backups/tile-preview-qa; temporary QA helpers removed.
+- Current state: temporary preview is ready on active admin Drag & Drop/Puzzle boards. Awaiting owner's preferred final palette before removing the toggle.
+
+### 2026-10-21 - Final golden-yellow movable tiles
+
+- Owner chose golden yellow. Drag & Drop and Puzzle now use Swap's exact golden-yellow available-tile palette for all players. Selected tiles, receiving gaps, correctness feedback and all gameplay behavior remain unchanged.
+- Removed the temporary admin toggle, storage hook, shell markers/conditions and preview translations. Old browser choices are no longer read or applied. Product guidance reflects the final choice.
+- TypeScript, locale contracts and seven design-system checks passed. No temporary preview runtime references remain; no database changes.
