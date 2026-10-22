@@ -66,6 +66,7 @@ const CORE_TOKENS = [
   "control-edge",
   "overlay",
   "image-overlay",
+  "image-foreground",
   "destructive",
   "destructive-foreground",
   "sidebar",

@@ -1464,12 +1464,20 @@ Reflection space shown after completing Radiance or as a standalone destination.
 
 - Authenticated `/bible` is a standalone reading space with Home, Read and
   Saved navigation and a Back to game link. It retains the approved fonts,
-  semantic light/dark theme and shared tactile controls. Illustrations remain
-  labelled placeholders until the owner supplies the approved assets.
+  semantic light/dark theme and shared tactile controls. Home uses the
+  owner-supplied open-Bible hero, Old/New Testament artwork and alternating
+  traveller/sheep topic illustrations on Home. Book-list artwork remains a
+  placeholder until supplied for that screen.
 - All 66 books are grouped by testament and category, with searchable book
   lists, chapter grids and a book/chapter/verse picker. Topics link to curated
   real passages; the carousel pauses on hover/focus, when hidden or under
-  reduced motion, and has an explicit pause control and View all.
+  reduced motion, and has View all. The owner removed the visible pause control;
+  hover/focus/dialog pauses and reduced-motion behavior remain.
+  Home uses illustrated testament cards and a swipeable topic preview with dot
+  controls. Selecting a topic opens its existing passage choices in a dialog.
+  Book/chapter/verse selectors share one mobile row on Home; the reader dialog
+  retains its roomier picker layout. All interactive targets remain at least
+  44px. Supplied PNG originals are preserved under `public/images/bible/`.
 - KJV, WEB and BSB come from the Free Use Bible API. Settings selects the initial
   translation; reader changes are temporary. Section headings and footnotes are
   retained when provided. Up to eight session-local chapter tabs, chapter

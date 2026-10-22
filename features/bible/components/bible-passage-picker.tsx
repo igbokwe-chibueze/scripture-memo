@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import { ArrowRightIcon } from "lucide-react";
 import { BIBLE_BOOKS } from "../data/bible-catalog";
 import type { BibleReference } from "../schemas/bible.schema";
 
@@ -11,9 +12,12 @@ import type { BibleReference } from "../schemas/bible.schema";
 export function BiblePassagePicker({
   reference,
   onOpen,
+  compact = false,
 }: {
   reference: BibleReference;
   onOpen: (reference: BibleReference) => void;
+  /** Home's concept keeps the three selectors on one mobile row; dialogs retain the roomier layout. */
+  compact?: boolean;
 }): React.ReactNode {
   const t = useTranslations("Bible");
   const [value, setValue] = useState(reference);
@@ -50,8 +54,18 @@ export function BiblePassagePicker({
           </Button>
         ))}
       </div>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-[2fr_1fr_1fr]">
-        <label className="col-span-2 space-y-1 sm:col-span-1">
+      <div
+        className={
+          compact
+            ? "grid grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)_minmax(0,1fr)] gap-2 text-sm sm:text-base"
+            : "grid grid-cols-2 gap-3 sm:grid-cols-[2fr_1fr_1fr]"
+        }
+      >
+        <label
+          className={
+            compact ? "min-w-0 space-y-1" : "col-span-2 space-y-1 sm:col-span-1"
+          }
+        >
           <span>{t("book")}</span>
           <select
             className="bible-select"
@@ -112,6 +126,7 @@ export function BiblePassagePicker({
       </div>
       <Button type="submit" className="w-full">
         {t("openVerse")}
+        {compact && <ArrowRightIcon aria-hidden="true" />}
       </Button>
     </form>
   );

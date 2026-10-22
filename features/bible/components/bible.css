@@ -34,3 +34,25 @@
 .bible-verse[data-highlight="blue"] {
   background: color-mix(in srgb, var(--info) 16%, var(--card));
 }
+
+/* Owner requested a much lighter caption treatment. Dilute the existing
+   semantic scrim instead of stacking it; a small text shadow keeps white
+   lettering distinct without darkening a large area of the supplied artwork. */
+.bible-image-shade {
+  background: linear-gradient(
+    to bottom,
+    transparent 55%,
+    color-mix(in srgb, var(--image-overlay) 40%, transparent)
+  );
+}
+.bible-image-caption {
+  color: var(--image-foreground);
+  background: color-mix(in srgb, var(--image-overlay) 60%, transparent);
+  text-shadow: 0 1px 2px oklch(from var(--image-overlay) l c h / 0.9);
+}
+.bible-topic-track {
+  scrollbar-width: none;
+}
+.bible-topic-track::-webkit-scrollbar {
+  display: none;
+}

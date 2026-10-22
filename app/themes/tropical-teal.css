@@ -63,6 +63,7 @@
   --control-edge: oklch(0.771870 0.037338 185.5311);
   --overlay: oklch(0.20 0.025 195 / 60%);
   --image-overlay: oklch(0.12 0.03 208 / 0.45);
+  --image-foreground: oklch(1 0 0);
   --destructive: var(--error);
   --destructive-foreground: var(--error-foreground);
   --sidebar: var(--card);
@@ -149,6 +150,7 @@
   --control-edge: oklch(0.215675 0.026420 208.2987);
   --overlay: oklch(0.10 0.015 195 / 75%);
   --image-overlay: oklch(0.12 0.03 208 / 0.45);
+  --image-foreground: oklch(1 0 0);
   --destructive: var(--error);
   --destructive-foreground: var(--error-foreground);
   --sidebar: var(--card);

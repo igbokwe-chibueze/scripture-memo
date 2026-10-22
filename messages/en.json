@@ -1243,6 +1243,12 @@
     "verse": "Verse",
     "openVerse": "Open verse",
     "topicsTitle": "Topics to explore",
+    "topicDescriptions": {
+      "faith": "Build a stronger faith in God's plan.",
+      "peace": "Find rest and comfort in God's presence.",
+      "love": "Grow in love for God and one another.",
+      "wisdom": "Let God's Word guide your next step."
+    },
     "topics": {
       "faith": "Faith & trust",
       "peace": "Peace & comfort",

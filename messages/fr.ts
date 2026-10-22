@@ -27,6 +27,12 @@ const fr = {
   "verse": "Verset",
   "openVerse": "Ouvrir le verset",
   "topicsTitle": "Thèmes à explorer",
+    "topicDescriptions": {
+      "faith": "Affermissez votre foi dans le plan de Dieu.",
+      "peace": "Trouvez repos et réconfort auprès de Dieu.",
+      "love": "Grandissez dans l'amour de Dieu et des autres.",
+      "wisdom": "Laissez la Parole guider votre prochain pas."
+    },
   "topics": {
     "faith": "Foi et confiance",
     "peace": "Paix et réconfort",

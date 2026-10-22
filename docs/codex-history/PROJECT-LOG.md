@@ -5845,3 +5845,26 @@ concurrency subtests remain explicitly skipped as documented above.
 - Added the shared lib/toast.ts Sonner facade and migrated all 73 feature/shared toast imports. It preserves callable Sonner behavior and existing IDs/descriptions/callbacks while enforcing the error timeout, including legacy Infinity overrides. The visual Toaster remains unchanged.
 - Updated root AGENTS.md and product timing rules, including the canonical facade import. Existing staged Bible work remains staged; this task adds unstaged edits only.
 - Verification: TypeScript and scoped ESLint passed; two test:toasts checks passed for legacy error override normalization, metadata preservation and unchanged success/callable API behavior. No database, gameplay or UI styling changes.
+
+### 2026-10-22 - Bible Home supplied artwork and concept layout
+
+- Replaced Bible Home placeholders with the five owner-supplied originals: open-Bible hero, Sinai Old Testament, Galilee New Testament and alternating traveller/sheep topics. Copied PNGs unchanged to public/images/bible and verified source/destination hashes; README records the mappings. Book-list/group placeholders remain outside this Home-only update.
+- Added reusable BibleIllustratedCard using the existing shared Button and Next Image, with responsive source sizes, focal-point crops and overlaid captions. Added one semantic image-foreground token to every registered light/dark palette; captions layer the existing image scrim for readable contrast. Existing typography, palette roles and tactile controls remain shared.
+- Home now follows the supplied composition: heading beside artwork, two illustrated testament cards, compact single-row book/chapter/verse picker and swipeable topic previews with dots/pause/View all. Traveller/sheep artwork repeats by topic; selecting a topic opens the existing three passage choices in an accessible dialog. Existing navigation, translation, passage references and carousel pause/reduced-motion behavior remain intact; open dialogs also pause rotation.
+- English/Spanish/French topic summaries and product/roadmap guidance updated. No database, API, auth or reward changes.
+- Verification: production build, TypeScript, scoped ESLint, two locale contracts and seven design checks passed. Actual-component synthetic Edge QA passed six 375px/1440px light/dark/en/es/fr variants: all supplied images decoded, no horizontal overflow or sub-44px controls, all three Home selectors aligned on one row; testament navigation, topic passage selection, pause, dot selection, View all and verse-picker navigation passed. Mobile review corrected traveller head cropping and English testament wrapping. PNGs/results retained in .local-backups/bible-home-qa; temporary helpers removed.
+- Current state: complete and unstaged. Matching KJV/WEB audio and book-list artwork remain separate pending work.
+### 2026-10-22 - Bible Home caption and carousel corrections
+
+- Removed the visible topic-carousel pause/resume button and its unused state/icons. Dot navigation remains centered; rotation still pauses on hover, keyboard focus, open topic dialogs, hidden pages and reduced motion.
+- Made testament and topic caption backgrounds substantially lighter by diluting the semantic image overlay instead of stacking two dark scrims. A restrained text shadow preserves lettering separation from the supplied artwork in both themes.
+- Updated the product specification to match the removed control. Verification: TypeScript, scoped ESLint and all seven design-system checks passed; git diff --check found no whitespace errors. Changes remain unstaged.
+
+### 2026-10-22 - Taller testament cards
+
+- Changed only the Bible Home Old/New Testament card aspect ratio from 1.35 to 1.15, making both about 17% taller at the same width on mobile and desktop. The supplied square images retain object-cover proportional scaling, with less vertical cropping; topics and lighter captions are unchanged.
+- Verification: TypeScript and scoped ESLint passed. No database or navigation changes. Updates remain unstaged.
+
+### 2026-10-22 - Testament height refinement
+
+- Owner requested 20% taller than the original cards. Adjusted the testament aspect ratio to 1.125 (1.35 / 1.20); proportional object-cover image scaling remains unchanged. This is a presentation-only adjustment, with no behavior or data changes.

@@ -1243,6 +1243,12 @@
     "verse": "Versículo",
     "openVerse": "Abrir versículo",
     "topicsTitle": "Temas para explorar",
+    "topicDescriptions": {
+      "faith": "Fortalece tu fe en el plan de Dios.",
+      "peace": "Encuentra descanso y consuelo en Dios.",
+      "love": "Crece en amor a Dios y a los demás.",
+      "wisdom": "Deja que la Palabra guíe tu próximo paso."
+    },
     "topics": {
       "faith": "Fe y confianza",
       "peace": "Paz y consuelo",
