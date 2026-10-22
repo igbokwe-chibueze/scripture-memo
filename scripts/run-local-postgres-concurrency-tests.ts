@@ -58,9 +58,13 @@ const CONCURRENCY_TEST_FILES = [
 // Social claims deliberately race unique constraints and transactions. Prisma
 // Local multiplexes one connection, so --social uses this real disposable server
 // for the focused feature suite without rerunning unrelated concurrency suites.
-const selectedTestFiles = process.argv.includes("--social")
-  ? ["features/friends/repositories/friend.repository.test.ts"]
-  : CONCURRENCY_TEST_FILES;
+// Bible annotations also require multiple real connections to prove simultaneous
+// bookmark/highlight upserts preserve each other, without touching dev fixtures.
+const selectedTestFiles = process.argv.includes("--bible")
+  ? ["features/bible/repositories/bible.repository.test.ts"]
+  : process.argv.includes("--social")
+    ? ["features/friends/repositories/friend.repository.test.ts"]
+    : CONCURRENCY_TEST_FILES;
 
 /** Reserve an ephemeral loopback port so the test server never assumes 5432. */
 async function findAvailableLoopbackPort(): Promise<number> {

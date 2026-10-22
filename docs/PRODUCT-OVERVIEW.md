@@ -1460,6 +1460,42 @@ Reflection space shown after completing Radiance or as a standalone destination.
 - Favorite toggle: mark the verse as a favorite
 - Calm, devotional UI — no game mechanics visible
 
+### 15.4A Bible reader
+
+- Authenticated `/bible` is a standalone reading space with Home, Read and
+  Saved navigation and a Back to game link. It retains the approved fonts,
+  semantic light/dark theme and shared tactile controls. Illustrations remain
+  labelled placeholders until the owner supplies the approved assets.
+- All 66 books are grouped by testament and category, with searchable book
+  lists, chapter grids and a book/chapter/verse picker. Topics link to curated
+  real passages; the carousel pauses on hover/focus, when hidden or under
+  reduced motion, and has an explicit pause control and View all.
+- KJV, WEB and BSB come from the Free Use Bible API. Settings selects the initial
+  translation; reader changes are temporary. Section headings and footnotes are
+  retained when provided. Up to eight session-local chapter tabs, chapter
+  stepping, text sizing, reference links and sharing are supported.
+- Full-text search is an explicit submit, supports exact references and literal
+  phrases, and returns 20 verses per page. Public translation indexes are
+  single-flight cached per server worker for 24 hours, at most three editions;
+  they contain no private learner data. Chapter/study HTTP responses use a
+  24-hour framework cache. There is no polling or routine database initialization.
+- Study offers named commentary selection (Matthew Henry, Adam Clarke, John
+  Gill, John Calvin, Jamieson-Fausset-Brown, Keil/Delitzsch and Tyndale), OpenBible
+  cross-references, and original Hebrew/Aramaic/Greek words through the Berean
+  interlinear plus STEPBible brief lexicons. English glosses are labelled as
+  interlinear glosses, not guessed word alignments for another translation.
+  Missing entries are explained, never invented. Source/licence links and
+  attribution accompany text, commentary, references and lexicon definitions.
+- Private bookmarks and three highlight colours use the owner-scoped
+  `BibleVerseMark` table and are separate from Vault favourites/curriculum
+  records. Atomic, idempotent upserts change only the requested annotation;
+  the saved library uses 20-row look-ahead pagination and filters. Reading or
+  studying never changes campaign progress, rewards, hints, streaks or stats.
+- BSB audio offers available narrators, play/pause, seeking, ten-second skips
+  and playback speed. Playback starts only on user action and stops on chapter
+  or translation change. Matching **KJV/WEB audio is an explicit TODO**, deferred
+  by the owner; do not silently play BSB while displaying another edition.
+
 ### 15.5 Vault (📖)
 
 The user's complete progress library.

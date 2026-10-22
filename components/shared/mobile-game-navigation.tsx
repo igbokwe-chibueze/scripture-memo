@@ -40,7 +40,10 @@ export function MobileGameNavigation({
 }>): React.ReactNode {
   const pathname = usePathname();
   const t = useTranslations("Navigation");
-  const hidesNavigation = pathname.startsWith("/game/sessions/");
+  const hidesNavigation =
+    pathname.startsWith("/game/sessions/") ||
+    pathname === "/bible" ||
+    pathname.startsWith("/bible/");
   const hidesContextRail =
     pathname.startsWith("/admin") ||
     pathname === "/game/map" ||

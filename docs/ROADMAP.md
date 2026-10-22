@@ -2087,3 +2087,15 @@ including practice, and lifetime progress/gameplay/Beacon/badge/reward/inventory
 summaries. Reuses existing history with two read-only aggregate queries per page
 request; no migration, polling or additional gameplay writes. Month/day browsing
 is local. English, Spanish and French labels follow the existing design system.
+
+### Bible reading and study extension (2026-10-22)
+
+Owner approved the full Bible home/books/reader/saved concept with KJV, WEB and
+BSB; selectable named commentaries, original-language lexicons, cross-references,
+full-text search, chapter tabs, text sizing, sharing, account bookmarks/highlights
+and BSB chapter audio. The reader has its own navigation. Illustration slots use
+placeholders pending owner-supplied artwork. Private annotations are independent
+of Vault/curriculum and never affect learning rewards or statistics.
+
+TODO: matching KJV/WEB audio through a second provider, deferred explicitly by
+the owner. No credentials are required for the implemented Free Use Bible API.

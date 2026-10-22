@@ -684,3 +684,27 @@ Accepted risk justification (if applicable):
 - Local PostgreSQL integration tests cover account isolation, unavailable
   accounts, timezone boundaries, practice/admin separation, historical grant
   snapshots, mastery, league order and absence of read-time reward writes.
+
+### Bible reading and private annotations - 2026-10-22
+
+- Every Bible action validates bounded input with Zod, then independently checks
+  the server session. Identity is never accepted from the browser. Reads perform
+  no writes, locks, transactions or initialization; only deliberate annotation
+  changes write. Bible reading never changes learning rewards or progression.
+- Private marks use a composite owner/reference/edition key with cascading
+  account deletion. Atomic upserts change only bookmark or highlight, retaining
+  the other field under simultaneous requests. Chapter reads are bounded to 176
+  marks; library pages return 20 plus one look-ahead row.
+- Bible provider requests use a fixed HTTPS origin and locally allowlisted
+  translation/commentary/dataset IDs. Untrusted JSON is validated and rendered
+  as React text, never HTML. Timeouts and response-size limits fail safely.
+  Shared public search indexes have three fixed translation keys and no private
+  user data. No polling, credentials or hosted content-cache tables are added.
+- Playback URLs and document media-src share two exact vetted HTTPS origins:
+  audio.bible.helloao.org and openbible.com. These apply to the initial Game
+  document too because client navigation retains its CSP. connect-src stays
+  self-only; no wildcard or arbitrary media origin is permitted.
+- Disposable PostgreSQL tests passed for owner isolation, no read-time writes,
+  concurrent bookmark/highlight preservation, clears, pagination and cascade
+  deletion. Provider tests cover nullable fields, unsafe audio URL rejection,
+  missing entries and shared-index single-flight/literal search semantics.

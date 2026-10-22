@@ -1,0 +1,36 @@
+/* Bible reading uses the approved application fonts and semantic colors.
+   Minimum widths prevent native selects and long original-language words from
+   forcing a horizontal scrollbar at the primary 375px viewport. */
+.bible-workspace {
+  overflow-wrap: anywhere;
+}
+/* Size only: color, bevel and press effects remain in shared Button variants.
+   Bible controls require 44px targets even when the primitive defaults to 32px. */
+.bible-workspace [data-slot="button"],
+.bible-dialog [data-slot="button"] {
+  min-width: 44px;
+  min-height: 44px;
+}
+.bible-select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control, 12px);
+  background: var(--card);
+  color: var(--foreground);
+  padding: 8px;
+}
+.bible-select:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.bible-verse[data-highlight="teal"] {
+  background: color-mix(in srgb, var(--primary) 16%, var(--card));
+}
+.bible-verse[data-highlight="gold"] {
+  background: color-mix(in srgb, var(--reward) 20%, var(--card));
+}
+.bible-verse[data-highlight="blue"] {
+  background: color-mix(in srgb, var(--info) 16%, var(--card));
+}
