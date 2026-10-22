@@ -9,7 +9,7 @@ import {
   SaveIcon,
   SparklesIcon,
 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import type { UserRole } from "@/lib/generated/prisma/enums";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

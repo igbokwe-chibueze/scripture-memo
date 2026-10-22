@@ -2240,7 +2240,7 @@ Use Sonner for all user-facing feedback. Never use `alert()`. Never silently fai
 | Info | "Stage 2 unlocks in 23h 14m.", "Hint used. 2 hints remaining." |
 | Warning | "You only have 1 hint remaining.", "Unsaved changes will be lost." |
 
-- Error toasts persist until dismissed by the user.
+- Error toasts auto-dismiss after 10 seconds and may be dismissed sooner.
 - All other toasts auto-dismiss after 4 seconds.
 
 ### 19.3 Gameplay Visual Feedback Reference

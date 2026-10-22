@@ -638,7 +638,7 @@ Never add a separate visual-effects implementation to `NavigationButton`.
 Sonner is the only toast system. Never use `alert()`. Never fail silently.
 
 ```ts
-import { toast } from 'sonner'
+import { toast } from '@/lib/toast'
 
 // ✅ Success
 toast.success('Day completed! +120 Glow Points earned.')
@@ -654,8 +654,11 @@ toast.warning('You only have 1 hint remaining.')
 ```
 
 Toast persistence:
-- Error toasts: persist until user dismisses them.
+- Error toasts: auto-dismiss after 10 seconds; users may close them sooner.
 - All other toasts: auto-dismiss after 4 seconds.
+
+Import `toast` from `@/lib/toast`, the shared Sonner facade, so every feature
+uses the same error timing, including legacy explicit duration overrides.
 
 Every Server Action result should be surfaced to the user through a Sonner toast fired from the UI component that called the action.
 

@@ -3,7 +3,7 @@
 /** Audio is explicit user-initiated playback; changing chapter unmounts and stops the prior recording. */
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { PauseIcon, PlayIcon, RotateCcwIcon, RotateCwIcon } from "lucide-react";

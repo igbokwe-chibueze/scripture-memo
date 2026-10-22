@@ -3,7 +3,7 @@
 /** Shared async resource state for Bible panes; changing keys hides stale data immediately. */
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import type { ActionResult } from "@/types/api";
 import { showActionError } from "@/lib/errors/show-action-error";
 

@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { logoutAction } from "@/features/auth/actions/logout.action";
 

@@ -4,7 +4,7 @@ import { useState, useTransition, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { CrownIcon, HandshakeIcon, ShieldAlertIcon } from "lucide-react";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { Input } from "@/components/ui/input";

@@ -18,7 +18,7 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 import { CheckIcon, RotateCcwIcon } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { Button } from "@/components/ui/button";
 import { BadgeUnlockSequence } from "@/features/badges";

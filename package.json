@@ -22,6 +22,7 @@
     "blog:install-guides": "tsx --conditions=react-server scripts/install-blog-guides.ts",
     "test:design-system": "tsx --test scripts/design-system.test.ts features/brand-themes/schemas/update-active-brand-theme.schema.test.ts",
     "test:errors": "tsx --test lib/errors/error-catalog.test.ts",
+    "test:toasts": "tsx --test lib/toast.test.ts",
     "test:platform-settings": "tsx --test features/platform-settings/schemas/update-platform-settings.schema.test.ts",
     "test:audit-logs": "tsx --test features/audit-logs/lib/safe-audit-summary.test.ts",
     "test:database-guard": "tsx --test lib/testing/test-database-guard.test.ts",

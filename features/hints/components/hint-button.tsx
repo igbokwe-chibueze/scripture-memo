@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { LightbulbIcon } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { showActionError } from "@/lib/errors/show-action-error";
 import { useHintAction as consumeHintAction } from "@/features/hints/actions/use-hint.action";

@@ -1,6 +1,6 @@
 "use client";
 
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import type { ActionResult } from "@/types/api";
 
 type ActionFailure = Extract<ActionResult<unknown>, { success: false }>;

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { CheckIcon } from "lucide-react";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { cn } from "@/lib/utils";

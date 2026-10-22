@@ -3,7 +3,7 @@
 /** Standalone Bible composition replaces game chrome only within /bible. */
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { HomeIcon, BookOpenIcon, BookmarkIcon } from "lucide-react";
 import { NavigationButton } from "@/components/shared/navigation-button";
 import { Button } from "@/components/ui/button";

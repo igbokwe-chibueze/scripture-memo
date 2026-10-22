@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { showActionError } from "@/lib/errors/show-action-error";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { useBibleResource } from "../hooks/use-bible-resource";
 import {
   readBibleLexiconAction,

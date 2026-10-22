@@ -3,7 +3,7 @@
 /** Chapter reader owns loading and annotation state; the provider never controls markup or HTML. */
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import {
   ArrowLeftIcon,
   ChevronLeftIcon,

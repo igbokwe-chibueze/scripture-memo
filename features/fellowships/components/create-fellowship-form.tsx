@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ShieldCheckIcon, SparklesIcon } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { createFellowshipAction } from "@/features/fellowships/actions/create-fellowship.action";
 import { FellowshipInsigniaPicker } from "@/features/fellowships/components/fellowship-insignia-picker";
 import { DEFAULT_FELLOWSHIP_INSIGNIA, type FellowshipInsigniaKey } from "@/features/fellowships/constants/fellowship-insignias";

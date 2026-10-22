@@ -1,7 +1,7 @@
 ﻿/** Storefront composition shared with isolated QA; production binds server actions. */
 import { useRef, useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { GamePageColumns } from "@/components/shared/game-page-columns";
 import { GlowGem } from "@/components/shared/game-artwork";
 import { NavigationButton } from "@/components/shared/navigation-button";

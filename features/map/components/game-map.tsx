@@ -13,7 +13,7 @@ import { useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Grid2X2Icon, MapIcon } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { GridGameMap } from "@/features/map/components/grid-game-map";
 import { WindingTrailMap } from "@/features/map/components/winding-trail-map";
 import { resolveMapVariant } from "@/features/map/lib/map-variant";

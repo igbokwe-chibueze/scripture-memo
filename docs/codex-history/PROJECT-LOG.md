@@ -5838,3 +5838,10 @@ concurrency subtests remain explicitly skipped as documented above.
 - Fixed a resource-hook retry risk: translation-provider replacement could change the translator function identity and retrigger the loading effect after action responses. The effect now depends on the translated failure string instead. Added an optional stable ID to shared showActionError; Bible failures reuse one persistent toast across retries instead of stacking copies. Other callers keep existing behavior.
 - Bible action failures now use the shared server-only redacting logger for useful diagnostics; safe browser messages/codes are unchanged.
 - Actual-hook isolated Edge regression passed: one initial failed request, no extra requests after four renders with a newly created translator each time, one deliberate Retry request and one persistent toast ID, chapter-change fetch, and successful recovery. Results retained in .local-backups/bible-loading-regression/results.json; temporary fixture scripts/bundle/profile removed. TypeScript, scoped ESLint and seven Bible tests passed. No database writes/migrations were needed for this fix. Changes remain unstaged.
+
+### 2026-10-22 - Automatic error toast dismissal
+
+- Owner changed the prior persistent-error policy. Error toasts now auto-dismiss after 10 seconds (or can be manually closed sooner); other notifications retain the existing four-second timing.
+- Added the shared lib/toast.ts Sonner facade and migrated all 73 feature/shared toast imports. It preserves callable Sonner behavior and existing IDs/descriptions/callbacks while enforcing the error timeout, including legacy Infinity overrides. The visual Toaster remains unchanged.
+- Updated root AGENTS.md and product timing rules, including the canonical facade import. Existing staged Bible work remains staged; this task adds unstaged edits only.
+- Verification: TypeScript and scoped ESLint passed; two test:toasts checks passed for legacy error override normalization, metadata preservation and unchanged success/callable API behavior. No database, gameplay or UI styling changes.
