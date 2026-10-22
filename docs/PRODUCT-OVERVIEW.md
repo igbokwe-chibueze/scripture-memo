@@ -1466,8 +1466,10 @@ Reflection space shown after completing Radiance or as a standalone destination.
   Saved navigation and a Back to game link. It retains the approved fonts,
   semantic light/dark theme and shared tactile controls. Home uses the
   owner-supplied open-Bible hero, Old/New Testament artwork and alternating
-  traveller/sheep topic illustrations on Home. Book-list artwork remains a
-  placeholder until supplied for that screen.
+  traveller/sheep topic illustrations on Home. Testament book lists use the
+  matching wide header and the ten supplied category illustrations as book
+  thumbnails, with category counts, local search and expandable chapter grids.
+  Acts uses its own history artwork, distinct from Old Testament history.
 - All 66 books are grouped by testament and category, with searchable book
   lists, chapter grids and a book/chapter/verse picker. Topics link to curated
   real passages; the carousel pauses on hover/focus, when hidden or under

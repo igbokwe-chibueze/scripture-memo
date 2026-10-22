@@ -2094,7 +2094,7 @@ Owner approved the full Bible home/books/reader/saved concept with KJV, WEB and
 BSB; selectable named commentaries, original-language lexicons, cross-references,
 full-text search, chapter tabs, text sizing, sharing, account bookmarks/highlights
 and BSB chapter audio. The reader has its own navigation. Bible Home now uses
-the five supplied illustrations; book-list/group artwork remains pending.
+the five supplied illustrations; testament book lists also use the ten supplied group illustrations.
 Private annotations are independent
 of Vault/curriculum and never affect learning rewards or statistics.
 

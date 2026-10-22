@@ -5894,3 +5894,10 @@ concurrency subtests remain explicitly skipped as documented above.
 ### 2026-10-22 - Compact closed Go to a verse panel
 
 - Reduced closed panel vertical padding to 8px and heading to text-xl; removed the closed summary's trailing margin. Expanded picker retains its original padding/title size. Saved reference remains visible and summary keeps a 44px minimum touch target. Presentation-only change; no storage, network or database operations added. Existing index preserved; this adjustment is unstaged.
+
+### 2026-10-22 - Testament book-list artwork and layout
+
+- Updated Old/New Testament book lists to follow the supplied concept: back arrow, prominent heading/count/description, matching testament banner, search with icon, category counts and illustrated book rows. Native expandable chapter grids retain the existing canonical passage-opening behavior and approved shared buttons.
+- Extracted only the ten explicitly mapped PNG entries from Banner Images.zip into public/images/bible/groups, preserving originals. Added a local artwork resolver; Acts uses its separate lamp/harbor image despite sharing the history category key with Old Testament history. README records every supplied filename, including the full Mediterranean letter name.
+- Mobile-first rows use 64px square thumbnails, stacked titles/counts and a disclosure chevron; 375px chapter grids keep five columns with targets above 44px, expanding only at larger breakpoints. Image object-cover preserves proportions. Search remains local metadata filtering; no new database queries, actions, polling or persistence.
+- Added en/es/fr testament descriptions, scoped search labels and chapter heading; product/roadmap artwork status updated. TypeScript, scoped ESLint, two locale tests, seven design checks and diff whitespace check passed. Inspected supplied Pentateuch/Acts assets and reviewed mobile structure; no live-browser visual QA claimed. Changes remain unstaged; existing index preserved.
