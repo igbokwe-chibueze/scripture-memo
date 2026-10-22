@@ -49,7 +49,7 @@ export function BibleHome({
     const timer = window.setInterval(() => {
       if (!document.hidden)
         setTopic((value) => (value + 1) % BIBLE_TOPICS.length);
-    }, 9000);
+    }, 15000);
     return () => window.clearInterval(timer);
   }, [hovered, focused, reduced, allTopics, selectedTopic]);
 
@@ -100,12 +100,16 @@ export function BibleHome({
           ))}
         </div>
       </section>
-      <details
-        open
-        className="group rounded-card border border-border bg-card p-4 shadow-sm sm:p-5"
-      >
+      <details className="group rounded-card border border-border bg-card p-4 shadow-sm sm:p-5">
         <summary className="mb-2 flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 font-heading text-2xl font-bold [&::-webkit-details-marker]:hidden">
-          {t("goToVerse")}
+          <span className="min-w-0">
+            <span className="block">{t("goToVerse")}</span>
+            {/* The workspace reference is the last opened passage, not an
+                unsubmitted picker draft. Keep it visible when collapsed. */}
+            <span className="mt-1 block text-sm font-medium text-primary">
+              {bibleReferenceLabel(reference)} · {reference.translation}
+            </span>
+          </span>
           <ChevronDownIcon
             aria-hidden="true"
             className="size-6 transition-transform group-open:rotate-180 motion-reduce:transition-none"

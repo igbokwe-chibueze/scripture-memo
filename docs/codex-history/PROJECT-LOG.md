@@ -5868,3 +5868,10 @@ concurrency subtests remain explicitly skipped as documented above.
 ### 2026-10-22 - Testament height refinement
 
 - Owner requested 20% taller than the original cards. Adjusted the testament aspect ratio to 1.125 (1.35 / 1.20); proportional object-cover image scaling remains unchanged. This is a presentation-only adjustment, with no behavior or data changes.
+
+### 2026-10-22 - Collapsed passage picker and Bible navigation
+
+- Go to a verse now starts closed. Its summary displays the workspace's last opened scripture and translation, and reopening shows the passage selectors initialized to that reference. This uses existing session state, with Genesis 1:1 as the existing initial default; no new persistence or reads.
+- Slowed topic rotation from nine to fifteen seconds; existing hover/focus/dialog/hidden-page/reduced-motion pauses remain.
+- Restyled only Bible's three-tab bottom navbar to match the game navbar's 64px controls, 36px artwork, muted labels, spacing and subtle teal active treatment. Home and Read use approved game artwork; Saved retains a bookmark symbol. Shared buttons still own focus/press effects; the game's navbar is unchanged.
+- Product rules updated. TypeScript, scoped ESLint and all seven design-system checks passed. Mobile layout retains three equal-width 44px-plus targets and existing content/safe-area clearance; no API, auth, database or reward changes. Updates remain unstaged.

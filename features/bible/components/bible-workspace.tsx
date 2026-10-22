@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "@/lib/toast";
-import { HomeIcon, BookOpenIcon, BookmarkIcon } from "lucide-react";
+import { BookmarkIcon } from "lucide-react";
 import { NavigationButton } from "@/components/shared/navigation-button";
 import { Button } from "@/components/ui/button";
 import { GameArtwork } from "@/components/shared/game-artwork";
@@ -196,33 +196,33 @@ export function BibleWorkspace({
           {screen === "saved" && <BibleLibrary onOpen={openPassage} />}
         </main>
       </div>
-      <nav
-        className="fixed inset-x-0 bottom-0 z-30 mx-auto grid max-w-xl grid-cols-3 gap-2 rounded-t-card border border-border bg-card/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-sm"
-        aria-label={t("navigation")}
-      >
+      <nav className="bible-bottom-navigation" aria-label={t("navigation")}>
         {(
           [
-            { id: "home", Icon: HomeIcon },
-            { id: "read", Icon: BookOpenIcon },
-            { id: "saved", Icon: BookmarkIcon },
+            { id: "home", artwork: "home" },
+            { id: "read", artwork: "bibleOpen" },
+            { id: "saved", artwork: null },
           ] as const
-        ).map(({ id, Icon }) => (
+        ).map(({ id, artwork }) => (
           <Button
             key={id}
-            variant={
-              screen === id || (id === "home" && screen === "books")
-                ? "default"
-                : "ghost"
-            }
+            variant="ghost"
             aria-current={
               screen === id || (id === "home" && screen === "books")
                 ? "page"
                 : undefined
             }
             onClick={() => navigate(id)}
-            className="h-auto min-h-14 flex-col gap-1"
+            className="bible-navigation-item"
           >
-            <Icon aria-hidden="true" />
+            {artwork ? (
+              <GameArtwork name={artwork} className="size-9" sizes="36px" />
+            ) : (
+              <BookmarkIcon
+                aria-hidden="true"
+                className="size-9 text-primary"
+              />
+            )}
             <span>{t(id)}</span>
           </Button>
         ))}
