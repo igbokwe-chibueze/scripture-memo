@@ -28,6 +28,7 @@ import {
 } from "../schemas/bible.schema";
 import type { PlayerShellSummary } from "@/features/player-shell/types/player-shell.types";
 import "./bible.css";
+import { useBibleDockHeight } from "../hooks/use-bible-dock-height";
 
 /** Session tabs use canonical references; browser history supports deep links without extra private reads. */
 export function BibleWorkspace({
@@ -42,6 +43,7 @@ export function BibleWorkspace({
   player: PlayerShellSummary;
 }): React.ReactNode {
   const t = useTranslations("Bible");
+  const navigationRef = useBibleDockHeight("--bible-nav-height");
   // The server snapshot is null so hydration matches server HTML. After
   // hydration, browser storage supplies the last passage without a DB request.
   const storedPosition = useSyncExternalStore(
@@ -137,7 +139,7 @@ export function BibleWorkspace({
 
   return (
     <div className="bible-workspace min-h-dvh bg-background text-foreground">
-      <div className="mx-auto max-w-6xl px-4 pb-28 sm:px-6">
+      <div className="mx-auto max-w-6xl px-4 pb-[calc(var(--bible-nav-height,5rem)+var(--bible-audio-height,0px)+1.5rem)] sm:px-6">
         <header className="mb-5 flex items-center justify-between gap-3 border-b border-border py-4">
           <div className="flex items-center gap-2">
             <GameArtwork name="bibleOpen" className="size-12" sizes="48px" />
@@ -226,7 +228,11 @@ export function BibleWorkspace({
           {screen === "saved" && <BibleLibrary onOpen={openPassage} />}
         </main>
       </div>
-      <nav className="bible-bottom-navigation" aria-label={t("navigation")}>
+      <nav
+        ref={navigationRef}
+        className="bible-bottom-navigation"
+        aria-label={t("navigation")}
+      >
         {(
           [
             { id: "home", artwork: "home" },

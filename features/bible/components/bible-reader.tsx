@@ -455,13 +455,14 @@ export function BibleReader({
                   authors={authors}
                   onOpen={onOpen}
                 />
-                <BibleAudioPlayer
-                  key={`${reference.translation}:${reference.book}:${reference.chapter}`}
-                  audio={chapter.audio}
-                  reference={reference}
-                />
               </aside>
             </div>
+            {/* Keep fixed audio outside the sticky desktop study column. */}
+            <BibleAudioPlayer
+              key={`${reference.translation}:${reference.book}:${reference.chapter}`}
+              audio={chapter.audio}
+              reference={reference}
+            />
           </>
         )
       )}

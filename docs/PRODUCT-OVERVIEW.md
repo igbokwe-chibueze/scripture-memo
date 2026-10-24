@@ -1516,7 +1516,15 @@ Reflection space shown after completing Radiance or as a standalone destination.
   the saved library uses 20-row look-ahead pagination and filters. Reading or
   studying never changes campaign progress, rewards, hints, streaks or stats.
 - BSB audio offers available narrators, play/pause, seeking, ten-second skips
-  and playback speed. Playback starts only on user action and stops on chapter
+  in a fixed player dock directly above Bible navigation. Verses scroll beneath
+  the opaque dock, with measured bottom clearance for the final verse. The
+  progress bar uses semantic theme colors; centered skip controls show seconds
+  inside circular arrows. Speed (left) and narrator (right) are pill controls
+  that open the shared responsive option surface with highlighted selected pills.
+  These choices persist only in browser storage; no database calls are added.
+  Changing narrator pauses and resets the recording; unavailable saved narrators fall
+  back to a chapter-supported voice without requesting a nonexistent recording.
+  Playback starts only on user action and stops on chapter
   or translation change. Matching **KJV/WEB audio is an explicit TODO**, deferred
   by the owner; do not silently play BSB while displaying another edition.
 

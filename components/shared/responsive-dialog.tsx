@@ -27,14 +27,23 @@ export function ResponsiveDialog({
   description,
   closeLabel,
   children,
+  open: controlledOpen,
+  onOpenChange,
 }: {
   trigger: ReactElement;
   title: string;
   description: string;
   closeLabel: string;
   children?: ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }): ReactNode {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
+  const setOpen = (value: boolean): void => {
+    setInternalOpen(value);
+    onOpenChange?.(value);
+  };
   const desktop = useMediaQuery("(min-width: 640px)");
   const reduceMotion = useReducedMotionPreference();
   const resting = { opacity: 1, y: 0, scale: 1 };

@@ -223,6 +223,8 @@ classes before changing `components/ui/button.tsx`.
 for compact explanations and other suitable content: a bottom drawer below
 640px and a centered modal on larger screens. Supply a shared Button as
 `trigger`, localized `title`, `description`, `closeLabel`, and optional content.
+Optional `open` and `onOpenChange` props support controlled pickers that close
+after an option is chosen, while restoring focus to the triggering pill.
 It uses the existing Framer Motion dependency for entrance/exit and Base UI for
 modal focus, dismissal and scroll locking. Motion respects both OS and app
 reduced-motion preferences; no second animation framework is required.
