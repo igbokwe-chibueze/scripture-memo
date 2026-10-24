@@ -1261,6 +1261,7 @@
     "resume": "Resume",
     "play": "Play",
     "groups": {
+      "acts": "History ? Acts",
       "pentateuch": "Pentateuch",
       "history": "Historical books",
       "wisdom": "Poetry & wisdom",
@@ -1342,6 +1343,32 @@
       "3JN": "Welcoming the Faithful",
       "JUD": "Contend for the Faith",
       "REV": "All Things Made New"
+    },
+    "aboutGroup": "About {group}",
+    "closeHelp": "Close",
+    "groupDefinitions": {
+      "pentateuch": "Pentateuch means “five books.” It is the opening collection of the Bible, also known as the Torah or the Law.",
+      "history": "The historical books tell the story of Israel’s life in the land, its kingdoms, exile and return.",
+      "wisdom": "Wisdom and poetry bring together prayers, songs and reflections on living well before God.",
+      "majorProphets": "The Major Prophets are the longer prophetic collections of the Old Testament. “Major” refers to their length, not greater importance.",
+      "minorProphets": "The Minor Prophets are twelve shorter prophetic books, from Hosea to Malachi. “Minor” describes their length, not their value.",
+      "gospels": "The Gospels are four accounts of the good news about Jesus Christ: Matthew, Mark, Luke and John.",
+      "acts": "Acts tells how the message about Jesus spread through the early church after his resurrection.",
+      "paul": "Paul’s letters are thirteen New Testament letters traditionally associated with the apostle Paul, addressed to churches or individuals.",
+      "letters": "The General Letters are the New Testament letters outside Paul’s collection. In this reader, the group also includes Hebrews.",
+      "prophecy": "Revelation is a prophetic and apocalyptic book: it uses visions and symbolic imagery to reveal hope and call for faithfulness."
+    },
+    "groupExplanations": {
+      "pentateuch": "These books introduce creation, the ancestors of Israel, the exodus from Egypt and the covenant at Sinai. They combine narrative with teaching about worship and life as God’s people.",
+      "history": "From Joshua to Esther, these narratives explore leadership, faithfulness and failure. They follow judges and kings as well as ordinary people, showing how Israel’s story unfolds under its covenant with God.",
+      "wisdom": "These books give words to praise, grief, love and difficult questions. They explore wise choices, suffering and the search for meaning, often using poetic images rather than a continuous historical story.",
+      "majorProphets": "They address injustice and unfaithfulness, warn of judgment and announce hope for restoration. This group also includes Lamentations, a poetic response to Jerusalem’s destruction.",
+      "minorProphets": "Their messages call people to return to God, practice justice and remain faithful. They speak into different moments of Israel’s history, including times before and after exile, with warnings and promises of renewal.",
+      "gospels": "Each presents Jesus’ life, teaching, ministry, death and resurrection with its own emphasis. Read together, they offer complementary portraits of Jesus and his announcement of God’s kingdom.",
+      "acts": "Continuing Luke’s Gospel, it follows the work of the Holy Spirit, the first Christian communities and witnesses such as Peter and Paul. Its story moves from Jerusalem toward Rome.",
+      "paul": "They explain the gospel and guide communities in faith, worship, relationships and leadership. Each letter responds to particular people and situations, so its original setting helps readers understand its message.",
+      "letters": "They encourage perseverance, love, discernment and a faith expressed in daily life. Some address wider Christian audiences, while others speak to particular communities or individuals.",
+      "prophecy": "Addressed to seven churches, it portrays the struggle with evil, God’s judgment and the renewal of creation. Its central encouragement is to remain faithful to Jesus amid suffering and pressure."
     },
     "searchBooks": "Search books",
     "searchTestamentBooks": "Search {testament} books",

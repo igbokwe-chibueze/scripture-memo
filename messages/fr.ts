@@ -1020,4 +1020,35 @@ Object.assign(fr.Fellowships.governance, {
   unknownError: "Impossible d’effectuer cette action. Réessayez.",
 });
 
+// Static Bible group help; never fetched from an API or stored per player.
+Object.assign(fr.Bible, {
+  "aboutGroup": "À propos de {group}",
+  "closeHelp": "Fermer",
+  "groupDefinitions": {
+    "pentateuch": "Pentateuque signifie « cinq livres ». Cette première collection de la Bible est aussi appelée la Torah ou la Loi.",
+    "history": "Les livres historiques racontent la vie d’Israël dans le pays, ses royaumes, l’exil et le retour.",
+    "wisdom": "La sagesse et la poésie réunissent prières, chants et réflexions sur la vie devant Dieu.",
+    "majorProphets": "Les grands prophètes sont les collections prophétiques les plus longues de l’Ancien Testament. « Grands » désigne leur longueur, pas une importance supérieure.",
+    "minorProphets": "Les petits prophètes sont douze livres prophétiques plus courts, d’Osée à Malachie. « Petits » décrit leur longueur, pas leur valeur.",
+    "gospels": "Les Évangiles sont quatre récits de la Bonne Nouvelle de Jésus-Christ : Matthieu, Marc, Luc et Jean.",
+    "acts": "Les Actes racontent comment le message de Jésus s’est répandu dans l’Église naissante après sa résurrection.",
+    "paul": "Les lettres de Paul sont treize lettres du Nouveau Testament traditionnellement associées à l’apôtre Paul, adressées à des églises ou à des personnes.",
+    "letters": "Les lettres générales sont les lettres du Nouveau Testament hors de la collection de Paul. Dans ce lecteur, ce groupe comprend aussi les Hébreux.",
+    "prophecy": "L’Apocalypse est un livre prophétique et apocalyptique : ses visions et images symboliques révèlent une espérance et appellent à la fidélité."
+  },
+  "groupExplanations": {
+    "pentateuch": "Ces livres présentent la création, les ancêtres d’Israël, la sortie d’Égypte et l’alliance au Sinaï. Ils mêlent récits et enseignements sur le culte et la vie du peuple de Dieu.",
+    "history": "De Josué à Esther, ces récits explorent la direction du peuple, la fidélité et les échecs. Ils suivent des juges, des rois et des personnes ordinaires dans l’histoire de l’alliance avec Dieu.",
+    "wisdom": "Ces livres expriment la louange, la peine, l’amour et les questions difficiles. Ils explorent les choix sages, la souffrance et la recherche de sens, souvent par des images poétiques plutôt que par un récit historique suivi.",
+    "majorProphets": "Ils dénoncent l’injustice et l’infidélité, avertissent du jugement et annoncent l’espoir d’une restauration. Ce groupe comprend aussi les Lamentations, une réponse poétique à la destruction de Jérusalem.",
+    "minorProphets": "Leurs messages appellent à revenir à Dieu, à pratiquer la justice et à rester fidèles. Ils s’adressent à diverses périodes d’Israël, avant et après l’exil, avec des avertissements et des promesses de renouveau.",
+    "gospels": "Chacun présente la vie, l’enseignement, le ministère, la mort et la résurrection de Jésus avec ses propres accents. Ensemble, ils offrent des portraits complémentaires de Jésus et de son annonce du royaume de Dieu.",
+    "acts": "Dans la continuité de l’Évangile de Luc, ce livre suit l’œuvre du Saint-Esprit, les premières communautés chrétiennes et des témoins comme Pierre et Paul. Le récit mène de Jérusalem vers Rome.",
+    "paul": "Elles expliquent l’Évangile et guident les communautés dans la foi, le culte, les relations et la direction. Chaque lettre répond à une situation particulière ; son contexte aide à en comprendre le message.",
+    "letters": "Elles encouragent la persévérance, l’amour, le discernement et une foi vécue au quotidien. Certaines s’adressent à un large public chrétien, d’autres à des communautés ou à des personnes précises.",
+    "prophecy": "Adressé à sept églises, il présente la lutte contre le mal, le jugement de Dieu et le renouvellement de la création. Il encourage à rester fidèle à Jésus dans la souffrance et les épreuves."
+  }
+});
+Object.assign(fr.Bible.groups, { acts: "Histoire — Actes" });
+
 export default fr;

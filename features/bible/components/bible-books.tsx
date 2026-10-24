@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { BIBLE_BOOKS } from "../data/bible-catalog";
 import { bibleGroupArtwork } from "../data/bible-group-artwork";
 import { BIBLE_BOOK_ABBREVIATIONS } from "../data/bible-book-abbreviations";
+import { BibleGroupHelp } from "./bible-group-help";
 import type { BibleReference } from "../schemas/bible.schema";
 
 /** Book search is local metadata filtering and causes no network/database requests. */
@@ -70,7 +71,10 @@ export function BibleBooks({
       {groups.map((group) => (
         <section key={group} className="space-y-2">
           <div>
-            <h2 className="font-heading text-2xl">{t(`groups.${group}`)}</h2>
+            <div className="flex items-center gap-1">
+              <h2 className="font-heading text-2xl">{t(`groups.${group}`)}</h2>
+              <BibleGroupHelp group={group} testament={testament} />
+            </div>
             <p className="text-sm font-medium text-muted-foreground">
               {t("bookCount", {
                 count: books.filter((book) => book.group === group).length,

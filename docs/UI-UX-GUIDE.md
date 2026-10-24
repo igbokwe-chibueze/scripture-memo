@@ -219,6 +219,18 @@ classes before changing `components/ui/button.tsx`.
 
 ## 9. Dialogs, Drawers, and Blocking Screens
 
+`components/shared/responsive-dialog.tsx` provides a shared `ResponsiveDialog`
+for compact explanations and other suitable content: a bottom drawer below
+640px and a centered modal on larger screens. Supply a shared Button as
+`trigger`, localized `title`, `description`, `closeLabel`, and optional content.
+It uses the existing Framer Motion dependency for entrance/exit and Base UI for
+modal focus, dismissal and scroll locking. Motion respects both OS and app
+reduced-motion preferences; no second animation framework is required.
+Keep existing dialog surfaces unchanged unless their migration is requested.
+
+Implementation references: [Base UI animation](https://base-ui.com/react/handbook/animation)
+and [Motion accessibility](https://motion.dev/docs/react-accessibility).
+
 - Use a centered dialog on larger screens when the content is compact.
 - Use a bottom drawer or approved side panel on mobile when it better preserves
   space and reachability.

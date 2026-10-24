@@ -1470,6 +1470,12 @@ Reflection space shown after completing Radiance or as a standalone destination.
   matching wide header and the ten supplied category illustrations as book
   thumbnails, with category counts, local search and expandable chapter grids.
   Acts uses its own history artwork, distinct from Old Testament history.
+  Group headings include a question-mark help control. Static localized
+  definitions explain each collection and list its books; Acts has a distinct
+  explanation. Help opens in a mobile bottom drawer or desktop modal, with
+  accessible dismissal and reduced-motion-aware entry/exit. No API/DB request
+  is needed for these explanations. Approved book-row surfaces, subtitles and
+  centered thumbnail abbreviations remain in place.
 - All 66 books are grouped by testament and category, with searchable book
   lists, chapter grids and a book/chapter/verse picker. Topics link to curated
   real passages; the carousel pauses on hover/focus, when hidden or under

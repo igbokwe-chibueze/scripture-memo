@@ -1261,6 +1261,7 @@
     "resume": "Continuar",
     "play": "Reproducir",
     "groups": {
+      "acts": "Historia ? Hechos",
       "pentateuch": "Pentateuco",
       "history": "Libros históricos",
       "wisdom": "Poesía y sabiduría",
@@ -1342,6 +1343,32 @@
       "3JN": "Acoger a los fieles",
       "JUD": "Defended la fe",
       "REV": "Todas las cosas nuevas"
+    },
+    "aboutGroup": "Acerca de {group}",
+    "closeHelp": "Cerrar",
+    "groupDefinitions": {
+      "pentateuch": "Pentateuco significa «cinco libros». Es la primera colección de la Biblia, también conocida como la Torá o la Ley.",
+      "history": "Los libros históricos narran la vida de Israel en la tierra, sus reinos, el exilio y el regreso.",
+      "wisdom": "La sabiduría y la poesía reúnen oraciones, cantos y reflexiones sobre cómo vivir ante Dios.",
+      "majorProphets": "Los Profetas Mayores son las colecciones proféticas más extensas del Antiguo Testamento. «Mayores» se refiere a su extensión, no a una importancia superior.",
+      "minorProphets": "Los Profetas Menores son doce libros proféticos breves, desde Oseas hasta Malaquías. «Menores» describe su extensión, no su valor.",
+      "gospels": "Los Evangelios son cuatro relatos de la buena noticia de Jesucristo: Mateo, Marcos, Lucas y Juan.",
+      "acts": "Hechos narra cómo el mensaje de Jesús se extendió mediante la iglesia primitiva después de su resurrección.",
+      "paul": "Las cartas de Pablo son trece cartas del Nuevo Testamento tradicionalmente asociadas al apóstol Pablo, dirigidas a iglesias o personas.",
+      "letters": "Las Cartas Generales son las cartas del Nuevo Testamento fuera de la colección de Pablo. En este lector, el grupo incluye también Hebreos.",
+      "prophecy": "Apocalipsis es un libro profético y apocalíptico: utiliza visiones e imágenes simbólicas para revelar esperanza y llamar a la fidelidad."
+    },
+    "groupExplanations": {
+      "pentateuch": "Estos libros presentan la creación, los antepasados de Israel, la salida de Egipto y el pacto del Sinaí. Combinan relatos con enseñanzas sobre la adoración y la vida como pueblo de Dios.",
+      "history": "Desde Josué hasta Ester, estos relatos exploran el liderazgo, la fidelidad y el fracaso. Siguen a jueces, reyes y personas comunes mientras se desarrolla la historia de Israel y su pacto con Dios.",
+      "wisdom": "Estos libros expresan alabanza, dolor, amor y preguntas difíciles. Exploran las decisiones sabias, el sufrimiento y la búsqueda de sentido, a menudo mediante imágenes poéticas en lugar de un relato histórico continuo.",
+      "majorProphets": "Denuncian la injusticia y la infidelidad, advierten del juicio y anuncian esperanza de restauración. Este grupo incluye Lamentaciones, una respuesta poética a la destrucción de Jerusalén.",
+      "minorProphets": "Sus mensajes llaman a volver a Dios, practicar la justicia y permanecer fieles. Hablan a distintos momentos de la historia de Israel, antes y después del exilio, con advertencias y promesas de renovación.",
+      "gospels": "Cada uno presenta la vida, las enseñanzas, el ministerio, la muerte y la resurrección de Jesús con su propio énfasis. Juntos ofrecen retratos complementarios de Jesús y de su anuncio del reino de Dios.",
+      "acts": "Como continuación del Evangelio de Lucas, sigue la obra del Espíritu Santo, las primeras comunidades cristianas y testigos como Pedro y Pablo. El relato avanza desde Jerusalén hacia Roma.",
+      "paul": "Explican el evangelio y orientan a las comunidades en la fe, la adoración, las relaciones y el liderazgo. Cada carta responde a personas y situaciones concretas; conocer su contexto ayuda a comprender su mensaje.",
+      "letters": "Animan a perseverar, amar, discernir y expresar la fe en la vida diaria. Algunas se dirigen a públicos cristianos amplios; otras, a comunidades o personas concretas.",
+      "prophecy": "Dirigido a siete iglesias, presenta la lucha contra el mal, el juicio de Dios y la renovación de la creación. Su exhortación central es permanecer fieles a Jesús en medio del sufrimiento y la presión."
     },
     "searchBooks": "Buscar libros",
     "searchTestamentBooks": "Buscar libros: {testament}",
