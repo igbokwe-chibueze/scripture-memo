@@ -10,6 +10,8 @@ import {
   type CSSProperties,
 } from "react";
 import { useTranslations } from "next-intl";
+import { motion, useIsPresent } from "framer-motion";
+import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preference";
 import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
@@ -73,6 +75,8 @@ export function BibleAudioPlayer({
   reference: BibleReference;
 }): React.ReactNode {
   const t = useTranslations("Bible");
+  const present = useIsPresent();
+  const reduceMotion = useReducedMotionPreference();
   const dockRef = useBibleDockHeight("--bible-audio-height");
   const media = useRef<HTMLAudioElement>(null);
   const playRequest = useRef(0);
@@ -98,6 +102,13 @@ export function BibleAudioPlayer({
   useEffect(() => {
     if (media.current) media.current.playbackRate = speed;
   }, [speed]);
+  useEffect(() => {
+    // Stop immediately when dismissed, including while the exit animation runs.
+    if (!present) {
+      playRequest.current += 1;
+      media.current?.pause();
+    }
+  }, [present]);
   useEffect(() => {
     const element = media.current;
     return () => {
@@ -163,7 +174,20 @@ export function BibleAudioPlayer({
   }
 
   return (
-    <section ref={dockRef} className="bible-audio-dock" aria-label={t("audio")}>
+    <motion.section
+      id="bible-audio-player"
+      ref={dockRef}
+      className="bible-audio-dock"
+      aria-label={t("audio")}
+      inert={!present}
+      initial={{ y: reduceMotion ? 0 : "100%", opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: reduceMotion ? 0 : "100%", opacity: 0 }}
+      transition={{
+        duration: reduceMotion ? 0.1 : 0.28,
+        ease: [0.22, 1, 0.36, 1],
+      }}
+    >
       {!names.length ? (
         <p className="text-sm text-muted-foreground">
           {t("audioUnavailable", { translation: reference.translation })}
@@ -296,6 +320,6 @@ export function BibleAudioPlayer({
           </div>
         </>
       )}
-    </section>
+    </motion.section>
   );
 }

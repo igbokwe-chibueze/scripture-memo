@@ -4,7 +4,7 @@
  * sharing never call the server; only deliberate Save writes one grouped row. */
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { MoreHorizontalIcon } from "lucide-react";
+import { HeadphonesIcon, MoreHorizontalIcon } from "lucide-react";
 import { toast } from "@/lib/toast";
 import { showActionError } from "@/lib/errors/show-action-error";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,8 @@ export function BiblePassageActions({
   onStart,
   onCancel,
   onSelectAll,
+  audioOpen,
+  onToggleAudio,
 }: {
   reference: BibleReference;
   chapter: BibleChapter;
@@ -34,6 +36,8 @@ export function BiblePassageActions({
   onStart: () => void;
   onCancel: () => void;
   onSelectAll: () => void;
+  audioOpen: boolean;
+  onToggleAudio: () => void;
 }): React.ReactNode {
   const t = useTranslations("Bible");
   const [menu, setMenu] = useState(false);
@@ -116,56 +120,69 @@ export function BiblePassageActions({
         <h1 className="min-w-0 font-heading text-2xl">
           {bibleSelectionLabel({ ...reference, selection: "chapter" })}
         </h1>
-        <ResponsiveDialog
-          open={menu}
-          onOpenChange={setMenu}
-          title={t("chapterActions")}
-          description={bibleSelectionLabel(whole)}
-          closeLabel={t("closeHelp")}
-          trigger={
-            <Button
-              variant="outline"
-              size="icon-lg"
-              className="size-11"
-              aria-label={t("chapterActions")}
-            >
-              <MoreHorizontalIcon aria-hidden="true" />
-            </Button>
-          }
-        >
-          {/* Equal grid tracks keep all three actions on one row. Labels may
+        <div className="flex shrink-0 items-center gap-2">
+          <Button
+            variant={audioOpen ? "default" : "outline"}
+            size="icon-lg"
+            className="size-11"
+            aria-label={t("audio")}
+            aria-pressed={audioOpen}
+            aria-controls={audioOpen ? "bible-audio-player" : undefined}
+            onClick={onToggleAudio}
+          >
+            <HeadphonesIcon aria-hidden="true" />
+          </Button>
+          <ResponsiveDialog
+            open={menu}
+            onOpenChange={setMenu}
+            title={t("chapterActions")}
+            description={bibleSelectionLabel(whole)}
+            closeLabel={t("closeHelp")}
+            trigger={
+              <Button
+                variant="outline"
+                size="icon-lg"
+                className="size-11"
+                aria-label={t("chapterActions")}
+              >
+                <MoreHorizontalIcon aria-hidden="true" />
+              </Button>
+            }
+          >
+            {/* Equal grid tracks keep all three actions on one row. Labels may
               wrap inside their track so translated copy fits mobile drawers. */}
-          <div className="grid grid-cols-3 items-stretch gap-2">
-            <LoadingButton
-              className="h-auto min-h-11 min-w-0 whitespace-normal px-2 py-2 leading-tight"
-              isPending={pending}
-              pendingLabel={t("saving")}
-              onClick={() => save(whole)}
-            >
-              {t("saveChapter")}
-            </LoadingButton>
-            <Button
-              variant="outline"
-              className="h-auto min-h-11 min-w-0 whitespace-normal px-2 py-2 leading-tight"
-              onClick={() => {
-                setMenu(false);
-                setShareTarget(whole);
-              }}
-            >
-              {t("shareChapter")}
-            </Button>
-            <Button
-              variant="outline"
-              className="h-auto min-h-11 min-w-0 whitespace-normal px-2 py-2 leading-tight"
-              onClick={() => {
-                setMenu(false);
-                onStart();
-              }}
-            >
-              {t("selectVerses")}
-            </Button>
-          </div>
-        </ResponsiveDialog>
+            <div className="grid grid-cols-3 items-stretch gap-2">
+              <LoadingButton
+                className="h-auto min-h-11 min-w-0 whitespace-normal px-2 py-2 leading-tight"
+                isPending={pending}
+                pendingLabel={t("saving")}
+                onClick={() => save(whole)}
+              >
+                {t("saveChapter")}
+              </LoadingButton>
+              <Button
+                variant="outline"
+                className="h-auto min-h-11 min-w-0 whitespace-normal px-2 py-2 leading-tight"
+                onClick={() => {
+                  setMenu(false);
+                  setShareTarget(whole);
+                }}
+              >
+                {t("shareChapter")}
+              </Button>
+              <Button
+                variant="outline"
+                className="h-auto min-h-11 min-w-0 whitespace-normal px-2 py-2 leading-tight"
+                onClick={() => {
+                  setMenu(false);
+                  onStart();
+                }}
+              >
+                {t("selectVerses")}
+              </Button>
+            </div>
+          </ResponsiveDialog>
+        </div>
       </div>
       {selecting && (
         <div className="space-y-2 rounded-control border border-selection-border bg-selection-subtle p-3">

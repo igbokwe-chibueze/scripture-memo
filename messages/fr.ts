@@ -178,6 +178,7 @@ const fr = {
   "previousChapter": "Chapitre précédent",
   "nextChapter": "Chapitre suivant",
   "verseActions": "Actions du verset {verse}",
+  "verseLongPressHelp": "Appuyez longuement sur un verset pour l’enregistrer, le partager ou le surligner. En mode sélection, touchez les versets pour les ajouter ou les retirer.",
   "save": "Marquer",
   "removeBookmark": "Retirer le signet",
   "bookmarked": "Marqué",

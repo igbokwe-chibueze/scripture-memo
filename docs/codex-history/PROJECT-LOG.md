@@ -5969,3 +5969,28 @@ concurrency subtests remain explicitly skipped as documented above.
 - Keep Save chapter, Share chapter and Select verses in one equal-width grid row with matching heights and minimum 44px touch targets.
 - Allow labels to wrap inside each button for mobile and translated text; preserve shared button styling.
 - Validation: scoped ESLint. No database changes.
+
+### 2026-10-24 — Deliberate verse actions on mobile and desktop
+- Ordinary verse clicks no longer activate verse actions or change the reading position. Mobile uses a 500ms long press; desktop retains a dedicated 44px action button hidden on mobile.
+- Long presses cancel on movement, pointer release/cancellation/leave, chapter or edition changes, viewport changes and unmount so scrolling does not accidentally activate a verse.
+- Keep ordinary taps for adding/removing verses after selection mode starts, and keyboard activation for accessibility. Do not automatically open actions for the chapter's initial reading position.
+- Add localized mobile instructions beneath the chapter actions in English, Spanish and French. No database operations added.
+- Validation: scoped ESLint, TypeScript and i18n checks.
+
+### 2026-10-24 — Tap an active verse to deselect
+- Tapping the active verse closes its actions and removes its active styling without changing the reading position or writing to the database.
+- Consume the click generated when a long press ends so it does not immediately deselect the newly activated verse. Multi-verse selection keeps its existing tap-to-toggle behavior.
+- Validation: scoped ESLint.
+
+### 2026-10-24 — Subtle verse-selection haptics
+- Add one 15ms browser vibration when a verse is newly activated or added to a multi-verse selection; deselection stays quiet.
+- Feature-detect the Vibration API and safely ignore unsupported/blocked hardware. Keep the effect outside React state updaters to avoid replayed pulses.
+- No dependencies, database operations or network requests added. Reference: MDN Navigator.vibrate documentation.
+- Validation: scoped ESLint. Physical vibration requires a supported device/browser.
+
+### 2026-10-24 — Optional animated Bible audio dock and touch haptics
+- Hide the audio dock initially and add a 44px headphone toggle beside the chapter action menu, with pressed state and an accessible audio label.
+- Use the installed Framer Motion AnimatePresence to slide the dock up above the navbar and reverse on dismissal; respect OS/app reduced-motion preferences. Stop playback immediately on dismissal, disable exiting controls, and clear measured dock padding after exit/unmount.
+- Keep the toggle session-local with no persistence or database operations. Existing chapter/edition changes still stop the previous recording; opening never autoplays.
+- Move long-press haptics from the timeout to pointer release, when touch user activation is available, and increase the short pulse from 15ms to 30ms. Normal selection clicks retain their direct-event pulse; hardware/browser restrictions can still suppress vibration.
+- Documentation consulted: Motion AnimatePresence and MDN Navigator.userActivation. Validation: scoped ESLint and TypeScript; physical haptics require retesting on the owner's device.

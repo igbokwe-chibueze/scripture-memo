@@ -1421,6 +1421,7 @@
     "previousChapter": "Capítulo anterior",
     "nextChapter": "Capítulo siguiente",
     "verseActions": "Acciones del versículo {verse}",
+    "verseLongPressHelp": "Mantén pulsado un versículo para guardarlo, compartirlo o resaltarlo. En el modo de selección, toca los versículos para añadirlos o quitarlos.",
     "save": "Guardar",
     "removeBookmark": "Quitar marcador",
     "bookmarked": "Guardado",
