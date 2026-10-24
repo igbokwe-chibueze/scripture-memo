@@ -190,7 +190,6 @@ export function BibleWorkspace({
               testament={testament}
               reference={reference}
               onOpen={openPassage}
-              onBack={() => navigate("home")}
             />
           )}
           {screen === "read" && (

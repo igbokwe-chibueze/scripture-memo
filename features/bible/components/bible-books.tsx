@@ -4,11 +4,12 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
-import { ArrowLeftIcon, ChevronDownIcon, SearchIcon } from "lucide-react";
+import { ChevronDownIcon, SearchIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BIBLE_BOOKS } from "../data/bible-catalog";
 import { bibleGroupArtwork } from "../data/bible-group-artwork";
+import { BIBLE_BOOK_ABBREVIATIONS } from "../data/bible-book-abbreviations";
 import type { BibleReference } from "../schemas/bible.schema";
 
 /** Book search is local metadata filtering and causes no network/database requests. */
@@ -16,12 +17,10 @@ export function BibleBooks({
   testament,
   reference,
   onOpen,
-  onBack,
 }: {
   testament: "old" | "new";
   reference: BibleReference;
   onOpen: (reference: BibleReference) => void;
-  onBack: () => void;
 }): React.ReactNode {
   const t = useTranslations("Bible");
   const [query, setQuery] = useState("");
@@ -33,10 +32,6 @@ export function BibleBooks({
   const groups = [...new Set(books.map((book) => book.group))];
   return (
     <div className="mx-auto max-w-4xl space-y-4 sm:space-y-5">
-      <Button variant="ghost" onClick={onBack} className="px-0 text-primary">
-        <ArrowLeftIcon aria-hidden="true" />
-        {t("backBibleHome")}
-      </Button>
       <div className="space-y-1">
         <h1 className="font-heading text-4xl leading-tight sm:text-5xl">
           {t(testament)}
@@ -48,7 +43,7 @@ export function BibleBooks({
       </div>
       {/* The square original scales proportionally into a wide header; the
           group thumbnails below reveal each category's supplied illustration. */}
-      <div className="relative aspect-[2.8] overflow-hidden rounded-card sm:aspect-[3.1]">
+      <div className="relative aspect-[2.2] overflow-hidden rounded-card sm:aspect-[2.5]">
         <Image
           src={`/images/bible/${testament}-testament.png`}
           alt=""
@@ -90,17 +85,32 @@ export function BibleBooks({
                 className="group/book rounded-card border border-border bg-card p-2 shadow-sm"
               >
                 <summary className="flex min-h-16 cursor-pointer list-none items-center gap-3 [&::-webkit-details-marker]:hidden">
-                  <Image
-                    src={bibleGroupArtwork(group, testament)}
-                    alt=""
-                    width={72}
-                    height={72}
-                    sizes="72px"
-                    className="size-16 shrink-0 rounded-control object-cover sm:size-18"
-                  />
+                  <span className="relative size-16 shrink-0 sm:size-18">
+                    <Image
+                      src={bibleGroupArtwork(group, testament)}
+                      alt=""
+                      width={72}
+                      height={72}
+                      sizes="72px"
+                      className="size-full rounded-control object-cover"
+                    />
+                    {/* Decorative duplicate of the adjacent full name: keep it
+                        legible over artwork without repeating screen-reader text. */}
+                    <span
+                      aria-hidden="true"
+                      className="absolute inset-0 flex items-center justify-center rounded-control bg-[color-mix(in_srgb,var(--image-overlay)_20%,transparent)] font-heading text-3xl leading-none text-image-foreground [text-shadow:0_2px_4px_var(--image-overlay)] sm:text-4xl"
+                    >
+                      {BIBLE_BOOK_ABBREVIATIONS[book.id]}
+                    </span>
+                  </span>
                   <span className="min-w-0 flex-1">
                     <span className="block font-heading text-xl">
                       {book.name}
+                    </span>
+                    {/* Editorial themes describe each book for browsing; they
+                        are interface copy, never additions to Scripture text. */}
+                    <span className="block text-sm font-medium text-primary">
+                      {t(`bookSubtitles.${book.id}`)}
                     </span>
                     <span className="block text-sm font-medium text-muted-foreground">
                       {t("chapterCount", { count: book.chapters.length })}
@@ -111,7 +121,7 @@ export function BibleBooks({
                     className="mr-2 size-6 shrink-0 text-primary transition-transform group-open/book:rotate-180 motion-reduce:transition-none"
                   />
                 </summary>
-                <div className="mt-2 border-t border-border pt-3">
+                <div className="mt-2 pt-3">
                   <p className="mb-2 text-sm font-medium">{t("chapters")}</p>
                   {/* Five columns at 375px preserve 44px targets. Larger screens
                       progressively reveal more columns without shrinking taps. */}

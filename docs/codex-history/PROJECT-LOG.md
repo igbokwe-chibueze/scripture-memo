@@ -5901,3 +5901,30 @@ concurrency subtests remain explicitly skipped as documented above.
 - Extracted only the ten explicitly mapped PNG entries from Banner Images.zip into public/images/bible/groups, preserving originals. Added a local artwork resolver; Acts uses its separate lamp/harbor image despite sharing the history category key with Old Testament history. README records every supplied filename, including the full Mediterranean letter name.
 - Mobile-first rows use 64px square thumbnails, stacked titles/counts and a disclosure chevron; 375px chapter grids keep five columns with targets above 44px, expanding only at larger breakpoints. Image object-cover preserves proportions. Search remains local metadata filtering; no new database queries, actions, polling or persistence.
 - Added en/es/fr testament descriptions, scoped search labels and chapter heading; product/roadmap artwork status updated. TypeScript, scoped ESLint, two locale tests, seven design checks and diff whitespace check passed. Inspected supplied Pentateuch/Acts assets and reviewed mobile structure; no live-browser visual QA claimed. Changes remain unstaged; existing index preserved.
+
+### 2026-10-22 - Testament banner height and navigation refinement
+
+- Removed the redundant Back to Bible home control and unused callback; Bible Home remains accessible through the existing navbar. Increased banner height about 27% on mobile (aspect 2.8 to 2.2) and 24% on larger screens (3.1 to 2.5), retaining proportional image scaling. No added data or network operations; existing index preserved.
+
+### 2026-10-24 - Temporary unboxed Bible book-list visual trial
+
+- Owner requested a reversible visual trial. Removed each book disclosure's card background, border and shadow, plus the expanded chapter area's divider. Preserved thumbnails, disclosure behavior and numbered chapter buttons.
+- Added short editorial subtitles between all 66 book names and chapter counts, including Genesis: Origins and Exodus: The Rescue. English/Spanish/French labels live in the existing locale files, distinct from Scripture/provider content. No database calls, requests, persistence or canonical reference changes.
+- Reviewed the 375px structure: stacked three-line labels retain wrapping space beside fixed thumbnails and disclosure controls; existing chapter touch targets unchanged. TypeScript, scoped ESLint and locale contract checks passed. Prior staged work preserved; this trial is unstaged and awaits owner visual preference.
+
+### 2026-10-24 - Book abbreviation thumbnail overlays
+
+- Added decorative short book-name labels to all 66 thumbnails, using Ge for Genesis and numbered forms such as 1Sa. Compact theme-aware backing keeps labels legible over the supplied artwork; full names/subtitles remain adjacent, and duplicate overlay text is hidden from screen readers. Canonical IDs and navigation are unchanged.
+- TypeScript and scoped ESLint passed. Overlay stays within the existing 64px/72px thumbnail at mobile/desktop sizes, without layout expansion. No requests or DB operations added. Existing staged work preserved; edits remain unstaged.
+
+### 2026-10-24 - Centered book abbreviation treatment
+
+- Changed thumbnail abbreviations from small corner badges to large centered lettering, matching the owner's reference. Removed the backing surface and padding; white semantic image text with a restrained shadow stays readable over artwork. Image dimensions, full book names and navigation remain unchanged. No data/network operations added; prior index preserved.
+
+### 2026-10-24 - Very light abbreviation backing
+
+- Restored a translucent backing behind the centered thumbnail abbreviation, using only 20% of the semantic image-overlay versus 60% on Home captions (about 9% effective opacity versus 27%). It follows the thumbnail corners, preserves the large centered text and keeps artwork visible. Presentation-only; no DB/network operations. Existing index preserved.
+
+### 2026-10-24 - Restore book-row surfaces for comparison
+
+- Restored the original rounded book-row background, border and subtle shadow for the owner's comparison. Preserved all subtitles, large centered abbreviation overlays with very light backing, supplied images, spacing and chapter controls. No behavior, data or network changes; existing staged work preserved.
