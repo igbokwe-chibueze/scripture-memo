@@ -1515,6 +1515,18 @@ Reflection space shown after completing Radiance or as a standalone destination.
   records. Atomic, idempotent upserts change only the requested annotation;
   the saved library uses 20-row look-ahead pagination and filters. Reading or
   studying never changes campaign progress, rewards, hints, streaks or stats.
+- On mobile, Read uses top Passage, Words, Commentary and Cross References tabs;
+  study panes load on demand and include a verse selector. Desktop retains the
+  side-by-side passage/study layout. Audio remains docked across these tabs.
+- Chapter actions offer Save chapter, Share chapter and Select verses. Selection
+  supports arbitrary verses within one chapter, including non-adjacent verses.
+  Whole chapters and selections are single, account-owned Saved entries, stored
+  separately from existing verse bookmarks/highlights. Saves are idempotent and
+  write only on explicit Save/Remove; choosing verses and sharing never write.
+  Saved provides All, Bookmarks, Highlights and Passages filters, with one bounded
+  parameterized union query and 20-item look-ahead pagination across collections.
+  Shared text and links preserve edition and exact selection; links need no
+  stored share record. Clipboard/manual-copy fallbacks remain available.
 - BSB audio offers available narrators, play/pause, seeking, ten-second skips
   in a fixed player dock directly above Bible navigation. Verses scroll beneath
   the opaque dock, with measured bottom clearance for the final verse. The

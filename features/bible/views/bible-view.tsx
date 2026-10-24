@@ -5,6 +5,7 @@ import { getPlayerShellSummary } from "@/features/player-shell/lib/get-player-sh
 import { loadBibleCommentaries } from "../lib/bible-provider";
 import { bibleReferenceSchema } from "../schemas/bible.schema";
 import { BibleWorkspace } from "../components/bible-workspace";
+import { bibleSelectionFromQuery } from "../lib/bible-reference";
 
 /** Bible reading remains authenticated and is never indexed with private marks. */
 export const metadata: Metadata = {
@@ -44,6 +45,7 @@ export async function BibleView({
     chapter: Number(params.chapter),
     verse: Number(params.verse ?? 1),
     translation: params.translation ?? translation,
+    selection: bibleSelectionFromQuery(params.selection),
   });
   return (
     <BibleWorkspace

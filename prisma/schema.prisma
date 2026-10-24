@@ -257,6 +257,7 @@ model User {
   verseNotes                 UserVerseNote[]
   favoriteVerses             UserFavoriteVerse[]
   bibleMarks                 BibleVerseMark[]
+  biblePassages              BibleSavedPassage[]
   versesCreated              Verse[]                        @relation("VerseCreator")
   badgesCreated              Badge[]                        @relation("BadgeCreator")
   shopItemsCreated           ShopItem[]                     @relation("ShopItemCreator")
@@ -290,6 +291,22 @@ model BibleVerseMark {
   user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, book, chapter, verse, translation])
+  @@index([userId, updatedAt(sort: Desc)])
+}
+
+// Deliberate chapter/selection saves cost one row, independent of verse marks.
+// A deterministic selection key makes repeated saves idempotent per account.
+model BibleSavedPassage {
+  userId       String
+  book         String
+  chapter      Int
+  translation  TranslationCode
+  selectionKey String
+  verses       Int[]
+  updatedAt    DateTime @updatedAt
+  user         User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, book, chapter, translation, selectionKey])
   @@index([userId, updatedAt(sort: Desc)])
 }
 

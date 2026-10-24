@@ -2094,9 +2094,14 @@ Owner approved the full Bible home/books/reader/saved concept with KJV, WEB and
 BSB; selectable named commentaries, original-language lexicons, cross-references,
 full-text search, chapter tabs, text sizing, sharing, account bookmarks/highlights
 and BSB chapter audio. The reader has its own navigation. Bible Home now uses
-the five supplied illustrations; testament book lists also use the ten supplied group illustrations.
-Private annotations are independent
-of Vault/curriculum and never affect learning rewards or statistics.
+the five supplied illustrations; testament book lists also use the ten supplied
+group illustrations. Private annotations are independent of Vault/curriculum
+and never affect learning rewards or statistics.
+
+Mobile study uses top tabs while desktop retains side-by-side panels. Explicit
+chapter/verse-set saves create one account-owned entry per selection; sharing
+exact references needs no database writes. The Saved library combines grouped
+passages with existing bookmarks/highlights in one bounded page query.
 
 TODO: matching KJV/WEB audio through a second provider, deferred explicitly by
 the owner. No credentials are required for the implemented Free Use Bible API.

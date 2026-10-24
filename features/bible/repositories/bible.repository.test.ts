@@ -110,7 +110,70 @@ test("Bible marks are private, idempotent, paginated and preserve concurrent ind
       new Set([...first.marks, ...second.marks].map((mark) => mark.verse)).size,
       22,
     );
+    // A chapter save is one row even with repeated concurrent requests. Another
+    // account cannot see/remove it, and no verse annotation is fanned out.
+    const whole = { ...reference, selection: "chapter" as const, saved: true };
+    await Promise.all(
+      Array.from({ length: 4 }, () => bibleRepository.setPassage(owner, whole)),
+    );
+    await bibleRepository.setPassage(other, { ...whole, saved: false });
+    assert.equal(
+      await prisma.bibleSavedPassage.count({ where: { userId: owner } }),
+      1,
+    );
+    assert.equal(
+      await prisma.bibleVerseMark.count({ where: { userId: owner } }),
+      22,
+    );
+    assert.equal(
+      (await bibleRepository.saved(other, { page: 1, filter: "passages" }))
+        .marks.length,
+      0,
+    );
+    assert.equal(
+      (await bibleRepository.saved(owner, { page: 1, filter: "passages" }))
+        .marks[0].selection,
+      "chapter",
+    );
+    await bibleRepository.setPassage(owner, {
+      ...reference,
+      selection: [1, 3, 5],
+      saved: true,
+    });
+    const mixedFirst = await bibleRepository.saved(owner, {
+      page: 1,
+      filter: "all",
+    });
+    const mixedSecond = await bibleRepository.saved(owner, {
+      page: 2,
+      filter: "all",
+    });
+    assert.equal(mixedFirst.marks.length, 20);
+    assert.equal(mixedSecond.marks.length, 4);
+    assert.equal(
+      new Set(
+        [...mixedFirst.marks, ...mixedSecond.marks].map((entry) =>
+          JSON.stringify([entry.verse, entry.selection]),
+        ),
+      ).size,
+      24,
+    );
+    assert.equal(
+      (await bibleRepository.saved(owner, { page: 1, filter: "highlights" }))
+        .marks.length,
+      0,
+    );
+    await bibleRepository.setPassage(owner, { ...whole, saved: false });
+    assert.deepEqual(
+      (await bibleRepository.saved(owner, { page: 1, filter: "passages" }))
+        .marks[0].selection,
+      [1, 3, 5],
+    );
     await prisma.user.deleteMany({ where: { id: owner } });
+    assert.equal(
+      await prisma.bibleSavedPassage.count({ where: { userId: owner } }),
+      0,
+    );
     assert.equal(
       await prisma.bibleVerseMark.count({ where: { userId: owner } }),
       0,

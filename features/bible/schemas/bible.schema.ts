@@ -9,6 +9,16 @@ export const bibleReferenceSchema = z
     chapter: z.number().int().min(1).max(150),
     verse: z.number().int().min(1).max(176).default(1),
     translation: z.enum(["KJV", "WEB", "BSB"]),
+    selection: z
+      .union([
+        z.literal("chapter"),
+        z
+          .array(z.number().int().min(1).max(176))
+          .min(1)
+          .max(176)
+          .transform((verses) => [...new Set(verses)].sort((a, b) => a - b)),
+      ])
+      .optional(),
   })
   .superRefine((value, ctx) => {
     const book = BIBLE_BOOKS.find((item) => item.id === value.book);
@@ -18,6 +28,16 @@ export const bibleReferenceSchema = z
         code: "custom",
         message: "Invalid Bible reference.",
         path: ["verse"],
+      });
+    }
+    if (
+      Array.isArray(value.selection) &&
+      value.selection.some((verse) => !verses || verse > verses)
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Invalid verse selection.",
+        path: ["selection"],
       });
     }
   });
@@ -59,7 +79,20 @@ export const bibleSearchSchema = z.object({
 /** The saved library is owner-scoped; callers can only choose a bounded page/filter. */
 export const bibleSavedSchema = z.object({
   page: z.number().int().min(1).max(10000).default(1),
-  filter: z.enum(["all", "bookmarks", "highlights"]).default("all"),
+  filter: z.enum(["all", "bookmarks", "highlights", "passages"]).default("all"),
+});
+
+/** Only an explicit, canonical selection can create/remove a grouped save. */
+export const biblePassageSaveSchema = bibleReferenceSchema.safeExtend({
+  selection: z.union([
+    z.literal("chapter"),
+    z
+      .array(z.number().int().min(1).max(176))
+      .min(1)
+      .max(176)
+      .transform((verses) => [...new Set(verses)].sort((a, b) => a - b)),
+  ]),
+  saved: z.boolean(),
 });
 
 /** Shared serializable reference used by reader tabs, links and private marks. */

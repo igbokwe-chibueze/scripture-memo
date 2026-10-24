@@ -5950,3 +5950,22 @@ concurrency subtests remain explicitly skipped as documented above.
 ### 2026-10-24 - Compact outline audio pills
 
 - Reduced dock speed/narrator triggers to matching 64px widths instead of filling their side columns, with smaller labels and outline styling. Their 44px usable touch height remains below the 56px primary Play control; long narrator names truncate but keep full accessible names/title. Unselected options also return to outline; selected primary highlight is unchanged. No behavior, storage or DB changes.
+
+### 2026-10-24 - Mobile reader tabs and grouped passage saves/sharing
+
+- Applied owner answers: mobile has top Passage/Words/Commentary/Cross References tabs after open chapters; desktop preserves passage/study columns. Audio stays docked across tabs. Mobile study loads only for its opened tab and offers an edition-aware verse selector; chapter loading is independent of verse selection. Commentary author stays selected across lazy panels/viewport changes. Shared tabs preserve keyboard semantics and 44px targets.
+- Added Chapter actions for Save chapter, Share chapter and Select verses. Arbitrary same-chapter sets support adjacent/non-adjacent verses, select all/cancel and highlighted selection. Selection is client-only and uses functional state updates to preserve rapid taps. Existing single-verse bookmarks/highlights/share remain independent. Shared text contains only selected source verses; links preserve exact sorted set/chapter and edition without creating database share records. Native share, clipboard and manual-copy fallbacks remain.
+- Explicit grouped saves use one private BibleSavedPassage row per account/book/chapter/edition/canonical selection key; atomic upserts are idempotent and account deletion cascades. Saved All/Bookmarks/Highlights/Passages filters use one parameterized, owner-scoped UNION query with bounded branch windows, stable combined ordering and 20-item look-ahead pages. Remove is idempotent and owner-scoped. No writes occur while selecting, sharing or ordinary reading; no per-verse write fanout or recurring queries.
+- Added canonical selection validation, bounded URL parsing, compact range labels and explicit clearing on chapter/edition/reference changes. Migration 20261024120000_bible_saved_passages applied only to verified local dev localhost:51214; regenerated Prisma client and restarted the verified Next server on port 3000. No hosted database touched. New DB work uses the Prisma skills; product/roadmap updated with cost and behavior.
+- Verification: TypeScript, scoped ESLint, eleven Bible checks, two locale contracts and seven design checks passed. Disposable PostgreSQL tests passed concurrent duplicate grouped saves, private reads/removals, preservation of verse annotations, mixed-library pagination, filters and cascade deletion. Actual-component synthetic Edge QA passed 375px/1280px light/dark: lazy study/verse selector without chapter refetch, desktop columns, rapid non-adjacent picks with no writes, grouped/chapter saves, exact text/link sharing, link re-opening and library removal. Fixed fixture-only Next env shimming and a real batched-selection issue found by QA; tightened mobile tab labels after screenshot review. Retained PNGs/results in .local-backups/bible-passage-qa; temporary helpers removed. All task changes remain unstaged.
+
+### 2026-10-24 — Close verse selection after completed actions
+- Close the Select verses card and clear selection after a successful grouped save, native share, or clipboard copy.
+- Preserve selected verses when saving fails, sharing is cancelled, or manual copying is required, allowing a retry. Chapter actions retain their existing behavior.
+- No additional database calls or persistence changes.
+- Validation: scoped ESLint check.
+
+### 2026-10-24 — Align chapter action buttons
+- Keep Save chapter, Share chapter and Select verses in one equal-width grid row with matching heights and minimum 44px touch targets.
+- Allow labels to wrap inside each button for mobile and translated text; preserve shared button styling.
+- Validation: scoped ESLint. No database changes.

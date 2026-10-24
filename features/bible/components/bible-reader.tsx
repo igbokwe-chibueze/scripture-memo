@@ -12,6 +12,9 @@ import {
   XIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useMediaQuery } from "@/hooks/use-media-query";
+import { BiblePassageActions } from "./bible-passage-actions";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -48,6 +51,12 @@ export function BibleReader({
   onBack: () => void;
 }): React.ReactNode {
   const t = useTranslations("Bible");
+  const desktop = useMediaQuery("(min-width: 1024px)");
+  // Preserve the chosen commentary across lazy mobile panels and viewport changes.
+  const [commentaryAuthor, setCommentaryAuthor] = useState("matthew-henry");
+  const [mobileTab, setMobileTab] = useState<
+    "passage" | "words" | "commentary" | "crossReferences"
+  >("passage");
   const { book, chapter: chapterNumber, translation } = reference;
   // Verse selection does not reload an already-loaded chapter or its annotations.
   const load = useCallback(
@@ -71,12 +80,47 @@ export function BibleReader({
   const [fontSize, setFontSize] = useState(21);
   const [shareText, setShareText] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  // Drafts are keyed by chapter/edition and incoming linked selection. Ordinary
+  // taps in selection mode change only this client draft, not URL, storage or DB.
+  const selectionKey = `${book}:${chapterNumber}:${translation}:${JSON.stringify(reference.selection ?? null)}`;
+  const [draft, setDraft] = useState<{
+    key: string;
+    verses: number[];
+    active: boolean;
+  } | null>(null);
+  const currentDraft = draft?.key === selectionKey ? draft : null;
+  const selecting = currentDraft?.active ?? Boolean(reference.selection);
+  const chosen = (
+    currentDraft?.verses ??
+    (reference.selection === "chapter"
+      ? (chapter?.verses.map((verse) => verse.number) ?? [])
+      : (reference.selection ?? []))
+  ).filter((number) =>
+    chapter?.verses.some((verse) => verse.number === number),
+  );
+  function pickVerse(number: number): void {
+    if (!selecting) {
+      onOpen({ ...reference, verse: number, selection: undefined });
+      return;
+    }
+    // Functional updates preserve every tap even when React batches rapid picks.
+    setDraft((current) => {
+      const values = current?.key === selectionKey ? current.verses : chosen;
+      return {
+        key: selectionKey,
+        active: true,
+        verses: values.includes(number)
+          ? values.filter((verse) => verse !== number)
+          : [...values, number].sort((a, b) => a - b),
+      };
+    });
+  }
   useEffect(() => {
-    if (!loading)
+    if (!loading && (desktop || mobileTab === "passage"))
       document
         .getElementById(`bible-verse-${reference.verse}`)
         ?.scrollIntoView({ block: "nearest", behavior: "instant" });
-  }, [reference.verse, loading]);
+  }, [reference.verse, loading, desktop, mobileTab]);
 
   const mark = marks.find((item) => item.verse === reference.verse);
   const selectedVerse = chapter?.verses.find(
@@ -132,7 +176,7 @@ export function BibleReader({
   }
 
   async function share(): Promise<void> {
-    const text = `${selectedVerse?.text ?? ""}\n${bibleReferenceLabel(reference)} (${reference.translation})\n${window.location.origin}${bibleReferenceUrl(reference)}`;
+    const text = `${selectedVerse?.text ?? ""}\n${bibleReferenceLabel(reference)} (${reference.translation})\n${window.location.origin}${bibleReferenceUrl({ ...reference, selection: undefined })}`;
     try {
       if (navigator.share)
         await navigator.share({ title: bibleReferenceLabel(reference), text });
@@ -146,7 +190,19 @@ export function BibleReader({
     }
   }
   return (
-    <div className="space-y-5">
+    <Tabs
+      value={desktop ? "passage" : mobileTab}
+      onValueChange={(value) => {
+        if (
+          value === "passage" ||
+          value === "words" ||
+          value === "commentary" ||
+          value === "crossReferences"
+        )
+          setMobileTab(value);
+      }}
+      className="space-y-5"
+    >
       <Button variant="ghost" onClick={onBack}>
         <ArrowLeftIcon aria-hidden="true" />
         {t("backBooks")}
@@ -167,6 +223,7 @@ export function BibleReader({
             onOpen({
               ...reference,
               translation: event.target.value as BibleReference["translation"],
+              selection: undefined,
             })
           }
         >
@@ -216,6 +273,29 @@ export function BibleReader({
           </div>
         ))}
       </div>
+      <TabsList
+        id="bible-reader-tabs"
+        variant="line"
+        className="grid min-h-12 w-full grid-cols-4 border-b border-border lg:hidden"
+      >
+        {(["passage", "words", "commentary", "crossReferences"] as const).map(
+          (tab) => (
+            <TabsTrigger
+              key={tab}
+              value={tab}
+              className="min-h-11 min-w-0 px-1 text-[0.7rem] whitespace-normal sm:text-sm"
+            >
+              <span
+                className={
+                  tab === "crossReferences" ? undefined : "whitespace-nowrap"
+                }
+              >
+                {t(tab)}
+              </span>
+            </TabsTrigger>
+          ),
+        )}
+      </TabsList>
       {loading ? (
         <div className="min-h-60 rounded-card border border-border p-6">
           <LoadingSpinner label={t("loading")} />
@@ -239,222 +319,297 @@ export function BibleReader({
       ) : (
         chapter && (
           <>
-            {!selectedVerse && <p role="status" className="rounded-control border border-info-border bg-info-subtle p-3 text-info-text">{t("verseNotInEdition")}</p>}
-            <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
-              <section
-                className="min-w-0 space-y-4"
-                aria-label={bibleReferenceLabel({
-                  ...reference,
-                  verse: undefined,
-                })}
+            {!selectedVerse && (
+              <p
+                role="status"
+                className="rounded-control border border-info-border bg-info-subtle p-3 text-info-text"
               >
-                <h1 className="font-heading text-3xl">
-                  {bibleReferenceLabel({ ...reference, verse: undefined })}
-                </h1>
-                <div
-                  className="space-y-3 font-medium"
-                  style={{ fontSize, lineHeight: 1.8 }}
-                >
-                  {chapter.verses.map((verse) => {
-                    const annotation = marks.find(
-                      (item) => item.verse === verse.number,
-                    );
-                    return (
-                      <div
-                        key={verse.number}
-                        id={`bible-verse-${verse.number}`}
-                        className="scroll-mt-4"
-                      >
-                        {verse.heading && (
-                          <h2 className="mb-3 mt-6 font-heading text-2xl leading-tight">
-                            {verse.heading}
-                          </h2>
-                        )}
-                        <div
-                          data-highlight={annotation?.highlight ?? undefined}
-                          className={`bible-verse rounded-control border-l-4 p-3 ${reference.verse === verse.number ? "border-primary bg-primary/10" : "border-transparent"}`}
-                        >
-                          <div className="flex items-start gap-2">
-                            <button
-                              type="button"
-                              aria-pressed={reference.verse === verse.number}
-                              onClick={() =>
-                                onOpen({ ...reference, verse: verse.number })
-                              }
-                              className="min-h-11 flex-1 cursor-pointer text-left focus-visible:outline-2 focus-visible:outline-ring"
-                            >
-                              <sup className="mr-2 font-bold text-primary">
-                                {verse.number}
-                              </sup>
-                              {verse.text}
-                              {annotation?.bookmarked && (
-                                <span
-                                  className="ml-2 text-sm text-primary"
-                                  aria-label={t("bookmarked")}
-                                >
-                                  ◆
-                                </span>
-                              )}
-                            </button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              aria-label={t("verseActions", {
-                                verse: verse.number,
-                              })}
-                              onClick={() =>
-                                onOpen({ ...reference, verse: verse.number })
-                              }
-                            >
-                              <MoreHorizontalIcon aria-hidden="true" />
-                            </Button>
-                          </div>
-                          {reference.verse === verse.number && (
-                            <div className="mt-3 space-y-3 border-t border-border pt-3 text-sm leading-normal">
-                              <div className="flex flex-wrap gap-2">
-                                <LoadingButton
-                                  isPending={pending}
-                                  pendingLabel={t("saving")}
-                                  variant="secondary"
-                                  onClick={() => annotate("bookmark")}
-                                >
-                                  {t(
-                                    mark?.bookmarked
-                                      ? "removeBookmark"
-                                      : "save",
-                                  )}
-                                </LoadingButton>
-                                <Button
-                                  variant="secondary"
-                                  onClick={() => void share()}
-                                >
-                                  {t("share")}
-                                </Button>
-                                <Button
-                                  variant="secondary"
-                                  onClick={() =>
-                                    document
-                                      .getElementById("bible-study-panel")
-                                      ?.scrollIntoView({
-                                        block: "start",
-                                        behavior: "instant",
-                                      })
-                                  }
-                                  className="lg:hidden"
-                                >
-                                  {t("study")}
-                                </Button>
-                              </div>
-                              <fieldset
-                                disabled={pending}
-                                className="flex flex-wrap gap-2"
-                              >
-                                <legend className="mb-2 text-xs text-muted-foreground">
-                                  {t("highlight")}
-                                </legend>
-                                {(["teal", "gold", "blue"] as const).map(
-                                  (color) => (
-                                    <Button
-                                      key={color}
-                                      variant={
-                                        mark?.highlight === color
-                                          ? "default"
-                                          : "outline"
-                                      }
-                                      aria-pressed={mark?.highlight === color}
-                                      onClick={() =>
-                                        annotate("highlight", color)
-                                      }
-                                      className="px-3 text-xs"
-                                    >
-                                      {t(`colors.${color}`)}
-                                    </Button>
-                                  ),
-                                )}
-                                {mark?.highlight && (
-                                  <Button
-                                    variant="ghost"
-                                    onClick={() => annotate("highlight", null)}
-                                  >
-                                    {t("clear")}
-                                  </Button>
-                                )}
-                              </fieldset>
-                              {verse.footnotes.length > 0 && (
-                                <details>
-                                  <summary className="min-h-11 cursor-pointer py-2">
-                                    {t("footnotes")}
-                                  </summary>
-                                  {verse.footnotes.map((note, index) => (
-                                    <p
-                                      key={index}
-                                      className="mt-2 text-muted-foreground"
-                                    >
-                                      {note}
-                                    </p>
-                                  ))}
-                                </details>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
+                {t("verseNotInEdition")}
+              </p>
+            )}
+            <BiblePassageActions
+              reference={reference}
+              chapter={chapter}
+              selecting={selecting}
+              chosen={chosen}
+              onStart={() => {
+                setMobileTab("passage");
+                setDraft({
+                  key: selectionKey,
+                  active: true,
+                  verses: selectedVerse ? [reference.verse] : [],
+                });
+              }}
+              onCancel={() => {
+                setDraft({ key: selectionKey, active: false, verses: [] });
+                if (reference.selection)
+                  onOpen({ ...reference, selection: undefined });
+              }}
+              onSelectAll={() =>
+                setDraft({
+                  key: selectionKey,
+                  active: true,
+                  verses: chapter.verses.map((verse) => verse.number),
+                })
+              }
+            />
+            <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+              <TabsContent value="passage" keepMounted className="min-w-0">
+                <section
+                  className="min-w-0 space-y-4"
+                  aria-label={bibleReferenceLabel({
+                    ...reference,
+                    verse: undefined,
                   })}
-                </div>
-                <div className="flex items-center justify-between gap-2 rounded-card border border-border p-2">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    aria-label={t("previousChapter")}
-                    disabled={!previous}
-                    onClick={() => previous && onOpen(previous)}
+                >
+                  <div
+                    className="space-y-3 font-medium"
+                    style={{ fontSize, lineHeight: 1.8 }}
                   >
-                    <ChevronLeftIcon aria-hidden="true" />
-                  </Button>
-                  <span>
-                    {bibleReferenceLabel({ ...reference, verse: undefined })}
-                  </span>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    aria-label={t("nextChapter")}
-                    disabled={!next}
-                    onClick={() => next && onOpen(next)}
-                  >
-                    <ChevronRightIcon aria-hidden="true" />
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  <a
-                    className="underline"
-                    href={chapter.source.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {chapter.source.name}
-                  </a>{" "}
-                  ·{" "}
-                  <a
-                    className="underline"
-                    href={chapter.source.licenseUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {t("license")}
-                  </a>{" "}
-                  · Free Use Bible API
-                </p>
-              </section>
+                    {chapter.verses.map((verse) => {
+                      const annotation = marks.find(
+                        (item) => item.verse === verse.number,
+                      );
+                      return (
+                        <div
+                          key={verse.number}
+                          id={`bible-verse-${verse.number}`}
+                          className="scroll-mt-4"
+                        >
+                          {verse.heading && (
+                            <h2 className="mb-3 mt-6 font-heading text-2xl leading-tight">
+                              {verse.heading}
+                            </h2>
+                          )}
+                          <div
+                            data-highlight={annotation?.highlight ?? undefined}
+                            className={`bible-verse rounded-control border-l-4 p-3 ${(selecting ? chosen.includes(verse.number) : reference.verse === verse.number) ? "border-primary bg-primary/10" : "border-transparent"}`}
+                          >
+                            <div className="flex items-start gap-2">
+                              <button
+                                type="button"
+                                aria-pressed={
+                                  selecting
+                                    ? chosen.includes(verse.number)
+                                    : reference.verse === verse.number
+                                }
+                                onClick={() => pickVerse(verse.number)}
+                                className="min-h-11 flex-1 cursor-pointer text-left focus-visible:outline-2 focus-visible:outline-ring"
+                              >
+                                <sup className="mr-2 font-bold text-primary">
+                                  {verse.number}
+                                </sup>
+                                {verse.text}
+                                {annotation?.bookmarked && (
+                                  <span
+                                    className="ml-2 text-sm text-primary"
+                                    aria-label={t("bookmarked")}
+                                  >
+                                    ◆
+                                  </span>
+                                )}
+                              </button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                aria-label={t("verseActions", {
+                                  verse: verse.number,
+                                })}
+                                onClick={() => pickVerse(verse.number)}
+                              >
+                                <MoreHorizontalIcon aria-hidden="true" />
+                              </Button>
+                            </div>
+                            {!selecting && reference.verse === verse.number && (
+                              <div className="mt-3 space-y-3 border-t border-border pt-3 text-sm leading-normal">
+                                <div className="flex flex-wrap gap-2">
+                                  <LoadingButton
+                                    isPending={pending}
+                                    pendingLabel={t("saving")}
+                                    variant="secondary"
+                                    onClick={() => annotate("bookmark")}
+                                  >
+                                    {t(
+                                      mark?.bookmarked
+                                        ? "removeBookmark"
+                                        : "save",
+                                    )}
+                                  </LoadingButton>
+                                  <Button
+                                    variant="secondary"
+                                    onClick={() => void share()}
+                                  >
+                                    {t("share")}
+                                  </Button>
+                                  <Button
+                                    variant="secondary"
+                                    onClick={() => setMobileTab("words")}
+                                    className="lg:hidden"
+                                  >
+                                    {t("study")}
+                                  </Button>
+                                </div>
+                                <fieldset
+                                  disabled={pending}
+                                  className="flex flex-wrap gap-2"
+                                >
+                                  <legend className="mb-2 text-xs text-muted-foreground">
+                                    {t("highlight")}
+                                  </legend>
+                                  {(["teal", "gold", "blue"] as const).map(
+                                    (color) => (
+                                      <Button
+                                        key={color}
+                                        variant={
+                                          mark?.highlight === color
+                                            ? "default"
+                                            : "outline"
+                                        }
+                                        aria-pressed={mark?.highlight === color}
+                                        onClick={() =>
+                                          annotate("highlight", color)
+                                        }
+                                        className="px-3 text-xs"
+                                      >
+                                        {t(`colors.${color}`)}
+                                      </Button>
+                                    ),
+                                  )}
+                                  {mark?.highlight && (
+                                    <Button
+                                      variant="ghost"
+                                      onClick={() =>
+                                        annotate("highlight", null)
+                                      }
+                                    >
+                                      {t("clear")}
+                                    </Button>
+                                  )}
+                                </fieldset>
+                                {verse.footnotes.length > 0 && (
+                                  <details>
+                                    <summary className="min-h-11 cursor-pointer py-2">
+                                      {t("footnotes")}
+                                    </summary>
+                                    {verse.footnotes.map((note, index) => (
+                                      <p
+                                        key={index}
+                                        className="mt-2 text-muted-foreground"
+                                      >
+                                        {note}
+                                      </p>
+                                    ))}
+                                  </details>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="flex items-center justify-between gap-2 rounded-card border border-border p-2">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      aria-label={t("previousChapter")}
+                      disabled={!previous}
+                      onClick={() => previous && onOpen(previous)}
+                    >
+                      <ChevronLeftIcon aria-hidden="true" />
+                    </Button>
+                    <span>
+                      {bibleReferenceLabel({ ...reference, verse: undefined })}
+                    </span>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      aria-label={t("nextChapter")}
+                      disabled={!next}
+                      onClick={() => next && onOpen(next)}
+                    >
+                      <ChevronRightIcon aria-hidden="true" />
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    <a
+                      className="underline"
+                      href={chapter.source.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {chapter.source.name}
+                    </a>{" "}
+                    ·{" "}
+                    <a
+                      className="underline"
+                      href={chapter.source.licenseUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {t("license")}
+                    </a>{" "}
+                    · Free Use Bible API
+                  </p>
+                </section>
+              </TabsContent>
               <aside
+                hidden={!desktop && mobileTab === "passage"}
                 id="bible-study-panel"
                 className="min-w-0 scroll-mt-4 space-y-4 lg:sticky lg:top-4 lg:self-start"
               >
-                <BibleStudyPanel
-                  reference={reference}
-                  authors={authors}
-                  onOpen={onOpen}
-                />
+                {(desktop || mobileTab !== "passage") && (
+                  <label className="mb-3 block space-y-1 text-sm">
+                    <span>{t("verse")}</span>
+                    <select
+                      className="bible-select"
+                      value={reference.verse}
+                      onChange={(event) =>
+                        onOpen({
+                          ...reference,
+                          verse: Number(event.target.value),
+                          selection: undefined,
+                        })
+                      }
+                    >
+                      {chapter.verses.map((verse) => (
+                        <option key={verse.number} value={verse.number}>
+                          {bibleReferenceLabel({
+                            ...reference,
+                            verse: verse.number,
+                          })}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
+                {desktop ? (
+                  <BibleStudyPanel
+                    reference={reference}
+                    authors={authors}
+                    onOpen={onOpen}
+                    selectedAuthor={commentaryAuthor}
+                    onAuthorChange={setCommentaryAuthor}
+                  />
+                ) : (
+                  (["words", "commentary", "crossReferences"] as const).map(
+                    (tab) => (
+                      <TabsContent key={tab} value={tab}>
+                        {mobileTab === tab && (
+                          <BibleStudyPanel
+                            reference={reference}
+                            authors={authors}
+                            onOpen={onOpen}
+                            selectedAuthor={commentaryAuthor}
+                            onAuthorChange={setCommentaryAuthor}
+                            activeTab={tab}
+                            hideTabs
+                          />
+                        )}
+                      </TabsContent>
+                    ),
+                  )
+                )}
               </aside>
             </div>
             {/* Keep fixed audio outside the sticky desktop study column. */}
@@ -518,6 +673,6 @@ export function BibleReader({
           />
         </DialogContent>
       </Dialog>
-    </div>
+    </Tabs>
   );
 }

@@ -1,11 +1,17 @@
 /** Pure navigation/validation regression checks; no external API or database. */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { adjacentBibleChapter, bibleReferenceUrl } from "./bible-reference";
+import {
+  adjacentBibleChapter,
+  bibleReferenceUrl,
+  bibleSelectionFromQuery,
+  bibleSelectionLabel,
+} from "./bible-reference";
 import {
   bibleMarkSchema,
   bibleReferenceSchema,
   bibleStudySchema,
+  biblePassageSaveSchema,
 } from "../schemas/bible.schema";
 
 const reference = {
@@ -14,6 +20,54 @@ const reference = {
   verse: 1,
   translation: "KJV" as const,
 };
+
+test("chapter and arbitrary verse-set links retain canonical selections", () => {
+  const selected = biblePassageSaveSchema.parse({
+    ...reference,
+    selection: [18, 16, 17, 16, 21],
+    saved: true,
+  });
+  assert.deepEqual(selected.selection, [16, 17, 18, 21]);
+  assert.equal(bibleSelectionLabel(selected), "Genesis 1:16–18, 21");
+  const url = new URL(bibleReferenceUrl(selected), "https://example.test");
+  assert.deepEqual(
+    bibleSelectionFromQuery(url.searchParams.get("selection")),
+    selected.selection,
+  );
+  assert.equal(bibleSelectionFromQuery("../secret"), null);
+  assert.equal(bibleSelectionFromQuery(""), null);
+  assert.equal(
+    biblePassageSaveSchema.safeParse({
+      ...reference,
+      selection: [],
+      saved: true,
+    }).success,
+    false,
+  );
+  assert.equal(
+    biblePassageSaveSchema.safeParse({
+      ...reference,
+      selection: [32],
+      saved: true,
+    }).success,
+    false,
+  );
+  assert.equal(
+    bibleReferenceSchema.safeParse({ ...reference, selection: [0] }).success,
+    false,
+  );
+  assert.equal(
+    new URL(
+      bibleReferenceUrl({ ...reference, selection: "chapter" }),
+      "https://example.test",
+    ).searchParams.get("selection"),
+    "chapter",
+  );
+  assert.equal(
+    adjacentBibleChapter({ ...reference, selection: [1, 3] }, 1)?.selection,
+    undefined,
+  );
+});
 
 test("Bible navigation crosses books and stops at canon boundaries", () => {
   assert.equal(adjacentBibleChapter(reference, -1), null);

@@ -21,16 +21,26 @@ export function BibleStudyPanel({
   reference,
   authors,
   onOpen,
+  activeTab,
+  hideTabs = false,
+  selectedAuthor,
+  onAuthorChange,
 }: {
   reference: BibleReference;
   authors: { id: string; name: string }[];
   onOpen: (reference: BibleReference) => void;
+  activeTab?: "words" | "commentary" | "crossReferences";
+  hideTabs?: boolean;
+  selectedAuthor?: string;
+  onAuthorChange?: (author: string) => void;
 }): React.ReactNode {
   const t = useTranslations("Bible");
-  const [tab, setTab] = useState<"words" | "commentary" | "crossReferences">(
-    "words",
-  );
-  const [author, setAuthor] = useState("matthew-henry");
+  const [internalTab, setTab] = useState<
+    "words" | "commentary" | "crossReferences"
+  >("words");
+  const tab = activeTab ?? internalTab;
+  const [internalAuthor, setAuthor] = useState("matthew-henry");
+  const author = selectedAuthor ?? internalAuthor;
   const { book, chapter, verse, translation } = reference;
   const identity = `${book}:${chapter}:${verse}:${translation}:${tab}:${author}`;
   const load = useCallback(
@@ -87,30 +97,35 @@ export function BibleStudyPanel({
       <h2 className="font-heading text-xl text-primary">
         {bibleReferenceLabel(reference)}
       </h2>
-      <div
-        className="flex flex-wrap gap-2"
-        role="group"
-        aria-label={t("study")}
-      >
-        {(["words", "commentary", "crossReferences"] as const).map((item) => (
-          <Button
-            key={item}
-            variant={tab === item ? "default" : "secondary"}
-            aria-pressed={tab === item}
-            onClick={() => setTab(item)}
-            className="flex-1 px-2 text-xs"
-          >
-            {t(item)}
-          </Button>
-        ))}
-      </div>
+      {!hideTabs && (
+        <div
+          className="flex flex-wrap gap-2"
+          role="group"
+          aria-label={t("study")}
+        >
+          {(["words", "commentary", "crossReferences"] as const).map((item) => (
+            <Button
+              key={item}
+              variant={tab === item ? "default" : "secondary"}
+              aria-pressed={tab === item}
+              onClick={() => setTab(item)}
+              className="flex-1 px-2 text-xs"
+            >
+              {t(item)}
+            </Button>
+          ))}
+        </div>
+      )}
       {tab === "commentary" && (
         <label className="block space-y-2">
           <span>{t("commentaryAuthor")}</span>
           <select
             className="bible-select"
             value={author}
-            onChange={(event) => setAuthor(event.target.value)}
+            onChange={(event) => {
+              setAuthor(event.target.value);
+              onAuthorChange?.(event.target.value);
+            }}
           >
             {authors.map((item) => (
               <option key={item.id} value={item.id}>
@@ -231,7 +246,9 @@ export function BibleStudyPanel({
                   <Button
                     key={`${item.book}:${item.chapter}:${item.verse}:${index}`}
                     variant="secondary"
-                    onClick={() => onOpen({ ...reference, ...item })}
+                    onClick={() =>
+                      onOpen({ ...reference, ...item, selection: undefined })
+                    }
                   >
                     {bibleReferenceLabel(item)}
                     {item.endVerse ? `–${item.endVerse}` : ""}

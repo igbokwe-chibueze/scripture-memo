@@ -30,7 +30,7 @@ export function BiblePassagePicker({
       className="space-y-4"
       onSubmit={(event) => {
         event.preventDefault();
-        onOpen(value);
+        onOpen({ ...value, selection: undefined });
       }}
     >
       <div className="grid grid-cols-2 gap-2">

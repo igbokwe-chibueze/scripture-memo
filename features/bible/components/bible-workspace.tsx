@@ -20,7 +20,10 @@ import { BibleBooks } from "./bible-books";
 import { BibleReader } from "./bible-reader";
 import { BibleLibrary } from "./bible-library";
 import { BibleSearchDialog } from "./bible-search-dialog";
-import { bibleReferenceUrl } from "../lib/bible-reference";
+import {
+  bibleReferenceUrl,
+  bibleSelectionFromQuery,
+} from "../lib/bible-reference";
 import { BIBLE_BOOKS } from "../data/bible-catalog";
 import {
   bibleReferenceSchema,
@@ -116,6 +119,7 @@ export function BibleWorkspace({
         chapter: Number(params.get("chapter")),
         verse: Number(params.get("verse") ?? 1),
         translation: params.get("translation") ?? translation,
+        selection: bibleSelectionFromQuery(params.get("selection")),
       });
       if (parsed.success) {
         setReference(parsed.data);

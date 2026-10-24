@@ -14,6 +14,7 @@ import {
   bibleSavedSchema,
   bibleSearchSchema,
   bibleStudySchema,
+  biblePassageSaveSchema,
 } from "../schemas/bible.schema";
 import { bibleRepository } from "../repositories/bible.repository";
 import {
@@ -124,6 +125,23 @@ export async function searchBibleAction(
       parsed.data.page,
     );
   });
+}
+
+/** Explicit grouped saves/removals never trust a client-supplied account ID. */
+export async function setBiblePassageAction(
+  input: unknown,
+): Promise<ActionResult<null>> {
+  const parsed = biblePassageSaveSchema.safeParse(input);
+  return authorized(
+    parsed.success,
+    async (userId) => {
+      if (!parsed.success) throw new Error("Invalid passage.");
+      await bibleRepository.setPassage(userId, parsed.data);
+      revalidatePath("/bible");
+      return null;
+    },
+    "BIB-002",
+  );
 }
 
 /** Separate bookmark/highlight library, always scoped to the authenticated owner. */
