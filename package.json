@@ -48,7 +48,7 @@
     "test:i18n": "tsx --test i18n/config.test.ts",
     "test:fellowships": "tsx --test features/fellowships/schemas/fellowship.schema.test.ts features/fellowships/schemas/fellowship-governance.schema.test.ts features/fellowships/schemas/fellowship-case-filters.schema.test.ts",
     "test:beacon": "tsx --test features/beacon/lib/beacon-progression.test.ts",
-    "test:bible": "tsx --conditions=react-server --test features/bible/lib/bible-reference.test.ts features/bible/lib/bible-provider.test.ts features/bible/lib/bible-device-position.test.ts features/bible/lib/bible-audio-preferences.test.ts",
+    "test:bible": "tsx --conditions=react-server --test features/bible/lib/bible-reference.test.ts features/bible/lib/bible-provider.test.ts features/bible/lib/bible-device-position.test.ts features/bible/lib/bible-audio-preferences.test.ts features/bible/lib/parse-commentary-text.test.ts",
     "test:bible:integration": "tsx --conditions=react-server scripts/run-local-postgres-concurrency-tests.ts --bible",
     "test:auth-rate-limit:integration": "tsx --conditions=react-server --test features/auth/repositories/auth.repository.test.ts",
     "test:account-suspension:integration": "tsx --conditions=react-server --test features/auth/lib/account-suspension.integration.test.ts",

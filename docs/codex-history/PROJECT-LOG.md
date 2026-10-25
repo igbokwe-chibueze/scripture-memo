@@ -6035,3 +6035,22 @@ concurrency subtests remain explicitly skipped as documented above.
 - Scroll the horizontal open-passage strip just far enough to show a newly active tab, respecting reduced motion. Use strip.scrollTo only, never scrollIntoView, so this navigation does not scroll the reading page.
 - Replace the workspace Back to game link with Back to books, opening the active passage's testament locally. Remove the duplicate reader-level Back to books button; hide the workspace button while already on Books.
 - Validation: scoped ESLint and TypeScript. No database operations or dependencies added; existing staged changes remain untouched.
+
+### 2026-10-25 — Open cross references in Passage
+- Route study-panel reference clicks through a reader callback that activates Passage before opening the target scripture. Apply it to both study-panel render paths while preserving desktop side-by-side presentation.
+- Leave ordinary study verse-picker changes and the deferred jumping investigation unchanged. No additional database calls.
+- Validation: scoped ESLint.
+
+### 2026-10-25 — Chapter-wide commentary with normal page scrolling
+- Return the full supplied chapter introduction and non-empty commentary entries under their original verse anchors. Keep author attribution and never duplicate a source entry under invented verse headings.
+- Commentary now reads in the normal page flow with verse headings, without an inner max-height/scroll area or mobile card framing. Keep the author selector, remove its verse selector, and disable sticky placement for long desktop commentary while preserving the approved side-by-side desktop layout.
+- Normalize commentary requests to chapter verse 1 so changing a selected study verse does not reload unchanged chapter commentary. Words and Cross References retain their verse selectors and behavior. No new API endpoints, database reads/writes or dependencies.
+- Update PRODUCT-OVERVIEW.md. Consulted the official Free Use Bible API commentary contract, including optional chapter introduction: https://bible.helloao.org/docs/reference/commentaries/ .
+- Validation: TypeScript, scoped ESLint and all 12 Bible unit tests passed. Provider regressions cover full chapter notes, original verse anchors, omitted/empty entries and empty chapter introductions. Reviewed the mobile composition for flowing chapter text, full-width author controls and removal of nested scrolling. The deferred jumping issue is outside this change.
+
+### 2026-10-25 — Readable commentary paragraphs and original numbered outlines
+- Inspect public Matthew Henry, Adam Clarke and John Gill chapter data: publisher text already contains paragraph line breaks, Roman/decimal outline levels and inline dotted parenthesized/bracketed subpoints. Rendering each entry as one paragraph left these structures visually undifferentiated.
+- Add a display-only parser and BibleCommentaryText renderer for spaced semantic paragraphs and nested lists. Preserve exact source markers (including skipped indexes), align wrapped text with hanging indents, increase line spacing, constrain reading width and distinguish verse headings with a subtle divider.
+- Preserve source wording, Unicode, Bible citations, decimals, ordinary footnotes and literal HTML as inert React text. Do not infer new sentence boundaries or rewrite long source paragraphs. Parse once per unchanged source text; maintain normal page scrolling.
+- Add seven regressions covering paragraphs, nested/inline outlines, existing source indentation, unchanged citations, exact wording, empty input and inert markup. Include them in test:bible; update the product guide. No dependencies, database operations or additional runtime API requests.
+- Validation: TypeScript, scoped ESLint and all 19 Bible tests passed. Hidden-browser checks of actual formatter output for three public commentary samples at 375px and 1280px showed no horizontal overflow or inner scroll containers. Visually inspected mobile outline and nested-outline screenshots; artifacts/results remain in .local-backups/commentary-format-qa. The deferred page-jumping work is unchanged.

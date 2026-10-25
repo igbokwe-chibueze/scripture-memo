@@ -8,6 +8,7 @@ import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { showActionError } from "@/lib/errors/show-action-error";
 import { toast } from "@/lib/toast";
 import { useBibleResource } from "../hooks/use-bible-resource";
+import { BibleCommentaryText } from "./bible-commentary-text";
 import {
   readBibleLexiconAction,
   readBibleStudyAction,
@@ -25,6 +26,7 @@ export function BibleStudyPanel({
   hideTabs = false,
   selectedAuthor,
   onAuthorChange,
+  onTabChange,
 }: {
   reference: BibleReference;
   authors: { id: string; name: string }[];
@@ -33,6 +35,7 @@ export function BibleStudyPanel({
   hideTabs?: boolean;
   selectedAuthor?: string;
   onAuthorChange?: (author: string) => void;
+  onTabChange?: (tab: "words" | "commentary" | "crossReferences") => void;
 }): React.ReactNode {
   const t = useTranslations("Bible");
   const [internalTab, setTab] = useState<
@@ -42,18 +45,20 @@ export function BibleStudyPanel({
   const [internalAuthor, setAuthor] = useState("matthew-henry");
   const author = selectedAuthor ?? internalAuthor;
   const { book, chapter, verse, translation } = reference;
-  const identity = `${book}:${chapter}:${verse}:${translation}:${tab}:${author}`;
+  // Commentary is chapter-wide: changing the study verse must not refetch it.
+  const requestedVerse = tab === "commentary" ? 1 : verse;
+  const identity = `${book}:${chapter}:${requestedVerse}:${translation}:${tab}:${author}`;
   const load = useCallback(
     () =>
       readBibleStudyAction({
         book,
         chapter,
-        verse,
+        verse: requestedVerse,
         translation,
         tab,
         commentary: author,
       }),
-    [book, chapter, verse, translation, tab, author],
+    [book, chapter, requestedVerse, translation, tab, author],
   );
   const { data, loading, failed, retry } = useBibleResource(identity, load);
   const [selectedWord, setSelectedWord] = useState<{
@@ -92,10 +97,16 @@ export function BibleStudyPanel({
   return (
     <section
       aria-label={t("study")}
-      className="space-y-4 rounded-card border border-border bg-card p-4"
+      className={
+        tab === "commentary"
+          ? "min-w-0 space-y-5"
+          : "space-y-4 rounded-card border border-border bg-card p-4"
+      }
     >
       <h2 className="font-heading text-xl text-primary">
-        {bibleReferenceLabel(reference)}
+        {bibleReferenceLabel(
+          tab === "commentary" ? { ...reference, verse: undefined } : reference,
+        )}
       </h2>
       {!hideTabs && (
         <div
@@ -108,7 +119,10 @@ export function BibleStudyPanel({
               key={item}
               variant={tab === item ? "default" : "secondary"}
               aria-pressed={tab === item}
-              onClick={() => setTab(item)}
+              onClick={() => {
+                setTab(item);
+                onTabChange?.(item);
+              }}
               className="flex-1 px-2 text-xs"
             >
               {t(item)}
@@ -235,9 +249,21 @@ export function BibleStudyPanel({
             </>
           )}
           {tab === "commentary" && (
-            <p className="max-h-[65dvh] overflow-y-auto whitespace-pre-line leading-relaxed">
-              {data?.commentary || t("noCommentary")}
-            </p>
+            <div className="space-y-7 text-lg leading-relaxed">
+              {data?.commentary?.introduction && (
+                <BibleCommentaryText text={data.commentary.introduction} />
+              )}
+              {data?.commentary?.entries.map((entry, index) => (
+                <article key={`${entry.verse}:${index}`} className="space-y-3">
+                  <h3 className="border-b border-border pb-2 font-heading text-xl text-primary">
+                    {bibleReferenceLabel({ ...reference, verse: entry.verse })}
+                  </h3>
+                  <BibleCommentaryText text={entry.text} />
+                </article>
+              ))}
+              {!data?.commentary?.introduction &&
+                !data?.commentary?.entries.length && <p>{t("noCommentary")}</p>}
+            </div>
           )}
           {tab === "crossReferences" && (
             <div className="flex flex-wrap gap-2">

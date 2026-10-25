@@ -137,18 +137,30 @@ export async function loadBibleStudy(
     const data = z
       .object({
         commentary: sourceSchema,
-        chapter: z.object({ content: z.array(contentSchema) }),
+        chapter: z.object({
+          introduction: z.string().nullish(),
+          content: z.array(contentSchema),
+        }),
       })
       .parse(raw);
-    // Commentary may cover a range under its first verse. Do not attribute earlier commentary
-    // to another verse without an explicit range supplied by the publisher.
+    // Preserve the whole chapter and the publisher's verse anchors. Some entries
+    // discuss a range; never duplicate those notes under invented verse headings.
     return {
-      commentary: data.chapter.content
-        .filter(
-          (item) => item.type === "verse" && item.number === reference.verse,
-        )
-        .map(plainText)
-        .join("\n\n"),
+      commentary: {
+        introduction: data.chapter.introduction?.trim() || undefined,
+        entries: data.chapter.content.flatMap((item) => {
+          const text = plainText(item).trim();
+          if (
+            item.type !== "verse" ||
+            typeof item.number !== "number" ||
+            !Number.isInteger(item.number) ||
+            item.number < 1 ||
+            !text
+          )
+            return [];
+          return [{ verse: item.number, text }];
+        }),
+      },
       source: data.commentary,
     };
   }

@@ -1516,7 +1516,12 @@ Reflection space shown after completing Radiance or as a standalone destination.
   the saved library uses 20-row look-ahead pagination and filters. Reading or
   studying never changes campaign progress, rewards, hints, streaks or stats.
 - On mobile, Read uses top Passage, Words, Commentary and Cross References tabs;
-  study panes load on demand and include a verse selector. Desktop retains the
+  study panes load on demand. Words and Cross References include a verse selector;
+  Commentary shows the full chapter's introduction and available verse-anchored
+  entries, with an author selector and no internal scrolling. Source paragraph
+  breaks and Roman/numeric nested outlines receive readable spacing and hanging
+  indents, preserving the author's wording, citations and original list indexes.
+  Desktop retains the
   side-by-side passage/study layout. Audio remains docked across these tabs.
 - Chapter actions offer Save chapter, Share chapter and Select verses. Selection
   supports arbitrary verses within one chapter, including non-adjacent verses.

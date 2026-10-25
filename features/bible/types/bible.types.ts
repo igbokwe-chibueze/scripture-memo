@@ -28,7 +28,10 @@ export type BibleWord = {
 };
 export type BibleStudy = {
   words?: BibleWord[];
-  commentary?: string;
+  commentary?: {
+    introduction?: string;
+    entries: { verse: number; text: string }[];
+  };
   references?: {
     book: string;
     chapter: number;

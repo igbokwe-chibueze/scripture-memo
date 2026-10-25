@@ -88,23 +88,65 @@ test("null optional metadata never hides an otherwise valid word study", async (
   }
 });
 
-test("missing commentary stays empty rather than borrowing another verse's entry", async () => {
+test("chapter commentary retains its introduction and every supplied verse anchor", async () => {
   const original = globalThis.fetch;
   globalThis.fetch = async () =>
     Response.json({
       commentary: source,
       chapter: {
+        introduction: "An introduction to this chapter.",
         content: [
           { type: "verse", number: 1, content: ["Notes on verse one."] },
+          {
+            type: "verse",
+            number: 5,
+            content: ["Notes covering a later passage."],
+          },
+          { type: "verse", number: 6, content: [] },
         ],
       },
     });
   try {
-    assert.equal(
-      (await loadBibleStudy(reference, "commentary", "matthew-henry"))
-        ?.commentary,
-      "",
+    const study = await loadBibleStudy(
+      reference,
+      "commentary",
+      "matthew-henry",
     );
+    assert.ok(study?.commentary);
+    assert.deepEqual(study.commentary, {
+      introduction: "An introduction to this chapter.",
+      entries: [
+        { verse: 1, text: "Notes on verse one." },
+        { verse: 5, text: "Notes covering a later passage." },
+      ],
+    });
+    assert.equal(
+      study.commentary.entries.some((entry) => entry.verse === 3),
+      false,
+      "An entry anchored to another verse is not duplicated under the current verse.",
+    );
+  } finally {
+    globalThis.fetch = original;
+  }
+});
+
+test("an empty commentary chapter stays empty", async () => {
+  const original = globalThis.fetch;
+  globalThis.fetch = async () =>
+    Response.json({
+      commentary: source,
+      chapter: { introduction: null, content: [] },
+    });
+  try {
+    const study = await loadBibleStudy(
+      reference,
+      "commentary",
+      "matthew-henry",
+    );
+    assert.deepEqual(study?.commentary, {
+      introduction: undefined,
+      entries: [],
+    });
   } finally {
     globalThis.fetch = original;
   }

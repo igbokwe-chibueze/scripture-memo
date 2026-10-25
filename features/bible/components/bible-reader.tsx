@@ -54,9 +54,15 @@ export function BibleReader({
   const desktop = useMediaQuery("(min-width: 1024px)");
   // Preserve the chosen commentary across lazy mobile panels and viewport changes.
   const [commentaryAuthor, setCommentaryAuthor] = useState("matthew-henry");
+  const [desktopStudyTab, setDesktopStudyTab] = useState<
+    "words" | "commentary" | "crossReferences"
+  >("words");
   const [mobileTab, setMobileTab] = useState<
     "passage" | "words" | "commentary" | "crossReferences"
   >("passage");
+  const showingCommentary = desktop
+    ? desktopStudyTab === "commentary"
+    : mobileTab === "commentary";
   const { book, chapter: chapterNumber, translation } = reference;
   // Verse selection does not reload an already-loaded chapter or its annotations.
   const load = useCallback(
@@ -193,6 +199,13 @@ export function BibleReader({
   );
   const previous = adjacentBibleChapter(reference, -1);
   const next = adjacentBibleChapter(reference, 1);
+
+  /** A study reference is reading navigation, so reveal Passage on mobile.
+   * Desktop keeps its existing side-by-side study and passage composition. */
+  function openStudyPassage(target: BibleReference): void {
+    setMobileTab("passage");
+    onOpen(target);
+  }
 
   function annotate(
     operation: "bookmark" | "highlight",
@@ -582,9 +595,9 @@ export function BibleReader({
               <aside
                 hidden={!desktop && mobileTab === "passage"}
                 id="bible-study-panel"
-                className="min-w-0 scroll-mt-4 space-y-4 lg:sticky lg:top-4 lg:self-start"
+                className={`min-w-0 scroll-mt-4 space-y-4 ${showingCommentary ? "" : "lg:sticky lg:top-4 lg:self-start"}`}
               >
-                {(desktop || mobileTab !== "passage") && (
+                {!showingCommentary && (desktop || mobileTab !== "passage") && (
                   <label className="mb-3 block space-y-1 text-sm">
                     <span>{t("verse")}</span>
                     <select
@@ -612,8 +625,10 @@ export function BibleReader({
                 {desktop ? (
                   <BibleStudyPanel
                     reference={reference}
+                    activeTab={desktopStudyTab}
+                    onTabChange={setDesktopStudyTab}
                     authors={authors}
-                    onOpen={onOpen}
+                    onOpen={openStudyPassage}
                     selectedAuthor={commentaryAuthor}
                     onAuthorChange={setCommentaryAuthor}
                   />
@@ -625,7 +640,7 @@ export function BibleReader({
                           <BibleStudyPanel
                             reference={reference}
                             authors={authors}
-                            onOpen={onOpen}
+                            onOpen={openStudyPassage}
                             selectedAuthor={commentaryAuthor}
                             onAuthorChange={setCommentaryAuthor}
                             activeTab={tab}
