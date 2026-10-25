@@ -10,7 +10,7 @@ import {
 } from "../lib/bible-device-position";
 import { useTranslations } from "next-intl";
 import { toast } from "@/lib/toast";
-import { BookmarkIcon } from "lucide-react";
+import { ArrowLeftIcon, BookmarkIcon } from "lucide-react";
 import { NavigationButton } from "@/components/shared/navigation-button";
 import { Button } from "@/components/ui/button";
 import { GameArtwork } from "@/components/shared/game-artwork";
@@ -170,14 +170,27 @@ export function BibleWorkspace({
             </NavigationButton>
           </div>
         </header>
-        <NavigationButton
-          href="/game"
-          pendingLabel={t("opening")}
-          variant="ghost"
-          className="mb-4"
-        >
-          {t("backGame")}
-        </NavigationButton>
+        {screen !== "books" && (
+          <Button
+            variant="ghost"
+            className="mb-4"
+            onClick={() => {
+              // Return to the active passage's testament without another route
+              // request. The existing books catalogue is entirely local UI.
+              setTestament(
+                BIBLE_BOOKS.find((book) => book.id === reference.book)
+                  ?.testament === "new"
+                  ? "new"
+                  : "old",
+              );
+              setScreen("books");
+              window.scrollTo({ top: 0 });
+            }}
+          >
+            <ArrowLeftIcon aria-hidden="true" />
+            {t("backBooks")}
+          </Button>
+        )}
         <main>
           {screen === "home" && (
             <BibleHome
@@ -204,16 +217,6 @@ export function BibleWorkspace({
               tabs={tabs.length ? tabs : [reference]}
               authors={authors}
               onOpen={openPassage}
-              onBack={() => {
-                setTestament(
-                  BIBLE_BOOKS.find((book) => book.id === reference.book)
-                    ?.testament === "new"
-                    ? "new"
-                    : "old",
-                );
-                setScreen("books");
-                window.scrollTo({ top: 0 });
-              }}
               onCloseTab={(index) => {
                 const remaining = tabs.filter(
                   (_, itemIndex) => itemIndex !== index,

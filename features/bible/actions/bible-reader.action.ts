@@ -80,7 +80,10 @@ export async function setBibleMarkAction(
     async (userId) => {
       if (!parsed.success) throw new Error("Invalid mark.");
       await bibleRepository.setMark(userId, parsed.data);
-      revalidatePath("/bible");
+      // Marks are uncached, owner-private action reads. The reader updates its
+      // loaded marks after success and Saved reads fresh on entry; refreshing
+      // the entire route here needlessly rebuilds the reading UI and can move
+      // its scroll position while a highlight is being applied.
       return null;
     },
     "BIB-002",

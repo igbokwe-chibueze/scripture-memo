@@ -96,6 +96,18 @@
 
 /* Audio and navbar share width, surface and measured edges. Verse content scrolls
    beneath them, with matching dynamic end padding supplied by the workspace. */
+/* Reuse measured dock heights so the selected-verse trigger clears both audio
+   and navigation at mobile widths, zoom levels and wrapped narrator labels. */
+.bible-verse-floating-actions {
+  position: fixed;
+  right: max(1rem, calc((100vw - 42rem) / 2 + 1rem));
+  bottom: calc(
+    var(--bible-nav-height, 5rem) + var(--bible-audio-height, 0px) + 1rem
+  );
+  z-index: 41;
+  max-width: calc(100vw - 2rem);
+}
+
 .bible-audio-dock {
   position: fixed;
   inset-inline: 0;

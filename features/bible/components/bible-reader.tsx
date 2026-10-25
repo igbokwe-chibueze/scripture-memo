@@ -6,17 +6,17 @@ import { useTranslations } from "next-intl";
 import { AnimatePresence } from "framer-motion";
 import { toast } from "@/lib/toast";
 import {
-  ArrowLeftIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   MoreHorizontalIcon,
-  XIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { BiblePassageActions } from "./bible-passage-actions";
+import { BibleOpenPassages } from "./bible-open-passages";
 import { LoadingButton } from "@/components/shared/loading-button";
+import { ResponsiveDialog } from "@/components/shared/responsive-dialog";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { showActionError } from "@/lib/errors/show-action-error";
@@ -43,14 +43,12 @@ export function BibleReader({
   authors,
   onOpen,
   onCloseTab,
-  onBack,
 }: {
   reference: BibleReference;
   tabs: BibleReference[];
   authors: { id: string; name: string }[];
   onOpen: (reference: BibleReference) => void;
   onCloseTab: (index: number) => void;
-  onBack: () => void;
 }): React.ReactNode {
   const t = useTranslations("Bible");
   const desktop = useMediaQuery("(min-width: 1024px)");
@@ -86,6 +84,9 @@ export function BibleReader({
   // Opening a chapter supplies a reading position, not permission to expose
   // verse actions. Only a deliberate long press or desktop action opens them.
   const [activeVerse, setActiveVerse] = useState<string | null>(null);
+  const [verseDialog, setVerseDialog] = useState<string | null>(null);
+  const verseActionsRef = useRef<HTMLDivElement>(null);
+  const revealedPassage = useRef<string | null>(null);
   const longPressCompleted = useRef(false);
   const press = useRef<{
     timer: ReturnType<typeof setTimeout>;
@@ -119,6 +120,27 @@ export function BibleReader({
   ).filter((number) =>
     chapter?.verses.some((verse) => verse.number === number),
   );
+  useEffect(() => {
+    if (!activeVerse || selecting || verseDialog === activeVerse) return;
+
+    // Capture runs before another verse's action handler, so clicking a new
+    // action can replace the selection without this listener clearing it later.
+    function dismissOutside(event: MouseEvent): void {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      if (
+        target.closest(
+          '[data-bible-active-verse="true"], [data-bible-verse-actions]',
+        )
+      )
+        return;
+      setActiveVerse(null);
+      setVerseDialog(null);
+    }
+
+    document.addEventListener("click", dismissOutside, true);
+    return () => document.removeEventListener("click", dismissOutside, true);
+  }, [activeVerse, selecting, verseDialog]);
   function pickVerse(number: number, feedback = true): void {
     // Keep hardware effects outside state updaters, which React may replay.
     // Deselection stays quiet; only newly selected verses receive a pulse.
@@ -146,11 +168,24 @@ export function BibleReader({
     });
   }
   useEffect(() => {
-    if (!loading && (desktop || mobileTab === "passage"))
-      document
-        .getElementById(`bible-verse-${reference.verse}`)
-        ?.scrollIntoView({ block: "nearest", behavior: "instant" });
-  }, [reference.verse, loading, desktop, mobileTab]);
+    if (loading || (!desktop && mobileTab !== "passage")) return;
+    const location = `${book}:${chapterNumber}:${translation}:${reference.verse}`;
+    // Reveal navigation targets once. A save/refetch or responsive re-render
+    // must never be treated as a request to move the reading viewport again.
+    if (revealedPassage.current === location) return;
+    const verse = document.getElementById(`bible-verse-${reference.verse}`);
+    if (!verse) return;
+    revealedPassage.current = location;
+    verse.scrollIntoView({ block: "nearest", behavior: "instant" });
+  }, [
+    book,
+    chapterNumber,
+    translation,
+    reference.verse,
+    loading,
+    desktop,
+    mobileTab,
+  ]);
 
   const mark = marks.find((item) => item.verse === reference.verse);
   const selectedVerse = chapter?.verses.find(
@@ -165,6 +200,12 @@ export function BibleReader({
   ): void {
     const target = reference;
     const bookmarked = !mark?.bookmarked;
+    const actionSurface = verseActionsRef.current;
+
+    // Pending work disables the clicked button/fieldset. Move focus to a stable
+    // dialog element first so the browser cannot fall back to the document body
+    // and scroll it. Keep this scoped to verse actions, not shared button styles.
+    actionSurface?.focus({ preventScroll: true });
     startTransition(async () => {
       try {
         const result = await setBibleMarkAction({
@@ -233,10 +274,6 @@ export function BibleReader({
       }}
       className="space-y-5"
     >
-      <Button variant="ghost" onClick={onBack}>
-        <ArrowLeftIcon aria-hidden="true" />
-        {t("backBooks")}
-      </Button>
       <div className="grid grid-cols-[minmax(0,1fr)_5rem_3rem] gap-2">
         <Button
           variant="secondary"
@@ -269,40 +306,12 @@ export function BibleReader({
           Aa
         </Button>
       </div>
-      <div className="flex flex-wrap gap-2" aria-label={t("openChapters")}>
-        {tabs.map((item, index) => (
-          <div
-            key={`${item.book}:${item.chapter}:${item.translation}`}
-            className="flex min-w-0 items-center rounded-control border border-border bg-card"
-          >
-            <Button
-              className="min-w-0 px-2 text-xs"
-              variant={
-                item.book === reference.book &&
-                item.chapter === reference.chapter &&
-                item.translation === reference.translation
-                  ? "default"
-                  : "ghost"
-              }
-              onClick={() => onOpen(item)}
-            >
-              {bibleReferenceLabel({ ...item, verse: undefined })} ·{" "}
-              {item.translation}
-            </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              aria-label={t("closeChapter", {
-                reference: bibleReferenceLabel({ ...item, verse: undefined }),
-              })}
-              disabled={tabs.length === 1}
-              onClick={() => onCloseTab(index)}
-            >
-              <XIcon aria-hidden="true" />
-            </Button>
-          </div>
-        ))}
-      </div>
+      <BibleOpenPassages
+        reference={reference}
+        tabs={tabs}
+        onOpen={onOpen}
+        onCloseTab={onCloseTab}
+      />
       <TabsList
         id="bible-reader-tabs"
         variant="line"
@@ -417,6 +426,12 @@ export function BibleReader({
                             </h2>
                           )}
                           <div
+                            data-bible-active-verse={
+                              !selecting &&
+                              activeVerse === verseKey(verse.number)
+                                ? "true"
+                                : undefined
+                            }
                             data-highlight={annotation?.highlight ?? undefined}
                             className={`bible-verse rounded-control border-l-4 p-3 ${(selecting ? chosen.includes(verse.number) : activeVerse === verseKey(verse.number)) ? "border-primary bg-primary/10" : "border-transparent"}`}
                           >
@@ -514,93 +529,6 @@ export function BibleReader({
                                 <MoreHorizontalIcon aria-hidden="true" />
                               </Button>
                             </div>
-                            {!selecting &&
-                              activeVerse === verseKey(verse.number) &&
-                              reference.verse === verse.number && (
-                                <div className="mt-3 space-y-3 border-t border-border pt-3 text-sm leading-normal">
-                                  <div className="flex flex-wrap gap-2">
-                                    <LoadingButton
-                                      isPending={pending}
-                                      pendingLabel={t("saving")}
-                                      variant="secondary"
-                                      onClick={() => annotate("bookmark")}
-                                    >
-                                      {t(
-                                        mark?.bookmarked
-                                          ? "removeBookmark"
-                                          : "save",
-                                      )}
-                                    </LoadingButton>
-                                    <Button
-                                      variant="secondary"
-                                      onClick={() => void share()}
-                                    >
-                                      {t("share")}
-                                    </Button>
-                                    <Button
-                                      variant="secondary"
-                                      onClick={() => setMobileTab("words")}
-                                      className="lg:hidden"
-                                    >
-                                      {t("study")}
-                                    </Button>
-                                  </div>
-                                  <fieldset
-                                    disabled={pending}
-                                    className="flex flex-wrap gap-2"
-                                  >
-                                    <legend className="mb-2 text-xs text-muted-foreground">
-                                      {t("highlight")}
-                                    </legend>
-                                    {(["teal", "gold", "blue"] as const).map(
-                                      (color) => (
-                                        <Button
-                                          key={color}
-                                          variant={
-                                            mark?.highlight === color
-                                              ? "default"
-                                              : "outline"
-                                          }
-                                          aria-pressed={
-                                            mark?.highlight === color
-                                          }
-                                          onClick={() =>
-                                            annotate("highlight", color)
-                                          }
-                                          className="px-3 text-xs"
-                                        >
-                                          {t(`colors.${color}`)}
-                                        </Button>
-                                      ),
-                                    )}
-                                    {mark?.highlight && (
-                                      <Button
-                                        variant="ghost"
-                                        onClick={() =>
-                                          annotate("highlight", null)
-                                        }
-                                      >
-                                        {t("clear")}
-                                      </Button>
-                                    )}
-                                  </fieldset>
-                                  {verse.footnotes.length > 0 && (
-                                    <details>
-                                      <summary className="min-h-11 cursor-pointer py-2">
-                                        {t("footnotes")}
-                                      </summary>
-                                      {verse.footnotes.map((note, index) => (
-                                        <p
-                                          key={index}
-                                          className="mt-2 text-muted-foreground"
-                                        >
-                                          {note}
-                                        </p>
-                                      ))}
-                                    </details>
-                                  )}
-                                </div>
-                              )}
                           </div>
                         </div>
                       );
@@ -710,6 +638,122 @@ export function BibleReader({
                 )}
               </aside>
             </div>
+            {/* The selected verse keeps a compact floating entry point. Its
+                controls use the existing accessible mobile drawer/desktop dialog. */}
+            {!selecting &&
+              selectedVerse &&
+              activeVerse === verseKey(reference.verse) && (
+                <div
+                  className="bible-verse-floating-actions"
+                  data-bible-verse-actions
+                >
+                  <ResponsiveDialog
+                    key={activeVerse}
+                    open={verseDialog === activeVerse}
+                    scrollLock="preserve-layout"
+                    onOpenChange={(open) =>
+                      setVerseDialog(open ? activeVerse : null)
+                    }
+                    onExitComplete={() => setActiveVerse(null)}
+                    title={t("verseActions", { verse: reference.verse })}
+                    description={bibleReferenceLabel(reference)}
+                    closeLabel={t("closeHelp")}
+                    trigger={
+                      <Button
+                        size="icon-lg"
+                        className="size-11 rounded-full"
+                        aria-label={t("verseActions", {
+                          verse: reference.verse,
+                        })}
+                      >
+                        <MoreHorizontalIcon aria-hidden="true" />
+                      </Button>
+                    }
+                  >
+                    <div
+                      ref={verseActionsRef}
+                      tabIndex={-1}
+                      className="bible-dialog space-y-4 text-sm leading-normal outline-none"
+                    >
+                      <div className="flex flex-wrap gap-2">
+                        <LoadingButton
+                          isPending={pending}
+                          pendingLabel={t("saving")}
+                          variant="secondary"
+                          onClick={() => annotate("bookmark")}
+                        >
+                          {t(mark?.bookmarked ? "removeBookmark" : "save")}
+                        </LoadingButton>
+                        <Button
+                          variant="secondary"
+                          onClick={() => {
+                            // Close this surface before a possible manual-copy
+                            // dialog so two focus traps never compete.
+                            setVerseDialog(null);
+                            void share();
+                          }}
+                        >
+                          {t("share")}
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          onClick={() => {
+                            setVerseDialog(null);
+                            setMobileTab("words");
+                          }}
+                          className="lg:hidden"
+                        >
+                          {t("study")}
+                        </Button>
+                      </div>
+                      <fieldset
+                        disabled={pending}
+                        className="flex flex-wrap gap-2"
+                      >
+                        <legend className="mb-2 text-xs text-muted-foreground">
+                          {t("highlight")}
+                        </legend>
+                        {(["teal", "gold", "blue"] as const).map((color) => (
+                          <Button
+                            key={color}
+                            variant={
+                              mark?.highlight === color ? "default" : "outline"
+                            }
+                            aria-pressed={mark?.highlight === color}
+                            onClick={() => annotate("highlight", color)}
+                            className="px-3 text-xs"
+                          >
+                            {t(`colors.${color}`)}
+                          </Button>
+                        ))}
+                        {mark?.highlight && (
+                          <Button
+                            variant="ghost"
+                            onClick={() => annotate("highlight", null)}
+                          >
+                            {t("clear")}
+                          </Button>
+                        )}
+                      </fieldset>
+                      {selectedVerse.footnotes.length > 0 && (
+                        <details>
+                          <summary className="min-h-11 cursor-pointer py-2">
+                            {t("footnotes")}
+                          </summary>
+                          {selectedVerse.footnotes.map((note, index) => (
+                            <p
+                              key={index}
+                              className="mt-2 text-muted-foreground"
+                            >
+                              {note}
+                            </p>
+                          ))}
+                        </details>
+                      )}
+                    </div>
+                  </ResponsiveDialog>
+                </div>
+              )}
             {/* Keep fixed audio outside the sticky desktop study column. */}
             <AnimatePresence mode="wait">
               {audioOpen && (

@@ -5994,3 +5994,44 @@ concurrency subtests remain explicitly skipped as documented above.
 - Keep the toggle session-local with no persistence or database operations. Existing chapter/edition changes still stop the previous recording; opening never autoplays.
 - Move long-press haptics from the timeout to pointer release, when touch user activation is available, and increase the short pulse from 15ms to 30ms. Normal selection clicks retain their direct-event pulse; hardware/browser restrictions can still suppress vibration.
 - Documentation consulted: Motion AnimatePresence and MDN Navigator.userActivation. Validation: scoped ESLint and TypeScript; physical haptics require retesting on the owner's device.
+
+### 2026-10-24 — Trial floating single-verse actions
+- Replace inline single-verse controls with a floating button labeled with the active verse reference. Keep it above the measured audio dock/navbar on mobile and desktop; deselecting the verse hides it.
+- Reuse ResponsiveDialog for the animated mobile drawer and desktop modal, preserving Save/Remove bookmark, Share, Highlight/Clear, mobile Study and footnotes.
+- Keep multi-verse selection controls unchanged. Close the verse action surface when opening Study or Share. No additional database operations or dependencies.
+- Validation: scoped ESLint and TypeScript; reviewed the 375px layout constraints (48px trigger, viewport-clamped placement and measured dock clearance).
+
+### 2026-10-24 — Compact verse action trigger and open passage navigation
+- Reduce the floating verse action button to a 44px icon-only circle with an accessible verse-specific label.
+- Dismiss the single-verse selection when clicking elsewhere; preserve clicks inside the selected verse or floating action control, and let the dialog manage its own dismissal. Multi-verse selection remains independent.
+- Remove full-route revalidation after uncached private verse-mark writes. Reader marks already update locally after success and Saved reloads from the server on entry, so refreshing the whole Bible route was unnecessary and could disrupt scroll position. Authorization and validation are unchanged; no new database calls.
+- Extract BibleOpenPassages with a single horizontally scrollable strip and a separate list button opening a vertical side drawer. Reuse one passage-row design in both surfaces; active state changes only semantic colors. Keep close controls and 44px targets.
+- Add localized drawer guidance in English, Spanish and French. Reviewed mobile width constraints and dock clearance.
+- Validation: TypeScript, scoped ESLint, 2 i18n checks and all 11 Bible unit checks passed. Consulted installed Next.js revalidatePath documentation and existing shared Sheet components.
+
+### 2026-10-24 — Preserve reading position during verse annotations
+- The previous route-refresh change did not fully resolve the reported scroll jump. Isolated browser tests exposed focus falling to document.body when pending bookmark/highlight controls became disabled.
+- Focus a stable, programmatically focusable container inside the verse action dialog with preventScroll before disabling controls. Retain the reading coordinates across the asynchronous result and restore them only if the same verse/action surface remains active; do not override navigation or dismissal.
+- No shared button redesign, database operations or dependencies added.
+- Validation: TypeScript and scoped ESLint passed. Actual-reader browser fixture with mocked writes tested Bookmark and Gold highlight at 375px and 1280px: focus stays inside the dialog and reading position remains exactly unchanged (3145px mobile / 2264px desktop). The owner's exact top jump was not reproduced in the fixture; physical-device confirmation remains useful. Results retained under .local-backups/verse-scroll-qa/results.json; no auth or DB was used.
+
+### 2026-10-24 — Preserve both document and scroll-locked body reading positions
+- Previous tests only checked the open-dialog phase and did not cover the alternate Base UI body scroll-lock path. That path moves the real reading offset into body.scrollTop while window.scrollY becomes zero, making the earlier window-only snapshot unreliable.
+- Capture the document position before opening the verse dialog, keep its trigger mounted until exit/focus return completes, and restore after the exit animation and scroll unlock. ResponsiveDialog adds an optional onExitComplete callback; existing callers keep their behavior.
+- During annotation saves, capture the actual scroll owner (body in the fallback lock, otherwise document.scrollingElement) and restore in a layout effect after pending work completes, before paint. Retain the stable focus target from the prior fix. Remove the earlier window-only post-save restoration.
+- Validation: TypeScript and scoped ESLint passed. Browser tests use the real reader, mocked actions and the real document shell at 375x498 and 1280x498. All 8 normal open/save/close cases and 8 simulated scroll-reset cases passed across both lock modes. In fallback mode tests confirm window=0/body=3250 while locked, then window=3250 after closing on mobile. No accounts, database writes or production calls were used.
+- Baseline normal lifecycle checks also passed, so these tests establish the scroll-owner handling and recovery behavior rather than proving the exact cause of the owner's live report. Asked whether the jump occurs during saving or on dismissal; physical/live confirmation is still relevant.
+
+### 2026-10-24 — Replace verse drawer scroll transfer with layout-preserving containment
+- The owner still observed a transient jump during save and occasional restoration on close. Remove the unsuccessful window/body snapshot and restore-on-close workarounds rather than retaining accumulating corrections.
+- Add opt-in ResponsiveDialog scrollLock="preserve-layout" for the single-verse drawer only. Use the installed Base UI Dialog modal="trap-focus" capability and a portal-lifetime native input guard. This keeps focus trapping, overlay dismissal and animations while leaving html/body layout, styles and scroll ownership unchanged.
+- Contain background wheel, touch and keyboard scrolling, allow scrolling inside overflowing drawer content, and preserve pinch/Ctrl-wheel zoom and native input/button behavior. Other dialogs retain their default scroll lock. No new dependencies, database queries or persistence.
+- Restrict automatic verse scrollIntoView to a newly navigated canonical reference; repeated loads, saves and viewport renders must not reveal the same target again.
+- Document the opt-in behavior in UI-UX-GUIDE.md. Keep stable pending focus and retain the trigger until the closing animation completes.
+- Validation: TypeScript and scoped ESLint passed. Eight real-reader/mocked-action browser scenarios at 375x498 and 1280x498, with ordinary and simulated inset-scrollbar platforms, passed. Every rendered frame from opening through a delayed write and closing retained the identical page offset, body.scrollTop remained zero and html/body styles were untouched. Confirmed exactly one mocked write per scenario, blocked background wheel/touch, retained internal footnote scrolling and Escape dismissal. Results: .local-backups/verse-scroll-qa/stable-drawer-results.json. These are isolated browser checks, not a claim that the owner's live session was directly inspected.
+
+### 2026-10-25 — Reveal active passage tabs and return to books
+- Owner explicitly deferred the unresolved page-jumping issue. Leave its current code unchanged during this task.
+- Scroll the horizontal open-passage strip just far enough to show a newly active tab, respecting reduced motion. Use strip.scrollTo only, never scrollIntoView, so this navigation does not scroll the reading page.
+- Replace the workspace Back to game link with Back to books, opening the active passage's testament locally. Remove the duplicate reader-level Back to books button; hide the workspace button while already on Books.
+- Validation: scoped ESLint and TypeScript. No database operations or dependencies added; existing staged changes remain untouched.

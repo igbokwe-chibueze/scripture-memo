@@ -1421,6 +1421,7 @@
     "previousChapter": "Previous chapter",
     "nextChapter": "Next chapter",
     "verseActions": "Actions for verse {verse}",
+    "openPassagesHelp": "Choose a passage to continue reading, or close passages you no longer need.",
     "verseLongPressHelp": "Press and hold a verse to save, share or highlight it. In selection mode, tap verses to add or remove them.",
     "save": "Bookmark",
     "removeBookmark": "Remove bookmark",

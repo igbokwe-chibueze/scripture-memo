@@ -230,6 +230,13 @@ modal focus, dismissal and scroll locking. Motion respects both OS and app
 reduced-motion preferences; no second animation framework is required.
 Keep existing dialog surfaces unchanged unless their migration is requested.
 
+The verse-actions reader opts into `scrollLock="preserve-layout"`: Base UI
+traps focus while a mounted input guard contains wheel, touch and keyboard
+scrolling within the popup, without rewriting html/body layout or transferring
+the reading position to another scroll container. Keep the default library lock
+for other dialogs. The optional `onExitComplete` callback runs after the closing
+animation, so callers can retain their trigger until focus return is complete.
+
 Implementation references: [Base UI animation](https://base-ui.com/react/handbook/animation)
 and [Motion accessibility](https://motion.dev/docs/react-accessibility).
 
