@@ -32,6 +32,10 @@ import {
 import type { PlayerShellSummary } from "@/features/player-shell/types/player-shell.types";
 import "./bible.css";
 import { useBibleDockHeight } from "../hooks/use-bible-dock-height";
+import { BibleReadingPlan } from "./bible-reading-plan";
+import { useReadingPlanProgress } from "../hooks/use-reading-plan-progress";
+import { updateReadingPlanProgress } from "../lib/reading-plan-progress";
+import { NEW_TESTAMENT_READING_DAYS } from "../data/new-testament-reading-plan";
 
 /** Session tabs use canonical references; browser history supports deep links without extra private reads. */
 export function BibleWorkspace({
@@ -46,6 +50,10 @@ export function BibleWorkspace({
   player: PlayerShellSummary;
 }): React.ReactNode {
   const t = useTranslations("Bible");
+  const plans = useTranslations("ReadingPlans");
+  const planProgress = useReadingPlanProgress();
+  const [planDay, setPlanDay] = useState<number | null>(null);
+  const [planReadingDay, setPlanReadingDay] = useState<number | null>(null);
   const navigationRef = useBibleDockHeight("--bible-nav-height");
   // The server snapshot is null so hydration matches server HTML. After
   // hydration, browser storage supplies the last passage without a DB request.
@@ -64,9 +72,9 @@ export function BibleWorkspace({
   const [openedReference, setReference] = useState<BibleReference | null>(null);
   const reference = openedReference ?? initial;
   const [tabs, setTabs] = useState<BibleReference[]>([]);
-  const [screen, setScreen] = useState<"home" | "read" | "saved" | "books">(
-    initialReference ? "read" : "home",
-  );
+  const [screen, setScreen] = useState<
+    "home" | "read" | "saved" | "books" | "plan"
+  >(initialReference ? "read" : "home");
   const [testament, setTestament] = useState<"old" | "new">("old");
 
   useEffect(() => {
@@ -141,6 +149,26 @@ export function BibleWorkspace({
     window.scrollTo({ top: 0 });
   }
 
+  // Keep a return path while reading plan passages. Completion is offered only
+  // for the assigned reading chapter, not a different tab or reflection excerpt.
+  const readingDay =
+    planReadingDay === null
+      ? null
+      : NEW_TESTAMENT_READING_DAYS[planReadingDay - 1];
+  const assignedChapter =
+    readingDay?.kind === "read" &&
+    readingDay.chapters.some(
+      (chapter) =>
+        chapter.book === reference.book &&
+        chapter.chapter === reference.chapter,
+    );
+  function returnToPlan(): void {
+    setPlanDay(planReadingDay);
+    setScreen("plan");
+    window.history.replaceState(null, "", "/bible");
+    window.scrollTo({ top: 0 });
+  }
+
   return (
     <div className="bible-workspace min-h-dvh bg-background text-foreground">
       <div className="mx-auto max-w-6xl px-4 pb-[calc(var(--bible-nav-height,5rem)+var(--bible-audio-height,0px)+1.5rem)] sm:px-6">
@@ -170,32 +198,49 @@ export function BibleWorkspace({
             </NavigationButton>
           </div>
         </header>
-        {screen !== "books" && (
+        {screen === "plan" || (screen === "read" && planReadingDay !== null) ? (
           <Button
-            variant="ghost"
-            className="mb-4"
-            onClick={() => {
-              // Return to the active passage's testament without another route
-              // request. The existing books catalogue is entirely local UI.
-              setTestament(
-                BIBLE_BOOKS.find((book) => book.id === reference.book)
-                  ?.testament === "new"
-                  ? "new"
-                  : "old",
-              );
-              setScreen("books");
-              window.scrollTo({ top: 0 });
-            }}
+            variant="outline"
+            className="mb-4 min-h-11"
+            onClick={screen === "plan" ? () => navigate("home") : returnToPlan}
           >
             <ArrowLeftIcon aria-hidden="true" />
-            {t("backBooks")}
+            {plans(screen === "plan" ? "backHome" : "backPlan")}
           </Button>
+        ) : (
+          screen !== "books" && (
+            <Button
+              variant="ghost"
+              className="mb-4"
+              onClick={() => {
+                // Return to the active passage's testament without another route
+                // request. The existing books catalogue is entirely local UI.
+                setTestament(
+                  BIBLE_BOOKS.find((book) => book.id === reference.book)
+                    ?.testament === "new"
+                    ? "new"
+                    : "old",
+                );
+                setScreen("books");
+                window.scrollTo({ top: 0 });
+              }}
+            >
+              <ArrowLeftIcon aria-hidden="true" />
+              {t("backBooks")}
+            </Button>
+          )
         )}
         <main>
           {screen === "home" && (
             <BibleHome
               reference={reference}
               onOpen={openPassage}
+              onPlan={() => {
+                setPlanDay(null);
+                setScreen("plan");
+                window.history.replaceState(null, "", "/bible");
+                window.scrollTo({ top: 0 });
+              }}
               onBooks={(value) => {
                 setTestament(value);
                 setScreen("books");
@@ -210,6 +255,50 @@ export function BibleWorkspace({
               reference={reference}
               onOpen={openPassage}
             />
+          )}
+          {screen === "plan" && (
+            <BibleReadingPlan
+              initialDay={planDay}
+              onRead={(chapter, day) => {
+                setPlanReadingDay(day);
+                openPassage({
+                  ...chapter,
+                  verse: 1,
+                  translation: reference.translation,
+                });
+                window.scrollTo({ top: 0 });
+              }}
+            />
+          )}
+          {screen === "read" && planReadingDay !== null && (
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-card border border-border bg-card p-4">
+              <span className="font-medium">
+                {plans("day", { day: planReadingDay })} · {plans("title")}
+              </span>
+              {assignedChapter && (
+                <Button
+                  variant="secondary"
+                  className="min-h-11"
+                  disabled={planProgress?.completedDays.includes(
+                    planReadingDay,
+                  )}
+                  onClick={() => {
+                    try {
+                      updateReadingPlanProgress(planReadingDay);
+                      toast.success(plans("dayCompleted"));
+                    } catch {
+                      toast.error(plans("storageFailed"));
+                    }
+                  }}
+                >
+                  {plans(
+                    planProgress?.completedDays.includes(planReadingDay)
+                      ? "complete"
+                      : "markComplete",
+                  )}
+                </Button>
+              )}
+            </div>
           )}
           {screen === "read" && (
             <BibleReader
@@ -251,7 +340,8 @@ export function BibleWorkspace({
             key={id}
             variant="ghost"
             aria-current={
-              screen === id || (id === "home" && screen === "books")
+              screen === id ||
+              (id === "home" && (screen === "books" || screen === "plan"))
                 ? "page"
                 : undefined
             }

@@ -1494,6 +1494,17 @@ Reflection space shown after completing Radiance or as a standalone destination.
   Book/chapter/verse selectors share one mobile row on Home; the reader dialog
   retains its roomier picker layout. All interactive targets remain at least
   44px. Supplied PNG originals are preserved under `public/images/bible/`.
+- Home has a separate Reading Plans section, initially the owner's “The New
+  Testament in One Year” document with labelled illustration placeholders.
+  Preserve its seven phases and exact 365-day order: 260 single-chapter readings,
+  52 reflections on the previous five readings, 52 review/application days and
+  one year-end review. Weekly cadence continues across phase boundaries.
+  Users explicitly start, complete or undo any day at their own pace. Opening
+  a chapter does not complete it. Reflection/application days show prompts only,
+  without journal entries. Progress is versioned, validated browser storage;
+  clearing browser data removes it. No database reads/writes, polling, account
+  synchronization, game rewards or streak changes are introduced. Reading links
+  use the active translation and offer a return path to the selected plan day.
 - KJV, WEB and BSB come from the Free Use Bible API. Settings selects the initial
   translation; reader changes are temporary. Section headings and footnotes are
   retained when provided. Up to eight session-local chapter tabs, chapter

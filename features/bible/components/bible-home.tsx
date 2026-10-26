@@ -18,16 +18,19 @@ import { BiblePassagePicker } from "./bible-passage-picker";
 import { BIBLE_TOPICS } from "../data/bible-catalog";
 import { bibleReferenceLabel } from "../lib/bible-reference";
 import type { BibleReference } from "../schemas/bible.schema";
+import { BibleReadingPlanCard } from "./bible-reading-plan";
 
 /** Topic rotation pauses on hover/focus, hidden documents and reduced motion. */
 export function BibleHome({
   reference,
   onOpen,
   onBooks,
+  onPlan,
 }: {
   reference: BibleReference;
   onOpen: (reference: BibleReference) => void;
   onBooks: (testament: "old" | "new") => void;
+  onPlan: () => void;
 }): React.ReactNode {
   const t = useTranslations("Bible");
   const reduced = useReducedMotion();
@@ -123,6 +126,7 @@ export function BibleHome({
           compact
         />
       </details>
+      <BibleReadingPlanCard onOpen={onPlan} />
       <section
         className="space-y-3"
         onMouseEnter={() => setHovered(true)}
@@ -146,7 +150,7 @@ export function BibleHome({
           ref={topicTrack}
           className={
             allTopics
-              ? "grid gap-3 sm:grid-cols-2"
+              ? "grid grid-cols-2 gap-3"
               : "bible-topic-track flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2"
           }
           aria-label={t("topicsTitle")}
@@ -161,15 +165,15 @@ export function BibleHome({
                 title={t(`topics.${item.id}`)}
                 subtitle={t(`topicDescriptions.${item.id}`)}
                 src={`/images/bible/topic-${originalIndex % 2 === 0 ? "traveller" : "sheep"}.png`}
-                sizes="(min-width: 1024px) 440px, (min-width: 640px) 45vw, calc(100vw - 2rem)"
+                compactTitle
                 imagePosition={
                   originalIndex % 2 === 0 ? "center 12%" : "center 100%"
                 }
                 onClick={() => setSelectedTopic(item)}
                 className={
                   allTopics
-                    ? "aspect-[2.1]"
-                    : "aspect-[2.1] basis-[calc(100%-2.5rem)] snap-start sm:basis-[calc(50%-0.375rem)]"
+                    ? "aspect-[1.125]"
+                    : "aspect-[1.125] basis-[calc(50%-0.375rem)] snap-start"
                 }
               />
             );

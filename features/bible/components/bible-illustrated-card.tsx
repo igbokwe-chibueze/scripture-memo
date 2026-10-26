@@ -6,7 +6,7 @@
  * stay consistent rather than introducing an independent card-control system.
  */
 import Image from "next/image";
-import { ChevronRightIcon } from "lucide-react";
+import { ChevronRightIcon, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -20,10 +20,13 @@ export function BibleIllustratedCard({
   imagePosition = "center",
   compactTitle = false,
   sizes = "(min-width: 1024px) 440px, (min-width: 640px) 45vw, 50vw",
+  placeholderLabel,
 }: {
   title: string;
   subtitle: string;
-  src: string;
+  src?: string;
+  /** Reading plans reuse the approved card while awaiting owner-supplied art. */
+  placeholderLabel?: string;
   onClick: () => void;
   className?: string;
   imagePosition?: string;
@@ -41,14 +44,21 @@ export function BibleIllustratedCard({
         className,
       )}
     >
-      <Image
-        src={src}
-        alt=""
-        fill
-        sizes={sizes}
-        className="object-cover"
-        style={{ objectPosition: imagePosition }}
-      />
+      {src ? (
+        <Image
+          src={src}
+          alt=""
+          fill
+          sizes={sizes}
+          className="object-cover"
+          style={{ objectPosition: imagePosition }}
+        />
+      ) : (
+        <span className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-primary/5 pb-20 text-muted-foreground">
+          <ImageIcon aria-hidden="true" className="size-8 text-primary/60" />
+          <span className="sr-only">{placeholderLabel}</span>
+        </span>
+      )}
       <span className="bible-image-shade absolute inset-0" aria-hidden="true" />
       <span className="bible-image-caption relative mt-auto flex w-full items-center justify-between gap-2 px-3 py-2 sm:px-4 sm:py-3">
         <span className="min-w-0">
