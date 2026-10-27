@@ -19,6 +19,7 @@ import { BIBLE_TOPICS } from "../data/bible-catalog";
 import { bibleReferenceLabel } from "../lib/bible-reference";
 import type { BibleReference } from "../schemas/bible.schema";
 import { BibleReadingPlanCard } from "./bible-reading-plan";
+import type { ReadingPlanId } from "../data/reading-plan-catalog";
 
 /** Topic rotation pauses on hover/focus, hidden documents and reduced motion. */
 export function BibleHome({
@@ -30,7 +31,7 @@ export function BibleHome({
   reference: BibleReference;
   onOpen: (reference: BibleReference) => void;
   onBooks: (testament: "old" | "new") => void;
-  onPlan: () => void;
+  onPlan: (planId: ReadingPlanId) => void;
 }): React.ReactNode {
   const t = useTranslations("Bible");
   const reduced = useReducedMotion();

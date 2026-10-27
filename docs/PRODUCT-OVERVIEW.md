@@ -1496,15 +1496,41 @@ Reflection space shown after completing Radiance or as a standalone destination.
   44px. Supplied PNG originals are preserved under `public/images/bible/`.
 - Home has a separate Reading Plans section, initially the owner's “The New
   Testament in One Year” document with labelled illustration placeholders.
-  Preserve its seven phases and exact 365-day order: 260 single-chapter readings,
-  52 reflections on the previous five readings, 52 review/application days and
-  one year-end review. Weekly cadence continues across phase boundaries.
-  Users explicitly start, complete or undo any day at their own pace. Opening
-  a chapter does not complete it. Reflection/application days show prompts only,
-  without journal entries. Progress is versioned, validated browser storage;
+  Preserve its seven phases and all 260 single-chapter readings in source order.
+  The owner shortened the plan to 303 days: six consecutive reading days then
+  one rest day on every seventh day, continuing across phase boundaries. There
+  are 43 rest days; Revelation 22 finishes on Day 303 with no trailing filler.
+  Keep the owner's display title New Testament in One Year; duration remains
+  303 days. Derive phase ranges and progress totals from the generated schedule.
+  Versioned device progress maps
+  legacy completed readings by chapter to their new day numbers, without writes
+  during reads. Old rest completions do not claim newly scheduled rest days.
+  Opening a plan chapter starts the plan locally without completing its day.
+  Reading-day completion and undo live inside the chapter reader. Remove the
+  separate selected-day card; show compact progress, day counts and percentage.
+  A confirmed Reset plan control appears only once started and clears only that
+  plan's local progress. Each phase has a compact text header and info
+  control for its description, without images in either header or drawer. Chapter rows match the testament book-list sizing
+  and include static editorial subtitles distinct from Scripture headings.
+  Rest days open a short encouragement and manual completion in a drawer,
+  without study prompts or journal entries. Users may proceed at their own pace.
+  Progress is versioned, validated browser storage;
   clearing browser data removes it. No database reads/writes, polling, account
   synchronization, game rewards or streak changes are introduced. Reading links
   use the active translation and offer a return path to the selected plan day.
+- Old Testament in a Year follows the owner's narrative DOCX exactly: eight
+  phases, 365 daily assignments, all 929 chapters of the 39-book Old Testament
+  once each, and no added rest days. Keep the source's multi-book days and its
+  caveats about thematic placements rather than inventing precise dates.
+  The supplied cover appears in discovery and the detail header; the former
+  Coming soon entry now opens the shared, image-free phase accordion layout.
+  Show each day's full assigned range and partial chapter count. Opening a day
+  resumes at its first unread chapter; in-reader chapter controls navigate the
+  assigned readings and explicitly mark/undo one chapter. Complete the day only
+  when every assigned chapter is marked; undoing one reopens the day. Partial
+  chapter progress survives refreshes. Each plan has isolated browser storage
+  and reset behavior, with no DB operations or polling. Existing New Testament
+  completion semantics and legacy progress migration remain unchanged.
 - KJV, WEB and BSB come from the Free Use Bible API. Settings selects the initial
   translation; reader changes are temporary. Section headings and footnotes are
   retained when provided. Up to eight session-local chapter tabs, chapter

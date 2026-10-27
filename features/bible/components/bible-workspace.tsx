@@ -34,8 +34,11 @@ import "./bible.css";
 import { useBibleDockHeight } from "../hooks/use-bible-dock-height";
 import { BibleReadingPlan } from "./bible-reading-plan";
 import { useReadingPlanProgress } from "../hooks/use-reading-plan-progress";
-import { updateReadingPlanProgress } from "../lib/reading-plan-progress";
-import { NEW_TESTAMENT_READING_DAYS } from "../data/new-testament-reading-plan";
+import { BiblePlanReadingControls } from "./bible-plan-reading-controls";
+import {
+  READING_PLANS,
+  type ReadingPlanId,
+} from "../data/reading-plan-catalog";
 
 /** Session tabs use canonical references; browser history supports deep links without extra private reads. */
 export function BibleWorkspace({
@@ -51,7 +54,9 @@ export function BibleWorkspace({
 }): React.ReactNode {
   const t = useTranslations("Bible");
   const plans = useTranslations("ReadingPlans");
-  const planProgress = useReadingPlanProgress();
+  const [planId, setPlanId] = useState<ReadingPlanId>("new-testament");
+  const plan = READING_PLANS[planId];
+  const planProgress = useReadingPlanProgress(planId);
   const [planDay, setPlanDay] = useState<number | null>(null);
   const [planReadingDay, setPlanReadingDay] = useState<number | null>(null);
   const navigationRef = useBibleDockHeight("--bible-nav-height");
@@ -88,12 +93,18 @@ export function BibleWorkspace({
     }
   }, [initialReference, t]);
 
-  function openPassage(value: BibleReference): void {
+  // Plan provenance is explicit, never inferred from a chapter or saved progress.
+  // Ordinary reading defaults to no plan, even when that chapter belongs to one.
+  function openPassage(
+    value: BibleReference,
+    readingDay: number | null = null,
+  ): void {
     const parsed = bibleReferenceSchema.safeParse(value);
     if (!parsed.success) {
       toast.error(t("invalid"), { duration: Infinity });
       return;
     }
+    setPlanReadingDay(readingDay);
     setReference(parsed.data);
     try {
       saveBibleDevicePosition(parsed.data);
@@ -130,6 +141,7 @@ export function BibleWorkspace({
         selection: bibleSelectionFromQuery(params.get("selection")),
       });
       if (parsed.success) {
+        setPlanReadingDay(null);
         setReference(parsed.data);
         setTabs([parsed.data]);
         setScreen("read");
@@ -140,6 +152,8 @@ export function BibleWorkspace({
   }, [translation]);
 
   function navigate(value: "home" | "read" | "saved"): void {
+    // The general navigation is a separate pathway from opening a plan day.
+    setPlanReadingDay(null);
     setScreen(value);
     window.history.replaceState(
       null,
@@ -149,21 +163,19 @@ export function BibleWorkspace({
     window.scrollTo({ top: 0 });
   }
 
-  // Keep a return path while reading plan passages. Completion is offered only
-  // for the assigned reading chapter, not a different tab or reflection excerpt.
-  const readingDay =
-    planReadingDay === null
-      ? null
-      : NEW_TESTAMENT_READING_DAYS[planReadingDay - 1];
-  const assignedChapter =
-    readingDay?.kind === "read" &&
-    readingDay.chapters.some(
+  // Only the explicitly opened day in the explicitly selected plan can be marked.
+  // Matching a chapter in some other plan must never create completion controls.
+  const activePlanDay =
+    planReadingDay !== null &&
+    plan.days[planReadingDay - 1]?.chapters.some(
       (chapter) =>
         chapter.book === reference.book &&
         chapter.chapter === reference.chapter,
-    );
+    )
+      ? planReadingDay
+      : null;
   function returnToPlan(): void {
-    setPlanDay(planReadingDay);
+    setPlanDay(activePlanDay);
     setScreen("plan");
     window.history.replaceState(null, "", "/bible");
     window.scrollTo({ top: 0 });
@@ -198,7 +210,7 @@ export function BibleWorkspace({
             </NavigationButton>
           </div>
         </header>
-        {screen === "plan" || (screen === "read" && planReadingDay !== null) ? (
+        {screen === "plan" || (screen === "read" && activePlanDay !== null) ? (
           <Button
             variant="outline"
             className="mb-4 min-h-11"
@@ -235,7 +247,9 @@ export function BibleWorkspace({
             <BibleHome
               reference={reference}
               onOpen={openPassage}
-              onPlan={() => {
+              onPlan={(id) => {
+                setPlanId(id);
+                setPlanReadingDay(null);
                 setPlanDay(null);
                 setScreen("plan");
                 window.history.replaceState(null, "", "/bible");
@@ -258,54 +272,44 @@ export function BibleWorkspace({
           )}
           {screen === "plan" && (
             <BibleReadingPlan
+              key={planId}
+              planId={planId}
               initialDay={planDay}
               onRead={(chapter, day) => {
-                setPlanReadingDay(day);
-                openPassage({
-                  ...chapter,
-                  verse: 1,
-                  translation: reference.translation,
-                });
+                openPassage(
+                  {
+                    ...chapter,
+                    verse: 1,
+                    translation: reference.translation,
+                  },
+                  day,
+                );
                 window.scrollTo({ top: 0 });
               }}
             />
           )}
-          {screen === "read" && planReadingDay !== null && (
-            <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-card border border-border bg-card p-4">
-              <span className="font-medium">
-                {plans("day", { day: planReadingDay })} · {plans("title")}
-              </span>
-              {assignedChapter && (
-                <Button
-                  variant="secondary"
-                  className="min-h-11"
-                  disabled={planProgress?.completedDays.includes(
-                    planReadingDay,
-                  )}
-                  onClick={() => {
-                    try {
-                      updateReadingPlanProgress(planReadingDay);
-                      toast.success(plans("dayCompleted"));
-                    } catch {
-                      toast.error(plans("storageFailed"));
-                    }
-                  }}
-                >
-                  {plans(
-                    planProgress?.completedDays.includes(planReadingDay)
-                      ? "complete"
-                      : "markComplete",
-                  )}
-                </Button>
-              )}
-            </div>
+          {screen === "read" && activePlanDay !== null && (
+            <BiblePlanReadingControls
+              planId={planId}
+              dayNumber={activePlanDay}
+              reference={reference}
+              progress={planProgress}
+              onOpen={(value) => openPassage(value, activePlanDay)}
+            />
           )}
           {screen === "read" && (
             <BibleReader
               reference={reference}
               tabs={tabs.length ? tabs : [reference]}
               authors={authors}
-              onOpen={openPassage}
+              onOpen={(value) => {
+                // Selecting a verse or changing translation stays in the same
+                // plan chapter. Opening a different passage leaves that pathway.
+                const sameChapter =
+                  value.book === reference.book &&
+                  value.chapter === reference.chapter;
+                openPassage(value, sameChapter ? activePlanDay : null);
+              }}
               onCloseTab={(index) => {
                 const remaining = tabs.filter(
                   (_, itemIndex) => itemIndex !== index,

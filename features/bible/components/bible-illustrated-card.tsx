@@ -21,6 +21,8 @@ export function BibleIllustratedCard({
   compactTitle = false,
   sizes = "(min-width: 1024px) 440px, (min-width: 640px) 45vw, 50vw",
   placeholderLabel,
+  presentation = "default",
+  badge,
 }: {
   title: string;
   subtitle: string;
@@ -34,6 +36,10 @@ export function BibleIllustratedCard({
   compactTitle?: boolean;
   /** Topic previews span most of a phone; request enough pixels for that wider crop. */
   sizes?: string;
+  /** Plan-only centered captions keep approved book/topic cards unchanged. */
+  presentation?: "default" | "plan";
+  /** Small presentation status, such as a device-only completion percentage. */
+  badge?: string;
 }): React.ReactNode {
   return (
     <Button
@@ -60,8 +66,20 @@ export function BibleIllustratedCard({
         </span>
       )}
       <span className="bible-image-shade absolute inset-0" aria-hidden="true" />
-      <span className="bible-image-caption relative mt-auto flex w-full items-center justify-between gap-2 px-3 py-2 sm:px-4 sm:py-3">
-        <span className="min-w-0">
+      {badge && (
+        <span className="absolute right-0 top-0 z-10 rounded-bl-control bg-background/90 px-2 py-1 text-xs font-bold text-foreground">
+          {badge}
+        </span>
+      )}
+      <span
+        className={cn(
+          "bible-image-caption flex w-full items-center gap-2 px-3 py-2 sm:px-4 sm:py-3",
+          presentation === "plan"
+            ? "absolute left-0 top-1/2 -translate-y-1/2 justify-center text-center"
+            : "relative mt-auto justify-between",
+        )}
+      >
+        <span className={cn("min-w-0", presentation === "plan" && "w-full")}>
           <span
             className={cn(
               "block font-heading font-bold leading-tight sm:text-2xl",
@@ -74,12 +92,16 @@ export function BibleIllustratedCard({
             {subtitle}
           </span>
         </span>
-        <span
-          aria-hidden="true"
-          className="grid size-7 shrink-0 place-items-center rounded-full border border-current/40 sm:size-9"
-        >
-          <ChevronRightIcon className="size-5" />
-        </span>
+        {/* Centered plan captions use the full width; an off-centre decorative
+            arrow would push their titles away from the card's actual centre. */}
+        {presentation !== "plan" && (
+          <span
+            aria-hidden="true"
+            className="grid size-7 shrink-0 place-items-center rounded-full border border-current/40 sm:size-9"
+          >
+            <ChevronRightIcon className="size-5" />
+          </span>
+        )}
       </span>
     </Button>
   );

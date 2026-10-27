@@ -1,23 +1,57 @@
 {
   "ReadingPlans": {
+    "planDuration": "{days} días · {books} libros",
+    "oldTestamentIntro": "Sigue la historia, un día a la vez.",
+    "oldTestamentDescription": "Recorre el Antiguo Testamento como una historia conectada: creación y pacto, liberación, vida en la tierra, reyes y profetas, exilio, regreso y esperanza. Algunas ubicaciones son temáticas; los relatos paralelos siguen siendo lecturas distintas.",
+    "oldTestamentActivities": "929 capítulos de los 39 libros del Antiguo Testamento en 365 días.",
+    "oldTestamentPace": "Lee dos o tres capítulos asignados cada día, sin días de descanso. Marca cada capítulo como leído para completar el día a tu ritmo.",
+    "assignedChapterProgress": "{count} / {total} capítulos leídos",
+    "markChapterRead": "Marcar capítulo leído",
+    "undoChapterRead": "Marcar no leído",
+    "chapterMarked": "Capítulo marcado como leído.",
+    "chapterReopened": "Capítulo marcado como no leído.",
+    "readingsForDay": "Lecturas del día {day}",
+    "rest": "Día de descanso",
+    "restSubtitle": "Un espacio para descansar y recuperar fuerzas",
+    "restEncouragements": {
+      "0": "El descanso es parte del camino. Continúa cuando te sientas preparado.",
+      "1": "No hace falta correr. Los pasos pequeños y constantes también te hacen avanzar.",
+      "2": "Respira hoy. Hay espacio para el descanso mientras creces en la fe.",
+      "3": "Un día tranquilo puede ser un buen día. Disfruta esta pausa.",
+      "4": "Tu progreso sigue aquí. Descansa hoy y continúa a tu ritmo.",
+      "5": "Trátate con amabilidad. En este camino hay espacio para leer y descansar."
+    },
+    "percentage": "{value}%",
+    "reset": "Reiniciar plan",
+    "resetWarning": "Se borrarán los días completados de este plan en este dispositivo. Abre un capítulo para empezar de nuevo.",
+    "confirmReset": "Reiniciar progreso",
+    "resetSuccess": "Progreso reiniciado.",
+    "cancel": "Cancelar",
+    "aboutPhase": "Acerca de {phase}",
+    "reflectSubtitle": "Repasa y reflexiona",
+    "reviewSubtitle": "Pon en práctica lo aprendido esta semana",
+    "yearReviewSubtitle": "Reflexiona sobre todo el recorrido",
+    "intro": "Lee, descansa y crece cada día.",
+    "aboutPlan": "Acerca de este plan de lectura",
+    "activities": "260 lecturas de capítulos y 43 días de descanso.",
     "oldTestamentTitle": "El Antiguo Testamento en un año",
     "comingSoon": "Próximamente",
     "viewMore": "Ver más",
     "heading": "Planes de lectura",
-    "title": "El Nuevo Testamento en un año",
-    "duration": "365 días · 27 libros",
+    "title": "Nuevo Testamento en un año",
+    "duration": "303 días · 27 libros",
     "summary": "Lee, reflexiona y aplica. Un recorrido guiado a tu ritmo.",
-    "description": "Un recorrido accesible por los 27 libros del Nuevo Testamento: un capítulo nuevo cada día de lectura, con tiempo para reflexionar y aplicar lo aprendido.",
+    "description": "Un recorrido guiado por los 27 libros del Nuevo Testamento, con un capítulo por día de lectura y tiempo para descansar.",
     "explore": "Explorar plan",
     "continue": "Continuar plan",
     "start": "Comenzar plan",
     "started": "Plan iniciado en este dispositivo.",
-    "progress": "{count} / 365 días completados",
+    "progress": "{count} / {total} días completados",
     "progressLabel": "Progreso del plan de lectura",
     "yourProgress": "Tu progreso",
     "finished": "¡Recorrido completado!",
     "deviceOnly": "Guardado solo en este navegador. Borrar sus datos elimina tu progreso.",
-    "pace": "Cinco días de lectura, luego reflexión y repaso. Marca los días completados y avanza a tu ritmo.",
+    "pace": "Seis días de lectura y uno de descanso cada séptimo día. Marca los días completados y avanza a tu ritmo.",
     "day": "Día {day}",
     "read": "Leer",
     "reflect": "Reflexionar",
@@ -41,13 +75,68 @@
     "backHome": "Volver al inicio de la Biblia",
     "backPlan": "Volver al plan de lectura",
     "phases": {
-      "0": { "title": "Conoce a Jesús", "description": "Descubre a Jesús en tres Evangelios: sus acciones y autoridad en Marcos, su identidad y su invitación a creer en Juan, y su compasión y misión en Lucas." },
-      "1": { "title": "Comienza la iglesia", "description": "Sigue la misión de Cristo resucitado a través del Espíritu Santo, los primeros creyentes y la expansión del evangelio desde Jerusalén a las naciones." },
-      "2": { "title": "Fundamentos de la fe", "description": "Aprende sobre la gracia, la libertad en Cristo, la fe viva y la certeza del amor de Dios. Estas cartas breves establecen creencias y prácticas esenciales." },
-      "3": { "title": "Vivir como Cristo", "description": "Vuelve a las enseñanzas de Jesús en Mateo y explora el gozo, la humildad, la identidad cristiana, la santidad diaria y la esperanza en su regreso." },
-      "4": { "title": "Crecer en madurez", "description": "Profundiza en la salvación, la vida en comunidad, el sufrimiento, los dones espirituales, el discernimiento y la perseverancia." },
-      "5": { "title": "Servicio fiel y perseverancia", "description": "Considera la reconciliación, el liderazgo fiel, el servicio, la verdad y a Jesús como cumplimiento de las promesas de Dios." },
-      "6": { "title": "La esperanza definitiva", "description": "Termina con el llamado del Apocalipsis al testimonio fiel, la victoria de Cristo, la justicia y la nueva creación prometida por Dios. Lee sus imágenes con humildad y en contexto." }
+      "0": {
+        "title": "Conoce a Jesús",
+        "description": "Descubre a Jesús en tres Evangelios: sus acciones y autoridad en Marcos, su identidad y su invitación a creer en Juan, y su compasión y misión en Lucas."
+      },
+      "1": {
+        "title": "Comienza la iglesia",
+        "description": "Sigue la misión de Cristo resucitado a través del Espíritu Santo, los primeros creyentes y la expansión del evangelio desde Jerusalén a las naciones."
+      },
+      "2": {
+        "title": "Fundamentos de la fe",
+        "description": "Aprende sobre la gracia, la libertad en Cristo, la fe viva y la certeza del amor de Dios. Estas cartas breves establecen creencias y prácticas esenciales."
+      },
+      "3": {
+        "title": "Vivir como Cristo",
+        "description": "Vuelve a las enseñanzas de Jesús en Mateo y explora el gozo, la humildad, la identidad cristiana, la santidad diaria y la esperanza en su regreso."
+      },
+      "4": {
+        "title": "Crecer en madurez",
+        "description": "Profundiza en la salvación, la vida en comunidad, el sufrimiento, los dones espirituales, el discernimiento y la perseverancia."
+      },
+      "5": {
+        "title": "Servicio fiel y perseverancia",
+        "description": "Considera la reconciliación, el liderazgo fiel, el servicio, la verdad y a Jesús como cumplimiento de las promesas de Dios."
+      },
+      "6": {
+        "title": "La esperanza definitiva",
+        "description": "Termina con el llamado del Apocalipsis al testimonio fiel, la victoria de Cristo, la justicia y la nueva creación prometida por Dios. Lee sus imágenes con humildad y en contexto."
+      }
+    },
+    "oldTestamentPhases": {
+      "0": {
+        "title": "Orígenes, promesa y patriarcas",
+        "description": "Comienza con la creación, la rebelión humana y las promesas a Abraham. Job se sitúa cerca de la época patriarcal como literatura sapiencial sobre el sufrimiento; su contexto histórico es incierto."
+      },
+      "1": {
+        "title": "Liberación, pacto y desierto",
+        "description": "Sigue a Israel desde la esclavitud al Sinaí y por el desierto. Las leyes e instrucciones se leen en su contexto narrativo, como preparación para entrar en Canaán."
+      },
+      "2": {
+        "title": "La tierra, los jueces y el surgimiento de un rey",
+        "description": "Entra en la tierra, descubre los ciclos de los jueces y sigue a Samuel y Saúl. Rut ofrece una historia personal dentro de la época de los jueces."
+      },
+      "3": {
+        "title": "David, Salomón y un reino unido",
+        "description": "Sigue los reinados de David y Salomón, junto con salmos y escritos sapienciales que iluminan la adoración, la oración y la vida real. La asociación de los salmos es temática, no una datación precisa."
+      },
+      "4": {
+        "title": "Un reino dividido y advertencias proféticas",
+        "description": "Recorre la división y decadencia de los reinos. Los profetas se sitúan cerca de las épocas generales a las que hablaron; Reyes y Crónicas ofrecen perspectivas complementarias, no una cronología única."
+      },
+      "5": {
+        "title": "Juicio, exilio y esperanza",
+        "description": "Lee las últimas décadas de Judá y la caída de Jerusalén junto con advertencias proféticas. Lamentaciones llora la destrucción; Ezequiel y Daniel muestran el exilio, y los últimos capítulos de Isaías anuncian consuelo y restauración."
+      },
+      "6": {
+        "title": "Regreso, reconstrucción y renovación",
+        "description": "Sigue al pueblo de Dios en su preservación, regreso y reconstrucción durante la época persa. Hageo y Zacarías acompañan la restauración; los salmos restantes aportan oraciones de esperanza y adoración renovada."
+      },
+      "7": {
+        "title": "La promesa aún por venir",
+        "description": "Concluye con los cánticos y llamados proféticos restantes, hasta la invitación de Malaquías a la fidelidad y la esperanza. La fecha de Joel es debatida; su ubicación es temática, no una afirmación cronológica definitiva."
+      }
     }
   },
   "PlayerStats": {

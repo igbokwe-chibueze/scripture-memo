@@ -14,6 +14,18 @@ against the files in Downloads. Responsive cropping happens in CSS only.
 The traveller and sheep repeat across the four current topics until more topic
 artwork is provided. Do not generate replacements for these approved assets.
 
+## Reading-plan covers
+
+Owner-supplied PNG originals copied unchanged on 2026-10-27; file hashes were
+verified against Downloads. Card dimensions and caption styling stay unchanged.
+The New Testament detail header reuses its cover with proportional CSS cropping.
+Phase headers and information drawers intentionally have no artwork.
+
+| Production file | Supplied original | Placement |
+| --- | --- | --- |
+| plans/old-testament.png | Scroll and Tablets Before Mount Sinai.png | Old Testament plan card and detail cover |
+| plans/new-testament.png | Plum journey through Scripture.png | New Testament plan card and detail cover |
+
 ## Book-list thumbnails
 
 Original PNGs extracted unchanged from the owner's `Banner Images.zip` into

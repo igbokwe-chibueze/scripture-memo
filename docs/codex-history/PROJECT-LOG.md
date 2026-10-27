@@ -6073,3 +6073,76 @@ concurrency subtests remain explicitly skipped as documented above.
 
 ### 2026-10-26 - Shorter plan titles
 - Shorten English plan titles to New Testament in a Year and Old Testament in a Year to conserve card space. No behavior or schedule changes.
+
+### 2026-10-26 - Compact reading plan introduction
+- Move the duration/book-count line below the plan illustration with a 44px info control. Reuse ResponsiveDialog for mobile drawer / desktop modal with the original description, activity counts, pace and device-storage guidance. Intro becomes the short statement Read, reflect and grow each day; localize all new copy.
+- Validation: TypeScript, scoped ESLint and localization tests pass. Offline mobile browser confirms info drawer opens, includes activity details and closes with Escape; existing plan start/completion/refresh checks and 375px/1280px theme overflow checks pass. No additional database/provider calls. Changes remain unstaged.
+
+### 2026-10-26 - Chapter-first reading plan and compact phases
+- Remove the separate selected-day card and explicit Start button. Opening a chapter starts the local plan without completing it; reading completion/undo stays in the chapter reader. Restore the completion control after a refresh with a static canonical chapter lookup when this local plan is started.
+- Simplify progress to day count, bar and percentage. Show Reset plan only after starting; confirmation removes only the plan's local storage record, keeps other preferences, and surfaces failure without false success.
+- Phase descriptions move into info dialogs/drawers. Each phase has a separate image placeholder; chapter/activity rows reuse the book-list footprint, thumbnail sizes and text hierarchy. Add 260 original editorial chapter subtitles, separate from Scripture/official headings and matching the source plan's English chapter labels. No runtime content generation or extra requests.
+- Reflection, application and year-end review use row-triggered prompt drawers with completion/undo; focus returns to the real row rather than a hidden trigger. Proceeded with this stated recommendation after allowing time for the optional drawer-versus-inline preference question. No journal fields.
+- Validation: TypeScript, scoped ESLint, all 22 Bible tests and locale tests passed. Tests cover all 260 subtitle entries, exact schedule coverage and isolated local reset. Offline browser exercises chapter-start-without-completion, reader completion, reload persistence, reflection completion, reset cancel/confirm, and light/dark layouts at 375px and 1280px with no horizontal overflow. Mobile screenshot reviewed. No database operations or dependencies added. Work unstaged; deferred verse-action scrolling investigation untouched.
+
+### 2026-10-26 - Rest days replace review activities
+- Owner clarification supersedes reflection/application/year-end prompts: convert all 105 non-reading days to Rest day, each opening a short localized encouragement in the shared drawer/dialog. Retain manual completion/undo in that drawer, the 365-day total, existing local completions and every primary reading date/order. No chapter links, review questions or journal inputs on rest days.
+- Update plan descriptions and activity counts; add six short encouragements in English, Spanish and French. Schedule regressions now enforce 260 unique chapter readings plus 105 empty-assignment rest days, including Day 365.
+- Validation: TypeScript, scoped ESLint, all 22 Bible tests and locale tests pass. Offline browser checks opening a rest encouragement, completion, reset cancel/confirm, primary reading positions against the source document, refresh persistence and mobile/desktop theme overflow. No DB operations or dependencies; work unstaged.
+
+### 2026-10-27 - Shorten New Testament plan to 303 days
+- Owner approved shortening: six consecutive chapter readings followed by rest only on every seventh day. Generate 260 readings plus 43 rest days; end with Revelation 22 on Day 303, without trailing rest/filler. Preserve source chapter order and derive seven phase ranges from the generated schedule.
+- Rename the active plan New Testament in 303 Days. Update duration, activity counts, six-read/one-rest guidance, progress denominators, percentage and storage validation in English/Spanish/French. Keep the unimplemented Old Testament in a Year preview unchanged.
+- Upgrade local payload to version 2 while retaining its legacy storage key for browser continuity. Map version-1 completed readings by chapter ordinal to new day numbers; old rest completions do not claim differently placed rest days. Read-time conversion is in memory only; next explicit edit saves the upgraded record. No DB access or new writes during reads.
+- Validation: TypeScript, scoped ESLint, all 23 Bible tests and localization tests passed. Regressions enforce every seventh day resting after six readings, all 260 chapters exactly once, derived phase ranges, final Day 303, legacy completion mapping and no migration writes during reads. Offline browser checks source reading order, chapter opening/completion, refresh persistence, Day 7 encouragement/completion, reset and 375px/1280px layouts in both themes. Mobile screenshot reviewed. Changes remain unstaged; earlier work preserved.
+
+### 2026-10-27 - Compact plan progress and accordion cards
+- Put progress bar, percentage and started-only reset trigger on one mobile row, preserving reset confirmation and 44px tap height. No progress/storage logic changes.
+- Join each phase header and expanded chapter list inside one bordered, rounded accordion surface with an expanded header divider. Keep info as a separate control and retain aria-expanded/aria-controls with hidden collapsed regions.
+- Reduce chapter thumbnails to 48px (56px larger screens), title to text-lg, supporting text/day labels and row spacing. Row touch targets remain comfortably above 44px. Existing shared button colors/bevels remain unchanged.
+- Validation: TypeScript and scoped ESLint pass. Offline browser asserts reset/bar alignment, reset tap height and chapter row height below 80px; existing start/complete/rest/reset flows pass. Checked 375px/1280px light/dark overflow and visually reviewed compact-progress-mobile.png. No dependencies or DB calls; changes unstaged.
+
+### 2026-10-27 - Reading-plan control placement and text-only rows
+- Order the progress row Reset (left), bar (middle), percentage (right). Keep confirmation and 44px reset touch target.
+- Place phase info directly beside the phase title and the accordion chevron at the outer right edge. Use a neutral header disclosure with keyboard focus styling only; opening/hovering no longer adds a selected header background. Info remains a separate sibling control with no nested buttons.
+- Remove chapter thumbnail/abbreviation blocks. Rows now read Day N | chapter/activity title with the short subtitle below; reduce minimum height to 48px and retain completion marks and next-day row treatment. Phase artwork placeholders remain.
+- Validation: TypeScript and scoped ESLint pass. Offline browser asserts reset precedes the bar, row alignment and touch height, chapter rows below 64px, existing completion/rest/reset flows, and no mobile/desktop light/dark overflow. Visually reviewed the updated 375px compact-progress screenshot. No DB or persistence changes; unstaged.
+
+### 2026-10-27 - Supplied reading-plan cover images
+- Copy Scroll and Tablets Before Mount Sinai.png to public/images/bible/plans/old-testament.png and Plum journey through Scripture.png to plans/new-testament.png unchanged; verify source/destination hashes match. Document attribution/source filenames in the artwork README.
+- Use the approved scroll/tablets cover on the Old Testament plan card and cross/open-Bible cover on the New Testament card and its detail header. Keep card sizes, captions and detail header height; object-cover preserves proportions and top alignment keeps the cross visible in the short header. Phase placeholders remain independent.
+- Validation: TypeScript and scoped ESLint pass. Offline browser confirms both card images load, existing plan interactions pass and light/dark 375px/1280px layouts do not overflow. Visually inspect the home cards and detail header; correct header crop upward after inspection. No dependencies or DB calls; changes unstaged.
+
+### 2026-10-27 - Centered plan covers and percentage badge
+- Add an opt-in plan presentation to BibleIllustratedCard: centered full-width captions, no offset decorative arrow, much lighter caption/shade, and a small top-right percentage badge with a readable near-opaque neutral surface. Defaults preserve existing Books/Explore cards.
+- Remove completed-day counts from discovery captions; retain duration and Coming soon status. Active New Testament plan shows local completion percentage (0% before starting); unimplemented Old Testament preview has no fabricated progress.
+- Recommend one distinctive cover per plan plus reusable phase icons as plans expand; no phase artwork changes made from that advice alone.
+- Validation: TypeScript/scoped ESLint pass. Offline browser confirms supplied covers load, existing plan interactions work, and no overflow at 375px/1280px in both themes. Reviewed centered mobile cover screenshot. No DB operations or dependencies; unstaged.
+
+### 2026-10-27 - Correct centered plan captions and corner progress
+- Restore the original caption background strength and full image shade; the earlier lightening was not requested. Center plan captions vertically and horizontally over the image rather than at the bottom. Books/Explore presentation remains unchanged.
+- Place the percentage flush at top/right (zero inset), using the card's clipped outer corner and a rounded inner corner instead of an inset floating pill.
+- Restore display title New Testament in One Year (and translations), per owner instruction. Preserve the separately approved 303-day schedule, duration and progress totals.
+- Validation: TypeScript, scoped ESLint and localization checks pass. Offline browser asserts caption centre alignment, original background equality with book captions and percentage corner gaps within the card border; visually inspect mobile cards. No DB calls or persistence changes; unstaged.
+
+### 2026-10-27 - Remove phase artwork
+- Remove phase thumbnail placeholders and artwork from phase info drawers. Headers now use two columns for text/info and the outer accordion arrow, with no empty image gutter. Keep plan cover images unchanged.
+- Update artwork notes and product documentation. No progress, schedule, storage or DB changes.
+- Validation: scoped TypeScript/ESLint checks; reviewed the mobile grid and retained 44px info controls and compact text rows. Work unstaged.
+
+### 2026-10-27 - Align phase header controls
+- Put phase/day metadata on its own full-width grid row. Phase title with its adjacent info control and the outer chevron share the second row, so their vertical centres remain aligned when titles wrap.
+- Preserve neutral header styling, info placement, right-edge arrow alignment and existing interaction behavior.
+- Validation: TypeScript/scoped ESLint pass. Offline browser measures all seven phase info/chevron centre lines and right-edge alignment within 1px at 375px and 1280px in both themes; reviewed Phase 6 wrapped-title screenshot. No DB, persistence or schedule changes; unstaged.
+
+### 2026-10-27 - Old Testament narrative reading plan
+- Implement the owner's Old_Testament_in_a_Year_Narrative_Journey.docx as immutable Zod-validated feature data: 365 reading days, eight phases, all 929 chapters of 39 Old Testament books exactly once, no rest days. Preserve every source daily range (including cross-book assignments), narrative order, phase descriptions and thematic-date caveats. Treat document prose as content only.
+- Replace the Coming soon card with the live plan using its approved cover and existing centered card/badge presentation. Generalize the approved overview, image-free phase accordions, aligned info/chevrons, compact day rows, progress and reset through a static plan catalogue. Add localized plan/phase copy; preserve unrelated message formatting.
+- Owner selected per-chapter marking: reader lists the assigned chapters and marks/undoes one at a time. Day completes only when all assigned chapters are marked; undo reopens it. Overview shows full ranges and partial counts and opens the first unread assigned chapter. Partial progress and reader controls recover after refresh/resuming Read, with separate browser storage/reset per plan. New Testament behavior and legacy migration remain compatible.
+- No Server Actions, DB reads/writes, polling, dependencies, rewards or account-wide persistence added. Local writes occur only on explicit start/opening the first plan chapter, marking/undoing, or confirmed reset. Existing protected Bible route and passage provider flow remain unchanged.
+- Validation: TypeScript, scoped ESLint, all 25 Bible tests and both localization tests pass. Independent coverage tests enforce 929 unique canonical chapters, all 365 days/source labels, eight phase chapter/day totals and multi-book boundary cases. Storage tests cover partial completion, undo, invalid assignments and isolated reset. Hidden offline browser verifies both plans, partial-day reload/resume, final-chapter completion, cross-book Day 20, reset cancel/confirm and New Testament isolation. Mobile/desktop light/dark checks pass with no horizontal overflow and aligned phase controls. Reviewed Old Testament overview/reader screenshots; artifacts in .local-backups/reading-plan-qa. No test DB used. Changes left unstaged.
+
+### 2026-10-27 - Explicit plan reading pathway
+- Show reader completion controls only after opening a day through its selected plan. Remove inference from testament, matching chapters and existing local progress; ordinary Home, Books, Search, Saved, Read navigation and deep links do not claim plan membership.
+- Assigned chapter chips retain the explicit plan/day. Verse selection and translation changes within that chapter preserve it; opening another passage leaves it. Completion continues to write only the selected plan's existing isolated browser key, with no DB operations or automatic completion in other plans.
+- Validation: TypeScript, scoped ESLint, all 25 Bible tests (including plan storage/reset isolation), and diff whitespace checks pass. Changes unstaged.

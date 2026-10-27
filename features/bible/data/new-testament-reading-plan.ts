@@ -1,69 +1,82 @@
 /** Owner-supplied “The New Testament in One Year” DOCX, imported 2026-10-26.
  * Only the schedule and prompts are transcribed; document text is not executable
- * instruction. Weekly reflection deliberately continues across phase boundaries.
+ * instruction. Owner revision: six consecutive chapter readings followed by
+ * one rest day, shortening the plan while preserving chapter order.
  */
 import { BIBLE_BOOKS } from "./bible-catalog";
 
 /** Translation-independent chapter location; the reader supplies its edition. */
 export type PlanChapter = { book: string; chapter: number };
-/** All 365 activities count toward completion, including reflection and review. */
+/** All scheduled days count toward completion, including manual rest days. */
 export type ReadingPlanDay = {
   number: number;
   phase: number;
-  kind: "read" | "reflect" | "review" | "yearReview";
+  kind: "read" | "rest";
   chapters: PlanChapter[];
+  /** Multi-chapter plans preserve the source's human-readable daily range. */
+  readingLabel?: string;
 };
 
-/** Source phase boundaries include the surrounding weekly reflection days. */
-export const NEW_TESTAMENT_PHASES = [
-  { start: 1, end: 85, books: ["MRK", "JHN", "LUK"] },
-  { start: 86, end: 123, books: ["ACT"] },
-  { start: 124, end: 155, books: ["EPH", "GAL", "JAS", "1JN"] },
-  { start: 156, end: 217, books: ["MAT", "PHP", "COL", "1TH", "2TH"] },
-  { start: 218, end: 291, books: ["ROM", "1CO", "2CO", "1PE", "2PE", "JUD"] },
-  {
-    start: 292,
-    end: 332,
-    books: ["PHM", "1TI", "2TI", "TIT", "2JN", "3JN", "HEB"],
-  },
-  { start: 333, end: 365, books: ["REV"] },
+/** Original chapter grouping, independent of how many rest days are scheduled. */
+const PHASE_BOOKS = [
+  ["MRK", "JHN", "LUK"],
+  ["ACT"],
+  ["EPH", "GAL", "JAS", "1JN"],
+  ["MAT", "PHP", "COL", "1TH", "2TH"],
+  ["ROM", "1CO", "2CO", "1PE", "2PE", "JUD"],
+  ["PHM", "1TI", "2TI", "TIT", "2JN", "3JN", "HEB"],
+  ["REV"],
 ] as const;
 
-/** Generate the document's five-read/two-review cadence without maintaining
- * 365 duplicated records. Canonical chapter counts prevent skipped chapters.
- * This is static client data: it performs no requests and awards no rewards.
+/** Build chapters once from canonical counts. The phase stays attached to each
+ * chapter, so crossing phases cannot restart the six-read/one-rest cadence.
+ */
+const PLAN_CHAPTERS = PHASE_BOOKS.flatMap((books, phase) =>
+  books.flatMap((id) => {
+    const book = BIBLE_BOOKS.find((item) => item.id === id);
+    if (!book) throw new Error("Unknown reading-plan book");
+    return book.chapters.map((_, index) => ({
+      book: id,
+      chapter: index + 1,
+      phase,
+    }));
+  }),
+);
+
+/** Generate only until the final chapter is read. There is no trailing filler
+ * rest day: 260 readings plus 43 seventh-day rests produces 303 total days.
+ * This static client data performs no requests and awards no game rewards.
  */
 function buildSchedule(): ReadingPlanDay[] {
-  const chapters = NEW_TESTAMENT_PHASES.flatMap((phase) =>
-    phase.books.flatMap((id) => {
-      const book = BIBLE_BOOKS.find((item) => item.id === id);
-      if (!book) throw new Error("Unknown reading-plan book");
-      return book.chapters.map((_, index) => ({
-        book: id,
-        chapter: index + 1,
-      }));
-    }),
-  );
+  const days: ReadingPlanDay[] = [];
   let cursor = 0;
-  return Array.from({ length: 365 }, (_, index) => {
-    const number = index + 1;
-    const phase = NEW_TESTAMENT_PHASES.findIndex((item) => number <= item.end);
-    const weekday = index % 7;
-    if (number === 365)
-      return { number, phase, kind: "yearReview", chapters: [] };
-    if (weekday < 5) {
-      const chapter = chapters[cursor++];
-      if (!chapter) throw new Error("Incomplete reading-plan schedule");
-      return { number, phase, kind: "read", chapters: [chapter] };
+  while (cursor < PLAN_CHAPTERS.length) {
+    const number = days.length + 1;
+    if (number % 7 === 0) {
+      days.push({
+        number,
+        phase: days[days.length - 1].phase,
+        kind: "rest",
+        chapters: [],
+      });
+    } else {
+      const { phase, ...chapter } = PLAN_CHAPTERS[cursor++];
+      days.push({ number, phase, kind: "read", chapters: [chapter] });
     }
-    return {
-      number,
-      phase,
-      kind: weekday === 5 ? "reflect" : "review",
-      chapters: chapters.slice(cursor - 5, cursor),
-    };
-  });
+  }
+  return days;
 }
 
-/** Exactly 260 chapters, 52 reflections, 52 applications and one final review. */
+/** Exactly 260 chapters and 43 rest days in the owner's shortened plan. */
 export const NEW_TESTAMENT_READING_DAYS = buildSchedule();
+
+/** Single denominator for storage validation, progress bars and localized copy. */
+export const NEW_TESTAMENT_PLAN_DAY_COUNT = NEW_TESTAMENT_READING_DAYS.length;
+
+/** Derive phase ranges from actual scheduled days, including any rest immediately
+ * after a phase's last chapter. No stale hand-maintained calendar boundaries.
+ */
+export const NEW_TESTAMENT_PHASES = PHASE_BOOKS.map((books, phase) => {
+  const days = NEW_TESTAMENT_READING_DAYS.filter((day) => day.phase === phase);
+  return { books, start: days[0].number, end: days[days.length - 1].number };
+});

@@ -1,23 +1,57 @@
 {
   "ReadingPlans": {
+    "planDuration": "{days} days · {books} books",
+    "oldTestamentIntro": "Follow the story, one day at a time.",
+    "oldTestamentDescription": "Follow the Old Testament as a connected story: creation and covenant, rescue, life in the land, kings and prophets, exile, return and hope. Some placements are thematic rather than firm historical dates; parallel accounts remain distinct readings.",
+    "oldTestamentActivities": "929 chapters across all 39 Old Testament books, read over 365 days.",
+    "oldTestamentPace": "Read two or three assigned chapters each day, with no rest days. Mark each chapter as read to complete the day, at your own pace.",
+    "assignedChapterProgress": "{count} / {total} chapters read",
+    "markChapterRead": "Mark chapter read",
+    "undoChapterRead": "Mark unread",
+    "chapterMarked": "Chapter marked as read.",
+    "chapterReopened": "Chapter marked unread.",
+    "readingsForDay": "Day {day} readings",
+    "rest": "Rest day",
+    "restSubtitle": "A little space to rest and recharge",
+    "restEncouragements": {
+      "0": "Rest is part of the journey. Return refreshed when you are ready.",
+      "1": "You do not have to rush. Small, steady steps still carry you forward.",
+      "2": "Take a breath today. There is room for rest as you grow in faith.",
+      "3": "A quiet day can be a good day. Enjoy the space to pause.",
+      "4": "Your progress is still here. Rest today and continue at your own pace.",
+      "5": "Be gentle with yourself. This journey has space for both reading and rest."
+    },
+    "percentage": "{value}%",
+    "reset": "Reset plan",
+    "resetWarning": "This clears all completed days for this plan on this device. You can start again by opening a chapter.",
+    "confirmReset": "Reset progress",
+    "resetSuccess": "Plan progress reset.",
+    "cancel": "Cancel",
+    "aboutPhase": "About {phase}",
+    "reflectSubtitle": "Look back and reflect",
+    "reviewSubtitle": "Put this week's learning into practice",
+    "yearReviewSubtitle": "Reflect on the whole journey",
+    "intro": "Read, rest and grow each day.",
+    "aboutPlan": "About this reading plan",
+    "activities": "260 chapter readings and 43 rest days.",
     "oldTestamentTitle": "Old Testament in a Year",
     "comingSoon": "Coming soon",
     "viewMore": "View more",
     "heading": "Reading Plans",
-    "title": "New Testament in a Year",
-    "duration": "365 days · 27 books",
+    "title": "New Testament in One Year",
+    "duration": "303 days · 27 books",
     "summary": "Read, reflect and apply. A guided journey at your own pace.",
-    "description": "A carefully sequenced, beginner-friendly journey through all 27 New Testament books—one new chapter on each reading day, with time to reflect and apply what you learn.",
+    "description": "A guided journey through all 27 New Testament books, with one chapter on reading days and space to rest.",
     "explore": "Explore plan",
     "continue": "Continue plan",
     "start": "Start plan",
     "started": "Plan started on this device.",
-    "progress": "{count} / 365 days complete",
+    "progress": "{count} / {total} days complete",
     "progressLabel": "Reading plan progress",
     "yourProgress": "Your progress",
     "finished": "Journey complete!",
     "deviceOnly": "Saved in this browser only. Clearing browser data removes your progress.",
-    "pace": "Five reading days, then reflection and review. Mark days complete yourself; continue at any pace.",
+    "pace": "Six reading days, then one rest day on every seventh day. Mark days complete yourself and continue at your own pace.",
     "day": "Day {day}",
     "read": "Read",
     "reflect": "Reflect",
@@ -41,13 +75,68 @@
     "backHome": "Back to Bible home",
     "backPlan": "Back to reading plan",
     "phases": {
-      "0": { "title": "Meet Jesus", "description": "Discover Jesus through three complementary Gospel accounts: His actions and authority in Mark, His identity and invitation to believe in John, and His compassion and mission in Luke." },
-      "1": { "title": "The Church Begins", "description": "Follow the risen Christ’s mission through the Holy Spirit, the first believers, and the spread of the gospel from Jerusalem to the nations." },
-      "2": { "title": "Foundations of Faith", "description": "Learn about grace, freedom in Christ, living faith, and assurance of God’s love. These shorter letters establish essential beliefs and practices." },
-      "3": { "title": "Living Like Christ", "description": "Return to Jesus’ teachings in Matthew, then explore joy, humility, Christian identity, daily holiness, and hope in His return." },
-      "4": { "title": "Growing in Maturity", "description": "Engage more deeply with salvation, community life, suffering, spiritual gifts, discernment, and perseverance." },
-      "5": { "title": "Faithful Service and Endurance", "description": "Consider personal reconciliation, faithful leadership, service, truth, and Jesus as the fulfillment of God’s earlier promises." },
-      "6": { "title": "The Ultimate Hope", "description": "Finish with Revelation’s call to faithful witness, Christ’s victory, justice, and God’s promised new creation. Read its imagery humbly and in context." }
+      "0": {
+        "title": "Meet Jesus",
+        "description": "Discover Jesus through three complementary Gospel accounts: His actions and authority in Mark, His identity and invitation to believe in John, and His compassion and mission in Luke."
+      },
+      "1": {
+        "title": "The Church Begins",
+        "description": "Follow the risen Christ’s mission through the Holy Spirit, the first believers, and the spread of the gospel from Jerusalem to the nations."
+      },
+      "2": {
+        "title": "Foundations of Faith",
+        "description": "Learn about grace, freedom in Christ, living faith, and assurance of God’s love. These shorter letters establish essential beliefs and practices."
+      },
+      "3": {
+        "title": "Living Like Christ",
+        "description": "Return to Jesus’ teachings in Matthew, then explore joy, humility, Christian identity, daily holiness, and hope in His return."
+      },
+      "4": {
+        "title": "Growing in Maturity",
+        "description": "Engage more deeply with salvation, community life, suffering, spiritual gifts, discernment, and perseverance."
+      },
+      "5": {
+        "title": "Faithful Service and Endurance",
+        "description": "Consider personal reconciliation, faithful leadership, service, truth, and Jesus as the fulfillment of God’s earlier promises."
+      },
+      "6": {
+        "title": "The Ultimate Hope",
+        "description": "Finish with Revelation’s call to faithful witness, Christ’s victory, justice, and God’s promised new creation. Read its imagery humbly and in context."
+      }
+    },
+    "oldTestamentPhases": {
+      "0": {
+        "title": "Origins, Promise and the Patriarchs",
+        "description": "Begin with creation, humanity’s rebellion and the promises to Abraham. Job is placed near the patriarchal era as wisdom literature exploring suffering; its historical setting is uncertain."
+      },
+      "1": {
+        "title": "Deliverance, Covenant and Wilderness",
+        "description": "Follow Israel from slavery to Sinai and through the wilderness. The laws and instructions are read in their narrative setting, preparing for entry into Canaan."
+      },
+      "2": {
+        "title": "Land, Judges and the Rise of a King",
+        "description": "Enter the land, encounter the repeated cycles of the judges, and follow Samuel and Saul. Ruth provides a personal story within the era of the judges."
+      },
+      "3": {
+        "title": "David, Solomon and a United Kingdom",
+        "description": "Follow David’s reign and Solomon’s kingdom, bringing in selected Psalms and wisdom writings to illuminate worship, prayer and royal life. Psalm associations are thematic rather than precise dates."
+      },
+      "4": {
+        "title": "A Divided Kingdom and Prophetic Warnings",
+        "description": "Trace the split kingdoms and their decline. Prophets appear near the broad historical eras they addressed, while Kings and Chronicles offer complementary perspectives rather than a single uninterrupted timeline."
+      },
+      "5": {
+        "title": "Judgment, Exile and Hope",
+        "description": "Read Judah’s final decades and the fall of Jerusalem alongside prophetic warnings. Lamentations mourns the destruction; Ezekiel and Daniel bring the exile into focus, while Isaiah’s later chapters speak powerfully of comfort and restoration."
+      },
+      "6": {
+        "title": "Return, Rebuilding and Renewal",
+        "description": "Follow God’s people through Persian-era preservation, return and rebuilding. Haggai and Zechariah accompany the restoration period; remaining Psalms supply prayers of hope and renewed worship."
+      },
+      "7": {
+        "title": "The Promise Still Ahead",
+        "description": "Conclude with the remaining songs and prophetic appeals, ending with Malachi’s call to covenant faithfulness and expectation. Joel’s precise date is debated; its placement is thematic, not a firm chronological claim."
+      }
     }
   },
   "PlayerStats": {
