@@ -4,6 +4,7 @@ import { getSessionFromHeaders } from "@/lib/auth/get-session-from-headers";
 import { isAdmin, isSuperAdmin } from "@/lib/permissions";
 import type { UserRole } from "@/lib/generated/prisma/enums";
 import { PROTECTED_PATH_PREFIXES } from "@/features/auth/constants/protected-paths";
+import { BIBLE_AUDIO_ORIGINS } from "@/features/bible/constants/bible-audio-origins";
 
 /**
  * Adds an enforcing nonce-based CSP to document responses.
@@ -46,7 +47,10 @@ function continueWithCsp(request: NextRequest): NextResponse {
     "img-src 'self' data: blob:",
     "font-src 'self'",
     "connect-src 'self'",
-    "media-src 'self' blob:",
+    // Client navigation retains the first document's CSP, so the two vetted
+    // Bible recording origins must be allowed on the starting Game document too.
+    // Public Bible JSON is fetched server-side; connect-src remains self-only.
+    `media-src 'self' blob: ${BIBLE_AUDIO_ORIGINS.join(" ")}`,
     "frame-src 'none'",
     "object-src 'none'",
     "base-uri 'self'",

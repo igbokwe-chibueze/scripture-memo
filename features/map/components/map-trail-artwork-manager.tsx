@@ -11,7 +11,7 @@
 import Image from "next/image";
 import { useTransition } from "react";
 import { ImageIcon, LoaderCircleIcon } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { setTrailArtworkAction } from "@/features/map/actions/set-trail-artwork.action";
 import { isMapThemeId } from "@/features/map/data/map-themes";
 import type {

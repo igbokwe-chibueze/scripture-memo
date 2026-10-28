@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { SearchIcon } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { showActionError } from "@/lib/errors/show-action-error";
 import { toggleSanctuaryFavoriteAction } from "@/features/sanctuary/actions/toggle-sanctuary-favorite.action";

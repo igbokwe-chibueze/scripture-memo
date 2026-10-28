@@ -5,7 +5,7 @@ import { useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { CheckCircle2Icon, Clock3Icon, LockKeyholeIcon, PlayIcon } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { CountdownTimer } from "@/components/shared/countdown-timer";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { Button } from "@/components/ui/button";

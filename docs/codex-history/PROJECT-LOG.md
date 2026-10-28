@@ -5819,3 +5819,491 @@ concurrency subtests remain explicitly skipped as documented above.
 - Owner chose golden yellow. Drag & Drop and Puzzle now use Swap's exact golden-yellow available-tile palette for all players. Selected tiles, receiving gaps, correctness feedback and all gameplay behavior remain unchanged.
 - Removed the temporary admin toggle, storage hook, shell markers/conditions and preview translations. Old browser choices are no longer read or applied. Product guidance reflects the final choice.
 - TypeScript, locale contracts and seven design-system checks passed. No temporary preview runtime references remain; no database changes.
+
+### 2026-10-22 - Bible reading and study feature
+
+- Replaced the authenticated /bible placeholder with standalone Home/Read/Saved navigation, approved fonts/shared tactile controls, theme-aware mobile-first composition and owner-requested illustration placeholders. Added all 66 grouped books/chapter grids, verse picker, curated topic carousel with pause/hover/focus/reduced-motion behavior, up to eight session-local chapter tabs, text sizing, deep reference links and sharing with manual-copy fallback.
+- Free Use Bible API supplies KJV, WEB and BSB, headings/footnotes, seven named commentary choices, OpenBible cross-references, Berean original-language Hebrew/Greek/Aramaic words and STEPBible definitions. Source/licence attribution is visible. Explicit empty states distinguish missing author/verse/lexicon entries, including verses omitted by an edition. Initial translation follows Settings; reading changes do not rewrite it.
+- Full-text/reference search is submit-driven and paginated. Public text indexes use a three-edition, 24-hour, single-flight worker cache; chapter/study fetches use 24-hour HTTP caching. No private data enters shared caches, no polling/read-time initialization, and Bible reading never changes rewards, campaign progress or activity stats.
+- Added private BibleVerseMark persistence independent of Vault. Authenticated/Zod-validated actions derive the owner from session; atomic idempotent bookmark/highlight upserts preserve concurrent independent changes. Library reads use owner filters, 20-row look-ahead pages and bookmark/highlight filters. New BIB-001/002 operational codes and security/product/roadmap guidance included.
+- BSB audio includes available narrators, seeking, +/-10 seconds and speed, with no autoplay. Exact HTTPS audio origins are shared between provider validation and CSP; connect-src remains self-only. Matching KJV/WEB audio was explicitly deferred by the owner to TODO; no second provider/key integration was added.
+- Applied additive migration 20261022120000_bible_reader_marks only to established local development port 51214 and disposable test PostgreSQL. No hosted database changes. Prisma client regenerated.
+- Verification: production build, final TypeScript/scoped ESLint, seven Bible tests, two locale contracts, seven design checks and two error catalogue tests passed. Disposable PostgreSQL integration passed owner isolation, no read-time writes, concurrent upserts, clearing, pagination and cascade deletion. Live provider checks passed all three editions, all seven authors, Hebrew/Greek/Aramaic datasets, cross-references, lexicon and full-text search; public BSB audio HEAD probes returned 200 audio/mpeg.
+- Synthetic actual-component Edge QA passed five mobile/desktop/light/dark/en/es/fr variants at 375px/1440px: no horizontal overflow, >=44px controls, chapter grid, private-library interaction, word definition, author switching, cross-reference navigation, search result navigation, BSB audio controls and modal title clearance. Artifacts retained in .local-backups/bible-qa; temporary runners/fixtures removed.
+- Current state: Bible feature implemented and unstaged. Remaining owner inputs: illustrations; future TODO: matching KJV/WEB audio.
+
+### 2026-10-22 - Bible loading failure and repeated error toasts
+
+- Investigated the reported BIB-001 reader failure. The running development server dated from October 20, before the Bible Prisma model/client generation. A fresh read-only combined probe against local port 51214 returned all 31 KJV Genesis 1 verses and zero annotations for a deliberately nonexistent account ID. Restarted only the verified Scripture Memo Next supervisor/server so the application loads the regenerated client; local dev is running again on port 3000.
+- Fixed a resource-hook retry risk: translation-provider replacement could change the translator function identity and retrigger the loading effect after action responses. The effect now depends on the translated failure string instead. Added an optional stable ID to shared showActionError; Bible failures reuse one persistent toast across retries instead of stacking copies. Other callers keep existing behavior.
+- Bible action failures now use the shared server-only redacting logger for useful diagnostics; safe browser messages/codes are unchanged.
+- Actual-hook isolated Edge regression passed: one initial failed request, no extra requests after four renders with a newly created translator each time, one deliberate Retry request and one persistent toast ID, chapter-change fetch, and successful recovery. Results retained in .local-backups/bible-loading-regression/results.json; temporary fixture scripts/bundle/profile removed. TypeScript, scoped ESLint and seven Bible tests passed. No database writes/migrations were needed for this fix. Changes remain unstaged.
+
+### 2026-10-22 - Automatic error toast dismissal
+
+- Owner changed the prior persistent-error policy. Error toasts now auto-dismiss after 10 seconds (or can be manually closed sooner); other notifications retain the existing four-second timing.
+- Added the shared lib/toast.ts Sonner facade and migrated all 73 feature/shared toast imports. It preserves callable Sonner behavior and existing IDs/descriptions/callbacks while enforcing the error timeout, including legacy Infinity overrides. The visual Toaster remains unchanged.
+- Updated root AGENTS.md and product timing rules, including the canonical facade import. Existing staged Bible work remains staged; this task adds unstaged edits only.
+- Verification: TypeScript and scoped ESLint passed; two test:toasts checks passed for legacy error override normalization, metadata preservation and unchanged success/callable API behavior. No database, gameplay or UI styling changes.
+
+### 2026-10-22 - Bible Home supplied artwork and concept layout
+
+- Replaced Bible Home placeholders with the five owner-supplied originals: open-Bible hero, Sinai Old Testament, Galilee New Testament and alternating traveller/sheep topics. Copied PNGs unchanged to public/images/bible and verified source/destination hashes; README records the mappings. Book-list/group placeholders remain outside this Home-only update.
+- Added reusable BibleIllustratedCard using the existing shared Button and Next Image, with responsive source sizes, focal-point crops and overlaid captions. Added one semantic image-foreground token to every registered light/dark palette; captions layer the existing image scrim for readable contrast. Existing typography, palette roles and tactile controls remain shared.
+- Home now follows the supplied composition: heading beside artwork, two illustrated testament cards, compact single-row book/chapter/verse picker and swipeable topic previews with dots/pause/View all. Traveller/sheep artwork repeats by topic; selecting a topic opens the existing three passage choices in an accessible dialog. Existing navigation, translation, passage references and carousel pause/reduced-motion behavior remain intact; open dialogs also pause rotation.
+- English/Spanish/French topic summaries and product/roadmap guidance updated. No database, API, auth or reward changes.
+- Verification: production build, TypeScript, scoped ESLint, two locale contracts and seven design checks passed. Actual-component synthetic Edge QA passed six 375px/1440px light/dark/en/es/fr variants: all supplied images decoded, no horizontal overflow or sub-44px controls, all three Home selectors aligned on one row; testament navigation, topic passage selection, pause, dot selection, View all and verse-picker navigation passed. Mobile review corrected traveller head cropping and English testament wrapping. PNGs/results retained in .local-backups/bible-home-qa; temporary helpers removed.
+- Current state: complete and unstaged. Matching KJV/WEB audio and book-list artwork remain separate pending work.
+### 2026-10-22 - Bible Home caption and carousel corrections
+
+- Removed the visible topic-carousel pause/resume button and its unused state/icons. Dot navigation remains centered; rotation still pauses on hover, keyboard focus, open topic dialogs, hidden pages and reduced motion.
+- Made testament and topic caption backgrounds substantially lighter by diluting the semantic image overlay instead of stacking two dark scrims. A restrained text shadow preserves lettering separation from the supplied artwork in both themes.
+- Updated the product specification to match the removed control. Verification: TypeScript, scoped ESLint and all seven design-system checks passed; git diff --check found no whitespace errors. Changes remain unstaged.
+
+### 2026-10-22 - Taller testament cards
+
+- Changed only the Bible Home Old/New Testament card aspect ratio from 1.35 to 1.15, making both about 17% taller at the same width on mobile and desktop. The supplied square images retain object-cover proportional scaling, with less vertical cropping; topics and lighter captions are unchanged.
+- Verification: TypeScript and scoped ESLint passed. No database or navigation changes. Updates remain unstaged.
+
+### 2026-10-22 - Testament height refinement
+
+- Owner requested 20% taller than the original cards. Adjusted the testament aspect ratio to 1.125 (1.35 / 1.20); proportional object-cover image scaling remains unchanged. This is a presentation-only adjustment, with no behavior or data changes.
+
+### 2026-10-22 - Collapsed passage picker and Bible navigation
+
+- Go to a verse now starts closed. Its summary displays the workspace's last opened scripture and translation, and reopening shows the passage selectors initialized to that reference. This uses existing session state, with Genesis 1:1 as the existing initial default; no new persistence or reads.
+- Slowed topic rotation from nine to fifteen seconds; existing hover/focus/dialog/hidden-page/reduced-motion pauses remain.
+- Restyled only Bible's three-tab bottom navbar to match the game navbar's 64px controls, 36px artwork, muted labels, spacing and subtle teal active treatment. Home and Read use approved game artwork; Saved retains a bookmark symbol. Shared buttons still own focus/press effects; the game's navbar is unchanged.
+- Product rules updated. TypeScript, scoped ESLint and all seven design-system checks passed. Mobile layout retains three equal-width 44px-plus targets and existing content/safe-area clearance; no API, auth, database or reward changes. Updates remain unstaged.
+
+### 2026-10-22 - Persist Bible reading position across refreshes
+
+- Corrected the session-only resume behavior: one private BibleReadingPosition row per account now stores the last explicitly opened canonical book/chapter/verse/edition. Home restores it on refresh and future visits, including other devices; explicit passage URL parameters take priority. Unsubmitted picker drafts do not change it.
+- Added validated/authenticated save action, repository-owned atomic upsert and authorized server loader. Client saves serialize so slow prior opens cannot overwrite newer choices; failures use existing Sonner error handling. Account deletion cascades the preference. No bookmarks, translation Settings, curriculum or reward data is changed.
+- Cost: one selected-row read per Bible route request and one upsert per explicit passage opening, no polling, no read-time initialization. Migration 20261022160000_bible_reading_position applied only to verified local development database localhost:51214; generated client refreshed and verified workspace dev server restarted on port 3000.
+- Verification: TypeScript and scoped ESLint passed. Disposable embedded PostgreSQL integration suite passed position replacement, owner isolation, no initialization on reads, one-row bound and account-deletion cascade, alongside existing annotation checks. Initial sandbox PostgreSQL startup failed; elevated disposable-local retry passed. No hosted database used. Updates remain unstaged.
+
+### 2026-10-22 - Correct reading-position persistence cost and scope
+
+- Owner rejected cross-device synchronization and unnecessary DB cost. Replaced the previous account-wide reading-position implementation with device-only localStorage, validated with the existing canonical schema. Reads use a hydration-safe primitive useSyncExternalStore snapshot; explicit passage selection saves synchronously before navigation so immediate refresh works. Deep links take priority and update the device preference. No account identifier, Scripture text or private notes are stored.
+- Removed the resume action, repository methods, server loader and extra route query; restored schema and existing annotation tests. A forward cleanup migration removes the superseded table while retaining already-applied migration history. Applied cleanup only to verified local development database localhost:51214 and regenerated Prisma client. No hosted database touched.
+- Zero additional DB reads/writes or network calls for remembering/restoring passages; storage-disabled reads safely fall back and save failures surface through Sonner without blocking reading. Home picker remounts on restored canonical reference so its selectors match the collapsed summary.
+- Added the owner's cost preference to root AGENTS.md: device-only preferences stay in browser storage; request approval before expanding to account-wide persistence. Updated product scope. Browser-storage regression passed persistence, replacement, malformed input and blocked-storage handling; TypeScript and scoped ESLint passed. Added regression to test:bible.
+- Important Git state: owner had staged the previous DB implementation before this turn. The index was preserved; this correction remains unstaged and must be staged over that older version before committing. No other staged work was changed.
+
+### 2026-10-22 - Compact closed Go to a verse panel
+
+- Reduced closed panel vertical padding to 8px and heading to text-xl; removed the closed summary's trailing margin. Expanded picker retains its original padding/title size. Saved reference remains visible and summary keeps a 44px minimum touch target. Presentation-only change; no storage, network or database operations added. Existing index preserved; this adjustment is unstaged.
+
+### 2026-10-22 - Testament book-list artwork and layout
+
+- Updated Old/New Testament book lists to follow the supplied concept: back arrow, prominent heading/count/description, matching testament banner, search with icon, category counts and illustrated book rows. Native expandable chapter grids retain the existing canonical passage-opening behavior and approved shared buttons.
+- Extracted only the ten explicitly mapped PNG entries from Banner Images.zip into public/images/bible/groups, preserving originals. Added a local artwork resolver; Acts uses its separate lamp/harbor image despite sharing the history category key with Old Testament history. README records every supplied filename, including the full Mediterranean letter name.
+- Mobile-first rows use 64px square thumbnails, stacked titles/counts and a disclosure chevron; 375px chapter grids keep five columns with targets above 44px, expanding only at larger breakpoints. Image object-cover preserves proportions. Search remains local metadata filtering; no new database queries, actions, polling or persistence.
+- Added en/es/fr testament descriptions, scoped search labels and chapter heading; product/roadmap artwork status updated. TypeScript, scoped ESLint, two locale tests, seven design checks and diff whitespace check passed. Inspected supplied Pentateuch/Acts assets and reviewed mobile structure; no live-browser visual QA claimed. Changes remain unstaged; existing index preserved.
+
+### 2026-10-22 - Testament banner height and navigation refinement
+
+- Removed the redundant Back to Bible home control and unused callback; Bible Home remains accessible through the existing navbar. Increased banner height about 27% on mobile (aspect 2.8 to 2.2) and 24% on larger screens (3.1 to 2.5), retaining proportional image scaling. No added data or network operations; existing index preserved.
+
+### 2026-10-24 - Temporary unboxed Bible book-list visual trial
+
+- Owner requested a reversible visual trial. Removed each book disclosure's card background, border and shadow, plus the expanded chapter area's divider. Preserved thumbnails, disclosure behavior and numbered chapter buttons.
+- Added short editorial subtitles between all 66 book names and chapter counts, including Genesis: Origins and Exodus: The Rescue. English/Spanish/French labels live in the existing locale files, distinct from Scripture/provider content. No database calls, requests, persistence or canonical reference changes.
+- Reviewed the 375px structure: stacked three-line labels retain wrapping space beside fixed thumbnails and disclosure controls; existing chapter touch targets unchanged. TypeScript, scoped ESLint and locale contract checks passed. Prior staged work preserved; this trial is unstaged and awaits owner visual preference.
+
+### 2026-10-24 - Book abbreviation thumbnail overlays
+
+- Added decorative short book-name labels to all 66 thumbnails, using Ge for Genesis and numbered forms such as 1Sa. Compact theme-aware backing keeps labels legible over the supplied artwork; full names/subtitles remain adjacent, and duplicate overlay text is hidden from screen readers. Canonical IDs and navigation are unchanged.
+- TypeScript and scoped ESLint passed. Overlay stays within the existing 64px/72px thumbnail at mobile/desktop sizes, without layout expansion. No requests or DB operations added. Existing staged work preserved; edits remain unstaged.
+
+### 2026-10-24 - Centered book abbreviation treatment
+
+- Changed thumbnail abbreviations from small corner badges to large centered lettering, matching the owner's reference. Removed the backing surface and padding; white semantic image text with a restrained shadow stays readable over artwork. Image dimensions, full book names and navigation remain unchanged. No data/network operations added; prior index preserved.
+
+### 2026-10-24 - Very light abbreviation backing
+
+- Restored a translucent backing behind the centered thumbnail abbreviation, using only 20% of the semantic image-overlay versus 60% on Home captions (about 9% effective opacity versus 27%). It follows the thumbnail corners, preserves the large centered text and keeps artwork visible. Presentation-only; no DB/network operations. Existing index preserved.
+
+### 2026-10-24 - Restore book-row surfaces for comparison
+
+- Restored the original rounded book-row background, border and subtle shadow for the owner's comparison. Preserved all subtitles, large centered abbreviation overlays with very light backing, supplied images, spacing and chapter controls. No behavior, data or network changes; existing staged work preserved.
+
+### 2026-10-24 - Group definitions and reusable responsive dialog
+
+- Owner accepted the restored book-row surfaces. Added 44px question-mark help triggers beside every Bible category heading, preserving all approved artwork/subtitles/abbreviations. Static en/es/fr definitions explain the collection, its themes and its included books; Acts has separate help from OT history. Major/minor explicitly describe collection length, not importance; Hebrews grouping is explained without attributing it to Paul. No DB/API calls, polling or new persistence.
+- Added shared ResponsiveDialog and hydration-safe event-driven useMediaQuery hook. Below 640px it is a bottom drawer; desktop uses a centered modal. Reuses existing Base UI dialog semantics and shared buttons, with Framer Motion entry/exit, delayed portal removal for closing, focus trap/return, Escape/outside dismissal, internal scrolling and safe-area spacing. OS and saved-app reduced motion suppress large transforms. No global replacement of existing dialogs.
+- Framer Motion 12.42.2 was already installed; used it rather than adding GSAP or a second animation dependency. Verified matching installed Base UI types and official Motion/Base UI documentation, including exit lifetime. UI guide documents the new reusable component and implementation sources; product rules updated.
+- Verification: TypeScript, scoped ESLint, two locale contracts and seven design-system checks passed. Isolated actual-component Edge QA passed 375px/1280px light/dark variants plus saved reduced motion: bottom/center placement, no overflow, focus trap/return and Escape exit. Reviewed mobile/desktop PNGs. Fixture theme omission and stdin Unicode corruption were corrected before final screenshots. QA uses synthetic callbacks and local bundled images, no accounts or DB; artifacts retained in .local-backups/group-help-qa. Existing staged work preserved; this task remains unstaged.
+
+### 2026-10-24 - Docked Bible audio and device-only pill choices
+
+- Read-screen audio now sits fixed directly above Bible navigation, sharing its width and surface. Moved it outside the sticky desktop study column; ResizeObserver measures navbar/player height into workspace CSS variables, preserving flush docking, safe-area changes, zoom/wrapping and final-verse clearance. No polling or DB calls added. KJV/WEB unavailable audio remains the existing owner-deferred TODO, with a compact dock notice rather than mismatched BSB playback.
+- Replaced native narrator/speed selects with pill triggers flanking centered rewind/play/forward controls. The 10-second labels sit inside circular arrows. The seek track/thumb use semantic primary/muted tokens across themes. Localized option surfaces use the shared animated drawer/modal, show selected pills, and close on selection; shared ResponsiveDialog now supports optional controlled state.
+- Speed and narrator persist synchronously in one validated localStorage preference (no account sync). Native audio metadata/time events drive the player. Saved unknown narrators fall back only to current chapter options. Sources never autoplay; narrator changes pause/reset and invalidate pending play requests; re-selecting the same narrator preserves duration. Blocked storage keeps the session choice and surfaces an error.
+- Verification: TypeScript, scoped ESLint, ten Bible tests (including two new device-audio tests), two locale contracts and seven design checks passed. Actual-component hidden Edge QA passed five 375px/1280px light/dark/unavailable cases with synthetic local WAVs: dock alignment, no overflow, centered controls, end clearance, play/pause, both skips, narrator/speed selection, re-selecting narrator and refresh persistence. Reviewed mobile/desktop screenshots. Fixed test-selector quoting and added byte-range support to the synthetic server before native seek checks passed; no real provider/account/DB was used. Artifacts retained in .local-backups/bible-audio-qa; temporary helpers removed. Changes remain unstaged.
+
+### 2026-10-24 - Audio pill shape and secondary styling
+
+- Both dock picker triggers now fill their equal-width side columns at a shared 44px height, making speed and narrator matching horizontal pills. Unselected drawer options use secondary instead of outline; selected options retain the primary highlight. Option pills have a 64px minimum width. Behavior, local saves and centered playback controls are unchanged; no DB/network operations added. Existing index preserved.
+
+### 2026-10-24 - Compact outline audio pills
+
+- Reduced dock speed/narrator triggers to matching 64px widths instead of filling their side columns, with smaller labels and outline styling. Their 44px usable touch height remains below the 56px primary Play control; long narrator names truncate but keep full accessible names/title. Unselected options also return to outline; selected primary highlight is unchanged. No behavior, storage or DB changes.
+
+### 2026-10-24 - Mobile reader tabs and grouped passage saves/sharing
+
+- Applied owner answers: mobile has top Passage/Words/Commentary/Cross References tabs after open chapters; desktop preserves passage/study columns. Audio stays docked across tabs. Mobile study loads only for its opened tab and offers an edition-aware verse selector; chapter loading is independent of verse selection. Commentary author stays selected across lazy panels/viewport changes. Shared tabs preserve keyboard semantics and 44px targets.
+- Added Chapter actions for Save chapter, Share chapter and Select verses. Arbitrary same-chapter sets support adjacent/non-adjacent verses, select all/cancel and highlighted selection. Selection is client-only and uses functional state updates to preserve rapid taps. Existing single-verse bookmarks/highlights/share remain independent. Shared text contains only selected source verses; links preserve exact sorted set/chapter and edition without creating database share records. Native share, clipboard and manual-copy fallbacks remain.
+- Explicit grouped saves use one private BibleSavedPassage row per account/book/chapter/edition/canonical selection key; atomic upserts are idempotent and account deletion cascades. Saved All/Bookmarks/Highlights/Passages filters use one parameterized, owner-scoped UNION query with bounded branch windows, stable combined ordering and 20-item look-ahead pages. Remove is idempotent and owner-scoped. No writes occur while selecting, sharing or ordinary reading; no per-verse write fanout or recurring queries.
+- Added canonical selection validation, bounded URL parsing, compact range labels and explicit clearing on chapter/edition/reference changes. Migration 20261024120000_bible_saved_passages applied only to verified local dev localhost:51214; regenerated Prisma client and restarted the verified Next server on port 3000. No hosted database touched. New DB work uses the Prisma skills; product/roadmap updated with cost and behavior.
+- Verification: TypeScript, scoped ESLint, eleven Bible checks, two locale contracts and seven design checks passed. Disposable PostgreSQL tests passed concurrent duplicate grouped saves, private reads/removals, preservation of verse annotations, mixed-library pagination, filters and cascade deletion. Actual-component synthetic Edge QA passed 375px/1280px light/dark: lazy study/verse selector without chapter refetch, desktop columns, rapid non-adjacent picks with no writes, grouped/chapter saves, exact text/link sharing, link re-opening and library removal. Fixed fixture-only Next env shimming and a real batched-selection issue found by QA; tightened mobile tab labels after screenshot review. Retained PNGs/results in .local-backups/bible-passage-qa; temporary helpers removed. All task changes remain unstaged.
+
+### 2026-10-24 — Close verse selection after completed actions
+- Close the Select verses card and clear selection after a successful grouped save, native share, or clipboard copy.
+- Preserve selected verses when saving fails, sharing is cancelled, or manual copying is required, allowing a retry. Chapter actions retain their existing behavior.
+- No additional database calls or persistence changes.
+- Validation: scoped ESLint check.
+
+### 2026-10-24 — Align chapter action buttons
+- Keep Save chapter, Share chapter and Select verses in one equal-width grid row with matching heights and minimum 44px touch targets.
+- Allow labels to wrap inside each button for mobile and translated text; preserve shared button styling.
+- Validation: scoped ESLint. No database changes.
+
+### 2026-10-24 — Deliberate verse actions on mobile and desktop
+- Ordinary verse clicks no longer activate verse actions or change the reading position. Mobile uses a 500ms long press; desktop retains a dedicated 44px action button hidden on mobile.
+- Long presses cancel on movement, pointer release/cancellation/leave, chapter or edition changes, viewport changes and unmount so scrolling does not accidentally activate a verse.
+- Keep ordinary taps for adding/removing verses after selection mode starts, and keyboard activation for accessibility. Do not automatically open actions for the chapter's initial reading position.
+- Add localized mobile instructions beneath the chapter actions in English, Spanish and French. No database operations added.
+- Validation: scoped ESLint, TypeScript and i18n checks.
+
+### 2026-10-24 — Tap an active verse to deselect
+- Tapping the active verse closes its actions and removes its active styling without changing the reading position or writing to the database.
+- Consume the click generated when a long press ends so it does not immediately deselect the newly activated verse. Multi-verse selection keeps its existing tap-to-toggle behavior.
+- Validation: scoped ESLint.
+
+### 2026-10-24 — Subtle verse-selection haptics
+- Add one 15ms browser vibration when a verse is newly activated or added to a multi-verse selection; deselection stays quiet.
+- Feature-detect the Vibration API and safely ignore unsupported/blocked hardware. Keep the effect outside React state updaters to avoid replayed pulses.
+- No dependencies, database operations or network requests added. Reference: MDN Navigator.vibrate documentation.
+- Validation: scoped ESLint. Physical vibration requires a supported device/browser.
+
+### 2026-10-24 — Optional animated Bible audio dock and touch haptics
+- Hide the audio dock initially and add a 44px headphone toggle beside the chapter action menu, with pressed state and an accessible audio label.
+- Use the installed Framer Motion AnimatePresence to slide the dock up above the navbar and reverse on dismissal; respect OS/app reduced-motion preferences. Stop playback immediately on dismissal, disable exiting controls, and clear measured dock padding after exit/unmount.
+- Keep the toggle session-local with no persistence or database operations. Existing chapter/edition changes still stop the previous recording; opening never autoplays.
+- Move long-press haptics from the timeout to pointer release, when touch user activation is available, and increase the short pulse from 15ms to 30ms. Normal selection clicks retain their direct-event pulse; hardware/browser restrictions can still suppress vibration.
+- Documentation consulted: Motion AnimatePresence and MDN Navigator.userActivation. Validation: scoped ESLint and TypeScript; physical haptics require retesting on the owner's device.
+
+### 2026-10-24 — Trial floating single-verse actions
+- Replace inline single-verse controls with a floating button labeled with the active verse reference. Keep it above the measured audio dock/navbar on mobile and desktop; deselecting the verse hides it.
+- Reuse ResponsiveDialog for the animated mobile drawer and desktop modal, preserving Save/Remove bookmark, Share, Highlight/Clear, mobile Study and footnotes.
+- Keep multi-verse selection controls unchanged. Close the verse action surface when opening Study or Share. No additional database operations or dependencies.
+- Validation: scoped ESLint and TypeScript; reviewed the 375px layout constraints (48px trigger, viewport-clamped placement and measured dock clearance).
+
+### 2026-10-24 — Compact verse action trigger and open passage navigation
+- Reduce the floating verse action button to a 44px icon-only circle with an accessible verse-specific label.
+- Dismiss the single-verse selection when clicking elsewhere; preserve clicks inside the selected verse or floating action control, and let the dialog manage its own dismissal. Multi-verse selection remains independent.
+- Remove full-route revalidation after uncached private verse-mark writes. Reader marks already update locally after success and Saved reloads from the server on entry, so refreshing the whole Bible route was unnecessary and could disrupt scroll position. Authorization and validation are unchanged; no new database calls.
+- Extract BibleOpenPassages with a single horizontally scrollable strip and a separate list button opening a vertical side drawer. Reuse one passage-row design in both surfaces; active state changes only semantic colors. Keep close controls and 44px targets.
+- Add localized drawer guidance in English, Spanish and French. Reviewed mobile width constraints and dock clearance.
+- Validation: TypeScript, scoped ESLint, 2 i18n checks and all 11 Bible unit checks passed. Consulted installed Next.js revalidatePath documentation and existing shared Sheet components.
+
+### 2026-10-24 — Preserve reading position during verse annotations
+- The previous route-refresh change did not fully resolve the reported scroll jump. Isolated browser tests exposed focus falling to document.body when pending bookmark/highlight controls became disabled.
+- Focus a stable, programmatically focusable container inside the verse action dialog with preventScroll before disabling controls. Retain the reading coordinates across the asynchronous result and restore them only if the same verse/action surface remains active; do not override navigation or dismissal.
+- No shared button redesign, database operations or dependencies added.
+- Validation: TypeScript and scoped ESLint passed. Actual-reader browser fixture with mocked writes tested Bookmark and Gold highlight at 375px and 1280px: focus stays inside the dialog and reading position remains exactly unchanged (3145px mobile / 2264px desktop). The owner's exact top jump was not reproduced in the fixture; physical-device confirmation remains useful. Results retained under .local-backups/verse-scroll-qa/results.json; no auth or DB was used.
+
+### 2026-10-24 — Preserve both document and scroll-locked body reading positions
+- Previous tests only checked the open-dialog phase and did not cover the alternate Base UI body scroll-lock path. That path moves the real reading offset into body.scrollTop while window.scrollY becomes zero, making the earlier window-only snapshot unreliable.
+- Capture the document position before opening the verse dialog, keep its trigger mounted until exit/focus return completes, and restore after the exit animation and scroll unlock. ResponsiveDialog adds an optional onExitComplete callback; existing callers keep their behavior.
+- During annotation saves, capture the actual scroll owner (body in the fallback lock, otherwise document.scrollingElement) and restore in a layout effect after pending work completes, before paint. Retain the stable focus target from the prior fix. Remove the earlier window-only post-save restoration.
+- Validation: TypeScript and scoped ESLint passed. Browser tests use the real reader, mocked actions and the real document shell at 375x498 and 1280x498. All 8 normal open/save/close cases and 8 simulated scroll-reset cases passed across both lock modes. In fallback mode tests confirm window=0/body=3250 while locked, then window=3250 after closing on mobile. No accounts, database writes or production calls were used.
+- Baseline normal lifecycle checks also passed, so these tests establish the scroll-owner handling and recovery behavior rather than proving the exact cause of the owner's live report. Asked whether the jump occurs during saving or on dismissal; physical/live confirmation is still relevant.
+
+### 2026-10-24 — Replace verse drawer scroll transfer with layout-preserving containment
+- The owner still observed a transient jump during save and occasional restoration on close. Remove the unsuccessful window/body snapshot and restore-on-close workarounds rather than retaining accumulating corrections.
+- Add opt-in ResponsiveDialog scrollLock="preserve-layout" for the single-verse drawer only. Use the installed Base UI Dialog modal="trap-focus" capability and a portal-lifetime native input guard. This keeps focus trapping, overlay dismissal and animations while leaving html/body layout, styles and scroll ownership unchanged.
+- Contain background wheel, touch and keyboard scrolling, allow scrolling inside overflowing drawer content, and preserve pinch/Ctrl-wheel zoom and native input/button behavior. Other dialogs retain their default scroll lock. No new dependencies, database queries or persistence.
+- Restrict automatic verse scrollIntoView to a newly navigated canonical reference; repeated loads, saves and viewport renders must not reveal the same target again.
+- Document the opt-in behavior in UI-UX-GUIDE.md. Keep stable pending focus and retain the trigger until the closing animation completes.
+- Validation: TypeScript and scoped ESLint passed. Eight real-reader/mocked-action browser scenarios at 375x498 and 1280x498, with ordinary and simulated inset-scrollbar platforms, passed. Every rendered frame from opening through a delayed write and closing retained the identical page offset, body.scrollTop remained zero and html/body styles were untouched. Confirmed exactly one mocked write per scenario, blocked background wheel/touch, retained internal footnote scrolling and Escape dismissal. Results: .local-backups/verse-scroll-qa/stable-drawer-results.json. These are isolated browser checks, not a claim that the owner's live session was directly inspected.
+
+### 2026-10-25 — Reveal active passage tabs and return to books
+- Owner explicitly deferred the unresolved page-jumping issue. Leave its current code unchanged during this task.
+- Scroll the horizontal open-passage strip just far enough to show a newly active tab, respecting reduced motion. Use strip.scrollTo only, never scrollIntoView, so this navigation does not scroll the reading page.
+- Replace the workspace Back to game link with Back to books, opening the active passage's testament locally. Remove the duplicate reader-level Back to books button; hide the workspace button while already on Books.
+- Validation: scoped ESLint and TypeScript. No database operations or dependencies added; existing staged changes remain untouched.
+
+### 2026-10-25 — Open cross references in Passage
+- Route study-panel reference clicks through a reader callback that activates Passage before opening the target scripture. Apply it to both study-panel render paths while preserving desktop side-by-side presentation.
+- Leave ordinary study verse-picker changes and the deferred jumping investigation unchanged. No additional database calls.
+- Validation: scoped ESLint.
+
+### 2026-10-25 — Chapter-wide commentary with normal page scrolling
+- Return the full supplied chapter introduction and non-empty commentary entries under their original verse anchors. Keep author attribution and never duplicate a source entry under invented verse headings.
+- Commentary now reads in the normal page flow with verse headings, without an inner max-height/scroll area or mobile card framing. Keep the author selector, remove its verse selector, and disable sticky placement for long desktop commentary while preserving the approved side-by-side desktop layout.
+- Normalize commentary requests to chapter verse 1 so changing a selected study verse does not reload unchanged chapter commentary. Words and Cross References retain their verse selectors and behavior. No new API endpoints, database reads/writes or dependencies.
+- Update PRODUCT-OVERVIEW.md. Consulted the official Free Use Bible API commentary contract, including optional chapter introduction: https://bible.helloao.org/docs/reference/commentaries/ .
+- Validation: TypeScript, scoped ESLint and all 12 Bible unit tests passed. Provider regressions cover full chapter notes, original verse anchors, omitted/empty entries and empty chapter introductions. Reviewed the mobile composition for flowing chapter text, full-width author controls and removal of nested scrolling. The deferred jumping issue is outside this change.
+
+### 2026-10-25 — Readable commentary paragraphs and original numbered outlines
+- Inspect public Matthew Henry, Adam Clarke and John Gill chapter data: publisher text already contains paragraph line breaks, Roman/decimal outline levels and inline dotted parenthesized/bracketed subpoints. Rendering each entry as one paragraph left these structures visually undifferentiated.
+- Add a display-only parser and BibleCommentaryText renderer for spaced semantic paragraphs and nested lists. Preserve exact source markers (including skipped indexes), align wrapped text with hanging indents, increase line spacing, constrain reading width and distinguish verse headings with a subtle divider.
+- Preserve source wording, Unicode, Bible citations, decimals, ordinary footnotes and literal HTML as inert React text. Do not infer new sentence boundaries or rewrite long source paragraphs. Parse once per unchanged source text; maintain normal page scrolling.
+- Add seven regressions covering paragraphs, nested/inline outlines, existing source indentation, unchanged citations, exact wording, empty input and inert markup. Include them in test:bible; update the product guide. No dependencies, database operations or additional runtime API requests.
+- Validation: TypeScript, scoped ESLint and all 19 Bible tests passed. Hidden-browser checks of actual formatter output for three public commentary samples at 375px and 1280px showed no horizontal overflow or inner scroll containers. Visually inspected mobile outline and nested-outline screenshots; artifacts/results remain in .local-backups/commentary-format-qa. The deferred page-jumping work is unchanged.
+
+### 2026-10-26 - Device-only New Testament reading plan
+- Add a separate Reading Plans section on Bible Home and a guided overview using labelled image placeholders. Import the owner's DOCX as schedule/prompt data only: seven phases, 260 chapter readings, 52 reflections, 52 review/application days and one final review; preserve the weekly cadence across phase boundaries.
+- Explicit Start, manual day completion and undo support flexible pace and arbitrary day revisits. Opening a chapter never completes a day. Reader offers return-to-plan navigation and explicit completion for the assigned reading chapter; reflection/review retain prompts without journals. First unfinished day determines resume after refresh.
+- Store only a validated, versioned browser progress record; notify local/cross-tab subscribers on changes. No account synchronization, database operations, polling, dependencies, game rewards or streak changes. Storage failures surface through Sonner without false saved state. Add English, Spanish and French messages and document the feature.
+- Validation: TypeScript, scoped ESLint, all 21 Bible tests and both localization tests pass. Independently compare all 365 activities with the source DOCX table: exact matches. Hidden offline browser checks cover start, opening without completion, multiple completions, refresh/resume and no overflow at 375px/1280px in both themes. Visually inspect mobile screenshots; artifacts in .local-backups/reading-plan-qa. No hosted/local DB used. Deferred verse-action page jumping remains untouched. Changes left unstaged.
+
+### 2026-10-26 - Reading plan discovery cards
+- Reuse BibleIllustratedCard for plan entries: proportional artwork/placeholder, bottom title and subtitle, arrow and shared button treatment. Preserve device progress in the subtitle. Mobile horizontal cards are wider to fit plan titles and preview the next entry; desktop shows three per row.
+- Add a native horizontal snap-scrolling catalogue and localized View more/Show less control that expands into a grid. Keep only the real supplied plan; no duplicate/fake plans, timers, dependencies or database operations. Placeholder supports future supplied artwork without altering existing testament/topic images.
+- Validation: TypeScript, scoped ESLint and locale contract tests passed. Offline hidden-browser checks exercised View more/Show less, plan opening and refresh persistence; mobile screenshot reviewed and placeholder label overlap corrected. Existing unstaged reading-plan work preserved; nothing staged.
+
+### 2026-10-26 - Uniform Bible Home card sizes
+- Match Reading Plans and topic cards exactly to Books: two cards across with a 12px gap and 1.125 aspect ratio on mobile and desktop, including expanded grids. Retain horizontal snap scrolling and View more controls.
+- Add the requested Old Testament in One Year preview with Coming soon status and informational tap feedback; no schedule, progress storage or rewards fabricated. Rename Topics to explore to Explore Scripture, with Spanish/French equivalents.
+- Validation: TypeScript, scoped ESLint and localization tests pass. Actual BibleHome rendered in the offline mobile fixture: all eight Books/Plans/Explore cards measure 165.5 x 147.109375 pixels at 375px. Placeholder, expansion and existing plan persistence remain supported. No database calls or dependencies added; changes unstaged.
+
+### 2026-10-26 - Shorter plan titles
+- Shorten English plan titles to New Testament in a Year and Old Testament in a Year to conserve card space. No behavior or schedule changes.
+
+### 2026-10-26 - Compact reading plan introduction
+- Move the duration/book-count line below the plan illustration with a 44px info control. Reuse ResponsiveDialog for mobile drawer / desktop modal with the original description, activity counts, pace and device-storage guidance. Intro becomes the short statement Read, reflect and grow each day; localize all new copy.
+- Validation: TypeScript, scoped ESLint and localization tests pass. Offline mobile browser confirms info drawer opens, includes activity details and closes with Escape; existing plan start/completion/refresh checks and 375px/1280px theme overflow checks pass. No additional database/provider calls. Changes remain unstaged.
+
+### 2026-10-26 - Chapter-first reading plan and compact phases
+- Remove the separate selected-day card and explicit Start button. Opening a chapter starts the local plan without completing it; reading completion/undo stays in the chapter reader. Restore the completion control after a refresh with a static canonical chapter lookup when this local plan is started.
+- Simplify progress to day count, bar and percentage. Show Reset plan only after starting; confirmation removes only the plan's local storage record, keeps other preferences, and surfaces failure without false success.
+- Phase descriptions move into info dialogs/drawers. Each phase has a separate image placeholder; chapter/activity rows reuse the book-list footprint, thumbnail sizes and text hierarchy. Add 260 original editorial chapter subtitles, separate from Scripture/official headings and matching the source plan's English chapter labels. No runtime content generation or extra requests.
+- Reflection, application and year-end review use row-triggered prompt drawers with completion/undo; focus returns to the real row rather than a hidden trigger. Proceeded with this stated recommendation after allowing time for the optional drawer-versus-inline preference question. No journal fields.
+- Validation: TypeScript, scoped ESLint, all 22 Bible tests and locale tests passed. Tests cover all 260 subtitle entries, exact schedule coverage and isolated local reset. Offline browser exercises chapter-start-without-completion, reader completion, reload persistence, reflection completion, reset cancel/confirm, and light/dark layouts at 375px and 1280px with no horizontal overflow. Mobile screenshot reviewed. No database operations or dependencies added. Work unstaged; deferred verse-action scrolling investigation untouched.
+
+### 2026-10-26 - Rest days replace review activities
+- Owner clarification supersedes reflection/application/year-end prompts: convert all 105 non-reading days to Rest day, each opening a short localized encouragement in the shared drawer/dialog. Retain manual completion/undo in that drawer, the 365-day total, existing local completions and every primary reading date/order. No chapter links, review questions or journal inputs on rest days.
+- Update plan descriptions and activity counts; add six short encouragements in English, Spanish and French. Schedule regressions now enforce 260 unique chapter readings plus 105 empty-assignment rest days, including Day 365.
+- Validation: TypeScript, scoped ESLint, all 22 Bible tests and locale tests pass. Offline browser checks opening a rest encouragement, completion, reset cancel/confirm, primary reading positions against the source document, refresh persistence and mobile/desktop theme overflow. No DB operations or dependencies; work unstaged.
+
+### 2026-10-27 - Shorten New Testament plan to 303 days
+- Owner approved shortening: six consecutive chapter readings followed by rest only on every seventh day. Generate 260 readings plus 43 rest days; end with Revelation 22 on Day 303, without trailing rest/filler. Preserve source chapter order and derive seven phase ranges from the generated schedule.
+- Rename the active plan New Testament in 303 Days. Update duration, activity counts, six-read/one-rest guidance, progress denominators, percentage and storage validation in English/Spanish/French. Keep the unimplemented Old Testament in a Year preview unchanged.
+- Upgrade local payload to version 2 while retaining its legacy storage key for browser continuity. Map version-1 completed readings by chapter ordinal to new day numbers; old rest completions do not claim differently placed rest days. Read-time conversion is in memory only; next explicit edit saves the upgraded record. No DB access or new writes during reads.
+- Validation: TypeScript, scoped ESLint, all 23 Bible tests and localization tests passed. Regressions enforce every seventh day resting after six readings, all 260 chapters exactly once, derived phase ranges, final Day 303, legacy completion mapping and no migration writes during reads. Offline browser checks source reading order, chapter opening/completion, refresh persistence, Day 7 encouragement/completion, reset and 375px/1280px layouts in both themes. Mobile screenshot reviewed. Changes remain unstaged; earlier work preserved.
+
+### 2026-10-27 - Compact plan progress and accordion cards
+- Put progress bar, percentage and started-only reset trigger on one mobile row, preserving reset confirmation and 44px tap height. No progress/storage logic changes.
+- Join each phase header and expanded chapter list inside one bordered, rounded accordion surface with an expanded header divider. Keep info as a separate control and retain aria-expanded/aria-controls with hidden collapsed regions.
+- Reduce chapter thumbnails to 48px (56px larger screens), title to text-lg, supporting text/day labels and row spacing. Row touch targets remain comfortably above 44px. Existing shared button colors/bevels remain unchanged.
+- Validation: TypeScript and scoped ESLint pass. Offline browser asserts reset/bar alignment, reset tap height and chapter row height below 80px; existing start/complete/rest/reset flows pass. Checked 375px/1280px light/dark overflow and visually reviewed compact-progress-mobile.png. No dependencies or DB calls; changes unstaged.
+
+### 2026-10-27 - Reading-plan control placement and text-only rows
+- Order the progress row Reset (left), bar (middle), percentage (right). Keep confirmation and 44px reset touch target.
+- Place phase info directly beside the phase title and the accordion chevron at the outer right edge. Use a neutral header disclosure with keyboard focus styling only; opening/hovering no longer adds a selected header background. Info remains a separate sibling control with no nested buttons.
+- Remove chapter thumbnail/abbreviation blocks. Rows now read Day N | chapter/activity title with the short subtitle below; reduce minimum height to 48px and retain completion marks and next-day row treatment. Phase artwork placeholders remain.
+- Validation: TypeScript and scoped ESLint pass. Offline browser asserts reset precedes the bar, row alignment and touch height, chapter rows below 64px, existing completion/rest/reset flows, and no mobile/desktop light/dark overflow. Visually reviewed the updated 375px compact-progress screenshot. No DB or persistence changes; unstaged.
+
+### 2026-10-27 - Supplied reading-plan cover images
+- Copy Scroll and Tablets Before Mount Sinai.png to public/images/bible/plans/old-testament.png and Plum journey through Scripture.png to plans/new-testament.png unchanged; verify source/destination hashes match. Document attribution/source filenames in the artwork README.
+- Use the approved scroll/tablets cover on the Old Testament plan card and cross/open-Bible cover on the New Testament card and its detail header. Keep card sizes, captions and detail header height; object-cover preserves proportions and top alignment keeps the cross visible in the short header. Phase placeholders remain independent.
+- Validation: TypeScript and scoped ESLint pass. Offline browser confirms both card images load, existing plan interactions pass and light/dark 375px/1280px layouts do not overflow. Visually inspect the home cards and detail header; correct header crop upward after inspection. No dependencies or DB calls; changes unstaged.
+
+### 2026-10-27 - Centered plan covers and percentage badge
+- Add an opt-in plan presentation to BibleIllustratedCard: centered full-width captions, no offset decorative arrow, much lighter caption/shade, and a small top-right percentage badge with a readable near-opaque neutral surface. Defaults preserve existing Books/Explore cards.
+- Remove completed-day counts from discovery captions; retain duration and Coming soon status. Active New Testament plan shows local completion percentage (0% before starting); unimplemented Old Testament preview has no fabricated progress.
+- Recommend one distinctive cover per plan plus reusable phase icons as plans expand; no phase artwork changes made from that advice alone.
+- Validation: TypeScript/scoped ESLint pass. Offline browser confirms supplied covers load, existing plan interactions work, and no overflow at 375px/1280px in both themes. Reviewed centered mobile cover screenshot. No DB operations or dependencies; unstaged.
+
+### 2026-10-27 - Correct centered plan captions and corner progress
+- Restore the original caption background strength and full image shade; the earlier lightening was not requested. Center plan captions vertically and horizontally over the image rather than at the bottom. Books/Explore presentation remains unchanged.
+- Place the percentage flush at top/right (zero inset), using the card's clipped outer corner and a rounded inner corner instead of an inset floating pill.
+- Restore display title New Testament in One Year (and translations), per owner instruction. Preserve the separately approved 303-day schedule, duration and progress totals.
+- Validation: TypeScript, scoped ESLint and localization checks pass. Offline browser asserts caption centre alignment, original background equality with book captions and percentage corner gaps within the card border; visually inspect mobile cards. No DB calls or persistence changes; unstaged.
+
+### 2026-10-27 - Remove phase artwork
+- Remove phase thumbnail placeholders and artwork from phase info drawers. Headers now use two columns for text/info and the outer accordion arrow, with no empty image gutter. Keep plan cover images unchanged.
+- Update artwork notes and product documentation. No progress, schedule, storage or DB changes.
+- Validation: scoped TypeScript/ESLint checks; reviewed the mobile grid and retained 44px info controls and compact text rows. Work unstaged.
+
+### 2026-10-27 - Align phase header controls
+- Put phase/day metadata on its own full-width grid row. Phase title with its adjacent info control and the outer chevron share the second row, so their vertical centres remain aligned when titles wrap.
+- Preserve neutral header styling, info placement, right-edge arrow alignment and existing interaction behavior.
+- Validation: TypeScript/scoped ESLint pass. Offline browser measures all seven phase info/chevron centre lines and right-edge alignment within 1px at 375px and 1280px in both themes; reviewed Phase 6 wrapped-title screenshot. No DB, persistence or schedule changes; unstaged.
+
+### 2026-10-27 - Old Testament narrative reading plan
+- Implement the owner's Old_Testament_in_a_Year_Narrative_Journey.docx as immutable Zod-validated feature data: 365 reading days, eight phases, all 929 chapters of 39 Old Testament books exactly once, no rest days. Preserve every source daily range (including cross-book assignments), narrative order, phase descriptions and thematic-date caveats. Treat document prose as content only.
+- Replace the Coming soon card with the live plan using its approved cover and existing centered card/badge presentation. Generalize the approved overview, image-free phase accordions, aligned info/chevrons, compact day rows, progress and reset through a static plan catalogue. Add localized plan/phase copy; preserve unrelated message formatting.
+- Owner selected per-chapter marking: reader lists the assigned chapters and marks/undoes one at a time. Day completes only when all assigned chapters are marked; undo reopens it. Overview shows full ranges and partial counts and opens the first unread assigned chapter. Partial progress and reader controls recover after refresh/resuming Read, with separate browser storage/reset per plan. New Testament behavior and legacy migration remain compatible.
+- No Server Actions, DB reads/writes, polling, dependencies, rewards or account-wide persistence added. Local writes occur only on explicit start/opening the first plan chapter, marking/undoing, or confirmed reset. Existing protected Bible route and passage provider flow remain unchanged.
+- Validation: TypeScript, scoped ESLint, all 25 Bible tests and both localization tests pass. Independent coverage tests enforce 929 unique canonical chapters, all 365 days/source labels, eight phase chapter/day totals and multi-book boundary cases. Storage tests cover partial completion, undo, invalid assignments and isolated reset. Hidden offline browser verifies both plans, partial-day reload/resume, final-chapter completion, cross-book Day 20, reset cancel/confirm and New Testament isolation. Mobile/desktop light/dark checks pass with no horizontal overflow and aligned phase controls. Reviewed Old Testament overview/reader screenshots; artifacts in .local-backups/reading-plan-qa. No test DB used. Changes left unstaged.
+
+### 2026-10-27 - Explicit plan reading pathway
+- Show reader completion controls only after opening a day through its selected plan. Remove inference from testament, matching chapters and existing local progress; ordinary Home, Books, Search, Saved, Read navigation and deep links do not claim plan membership.
+- Assigned chapter chips retain the explicit plan/day. Verse selection and translation changes within that chapter preserve it; opening another passage leaves it. Completion continues to write only the selected plan's existing isolated browser key, with no DB operations or automatic completion in other plans.
+- Validation: TypeScript, scoped ESLint, all 25 Bible tests (including plan storage/reset isolation), and diff whitespace checks pass. Changes unstaged.
+
+### 2026-10-27 - Confirmed removal in Saved Bible library
+- Add accessible 44px icon buttons for removing bookmarks, highlights and grouped saved passages. Reuse shared confirmation dialog with reference-specific copy, cancel and destructive confirm; no mutation before confirmation.
+- Remove only the selected annotation through existing validated owner-scoped actions, preserving the other mark on a verse. Show pending feedback, disable removal during writes, surface success/errors and refill the bounded page after removal, including last-page fallback.
+- Add English, Spanish and French confirmation labels. No schema, new queries, polling or dependencies; one existing mutation and bounded refresh per confirmed removal.
+- Validation: TypeScript, scoped ESLint, 25 Bible tests and 2 locale tests pass. Changes unstaged.
+
+### 2026-10-27 - Compact Saved library and account-synced tags
+- Owner chose tags instead of folders/collections. Replace large Saved cards with compact divided rows, metadata and tags below each reference, adjacent 44px edit/removal icons, compact scrolling type filters and a tag selector. Keep confirmed removal and independent bookmark/highlight preservation.
+- Add reusable tag editor to verse actions and explicit passage-save drawer. Choose existing labels or create normalized labels (up to ten per item); drafts never write until Save. Existing verses can save tags without toggling annotations. Passage saves read current tags first, preventing accidental replacement on re-save. Completed multi-verse saves still dismiss selection.
+- Persist arrays directly on existing owner-scoped mark/passage rows; no join rows or per-tag mutations. Add additive migration with empty defaults and GIN indexes, generated Prisma client and apply migration only to guarded local dev port 51214. Keep account privacy and canonical validation in Server Actions/repositories; tag edits never create missing saves. Type/tag predicates run before union pagination, and Bookmarks excludes grouped passages.
+- Cost: Saved entry uses one bounded page query plus one vocabulary query (max 200 labels). Page/type/tag changes repeat only the page query. Save dialogs load suggestions/item tags on demand; no polling, background recurring queries, read-time initialization or tag writes while typing. Explicit mutations use one write plus relevant bounded UI refreshes. No hosted DB changes.
+- Validation: TypeScript, scoped ESLint, 26 Bible unit tests and both locale tests pass. Real disposable PostgreSQL suite passes all checked-in migrations, ownership, no-read writes, filtered UNION pages, preservation on re-save, clearing tags and concurrent annotation/tag changes. Sandbox PostgreSQL initialization failed; isolated rerun outside sandbox passed without using development or hosted fixtures.
+- Hidden offline Edge validates production Saved and passage controls with mock actions: confirmation cancellation has no writes, tag editing/filtering, tagged chapter save and selection dismissal. Screenshots inspected at 375px; rows 65-83px with 44px icon targets, no overflow at 375/1280 in light/dark. Artifacts in .local-backups/bible-tags-qa. Changes unstaged.
+
+### 2026-10-27 - Refresh tag runtime after Prisma schema change
+- Investigate owner's BIB-002 tag screenshot. Existing workspace Next.js worker dated before tag client generation; Prisma singleton intentionally survives HMR. Verify workspace process paths, restart only its dev launcher/worker on port 3000 so it loads the regenerated client. Database migration was already applied locally; no data reset or hosted changes.
+- Correct controlled tag/save dialog hidden triggers from spans to native hidden buttons, addressing the explicit Base UI warning in development logs without changing shared dialog behavior.
+- Fresh dev server is ready and /bible returns 200 with no stderr errors. TypeScript, scoped ESLint and offline production-component tag interactions pass again at 375/1280 light/dark; confirmation, editing/filtering, tagged chapter saves and selection dismissal remain intact. User browser should refresh to replace old client state. Underlying earlier BIB-002 logs contained no readable exception details, so cached runtime is the supported diagnosis, not a reproduced database defect. Changes unstaged.
+
+### 2026-10-27 - Optional tagging after immediate saves
+- Owner approved save-first flow: bookmark, highlight colour, whole chapter and multi-verse Save write immediately, close their action surface and offer Add tags in success feedback. No automatic tag drawer or pre-save tag fields. A shared save-feedback ID replaces stale offers; callbacks snapshot the exact saved reference. Clears/removals do not offer Add tags.
+- Extract BibleItemTagsDialog for reader and Saved, reusing loaded Saved labels and loading current item tags/suggestions only when optional tagging is opened. Draft tag choices and creation never write. Save tags performs one existing owner-authorized update, closes on success and preserves the original save when dismissed. Failed tag writes retain drafts. Shared editor now shows selectable chips and an explicit Create-name action instead of the ambiguous plus button; update English/Spanish/French guidance.
+- Close verse action focus trap after successful save so Add tags is reachable. Retire only this flow's previous save/tag confirmations when tagging opens, preventing mobile toast overlap with Save tags. Preserve existing Saved compact rows, confirmed removals, filters and selection dismissal.
+- No schema, migration, repository or server-action changes; no DB writes from selecting/dismissing tags and fewer reads for users who only save. Browser checks use mocked actions, not development/hosted records.
+- Validation: TypeScript, scoped ESLint, all 26 Bible tests and both locale tests pass. Hidden offline Edge exercises real Saved, passage and reader components: immediate chapter/selection/bookmark/highlight saves, optional Add tags actions, explicit creation, chip edits/filtering, automatic drawer closure, and exact write counts proving drafts/dismissal do not write. Layout remains sound at 375/1280 in both themes; inspected mobile tag drawer with Save tags unobscured. Artifacts in .local-backups/bible-tags-qa. New changes left unstaged; existing staged work preserved.
+
+### 2026-10-28 - Inline save confirmation preview
+- Replace Add tags toast actions with a compact shared BibleSaveConfirmation beside the saved verse, or below the chapter heading for whole chapters/multi-verse saves. Show saved status, Add tags and explicit close; no timer or automatic drawer. Ordinary success/error notifications remain, with no tagging action in toasts.
+- Capture the exact saved reference, scope feedback to its chapter/edition, replace prior feedback on another save, clear it on annotation removal, and dismiss it when opening optional tags. Keep existing shared tag drawer, immediate saving and selection-close behavior. No DB, action, schema, dependency or polling changes.
+- Validation: TypeScript and scoped ESLint pass. Offline browser exercises real reader, Saved and passage components with mock actions: immediate saves, inline placement inside the saved verse, no toast Add tags button, tag creation/editing, drawer closure and no writes during drafts/dismissal. 375px bar fits without overflow; inspected inline-verse-mobile.png and captured inline-passage-mobile.png in .local-backups/bible-tags-qa. Existing mobile/desktop light/dark layouts pass. New changes unstaged; existing staged work preserved.
+
+### 2026-10-28 - Bible Home navigation and Explore Scripture carousel
+- Bible Home now uses shared NavigationButton Back to game targeting /game; retain Back to books for ordinary reading and explicit plan return behavior. Topic details join the workspace's screen navigation (with Home navigation active and Back to Bible home), replacing the topic modal while preserving curated passages and current translation.
+- Extract BibleTopicCarousel and BibleTopicScreen. Keep cards in stable order and derive the active dot from the card nearest the native scroll viewport centre. Dots and 15-second automatic rotation scroll that same track; leading/trailing spacers allow first/last cards to centre. Active scale 1.03 versus adjacent 0.97 supplies subtle focus; reduced motion uses scale 1 and disables automatic advance. Pause while hovered, focused, dragging, expanded or page-hidden. View all retains normal grid sizing.
+- No DB/API calls, new dependencies, persistence changes or route files. All artwork, semantic theme and approved shared button styling remain. Update product overview.
+- Validation: TypeScript, scoped ESLint and diff checks pass. Hidden offline Edge exercises real Home/carousel/topic-screen components: manual scroll indices including endpoints, dot navigation, actual 15-second timed advance, topic page without a dialog, passage opening with WEB retained and return to Home, reduced-motion scale. Screenshots inspected at 375px; both 375/1280 light/dark layouts have no horizontal document overflow and measured active/inactive scales 1.03/0.97. Artifacts .local-backups/bible-topics-qa. Existing staged work preserved; new changes unstaged.
+
+### 2026-10-28 - Continuous topic carousel, matching passage rows and reading marker
+- Replace blank carousel spacers with three bounded repeating sets. Keep native scrolling and indicator/scaling logic; after scrolling settles, recenter to the equivalent middle copy without changing the visible topic. Dot navigation chooses its nearest copy, automatic rotation continues forward across the seam, and only the visible three-card neighbourhood remains interactive/accessibility-visible. Offscreen duplicates are inert. Preserve View all grid, pauses and reduced motion.
+- Extract BibleBookThumbnail from existing testament rows without visual changes and reuse it for topic passages. Topic cards now match approved row artwork, light abbreviation scrim, title/subtitle sizing, border, spacing and trailing arrow; retain exact references and edition.
+- Add Reading here pin/label, accent left edge and outline to the currently opened verse, including references opened from topics, search or Saved. Preserve existing highlight colour beneath the marker and identify the location accessibly. This navigation cue never creates a saved highlight, opens verse actions or changes progression.
+- Validation: TypeScript, scoped ESLint and both locale tests pass. Offline production-component browser checks cover nine consecutive forward wrap steps, backward seam, centre/dot sync, 15-second advance, visible-clone accessibility, full-page topic navigation and passage translation. 375/1280 light/dark layouts and reduced motion pass. Reader checks prove exactly one location marker follows the opened verse and creates no annotation writes; existing save/tag flows still pass. Reviewed mobile topic passage rows and marker-over-gold-highlight screenshots. No DB, action, schema, dependencies or polling changes; new changes unstaged and existing staged work preserved.
+
+### 2026-10-28 - Filled inline bookmark marker
+- Replace the diamond after bookmarked verse text with the existing Lucide Bookmark icon, filled with current primary colour at 14px. Preserve inline placement, spacing and accessible Bookmarked label. Presentation only; no persistence changes.
+- Validation: TypeScript, scoped ESLint and diff checks pass. New change unstaged; existing staged work preserved.
+
+### 2026-10-28 - Solid-colour Explore Scripture packs
+- Replace topic carousel/View all illustrations with solid semantic colour cards, preserving titles, descriptions, dimensions, shared game button effects and continuous carousel behavior. Use the same pack colour for its full-page topic header.
+- Add ID-hashed pseudo-random colour assignment from existing primary/info/decoration/reward token pairs. New packs receive colours automatically; existing IDs remain stable across reordering, loop copies, refreshes and translations. No image generation, texture, raw palette, browser storage or DB persistence introduced.
+- Validation: TypeScript, scoped ESLint and diff checks pass. Offline browser confirms no images within topic cards and identical colours across repeated copies; wrapping, indicators, navigation, reduced motion and 375/1280 light/dark layouts remain sound. Inspected mobile solid-card screenshot. Existing staged work preserved; new changes unstaged.
+
+### 2026-10-28 - Correct topic texture interpretation
+- Owner clarified the supplied pack reference includes repeating watercolor-paper texture, not flat colour. Add a shared monochrome SVG tile combining stitched pigment noise, fine paper grain and soft irregular washes. Blend it over existing pack colours with stable ID offsets, applying it consistently to carousel cards and topic headers; keep text above the overlay and preserve buttons/layout/navigation.
+- No new per-pack files, dependencies, image-service calls, DB operations or storage. The one local SVG is browser-cacheable. Keep the existing automatic stable colour assignment.
+- Validation: TypeScript, scoped ESLint and diff checks pass. Offline browser verifies all loop cards have the texture, stable colours, no overflow and correct navigation/looping/reduced motion at 375/1280 in light/dark. Visually reviewed mobile mottling and softened wash edges. New changes unstaged; previous staged work preserved.
+
+### 2026-10-28 - Reading-plan participation avatar stack
+
+- Implemented the approved hybrid: chapter/day progress remains device-only;
+  minimal account participation tracks start/activity/completion per plan.
+- Plan details show four public avatars plus overflow. Completed/reset accounts,
+  activity older than 30 days, banned/suspended accounts and bilateral blocks are
+  excluded. No polling, read-time enrollment, cleanup job or progress-array sync.
+- Explicit progress events batch activity at most once per UTC day, with a
+  server-side conditional write protecting concurrent callers. Account-scoped
+  local retry metadata preserves failed intents independently of reading progress.
+- Added strict Server Actions, repository, error codes BRP-001/002, localized
+  loading/error/empty/retry UI and additive migration 20261028170000. Applied only
+  to guarded local development DB; generated Prisma client refreshed.
+- Verified: TypeScript, scoped ESLint, Bible unit tests (28), locale/error tests,
+  both disposable PostgreSQL Bible suites, offline hidden-browser daily batching,
+  completion/reset/retry and four-avatar/+2 layout at 375/1280 light/dark. No hosted
+  test DB used. Changes remain unstaged. Deferred reader scroll-jump bug unchanged.
+
+### 2026-10-28 - LAN HTTP participation sync correction
+
+- Traced real browser errors to crypto.randomUUID being unavailable over the
+  local-network HTTP address used by mobile devices. The queue handler threw
+  before a participation action was sent; local reading progress remained saved.
+- Replaced that unnecessary cryptographic dependency with an effect-local
+  monotonic intent ID. It is response correlation only, never identity/security.
+- Verified the real coordinator in hidden Edge with randomUUID explicitly absent:
+  start, daily batching, completion/reset and failed-update retry all pass.
+  TypeScript and scoped ESLint pass. Refresh both devices and explicitly reopen
+  a plan chapter to enroll previously missed starts; no read-time writes added.
+
+### 2026-10-28 - Bible route skeleton alignment
+
+- Replaced the generic four-row Bible fallback with the current Home composition:
+  matching header/avatar/search footprints, split hero, paired book/plan/topic card
+  proportions, compact closed verse picker and fixed three-item dock placeholders.
+- Uses semantic Skeleton primitives, reduced-motion overrides and one accessible
+  loading status. No account reads or interactive placeholder controls added.
+- Verified 375/1280 light/dark in offline hidden Edge with no horizontal overflow;
+  TypeScript and scoped ESLint pass. Changes remain unstaged.
+
+### 2026-10-28 - BSB fallback and continuous plan audio
+
+- Added explicit Play BSB audio for unavailable KJV/WEB recordings, persistent
+  mismatch label and optional Switch text to BSB. Audio-only authenticated action
+  reuses validated public provider data without querying private marks.
+- Minimized audio pauses while retaining the same mounted media/time; reopening
+  stays paused. Source changes/unmount stop old playback and invalidate play work.
+- Plan-only autoplay defaults on and is stored locally. Finished audio completes
+  only the explicit plan chapter, derives multi-chapter day completion, follows
+  assigned order and stops at rest days/end. Manual completion/undo remain.
+  Ordinary Bible listening never writes plan completion. Rest completion is manual.
+- Verified: TypeScript, scoped ESLint, 30 Bible unit tests, locale contract tests,
+  full offline workspace browser checks with simulated media events for consent,
+  text preservation, pause/reopen at 37s, NT six chapters/rest stop, autoplay off,
+  OT partial/day completion, plan isolation, provider retry and browser-policy
+  rejection recovery. Checked 375/1280 light/dark layouts. Browser policy may
+  still require a real user's Play gesture on a device. No DB migration added.
+- Changes remain unstaged. Deferred annotation scroll-jump issue untouched.
+
+### 2026-10-28 - Reliable native autoplay, chapter switch and joined dock
+
+- Corrected autoplay under Strict Mode and mobile browser per-element policies:
+  one workspace audio element survives chapter loads, with synchronous user-tap
+  preparation via a tiny local silent blob and a cancelled-replay-safe play attempt.
+- Moved plan-only autoplay into chapter actions as the shared controlled Switch.
+  Removed its player-card button row. Set fixed dock block margins to zero,
+  eliminating inherited reader spacing between audio and navigation.
+- Verified unmocked native HTML audio in hidden Edge with a trusted pointer tap:
+  first chapter plays, native ended opens/plays second chapter on the same element
+  under Strict Mode. Exact dock/navbar edges meet within 1px. Full mocked-media
+  regression also passes pause/resume, fallback retry/text switch, rest stops,
+  per-plan completion isolation, switch persistence and 375/1280 light/dark layouts.
+- TypeScript, scoped ESLint, all 30 Bible unit tests and locale contract tests pass.
+  No database/schema/CSP changes. Refresh the dev page before testing updated hooks.
+  Changes remain unstaged; deferred annotation scroll jump remains untouched.
+
+### 2026-10-28 - Persistent cross-route Bible mini player
+
+- Lifted media/session ownership into an account-keyed BibleAudioProvider around
+  the protected navigation shell, exposed through the Bible feature public API.
+  One native audio element survives Bible sub-screen and protected route changes.
+- Added compact play/pause, position/progress, return-to-chapter and dismiss UI,
+  positioned above the current navigation bar. BSB fallback mismatch remains
+  visible. Return preserves position and explicitly restores plan provenance;
+  matching ordinary/shared chapter links never inherit plan completion controls.
+- Provider owns background plan completion and audio-only chapter advancement;
+  route views subscribe to validated events only while relevant, so other pages
+  are never hijacked. Stops at rest days/end. Existing local progress and daily
+  account-participation batching remain unchanged; coordinator now survives routes.
+- Dismissal, new recording requests, logout/layout disposal and account changes
+  invalidate pending loads. Native media is paused on disposal; delayed old results
+  cannot resurrect audio or navigate another account's UI. No schema/CSP changes.
+- Verified: unmocked native audio under Strict Mode continues through route-view
+  unmount, native ended advances/completes a chapter in the background, mini return
+  restores day/context without losing media, and dismissal stops. Deterministic
+  browser tests cover ordinary-reading isolation, rest stop/no lookup, deferred
+  dismissal/account-switch races, 375/1280 light/dark/nav clearance. All 31 Bible
+  unit tests, locale contracts, TypeScript and scoped ESLint pass.
+- No hosted DB used. No added routine query/polling: cached session is shared with
+  existing layout loaders; background playback requests one public audio chapter
+  per transition and avoids private-mark queries. Playback itself is memory-only
+  and ends on refresh/logout. Changes remain unstaged; refresh dev page once for
+  the new persistent layout. Deferred annotation scroll-jump issue unchanged.

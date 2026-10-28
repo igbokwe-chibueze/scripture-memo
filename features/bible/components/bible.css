@@ -1,0 +1,193 @@
+/* Bible reading uses the approved application fonts and semantic colors.
+   Minimum widths prevent native selects and long original-language words from
+   forcing a horizontal scrollbar at the primary 375px viewport. */
+.bible-workspace {
+  overflow-wrap: anywhere;
+}
+/* Size only: color, bevel and press effects remain in shared Button variants.
+   Bible controls require 44px targets even when the primitive defaults to 32px. */
+.bible-workspace [data-slot="button"],
+.bible-dialog [data-slot="button"] {
+  min-width: 44px;
+  min-height: 44px;
+}
+.bible-select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control, 12px);
+  background: var(--card);
+  color: var(--foreground);
+  padding: 8px;
+}
+.bible-select:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.bible-verse[data-highlight="teal"] {
+  background: color-mix(in srgb, var(--primary) 16%, var(--card));
+}
+.bible-verse[data-highlight="gold"] {
+  background: color-mix(in srgb, var(--reward) 20%, var(--card));
+}
+.bible-verse[data-highlight="blue"] {
+  background: color-mix(in srgb, var(--info) 16%, var(--card));
+}
+
+/* Owner requested a much lighter caption treatment. Dilute the existing
+   semantic scrim instead of stacking it; a small text shadow keeps white
+   lettering distinct without darkening a large area of the supplied artwork. */
+.bible-image-shade {
+  background: linear-gradient(
+    to bottom,
+    transparent 55%,
+    color-mix(in srgb, var(--image-overlay) 40%, transparent)
+  );
+}
+.bible-image-caption {
+  color: var(--image-foreground);
+  background: color-mix(in srgb, var(--image-overlay) 60%, transparent);
+  text-shadow: 0 1px 2px oklch(from var(--image-overlay) l c h / 0.9);
+}
+.bible-topic-track {
+  scrollbar-width: none;
+}
+.bible-topic-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* Match the game navbar's 64px targets, 36px artwork, muted labels and teal
+   selection. Scoped selectors keep its three Bible destinations independent
+   of the game shell's five-column/desktop-sidebar layout. Shared Button still
+   supplies all bevel, pressed, keyboard-focus and reduced-motion behavior. */
+.bible-bottom-navigation {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: 40;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.3rem;
+  max-width: 42rem;
+  margin-inline: auto;
+  padding: 0.35rem 0.4rem max(0.4rem, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--border);
+  background: var(--card);
+}
+.bible-navigation-item[data-slot="button"] {
+  width: 100%;
+  height: auto;
+  min-height: 4rem;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.2rem 0;
+  border-radius: 1rem;
+  white-space: normal;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-align: center;
+}
+.bible-navigation-item[data-slot="button"][aria-current="page"] {
+  border: 1px solid var(--selection-border);
+  background: var(--selection-subtle);
+  color: var(--selection-text);
+}
+
+/* Audio and navbar share width, surface and measured edges. Verse content scrolls
+   beneath them, with matching dynamic end padding supplied by the workspace. */
+/* Reuse measured dock heights so the selected-verse trigger clears both audio
+   and navigation at mobile widths, zoom levels and wrapped narrator labels. */
+.bible-verse-floating-actions {
+  position: fixed;
+  right: max(1rem, calc((100vw - 42rem) / 2 + 1rem));
+  bottom: calc(
+    var(--bible-nav-height, 5rem) + var(--bible-audio-height, 0px) + 1rem
+  );
+  z-index: 41;
+  max-width: calc(100vw - 2rem);
+}
+
+.bible-audio-dock {
+  position: fixed;
+  inset-inline: 0;
+  bottom: var(--bible-nav-height, 5rem);
+  z-index: 40;
+  max-width: 42rem;
+  margin-inline: auto;
+  /* Reader space-y utilities must not lift a fixed dock away from the navbar. */
+  margin-block: 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-bottom: 0;
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  background: var(--card);
+  box-shadow: 0 -4px 16px color-mix(in srgb, var(--foreground) 8%, transparent);
+}
+.bible-audio-seek {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 44px;
+  background: transparent;
+  cursor: pointer;
+}
+.bible-audio-seek::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--primary) var(--bible-progress),
+    var(--muted) var(--bible-progress)
+  );
+}
+.bible-audio-seek::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--primary) var(--bible-progress),
+    var(--muted) var(--bible-progress)
+  );
+}
+.bible-audio-seek::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -6px;
+  border: 2px solid var(--card);
+  border-radius: 50%;
+  background: var(--primary);
+}
+.bible-audio-seek::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--card);
+  border-radius: 50%;
+  background: var(--primary);
+}
+.bible-audio-seek:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-control);
+}
+.bible-audio-seek:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+/* Persistent mini playback sits above the route's actual bottom navigation.
+   It shares the full player's semantic surface and stays compact at 375px. */
+.bible-mini-player {
+  position: fixed;
+  inset-inline: 0.75rem;
+  bottom: calc(var(--bible-mini-nav-height, 0px) + max(0.5rem, env(safe-area-inset-bottom)));
+  z-index: 45;
+  max-width: 28rem;
+  margin: 0 auto;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--card);
+  color: var(--foreground);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--foreground) 12%, transparent);
+}

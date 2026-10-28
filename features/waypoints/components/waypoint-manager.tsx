@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { ArrowDown, ArrowUp, BookOpenCheck, Eye, EyeOff, FileQuestion, MapPinned, Plus, Save } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

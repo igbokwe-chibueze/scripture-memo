@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { EyeIcon, KeyRoundIcon, LockKeyholeIcon, SearchIcon, ShieldCheckIcon, UserRoundCheckIcon, UsersRoundIcon, XIcon } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { BadgeUnlockSequence } from "@/features/badges";
 import { NavigationButton } from "@/components/shared/navigation-button";
 import { FellowshipInsignia } from "@/features/fellowships/components/fellowship-insignia";

@@ -9,7 +9,7 @@ import {
   Trash2Icon,
   UserCogIcon,
 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { anonymizeUserAccountAction } from "@/features/admin/actions/anonymize-user-account.action";
 import { revokeUserSessionsAction } from "@/features/admin/actions/revoke-user-sessions.action";
 import { setUserSuspensionAction } from "@/features/admin/actions/set-user-suspension.action";

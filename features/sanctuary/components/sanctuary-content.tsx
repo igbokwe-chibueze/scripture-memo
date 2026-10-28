@@ -10,7 +10,7 @@ import {
   NotebookPenIcon,
   SaveIcon,
 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { NavigationButton } from "@/components/shared/navigation-button";
 import { Textarea } from "@/components/ui/textarea";

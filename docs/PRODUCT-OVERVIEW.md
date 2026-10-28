@@ -1460,6 +1460,167 @@ Reflection space shown after completing Radiance or as a standalone destination.
 - Favorite toggle: mark the verse as a favorite
 - Calm, devotional UI — no game mechanics visible
 
+### 15.4A Bible reader
+
+- Authenticated `/bible` is a standalone reading space with Home, Read and
+  Saved navigation and a Back to game link. It retains the approved fonts,
+  semantic light/dark theme and shared tactile controls. Home uses the
+  owner-supplied open-Bible hero and Old/New Testament artwork. Explore Scripture
+  packs use theme colours with repeating watercolor-paper texture instead of
+  scene illustrations, with titles and
+  descriptions. A deterministic ID hash assigns new packs a stable pseudo-random
+  paired background/foreground colour without persistence or render-time randomness;
+  the same identity colours its detail header and carousel copies. A shared
+  monochrome SVG supplies pigment mottling, paper grain and soft washes with
+  stable per-pack offsets, leaving text above the texture for readability.
+  Testament book lists use the
+  matching wide header and the ten supplied category illustrations as book
+  thumbnails, with category counts, local search and expandable chapter grids.
+  Acts uses its own history artwork, distinct from Old Testament history.
+  Group headings include a question-mark help control. Static localized
+  definitions explain each collection and list its books; Acts has a distinct
+  explanation. Help opens in a mobile bottom drawer or desktop modal, with
+  accessible dismissal and reduced-motion-aware entry/exit. No API/DB request
+  is needed for these explanations. Approved book-row surfaces, subtitles and
+  centered thumbnail abbreviations remain in place.
+- All 66 books are grouped by testament and category, with searchable book
+  lists, chapter grids and a book/chapter/verse picker. Topics link to curated
+  real passages; the carousel pauses on hover/focus, when hidden or under
+  reduced motion, and has View all. The owner removed the visible pause control;
+  hover/focus pauses and reduced-motion behavior remain.
+  Home uses illustrated testament cards and a swipeable topic preview with dot
+  controls. Selecting a topic opens its existing passage choices as a regular
+  in-workspace screen, like books and plans, with a return to Bible Home. Bible
+  Home's Back to game button navigates to the game home at `/game`.
+  A stable centred scroll track synchronizes dots with both swipes and timed
+  advances. The focused card scales slightly above adjacent cards; reduced
+  motion disables the scaling and automatic advance. Bounded repeating copies
+  fill both sides without blank end spacers; settled scrolling silently recentres
+  equivalent copies for continued forward/backward looping. Only the visible
+  neighbourhood is interactive; duplicate offscreen copies are inert and hidden
+  from assistive technology. View all retains a normal two-column grid.
+  Topic passage rows reuse testament artwork thumbnails, abbreviation treatment,
+  title/subtitle sizing and card spacing. Opening any verse shows a Reading here
+  label, accent border and outline at its reading location. This is a navigation
+  cue, distinct from saved highlights, and never writes an annotation.
+  Topic rotation uses a 15-second interval. Home's Go to a verse starts collapsed
+  and shows this browser's last opened reference and edition in its summary;
+  opening it reveals selectors initialized to that passage. Bible navigation uses
+  the game navbar's artwork sizing, muted labels and subtle teal active state.
+  Reading position persists in localStorage across refreshes on that device,
+  with zero database reads/writes or cross-device synchronization. Explicit
+  passage links override and update the browser preference. Only opening a
+  passage saves it; ordinary reads and unsubmitted picker drafts do not.
+  Book/chapter/verse selectors share one mobile row on Home; the reader dialog
+  retains its roomier picker layout. All interactive targets remain at least
+  44px. Supplied PNG originals are preserved under `public/images/bible/`.
+- Home has a separate Reading Plans section, initially the owner's “The New
+  Testament in One Year” document with labelled illustration placeholders.
+  Preserve its seven phases and all 260 single-chapter readings in source order.
+  The owner shortened the plan to 303 days: six consecutive reading days then
+  one rest day on every seventh day, continuing across phase boundaries. There
+  are 43 rest days; Revelation 22 finishes on Day 303 with no trailing filler.
+  Keep the owner's display title New Testament in One Year; duration remains
+  303 days. Derive phase ranges and progress totals from the generated schedule.
+  Versioned device progress maps
+  legacy completed readings by chapter to their new day numbers, without writes
+  during reads. Old rest completions do not claim newly scheduled rest days.
+  Opening a plan chapter starts the plan locally without completing its day.
+  Reading-day completion and undo live inside the chapter reader. Remove the
+  separate selected-day card; show compact progress, day counts and percentage.
+  A confirmed Reset plan control appears only once started and clears only that
+  plan's local progress. Each phase has a compact text header and info
+  control for its description, without images in either header or drawer. Chapter rows match the testament book-list sizing
+  and include static editorial subtitles distinct from Scripture headings.
+  Rest days open a short encouragement and manual completion in a drawer,
+  without study prompts or journal entries. Users may proceed at their own pace.
+  Progress is versioned, validated browser storage;
+  clearing browser data removes it. No database reads/writes, polling, account
+  synchronization, game rewards or streak changes are introduced. Reading links
+  use the active translation and offer a return path to the selected plan day.
+- Old Testament in a Year follows the owner's narrative DOCX exactly: eight
+  phases, 365 daily assignments, all 929 chapters of the 39-book Old Testament
+  once each, and no added rest days. Keep the source's multi-book days and its
+  caveats about thematic placements rather than inventing precise dates.
+  The supplied cover appears in discovery and the detail header; the former
+  Coming soon entry now opens the shared, image-free phase accordion layout.
+  Show each day's full assigned range and partial chapter count. Opening a day
+  resumes at its first unread chapter; in-reader chapter controls navigate the
+  assigned readings and explicitly mark/undo one chapter. Complete the day only
+  when every assigned chapter is marked; undoing one reopens the day. Partial
+  chapter progress survives refreshes. Each plan has isolated browser storage
+  and reset behavior, with no DB operations or polling. Existing New Testament
+  completion semantics and legacy progress migration remain unchanged.
+- KJV, WEB and BSB come from the Free Use Bible API. Settings selects the initial
+  translation; reader changes are temporary. Section headings and footnotes are
+  retained when provided. Up to eight session-local chapter tabs, chapter
+  stepping, text sizing, reference links and sharing are supported.
+- Full-text search is an explicit submit, supports exact references and literal
+  phrases, and returns 20 verses per page. Public translation indexes are
+  single-flight cached per server worker for 24 hours, at most three editions;
+  they contain no private learner data. Chapter/study HTTP responses use a
+  24-hour framework cache. There is no polling or routine database initialization.
+- Study offers named commentary selection (Matthew Henry, Adam Clarke, John
+  Gill, John Calvin, Jamieson-Fausset-Brown, Keil/Delitzsch and Tyndale), OpenBible
+  cross-references, and original Hebrew/Aramaic/Greek words through the Berean
+  interlinear plus STEPBible brief lexicons. English glosses are labelled as
+  interlinear glosses, not guessed word alignments for another translation.
+  Missing entries are explained, never invented. Source/licence links and
+  attribution accompany text, commentary, references and lexicon definitions.
+- Private bookmarks and three highlight colours use the owner-scoped
+  `BibleVerseMark` table and are separate from Vault favourites/curriculum
+  records. Atomic, idempotent upserts change only the requested annotation;
+  the saved library uses 20-row look-ahead pagination and filters. Reading or
+  studying never changes campaign progress, rewards, hints, streaks or stats.
+- On mobile, Read uses top Passage, Words, Commentary and Cross References tabs;
+  study panes load on demand. Words and Cross References include a verse selector;
+  Commentary shows the full chapter's introduction and available verse-anchored
+  entries, with an author selector and no internal scrolling. Source paragraph
+  breaks and Roman/numeric nested outlines receive readable spacing and hanging
+  indents, preserving the author's wording, citations and original list indexes.
+  Desktop retains the
+  side-by-side passage/study layout. Audio remains docked across these tabs.
+- Chapter actions offer Save chapter, Share chapter and Select verses. Selection
+  supports arbitrary verses within one chapter, including non-adjacent verses.
+  Whole chapters and selections are single, account-owned Saved entries, stored
+  separately from existing verse bookmarks/highlights. Saves are idempotent and
+  write only on explicit Save/Remove; choosing verses and sharing never write.
+  Saved provides All, Bookmarks, Highlights and Passages filters, with one bounded
+  parameterized union query and 20-item look-ahead pagination across collections.
+  Shared text and links preserve edition and exact selection; links need no
+  stored share record. Clipboard/manual-copy fallbacks remain available.
+- Saved uses compact divided rows with reference, annotation details, small tag
+  labels and adjacent 44px icon actions. Removal remains explicitly confirmed.
+  Account-synced tags replace folders/collections: each verse mark or grouped
+  passage supports up to ten normalized labels. Bookmark, highlight and passage
+  saves complete immediately, then offer optional Add tags in a compact inline
+  confirmation beside the saved verse, or below the heading for chapter/selection
+  saves. The bar has explicit dismissal and no timer; success toasts contain no
+  tagging action. Tagging never opens automatically or blocks reading. Saved can
+  edit tags later.
+  The common drawer offers selectable chips, explicit Create-name actions and one
+  Save tags button. Bookmark and highlight on the same verse share tags.
+  Tag edits are local drafts until Save; removing one annotation preserves the
+  other and its tags. Type and tag filters combine before 20-item pagination.
+  Tags live on the existing owner-scoped rows with GIN containment indexes.
+  Saved performs one page query plus one bounded tag-vocabulary query on entry;
+  only page/filter changes repeat the page query. Only opening optional tagging
+  reads existing tags and available labels on demand; Saved reuses loaded values.
+  No polling, recurring
+  background reads, read-time writes, per-tag writes or separate tag records.
+- BSB audio offers available narrators, play/pause, seeking, ten-second skips
+  in a fixed player dock directly above Bible navigation. Verses scroll beneath
+  the opaque dock, with measured bottom clearance for the final verse. The
+  progress bar uses semantic theme colors; centered skip controls show seconds
+  inside circular arrows. Speed (left) and narrator (right) are pill controls
+  that open the shared responsive option surface with highlighted selected pills.
+  These choices persist only in browser storage; no database calls are added.
+  Changing narrator pauses and resets the recording; unavailable saved narrators fall
+  back to a chapter-supported voice without requesting a nonexistent recording.
+  Playback starts only on user action and stops on chapter
+  or translation change. Matching **KJV/WEB audio is an explicit TODO**, deferred
+  by the owner; do not silently play BSB while displaying another edition.
+
 ### 15.5 Vault (📖)
 
 The user's complete progress library.
@@ -2204,7 +2365,7 @@ Use Sonner for all user-facing feedback. Never use `alert()`. Never silently fai
 | Info | "Stage 2 unlocks in 23h 14m.", "Hint used. 2 hints remaining." |
 | Warning | "You only have 1 hint remaining.", "Unsaved changes will be lost." |
 
-- Error toasts persist until dismissed by the user.
+- Error toasts auto-dismiss after 10 seconds and may be dismissed sooner.
 - All other toasts auto-dismiss after 4 seconds.
 
 ### 19.3 Gameplay Visual Feedback Reference
@@ -2405,3 +2566,84 @@ The application is production-ready when:
   include waiting; missing historical durations remain unavailable rather than
   fabricated. Streaks retain the existing progression rules; practice activity
   on the calendar does not change those rules.
+
+### Reading-plan participant previews (2026-10-28)
+
+- Detailed chapter/day progress remains device-only. An account-owned participation
+  row stores only plan ID, start, last activity and completion timestamps, never
+  completed chapter arrays. Explicit chapter opening starts participation; marking
+  progress refreshes activity at most once per UTC day. Completion excludes the
+  account, reset removes that plan's row, and undoing completion resumes it.
+- Plan details display four current public avatars and an overflow count. Current
+  means unfinished with activity within 30 days; merely opening the overview does
+  not enroll or refresh activity. Existing local plans enroll on an explicit reading
+  action. Accounts hidden by bans, suspension or bilateral blocks are excluded.
+- One summary query runs per detail mount or explicit successful participation
+  change while that preview is mounted; there is no polling or scheduled cleanup.
+  Normal activity costs at most one participation mutation per active plan/day,
+  plus explicit start, completion or reset transitions. Session authorization may
+  add its existing request cost. SQL also prevents same-day duplicate writes.
+- Account-scoped browser metadata batches activity and queues failed explicit
+  intents for online/manual retry. Device reading progress remains usable if
+  participation syncing fails. This is participation visibility, not live presence
+  or cross-device progress synchronization.
+
+### Bible audio fallback and plan listening (2026-10-28)
+
+- When the selected translation has no chapter audio, offer an explicit Play BSB
+  audio action. Keep the selected text, explain that wording differs, and retain
+  a visible BSB audio / reading edition label with an optional text switch.
+  Consent is session-only; fallback URLs are fetched only after that choice.
+- Minimizing the player pauses immediately, including during its slide-down
+  animation. Reopening the same chapter retains the mounted media position and
+  stays paused until Play. Chapter/edition changes stop the old recording.
+- Only chapters entered through a plan have autoplay controls. Autoplay starts
+  enabled and is remembered locally. It opens the player and attempts playback,
+  follows the plan's exact chapter/day order and stops at rest days or plan end.
+  Browser autoplay rejection leaves an actionable Play button.
+- A finished recording completes only its assigned chapter in that explicit plan.
+  Multi-chapter days complete after all assigned chapters are marked; manual
+  completion and undo remain available. Rest days retain their encouragement and
+  explicit completion. Opening text, minimizing, pausing or listening through an
+  ordinary Bible pathway never completes plan progress.
+- The fallback Server Action validates/authenticates and reads public provider
+  audio only, avoiding the private-mark query. One cached provider chapter lookup
+  per chosen fallback chapter; no polling, new progress tables or migrations.
+  Existing participation batching remains at most daily for normal activity.
+
+### Bible autoplay and dock corrections (2026-10-28)
+
+- Bible Workspace now retains one HTML audio element across chapter loads. An
+  explicit plan-chapter or BSB-fallback tap prepares that element synchronously
+  with a 100ms local silent WAV blob while the real recording URL is resolving.
+  This keeps browser playback permission attached to the same element. No new
+  origin, provider request, database operation or CSP relaxation is needed.
+- Autoplay waits until Strict Mode effect replay has completed before consuming
+  its one playback attempt. Native event subscriptions follow the current source
+  and read current completion callbacks without pausing on unrelated UI renders.
+- Plan autoplay is a controlled shared Switch in the chapter-actions drawer/modal,
+  no longer an extra player-card row. Its device-only preference is unchanged.
+- Fixed dock margin is explicitly zero so reader spacing cannot leave a gap above
+  the navbar. The card remains opaque; verses scroll underneath the joined dock.
+
+### Persistent Bible mini player (2026-10-28)
+
+- The account-keyed protected layout owns one Bible audio session. Playback from
+  Books, Plans or Explore continues during signed-in client-side route navigation.
+  A compact player appears away from its attached chapter, with play/pause, progress,
+  return-to-chapter navigation and explicit dismiss. Dismiss stops and clears it.
+- Returning restores the active recording and position without restarting. Explicit
+  return intent restores plan/day provenance; opening an ordinary matching passage
+  never silently opts into a plan. Minimize within the same reader still pauses.
+- Plan listening continues in the background, recording only its assigned local
+  chapter completion, automatically moving through assignments and stopping at rest
+  days/end. Background changes never force navigation on the page being viewed.
+- Audio URLs, playing position and active session are memory-only. Refresh/logout
+  ends playback. The provider is keyed by opaque account scope so account changes
+  dispose media, pending work and account-specific participation synchronization.
+- Native timeupdate/ended events and resize observers drive UI; there is no polling.
+  Background advancement makes one authenticated audio-only request per next chapter
+  (normally minutes apart), with shared public-provider caching and no private-mark
+  query. There are no queries while merely showing/pausing/seeking the mini player.
+  Existing daily participation batching stays unchanged. The protected layout reuses
+  its request-cached session; no new ordinary-load database query is introduced.

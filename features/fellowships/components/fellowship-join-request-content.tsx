@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { CheckIcon, Clock3Icon, FlameIcon, MapPinCheckIcon, XIcon } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import type { FellowshipJoinRequestItem } from "@/features/fellowships/types/fellowship.types";
 import type { FellowshipDecisionTransport } from "../types/fellowship-preview.types";
 import { LoadingButton } from "@/components/shared/loading-button";

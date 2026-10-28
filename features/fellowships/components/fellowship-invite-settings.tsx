@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { CheckIcon, KeyRoundIcon, RefreshCwIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { regenerateFellowshipInviteAction } from "@/features/fellowships/actions/regenerate-fellowship-invite.action";
 

@@ -20,7 +20,12 @@ const navigationItems = [
   { href: "/game", key: "home", artwork: "home", exact: true },
   { href: "/game/map", key: "map", artwork: "map", exact: false },
   { href: "/vault", key: "vault", artwork: "vault", exact: false },
-  { href: "/leaderboard", key: "leaderboard", artwork: "leaderboard", exact: false },
+  {
+    href: "/leaderboard",
+    key: "leaderboard",
+    artwork: "leaderboard",
+    exact: false,
+  },
   { href: "/settings", key: "settings", artwork: "settings", exact: false },
 ] as const;
 
@@ -40,7 +45,10 @@ export function MobileGameNavigation({
 }>): React.ReactNode {
   const pathname = usePathname();
   const t = useTranslations("Navigation");
-  const hidesNavigation = pathname.startsWith("/game/sessions/");
+  const hidesNavigation =
+    pathname.startsWith("/game/sessions/") ||
+    pathname === "/bible" ||
+    pathname.startsWith("/bible/");
   const hidesContextRail =
     pathname.startsWith("/admin") ||
     pathname === "/game/map" ||
@@ -94,10 +102,15 @@ export function MobileGameNavigation({
   return (
     <div className={styles.frame}>
       <DesktopContextRailProvider enabled={!hidesContextRail}>
-        <div className={cn(styles.shell, !hidesContextRail && styles.withContext)}>
+        <div
+          className={cn(styles.shell, !hidesContextRail && styles.withContext)}
+        >
           <PresenceHeartbeat />
           <PlayerTopBar summary={playerSummary} notifications={notifications} />
-          <aside className={styles.sidebar} aria-label={t("desktopPlayerNavigation")}>
+          <aside
+            className={styles.sidebar}
+            aria-label={t("desktopPlayerNavigation")}
+          >
             <Link
               href="/game"
               className={styles.logo}
@@ -121,7 +134,11 @@ export function MobileGameNavigation({
             </nav>
           </aside>
           <div className="min-w-0">{children}</div>
-          <nav className={styles.bottomNavigation} aria-label={t("playerNavigation")}>
+          <nav
+            data-player-bottom-navigation
+            className={styles.bottomNavigation}
+            aria-label={t("playerNavigation")}
+          >
             <ul>{renderNavigationItems(true)}</ul>
           </nav>
         </div>

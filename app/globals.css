@@ -244,6 +244,7 @@
   --color-decoration-border: var(--decoration-border);
   --color-overlay: var(--overlay);
   --color-image-overlay: var(--image-overlay);
+  --color-image-foreground: var(--image-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-sidebar: var(--sidebar);

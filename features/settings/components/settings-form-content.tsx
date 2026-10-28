@@ -4,7 +4,7 @@ import { useMemo, useRef, useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { AccessibilityIcon, SaveIcon, Undo2Icon, Volume2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SettingChangeIndicator } from "./setting-change-indicator";

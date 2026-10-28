@@ -4,7 +4,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Share2Icon, CopyIcon } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";

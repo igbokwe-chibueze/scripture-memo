@@ -684,3 +684,81 @@ Accepted risk justification (if applicable):
 - Local PostgreSQL integration tests cover account isolation, unavailable
   accounts, timezone boundaries, practice/admin separation, historical grant
   snapshots, mastery, league order and absence of read-time reward writes.
+
+### Bible reading and private annotations - 2026-10-22
+
+- Every Bible action validates bounded input with Zod, then independently checks
+  the server session. Identity is never accepted from the browser. Reads perform
+  no writes, locks, transactions or initialization; only deliberate annotation
+  changes write. Bible reading never changes learning rewards or progression.
+- Private marks use a composite owner/reference/edition key with cascading
+  account deletion. Atomic upserts change only bookmark or highlight, retaining
+  the other field under simultaneous requests. Chapter reads are bounded to 176
+  marks; library pages return 20 plus one look-ahead row.
+- Bible provider requests use a fixed HTTPS origin and locally allowlisted
+  translation/commentary/dataset IDs. Untrusted JSON is validated and rendered
+  as React text, never HTML. Timeouts and response-size limits fail safely.
+  Shared public search indexes have three fixed translation keys and no private
+  user data. No polling, credentials or hosted content-cache tables are added.
+- Playback URLs and document media-src share two exact vetted HTTPS origins:
+  audio.bible.helloao.org and openbible.com. These apply to the initial Game
+  document too because client navigation retains its CSP. connect-src stays
+  self-only; no wildcard or arbitrary media origin is permitted.
+- Disposable PostgreSQL tests passed for owner isolation, no read-time writes,
+  concurrent bookmark/highlight preservation, clears, pagination and cascade
+  deletion. Provider tests cover nullable fields, unsafe audio URL rejection,
+  missing entries and shared-index single-flight/literal search semantics.
+- Saved tags use bounded Zod-normalized Unicode label arrays (ten labels of up
+  to 32 characters), owner-derived canonical item keys, and parameterized SQL
+  containment predicates applied before pagination. Tag updates use updateMany
+  and cannot create missing saves or modify another account. Suggestions select
+  only the owner's active annotations/passages, capped at 200 distinct labels.
+  Removing annotations preserves remaining tags; omitted tags preserve concurrent
+  independent changes. Disposable tests cover ownership, filtering, clears,
+  idempotent re-saves and concurrent tag/highlight updates. The additive migration
+  preserves existing saves and adds array indexes. No hosted DB used for testing.
+
+### Reading-plan participation security (2026-10-28)
+
+- Strict allowlisted plan/operation input rejects identities, timestamps and progress
+  arrays. Actions validate before independent server session/role checks; repository
+  writes use only the authenticated account and server UTC timestamps.
+- Parameterized single-statement mutations enforce one activity update per UTC day
+  even under concurrent callers. Completion/start are idempotent; reset targets only
+  the selected account/plan. Account deletion cascades participation deletion.
+- One read-only eligibility snapshot returns total plus at most four public profile
+  summaries; no internal IDs, email, activity timestamps or private progress escape.
+  Banned/suspended accounts and blocks in either direction are excluded. No read-time
+  initialization, cleanup writes, polling, hosted test access or new reward path.
+- Disposable PostgreSQL tests cover concurrent batching, owner/plan isolation,
+  inactivity, completion/reset/undo, visibility exclusions and cascading deletion.
+
+### Bible audio fallback and plan playback review (2026-10-28)
+
+- Fallback audio uses the existing fixed-origin, bounded Zod provider pipeline and
+  approved HTTPS media origins. The audio-only Server Action validates before
+  session authorization and never reads marks or accepts account identity.
+- BSB fallback requires explicit session consent; text edition remains unchanged
+  and the mismatch stays visible. Browser playback rejection is caught safely.
+- Only explicit plan provenance permits ended media events to update device-only
+  completion. Traversal follows the immutable assigned schedule and stops at rest
+  days. No listening action grants gameplay rewards or modifies another plan.
+- Minimize/unmount invalidates pending play requests and pauses media; minimizing
+  retains its position in memory. Autoplay preference remains local. No new
+  recurring server query, database migration or hosted test operation is added.
+
+### Persistent Bible audio lifecycle review (2026-10-28)
+
+- The protected layout keys its media provider by a hash of the already-loaded
+  server session identity. Leaving the protected layout/logout stops media; account
+  changes invalidate deferred work before it can affect the next account's UI.
+- Dismissal and explicit recording changes invalidate in-flight audio fetches.
+  Late results cannot resurrect a dismissed player or publish stale navigation.
+  Provider URLs retain the existing validated HTTPS allowlist and CSP.
+- Cross-component navigation events validate canonical references, plan assignment
+  and actual rest days with Zod. Explicit mini return carries plan provenance;
+  unrelated/shared matching references never inherit completion permissions.
+- Background plan progress remains device-only, independent of rewards and other
+  plans. Only the minimal account participation intent uses the existing at-most-
+  daily batching. Audio-only advancement avoids private annotation queries, with
+  no new table, polling, hosted test operation or added session lookup per render.

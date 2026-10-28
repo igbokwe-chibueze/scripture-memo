@@ -1,0 +1,280 @@
+/**
+ * Private mark ownership and concurrent upsert integrity on a disposable local
+ * PostgreSQL instance. Run through the --bible embedded runner. The normal dev
+ * URL is never used for fixtures; cleanup deletes only this run's random users.
+ */
+import "dotenv/config";
+import assert from "node:assert/strict";
+import { randomUUID } from "node:crypto";
+import test from "node:test";
+import { requireSafeTestDatabaseUrl } from "@/lib/testing/test-database-guard";
+
+test("Bible marks are private, idempotent, paginated and preserve concurrent independent changes", async () => {
+  process.env.DATABASE_URL = requireSafeTestDatabaseUrl({
+    applicationDatabaseUrl: process.env.DATABASE_URL,
+    testDatabaseUrl: process.env.TEST_DATABASE_URL,
+    confirmation: process.env.TEST_DATABASE_CONFIRMATION,
+  });
+  const { prisma } = await import("@/lib/prisma");
+  const { bibleRepository } = await import("./bible.repository");
+  const owner = randomUUID();
+  const other = randomUUID();
+  const reference = {
+    book: "GEN",
+    chapter: 1,
+    verse: 3,
+    translation: "KJV" as const,
+  };
+  try {
+    await prisma.user.createMany({
+      data: [owner, other].map((id) => ({
+        id,
+        name: "Bible fixture",
+        email: `${id}@example.test`,
+      })),
+    });
+    assert.deepEqual(await bibleRepository.chapterMarks(owner, reference), []);
+    assert.equal(
+      await prisma.bibleVerseMark.count({ where: { userId: owner } }),
+      0,
+      "Reads never initialize annotations.",
+    );
+    // Repeated concurrent writes must produce one row and preserve both fields.
+    await Promise.all([
+      bibleRepository.setMark(owner, {
+        ...reference,
+        operation: "bookmark",
+        bookmarked: true,
+      }),
+      bibleRepository.setMark(owner, {
+        ...reference,
+        operation: "highlight",
+        highlight: "gold",
+      }),
+    ]);
+    const marks = await bibleRepository.chapterMarks(owner, reference);
+    assert.equal(marks.length, 1);
+    assert.equal(marks[0].bookmarked, true);
+    assert.equal(marks[0].highlight, "gold");
+    assert.deepEqual(await bibleRepository.chapterMarks(other, reference), []);
+    assert.deepEqual(
+      (await bibleRepository.saved(other, { page: 1, filter: "all" })).marks,
+      [],
+    );
+    await bibleRepository.setMark(owner, {
+      ...reference,
+      operation: "bookmark",
+      bookmarked: false,
+    });
+    assert.equal(
+      (await bibleRepository.saved(owner, { page: 1, filter: "bookmarks" }))
+        .marks.length,
+      0,
+    );
+    assert.equal(
+      (await bibleRepository.saved(owner, { page: 1, filter: "highlights" }))
+        .marks.length,
+      1,
+    );
+    await bibleRepository.setMark(owner, {
+      ...reference,
+      operation: "highlight",
+      highlight: null,
+    });
+    assert.equal(
+      (await bibleRepository.saved(owner, { page: 1, filter: "all" })).marks
+        .length,
+      0,
+    );
+    for (let verse = 1; verse <= 22; verse += 1) {
+      await bibleRepository.setMark(owner, {
+        ...reference,
+        verse,
+        operation: "bookmark",
+        bookmarked: true,
+      });
+    }
+    const first = await bibleRepository.saved(owner, {
+      page: 1,
+      filter: "all",
+    });
+    const second = await bibleRepository.saved(owner, {
+      page: 2,
+      filter: "all",
+    });
+    assert.equal(first.marks.length, 20);
+    assert.equal(first.hasNext, true);
+    assert.equal(second.marks.length, 2);
+    assert.equal(second.hasNext, false);
+    assert.equal(
+      new Set([...first.marks, ...second.marks].map((mark) => mark.verse)).size,
+      22,
+    );
+    // A chapter save is one row even with repeated concurrent requests. Another
+    // account cannot see/remove it, and no verse annotation is fanned out.
+    const whole = { ...reference, selection: "chapter" as const, saved: true };
+    await Promise.all(
+      Array.from({ length: 4 }, () => bibleRepository.setPassage(owner, whole)),
+    );
+    await bibleRepository.setPassage(other, { ...whole, saved: false });
+    assert.equal(
+      await prisma.bibleSavedPassage.count({ where: { userId: owner } }),
+      1,
+    );
+    assert.equal(
+      await prisma.bibleVerseMark.count({ where: { userId: owner } }),
+      22,
+    );
+    assert.equal(
+      (await bibleRepository.saved(other, { page: 1, filter: "passages" }))
+        .marks.length,
+      0,
+    );
+    assert.equal(
+      (await bibleRepository.saved(owner, { page: 1, filter: "passages" }))
+        .marks[0].selection,
+      "chapter",
+    );
+    await bibleRepository.setPassage(owner, {
+      ...reference,
+      selection: [1, 3, 5],
+      saved: true,
+    });
+    const mixedFirst = await bibleRepository.saved(owner, {
+      page: 1,
+      filter: "all",
+    });
+    const mixedSecond = await bibleRepository.saved(owner, {
+      page: 2,
+      filter: "all",
+    });
+    assert.equal(mixedFirst.marks.length, 20);
+    assert.equal(mixedSecond.marks.length, 4);
+    assert.equal(
+      new Set(
+        [...mixedFirst.marks, ...mixedSecond.marks].map((entry) =>
+          JSON.stringify([entry.verse, entry.selection]),
+        ),
+      ).size,
+      24,
+    );
+    assert.equal(
+      (await bibleRepository.saved(owner, { page: 1, filter: "highlights" }))
+        .marks.length,
+      0,
+    );
+    await bibleRepository.setPassage(owner, { ...whole, saved: false });
+    assert.deepEqual(
+      (await bibleRepository.saved(owner, { page: 1, filter: "passages" }))
+        .marks[0].selection,
+      [1, 3, 5],
+    );
+    // Tag updates never create saves, leak across owners, or overwrite an
+    // independent annotation. Filtering applies before the UNION pagination.
+    assert.equal(
+      await bibleRepository.setTags(other, { ...reference, tags: ["private"] }),
+      false,
+    );
+    assert.equal(
+      await bibleRepository.setTags(owner, {
+        ...reference,
+        tags: ["faith", "prayer"],
+      }),
+      true,
+    );
+    assert.deepEqual(await bibleRepository.itemTags(owner, reference), [
+      "faith",
+      "prayer",
+    ]);
+    assert.deepEqual(await bibleRepository.itemTags(other, reference), []);
+    await bibleRepository.setPassage(owner, { ...whole, tags: ["faith"] });
+    const tagged = await bibleRepository.saved(owner, {
+      page: 1,
+      filter: "all",
+      tag: "faith",
+    });
+    assert.equal(tagged.marks.length, 2);
+    assert.ok(tagged.marks.every((item) => item.tags?.includes("faith")));
+    assert.equal(
+      (
+        await bibleRepository.saved(owner, {
+          page: 1,
+          filter: "bookmarks",
+          tag: "faith",
+        })
+      ).marks.length,
+      1,
+    );
+    assert.equal(
+      (
+        await bibleRepository.saved(owner, {
+          page: 1,
+          filter: "passages",
+          tag: "faith",
+        })
+      ).marks.length,
+      1,
+    );
+    assert.equal(
+      (
+        await bibleRepository.saved(other, {
+          page: 1,
+          filter: "all",
+          tag: "faith",
+        })
+      ).marks.length,
+      0,
+    );
+    assert.deepEqual(await bibleRepository.tags(owner), ["faith", "prayer"]);
+    assert.deepEqual(await bibleRepository.tags(other), []);
+    // Omitted tags on a repeated save preserve the saved label set.
+    await bibleRepository.setPassage(owner, whole);
+    assert.deepEqual(await bibleRepository.itemTags(owner, whole), ["faith"]);
+    await Promise.all([
+      bibleRepository.setTags(owner, { ...reference, tags: ["hope"] }),
+      bibleRepository.setMark(owner, {
+        ...reference,
+        operation: "highlight",
+        highlight: "gold",
+      }),
+    ]);
+    const changed = (await bibleRepository.chapterMarks(owner, reference)).find(
+      (item) => item.verse === reference.verse,
+    )!;
+    assert.deepEqual(changed.tags, ["hope"]);
+    assert.equal(changed.highlight, "gold");
+    await bibleRepository.setMark(owner, {
+      ...reference,
+      operation: "bookmark",
+      bookmarked: false,
+      tags: ["stale"],
+    });
+    assert.deepEqual(await bibleRepository.itemTags(owner, reference), [
+      "hope",
+    ]);
+    await bibleRepository.setTags(owner, { ...reference, tags: [] });
+    assert.equal(
+      (
+        await bibleRepository.saved(owner, {
+          page: 1,
+          filter: "all",
+          tag: "hope",
+        })
+      ).marks.length,
+      0,
+    );
+    await prisma.user.deleteMany({ where: { id: owner } });
+    assert.equal(
+      await prisma.bibleSavedPassage.count({ where: { userId: owner } }),
+      0,
+    );
+    assert.equal(
+      await prisma.bibleVerseMark.count({ where: { userId: owner } }),
+      0,
+      "Account deletion cascades private marks.",
+    );
+  } finally {
+    await prisma.user.deleteMany({ where: { id: { in: [owner, other] } } });
+    await prisma.$disconnect();
+  }
+});

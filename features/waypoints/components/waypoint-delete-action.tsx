@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { Trash2 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { ConfirmationDialog } from "@/components/shared/confirmation-dialog";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";

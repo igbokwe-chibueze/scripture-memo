@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { CopyIcon, LinkIcon, Share2Icon, UserPlusIcon } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 

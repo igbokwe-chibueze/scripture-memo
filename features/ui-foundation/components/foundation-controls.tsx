@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { BellRingIcon, TimerResetIcon } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 import { ConfirmationDialog } from "@/components/shared/confirmation-dialog";
 import { CountdownTimer } from "@/components/shared/countdown-timer";

@@ -19,7 +19,7 @@ import {
   Volume2Icon,
   VolumeXIcon,
 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,

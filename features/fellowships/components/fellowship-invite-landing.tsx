@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Clock3Icon, LogInIcon, ShieldCheckIcon, SparklesIcon, UserPlusIcon, UsersRoundIcon, XIcon } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { BadgeUnlockSequence } from "@/features/badges";
 import { NavigationButton } from "@/components/shared/navigation-button";
 import { Button } from "@/components/ui/button";

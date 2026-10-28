@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { FlaskConicalIcon, PlayIcon, ShieldCheckIcon } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { showActionError } from "@/lib/errors/show-action-error";

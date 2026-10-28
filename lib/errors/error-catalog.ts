@@ -25,6 +25,7 @@ export type ErrorFeature =
   | "Streaks"
   | "Badges"
   | "Vault"
+  | "Bible"
   | "Oil Shop"
   | "Fellowships"
   | "Leaderboards"
@@ -40,6 +41,26 @@ export type ErrorFeature =
  * in the browser after the ADMIN page verifies authorization.
  */
 export const ERROR_CATALOG = [
+  {
+    code: "BIB-001",
+    title: "Bible resource unavailable",
+    feature: "Bible",
+    userMessage: "The Bible resource could not load. Please try again.",
+    explanation: "Bible reading, study or search could not complete its authenticated resource request.",
+    commonCauses: ["The content provider is temporarily unavailable.", "A resource response failed validation.", "The private chapter annotations could not be read."],
+    examples: ["A commentary request times out while opening a verse."],
+    solutions: ["Retry the resource.", "Check the configured provider's status and validate its response format."],
+  },
+  {
+    code: "BIB-002",
+    title: "Bible library unavailable",
+    feature: "Bible",
+    userMessage: "Your saved verses could not be updated or loaded. Please try again.",
+    explanation: "The authenticated player's bookmark or highlight operation could not complete.",
+    commonCauses: ["The database is temporarily unavailable.", "The Bible annotation migration has not been applied."],
+    examples: ["A bookmark save fails during a temporary database outage."],
+    solutions: ["Retry the operation.", "Check database health and apply the Bible annotation migration through the normal release process."],
+  },
   {
     code: "BLG-001",
     title: "Article changed while editing",
@@ -389,6 +410,26 @@ export const ERROR_CATALOG = [
     commonCauses: ["A temporary connection failure.", "A database transaction could not finish."],
     examples: ["The connection drops while accepting a friend request."],
     solutions: ["Refresh to confirm the current state, then retry if needed."],
+  },
+  {
+    code: "BRP-001",
+    title: "Reading plan participation could not sync",
+    feature: "Bible",
+    userMessage: "Your reading progress is saved on this device, but participation could not sync.",
+    explanation: "The account's minimal plan participation record could not be updated. Device chapter progress is unaffected.",
+    commonCauses: ["A temporary connection failure.", "The participation migration has not been deployed."],
+    examples: ["Marking a chapter succeeds locally while the network is offline."],
+    solutions: ["Reconnect and retry the participation update.", "Apply checked-in migrations during deployment."],
+  },
+  {
+    code: "BRP-002",
+    title: "Reading plan participants unavailable",
+    feature: "Bible",
+    userMessage: "People on this plan could not be loaded. Please try again.",
+    explanation: "The bounded avatar preview and active participant count could not be read.",
+    commonCauses: ["A temporary database connection failure.", "The participation migration has not been deployed."],
+    examples: ["The plan opens but its avatar stack cannot load."],
+    solutions: ["Retry the preview.", "Check database availability and migration status."],
   },
 ] as const satisfies readonly ErrorCatalogEntry[];
 

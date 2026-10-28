@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { CircleAlertIcon, DownloadIcon, MailCheckIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";

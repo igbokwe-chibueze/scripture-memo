@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { SaveIcon, ShieldCheckIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";

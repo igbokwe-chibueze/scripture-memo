@@ -2087,3 +2087,43 @@ including practice, and lifetime progress/gameplay/Beacon/badge/reward/inventory
 summaries. Reuses existing history with two read-only aggregate queries per page
 request; no migration, polling or additional gameplay writes. Month/day browsing
 is local. English, Spanish and French labels follow the existing design system.
+
+### Bible reading and study extension (2026-10-22)
+
+Owner approved the full Bible home/books/reader/saved concept with KJV, WEB and
+BSB; selectable named commentaries, original-language lexicons, cross-references,
+full-text search, chapter tabs, text sizing, sharing, account bookmarks/highlights
+and BSB chapter audio. The reader has its own navigation. Bible Home now uses
+the five supplied illustrations; testament book lists also use the ten supplied
+group illustrations. Private annotations are independent of Vault/curriculum
+and never affect learning rewards or statistics.
+
+Mobile study uses top tabs while desktop retains side-by-side panels. Explicit
+chapter/verse-set saves create one account-owned entry per selection; sharing
+exact references needs no database writes. The Saved library combines grouped
+passages with existing bookmarks/highlights in one bounded page query.
+
+TODO: matching KJV/WEB audio through a second provider, deferred explicitly by
+the owner. No credentials are required for the implemented Free Use Bible API.
+
+### Reading-plan participation preview (2026-10-28)
+
+Implemented the approved hybrid: detailed progress stays on-device; minimal account
+participation supports four avatars plus overflow on plan details, a 30-day activity
+cutoff, completion/reset exclusion, and at-most-daily activity writes. Failed explicit
+changes queue locally for retry; ordinary views never enroll and no polling is added.
+
+### Bible audio and guided plan playback (2026-10-28)
+
+Implemented explicit labelled BSB fallback for unavailable editions, paused
+in-memory resume when minimizing, and plan-only locally remembered autoplay.
+Finished audio completes its assigned chapter, advances in schedule order and
+stops at rest days; ordinary Bible listening never marks plan completion.
+
+### Persistent Bible audio (2026-10-28)
+
+Completed the shared protected-layout media session and cross-route mini player.
+Books/Explore listening continues without plan completion; plan listening advances
+and records local progress in the background, stopping at rest boundaries. Mini
+return preserves source/position and explicit plan provenance; dismiss/logout/
+account change stop playback and invalidate pending loads.

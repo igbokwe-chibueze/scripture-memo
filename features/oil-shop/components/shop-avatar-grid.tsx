@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { useState, useTransition, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { GlowGem } from "@/components/shared/game-artwork";
