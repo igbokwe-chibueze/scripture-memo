@@ -6233,3 +6233,13 @@ concurrency subtests remain explicitly skipped as documented above.
   start, daily batching, completion/reset and failed-update retry all pass.
   TypeScript and scoped ESLint pass. Refresh both devices and explicitly reopen
   a plan chapter to enroll previously missed starts; no read-time writes added.
+
+### 2026-10-28 - Bible route skeleton alignment
+
+- Replaced the generic four-row Bible fallback with the current Home composition:
+  matching header/avatar/search footprints, split hero, paired book/plan/topic card
+  proportions, compact closed verse picker and fixed three-item dock placeholders.
+- Uses semantic Skeleton primitives, reduced-motion overrides and one accessible
+  loading status. No account reads or interactive placeholder controls added.
+- Verified 375/1280 light/dark in offline hidden Edge with no horizontal overflow;
+  TypeScript and scoped ESLint pass. Changes remain unstaged.
