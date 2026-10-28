@@ -16,7 +16,7 @@ import { useTranslations } from "next-intl";
 import { ChevronRightIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BIBLE_TOPICS } from "../data/bible-catalog";
-import { BibleIllustratedCard } from "./bible-illustrated-card";
+import { BibleTopicCard } from "./bible-topic-card";
 
 const TOPIC_COUNT = BIBLE_TOPICS.length;
 const LOOP_TOPICS = [...BIBLE_TOPICS, ...BIBLE_TOPICS, ...BIBLE_TOPICS];
@@ -199,15 +199,7 @@ export function BibleTopicCarousel({
                   : `min-w-0 shrink-0 basis-[calc(50%-0.375rem)] snap-center transition-transform duration-300 motion-reduce:scale-100 motion-reduce:transition-none ${position === centred ? "scale-[1.03]" : "scale-[0.97]"}`
               }
             >
-              <BibleIllustratedCard
-                title={t(`topics.${item.id}`)}
-                subtitle={t(`topicDescriptions.${item.id}`)}
-                src={`/images/bible/topic-${index % 2 === 0 ? "traveller" : "sheep"}.png`}
-                compactTitle
-                imagePosition={index % 2 === 0 ? "center 12%" : "center 100%"}
-                onClick={() => onOpen(item)}
-                className="aspect-[1.125]"
-              />
+              <BibleTopicCard topicId={item.id} onOpen={() => onOpen(item)} />
             </div>
           );
         })}

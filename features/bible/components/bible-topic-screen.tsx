@@ -2,11 +2,12 @@
 
 /** Topic detail uses the same in-workspace navigation as books and plans.
  * References are approved static data; only opening a passage loads scripture. */
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { ChevronRightIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { BIBLE_BOOKS, BIBLE_TOPICS } from "../data/bible-catalog";
+import { BIBLE_BOOKS } from "../data/bible-catalog";
+import { bibleTopicColour } from "../lib/bible-topic-colour";
+import { BibleTopicTexture } from "./bible-topic-texture";
 import { BibleBookThumbnail } from "./bible-book-thumbnail";
 import { bibleReferenceLabel } from "../lib/bible-reference";
 import type { BibleReference } from "../schemas/bible.schema";
@@ -23,23 +24,17 @@ export function BibleTopicScreen({
   onOpen: (reference: BibleReference) => void;
 }): React.ReactNode {
   const t = useTranslations("Bible");
-  const index = BIBLE_TOPICS.findIndex((item) => item.id === topic.id);
   return (
     <section className="mx-auto max-w-4xl space-y-4">
-      <h1 className="font-heading text-4xl sm:text-5xl">
-        {t(`topics.${topic.id}`)}
-      </h1>
-      <p className="text-muted-foreground">
-        {t(`topicDescriptions.${topic.id}`)}
-      </p>
-      <div className="relative aspect-[2/1] overflow-hidden rounded-card sm:aspect-[3/1]">
-        <Image
-          src={`/images/bible/topic-${index % 2 === 0 ? "traveller" : "sheep"}.png`}
-          alt=""
-          fill
-          sizes="(min-width:1024px) 896px, 100vw"
-          className="object-cover"
-        />
+      <div
+        style={bibleTopicColour(topic.id)}
+        className="relative isolate flex min-h-44 flex-col justify-center gap-3 overflow-hidden rounded-card p-5 sm:min-h-56 sm:p-7"
+      >
+        <BibleTopicTexture topicId={topic.id} />
+        <h1 className="relative z-10 font-heading text-4xl sm:text-5xl">
+          {t(`topics.${topic.id}`)}
+        </h1>
+        <p className="relative z-10">{t(`topicDescriptions.${topic.id}`)}</p>
       </div>
       <div className="space-y-3">
         {topic.passages.map((passage) => {

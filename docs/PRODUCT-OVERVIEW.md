@@ -1465,8 +1465,15 @@ Reflection space shown after completing Radiance or as a standalone destination.
 - Authenticated `/bible` is a standalone reading space with Home, Read and
   Saved navigation and a Back to game link. It retains the approved fonts,
   semantic light/dark theme and shared tactile controls. Home uses the
-  owner-supplied open-Bible hero, Old/New Testament artwork and alternating
-  traveller/sheep topic illustrations on Home. Testament book lists use the
+  owner-supplied open-Bible hero and Old/New Testament artwork. Explore Scripture
+  packs use theme colours with repeating watercolor-paper texture instead of
+  scene illustrations, with titles and
+  descriptions. A deterministic ID hash assigns new packs a stable pseudo-random
+  paired background/foreground colour without persistence or render-time randomness;
+  the same identity colours its detail header and carousel copies. A shared
+  monochrome SVG supplies pigment mottling, paper grain and soft washes with
+  stable per-pack offsets, leaving text above the texture for readability.
+  Testament book lists use the
   matching wide header and the ten supplied category illustrations as book
   thumbnails, with category counts, local search and expandable chapter grids.
   Acts uses its own history artwork, distinct from Old Testament history.

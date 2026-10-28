@@ -10,6 +10,7 @@ import {
   ChevronRightIcon,
   MoreHorizontalIcon,
   MapPinIcon,
+  BookmarkIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -572,7 +573,10 @@ export function BibleReader({
                                     className="ml-2 text-sm text-primary"
                                     aria-label={t("bookmarked")}
                                   >
-                                    ◆
+                                    <BookmarkIcon
+                                      aria-hidden="true"
+                                      className="inline-block size-3.5 fill-current align-baseline"
+                                    />
                                   </span>
                                 )}
                               </button>
