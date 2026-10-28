@@ -411,6 +411,26 @@ export const ERROR_CATALOG = [
     examples: ["The connection drops while accepting a friend request."],
     solutions: ["Refresh to confirm the current state, then retry if needed."],
   },
+  {
+    code: "BRP-001",
+    title: "Reading plan participation could not sync",
+    feature: "Bible",
+    userMessage: "Your reading progress is saved on this device, but participation could not sync.",
+    explanation: "The account's minimal plan participation record could not be updated. Device chapter progress is unaffected.",
+    commonCauses: ["A temporary connection failure.", "The participation migration has not been deployed."],
+    examples: ["Marking a chapter succeeds locally while the network is offline."],
+    solutions: ["Reconnect and retry the participation update.", "Apply checked-in migrations during deployment."],
+  },
+  {
+    code: "BRP-002",
+    title: "Reading plan participants unavailable",
+    feature: "Bible",
+    userMessage: "People on this plan could not be loaded. Please try again.",
+    explanation: "The bounded avatar preview and active participant count could not be read.",
+    commonCauses: ["A temporary database connection failure.", "The participation migration has not been deployed."],
+    examples: ["The plan opens but its avatar stack cannot load."],
+    solutions: ["Retry the preview.", "Check database availability and migration status."],
+  },
 ] as const satisfies readonly ErrorCatalogEntry[];
 
 export type AppErrorCode = (typeof ERROR_CATALOG)[number]["code"];

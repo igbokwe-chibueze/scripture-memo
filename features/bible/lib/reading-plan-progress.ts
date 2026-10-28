@@ -2,6 +2,7 @@
  * The versioned key isolates this immutable schedule from future plan revisions.
  */
 import { z } from "zod";
+import { notifyReadingPlanParticipation } from "./reading-plan-participation-events";
 import {
   NEW_TESTAMENT_READING_DAYS,
   type PlanChapter,
@@ -173,6 +174,15 @@ export function updateReadingPlanProgress(
   });
   window.localStorage.setItem(KEYS[planId], JSON.stringify(value));
   window.dispatchEvent(new Event(EVENT));
+  notifyReadingPlanParticipation({
+    planId,
+    operation:
+      day === undefined
+        ? "start"
+        : value.completedDays.length === READING_PLANS[planId].days.length
+          ? "complete"
+          : "activity",
+  });
 }
 
 /** Explicit confirmed reset removes only this plan's local record. Notify after
@@ -183,6 +193,7 @@ export function resetReadingPlanProgress(
 ): void {
   window.localStorage.removeItem(KEYS[planId]);
   window.dispatchEvent(new Event(EVENT));
+  notifyReadingPlanParticipation({ planId, operation: "reset" });
 }
 
 /** Same-tab edits and other-tab storage events refresh UI without polling. */
@@ -247,4 +258,9 @@ export function updateReadingPlanChapter(
   });
   window.localStorage.setItem(KEYS[planId], JSON.stringify(value));
   window.dispatchEvent(new Event(EVENT));
+  notifyReadingPlanParticipation({
+    planId,
+    operation:
+      completedDays.length === plan.days.length ? "complete" : "activity",
+  });
 }

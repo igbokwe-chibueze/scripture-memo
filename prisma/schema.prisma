@@ -258,6 +258,7 @@ model User {
   favoriteVerses             UserFavoriteVerse[]
   bibleMarks                 BibleVerseMark[]
   biblePassages              BibleSavedPassage[]
+  readingPlanParticipation   ReadingPlanParticipation[]
   versesCreated              Verse[]                        @relation("VerseCreator")
   badgesCreated              Badge[]                        @relation("BadgeCreator")
   shopItemsCreated           ShopItem[]                     @relation("ShopItemCreator")
@@ -312,6 +313,20 @@ model BibleSavedPassage {
   @@id([userId, book, chapter, translation, selectionKey])
   @@index([userId, updatedAt(sort: Desc)])
   @@index([tags], type: Gin)
+}
+
+// Minimal social participation only; chapter/day completion remains device-only.
+// A rolling activity cutoff excludes inactive accounts without scheduled writes.
+model ReadingPlanParticipation {
+  userId       String
+  planId       String
+  startedAt    DateTime @default(now())
+  lastActiveAt DateTime @default(now())
+  completedAt  DateTime?
+  user         User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, planId])
+  @@index([planId, completedAt, lastActiveAt(sort: Desc)])
 }
 
 model UserProfile {

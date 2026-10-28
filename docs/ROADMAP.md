@@ -2105,3 +2105,10 @@ passages with existing bookmarks/highlights in one bounded page query.
 
 TODO: matching KJV/WEB audio through a second provider, deferred explicitly by
 the owner. No credentials are required for the implemented Free Use Bible API.
+
+### Reading-plan participation preview (2026-10-28)
+
+Implemented the approved hybrid: detailed progress stays on-device; minimal account
+participation supports four avatars plus overflow on plan details, a 30-day activity
+cutoff, completion/reset exclusion, and at-most-daily activity writes. Failed explicit
+changes queue locally for retry; ordinary views never enroll and no polling is added.

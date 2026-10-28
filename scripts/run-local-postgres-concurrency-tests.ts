@@ -61,7 +61,10 @@ const CONCURRENCY_TEST_FILES = [
 // Bible annotations also require multiple real connections to prove simultaneous
 // bookmark/highlight upserts preserve each other, without touching dev fixtures.
 const selectedTestFiles = process.argv.includes("--bible")
-  ? ["features/bible/repositories/bible.repository.test.ts"]
+  ? [
+      "features/bible/repositories/bible.repository.test.ts",
+      "features/bible/repositories/reading-plan-participation.repository.test.ts",
+    ]
   : process.argv.includes("--social")
     ? ["features/friends/repositories/friend.repository.test.ts"]
     : CONCURRENCY_TEST_FILES;
@@ -76,7 +79,9 @@ async function findAvailableLoopbackPort(): Promise<number> {
       const address = server.address();
       if (!address || typeof address === "string") {
         server.close();
-        rejectPort(new Error("Could not reserve a local PostgreSQL test port."));
+        rejectPort(
+          new Error("Could not reserve a local PostgreSQL test port."),
+        );
         return;
       }
 
@@ -101,16 +106,12 @@ async function runNodeScript(
   const tsxCliPath = resolve("node_modules/tsx/dist/cli.mjs");
 
   await new Promise<void>((resolveCommand, rejectCommand) => {
-    const child = spawn(
-      process.execPath,
-      [tsxCliPath, ...scriptArguments],
-      {
-        cwd: process.cwd(),
-        env: environment,
-        shell: false,
-        stdio: "inherit",
-      },
-    );
+    const child = spawn(process.execPath, [tsxCliPath, ...scriptArguments], {
+      cwd: process.cwd(),
+      env: environment,
+      shell: false,
+      stdio: "inherit",
+    });
 
     child.once("error", () => {
       rejectCommand(new Error(`Could not start ${label}.`));
@@ -122,7 +123,9 @@ async function runNodeScript(
         return;
       }
 
-      const reason = signal ? `signal ${signal}` : `exit code ${code ?? "unknown"}`;
+      const reason = signal
+        ? `signal ${signal}`
+        : `exit code ${code ?? "unknown"}`;
       rejectCommand(new Error(`${label} failed with ${reason}.`));
     });
   });
@@ -132,9 +135,10 @@ async function runNodeScript(
 function assertOwnedTemporaryDirectory(path: string): void {
   const resolvedPath = resolve(path);
   const resolvedTempRoot = resolve(tmpdir());
-  const sameTemporaryRoot = process.platform === "win32"
-    ? dirname(resolvedPath).toLowerCase() === resolvedTempRoot.toLowerCase()
-    : dirname(resolvedPath) === resolvedTempRoot;
+  const sameTemporaryRoot =
+    process.platform === "win32"
+      ? dirname(resolvedPath).toLowerCase() === resolvedTempRoot.toLowerCase()
+      : dirname(resolvedPath) === resolvedTempRoot;
 
   if (
     !sameTemporaryRoot ||
@@ -186,10 +190,10 @@ async function runLocalConcurrencyTests(): Promise<void> {
   }
 
   const applicationUrl = new URL(applicationDatabaseUrl);
-  if (
-    !["localhost", "127.0.0.1", "[::1]"].includes(applicationUrl.hostname)
-  ) {
-    throw new Error("The application DATABASE_URL must point to a local database.");
+  if (!["localhost", "127.0.0.1", "[::1]"].includes(applicationUrl.hostname)) {
+    throw new Error(
+      "The application DATABASE_URL must point to a local database.",
+    );
   }
 
   const port = await findAvailableLoopbackPort();
@@ -237,7 +241,9 @@ async function runLocalConcurrencyTests(): Promise<void> {
   let runError: unknown;
 
   try {
-    console.info("Preparing a disposable local PostgreSQL concurrency test database…");
+    console.info(
+      "Preparing a disposable local PostgreSQL concurrency test database…",
+    );
     await postgres.initialise();
     await postgres.start();
     serverStarted = true;
@@ -249,15 +255,16 @@ async function runLocalConcurrencyTests(): Promise<void> {
       // Node's test runner starts worker processes. NODE_OPTIONS carries the
       // React Server Component export condition into those workers as well as
       // the initial tsx process, so `server-only` resolves to its server entry.
-      NODE_OPTIONS: [
-        process.env.NODE_OPTIONS,
-        "--conditions=react-server",
-      ].filter(Boolean).join(" "),
+      NODE_OPTIONS: [process.env.NODE_OPTIONS, "--conditions=react-server"]
+        .filter(Boolean)
+        .join(" "),
       TEST_DATABASE_URL: testDatabaseUrl,
       TEST_DATABASE_CONFIRMATION,
     };
 
-    console.info("Applying checked-in migrations to the disposable test database…");
+    console.info(
+      "Applying checked-in migrations to the disposable test database…",
+    );
     await runNodeScript(
       "the test database migration command",
       ["scripts/migrate-local-test-database.ts"],
@@ -266,11 +273,7 @@ async function runLocalConcurrencyTests(): Promise<void> {
 
     for (const testFile of selectedTestFiles) {
       console.info(`Running ${testFile}…`);
-      await runNodeScript(
-        testFile,
-        ["--test", testFile],
-        testEnvironment,
-      );
+      await runNodeScript(testFile, ["--test", testFile], testEnvironment);
     }
 
     console.info("All local PostgreSQL concurrency integration suites passed.");
@@ -303,7 +306,9 @@ async function runLocalConcurrencyTests(): Promise<void> {
 
     if (cleanupError) {
       if (runError) {
-        console.error("The test run failed and temporary database cleanup also failed.");
+        console.error(
+          "The test run failed and temporary database cleanup also failed.",
+        );
       } else {
         runError = cleanupError;
       }
@@ -316,9 +321,10 @@ async function runLocalConcurrencyTests(): Promise<void> {
 }
 
 runLocalConcurrencyTests().catch((error: unknown) => {
-  const message = error instanceof Error
-    ? error.message
-    : "Unknown local PostgreSQL concurrency test failure.";
+  const message =
+    error instanceof Error
+      ? error.message
+      : "Unknown local PostgreSQL concurrency test failure.";
   console.error(`Local concurrency tests failed: ${message}`);
   process.exitCode = 1;
 });

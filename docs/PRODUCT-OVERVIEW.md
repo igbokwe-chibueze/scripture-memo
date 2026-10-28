@@ -2566,3 +2566,24 @@ The application is production-ready when:
   include waiting; missing historical durations remain unavailable rather than
   fabricated. Streaks retain the existing progression rules; practice activity
   on the calendar does not change those rules.
+
+### Reading-plan participant previews (2026-10-28)
+
+- Detailed chapter/day progress remains device-only. An account-owned participation
+  row stores only plan ID, start, last activity and completion timestamps, never
+  completed chapter arrays. Explicit chapter opening starts participation; marking
+  progress refreshes activity at most once per UTC day. Completion excludes the
+  account, reset removes that plan's row, and undoing completion resumes it.
+- Plan details display four current public avatars and an overflow count. Current
+  means unfinished with activity within 30 days; merely opening the overview does
+  not enroll or refresh activity. Existing local plans enroll on an explicit reading
+  action. Accounts hidden by bans, suspension or bilateral blocks are excluded.
+- One summary query runs per detail mount or explicit successful participation
+  change while that preview is mounted; there is no polling or scheduled cleanup.
+  Normal activity costs at most one participation mutation per active plan/day,
+  plus explicit start, completion or reset transitions. Session authorization may
+  add its existing request cost. SQL also prevents same-day duplicate writes.
+- Account-scoped browser metadata batches activity and queues failed explicit
+  intents for online/manual retry. Device reading progress remains usable if
+  participation syncing fails. This is participation visibility, not live presence
+  or cross-device progress synchronization.

@@ -1,5 +1,17 @@
 {
   "ReadingPlans": {
+    "participantsCount": "{count, plural, one {# person currently on this plan} other {# people currently on this plan}}",
+    "participantsMore": "{count} more people",
+    "participantsLabel": "People currently on this plan",
+    "participantsEmpty": "Be the first to join this plan.",
+    "participantsLoading": "Loading people on this plan",
+    "participantsUnavailable": "People on this plan are unavailable.",
+    "participationInvalid": "Choose a valid reading plan.",
+    "participationAuth": "Please sign in to update plan participation.",
+    "participationUpdated": "Plan participation updated.",
+    "participationFailed": "Your reading progress is saved on this device, but participation could not sync.",
+    "participationPending": "Your progress is safe on this device. A participation update is waiting to sync.",
+    "retryParticipation": "Retry",
     "planDuration": "{days} days · {books} books",
     "oldTestamentIntro": "Follow the story, one day at a time.",
     "oldTestamentDescription": "Follow the Old Testament as a connected story: creation and covenant, rescue, life in the land, kings and prophets, exile, return and hope. Some placements are thematic rather than firm historical dates; parallel accounts remain distinct readings.",

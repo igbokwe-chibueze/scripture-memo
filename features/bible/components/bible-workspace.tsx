@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { GameArtwork } from "@/components/shared/game-artwork";
 import { PlayerAvatar } from "@/features/profile";
 import { BibleHome } from "./bible-home";
+import { useReadingPlanParticipationSync } from "../hooks/use-reading-plan-participation-sync";
 import { BibleTopicScreen } from "./bible-topic-screen";
 import type { BibleTopic } from "./bible-topic-carousel";
 import { BibleBooks } from "./bible-books";
@@ -48,14 +49,17 @@ export function BibleWorkspace({
   translation,
   authors,
   player,
+  participationScope,
 }: {
   initialReference: BibleReference | null;
   translation: BibleReference["translation"];
   authors: { id: string; name: string }[];
   player: PlayerShellSummary;
+  participationScope: string;
 }): React.ReactNode {
   const t = useTranslations("Bible");
   const plans = useTranslations("ReadingPlans");
+  const participation = useReadingPlanParticipationSync(participationScope);
   const [planId, setPlanId] = useState<ReadingPlanId>("new-testament");
   const plan = READING_PLANS[planId];
   const planProgress = useReadingPlanProgress(planId);
@@ -266,6 +270,23 @@ export function BibleWorkspace({
           )
         )}
         <main>
+          {participation.failed && (
+            <div
+              role="status"
+              className="mb-4 flex flex-wrap items-center gap-2 rounded-control border border-border bg-muted p-3 text-sm"
+            >
+              <span className="min-w-0 flex-1">
+                {plans("participationPending")}
+              </span>
+              <Button
+                variant="outline"
+                className="min-h-11"
+                onClick={participation.retry}
+              >
+                {plans("retryParticipation")}
+              </Button>
+            </div>
+          )}
           {screen === "home" && (
             <BibleHome
               reference={reference}

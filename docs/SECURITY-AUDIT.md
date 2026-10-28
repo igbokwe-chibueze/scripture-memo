@@ -717,3 +717,18 @@ Accepted risk justification (if applicable):
   independent changes. Disposable tests cover ownership, filtering, clears,
   idempotent re-saves and concurrent tag/highlight updates. The additive migration
   preserves existing saves and adds array indexes. No hosted DB used for testing.
+
+### Reading-plan participation security (2026-10-28)
+
+- Strict allowlisted plan/operation input rejects identities, timestamps and progress
+  arrays. Actions validate before independent server session/role checks; repository
+  writes use only the authenticated account and server UTC timestamps.
+- Parameterized single-statement mutations enforce one activity update per UTC day
+  even under concurrent callers. Completion/start are idempotent; reset targets only
+  the selected account/plan. Account deletion cascades participation deletion.
+- One read-only eligibility snapshot returns total plus at most four public profile
+  summaries; no internal IDs, email, activity timestamps or private progress escape.
+  Banned/suspended accounts and blocks in either direction are excluded. No read-time
+  initialization, cleanup writes, polling, hosted test access or new reward path.
+- Disposable PostgreSQL tests cover concurrent batching, owner/plan isolation,
+  inactivity, completion/reset/undo, visibility exclusions and cascading deletion.

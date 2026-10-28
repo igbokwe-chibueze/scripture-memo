@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { createHash } from "node:crypto";
 import { requireServerSession } from "@/lib/auth/session";
 import { getCachedUserSettings } from "@/features/settings/lib/get-cached-user-settings";
 import { getPlayerShellSummary } from "@/features/player-shell/lib/get-player-shell-summary";
@@ -53,6 +54,10 @@ export async function BibleView({
       translation={translation}
       authors={authors}
       player={player}
+      participationScope={createHash("sha256")
+        .update(session.user.id)
+        .digest("hex")
+        .slice(0, 24)}
     />
   );
 }

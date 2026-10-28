@@ -18,6 +18,8 @@ import { Button } from "@/components/ui/button";
 import { ResponsiveDialog } from "@/components/shared/responsive-dialog";
 import { toast } from "@/lib/toast";
 import { useReadingPlanProgress } from "../hooks/use-reading-plan-progress";
+import { notifyReadingPlanParticipation } from "../lib/reading-plan-participation-events";
+import { BiblePlanParticipants } from "./bible-plan-participants";
 import {
   nextReadingPlanDay,
   resetReadingPlanProgress,
@@ -278,6 +280,13 @@ export function BibleReadingPlanDetails({
     try {
       // Start once, never write for ordinary subsequent chapter navigation.
       if (!progress) updateReadingPlanProgress(undefined, true, planId);
+      // Existing device-only plans enroll only on this explicit reading action,
+      // never by rendering/opening their overview. Completed legacy plans stay out.
+      else
+        notifyReadingPlanParticipation({
+          planId,
+          operation: next === null ? "complete" : "start",
+        });
     } catch {
       toast.error(t("storageFailed"));
     }
@@ -314,6 +323,7 @@ export function BibleReadingPlanDetails({
           {t(plan.titleKey)}
         </h1>
         <p className="text-sm text-muted-foreground">{t(plan.introKey)}</p>
+        <BiblePlanParticipants planId={planId} />
         {/* Keep the approved header height; object-cover crops without stretching
             the supplied square art. Phase placeholders remain independent. */}
         <div className="relative min-h-40 overflow-hidden rounded-card sm:min-h-52">

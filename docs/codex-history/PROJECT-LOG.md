@@ -6203,3 +6203,33 @@ concurrency subtests remain explicitly skipped as documented above.
 - Owner clarified the supplied pack reference includes repeating watercolor-paper texture, not flat colour. Add a shared monochrome SVG tile combining stitched pigment noise, fine paper grain and soft irregular washes. Blend it over existing pack colours with stable ID offsets, applying it consistently to carousel cards and topic headers; keep text above the overlay and preserve buttons/layout/navigation.
 - No new per-pack files, dependencies, image-service calls, DB operations or storage. The one local SVG is browser-cacheable. Keep the existing automatic stable colour assignment.
 - Validation: TypeScript, scoped ESLint and diff checks pass. Offline browser verifies all loop cards have the texture, stable colours, no overflow and correct navigation/looping/reduced motion at 375/1280 in light/dark. Visually reviewed mobile mottling and softened wash edges. New changes unstaged; previous staged work preserved.
+
+### 2026-10-28 - Reading-plan participation avatar stack
+
+- Implemented the approved hybrid: chapter/day progress remains device-only;
+  minimal account participation tracks start/activity/completion per plan.
+- Plan details show four public avatars plus overflow. Completed/reset accounts,
+  activity older than 30 days, banned/suspended accounts and bilateral blocks are
+  excluded. No polling, read-time enrollment, cleanup job or progress-array sync.
+- Explicit progress events batch activity at most once per UTC day, with a
+  server-side conditional write protecting concurrent callers. Account-scoped
+  local retry metadata preserves failed intents independently of reading progress.
+- Added strict Server Actions, repository, error codes BRP-001/002, localized
+  loading/error/empty/retry UI and additive migration 20261028170000. Applied only
+  to guarded local development DB; generated Prisma client refreshed.
+- Verified: TypeScript, scoped ESLint, Bible unit tests (28), locale/error tests,
+  both disposable PostgreSQL Bible suites, offline hidden-browser daily batching,
+  completion/reset/retry and four-avatar/+2 layout at 375/1280 light/dark. No hosted
+  test DB used. Changes remain unstaged. Deferred reader scroll-jump bug unchanged.
+
+### 2026-10-28 - LAN HTTP participation sync correction
+
+- Traced real browser errors to crypto.randomUUID being unavailable over the
+  local-network HTTP address used by mobile devices. The queue handler threw
+  before a participation action was sent; local reading progress remained saved.
+- Replaced that unnecessary cryptographic dependency with an effect-local
+  monotonic intent ID. It is response correlation only, never identity/security.
+- Verified the real coordinator in hidden Edge with randomUUID explicitly absent:
+  start, daily batching, completion/reset and failed-update retry all pass.
+  TypeScript and scoped ESLint pass. Refresh both devices and explicitly reopen
+  a plan chapter to enroll previously missed starts; no read-time writes added.

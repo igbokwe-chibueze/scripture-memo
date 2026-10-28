@@ -1,5 +1,17 @@
 {
   "ReadingPlans": {
+    "participantsCount": "{count, plural, one {# persona está siguiendo este plan} other {# personas están siguiendo este plan}}",
+    "participantsMore": "{count} personas más",
+    "participantsLabel": "Personas que siguen este plan",
+    "participantsEmpty": "Sé la primera persona en unirte a este plan.",
+    "participantsLoading": "Cargando participantes",
+    "participantsUnavailable": "Los participantes no están disponibles.",
+    "participationInvalid": "Elige un plan de lectura válido.",
+    "participationAuth": "Inicia sesión para actualizar tu participación.",
+    "participationUpdated": "Participación actualizada.",
+    "participationFailed": "Tu progreso está guardado en este dispositivo, pero no se pudo sincronizar la participación.",
+    "participationPending": "Tu progreso está a salvo en este dispositivo. Hay una actualización de participación pendiente.",
+    "retryParticipation": "Reintentar",
     "planDuration": "{days} días · {books} libros",
     "oldTestamentIntro": "Sigue la historia, un día a la vez.",
     "oldTestamentDescription": "Recorre el Antiguo Testamento como una historia conectada: creación y pacto, liberación, vida en la tierra, reyes y profetas, exilio, regreso y esperanza. Algunas ubicaciones son temáticas; los relatos paralelos siguen siendo lecturas distintas.",
