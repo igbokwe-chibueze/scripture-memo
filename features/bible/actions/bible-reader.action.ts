@@ -56,6 +56,19 @@ async function authorized<T>(
   }
 }
 
+/** Audio-only fallback reads public provider data, never private marks or progress.
+ * This is called only after explicit BSB consent, avoiding an extra DB query.
+ */
+export async function readBibleAudioAction(
+  input: unknown,
+): Promise<ActionResult<Record<string, string>>> {
+  const parsed = bibleReferenceSchema.safeParse(input);
+  return authorized(parsed.success, async () => {
+    if (!parsed.success) throw new Error("Invalid reference.");
+    return (await loadBibleChapter(parsed.data)).audio;
+  });
+}
+
 /** Chapter and private marks load together with no read-time initialization or mutations. */
 export async function readBibleChapterAction(
   input: unknown,

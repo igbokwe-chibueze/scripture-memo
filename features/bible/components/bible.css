@@ -115,6 +115,8 @@
   z-index: 40;
   max-width: 42rem;
   margin-inline: auto;
+  /* Reader space-y utilities must not lift a fixed dock away from the navbar. */
+  margin-block: 0;
   padding: 0.75rem 1rem;
   border: 1px solid var(--border);
   border-bottom: 0;

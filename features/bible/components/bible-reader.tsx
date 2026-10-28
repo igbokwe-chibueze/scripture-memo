@@ -1,9 +1,15 @@
 "use client";
 
 /** Chapter reader owns loading and annotation state; the provider never controls markup or HTML. */
-import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+  type RefObject,
+} from "react";
 import { useTranslations } from "next-intl";
-import { AnimatePresence } from "framer-motion";
 import { toast } from "@/lib/toast";
 import {
   ChevronLeftIcon,
@@ -47,12 +53,22 @@ export function BibleReader({
   authors,
   onOpen,
   onCloseTab,
+  planPlayback,
+  mediaRef,
+  onPrepareAudio,
 }: {
   reference: BibleReference;
   tabs: BibleReference[];
   authors: { id: string; name: string }[];
   onOpen: (reference: BibleReference) => void;
   onCloseTab: (index: number) => void;
+  mediaRef: RefObject<HTMLAudioElement | null>;
+  onPrepareAudio: () => void;
+  planPlayback?: {
+    autoplay: boolean;
+    onToggle: () => void;
+    onEnded: () => void;
+  };
 }): React.ReactNode {
   const t = useTranslations("Bible");
   const desktop = useMediaQuery("(min-width: 1024px)");
@@ -87,7 +103,18 @@ export function BibleReader({
   const marks = data?.marks ?? [];
   const [picker, setPicker] = useState(false);
   const [settings, setSettings] = useState(false);
-  const [audioOpen, setAudioOpen] = useState(false);
+  const audioKey = `${translation}:${book}:${chapterNumber}:${planPlayback ? "plan" : "reading"}`;
+  const [audioVisibility, setAudioVisibility] = useState<{
+    key: string;
+    open: boolean;
+  } | null>(null);
+  const audioOpen =
+    audioVisibility?.key === audioKey
+      ? audioVisibility.open
+      : Boolean(planPlayback);
+  // Consent lasts for this reader session so consecutive plan chapters can use
+  // BSB without repeated prompts. It is never inferred from a saved preference.
+  const [fallbackAllowed, setFallbackAllowed] = useState(false);
   const [fontSize, setFontSize] = useState(21);
   const [shareText, setShareText] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -408,8 +435,18 @@ export function BibleReader({
               </p>
             )}
             <BiblePassageActions
+              planAutoplay={
+                planPlayback
+                  ? {
+                      enabled: planPlayback.autoplay,
+                      onToggle: planPlayback.onToggle,
+                    }
+                  : undefined
+              }
               audioOpen={audioOpen}
-              onToggleAudio={() => setAudioOpen((open) => !open)}
+              onToggleAudio={() =>
+                setAudioVisibility({ key: audioKey, open: !audioOpen })
+              }
               reference={reference}
               chapter={chapter}
               selecting={selecting}
@@ -856,15 +893,20 @@ export function BibleReader({
                 </div>
               )}
             {/* Keep fixed audio outside the sticky desktop study column. */}
-            <AnimatePresence mode="wait">
-              {audioOpen && (
-                <BibleAudioPlayer
-                  key={`${reference.translation}:${reference.book}:${reference.chapter}`}
-                  audio={chapter.audio}
-                  reference={reference}
-                />
-              )}
-            </AnimatePresence>
+            <BibleAudioPlayer
+              key={audioKey}
+              mediaRef={mediaRef}
+              audio={chapter.audio}
+              reference={reference}
+              open={audioOpen}
+              fallbackAllowed={fallbackAllowed}
+              onAllowFallback={() => {
+                onPrepareAudio();
+                setFallbackAllowed(true);
+              }}
+              onSwitchText={() => onOpen({ ...reference, translation: "BSB" })}
+              planPlayback={planPlayback}
+            />
           </>
         )
       )}

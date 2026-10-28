@@ -2587,3 +2587,41 @@ The application is production-ready when:
   intents for online/manual retry. Device reading progress remains usable if
   participation syncing fails. This is participation visibility, not live presence
   or cross-device progress synchronization.
+
+### Bible audio fallback and plan listening (2026-10-28)
+
+- When the selected translation has no chapter audio, offer an explicit Play BSB
+  audio action. Keep the selected text, explain that wording differs, and retain
+  a visible BSB audio / reading edition label with an optional text switch.
+  Consent is session-only; fallback URLs are fetched only after that choice.
+- Minimizing the player pauses immediately, including during its slide-down
+  animation. Reopening the same chapter retains the mounted media position and
+  stays paused until Play. Chapter/edition changes stop the old recording.
+- Only chapters entered through a plan have autoplay controls. Autoplay starts
+  enabled and is remembered locally. It opens the player and attempts playback,
+  follows the plan's exact chapter/day order and stops at rest days or plan end.
+  Browser autoplay rejection leaves an actionable Play button.
+- A finished recording completes only its assigned chapter in that explicit plan.
+  Multi-chapter days complete after all assigned chapters are marked; manual
+  completion and undo remain available. Rest days retain their encouragement and
+  explicit completion. Opening text, minimizing, pausing or listening through an
+  ordinary Bible pathway never completes plan progress.
+- The fallback Server Action validates/authenticates and reads public provider
+  audio only, avoiding the private-mark query. One cached provider chapter lookup
+  per chosen fallback chapter; no polling, new progress tables or migrations.
+  Existing participation batching remains at most daily for normal activity.
+
+### Bible autoplay and dock corrections (2026-10-28)
+
+- Bible Workspace now retains one HTML audio element across chapter loads. An
+  explicit plan-chapter or BSB-fallback tap prepares that element synchronously
+  with a 100ms local silent WAV blob while the real recording URL is resolving.
+  This keeps browser playback permission attached to the same element. No new
+  origin, provider request, database operation or CSP relaxation is needed.
+- Autoplay waits until Strict Mode effect replay has completed before consuming
+  its one playback attempt. Native event subscriptions follow the current source
+  and read current completion callbacks without pausing on unrelated UI renders.
+- Plan autoplay is a controlled shared Switch in the chapter-actions drawer/modal,
+  no longer an extra player-card row. Its device-only preference is unchanged.
+- Fixed dock margin is explicitly zero so reader spacing cannot leave a gap above
+  the navbar. The card remains opaque; verses scroll underneath the joined dock.

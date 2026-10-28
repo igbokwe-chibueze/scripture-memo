@@ -8,6 +8,7 @@ import { HeadphonesIcon, MoreHorizontalIcon } from "lucide-react";
 import { toast } from "@/lib/toast";
 import { showActionError } from "@/lib/errors/show-action-error";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { LoadingButton } from "@/components/shared/loading-button";
 import { ResponsiveDialog } from "@/components/shared/responsive-dialog";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -30,6 +31,7 @@ export function BiblePassageActions({
   onSelectAll,
   audioOpen,
   onToggleAudio,
+  planAutoplay,
 }: {
   reference: BibleReference;
   chapter: BibleChapter;
@@ -40,6 +42,7 @@ export function BiblePassageActions({
   onSelectAll: () => void;
   audioOpen: boolean;
   onToggleAudio: () => void;
+  planAutoplay?: { enabled: boolean; onToggle: () => void };
 }): React.ReactNode {
   const t = useTranslations("Bible");
   const [menu, setMenu] = useState(false);
@@ -159,6 +162,16 @@ export function BiblePassageActions({
               </Button>
             }
           >
+            {planAutoplay && (
+              <label className="mb-4 flex min-h-11 cursor-pointer items-center justify-between gap-4 rounded-control border border-border px-3 py-2">
+                <span className="font-medium">{t("planAutoplay")}</span>
+                <Switch
+                  checked={planAutoplay.enabled}
+                  onCheckedChange={planAutoplay.onToggle}
+                  aria-label={t("planAutoplay")}
+                />
+              </label>
+            )}
             {/* Equal grid tracks keep all three actions on one row. Labels may
               wrap inside their track so translated copy fits mobile drawers. */}
             <div className="grid grid-cols-3 items-stretch gap-2">

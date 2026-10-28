@@ -2112,3 +2112,10 @@ Implemented the approved hybrid: detailed progress stays on-device; minimal acco
 participation supports four avatars plus overflow on plan details, a 30-day activity
 cutoff, completion/reset exclusion, and at-most-daily activity writes. Failed explicit
 changes queue locally for retry; ordinary views never enroll and no polling is added.
+
+### Bible audio and guided plan playback (2026-10-28)
+
+Implemented explicit labelled BSB fallback for unavailable editions, paused
+in-memory resume when minimizing, and plan-only locally remembered autoplay.
+Finished audio completes its assigned chapter, advances in schedule order and
+stops at rest days; ordinary Bible listening never marks plan completion.

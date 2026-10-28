@@ -6243,3 +6243,39 @@ concurrency subtests remain explicitly skipped as documented above.
   loading status. No account reads or interactive placeholder controls added.
 - Verified 375/1280 light/dark in offline hidden Edge with no horizontal overflow;
   TypeScript and scoped ESLint pass. Changes remain unstaged.
+
+### 2026-10-28 - BSB fallback and continuous plan audio
+
+- Added explicit Play BSB audio for unavailable KJV/WEB recordings, persistent
+  mismatch label and optional Switch text to BSB. Audio-only authenticated action
+  reuses validated public provider data without querying private marks.
+- Minimized audio pauses while retaining the same mounted media/time; reopening
+  stays paused. Source changes/unmount stop old playback and invalidate play work.
+- Plan-only autoplay defaults on and is stored locally. Finished audio completes
+  only the explicit plan chapter, derives multi-chapter day completion, follows
+  assigned order and stops at rest days/end. Manual completion/undo remain.
+  Ordinary Bible listening never writes plan completion. Rest completion is manual.
+- Verified: TypeScript, scoped ESLint, 30 Bible unit tests, locale contract tests,
+  full offline workspace browser checks with simulated media events for consent,
+  text preservation, pause/reopen at 37s, NT six chapters/rest stop, autoplay off,
+  OT partial/day completion, plan isolation, provider retry and browser-policy
+  rejection recovery. Checked 375/1280 light/dark layouts. Browser policy may
+  still require a real user's Play gesture on a device. No DB migration added.
+- Changes remain unstaged. Deferred annotation scroll-jump issue untouched.
+
+### 2026-10-28 - Reliable native autoplay, chapter switch and joined dock
+
+- Corrected autoplay under Strict Mode and mobile browser per-element policies:
+  one workspace audio element survives chapter loads, with synchronous user-tap
+  preparation via a tiny local silent blob and a cancelled-replay-safe play attempt.
+- Moved plan-only autoplay into chapter actions as the shared controlled Switch.
+  Removed its player-card button row. Set fixed dock block margins to zero,
+  eliminating inherited reader spacing between audio and navigation.
+- Verified unmocked native HTML audio in hidden Edge with a trusted pointer tap:
+  first chapter plays, native ended opens/plays second chapter on the same element
+  under Strict Mode. Exact dock/navbar edges meet within 1px. Full mocked-media
+  regression also passes pause/resume, fallback retry/text switch, rest stops,
+  per-plan completion isolation, switch persistence and 375/1280 light/dark layouts.
+- TypeScript, scoped ESLint, all 30 Bible unit tests and locale contract tests pass.
+  No database/schema/CSP changes. Refresh the dev page before testing updated hooks.
+  Changes remain unstaged; deferred annotation scroll jump remains untouched.

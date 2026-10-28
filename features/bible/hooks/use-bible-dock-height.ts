@@ -5,6 +5,7 @@ import { useEffect, useRef, type RefObject } from "react";
  * final verse scrolls clear of both. Observe wrapping/zoom without polling. */
 export function useBibleDockHeight(
   property: "--bible-nav-height" | "--bible-audio-height",
+  active = true,
 ): RefObject<HTMLElement | null> {
   const ref = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -14,7 +15,7 @@ export function useBibleDockHeight(
     const update = (): void => {
       workspace.style.setProperty(
         property,
-        `${element.getBoundingClientRect().height}px`,
+        `${active ? element.getBoundingClientRect().height : 0}px`,
       );
     };
     update();
@@ -24,6 +25,6 @@ export function useBibleDockHeight(
       observer.disconnect();
       workspace.style.removeProperty(property);
     };
-  }, [property]);
+  }, [property, active]);
   return ref;
 }

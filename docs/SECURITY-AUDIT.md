@@ -732,3 +732,17 @@ Accepted risk justification (if applicable):
   initialization, cleanup writes, polling, hosted test access or new reward path.
 - Disposable PostgreSQL tests cover concurrent batching, owner/plan isolation,
   inactivity, completion/reset/undo, visibility exclusions and cascading deletion.
+
+### Bible audio fallback and plan playback review (2026-10-28)
+
+- Fallback audio uses the existing fixed-origin, bounded Zod provider pipeline and
+  approved HTTPS media origins. The audio-only Server Action validates before
+  session authorization and never reads marks or accepts account identity.
+- BSB fallback requires explicit session consent; text edition remains unchanged
+  and the mismatch stays visible. Browser playback rejection is caught safely.
+- Only explicit plan provenance permits ended media events to update device-only
+  completion. Traversal follows the immutable assigned schedule and stops at rest
+  days. No listening action grants gameplay rewards or modifies another plan.
+- Minimize/unmount invalidates pending play requests and pauses media; minimizing
+  retains its position in memory. Autoplay preference remains local. No new
+  recurring server query, database migration or hosted test operation is added.

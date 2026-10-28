@@ -7,6 +7,7 @@ const schema = z.object({
     .number()
     .refine((value) => BIBLE_AUDIO_SPEEDS.some((speed) => speed === value)),
   narrator: z.string().max(120),
+  planAutoplay: z.boolean().default(true),
 });
 export type BibleAudioPreferences = z.infer<typeof schema>;
 const KEY = "scripture-memo:bible-audio";
@@ -27,17 +28,21 @@ export function parseBibleAudioPreferences(
   const parsed = schema.safeParse({
     speed: Number(params.get("speed")),
     narrator: params.get("narrator") ?? "",
+    planAutoplay: params.get("planAutoplay") !== "false",
   });
-  return parsed.success ? parsed.data : { speed: 1, narrator: "" };
+  return parsed.success
+    ? parsed.data
+    : { speed: 1, narrator: "", planAutoplay: true };
 }
 /** Save synchronously; callers surface storage failures without blocking audio. */
-export function saveBibleAudioPreferences(value: BibleAudioPreferences): void {
+export function saveBibleAudioPreferences(value: z.input<typeof schema>): void {
   const parsed = schema.parse(value);
   window.localStorage.setItem(
     KEY,
     new URLSearchParams({
       speed: String(parsed.speed),
       narrator: parsed.narrator,
+      planAutoplay: String(parsed.planAutoplay),
     }).toString(),
   );
   window.dispatchEvent(new Event(EVENT));

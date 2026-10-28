@@ -11,7 +11,7 @@ import {
 } from "./bible-audio-preferences";
 
 test("audio preferences reject corrupt or unsupported saved values", () => {
-  const defaults = { speed: 1, narrator: "" };
+  const defaults = { speed: 1, narrator: "", planAutoplay: true };
   assert.deepEqual(parseBibleAudioPreferences(""), defaults);
   assert.deepEqual(
     parseBibleAudioPreferences("speed=99&narrator=David"),
@@ -21,6 +21,7 @@ test("audio preferences reject corrupt or unsupported saved values", () => {
   assert.deepEqual(parseBibleAudioPreferences("speed=1.5&narrator=David"), {
     speed: 1.5,
     narrator: "David",
+    planAutoplay: true,
   });
 });
 
@@ -52,12 +53,23 @@ test("audio choices persist locally and notify without any server calls", () => 
     assert.deepEqual(parseBibleAudioPreferences(readBibleAudioSnapshot()), {
       speed: 1.25,
       narrator: "David",
+      planAutoplay: true,
     });
     assert.equal(notifications, 1);
+    saveBibleAudioPreferences({
+      speed: 1.25,
+      narrator: "David",
+      planAutoplay: false,
+    });
+    assert.equal(
+      parseBibleAudioPreferences(readBibleAudioSnapshot()).planAutoplay,
+      false,
+    );
+    assert.equal(notifications, 2);
     unsubscribe();
     saveBibleAudioPreferences({ speed: 2, narrator: "John" });
     assert.equal(stored.size, 1);
-    assert.equal(notifications, 1);
+    assert.equal(notifications, 2);
     browser.localStorage.setItem = (): never => {
       throw new Error("Storage blocked");
     };

@@ -35,8 +35,17 @@ import {
 import type { PlayerShellSummary } from "@/features/player-shell/types/player-shell.types";
 import "./bible.css";
 import { useBibleDockHeight } from "../hooks/use-bible-dock-height";
+import { useBibleAudioSession } from "../hooks/use-bible-audio-session";
 import { BibleReadingPlan } from "./bible-reading-plan";
 import { useReadingPlanProgress } from "../hooks/use-reading-plan-progress";
+import { updateReadingPlanChapter } from "../lib/reading-plan-progress";
+import { nextPlanAudioChapter } from "../lib/reading-plan-audio";
+import {
+  parseBibleAudioPreferences,
+  readBibleAudioSnapshot,
+  saveBibleAudioPreferences,
+  subscribeBibleAudioPreferences,
+} from "../lib/bible-audio-preferences";
 import { BiblePlanReadingControls } from "./bible-plan-reading-controls";
 import {
   READING_PLANS,
@@ -60,6 +69,15 @@ export function BibleWorkspace({
   const t = useTranslations("Bible");
   const plans = useTranslations("ReadingPlans");
   const participation = useReadingPlanParticipationSync(participationScope);
+  const { mediaRef, prepare: prepareAudio } = useBibleAudioSession();
+  const audioPreferencesSnapshot = useSyncExternalStore(
+    subscribeBibleAudioPreferences,
+    readBibleAudioSnapshot,
+    () => "",
+  );
+  const audioPreferences = parseBibleAudioPreferences(audioPreferencesSnapshot);
+  const [unsavedAutoplay, setUnsavedAutoplay] = useState<boolean | null>(null);
+  const planAutoplay = unsavedAutoplay ?? audioPreferences.planAutoplay;
   const [planId, setPlanId] = useState<ReadingPlanId>("new-testament");
   const plan = READING_PLANS[planId];
   const planProgress = useReadingPlanProgress(planId);
@@ -188,8 +206,54 @@ export function BibleWorkspace({
     window.scrollTo({ top: 0 });
   }
 
+  /** Only this explicit plan pathway may complete progress from a media event.
+   * Persist before advancing; storage failure leaves the chapter available to retry.
+   * Autoplay follows assignments, including multi-chapter days, and stops at rest.
+   */
+  function finishPlanAudio(): void {
+    if (activePlanDay === null) return;
+    try {
+      updateReadingPlanChapter(reference, true, planId);
+      toast.success(plans("chapterMarked"));
+    } catch {
+      toast.error(plans("storageFailed"));
+      return;
+    }
+    if (!planAutoplay) return;
+    const next = nextPlanAudioChapter(planId, activePlanDay, reference);
+    if (next.kind === "chapter") {
+      openPassage(
+        { ...next.chapter, verse: 1, translation: reference.translation },
+        next.day,
+      );
+      window.scrollTo({ top: 0 });
+    } else if (next.kind === "rest") {
+      setPlanDay(next.day);
+      setScreen("plan");
+      window.history.replaceState(null, "", "/bible");
+      window.scrollTo({ top: 0 });
+      toast.info(t("planAudioRest"));
+    } else {
+      toast.success(t("planAudioFinished"));
+    }
+  }
+
+  /** One browser preference, never an account setting or database mutation. */
+  function togglePlanAutoplay(): void {
+    const next = !planAutoplay;
+    setUnsavedAutoplay(next);
+    try {
+      saveBibleAudioPreferences({ ...audioPreferences, planAutoplay: next });
+      setUnsavedAutoplay(null);
+    } catch {
+      toast.error(t("audioPreferenceFailed"));
+    }
+  }
+
   return (
     <div className="bible-workspace min-h-dvh bg-background text-foreground">
+      {/* Keep this element across chapter loading boundaries to retain playback permission. */}
+      <audio ref={mediaRef} preload="none" aria-hidden="true" />
       <div className="mx-auto max-w-6xl px-4 pb-[calc(var(--bible-nav-height,5rem)+var(--bible-audio-height,0px)+1.5rem)] sm:px-6">
         <header className="mb-5 flex items-center justify-between gap-3 border-b border-border py-4">
           <div className="flex items-center gap-2">
@@ -334,6 +398,7 @@ export function BibleWorkspace({
               planId={planId}
               initialDay={planDay}
               onRead={(chapter, day) => {
+                if (planAutoplay) prepareAudio();
                 openPassage(
                   {
                     ...chapter,
@@ -357,9 +422,20 @@ export function BibleWorkspace({
           )}
           {screen === "read" && (
             <BibleReader
+              mediaRef={mediaRef}
+              onPrepareAudio={prepareAudio}
               reference={reference}
               tabs={tabs.length ? tabs : [reference]}
               authors={authors}
+              planPlayback={
+                activePlanDay !== null
+                  ? {
+                      autoplay: planAutoplay,
+                      onToggle: togglePlanAutoplay,
+                      onEnded: finishPlanAudio,
+                    }
+                  : undefined
+              }
               onOpen={(value) => {
                 // Selecting a verse or changing translation stays in the same
                 // plan chapter. Opening a different passage leaves that pathway.
