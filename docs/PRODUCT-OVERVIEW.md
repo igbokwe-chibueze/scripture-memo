@@ -1480,9 +1480,22 @@ Reflection space shown after completing Radiance or as a standalone destination.
   lists, chapter grids and a book/chapter/verse picker. Topics link to curated
   real passages; the carousel pauses on hover/focus, when hidden or under
   reduced motion, and has View all. The owner removed the visible pause control;
-  hover/focus/dialog pauses and reduced-motion behavior remain.
+  hover/focus pauses and reduced-motion behavior remain.
   Home uses illustrated testament cards and a swipeable topic preview with dot
-  controls. Selecting a topic opens its existing passage choices in a dialog.
+  controls. Selecting a topic opens its existing passage choices as a regular
+  in-workspace screen, like books and plans, with a return to Bible Home. Bible
+  Home's Back to game button navigates to the game home at `/game`.
+  A stable centred scroll track synchronizes dots with both swipes and timed
+  advances. The focused card scales slightly above adjacent cards; reduced
+  motion disables the scaling and automatic advance. Bounded repeating copies
+  fill both sides without blank end spacers; settled scrolling silently recentres
+  equivalent copies for continued forward/backward looping. Only the visible
+  neighbourhood is interactive; duplicate offscreen copies are inert and hidden
+  from assistive technology. View all retains a normal two-column grid.
+  Topic passage rows reuse testament artwork thumbnails, abbreviation treatment,
+  title/subtitle sizing and card spacing. Opening any verse shows a Reading here
+  label, accent border and outline at its reading location. This is a navigation
+  cue, distinct from saved highlights, and never writes an annotation.
   Topic rotation uses a 15-second interval. Home's Go to a verse starts collapsed
   and shows this browser's last opened reference and edition in its summary;
   opening it reveals selectors initialized to that passage. Bible navigation uses
@@ -1573,8 +1586,11 @@ Reflection space shown after completing Radiance or as a standalone destination.
   labels and adjacent 44px icon actions. Removal remains explicitly confirmed.
   Account-synced tags replace folders/collections: each verse mark or grouped
   passage supports up to ten normalized labels. Bookmark, highlight and passage
-  saves complete immediately, then offer optional Add tags in their success toast.
-  Tagging never opens automatically or blocks reading. Saved can edit tags later.
+  saves complete immediately, then offer optional Add tags in a compact inline
+  confirmation beside the saved verse, or below the heading for chapter/selection
+  saves. The bar has explicit dismissal and no timer; success toasts contain no
+  tagging action. Tagging never opens automatically or blocks reading. Saved can
+  edit tags later.
   The common drawer offers selectable chips, explicit Create-name actions and one
   Save tags button. Bookmark and highlight on the same verse share tags.
   Tag edits are local drafts until Save; removing one annotation preserves the

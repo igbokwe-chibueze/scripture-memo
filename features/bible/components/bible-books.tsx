@@ -8,8 +8,7 @@ import { ChevronDownIcon, SearchIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BIBLE_BOOKS } from "../data/bible-catalog";
-import { bibleGroupArtwork } from "../data/bible-group-artwork";
-import { BIBLE_BOOK_ABBREVIATIONS } from "../data/bible-book-abbreviations";
+import { BibleBookThumbnail } from "./bible-book-thumbnail";
 import { BibleGroupHelp } from "./bible-group-help";
 import type { BibleReference } from "../schemas/bible.schema";
 
@@ -89,24 +88,11 @@ export function BibleBooks({
                 className="group/book rounded-card border border-border bg-card p-2 shadow-sm"
               >
                 <summary className="flex min-h-16 cursor-pointer list-none items-center gap-3 [&::-webkit-details-marker]:hidden">
-                  <span className="relative size-16 shrink-0 sm:size-18">
-                    <Image
-                      src={bibleGroupArtwork(group, testament)}
-                      alt=""
-                      width={72}
-                      height={72}
-                      sizes="72px"
-                      className="size-full rounded-control object-cover"
-                    />
-                    {/* Decorative duplicate of the adjacent full name: keep it
-                        legible over artwork without repeating screen-reader text. */}
-                    <span
-                      aria-hidden="true"
-                      className="absolute inset-0 flex items-center justify-center rounded-control bg-[color-mix(in_srgb,var(--image-overlay)_20%,transparent)] font-heading text-3xl leading-none text-image-foreground [text-shadow:0_2px_4px_var(--image-overlay)] sm:text-4xl"
-                    >
-                      {BIBLE_BOOK_ABBREVIATIONS[book.id]}
-                    </span>
-                  </span>
+                  <BibleBookThumbnail
+                    bookId={book.id}
+                    group={group}
+                    testament={testament}
+                  />
                   <span className="min-w-0 flex-1">
                     <span className="block font-heading text-xl">
                       {book.name}

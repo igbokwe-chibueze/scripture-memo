@@ -13,6 +13,7 @@ import { ResponsiveDialog } from "@/components/shared/responsive-dialog";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { setBiblePassageAction } from "../actions/bible-reader.action";
 import { BibleItemTagsDialog } from "./bible-item-tags-dialog";
+import { BibleSaveConfirmation } from "./bible-save-confirmation";
 import { bibleReferenceUrl, bibleSelectionLabel } from "../lib/bible-reference";
 import type { BibleChapter } from "../types/bible.types";
 import type { BibleReference } from "../schemas/bible.schema";
@@ -46,6 +47,7 @@ export function BiblePassageActions({
   const [manualText, setManualText] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [tagTarget, setTagTarget] = useState<BibleReference | null>(null);
+  const [savedPassage, setSavedPassage] = useState<BibleReference | null>(null);
   const whole: BibleReference = {
     ...reference,
     verse: 1,
@@ -70,8 +72,8 @@ export function BiblePassageActions({
         }
         toast.success(t("passageSaved"), {
           id: "bible-save-feedback",
-          action: { label: t("addTags"), onClick: () => setTagTarget(target) },
         });
+        setSavedPassage(target);
         setMenu(false);
         // Only completed selection actions dismiss the selection card; failures
         // retain the chosen verses so the player can retry without reselecting.
@@ -195,6 +197,18 @@ export function BiblePassageActions({
           </ResponsiveDialog>
         </div>
       </div>
+      {savedPassage?.book === reference.book &&
+        savedPassage.chapter === reference.chapter &&
+        savedPassage.translation === reference.translation && (
+          <BibleSaveConfirmation
+            message={t("passageSaved")}
+            onAddTags={() => {
+              setTagTarget(savedPassage);
+              setSavedPassage(null);
+            }}
+            onDismiss={() => setSavedPassage(null)}
+          />
+        )}
       {selecting && (
         <div className="space-y-2 rounded-control border border-selection-border bg-selection-subtle p-3">
           <p role="status" className="font-medium">

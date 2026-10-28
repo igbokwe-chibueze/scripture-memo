@@ -247,6 +247,7 @@ const fr = {
   "addTags": "Ajouter des étiquettes",
   "createTag": "Créer « {name} »",
   "bookmarkSaved": "Signet enregistré",
+  "readingHere": "Lecture en cours",
   "highlightSaved": "Surlignage enregistré",
   "tagsInvalid": "Utilisez jusqu’à 10 étiquettes de 1 à 32 lettres, chiffres, espaces, tirets ou traits de soulignement.",
   "newTag": "Nouvelle étiquette",

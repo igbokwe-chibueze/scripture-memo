@@ -16,6 +16,8 @@ import { Button } from "@/components/ui/button";
 import { GameArtwork } from "@/components/shared/game-artwork";
 import { PlayerAvatar } from "@/features/profile";
 import { BibleHome } from "./bible-home";
+import { BibleTopicScreen } from "./bible-topic-screen";
+import type { BibleTopic } from "./bible-topic-carousel";
 import { BibleBooks } from "./bible-books";
 import { BibleReader } from "./bible-reader";
 import { BibleLibrary } from "./bible-library";
@@ -78,9 +80,10 @@ export function BibleWorkspace({
   const reference = openedReference ?? initial;
   const [tabs, setTabs] = useState<BibleReference[]>([]);
   const [screen, setScreen] = useState<
-    "home" | "read" | "saved" | "books" | "plan"
+    "home" | "read" | "saved" | "books" | "plan" | "topic"
   >(initialReference ? "read" : "home");
   const [testament, setTestament] = useState<"old" | "new">("old");
+  const [selectedTopic, setSelectedTopic] = useState<BibleTopic | null>(null);
 
   useEffect(() => {
     // Opening a shared/deep link is also an explicit passage choice. Merely
@@ -210,7 +213,27 @@ export function BibleWorkspace({
             </NavigationButton>
           </div>
         </header>
-        {screen === "plan" || (screen === "read" && activePlanDay !== null) ? (
+        {screen === "home" ? (
+          <NavigationButton
+            href="/game"
+            pendingLabel={t("opening")}
+            variant="ghost"
+            className="mb-4"
+          >
+            <ArrowLeftIcon aria-hidden="true" />
+            {t("backGame")}
+          </NavigationButton>
+        ) : screen === "topic" ? (
+          <Button
+            variant="ghost"
+            className="mb-4"
+            onClick={() => navigate("home")}
+          >
+            <ArrowLeftIcon aria-hidden="true" />
+            {plans("backHome")}
+          </Button>
+        ) : screen === "plan" ||
+          (screen === "read" && activePlanDay !== null) ? (
           <Button
             variant="outline"
             className="mb-4 min-h-11"
@@ -247,6 +270,13 @@ export function BibleWorkspace({
             <BibleHome
               reference={reference}
               onOpen={openPassage}
+              onTopic={(topic) => {
+                setSelectedTopic(topic);
+                setPlanReadingDay(null);
+                setScreen("topic");
+                window.history.replaceState(null, "", "/bible");
+                window.scrollTo({ top: 0 });
+              }}
               onPlan={(id) => {
                 setPlanId(id);
                 setPlanReadingDay(null);
@@ -267,6 +297,13 @@ export function BibleWorkspace({
               key={testament}
               testament={testament}
               reference={reference}
+              onOpen={openPassage}
+            />
+          )}
+          {screen === "topic" && selectedTopic && (
+            <BibleTopicScreen
+              topic={selectedTopic}
+              translation={reference.translation}
               onOpen={openPassage}
             />
           )}
@@ -345,7 +382,8 @@ export function BibleWorkspace({
             variant="ghost"
             aria-current={
               screen === id ||
-              (id === "home" && (screen === "books" || screen === "plan"))
+              (id === "home" &&
+                (screen === "books" || screen === "plan" || screen === "topic"))
                 ? "page"
                 : undefined
             }

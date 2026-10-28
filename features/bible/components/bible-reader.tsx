@@ -9,6 +9,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   MoreHorizontalIcon,
+  MapPinIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -33,6 +34,7 @@ import { BiblePassagePicker } from "./bible-passage-picker";
 import { BibleStudyPanel } from "./bible-study-panel";
 import { BibleAudioPlayer } from "./bible-audio-player";
 import { BibleItemTagsDialog } from "./bible-item-tags-dialog";
+import { BibleSaveConfirmation } from "./bible-save-confirmation";
 import type { BibleReference } from "../schemas/bible.schema";
 import { useBibleResource } from "../hooks/use-bible-resource";
 import { pulseBibleSelection } from "../lib/bible-selection-haptic";
@@ -89,6 +91,10 @@ export function BibleReader({
   const [shareText, setShareText] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [tagTarget, setTagTarget] = useState<BibleReference | null>(null);
+  const [saveFeedback, setSaveFeedback] = useState<{
+    reference: BibleReference;
+    operation: "bookmark" | "highlight";
+  } | null>(null);
   // Opening a chapter supplies a reading position, not permission to expose
   // verse actions. Only a deliberate long press or desktop action opens them.
   const [activeVerse, setActiveVerse] = useState<string | null>(null);
@@ -258,25 +264,22 @@ export function BibleReader({
         const saving =
           operation === "bookmark" ? bookmarked : Boolean(highlight);
         if (saving) {
-          // Release the modal focus trap so the toast action is reachable.
+          // Release the action surface and show optional tagging by the verse.
           setVerseDialog(null);
           // Saving finishes first. The optional action captures this exact verse,
           // so later navigation cannot change which item receives its tags.
           const savedReference = { ...target, selection: undefined };
+          setSaveFeedback({ reference: savedReference, operation });
           toast.success(
             t(operation === "bookmark" ? "bookmarkSaved" : "highlightSaved"),
             {
               id: "bible-save-feedback",
-              action: {
-                label: t("addTags"),
-                onClick: () => {
-                  setVerseDialog(null);
-                  setTagTarget(savedReference);
-                },
-              },
             },
           );
-        } else toast.success(t("annotationSaved"));
+        } else {
+          setSaveFeedback(null);
+          toast.success(t("annotationSaved"));
+        }
       } catch {
         toast.error(t("failed"), { duration: Infinity });
       }
@@ -451,6 +454,10 @@ export function BibleReader({
                       const annotation = marks.find(
                         (item) => item.verse === verse.number,
                       );
+                      // Reading location is a navigation cue, never a saved
+                      // highlight or an automatically selected action target.
+                      const readingHere =
+                        !selecting && reference.verse === verse.number;
                       return (
                         <div
                           key={verse.number}
@@ -470,11 +477,26 @@ export function BibleReader({
                                 : undefined
                             }
                             data-highlight={annotation?.highlight ?? undefined}
-                            className={`bible-verse rounded-control border-l-4 p-3 ${(selecting ? chosen.includes(verse.number) : activeVerse === verseKey(verse.number)) ? "border-primary bg-primary/10" : "border-transparent"}`}
+                            data-bible-reading-here={
+                              readingHere ? "true" : undefined
+                            }
+                            className={`bible-verse rounded-control border-l-4 p-3 ${(selecting ? chosen.includes(verse.number) : activeVerse === verseKey(verse.number)) ? "border-primary bg-primary/10" : readingHere ? "border-primary bg-selection-subtle ring-1 ring-primary/40" : "border-transparent"}`}
                           >
+                            {readingHere && (
+                              <div className="mb-1 flex items-center gap-1 text-xs font-medium leading-normal text-primary">
+                                <MapPinIcon
+                                  aria-hidden="true"
+                                  className="size-3.5"
+                                />
+                                {t("readingHere")}
+                              </div>
+                            )}
                             <div className="flex items-start gap-2">
                               <button
                                 type="button"
+                                aria-current={
+                                  readingHere ? "location" : undefined
+                                }
                                 aria-pressed={
                                   selecting
                                     ? chosen.includes(verse.number)
@@ -567,6 +589,27 @@ export function BibleReader({
                               </Button>
                             </div>
                           </div>
+                          {saveFeedback?.reference.book === reference.book &&
+                            saveFeedback.reference.chapter ===
+                              reference.chapter &&
+                            saveFeedback.reference.translation ===
+                              reference.translation &&
+                            saveFeedback.reference.verse === verse.number && (
+                              <div className="mt-2">
+                                <BibleSaveConfirmation
+                                  message={t(
+                                    saveFeedback.operation === "bookmark"
+                                      ? "bookmarkSaved"
+                                      : "highlightSaved",
+                                  )}
+                                  onAddTags={() => {
+                                    setTagTarget(saveFeedback.reference);
+                                    setSaveFeedback(null);
+                                  }}
+                                  onDismiss={() => setSaveFeedback(null)}
+                                />
+                              </div>
+                            )}
                         </div>
                       );
                     })}

@@ -1534,6 +1534,7 @@
     "addTags": "Add tags",
     "createTag": "Create “{name}”",
     "bookmarkSaved": "Bookmarked",
+    "readingHere": "Reading here",
     "highlightSaved": "Highlighted",
     "tagsInvalid": "Use up to 10 tags, each 1–32 letters, numbers, spaces, hyphens or underscores.",
     "newTag": "New tag",

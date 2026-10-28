@@ -1534,6 +1534,7 @@
     "addTags": "Añadir etiquetas",
     "createTag": "Crear «{name}»",
     "bookmarkSaved": "Marcador guardado",
+    "readingHere": "Leyendo aquí",
     "highlightSaved": "Resaltado guardado",
     "tagsInvalid": "Usa hasta 10 etiquetas de 1–32 letras, números, espacios, guiones o guiones bajos.",
     "newTag": "Nueva etiqueta",
