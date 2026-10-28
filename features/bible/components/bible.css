@@ -175,3 +175,19 @@
   cursor: default;
   opacity: 0.5;
 }
+/* Persistent mini playback sits above the route's actual bottom navigation.
+   It shares the full player's semantic surface and stays compact at 375px. */
+.bible-mini-player {
+  position: fixed;
+  inset-inline: 0.75rem;
+  bottom: calc(var(--bible-mini-nav-height, 0px) + max(0.5rem, env(safe-area-inset-bottom)));
+  z-index: 45;
+  max-width: 28rem;
+  margin: 0 auto;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--card);
+  color: var(--foreground);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--foreground) 12%, transparent);
+}

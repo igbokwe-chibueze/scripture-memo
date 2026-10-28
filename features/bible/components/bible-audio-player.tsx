@@ -17,10 +17,18 @@ import { useReducedMotionPreference } from "@/hooks/use-reduced-motion-preferenc
 import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
-import { PauseIcon, PlayIcon, RotateCcwIcon, RotateCwIcon } from "lucide-react";
+import {
+  PauseIcon,
+  PlayIcon,
+  RotateCcwIcon,
+  RotateCwIcon,
+  XIcon,
+} from "lucide-react";
+import { NavigationButton } from "@/components/shared/navigation-button";
+import { GameArtwork } from "@/components/shared/game-artwork";
 import { readBibleAudioAction } from "../actions/bible-reader.action";
 import { showActionError } from "@/lib/errors/show-action-error";
-import { bibleReferenceLabel } from "../lib/bible-reference";
+import { bibleReferenceLabel, bibleReferenceUrl } from "../lib/bible-reference";
 import { useBibleDockHeight } from "../hooks/use-bible-dock-height";
 import {
   BIBLE_AUDIO_SPEEDS,
@@ -80,11 +88,30 @@ export function BibleAudioPlayer({
   onSwitchText,
   planPlayback,
   mediaRef,
+  audioTranslation = reference.translation,
+  miniature = false,
+  advancing = false,
+  autoStart = false,
+  onStarted,
+  onDismiss,
+  onReturn,
+  onAudioResolved,
 }: {
   audio: Record<string, string>;
   reference: BibleReference;
   mediaRef: RefObject<HTMLAudioElement | null>;
   open: boolean;
+  audioTranslation?: BibleReference["translation"];
+  miniature?: boolean;
+  advancing?: boolean;
+  autoStart?: boolean;
+  onStarted?: () => void;
+  onDismiss?: () => void;
+  onReturn?: () => void;
+  onAudioResolved?: (
+    audio: Record<string, string>,
+    translation: BibleReference["translation"],
+  ) => void;
   fallbackAllowed: boolean;
   onAllowFallback: () => void;
   onSwitchText: () => void;
@@ -96,7 +123,10 @@ export function BibleAudioPlayer({
 }): React.ReactNode {
   const t = useTranslations("Bible");
   const reduceMotion = useReducedMotionPreference();
-  const dockRef = useBibleDockHeight("--bible-audio-height", open);
+  const dockRef = useBibleDockHeight(
+    "--bible-audio-height",
+    open && !miniature,
+  );
   const playRequest = useRef(0);
   const snapshot = useSyncExternalStore(
     subscribeBibleAudioPreferences,
@@ -114,12 +144,13 @@ export function BibleAudioPlayer({
     number | null
   >(null);
   const [fallbackAttempt, setFallbackAttempt] = useState(0);
-  const fallback =
+  const needsFallback =
     !Object.keys(audio).length && reference.translation !== "BSB";
+  const fallback = needsFallback || audioTranslation !== reference.translation;
   const fallbackFailed = fallbackFailureAttempt === fallbackAttempt;
   const fallbackLoading =
     fallback && fallbackAllowed && !fallbackAudio && !fallbackFailed;
-  const sources = fallback ? (fallbackAudio ?? {}) : audio;
+  const sources = Object.keys(audio).length ? audio : (fallbackAudio ?? {});
   const names = Object.keys(sources);
   const narrator = names.includes(preferences.narrator)
     ? preferences.narrator
@@ -135,6 +166,11 @@ export function BibleAudioPlayer({
   const source = sources[narrator];
   const { book, chapter: chapterNumber } = reference;
   const audioFailureMessage = t("audioFailed");
+  const reportResolvedAudio = useEffectEvent(
+    (resolved: Record<string, string>): void => {
+      onAudioResolved?.(resolved, "BSB");
+    },
+  );
 
   /** Native events read current props without reconnecting (and pausing) media
    * on every UI render. The primer is never treated as a completed chapter. */
@@ -151,6 +187,7 @@ export function BibleAudioPlayer({
         break;
       case "play":
         setPlaying(true);
+        onStarted?.();
         break;
       case "playing":
         setStarting(false);
@@ -204,7 +241,7 @@ export function BibleAudioPlayer({
 
   useEffect(() => {
     if (
-      !fallback ||
+      !needsFallback ||
       !fallbackAllowed ||
       !open ||
       fallbackAudio ||
@@ -223,6 +260,7 @@ export function BibleAudioPlayer({
         if (!active) return;
         if (result.success && result.data && Object.keys(result.data).length) {
           setFallbackAudio(result.data);
+          reportResolvedAudio(result.data);
         } else {
           setFallbackFailureAttempt(fallbackAttempt);
           if (!result.success) showActionError(result);
@@ -241,7 +279,7 @@ export function BibleAudioPlayer({
     // Depend on canonical chapter fields rather than the whole reference so
     // verse selection never restarts an in-flight public audio lookup.
   }, [
-    fallback,
+    needsFallback,
     fallbackAllowed,
     open,
     fallbackAudio,
@@ -254,7 +292,7 @@ export function BibleAudioPlayer({
 
   useEffect(() => {
     if (!open || !source || autoAttempted.current) return;
-    if (!planPlayback?.autoplay && !explicitFallbackPlay.current) return;
+    if (!autoStart && !explicitFallbackPlay.current) return;
     let cancelled = false;
     // Strict Mode replays mount effects. Defer the attempt until that cleanup
     // finishes, so it cannot consume our one attempt and immediately pause it.
@@ -278,7 +316,7 @@ export function BibleAudioPlayer({
     return () => {
       cancelled = true;
     };
-  }, [open, source, planPlayback?.autoplay, speed, t, mediaRef]);
+  }, [open, source, autoStart, speed, t, mediaRef]);
 
   useEffect(() => {
     if (mediaRef.current) mediaRef.current.playbackRate = speed;
@@ -355,7 +393,7 @@ export function BibleAudioPlayer({
     <motion.section
       id="bible-audio-player"
       ref={dockRef}
-      className="bible-audio-dock"
+      className={miniature ? "bible-mini-player" : "bible-audio-dock"}
       aria-label={t("audio")}
       aria-hidden={!open}
       inert={!open}
@@ -367,7 +405,76 @@ export function BibleAudioPlayer({
         ease: [0.22, 1, 0.36, 1],
       }}
     >
-      {!names.length ? (
+      {miniature ? (
+        <>
+          <div className="flex min-w-0 items-center gap-2">
+            <NavigationButton
+              href={bibleReferenceUrl(reference)}
+              pendingLabel={t("opening")}
+              variant="ghost"
+              className="min-h-11 min-w-0 flex-1 justify-start gap-2 px-1 text-left"
+              onClick={onReturn}
+              aria-label={t("returnToPlayingChapter")}
+            >
+              <GameArtwork
+                name="bibleOpen"
+                className="size-9 shrink-0"
+                sizes="36px"
+              />
+              <span className="min-w-0">
+                <span className="block truncate font-heading text-sm">
+                  {bibleReferenceLabel({ ...reference, verse: undefined })}
+                </span>
+                <span className="block truncate text-xs text-muted-foreground">
+                  {fallback
+                    ? t("audioTranslationMismatch", {
+                        translation: reference.translation,
+                      })
+                    : reference.translation}{" "}
+                  · {clock(position)} / {clock(duration)}
+                </span>
+              </span>
+            </NavigationButton>
+            <Button
+              size="icon-lg"
+              className="size-11 shrink-0 rounded-full"
+              aria-label={t(
+                advancing || starting ? "loading" : playing ? "pause" : "play",
+              )}
+              disabled={advancing || (starting && !playing)}
+              onClick={() => void togglePlayback()}
+            >
+              {advancing || starting ? (
+                <LoadingSpinner size="sm" label={t("loading")} />
+              ) : playing ? (
+                <PauseIcon aria-hidden="true" />
+              ) : (
+                <PlayIcon aria-hidden="true" />
+              )}
+            </Button>
+            <Button
+              size="icon-lg"
+              variant="ghost"
+              className="size-11 shrink-0"
+              aria-label={t("dismissAudio")}
+              onClick={onDismiss}
+            >
+              <XIcon aria-hidden="true" />
+            </Button>
+          </div>
+          <div
+            className="mt-1 h-1 overflow-hidden rounded-full bg-muted"
+            aria-hidden="true"
+          >
+            <div
+              className="h-full bg-primary"
+              style={{
+                width: `${duration ? Math.min(100, (position / duration) * 100) : 0}%`,
+              }}
+            />
+          </div>
+        </>
+      ) : !names.length ? (
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">
             {t("audioUnavailable", { translation: reference.translation })}
@@ -500,7 +607,7 @@ export function BibleAudioPlayer({
           </div>
         </>
       )}
-      {fallback && names.length > 0 && (
+      {!miniature && fallback && names.length > 0 && (
         <div className="mt-2 flex flex-wrap items-center justify-between gap-1 text-xs">
           <span>
             {t("audioTranslationMismatch", {

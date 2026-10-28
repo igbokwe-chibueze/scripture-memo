@@ -6279,3 +6279,31 @@ concurrency subtests remain explicitly skipped as documented above.
 - TypeScript, scoped ESLint, all 30 Bible unit tests and locale contract tests pass.
   No database/schema/CSP changes. Refresh the dev page before testing updated hooks.
   Changes remain unstaged; deferred annotation scroll jump remains untouched.
+
+### 2026-10-28 - Persistent cross-route Bible mini player
+
+- Lifted media/session ownership into an account-keyed BibleAudioProvider around
+  the protected navigation shell, exposed through the Bible feature public API.
+  One native audio element survives Bible sub-screen and protected route changes.
+- Added compact play/pause, position/progress, return-to-chapter and dismiss UI,
+  positioned above the current navigation bar. BSB fallback mismatch remains
+  visible. Return preserves position and explicitly restores plan provenance;
+  matching ordinary/shared chapter links never inherit plan completion controls.
+- Provider owns background plan completion and audio-only chapter advancement;
+  route views subscribe to validated events only while relevant, so other pages
+  are never hijacked. Stops at rest days/end. Existing local progress and daily
+  account-participation batching remain unchanged; coordinator now survives routes.
+- Dismissal, new recording requests, logout/layout disposal and account changes
+  invalidate pending loads. Native media is paused on disposal; delayed old results
+  cannot resurrect audio or navigate another account's UI. No schema/CSP changes.
+- Verified: unmocked native audio under Strict Mode continues through route-view
+  unmount, native ended advances/completes a chapter in the background, mini return
+  restores day/context without losing media, and dismissal stops. Deterministic
+  browser tests cover ordinary-reading isolation, rest stop/no lookup, deferred
+  dismissal/account-switch races, 375/1280 light/dark/nav clearance. All 31 Bible
+  unit tests, locale contracts, TypeScript and scoped ESLint pass.
+- No hosted DB used. No added routine query/polling: cached session is shared with
+  existing layout loaders; background playback requests one public audio chapter
+  per transition and avoids private-mark queries. Playback itself is memory-only
+  and ends on refresh/logout. Changes remain unstaged; refresh dev page once for
+  the new persistent layout. Deferred annotation scroll-jump issue unchanged.

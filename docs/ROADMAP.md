@@ -2119,3 +2119,11 @@ Implemented explicit labelled BSB fallback for unavailable editions, paused
 in-memory resume when minimizing, and plan-only locally remembered autoplay.
 Finished audio completes its assigned chapter, advances in schedule order and
 stops at rest days; ordinary Bible listening never marks plan completion.
+
+### Persistent Bible audio (2026-10-28)
+
+Completed the shared protected-layout media session and cross-route mini player.
+Books/Explore listening continues without plan completion; plan listening advances
+and records local progress in the background, stopping at rest boundaries. Mini
+return preserves source/position and explicit plan provenance; dismiss/logout/
+account change stop playback and invalidate pending loads.

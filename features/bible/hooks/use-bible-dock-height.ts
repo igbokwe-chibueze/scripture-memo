@@ -10,10 +10,12 @@ export function useBibleDockHeight(
   const ref = useRef<HTMLElement>(null);
   useEffect(() => {
     const element = ref.current;
-    const workspace = element?.closest<HTMLElement>(".bible-workspace");
-    if (!element || !workspace) return;
+    // The audio engine now lives outside the route's workspace. Root-scoped,
+    // feature-prefixed variables let both persistent and route docks agree.
+    const root = document.documentElement;
+    if (!element) return;
     const update = (): void => {
-      workspace.style.setProperty(
+      root.style.setProperty(
         property,
         `${active ? element.getBoundingClientRect().height : 0}px`,
       );
@@ -23,7 +25,7 @@ export function useBibleDockHeight(
     observer.observe(element);
     return () => {
       observer.disconnect();
-      workspace.style.removeProperty(property);
+      root.style.removeProperty(property);
     };
   }, [property, active]);
   return ref;

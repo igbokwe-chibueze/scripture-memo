@@ -3,6 +3,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { READING_PLANS } from "../data/reading-plan-catalog";
 import { nextPlanAudioChapter } from "./reading-plan-audio";
+import { bibleAudioKey } from "./bible-audio-session";
+import {
+  bibleAudioNavigationSchema,
+  bibleAudioRestSchema,
+} from "../schemas/bible-audio.schema";
 
 test("plan audio follows every assigned chapter and stops at each rest boundary", () => {
   for (const plan of Object.values(READING_PLANS)) {
@@ -46,4 +51,42 @@ test("ordinary or mismatched chapter provenance cannot advance a plan", () => {
     nextPlanAudioChapter("old-testament", 0, { book: "GEN", chapter: 1 }),
     { kind: "finished" },
   );
+});
+
+test("persistent audio identity and navigation preserve explicit plan provenance", () => {
+  const reference = {
+    book: "MRK",
+    chapter: 1,
+    verse: 1,
+    translation: "KJV" as const,
+  };
+  const plan = { planId: "new-testament" as const, day: 1 };
+  assert.equal(
+    bibleAudioKey(reference),
+    bibleAudioKey({ ...reference, verse: 2 }),
+  );
+  assert.notEqual(bibleAudioKey(reference), bibleAudioKey(reference, plan));
+  assert.equal(
+    bibleAudioNavigationSchema.safeParse({ reference, plan }).success,
+    true,
+  );
+  assert.equal(
+    bibleAudioNavigationSchema.safeParse({
+      reference,
+      plan: { ...plan, day: 365 },
+    }).success,
+    false,
+  );
+  assert.equal(
+    bibleAudioNavigationSchema.safeParse({
+      reference,
+      plan: { ...plan, day: 2 },
+    }).success,
+    false,
+  );
+  assert.equal(
+    bibleAudioRestSchema.safeParse({ ...plan, day: 7 }).success,
+    true,
+  );
+  assert.equal(bibleAudioRestSchema.safeParse(plan).success, false);
 });

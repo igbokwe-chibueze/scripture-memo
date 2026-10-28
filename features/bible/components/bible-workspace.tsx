@@ -1,7 +1,12 @@
 "use client";
 
 /** Standalone Bible composition replaces game chrome only within /bible. */
-import { useEffect, useState, useSyncExternalStore } from "react";
+import {
+  useEffect,
+  useEffectEvent,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import {
   readBibleDevicePosition,
   parseBibleDevicePosition,
@@ -16,7 +21,15 @@ import { Button } from "@/components/ui/button";
 import { GameArtwork } from "@/components/shared/game-artwork";
 import { PlayerAvatar } from "@/features/profile";
 import { BibleHome } from "./bible-home";
-import { useReadingPlanParticipationSync } from "../hooks/use-reading-plan-participation-sync";
+import { useBibleAudio } from "../hooks/use-bible-audio";
+import {
+  BIBLE_AUDIO_NAVIGATE,
+  BIBLE_AUDIO_REST,
+} from "../lib/bible-audio-session";
+import {
+  bibleAudioNavigationSchema,
+  bibleAudioRestSchema,
+} from "../schemas/bible-audio.schema";
 import { BibleTopicScreen } from "./bible-topic-screen";
 import type { BibleTopic } from "./bible-topic-carousel";
 import { BibleBooks } from "./bible-books";
@@ -35,17 +48,8 @@ import {
 import type { PlayerShellSummary } from "@/features/player-shell/types/player-shell.types";
 import "./bible.css";
 import { useBibleDockHeight } from "../hooks/use-bible-dock-height";
-import { useBibleAudioSession } from "../hooks/use-bible-audio-session";
 import { BibleReadingPlan } from "./bible-reading-plan";
 import { useReadingPlanProgress } from "../hooks/use-reading-plan-progress";
-import { updateReadingPlanChapter } from "../lib/reading-plan-progress";
-import { nextPlanAudioChapter } from "../lib/reading-plan-audio";
-import {
-  parseBibleAudioPreferences,
-  readBibleAudioSnapshot,
-  saveBibleAudioPreferences,
-  subscribeBibleAudioPreferences,
-} from "../lib/bible-audio-preferences";
 import { BiblePlanReadingControls } from "./bible-plan-reading-controls";
 import {
   READING_PLANS,
@@ -58,31 +62,34 @@ export function BibleWorkspace({
   translation,
   authors,
   player,
-  participationScope,
 }: {
   initialReference: BibleReference | null;
   translation: BibleReference["translation"];
   authors: { id: string; name: string }[];
   player: PlayerShellSummary;
-  participationScope: string;
 }): React.ReactNode {
   const t = useTranslations("Bible");
   const plans = useTranslations("ReadingPlans");
-  const participation = useReadingPlanParticipationSync(participationScope);
-  const { mediaRef, prepare: prepareAudio } = useBibleAudioSession();
-  const audioPreferencesSnapshot = useSyncExternalStore(
-    subscribeBibleAudioPreferences,
-    readBibleAudioSnapshot,
-    () => "",
+  const audio = useBibleAudio();
+  const participation = {
+    failed: audio.participationFailed,
+    retry: audio.retryParticipation,
+  };
+  const prepareAudio = audio.prepare;
+  const planAutoplay = audio.planAutoplay;
+  // Only an explicit mini-player return restores plan provenance. Matching an
+  // ordinary/shared chapter link must never opt that passage into a plan.
+  const resumedAudio = audio.returnRequested ? audio.current : null;
+  const resumedPlan = resumedAudio?.plan;
+  const [planId, setPlanId] = useState<ReadingPlanId>(
+    resumedPlan?.planId ?? "new-testament",
   );
-  const audioPreferences = parseBibleAudioPreferences(audioPreferencesSnapshot);
-  const [unsavedAutoplay, setUnsavedAutoplay] = useState<boolean | null>(null);
-  const planAutoplay = unsavedAutoplay ?? audioPreferences.planAutoplay;
-  const [planId, setPlanId] = useState<ReadingPlanId>("new-testament");
   const plan = READING_PLANS[planId];
   const planProgress = useReadingPlanProgress(planId);
   const [planDay, setPlanDay] = useState<number | null>(null);
-  const [planReadingDay, setPlanReadingDay] = useState<number | null>(null);
+  const [planReadingDay, setPlanReadingDay] = useState<number | null>(
+    resumedPlan?.day ?? null,
+  );
   const navigationRef = useBibleDockHeight("--bible-nav-height");
   // The server snapshot is null so hydration matches server HTML. After
   // hydration, browser storage supplies the last passage without a DB request.
@@ -98,7 +105,9 @@ export function BibleWorkspace({
       verse: 1,
       translation,
     };
-  const [openedReference, setReference] = useState<BibleReference | null>(null);
+  const [openedReference, setReference] = useState<BibleReference | null>(
+    resumedAudio?.reference ?? null,
+  );
   const reference = openedReference ?? initial;
   const [tabs, setTabs] = useState<BibleReference[]>([]);
   const [screen, setScreen] = useState<
@@ -110,13 +119,18 @@ export function BibleWorkspace({
   useEffect(() => {
     // Opening a shared/deep link is also an explicit passage choice. Merely
     // visiting Bible Home never writes a default over the stored reference.
-    if (!initialReference) return;
+    if (!initialReference || openedReference) return;
     try {
       saveBibleDevicePosition(initialReference);
     } catch {
       toast.error(t("failed"));
     }
-  }, [initialReference, t]);
+  }, [initialReference, openedReference, t]);
+
+  const consumeAudioReturn = audio.consumeReturn;
+  useEffect(() => {
+    consumeAudioReturn();
+  }, [consumeAudioReturn]);
 
   // Plan provenance is explicit, never inferred from a chapter or saved progress.
   // Ordinary reading defaults to no plan, even when that chapter belongs to one.
@@ -206,54 +220,50 @@ export function BibleWorkspace({
     window.scrollTo({ top: 0 });
   }
 
-  /** Only this explicit plan pathway may complete progress from a media event.
-   * Persist before advancing; storage failure leaves the chapter available to retry.
-   * Autoplay follows assignments, including multi-chapter days, and stops at rest.
-   */
-  function finishPlanAudio(): void {
-    if (activePlanDay === null) return;
-    try {
-      updateReadingPlanChapter(reference, true, planId);
-      toast.success(plans("chapterMarked"));
-    } catch {
-      toast.error(plans("storageFailed"));
+  // Persistent playback announces new assignments without navigating other routes.
+  const onAudioNavigation = useEffectEvent((event: Event): void => {
+    if (!(event instanceof CustomEvent)) return;
+    const parsed = bibleAudioNavigationSchema.safeParse(event.detail);
+    if (!parsed.success) return;
+    const target = parsed.data;
+    if (
+      target.background &&
+      (screen !== "read" ||
+        activePlanDay === null ||
+        target.plan?.planId !== planId)
+    )
       return;
-    }
-    if (!planAutoplay) return;
-    const next = nextPlanAudioChapter(planId, activePlanDay, reference);
-    if (next.kind === "chapter") {
-      openPassage(
-        { ...next.chapter, verse: 1, translation: reference.translation },
-        next.day,
-      );
-      window.scrollTo({ top: 0 });
-    } else if (next.kind === "rest") {
-      setPlanDay(next.day);
-      setScreen("plan");
-      window.history.replaceState(null, "", "/bible");
-      window.scrollTo({ top: 0 });
-      toast.info(t("planAudioRest"));
-    } else {
-      toast.success(t("planAudioFinished"));
-    }
-  }
-
-  /** One browser preference, never an account setting or database mutation. */
-  function togglePlanAutoplay(): void {
-    const next = !planAutoplay;
-    setUnsavedAutoplay(next);
-    try {
-      saveBibleAudioPreferences({ ...audioPreferences, planAutoplay: next });
-      setUnsavedAutoplay(null);
-    } catch {
-      toast.error(t("audioPreferenceFailed"));
-    }
-  }
+    if (target.plan) setPlanId(target.plan.planId);
+    if (!target.background) consumeAudioReturn();
+    openPassage(target.reference, target.plan?.day ?? null);
+    window.scrollTo({ top: 0 });
+  });
+  const onAudioRest = useEffectEvent((event: Event): void => {
+    if (!(event instanceof CustomEvent)) return;
+    const parsed = bibleAudioRestSchema.safeParse(event.detail);
+    if (
+      !parsed.success ||
+      screen !== "read" ||
+      activePlanDay === null ||
+      parsed.data.planId !== planId
+    )
+      return;
+    setPlanDay(parsed.data.day);
+    setScreen("plan");
+    window.history.replaceState(null, "", "/bible");
+    window.scrollTo({ top: 0 });
+  });
+  useEffect(() => {
+    window.addEventListener(BIBLE_AUDIO_NAVIGATE, onAudioNavigation);
+    window.addEventListener(BIBLE_AUDIO_REST, onAudioRest);
+    return () => {
+      window.removeEventListener(BIBLE_AUDIO_NAVIGATE, onAudioNavigation);
+      window.removeEventListener(BIBLE_AUDIO_REST, onAudioRest);
+    };
+  }, []);
 
   return (
     <div className="bible-workspace min-h-dvh bg-background text-foreground">
-      {/* Keep this element across chapter loading boundaries to retain playback permission. */}
-      <audio ref={mediaRef} preload="none" aria-hidden="true" />
       <div className="mx-auto max-w-6xl px-4 pb-[calc(var(--bible-nav-height,5rem)+var(--bible-audio-height,0px)+1.5rem)] sm:px-6">
         <header className="mb-5 flex items-center justify-between gap-3 border-b border-border py-4">
           <div className="flex items-center gap-2">
@@ -422,8 +432,6 @@ export function BibleWorkspace({
           )}
           {screen === "read" && (
             <BibleReader
-              mediaRef={mediaRef}
-              onPrepareAudio={prepareAudio}
               reference={reference}
               tabs={tabs.length ? tabs : [reference]}
               authors={authors}
@@ -431,8 +439,8 @@ export function BibleWorkspace({
                 activePlanDay !== null
                   ? {
                       autoplay: planAutoplay,
-                      onToggle: togglePlanAutoplay,
-                      onEnded: finishPlanAudio,
+                      onToggle: audio.toggleAutoplay,
+                      plan: { planId, day: activePlanDay },
                     }
                   : undefined
               }

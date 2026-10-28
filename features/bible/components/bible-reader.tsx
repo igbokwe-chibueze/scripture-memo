@@ -1,14 +1,7 @@
 "use client";
 
 /** Chapter reader owns loading and annotation state; the provider never controls markup or HTML. */
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  useTransition,
-  type RefObject,
-} from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "@/lib/toast";
 import {
@@ -39,7 +32,9 @@ import {
 } from "../lib/bible-reference";
 import { BiblePassagePicker } from "./bible-passage-picker";
 import { BibleStudyPanel } from "./bible-study-panel";
-import { BibleAudioPlayer } from "./bible-audio-player";
+import { useBibleAudio } from "../hooks/use-bible-audio";
+import type { BibleAudioPlan } from "../types/bible-audio.types";
+import { bibleAudioKey } from "../lib/bible-audio-session";
 import { BibleItemTagsDialog } from "./bible-item-tags-dialog";
 import { BibleSaveConfirmation } from "./bible-save-confirmation";
 import type { BibleReference } from "../schemas/bible.schema";
@@ -54,20 +49,16 @@ export function BibleReader({
   onOpen,
   onCloseTab,
   planPlayback,
-  mediaRef,
-  onPrepareAudio,
 }: {
   reference: BibleReference;
   tabs: BibleReference[];
   authors: { id: string; name: string }[];
   onOpen: (reference: BibleReference) => void;
   onCloseTab: (index: number) => void;
-  mediaRef: RefObject<HTMLAudioElement | null>;
-  onPrepareAudio: () => void;
   planPlayback?: {
     autoplay: boolean;
     onToggle: () => void;
-    onEnded: () => void;
+    plan: BibleAudioPlan;
   };
 }): React.ReactNode {
   const t = useTranslations("Bible");
@@ -103,18 +94,36 @@ export function BibleReader({
   const marks = data?.marks ?? [];
   const [picker, setPicker] = useState(false);
   const [settings, setSettings] = useState(false);
-  const audioKey = `${translation}:${book}:${chapterNumber}:${planPlayback ? "plan" : "reading"}`;
-  const [audioVisibility, setAudioVisibility] = useState<{
-    key: string;
-    open: boolean;
-  } | null>(null);
+  const audio = useBibleAudio();
+  const audioKey = bibleAudioKey(reference, planPlayback?.plan);
   const audioOpen =
-    audioVisibility?.key === audioKey
-      ? audioVisibility.open
-      : Boolean(planPlayback);
-  // Consent lasts for this reader session so consecutive plan chapters can use
-  // BSB without repeated prompts. It is never inferred from a saved preference.
-  const [fallbackAllowed, setFallbackAllowed] = useState(false);
+    audio.current !== null &&
+    bibleAudioKey(audio.current.reference, audio.current.plan) === audioKey &&
+    audio.expanded;
+  const attachReader = audio.attachReader;
+  const openAudioChapter = audio.openChapter;
+  const audioPlanId = planPlayback?.plan.planId;
+  const audioPlanDay = planPlayback?.plan.day;
+  const audioAutoplay = planPlayback?.autoplay ?? false;
+  useEffect(() => attachReader(audioKey), [attachReader, audioKey]);
+  useEffect(() => {
+    if (!chapter || !audioPlanId || audioPlanDay === undefined) return;
+    openAudioChapter({
+      reference: { book, chapter: chapterNumber, verse: 1, translation },
+      audio: chapter.audio,
+      plan: { planId: audioPlanId, day: audioPlanDay },
+      autoStart: audioAutoplay,
+    });
+  }, [
+    chapter,
+    book,
+    chapterNumber,
+    translation,
+    audioPlanId,
+    audioPlanDay,
+    audioAutoplay,
+    openAudioChapter,
+  ]);
   const [fontSize, setFontSize] = useState(21);
   const [shareText, setShareText] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -445,7 +454,7 @@ export function BibleReader({
               }
               audioOpen={audioOpen}
               onToggleAudio={() =>
-                setAudioVisibility({ key: audioKey, open: !audioOpen })
+                audio.toggle(reference, chapter.audio, planPlayback?.plan)
               }
               reference={reference}
               chapter={chapter}
@@ -892,21 +901,6 @@ export function BibleReader({
                   </ResponsiveDialog>
                 </div>
               )}
-            {/* Keep fixed audio outside the sticky desktop study column. */}
-            <BibleAudioPlayer
-              key={audioKey}
-              mediaRef={mediaRef}
-              audio={chapter.audio}
-              reference={reference}
-              open={audioOpen}
-              fallbackAllowed={fallbackAllowed}
-              onAllowFallback={() => {
-                onPrepareAudio();
-                setFallbackAllowed(true);
-              }}
-              onSwitchText={() => onOpen({ ...reference, translation: "BSB" })}
-              planPlayback={planPlayback}
-            />
           </>
         )
       )}

@@ -2625,3 +2625,25 @@ The application is production-ready when:
   no longer an extra player-card row. Its device-only preference is unchanged.
 - Fixed dock margin is explicitly zero so reader spacing cannot leave a gap above
   the navbar. The card remains opaque; verses scroll underneath the joined dock.
+
+### Persistent Bible mini player (2026-10-28)
+
+- The account-keyed protected layout owns one Bible audio session. Playback from
+  Books, Plans or Explore continues during signed-in client-side route navigation.
+  A compact player appears away from its attached chapter, with play/pause, progress,
+  return-to-chapter navigation and explicit dismiss. Dismiss stops and clears it.
+- Returning restores the active recording and position without restarting. Explicit
+  return intent restores plan/day provenance; opening an ordinary matching passage
+  never silently opts into a plan. Minimize within the same reader still pauses.
+- Plan listening continues in the background, recording only its assigned local
+  chapter completion, automatically moving through assignments and stopping at rest
+  days/end. Background changes never force navigation on the page being viewed.
+- Audio URLs, playing position and active session are memory-only. Refresh/logout
+  ends playback. The provider is keyed by opaque account scope so account changes
+  dispose media, pending work and account-specific participation synchronization.
+- Native timeupdate/ended events and resize observers drive UI; there is no polling.
+  Background advancement makes one authenticated audio-only request per next chapter
+  (normally minutes apart), with shared public-provider caching and no private-mark
+  query. There are no queries while merely showing/pausing/seeking the mini player.
+  Existing daily participation batching stays unchanged. The protected layout reuses
+  its request-cached session; no new ordinary-load database query is introduced.

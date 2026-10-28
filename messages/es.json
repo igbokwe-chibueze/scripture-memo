@@ -1639,6 +1639,8 @@
     "audioTapToPlay": "Pulsa Reproducir para continuar el audio.",
     "planAutoplayOn": "Reproducción automática activa",
     "planAutoplay": "Reproducción automática del plan",
+    "returnToPlayingChapter": "Volver al capítulo en reproducción",
+    "dismissAudio": "Cerrar reproductor de audio",
     "planAutoplayOff": "Reproducción automática desactivada",
     "planAudioRest": "Día de descanso. El audio se ha detenido; continúa cuando quieras.",
     "planAudioFinished": "Has llegado al final del audio de este plan.",

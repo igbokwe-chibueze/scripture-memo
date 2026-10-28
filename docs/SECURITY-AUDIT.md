@@ -746,3 +746,19 @@ Accepted risk justification (if applicable):
 - Minimize/unmount invalidates pending play requests and pauses media; minimizing
   retains its position in memory. Autoplay preference remains local. No new
   recurring server query, database migration or hosted test operation is added.
+
+### Persistent Bible audio lifecycle review (2026-10-28)
+
+- The protected layout keys its media provider by a hash of the already-loaded
+  server session identity. Leaving the protected layout/logout stops media; account
+  changes invalidate deferred work before it can affect the next account's UI.
+- Dismissal and explicit recording changes invalidate in-flight audio fetches.
+  Late results cannot resurrect a dismissed player or publish stale navigation.
+  Provider URLs retain the existing validated HTTPS allowlist and CSP.
+- Cross-component navigation events validate canonical references, plan assignment
+  and actual rest days with Zod. Explicit mini return carries plan provenance;
+  unrelated/shared matching references never inherit completion permissions.
+- Background plan progress remains device-only, independent of rewards and other
+  plans. Only the minimal account participation intent uses the existing at-most-
+  daily batching. Audio-only advancement avoids private annotation queries, with
+  no new table, polling, hosted test operation or added session lookup per render.

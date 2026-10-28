@@ -352,6 +352,8 @@ const fr = {
   "audioTapToPlay": "Appuyez sur Lecture pour continuer l'audio.",
   "planAutoplayOn": "Lecture automatique activée",
   "planAutoplay": "Lecture automatique du parcours",
+  "returnToPlayingChapter": "Revenir au chapitre en cours",
+  "dismissAudio": "Fermer le lecteur audio",
   "planAutoplayOff": "Lecture automatique désactivée",
   "planAudioRest": "Jour de repos atteint. L'audio est arrêté ; continuez quand vous le souhaitez.",
   "planAudioFinished": "Vous avez atteint la fin de l'audio de ce parcours.",

@@ -1639,6 +1639,8 @@
     "audioTapToPlay": "Tap Play to continue audio.",
     "planAutoplayOn": "Autoplay on",
     "planAutoplay": "Plan autoplay",
+    "returnToPlayingChapter": "Return to playing chapter",
+    "dismissAudio": "Dismiss audio player",
     "planAutoplayOff": "Autoplay off",
     "planAudioRest": "Rest day reached. Playback has stopped; continue when you are ready.",
     "planAudioFinished": "You have reached the end of this plan's audio.",

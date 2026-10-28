@@ -1,5 +1,5 @@
 /** Explicit local progress edits emit intent only, never a network request.
- * The authenticated workspace subscribes; unit tests/offline previews remain
+ * The persistent authenticated Bible provider subscribes; offline previews remain
  * entirely device-only unless that coordinator is deliberately mounted.
  */
 import type { ReadingPlanParticipationInput } from "../schemas/reading-plan-participation.schema";
