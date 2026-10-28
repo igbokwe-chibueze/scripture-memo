@@ -169,6 +169,100 @@ test("Bible marks are private, idempotent, paginated and preserve concurrent ind
         .marks[0].selection,
       [1, 3, 5],
     );
+    // Tag updates never create saves, leak across owners, or overwrite an
+    // independent annotation. Filtering applies before the UNION pagination.
+    assert.equal(
+      await bibleRepository.setTags(other, { ...reference, tags: ["private"] }),
+      false,
+    );
+    assert.equal(
+      await bibleRepository.setTags(owner, {
+        ...reference,
+        tags: ["faith", "prayer"],
+      }),
+      true,
+    );
+    assert.deepEqual(await bibleRepository.itemTags(owner, reference), [
+      "faith",
+      "prayer",
+    ]);
+    assert.deepEqual(await bibleRepository.itemTags(other, reference), []);
+    await bibleRepository.setPassage(owner, { ...whole, tags: ["faith"] });
+    const tagged = await bibleRepository.saved(owner, {
+      page: 1,
+      filter: "all",
+      tag: "faith",
+    });
+    assert.equal(tagged.marks.length, 2);
+    assert.ok(tagged.marks.every((item) => item.tags?.includes("faith")));
+    assert.equal(
+      (
+        await bibleRepository.saved(owner, {
+          page: 1,
+          filter: "bookmarks",
+          tag: "faith",
+        })
+      ).marks.length,
+      1,
+    );
+    assert.equal(
+      (
+        await bibleRepository.saved(owner, {
+          page: 1,
+          filter: "passages",
+          tag: "faith",
+        })
+      ).marks.length,
+      1,
+    );
+    assert.equal(
+      (
+        await bibleRepository.saved(other, {
+          page: 1,
+          filter: "all",
+          tag: "faith",
+        })
+      ).marks.length,
+      0,
+    );
+    assert.deepEqual(await bibleRepository.tags(owner), ["faith", "prayer"]);
+    assert.deepEqual(await bibleRepository.tags(other), []);
+    // Omitted tags on a repeated save preserve the saved label set.
+    await bibleRepository.setPassage(owner, whole);
+    assert.deepEqual(await bibleRepository.itemTags(owner, whole), ["faith"]);
+    await Promise.all([
+      bibleRepository.setTags(owner, { ...reference, tags: ["hope"] }),
+      bibleRepository.setMark(owner, {
+        ...reference,
+        operation: "highlight",
+        highlight: "gold",
+      }),
+    ]);
+    const changed = (await bibleRepository.chapterMarks(owner, reference)).find(
+      (item) => item.verse === reference.verse,
+    )!;
+    assert.deepEqual(changed.tags, ["hope"]);
+    assert.equal(changed.highlight, "gold");
+    await bibleRepository.setMark(owner, {
+      ...reference,
+      operation: "bookmark",
+      bookmarked: false,
+      tags: ["stale"],
+    });
+    assert.deepEqual(await bibleRepository.itemTags(owner, reference), [
+      "hope",
+    ]);
+    await bibleRepository.setTags(owner, { ...reference, tags: [] });
+    assert.equal(
+      (
+        await bibleRepository.saved(owner, {
+          page: 1,
+          filter: "all",
+          tag: "hope",
+        })
+      ).marks.length,
+      0,
+    );
     await prisma.user.deleteMany({ where: { id: owner } });
     assert.equal(
       await prisma.bibleSavedPassage.count({ where: { userId: owner } }),

@@ -287,11 +287,13 @@ model BibleVerseMark {
   translation TranslationCode
   bookmarked  Boolean         @default(false)
   highlight   String?
+  tags        String[]        @default([])
   updatedAt   DateTime        @updatedAt
   user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, book, chapter, verse, translation])
   @@index([userId, updatedAt(sort: Desc)])
+  @@index([tags], type: Gin)
 }
 
 // Deliberate chapter/selection saves cost one row, independent of verse marks.
@@ -303,11 +305,13 @@ model BibleSavedPassage {
   translation  TranslationCode
   selectionKey String
   verses       Int[]
+  tags         String[] @default([])
   updatedAt    DateTime @updatedAt
   user         User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, book, chapter, translation, selectionKey])
   @@index([userId, updatedAt(sort: Desc)])
+  @@index([tags], type: Gin)
 }
 
 model UserProfile {

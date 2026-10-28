@@ -2,6 +2,26 @@
 import { z } from "zod";
 import { BIBLE_BOOKS } from "../data/bible-catalog";
 
+/** Canonical lowercase tags merge case/spacing variants without HTML or commas.
+ * Limits bound payloads and array indexes; international letters remain valid. */
+export const bibleTagSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(32)
+  .transform((tag) => tag.normalize("NFKC").toLowerCase().replace(/\s+/gu, " "))
+  .pipe(
+    z
+      .string()
+      .min(1)
+      .max(32)
+      .regex(/^[\p{L}\p{N}][\p{L}\p{N} _-]*$/u),
+  );
+export const bibleTagsSchema = z
+  .array(bibleTagSchema)
+  .max(10)
+  .transform((tags) => [...new Set(tags)].sort());
+
 /** Canonical references reject non-existent books, chapters and verse numbers. */
 export const bibleReferenceSchema = z
   .object({
@@ -48,6 +68,7 @@ export const bibleMarkSchema = bibleReferenceSchema
     operation: z.enum(["bookmark", "highlight"]),
     bookmarked: z.boolean().optional(),
     highlight: z.enum(["teal", "gold", "blue"]).nullable().optional(),
+    tags: bibleTagsSchema.optional(),
   })
   .refine((value) =>
     value.operation === "bookmark"
@@ -80,6 +101,7 @@ export const bibleSearchSchema = z.object({
 export const bibleSavedSchema = z.object({
   page: z.number().int().min(1).max(10000).default(1),
   filter: z.enum(["all", "bookmarks", "highlights", "passages"]).default("all"),
+  tag: bibleTagSchema.optional(),
 });
 
 /** Only an explicit, canonical selection can create/remove a grouped save. */
@@ -93,6 +115,12 @@ export const biblePassageSaveSchema = bibleReferenceSchema.safeExtend({
       .transform((verses) => [...new Set(verses)].sort((a, b) => a - b)),
   ]),
   saved: z.boolean(),
+  tags: bibleTagsSchema.optional(),
+});
+
+/** Tag edits address a canonical saved item, never an account or arbitrary ID. */
+export const bibleItemTagsSchema = bibleReferenceSchema.safeExtend({
+  tags: bibleTagsSchema,
 });
 
 /** Shared serializable reference used by reader tabs, links and private marks. */

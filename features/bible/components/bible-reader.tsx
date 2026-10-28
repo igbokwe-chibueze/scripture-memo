@@ -32,6 +32,7 @@ import {
 import { BiblePassagePicker } from "./bible-passage-picker";
 import { BibleStudyPanel } from "./bible-study-panel";
 import { BibleAudioPlayer } from "./bible-audio-player";
+import { BibleItemTagsDialog } from "./bible-item-tags-dialog";
 import type { BibleReference } from "../schemas/bible.schema";
 import { useBibleResource } from "../hooks/use-bible-resource";
 import { pulseBibleSelection } from "../lib/bible-selection-haptic";
@@ -87,6 +88,7 @@ export function BibleReader({
   const [fontSize, setFontSize] = useState(21);
   const [shareText, setShareText] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const [tagTarget, setTagTarget] = useState<BibleReference | null>(null);
   // Opening a chapter supplies a reading position, not permission to expose
   // verse actions. Only a deliberate long press or desktop action opens them.
   const [activeVerse, setActiveVerse] = useState<string | null>(null);
@@ -235,6 +237,7 @@ export function BibleReader({
           const existing = values.find((item) => item.verse === target.verse);
           const updated = {
             ...target,
+            tags: existing?.tags ?? [],
             bookmarked:
               operation === "bookmark"
                 ? bookmarked
@@ -252,7 +255,28 @@ export function BibleReader({
             ],
           };
         });
-        toast.success(t("annotationSaved"));
+        const saving =
+          operation === "bookmark" ? bookmarked : Boolean(highlight);
+        if (saving) {
+          // Release the modal focus trap so the toast action is reachable.
+          setVerseDialog(null);
+          // Saving finishes first. The optional action captures this exact verse,
+          // so later navigation cannot change which item receives its tags.
+          const savedReference = { ...target, selection: undefined };
+          toast.success(
+            t(operation === "bookmark" ? "bookmarkSaved" : "highlightSaved"),
+            {
+              id: "bible-save-feedback",
+              action: {
+                label: t("addTags"),
+                onClick: () => {
+                  setVerseDialog(null);
+                  setTagTarget(savedReference);
+                },
+              },
+            },
+          );
+        } else toast.success(t("annotationSaved"));
       } catch {
         toast.error(t("failed"), { duration: Infinity });
       }
@@ -721,6 +745,21 @@ export function BibleReader({
                           {t("study")}
                         </Button>
                       </div>
+                      {(mark?.bookmarked || mark?.highlight) && (
+                        <Button
+                          variant="outline"
+                          disabled={pending}
+                          onClick={() => {
+                            setVerseDialog(null);
+                            setTagTarget({
+                              ...reference,
+                              selection: undefined,
+                            });
+                          }}
+                        >
+                          {t("editTags")}
+                        </Button>
+                      )}
                       <fieldset
                         disabled={pending}
                         className="flex flex-wrap gap-2"
@@ -815,6 +854,24 @@ export function BibleReader({
           </label>
         </DialogContent>
       </Dialog>
+      <BibleItemTagsDialog
+        reference={tagTarget}
+        onClose={() => setTagTarget(null)}
+        onSaved={(target, tags) => {
+          if (
+            target.book !== reference.book ||
+            target.chapter !== reference.chapter ||
+            target.translation !== reference.translation
+          )
+            return;
+          updateData((resource) => ({
+            ...resource,
+            marks: resource.marks.map((item) =>
+              item.verse === target.verse ? { ...item, tags } : item,
+            ),
+          }));
+        }}
+      />
       <Dialog
         open={shareText !== null}
         onOpenChange={(open) => {

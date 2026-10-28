@@ -12,6 +12,9 @@ import {
   bibleReferenceSchema,
   bibleStudySchema,
   biblePassageSaveSchema,
+  bibleTagsSchema,
+  bibleItemTagsSchema,
+  bibleSavedSchema,
 } from "../schemas/bible.schema";
 
 const reference = {
@@ -20,6 +23,36 @@ const reference = {
   verse: 1,
   translation: "KJV" as const,
 };
+
+test("saved tags normalize international labels and bound all external inputs", () => {
+  assert.deepEqual(
+    bibleTagsSchema.parse([
+      " Faith ",
+      "faith",
+      "  answered   prayer",
+      "Espérance",
+    ]),
+    ["answered prayer", "espérance", "faith"],
+  );
+  assert.equal(bibleTagsSchema.safeParse(["<script>"]).success, false);
+  assert.equal(bibleTagsSchema.safeParse(["a".repeat(33)]).success, false);
+  assert.equal(
+    bibleTagsSchema.safeParse(Array.from({ length: 11 }, (_, i) => `tag${i}`))
+      .success,
+    false,
+  );
+  assert.equal(bibleTagsSchema.safeParse([""]).success, false);
+  assert.equal(bibleSavedSchema.parse({ tag: " Faith " }).tag, "faith");
+  assert.equal(
+    bibleItemTagsSchema.safeParse({ ...reference, chapter: 999, tags: [] })
+      .success,
+    false,
+  );
+  assert.deepEqual(
+    bibleItemTagsSchema.parse({ ...reference, tags: [] }).tags,
+    [],
+  );
+});
 
 test("chapter and arbitrary verse-set links retain canonical selections", () => {
   const selected = biblePassageSaveSchema.parse({

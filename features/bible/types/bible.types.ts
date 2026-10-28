@@ -13,6 +13,7 @@ export type BibleChapter = {
   source: { name: string; website: string; licenseUrl: string };
 };
 export type BibleMark = BibleReference & {
+  tags?: string[];
   bookmarked: boolean;
   highlight: string | null;
 };

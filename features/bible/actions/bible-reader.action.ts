@@ -15,6 +15,7 @@ import {
   bibleSearchSchema,
   bibleStudySchema,
   biblePassageSaveSchema,
+  bibleItemTagsSchema,
 } from "../schemas/bible.schema";
 import { bibleRepository } from "../repositories/bible.repository";
 import {
@@ -157,6 +158,43 @@ export async function readSavedBibleAction(
     async (userId) => {
       if (!parsed.success) throw new Error("Invalid saved filter.");
       return bibleRepository.saved(userId, parsed.data);
+    },
+    "BIB-002",
+  );
+}
+
+/** Explicit tag edits are validated and owner-scoped, with no read-before-write. */
+export async function setBibleItemTagsAction(
+  input: unknown,
+): Promise<ActionResult<null>> {
+  const parsed = bibleItemTagsSchema.safeParse(input);
+  return authorized(
+    parsed.success,
+    async (userId) => {
+      if (!parsed.success) throw new Error("Invalid tags.");
+      if (!(await bibleRepository.setTags(userId, parsed.data)))
+        throw new Error("Saved item no longer exists.");
+      return null;
+    },
+    "BIB-002",
+  );
+}
+
+/** On-demand suggestions only; typing and selecting tags never write. */
+export async function readBibleTagsAction(): Promise<ActionResult<string[]>> {
+  return authorized(true, (userId) => bibleRepository.tags(userId), "BIB-002");
+}
+
+/** Save dialogs read one item's labels; opening a dialog never creates a save. */
+export async function readBibleItemTagsAction(
+  input: unknown,
+): Promise<ActionResult<string[]>> {
+  const parsed = bibleReferenceSchema.safeParse(input);
+  return authorized(
+    parsed.success,
+    async (userId) => {
+      if (!parsed.success) throw new Error("Invalid reference.");
+      return bibleRepository.itemTags(userId, parsed.data);
     },
     "BIB-002",
   );

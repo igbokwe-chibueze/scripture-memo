@@ -1569,6 +1569,22 @@ Reflection space shown after completing Radiance or as a standalone destination.
   parameterized union query and 20-item look-ahead pagination across collections.
   Shared text and links preserve edition and exact selection; links need no
   stored share record. Clipboard/manual-copy fallbacks remain available.
+- Saved uses compact divided rows with reference, annotation details, small tag
+  labels and adjacent 44px icon actions. Removal remains explicitly confirmed.
+  Account-synced tags replace folders/collections: each verse mark or grouped
+  passage supports up to ten normalized labels. Bookmark, highlight and passage
+  saves complete immediately, then offer optional Add tags in their success toast.
+  Tagging never opens automatically or blocks reading. Saved can edit tags later.
+  The common drawer offers selectable chips, explicit Create-name actions and one
+  Save tags button. Bookmark and highlight on the same verse share tags.
+  Tag edits are local drafts until Save; removing one annotation preserves the
+  other and its tags. Type and tag filters combine before 20-item pagination.
+  Tags live on the existing owner-scoped rows with GIN containment indexes.
+  Saved performs one page query plus one bounded tag-vocabulary query on entry;
+  only page/filter changes repeat the page query. Only opening optional tagging
+  reads existing tags and available labels on demand; Saved reuses loaded values.
+  No polling, recurring
+  background reads, read-time writes, per-tag writes or separate tag records.
 - BSB audio offers available narrators, play/pause, seeking, ten-second skips
   in a fixed player dock directly above Bible navigation. Verses scroll beneath
   the opaque dock, with measured bottom clearance for the final verse. The

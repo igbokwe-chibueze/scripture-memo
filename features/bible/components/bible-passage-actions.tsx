@@ -12,6 +12,7 @@ import { LoadingButton } from "@/components/shared/loading-button";
 import { ResponsiveDialog } from "@/components/shared/responsive-dialog";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { setBiblePassageAction } from "../actions/bible-reader.action";
+import { BibleItemTagsDialog } from "./bible-item-tags-dialog";
 import { bibleReferenceUrl, bibleSelectionLabel } from "../lib/bible-reference";
 import type { BibleChapter } from "../types/bible.types";
 import type { BibleReference } from "../schemas/bible.schema";
@@ -44,6 +45,7 @@ export function BiblePassageActions({
   const [shareTarget, setShareTarget] = useState<BibleReference | null>(null);
   const [manualText, setManualText] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const [tagTarget, setTagTarget] = useState<BibleReference | null>(null);
   const whole: BibleReference = {
     ...reference,
     verse: 1,
@@ -58,12 +60,18 @@ export function BiblePassageActions({
   function save(target: BibleReference): void {
     startTransition(async () => {
       try {
-        const result = await setBiblePassageAction({ ...target, saved: true });
+        const result = await setBiblePassageAction({
+          ...target,
+          saved: true,
+        });
         if (!result.success) {
           showActionError(result);
           return;
         }
-        toast.success(t("passageSaved"));
+        toast.success(t("passageSaved"), {
+          id: "bible-save-feedback",
+          action: { label: t("addTags"), onClick: () => setTagTarget(target) },
+        });
         setMenu(false);
         // Only completed selection actions dismiss the selection card; failures
         // retain the chosen verses so the player can retry without reselecting.
@@ -156,7 +164,10 @@ export function BiblePassageActions({
                 className="h-auto min-h-11 min-w-0 whitespace-normal px-2 py-2 leading-tight"
                 isPending={pending}
                 pendingLabel={t("saving")}
-                onClick={() => save(whole)}
+                onClick={() => {
+                  setMenu(false);
+                  save(whole);
+                }}
               >
                 {t("saveChapter")}
               </LoadingButton>
@@ -197,7 +208,9 @@ export function BiblePassageActions({
               isPending={pending}
               pendingLabel={t("saving")}
               disabled={!chosen.length}
-              onClick={() => save(selection)}
+              onClick={() => {
+                save(selection);
+              }}
             >
               {t("saveSelection")}
             </LoadingButton>
@@ -214,6 +227,10 @@ export function BiblePassageActions({
           </div>
         </div>
       )}
+      <BibleItemTagsDialog
+        reference={tagTarget}
+        onClose={() => setTagTarget(null)}
+      />
       <Dialog
         open={shareTarget !== null}
         onOpenChange={(open) => {

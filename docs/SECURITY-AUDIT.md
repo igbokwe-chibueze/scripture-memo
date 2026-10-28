@@ -708,3 +708,12 @@ Accepted risk justification (if applicable):
   concurrent bookmark/highlight preservation, clears, pagination and cascade
   deletion. Provider tests cover nullable fields, unsafe audio URL rejection,
   missing entries and shared-index single-flight/literal search semantics.
+- Saved tags use bounded Zod-normalized Unicode label arrays (ten labels of up
+  to 32 characters), owner-derived canonical item keys, and parameterized SQL
+  containment predicates applied before pagination. Tag updates use updateMany
+  and cannot create missing saves or modify another account. Suggestions select
+  only the owner's active annotations/passages, capped at 200 distinct labels.
+  Removing annotations preserves remaining tags; omitted tags preserve concurrent
+  independent changes. Disposable tests cover ownership, filtering, clears,
+  idempotent re-saves and concurrent tag/highlight updates. The additive migration
+  preserves existing saves and adds array indexes. No hosted DB used for testing.
